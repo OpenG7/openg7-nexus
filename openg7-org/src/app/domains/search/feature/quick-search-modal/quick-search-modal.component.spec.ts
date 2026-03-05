@@ -299,6 +299,66 @@ describe('QuickSearchModalComponent', () => {
     expect(lastRequest?.query).toBe('PATATE');
   });
 
+  it('exposes autocomplete suggestions from history and result items', () => {
+    history.setEntries([
+      {
+        id: 'history-energy',
+        label: 'Energy corridor',
+        visitedAt: new Date().toISOString(),
+      },
+      {
+        id: 'history-enbridge',
+        label: 'Enbridge pipeline',
+        visitedAt: new Date().toISOString(),
+      },
+    ]);
+    component.sections.set([
+      {
+        id: 'companies',
+        title: 'Companies',
+        items: [
+          { id: 'company-1', title: 'Enbridge Inc.' },
+          { id: 'company-2', title: 'Magna International' },
+        ],
+      },
+    ]);
+    component.queryControl.setValue('en');
+    fixture.detectChanges();
+
+    expect(component.autocompleteSuggestions()).toEqual([
+      'Energy corridor',
+      'Enbridge pipeline',
+      'Enbridge Inc.',
+    ]);
+  });
+
+  it('applies an autocomplete suggestion from the quick-search input', () => {
+    history.setEntries([
+      {
+        id: 'history-enbridge',
+        label: 'Enbridge Inc.',
+        visitedAt: new Date().toISOString(),
+      },
+    ]);
+    component.queryControl.setValue('en');
+    fixture.detectChanges();
+    analytics.emit.calls.reset();
+
+    const suggestionButton = host.querySelector<HTMLButtonElement>('[data-og7-id="quick-search-autocomplete-option-0"]');
+    expect(suggestionButton).withContext('autocomplete suggestion should be rendered').not.toBeNull();
+
+    suggestionButton?.click();
+    fixture.detectChanges();
+
+    expect(component.query()).toBe('Enbridge Inc.');
+    expect(component.queryControl.value).toBe('Enbridge Inc.');
+    expect(searchService.searchCalls.at(-1)?.query).toBe('Enbridge Inc.');
+    expect(analytics.emit).toHaveBeenCalledWith(
+      'search_autocomplete_selected',
+      jasmine.objectContaining({ query: 'en', suggestion: 'Enbridge Inc.' }),
+    );
+  });
+
   it('closes the modal when the close button is clicked', () => {
     modalRef.close.calls.reset();
     const button = host.querySelector<HTMLButtonElement>('[data-og7-id="quick-search-close"]');
