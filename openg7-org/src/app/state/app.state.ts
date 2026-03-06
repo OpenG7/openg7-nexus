@@ -1,4 +1,5 @@
 import { ConnectionsState } from '@app/store/connections/connections.reducer';
+import { CompanyImportBulkState } from '@app/store/company-import-bulk/company-import-bulk.reducer';
 import { StatisticsState } from '@app/store/statistics/statistics.reducer';
 
 import { AuthState } from './auth/auth.selectors';
@@ -11,6 +12,7 @@ export interface AppState {
   user: UserState;
   catalog: CatalogState;
   map: MapState;
+  companyImportBulk: CompanyImportBulkState;
   connections: ConnectionsState;
   statistics: StatisticsState;
 }

@@ -3644,6 +3644,54 @@
       "unknownError": "Unknown error",
       "fileReadError": "Unable to read file \"{{ fileName }}\"."
     }
+  },
+  "importCompaniesBulkPage": {
+    "title": "Asynchronous company bulk import",
+    "subtitle": "Create an asynchronous import job from CSV/JSONL file or JSON payload and track progress in real time.",
+    "fields": {
+      "mode": "Execution mode",
+      "dryRun": "Dry run (no write)",
+      "file": "Upload file (.csv, .jsonl)",
+      "jsonFallback": "JSON payload fallback"
+    },
+    "modes": {
+      "upsert": "Upsert",
+      "validateOnly": "Validate only"
+    },
+    "fileHint": "If a file is selected it is prioritized over the JSON payload below.",
+    "jsonPlaceholder": "Paste a JSON array of companies here…",
+    "selectedFile": "Selected file: {{ file }}",
+    "actions": {
+      "start": "Start async import",
+      "starting": "Starting…",
+      "cancel": "Cancel job",
+      "cancelling": "Cancelling…",
+      "reset": "Reset"
+    },
+    "states": {
+      "queued": "Queued",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "progress": {
+      "title": "Job progress",
+      "phase": "Current phase: {{ phase }}",
+      "total": "Total rows",
+      "processed": "Processed",
+      "ok": "Successful",
+      "failed": "Failed"
+    },
+    "errors": {
+      "title": "Latest row errors"
+    },
+    "report": {
+      "title": "Final report",
+      "summary": "{{ processed }} row(s) processed — {{ ok }} successful — {{ failed }} failed.",
+      "downloadCsv": "Download CSV errors",
+      "downloadJson": "Download JSON errors"
+    }
   }
 }
 

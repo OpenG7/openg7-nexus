@@ -3558,6 +3558,54 @@
       "unknownError": "Erreur inconnue",
       "fileReadError": "Impossible de lire le fichier « {{ fileName }} »."
     }
+  },
+  "importCompaniesBulkPage": {
+    "title": "Importation asynchrone en lot des entreprises",
+    "subtitle": "Créez un job d’import asynchrone à partir d’un fichier CSV/JSONL ou d’un payload JSON et suivez la progression en temps réel.",
+    "fields": {
+      "mode": "Mode d’exécution",
+      "dryRun": "Simulation (aucune écriture)",
+      "file": "Téléverser un fichier (.csv, .jsonl)",
+      "jsonFallback": "Payload JSON de secours"
+    },
+    "modes": {
+      "upsert": "Upsert",
+      "validateOnly": "Validation uniquement"
+    },
+    "fileHint": "Si un fichier est sélectionné, il est prioritaire sur le payload JSON ci-dessous.",
+    "jsonPlaceholder": "Collez ici un tableau JSON d’entreprises…",
+    "selectedFile": "Fichier sélectionné : {{ file }}",
+    "actions": {
+      "start": "Démarrer l’import asynchrone",
+      "starting": "Démarrage…",
+      "cancel": "Annuler le job",
+      "cancelling": "Annulation…",
+      "reset": "Réinitialiser"
+    },
+    "states": {
+      "queued": "En file",
+      "running": "En cours",
+      "completed": "Terminé",
+      "failed": "Échec",
+      "cancelled": "Annulé"
+    },
+    "progress": {
+      "title": "Progression du job",
+      "phase": "Phase courante : {{ phase }}",
+      "total": "Lignes totales",
+      "processed": "Traitées",
+      "ok": "Réussies",
+      "failed": "Échouées"
+    },
+    "errors": {
+      "title": "Dernières erreurs de lignes"
+    },
+    "report": {
+      "title": "Rapport final",
+      "summary": "{{ processed }} ligne(s) traitée(s) — {{ ok }} réussie(s) — {{ failed }} en échec.",
+      "downloadCsv": "Télécharger les erreurs CSV",
+      "downloadJson": "Télécharger les erreurs JSON"
+    }
   }
 }
 
