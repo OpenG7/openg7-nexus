@@ -1,0 +1,129 @@
+<section
+  class="mt-4 rounded-2xl border border-cyan-200/15 bg-slate-900/60 p-4"
+  data-og7="strategic-sectors-map-panel"
+>
+  <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+    <div
+      class="relative min-h-[260px] overflow-hidden rounded-xl border border-cyan-200/20 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(96,165,250,0.18),transparent_50%),linear-gradient(120deg,rgba(15,23,42,0.88),rgba(15,23,42,0.7))] lg:min-h-[320px]"
+    >
+      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(180deg,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:56px_56px]"></div>
+      <svg
+        viewBox="0 0 900 380"
+        class="absolute inset-0 h-full w-full opacity-80"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient id="og7StrategicRoute" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.2"></stop>
+            <stop offset="45%" stop-color="#38bdf8" stop-opacity="0.9"></stop>
+            <stop offset="100%" stop-color="#fde68a" stop-opacity="0.9"></stop>
+          </linearGradient>
+        </defs>
+        <path
+          d="M80 290 C220 180 320 240 480 170 C620 105 740 170 860 105"
+          fill="none"
+          stroke="url(#og7StrategicRoute)"
+          stroke-width="3"
+        ></path>
+        <path
+          d="M80 310 C250 230 360 310 500 240 C640 170 740 240 860 170"
+          fill="none"
+          stroke="rgba(125,211,252,0.45)"
+          stroke-width="2"
+        ></path>
+        <path
+          d="M90 120 C210 70 370 80 520 118 C660 150 770 120 860 90"
+          fill="none"
+          stroke="rgba(148,163,184,0.36)"
+          stroke-width="1.5"
+        ></path>
+        <circle cx="82" cy="292" r="6" fill="#38bdf8"></circle>
+        <circle cx="482" cy="171" r="7" fill="#67e8f9"></circle>
+        <circle cx="858" cy="104" r="6" fill="#fcd34d"></circle>
+      </svg>
+
+      <div class="relative flex h-full flex-col justify-between p-4">
+        <div class="max-w-lg rounded-xl border border-cyan-200/15 bg-slate-950/45 px-3 py-2">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100/75">
+            {{ 'pages.strategicSectors.mapPlaceholder.title' | translate }}
+          </p>
+          <p class="mt-1 text-sm text-slate-200">
+            {{ 'pages.strategicSectors.mapPlaceholder.body' | translate }}
+          </p>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-2 self-end text-[11px]">
+          <span class="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-2.5 py-1 text-cyan-50">
+            {{ 'sectors.energy' | translate }}
+          </span>
+          <span class="rounded-full border border-amber-200/35 bg-amber-300/10 px-2.5 py-1 text-amber-100">
+            {{ 'sectors.manufacturing' | translate }}
+          </span>
+          <span class="rounded-full border border-emerald-200/35 bg-emerald-300/10 px-2.5 py-1 text-emerald-100">
+            {{ 'sectors.services' | translate }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100/75">
+        {{ 'pages.strategicSectors.corridors.title' | translate }}
+      </p>
+      @for (corridor of corridors(); track corridor.id) {
+        <article class="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2.5 transition hover:border-cyan-200/30 hover:bg-cyan-100/[0.06]">
+          <p class="text-sm font-semibold text-white">
+            {{ corridor.routeKey | translate }}
+          </p>
+          <div class="mt-1 flex items-center justify-between gap-3">
+            <span class="text-xs text-slate-300">{{ corridor.capacity }}</span>
+            <span
+              class="rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em]"
+              [ngClass]="corridorRiskClass(corridor.risk)"
+            >
+              {{ ('pages.strategicSectors.corridors.risk.' + corridor.risk) | translate }}
+            </span>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+
+  <div class="mt-4 overflow-hidden rounded-xl border border-white/10 bg-slate-950/45">
+    <div
+      class="hidden grid-cols-[minmax(0,1fr)_120px_90px_120px] gap-2 border-b border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300 sm:grid"
+    >
+      <span>{{ 'pages.strategicSectors.corridors.table.route' | translate }}</span>
+      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.capacity' | translate }}</span>
+      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.risk' | translate }}</span>
+      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.action' | translate }}</span>
+    </div>
+
+    <ul class="divide-y divide-white/10">
+      @for (corridor of corridors(); track corridor.id) {
+        <li class="grid grid-cols-1 gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_120px_90px_120px] sm:items-center">
+          <p class="text-sm font-medium text-slate-100">{{ corridor.routeKey | translate }}</p>
+          <p class="text-sm text-cyan-100/85 sm:text-right">{{ corridor.capacity }}</p>
+          <div class="sm:text-right">
+            <span
+              class="rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em]"
+              [ngClass]="corridorRiskClass(corridor.risk)"
+            >
+              {{ ('pages.strategicSectors.corridors.risk.' + corridor.risk) | translate }}
+            </span>
+          </div>
+          <div class="sm:text-right">
+            <button
+              type="button"
+              class="rounded-full border border-cyan-200/35 bg-cyan-300/15 px-3 py-1 text-[11px] font-semibold text-cyan-50 transition hover:bg-cyan-300/25"
+              [attr.aria-label]="('pages.strategicSectors.corridors.table.connect' | translate) + ' ' + (corridor.routeKey | translate)"
+            >
+              {{ 'pages.strategicSectors.corridors.table.connect' | translate }}
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

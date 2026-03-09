@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.strategic-sectors-page::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 12% 16%, rgba(224, 242, 254, 0.28) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 24%, rgba(125, 211, 252, 0.22) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 62%, rgba(191, 219, 254, 0.22) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 72%, rgba(147, 197, 253, 0.18) 0 1px, transparent 2px);
+  background-size: 320px 320px, 420px 420px, 520px 520px, 660px 660px;
+  opacity: 0.8;
+}
+
+.strategic-sectors-page::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  left: -20%;
+  right: -10%;
+  top: 38%;
+  height: 420px;
+  background:
+    radial-gradient(120% 75% at 70% 50%, rgba(56, 189, 248, 0.22), transparent 62%),
+    radial-gradient(130% 70% at 32% 56%, rgba(59, 130, 246, 0.15), transparent 68%);
+  filter: blur(24px);
+}
+
+.og7-sectors-command {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.og7-sectors-command::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(108deg, rgba(125, 211, 252, 0.08), transparent 45%),
+    linear-gradient(290deg, rgba(96, 165, 250, 0.1), transparent 45%);
+}
+
+@media (max-width: 767px) {
+  .strategic-sectors-page::after {
+    top: 34%;
+    left: -40%;
+    right: -30%;
+    height: 320px;
+    opacity: 0.7;
+  }
+
+  .og7-sectors-command {
+    padding: 0.6rem;
+  }
+}

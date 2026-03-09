@@ -1,0 +1,53 @@
+<aside
+  class="rounded-3xl border border-cyan-200/10 bg-slate-950/55 p-4 shadow-[0_24px_70px_-44px_rgba(14,165,233,0.4)]"
+  data-og7="strategic-sectors-filters"
+>
+  <div class="mb-3 flex items-center justify-between gap-2">
+    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-100/85">
+      {{ 'pages.strategicSectors.filters.title' | translate }}
+    </p>
+    @if (activeFilterCount() > 0) {
+      <span class="rounded-full border border-cyan-200/35 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-50">
+        {{ activeFilterCount() }}
+      </span>
+    }
+  </div>
+
+  <div class="space-y-2.5">
+    @for (filterKey of filterKeys(); track filterKey) {
+      <div class="space-y-1.5">
+        <label class="block px-1 text-[11px] uppercase tracking-[0.15em] text-cyan-100/70">
+          {{ ('pages.strategicSectors.filters.' + filterKey) | translate }}
+        </label>
+        <select
+          class="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-slate-200 outline-none transition hover:border-cyan-200/30 focus:border-cyan-200/30"
+          [value]="values()[filterKey]"
+          (change)="emitFilterChange(filterKey, $any($event.target).value)"
+        >
+          @for (option of optionsByKey()[filterKey]; track option.value) {
+            <option [value]="option.value">
+              {{ option.labelKey | translate }}
+            </option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <div class="mt-4 flex gap-2">
+    <button
+      type="button"
+      class="flex-1 rounded-full border border-white/15 bg-white/[0.05] px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200"
+      (click)="resetFilters.emit()"
+    >
+      {{ 'pages.strategicSectors.filters.reset' | translate }}
+    </button>
+    <button
+      type="button"
+      class="flex-1 rounded-full border border-cyan-200/35 bg-cyan-300/20 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-50"
+      (click)="applyFilters.emit()"
+    >
+      {{ 'pages.strategicSectors.filters.apply' | translate }}
+    </button>
+  </div>
+</aside>
