@@ -3,19 +3,22 @@
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(15, 118, 110, 0.08), rgba(20, 184, 166, 0.12));
-  border: 1px solid rgba(15, 118, 110, 0.2);
+  background:
+    linear-gradient(145deg, rgba(34, 211, 238, 0.08), rgba(14, 165, 233, 0.15)),
+    var(--og7-feed-surface, rgba(8, 20, 56, 0.82));
+  border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
 }
 
 .feed-composer__header h2 {
   margin: 0 0 0.35rem;
   font-size: 1.25rem;
   font-weight: 600;
+  color: var(--og7-feed-text-strong, #f8fafc);
 }
 
 .feed-composer__header p {
   margin: 0;
-  color: rgba(15, 23, 42, 0.7);
+  color: var(--og7-feed-text-muted, #93c5fd);
   font-size: 0.9rem;
 }
 
@@ -37,17 +40,18 @@
 
 .feed-composer__field label {
   font-size: 0.85rem;
-  color: #475569;
+  color: var(--og7-feed-text-muted, #93c5fd);
 }
 
 .feed-composer__field input,
 .feed-composer__field select,
 .feed-composer__field textarea {
   border-radius: 0.75rem;
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
   padding: 0.65rem 0.8rem;
   font-size: 0.95rem;
-  background: #fff;
+  color: var(--og7-feed-text, #e2e8f0);
+  background: rgba(2, 11, 34, 0.85);
 }
 
 .feed-composer__field textarea {
@@ -58,7 +62,7 @@
 .feed-composer__field input:focus,
 .feed-composer__field select:focus,
 .feed-composer__field textarea:focus {
-  outline: 2px solid #0f766e;
+  outline: 2px solid var(--og7-feed-accent, #22d3ee);
   outline-offset: 2px;
 }
 
@@ -70,11 +74,11 @@
 }
 
 .feed-composer__errors {
-  color: #b91c1c;
+  color: var(--og7-feed-danger-text, #fecaca);
 }
 
 .feed-composer__warnings {
-  color: #b45309;
+  color: var(--og7-feed-warning-text, #fde68a);
 }
 
 .feed-composer__footer {
@@ -85,7 +89,7 @@
 
 .feed-composer__submit,
 .feed-composer__clear {
-  border: none;
+  border: 1px solid var(--og7-feed-border-strong, rgba(125, 211, 252, 0.38));
   border-radius: 0.75rem;
   padding: 0.6rem 1.4rem;
   font-weight: 600;
@@ -93,8 +97,8 @@
 }
 
 .feed-composer__submit {
-  background: #0f766e;
-  color: #fff;
+  background: linear-gradient(120deg, rgba(34, 211, 238, 0.35), rgba(59, 130, 246, 0.35));
+  color: var(--og7-feed-text-strong, #f8fafc);
 }
 
 .feed-composer__submit:disabled {
@@ -103,8 +107,8 @@
 }
 
 .feed-composer__clear {
-  background: transparent;
-  color: #0f172a;
+  background: rgba(8, 25, 64, 0.9);
+  color: var(--og7-feed-text-strong, #f8fafc);
 }
 
 @media (max-width: 720px) {
