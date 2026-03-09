@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -82,12 +83,19 @@ describe('FeedOpportunityDetailPage', () => {
   let store: StoreMock;
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let authState: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    authState = signal(true);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
+    router.getCurrentNavigation.and.returnValue(null);
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => '/feed/opportunities/opportunity-300mw',
+    });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'opportunity-300mw' }));
     const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
@@ -106,6 +114,12 @@ describe('FeedOpportunityDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: authState.asReadonly(),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
       ],
     })
       .overrideComponent(FeedOpportunityDetailPage, {
@@ -149,6 +163,27 @@ describe('FeedOpportunityDetailPage', () => {
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 320, unit: 'MW' });
     expect(component.offerSubmitState()).toBe('success');
+  });
+
+  it('redirects anonymous users to login instead of opening the offer drawer', async () => {
+    authState.set(false);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      offerDrawerOpen: () => boolean;
+      openOfferDrawer: () => void;
+    };
+
+    component.openOfferDrawer();
+
+    expect(component.offerDrawerOpen()).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/feed/opportunities/opportunity-300mw' },
+    });
+    expect(feed.publishDraft).not.toHaveBeenCalled();
   });
 
   it('toggles saved state when save action is triggered', async () => {

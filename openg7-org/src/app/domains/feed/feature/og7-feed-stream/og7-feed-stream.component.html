@@ -16,25 +16,6 @@
     <button type="button" (click)="handleRefresh()">{{ 'feed.stream.onboardingAction' | translate }}</button>
   </div>
 
-  <ng-container *ngIf="isAuthenticated(); else composerAuthGate">
-    <og7-feed-composer data-og7="feed-composer"></og7-feed-composer>
-  </ng-container>
-  <ng-template #composerAuthGate>
-    <section class="feed-stream__composer-auth-gate" data-og7="feed-composer-auth-gate" role="note">
-      <h2>{{ 'feed.composer.authRequired.title' | translate }}</h2>
-      <p>{{ 'feed.composer.authRequired.description' | translate }}</p>
-      <a
-        class="feed-stream__composer-auth-link"
-        [routerLink]="['/login']"
-        [queryParams]="{ redirect: '/feed' }"
-        data-og7="action"
-        data-og7-id="feed-login-to-publish"
-      >
-        {{ 'feed.composer.authRequired.cta' | translate }}
-      </a>
-    </section>
-  </ng-template>
-
   <div class="feed-stream__filters">
     <div class="feed-stream__filter">
       <label for="feed-search">{{ 'feed.filters.search' | translate }}</label>

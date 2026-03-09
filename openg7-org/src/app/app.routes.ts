@@ -165,7 +165,6 @@ export const routes: Routes = [
   },
   {
     path: 'feed',
-    canMatch: [authGuard],
     loadChildren: () => import('./domains/feed/feature/feed.routes').then(m => m.routes),
   },
   {

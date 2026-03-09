@@ -1,3 +1,4 @@
+import { authGuard } from './core/auth/auth.guard';
 import { routes } from './app.routes';
 
 describe('app routes', () => {
@@ -14,5 +15,12 @@ describe('app routes', () => {
 
     const component = await route!.loadComponent!();
     expect((component as { name?: string })?.name).toBe('StrategicSectorsPage');
+  });
+
+  it('exposes /feed without auth guard so browsing stays public', () => {
+    const route = routes.find((entry) => entry.path === 'feed');
+
+    expect(route).toBeDefined();
+    expect(route?.canMatch ?? []).not.toContain(authGuard);
   });
 });

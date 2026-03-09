@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -52,6 +53,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 export class FeedOpportunityDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
@@ -250,6 +252,10 @@ export class FeedOpportunityDetailPage {
   }
 
   protected openOfferDrawer(): void {
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
+      return;
+    }
     this.resetOfferSubmitState();
     this.offerDrawerOpen.set(true);
   }
@@ -364,6 +370,11 @@ export class FeedOpportunityDetailPage {
   private async submitOfferPayload(payload: OpportunityOfferPayload): Promise<void> {
     const detail = this.detailVm();
     if (!detail || this.offerSubmitState() === 'submitting') {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
       return;
     }
 
@@ -727,6 +738,22 @@ export class FeedOpportunityDetailPage {
   private getShareUrl(): string {
     if (typeof window !== 'undefined' && window.location?.href) {
       return window.location.href;
+    }
+    const id = this.itemId() ?? 'unknown';
+    return `/feed/opportunities/${id}`;
+  }
+
+  private redirectToLogin(): void {
+    void this.router.navigate(['/login'], {
+      queryParams: { redirect: this.currentInternalUrl() },
+    });
+  }
+
+  private currentInternalUrl(): string {
+    const navigation = this.router.getCurrentNavigation();
+    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    if (typeof url === 'string' && url.trim().length > 0) {
+      return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/opportunities/${id}`;
