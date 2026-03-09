@@ -2,6 +2,10 @@ import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
 
 import {
+  registerCompanyImportBulkStreamClient,
+  unregisterCompanyImportBulkStreamClient,
+} from '../services/company-import-bulk-events';
+import {
   cancelCompanyImportBulkJob,
   enqueueCompanyImportBulkJob,
   extractCompaniesArray,
@@ -11,10 +15,6 @@ import {
   getCompanyImportBulkReport,
   parseBulkImportHeadersAndOptions,
 } from '../services/company-import-bulk-jobs';
-import {
-  registerCompanyImportBulkStreamClient,
-  unregisterCompanyImportBulkStreamClient,
-} from '../services/company-import-bulk-events';
 
 function normalizeUserId(ctx: Context): string | null {
   const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as
@@ -49,7 +49,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     });
 
     let companies: unknown[] | null = null;
-    let uploadedFile = extractUploadedFile((ctx.request as any).files);
+    const uploadedFile = extractUploadedFile((ctx.request as any).files);
     try {
       companies = extractCompaniesArray(ctx.request.body);
     } catch (error: unknown) {

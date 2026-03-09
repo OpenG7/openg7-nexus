@@ -1,11 +1,11 @@
-import { createReducer, on } from '@ngrx/store';
-
 import {
   CompaniesBulkImportErrorEntry,
   CompaniesBulkImportReportResponse,
   CompaniesBulkImportStartResponse,
   CompaniesBulkImportStatusResponse,
 } from '@app/import/data-access/companies-bulk-import.service';
+import { createReducer, on } from '@ngrx/store';
+
 
 import { CompanyImportBulkActions } from './company-import-bulk.actions';
 

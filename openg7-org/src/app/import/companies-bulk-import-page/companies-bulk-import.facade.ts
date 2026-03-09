@@ -3,11 +3,6 @@ import { DestroyRef, Injectable, NgZone, PLATFORM_ID, inject } from '@angular/co
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 
-import {
-  CompaniesBulkImportMode,
-  CompaniesBulkImportService,
-  CompaniesBulkImportStartResponse,
-} from '../data-access/companies-bulk-import.service';
 import { CompanyImportBulkActions } from '../../store/company-import-bulk/company-import-bulk.actions';
 import {
   selectCompanyImportBulkCancelling,
@@ -20,6 +15,11 @@ import {
   selectCompanyImportBulkStreamConnected,
   selectCompanyImportBulkSubmitting,
 } from '../../store/company-import-bulk/company-import-bulk.selectors';
+import {
+  CompaniesBulkImportMode,
+  CompaniesBulkImportService,
+  CompaniesBulkImportStartResponse,
+} from '../data-access/companies-bulk-import.service';
 
 @Injectable()
 export class CompaniesBulkImportFacade {

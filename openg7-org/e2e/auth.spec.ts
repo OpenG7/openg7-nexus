@@ -1,5 +1,6 @@
 import './setup';
 import { test, expect } from '@playwright/test';
+
 import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test('login page renders', async ({ page }) => {

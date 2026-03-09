@@ -1,11 +1,11 @@
-import { createActionGroup, emptyProps, props } from '@ngrx/store';
-
 import {
   CompaniesBulkImportErrorEntry,
   CompaniesBulkImportReportResponse,
   CompaniesBulkImportStartResponse,
   CompaniesBulkImportStatusResponse,
 } from '@app/import/data-access/companies-bulk-import.service';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
+
 
 export const CompanyImportBulkActions = createActionGroup({
   source: 'Company Import Bulk',

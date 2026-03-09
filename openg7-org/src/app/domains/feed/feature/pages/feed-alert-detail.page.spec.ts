@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+
 import { FeedAlertDetailPage } from './feed-alert-detail.page';
 
 class FeedRealtimeServiceMock {

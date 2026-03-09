@@ -1,5 +1,5 @@
-import { ConnectionsState } from '@app/store/connections/connections.reducer';
 import { CompanyImportBulkState } from '@app/store/company-import-bulk/company-import-bulk.reducer';
+import { ConnectionsState } from '@app/store/connections/connections.reducer';
 import { StatisticsState } from '@app/store/statistics/statistics.reducer';
 
 import { AuthState } from './auth/auth.selectors';

@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,12 +10,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { StrategicSectorCardComponent } from '../components/strategic-sectors/strategic-sector-card.component';
 import { StrategicSectorsFilterRailComponent } from '../components/strategic-sectors/strategic-sectors-filter-rail.component';
 import { StrategicSectorsMapPanelComponent } from '../components/strategic-sectors/strategic-sectors-map-panel.component';
+
 import {
   CORRIDOR_ITEMS,
   DEFAULT_FILTER_VALUES,

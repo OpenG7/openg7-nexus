@@ -1,6 +1,6 @@
+import { ensureCompanyImportBulkWorkerRunning } from './api/company-import/services/company-import-bulk-jobs';
 import runSeeds from './seed';
 import { getSeedFailureStrategy, isAutoSeedEnabled, isDevOrIntegrationEnv } from './utils/seed-helpers';
-import { ensureCompanyImportBulkWorkerRunning } from './api/company-import/services/company-import-bulk-jobs';
 
 export default async ({ strapi }: { strapi: any }) => {
   ensureCompanyImportBulkWorkerRunning(strapi);

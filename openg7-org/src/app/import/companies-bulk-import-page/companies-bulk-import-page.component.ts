@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { CompaniesBulkImportMode } from '../data-access/companies-bulk-import.service';
+
 import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
 
 @Component({

@@ -1,5 +1,6 @@
 import './setup';
 import { expect, test } from '@playwright/test';
+
 import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test.describe('Feed alert detail', () => {
