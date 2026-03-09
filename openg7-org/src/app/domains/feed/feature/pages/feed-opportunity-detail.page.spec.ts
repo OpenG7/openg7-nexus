@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+
 import { FeedOpportunityDetailPage } from './feed-opportunity-detail.page';
 
 class FeedRealtimeServiceMock {

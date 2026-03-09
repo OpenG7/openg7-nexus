@@ -8,7 +8,6 @@
       <img src="/assets/dragon-transparent-clean.png" alt="OpenG7" class="" />
       <span class="hidden text-sm font-semibold tracking-wide text-white/90 sm:inline">OpenG7</span>
     </a>
-
     <div class="mx-auto hidden max-w-xl flex-1 sm:flex">
       <div class="relative w-full">
         <span id="desktop-search-label" class="sr-only">{{ 'header.search.aria' | translate }}</span>
@@ -19,6 +18,7 @@
           data-og7-id="spotlight-trigger"
           class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-left text-sm text-white/70 outline-none transition focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/30"
           (click)="toggleSearch(true)"
+          (keydown.enter)="$event.preventDefault(); toggleSearch(true)"
           aria-haspopup="dialog"
           [attr.aria-expanded]="isSearchOpen()"
           aria-controls="quick-search-modal"
@@ -318,6 +318,7 @@
       data-og7-id="spotlight-trigger"
       class="mb-3 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-left text-sm text-white/70 outline-none focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/30"
       (click)="toggleSearch(true)"
+      (keydown.enter)="$event.preventDefault(); toggleSearch(true)"
       aria-haspopup="dialog"
       [attr.aria-expanded]="isSearchOpen()"
       aria-controls="quick-search-modal"

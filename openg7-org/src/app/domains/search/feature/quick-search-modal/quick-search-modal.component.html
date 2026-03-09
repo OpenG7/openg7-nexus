@@ -35,7 +35,7 @@
         type="search"
         [formControl]="queryControl"
         class="w-full bg-transparent text-base text-title outline-none placeholder:text-subtle"
-        autocomplete="off"
+        autocomplete="on"
         [attr.aria-activedescendant]="flatResults().length ? optionId(activeIndex()) : null"
         [attr.aria-controls]="'quick-search-results'"
         [attr.aria-expanded]="flatResults().length > 0"
@@ -71,6 +71,22 @@
     >
       {{ statusKey | translate }}
     </p>
+    <div
+      *ngIf="autocompleteSuggestions().length"
+      class="flex flex-wrap items-center gap-2"
+      data-og7="search-autocomplete"
+      data-og7-id="quick-search-autocomplete"
+    >
+      <button
+        type="button"
+        *ngFor="let suggestion of autocompleteSuggestions(); let i = index"
+        class="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-medium text-primary transition hover:border-primary-300 hover:bg-primary-100"
+        [attr.data-og7-id]="'quick-search-autocomplete-option-' + i"
+        (click)="applyAutocompleteSuggestion(suggestion)"
+      >
+        {{ suggestion }}
+      </button>
+    </div>
   </div>
 
   <div class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,16rem)]">

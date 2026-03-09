@@ -15,7 +15,10 @@ describe('HeroCtasComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         HeroCtasComponent,
-        RouterTestingModule.withRoutes([{ path: 'companies/register', component: DummyComponent }]),
+        RouterTestingModule.withRoutes([
+          { path: 'sectors', component: DummyComponent },
+          { path: 'companies/register', component: DummyComponent },
+        ]),
         TranslateModule.forRoot(),
       ],
     });
@@ -64,5 +67,23 @@ describe('HeroCtasComponent', () => {
     tick();
 
     expect(location.path()).toBe('/companies/register');
+  }));
+
+  it('uses /sectors as default primary CTA route', fakeAsync(() => {
+    const fixture = TestBed.createComponent(HeroCtasComponent);
+    const router = TestBed.inject(Router);
+    const location = TestBed.inject(Location);
+    fixture.detectChanges();
+
+    fixture.ngZone?.run(() => router.initialNavigation());
+    tick();
+
+    const cta: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a');
+    expect(cta?.getAttribute('data-og7-id')).toBe('view-sectors');
+
+    fixture.ngZone?.run(() => cta?.click());
+    tick();
+
+    expect(location.path()).toBe('/sectors');
   }));
 });

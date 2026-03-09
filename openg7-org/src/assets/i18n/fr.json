@@ -1522,6 +1522,103 @@
       "title": "Fonctionnalités",
       "description": "Découvrez les capacités proposées par OpenG7 pour vos équipes et partenaires."
     },
+    "strategicSectors": {
+      "title": "Explorer les secteurs stratégiques",
+      "subtitle": "Repérez les capacités provinciales, les dépendances critiques et les corridors d'échange interprovinciaux.",
+      "searchPlaceholder": "Rechercher des secteurs ou des partenaires",
+      "searchClear": "Effacer",
+      "shortcut": "Ctrl K",
+      "kpi": "{{ provinces }} provinces · {{ sectors }} secteurs · {{ corridors }} corridors détectés",
+      "tabs": {
+        "all": "Tous"
+      },
+      "insights": {
+        "connectedTitle": "Secteurs les plus interconnectés",
+        "connectedBody": "Identifiez les domaines qui concentrent le plus d'échanges interprovinciaux.",
+        "riskTitle": "Dépendances critiques",
+        "riskBody": "Surveillez les secteurs exposés à des risques de rupture d'approvisionnement.",
+        "opportunityTitle": "Opportunités immédiates",
+        "opportunityBody": "Priorisez les corridors avec signaux de croissance et capacité disponible."
+      },
+      "filters": {
+        "title": "Mes filtres secteurs",
+        "source": "Province source",
+        "target": "Province cible",
+        "input": "Type d'intrant",
+        "availability": "Disponibilité",
+        "criticality": "Niveau de criticité",
+        "horizon": "Horizon temporel",
+        "any": "Tous",
+        "options": {
+          "electricity": "Électricité",
+          "gas": "Gaz naturel",
+          "aluminum": "Aluminium",
+          "grain": "Céréales",
+          "logistics": "Logistique",
+          "steel": "Acier",
+          "stable": "Stable",
+          "tight": "Tendue",
+          "constrained": "Contrainte",
+          "h7d": "7 jours",
+          "h30d": "30 jours",
+          "h90d": "90 jours"
+        },
+        "active": "Filtres actifs",
+        "clearAll": "Tout effacer",
+        "reset": "Réinitialiser",
+        "apply": "Appliquer"
+      },
+      "mobile": {
+        "openFilters": "Filtres",
+        "closeFilters": "Fermer",
+        "sheetTitle": "Filtres de secteur",
+        "activeFilters": "{{ count }} actifs"
+      },
+      "workspace": {
+        "title": "Secteurs actifs",
+        "subtitle": "Vue consolidée des signaux sectoriels et des corridors prioritaires.",
+        "kpi": {
+          "corridors": "corridors",
+          "provinces": "provinces",
+          "critical": "zones critiques"
+        }
+      },
+      "featured": {
+        "title": "Secteurs en vitrine",
+        "subtitle": "Basculer rapidement vers un secteur"
+      },
+      "cards": {
+        "summary": "Signaux provinciaux, dépendances critiques et corridors actifs.",
+        "metrics": {
+          "corridors": "corridors",
+          "provinces": "provinces",
+          "alerts": "alertes"
+        }
+      },
+      "empty": "Aucun secteur pour ce filtre.",
+      "mapPlaceholder": {
+        "title": "Carte des corridors",
+        "body": "Zone map en cours d'intégration: flux, nœuds de capacité et alertes de criticité."
+      },
+      "corridors": {
+        "title": "Corridors prioritaires",
+        "qcOn": "Quebec → Ontario",
+        "mbSk": "Manitoba → Saskatchewan",
+        "bcAb": "Colombie-Britannique → Alberta",
+        "risk": {
+          "low": "faible",
+          "medium": "modere",
+          "high": "eleve"
+        },
+        "table": {
+          "route": "Corridor",
+          "capacity": "Capacite",
+          "risk": "Risque",
+          "action": "Action",
+          "connect": "Connecter"
+        }
+      }
+    },
     "importation": {
       "eyebrow": "Module données",
       "title": "Espace d'importation commerciale",
@@ -3557,6 +3654,54 @@
       "invalidJson": "Le fichier JSON est invalide : {{ message }}",
       "unknownError": "Erreur inconnue",
       "fileReadError": "Impossible de lire le fichier « {{ fileName }} »."
+    }
+  },
+  "importCompaniesBulkPage": {
+    "title": "Importation asynchrone en lot des entreprises",
+    "subtitle": "Créez un job d’import asynchrone à partir d’un fichier CSV/JSONL ou d’un payload JSON et suivez la progression en temps réel.",
+    "fields": {
+      "mode": "Mode d’exécution",
+      "dryRun": "Simulation (aucune écriture)",
+      "file": "Téléverser un fichier (.csv, .jsonl)",
+      "jsonFallback": "Payload JSON de secours"
+    },
+    "modes": {
+      "upsert": "Upsert",
+      "validateOnly": "Validation uniquement"
+    },
+    "fileHint": "Si un fichier est sélectionné, il est prioritaire sur le payload JSON ci-dessous.",
+    "jsonPlaceholder": "Collez ici un tableau JSON d’entreprises…",
+    "selectedFile": "Fichier sélectionné : {{ file }}",
+    "actions": {
+      "start": "Démarrer l’import asynchrone",
+      "starting": "Démarrage…",
+      "cancel": "Annuler le job",
+      "cancelling": "Annulation…",
+      "reset": "Réinitialiser"
+    },
+    "states": {
+      "queued": "En file",
+      "running": "En cours",
+      "completed": "Terminé",
+      "failed": "Échec",
+      "cancelled": "Annulé"
+    },
+    "progress": {
+      "title": "Progression du job",
+      "phase": "Phase courante : {{ phase }}",
+      "total": "Lignes totales",
+      "processed": "Traitées",
+      "ok": "Réussies",
+      "failed": "Échouées"
+    },
+    "errors": {
+      "title": "Dernières erreurs de lignes"
+    },
+    "report": {
+      "title": "Rapport final",
+      "summary": "{{ processed }} ligne(s) traitée(s) — {{ ok }} réussie(s) — {{ failed }} en échec.",
+      "downloadCsv": "Télécharger les erreurs CSV",
+      "downloadJson": "Télécharger les erreurs JSON"
     }
   }
 }

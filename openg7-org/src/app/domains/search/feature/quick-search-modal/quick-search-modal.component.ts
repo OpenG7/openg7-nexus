@@ -47,6 +47,7 @@ interface FlatResult {
 const NAVIGATION_KEYS = new Set(['ArrowDown', 'ArrowUp', 'Tab']);
 const HANDLED_KEYS = new Set([...NAVIGATION_KEYS, 'Enter', 'Escape']);
 type SaveSearchStatus = 'idle' | 'success' | 'error' | 'authRequired';
+const AUTOCOMPLETE_SUGGESTION_LIMIT = 5;
 
 @Component({
   selector: 'og7-quick-search-modal',
@@ -137,6 +138,7 @@ export class QuickSearchModalComponent implements AfterViewInit {
   readonly emptyStateVisible = computed(
     () => !this.loading() && this.query().length > 0 && this.flatResults().length === 0,
   );
+  readonly autocompleteSuggestions = computed(() => this.buildAutocompleteSuggestions());
 
   constructor() {
     this.queryControl.valueChanges
@@ -395,6 +397,20 @@ export class QuickSearchModalComponent implements AfterViewInit {
     this.history.clear();
   }
 
+  applyAutocompleteSuggestion(suggestion: string): void {
+    const nextQuery = suggestion.trim();
+    if (!nextQuery) {
+      return;
+    }
+    const previousQuery = this.query();
+    this.queryControl.setValue(nextQuery);
+    this.analytics.emit('search_autocomplete_selected', {
+      query: previousQuery,
+      suggestion: nextQuery,
+    });
+    this.focusInput();
+  }
+
   trackSection(index: number, section: SearchSection): string {
     return section.id ?? `section-${index}`;
   }
@@ -418,6 +434,42 @@ export class QuickSearchModalComponent implements AfterViewInit {
 
   isActive(item: SearchItem): boolean {
     return this.activeIndex() === this.resultIndex(item);
+  }
+
+  private buildAutocompleteSuggestions(): string[] {
+    const normalizedQuery = this.query().trim().toLowerCase();
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const suggestions: string[] = [];
+    const seen = new Set<string>();
+    const addSuggestion = (value: string | null | undefined) => {
+      if (!value) {
+        return;
+      }
+      const candidate = value.trim();
+      if (!candidate) {
+        return;
+      }
+      const normalizedCandidate = candidate.toLowerCase();
+      if (normalizedCandidate === normalizedQuery) {
+        return;
+      }
+      if (!normalizedCandidate.startsWith(normalizedQuery)) {
+        return;
+      }
+      if (seen.has(normalizedCandidate)) {
+        return;
+      }
+      seen.add(normalizedCandidate);
+      suggestions.push(candidate);
+    };
+
+    this.historyEntries().forEach((entry) => addSuggestion(entry.label));
+    this.flatResults().forEach((flat) => addSuggestion(flat.item.title));
+
+    return suggestions.slice(0, AUTOCOMPLETE_SUGGESTION_LIMIT);
   }
 
   private onResult(result: SearchResult, startedAt: number): void {

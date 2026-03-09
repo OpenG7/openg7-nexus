@@ -71,18 +71,27 @@ export const routes: Routes = [
   },
   {
     path: 'bulk-import',
-    redirectTo: 'import/companies',
+    redirectTo: 'import/companies/bulk-import',
     pathMatch: 'full',
   },
   {
     path: 'import/bulk',
-    redirectTo: 'import/companies',
+    redirectTo: 'import/companies/bulk-import',
     pathMatch: 'full',
   },
   {
     path: 'importation/bulk-import',
-    redirectTo: 'import/companies',
+    redirectTo: 'import/companies/bulk-import',
     pathMatch: 'full',
+  },
+  {
+    path: 'import/companies/bulk-import',
+    loadComponent: () =>
+      import('./import/companies-bulk-import-page/companies-bulk-import-page.component').then(
+        m => m.CompaniesBulkImportPageComponent
+      ),
+    canMatch: [authGuard],
+    data: { robots: ROBOTS_NOINDEX },
   },
   {
     path: 'import/companies',
@@ -101,6 +110,11 @@ export const routes: Routes = [
   {
     path: 'features',
     loadComponent: () => import('./domains/marketing/pages/features.page').then(m => m.FeaturesPage),
+  },
+  {
+    path: 'sectors',
+    loadComponent: () =>
+      import('./domains/marketing/pages/strategic-sectors.page').then(m => m.StrategicSectorsPage),
   },
   {
     path: 'pricing',

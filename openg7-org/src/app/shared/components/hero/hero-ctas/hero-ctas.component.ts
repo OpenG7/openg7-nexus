@@ -27,16 +27,10 @@ export interface HeroCtaClickEvent {
     class: 'hero-ctas flex flex-wrap gap-3 justify-start',
   },
 })
-/**
- * Contexte : Affichée dans les vues du dossier « shared/components/hero » en tant que composant Angular standalone.
- * Raison d’être : Encapsule l'interface utilisateur et la logique propre à « Hero Ctas ».
- * @param dependencies Dépendances injectées automatiquement par Angular.
- * @returns HeroCtasComponent gérée par le framework.
- */
 export class HeroCtasComponent {
   @Input() primaryCta: HeroCta | null = {
     label: 'hero.actions.viewSectors',
-    href: '#map',
+    routerLink: '/sectors',
     trackingType: 'view-sectors',
   };
 

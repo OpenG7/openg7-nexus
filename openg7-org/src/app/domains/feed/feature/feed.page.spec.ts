@@ -2,8 +2,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { FeedItem } from './models/feed.models';
 import { FeedPage } from './feed.page';
+import { FeedItem } from './models/feed.models';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 class FeedRealtimeServiceMock {

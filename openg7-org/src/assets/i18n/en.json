@@ -1633,6 +1633,103 @@
       "title": "Product features",
       "description": "Explore the capabilities OpenG7 makes available to teams and partners."
     },
+    "strategicSectors": {
+      "title": "Explore strategic sectors",
+      "subtitle": "Track provincial capacity, critical dependencies, and interprovincial trade corridors.",
+      "searchPlaceholder": "Search sectors or partners",
+      "searchClear": "Clear",
+      "shortcut": "Ctrl K",
+      "kpi": "{{ provinces }} provinces · {{ sectors }} sectors · {{ corridors }} corridors detected",
+      "tabs": {
+        "all": "All"
+      },
+      "insights": {
+        "connectedTitle": "Most interconnected sectors",
+        "connectedBody": "Spot the sectors concentrating the highest interprovincial exchange volume.",
+        "riskTitle": "Critical dependencies",
+        "riskBody": "Monitor sectors exposed to supply disruption risk.",
+        "opportunityTitle": "Immediate opportunities",
+        "opportunityBody": "Prioritize corridors with growth signals and available capacity."
+      },
+      "filters": {
+        "title": "Sector filters",
+        "source": "Source province",
+        "target": "Target province",
+        "input": "Input type",
+        "availability": "Availability",
+        "criticality": "Criticality level",
+        "horizon": "Time horizon",
+        "any": "Any",
+        "options": {
+          "electricity": "Electricity",
+          "gas": "Natural gas",
+          "aluminum": "Aluminum",
+          "grain": "Grain",
+          "logistics": "Logistics",
+          "steel": "Steel",
+          "stable": "Stable",
+          "tight": "Tight",
+          "constrained": "Constrained",
+          "h7d": "7 days",
+          "h30d": "30 days",
+          "h90d": "90 days"
+        },
+        "active": "Active filters",
+        "clearAll": "Clear all",
+        "reset": "Reset",
+        "apply": "Apply"
+      },
+      "mobile": {
+        "openFilters": "Filters",
+        "closeFilters": "Close",
+        "sheetTitle": "Sector filters",
+        "activeFilters": "{{ count }} active"
+      },
+      "workspace": {
+        "title": "Active sectors",
+        "subtitle": "Consolidated view of sector signals and priority corridors.",
+        "kpi": {
+          "corridors": "corridors",
+          "provinces": "provinces",
+          "critical": "critical zones"
+        }
+      },
+      "featured": {
+        "title": "Featured sectors",
+        "subtitle": "Quick switch by sector"
+      },
+      "cards": {
+        "summary": "Provincial signals, critical dependencies, and active corridors.",
+        "metrics": {
+          "corridors": "corridors",
+          "provinces": "provinces",
+          "alerts": "alerts"
+        }
+      },
+      "empty": "No sector matches this filter.",
+      "mapPlaceholder": {
+        "title": "Corridor map",
+        "body": "Map zone in progress: flow lines, capacity nodes, and criticality alerts."
+      },
+      "corridors": {
+        "title": "Priority corridors",
+        "qcOn": "Quebec -> Ontario",
+        "mbSk": "Manitoba -> Saskatchewan",
+        "bcAb": "British Columbia -> Alberta",
+        "risk": {
+          "low": "low",
+          "medium": "medium",
+          "high": "high"
+        },
+        "table": {
+          "route": "Corridor",
+          "capacity": "Capacity",
+          "risk": "Risk",
+          "action": "Action",
+          "connect": "Connect"
+        }
+      }
+    },
     "importation": {
       "eyebrow": "Data module",
       "title": "Trade data import workspace",
@@ -3643,6 +3740,54 @@
       "invalidJson": "The JSON file is invalid: {{ message }}",
       "unknownError": "Unknown error",
       "fileReadError": "Unable to read file \"{{ fileName }}\"."
+    }
+  },
+  "importCompaniesBulkPage": {
+    "title": "Asynchronous company bulk import",
+    "subtitle": "Create an asynchronous import job from CSV/JSONL file or JSON payload and track progress in real time.",
+    "fields": {
+      "mode": "Execution mode",
+      "dryRun": "Dry run (no write)",
+      "file": "Upload file (.csv, .jsonl)",
+      "jsonFallback": "JSON payload fallback"
+    },
+    "modes": {
+      "upsert": "Upsert",
+      "validateOnly": "Validate only"
+    },
+    "fileHint": "If a file is selected it is prioritized over the JSON payload below.",
+    "jsonPlaceholder": "Paste a JSON array of companies here…",
+    "selectedFile": "Selected file: {{ file }}",
+    "actions": {
+      "start": "Start async import",
+      "starting": "Starting…",
+      "cancel": "Cancel job",
+      "cancelling": "Cancelling…",
+      "reset": "Reset"
+    },
+    "states": {
+      "queued": "Queued",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "progress": {
+      "title": "Job progress",
+      "phase": "Current phase: {{ phase }}",
+      "total": "Total rows",
+      "processed": "Processed",
+      "ok": "Successful",
+      "failed": "Failed"
+    },
+    "errors": {
+      "title": "Latest row errors"
+    },
+    "report": {
+      "title": "Final report",
+      "summary": "{{ processed }} row(s) processed — {{ ok }} successful — {{ failed }} failed.",
+      "downloadCsv": "Download CSV errors",
+      "downloadJson": "Download JSON errors"
     }
   }
 }

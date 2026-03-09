@@ -30,6 +30,7 @@ import { CatalogMockService } from './state/catalog/catalog-mock.service';
 import { catalogReducer } from './state/catalog/catalog.reducer';
 import { mapReducer } from './state/map/map.reducer';
 import { userReducer } from './state/user/user.reducer';
+import { companyImportBulkReducer } from './store/company-import-bulk/company-import-bulk.reducer';
 import { ConnectionsEffects } from './store/connections/connections.effects';
 import { connectionsReducer } from './store/connections/connections.reducer';
 import { feedReducer } from './store/feed/feed.reducer';
@@ -69,6 +70,7 @@ export const appConfig: ApplicationConfig = {
       user: userReducer,
       catalog: catalogReducer,
       map: mapReducer,
+      companyImportBulk: companyImportBulkReducer,
       connections: connectionsReducer,
       feed: feedReducer,
       statistics: statisticsReducer,

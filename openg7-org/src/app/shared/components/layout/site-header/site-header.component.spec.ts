@@ -191,6 +191,30 @@ describe('SiteHeaderComponent', () => {
     expect(component.isSearchOpen()).toBeFalse();
   }));
 
+  it('opens quick search when pressing Enter on the desktop search box', () => {
+    const desktopSearchButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('#desktop-search');
+    quickSearch.open.calls.reset();
+
+    desktopSearchButton?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(quickSearch.open).toHaveBeenCalledWith({ source: 'site-header' });
+    expect(component.isSearchOpen()).toBeTrue();
+  });
+
+  it('opens quick search when pressing Enter on the mobile search box', () => {
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+    const mobileSearchButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('#mobile-search');
+    quickSearch.open.calls.reset();
+
+    mobileSearchButton?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fixture.detectChanges();
+
+    expect(quickSearch.open).toHaveBeenCalledWith({ source: 'site-header' });
+    expect(component.isSearchOpen()).toBeTrue();
+  });
+
   it('closes active quick search when explicitly requested', () => {
     component.toggleSearch(true);
     const activeRef = quickSearch.lastRef;
