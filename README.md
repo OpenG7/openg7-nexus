@@ -1,144 +1,257 @@
-**Languages:** [English](#english) | [Français](#francais)
+# OpenG7
 
 ![OpenG7 Platform](docs/assets/banner-openg7-nexus.png)
 
+Open-source platform for exploring interprovincial exchanges, company intelligence, and operational trade planning.
+
+## Investor Pitch
+
+OpenG7 turns fragmented ecosystem, trade, and company data into a usable operational platform. Instead of working across disconnected spreadsheets, CMS entries, and ad hoc dashboards, teams get a shared product surface for discovery, mapping, imports, alerts, and observability.
+
+Funding this repository helps deliver:
+- Decision-grade visibility across companies, sectors, corridors, and statistics
+- A vendor-neutral stack built on Angular, Strapi, and shared API contracts
+- Faster onboarding and safer operations through seeds, selectors, docs, and tooling
+- A stronger bridge between product UX, content operations, and integration workflows
+
+Near-term funding unlocks:
+- Better data ingestion and import workflows
+- Stronger analytics, alerting, and feed experiences
+- More resilient SSR, runtime configuration, and search integration
+- Hardening of admin and operator tooling for real production use
+
+How to support:
+- GitHub Sponsors
+- Pilot partnerships
+- Data and integration partnerships
+- In-kind infrastructure or expert review
+
 ---
+
+**Languages:** [English](#english) | [Français](#francais)
+
+<a id="english"></a>
 
 ## English
 
-# OpenG7
+### What it is
 
-Open-source platform to explore and analyze interprovincial exchanges (Angular front-end + Strapi CMS).  
-This monorepo contains the front-end, the CMS and shared API contracts.
+OpenG7 is an open-source monorepo for an interprovincial exchange platform. It combines:
+- an Angular front-end in `openg7-org/`
+- a Strapi CMS in `strapi/`
+- shared API contracts in `packages/contracts/`
+- shared tooling and validation utilities in `packages/` and `tools/`
 
-## Getting started
+The platform already includes a trade map, company and import workflows, search, feed experiences, account areas, and operational admin surfaces.
 
-1. Install dependencies: `yarn install`
-2. Start Strapi: `yarn dev:cms` (local API on http://localhost:1337)
-3. Start the Angular front-end: `yarn dev:web` (UI on http://localhost:4200)
-4. Need a Strapi admin account? Set `STRAPI_ADMIN_EMAIL` / `STRAPI_ADMIN_PASSWORD` in your local `.env`, then create it from the admin screen.
+### Why it exists
 
-> On Windows, `Run-Installer-pwsh.cmd` runs `install-dev-basics_robuste.ps1` to prepare the environment (PowerShell 5 in administrator mode, installation/validation of Node.js LTS, Yarn, Git, UTF-8 encoding) and then offers a small menu to launch the main `yarn` commands.
+Trade and ecosystem workflows usually fail at the handoff points: fragmented data, slow content updates, disconnected operational tools, and no shared view of what is happening across sectors and corridors.
+
+OpenG7 exists to provide:
+- a unified product surface for exploration, discovery, and monitoring
+- shared contracts between front-end and CMS
+- reusable UI hooks and selectors for instrumentation and testing
+- a documented platform foundation that can grow across multiple repos and packages
+
+### What it enables
+
+- Company discovery and directory experiences
+- Interprovincial trade and corridor mapping
+- Search, saved searches, favorites, and alerts
+- Feed and detail pages for opportunities, alerts, and indicators
+- Company import and bulk import workflows
+- Admin operations endpoints for runtime health, backups, imports, and security
+
+### Repository Structure
+
+- `openg7-org/`: Angular application, SSR/runtime config, Playwright and unit tests
+- `strapi/`: CMS, seeds, policies, backend APIs, and integration scripts
+- `packages/contracts/`: shared API contracts and validation
+- `packages/tooling/`: repo-level tooling such as selector validation
+- `docs/`: onboarding, architecture, frontend, Strapi, ecosystem, and roadmap docs
+- `infra/`: deployment and infrastructure manifests
+
+### Getting Started
+
+1. Enable Corepack and verify Yarn:
+   ```bash
+   corepack enable
+   yarn --version
+   ```
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+3. If you want custom local credentials, create `strapi/.env` and set `STRAPI_ADMIN_*`.
+   For a simple local setup without external services, prefer local-friendly values such as `DATABASE_CLIENT=sqlite`.
+4. Start Strapi:
+   ```bash
+   yarn dev:cms
+   ```
+5. Start the Angular front-end in a second terminal:
+   ```bash
+   yarn dev:web
+   ```
+6. In development, Strapi seeds create or update the admin account automatically from `STRAPI_ADMIN_*`.
+
+> On Windows, `Run-Installer-pwsh.cmd` runs `install-dev-basics_robuste.ps1` to prepare the environment and offers a menu for the main `yarn` commands.
 
 Detailed guides live in `docs/`:
-- `docs/getting-started.md`: quick onboarding and useful scripts
-- `docs/frontend/`: Angular signal-first architecture, `[data-og7]` selectors
-- `docs/strapi/`: CMS conventions and idempotent seeds
-- `docs/first-contribution.md`: checklist for a first PR
-- `docs/roadmap.md`: public roadmap and priorities
+- `docs/getting-started.md`: onboarding and local setup details
+- `docs/frontend/`: Angular architecture, selectors, UX notes
+- `docs/strapi/`: CMS conventions and seed behavior
+- `docs/first-contribution.md`: first PR checklist
+- `docs/roadmap.md`: roadmap and priorities
 
-## Owner Ops dashboard
+### Ops Dashboard
 
-The platform now includes an owner/admin operations dashboard:
+The platform includes admin operations surfaces for monitoring runtime health and platform status.
 
-- Frontend route: `/admin/ops`
+- Frontend route: `/admin/ops` for the admin UI
 - API endpoints:
   - `GET /api/admin/ops/health`
   - `GET /api/admin/ops/backups`
   - `GET /api/admin/ops/imports`
   - `GET /api/admin/ops/security`
-- Access control: role `Admin` or `Owner` only
-- Strapi policy: `global::owner-admin-ops` (applied on all `/api/admin/ops/*` routes)
+- API policy: `global::owner-admin-ops`
+- API access: roles `Admin` and `Owner`
+- Frontend access to `/admin/ops`: currently admin-only
 
-The dashboard provides a consolidated view of runtime health, backup visibility, import throughput, and security indicators.
+### Where does code live?
 
-## Where does code live?
+- Read `CHARTER.md` for scope and non-goals
+- Use `docs/ecosystem/ECOSYSTEM-MAP.md` to find the canonical repo for a capability
+- If logic must be shared across repos, create a shared `@openg7/*` package instead of copying it
+- This platform is primarily orchestration and integration, not the canonical home for every domain concern
 
-- Read CHARTER.md for the scope and non-goals of openg7-nexus.
-- Use docs/ecosystem/ECOSYSTEM-MAP.md to find the canonical repo for a capability.
-- If something is shared across repos, create a shared @openg7/* package instead of copying.
-- Platform is orchestration/integration, not canonical domain logic.
+### Contributing
 
-## Contributing
+Read `CONTRIBUTING.md` for the workflow, required checks, and secret management policy.
+The code of conduct in `CODE_OF_CONDUCT.md` applies to all community spaces.
+Support and governance details live in `SUPPORT.md`.
 
-Read `CONTRIBUTING.md` to understand the development workflow, the checks to run before opening a PR, and the secret management policy.  
-The code of conduct (`CODE_OF_CONDUCT.md`) applies to all community spaces.  
-A “first contribution” guide is available in `docs/first-contribution.md`.
+Community first steps:
+- Use the issue and PR templates
+- Look for `good first issue` and `help wanted`
+- Add screenshots for visible UI changes
+- Document any configuration or security impact in your change
 
-### Public channels & support
-
-- **GitHub Issues**: bugs, feature requests, documentation (templates provided, default label `needs-triage`).
-- **GitHub Discussions**: general questions and exploratory ideas.
-- **Support & governance**: see `SUPPORT.md` for response times, escalation, and the decision-making process.
-
-### Community first steps
-
-- Issue/PR templates are provided to speed up triage and clarify expectations.
-- Labels `good first issue` and `help wanted` highlight topics suitable for new contributors.
-- Please add screenshots for any visible UI change, and document configuration or security impacts.
-
-## License & security
+### License & Security
 
 - License: MIT (`LICENSE`)
-- Responsible disclosure: see `SECURITY.md` (contact: contact@openg7.org)
+- Responsible disclosure: see `SECURITY.md`
 
 ---
 
+<a id="francais"></a>
+
 ## Français
 
-# OpenG7
+### Ce que c'est
 
-Plateforme open source pour explorer et analyser les échanges interprovinciaux (front Angular + CMS Strapi).  
-Ce monorepo regroupe le front-end, le CMS et les contrats d’API partagés.
+OpenG7 est un monorepo open source pour une plateforme d'exploration des échanges interprovinciaux. Il regroupe :
+- un front Angular dans `openg7-org/`
+- un CMS Strapi dans `strapi/`
+- des contrats d'API partagés dans `packages/contracts/`
+- des outils partagés de validation et de support dans `packages/` et `tools/`
 
-## Pour commencer
+La plateforme inclut déjà une carte, des parcours entreprises et importation, de la recherche, des flux feed, des espaces compte, et des surfaces d'administration opérationnelle.
 
-1. Installez les dépendances : `yarn install`
-2. Lancez Strapi : `yarn dev:cms` (API locale sur http://localhost:1337)
-3. Lancez le front Angular : `yarn dev:web` (UI sur http://localhost:4200)
-4. Besoin d’un compte admin Strapi ? Définissez `STRAPI_ADMIN_EMAIL` / `STRAPI_ADMIN_PASSWORD` dans votre `.env` local, puis créez-le via l’écran d’administration.
+### Pourquoi ce projet existe
 
-> Sous Windows, `Run-Installer-pwsh.cmd` exécute `install-dev-basics_robuste.ps1` pour préparer l’environnement (PowerShell 5 en mode administrateur, installation/validation de Node.js LTS, Yarn, Git, encodage UTF-8), puis propose un petit menu pour lancer les principales commandes `yarn`.
+Les parcours métier échouent souvent aux points de friction : données dispersées, mises à jour de contenu lentes, outils d'exploitation déconnectés, et faible visibilité commune sur ce qui se passe entre secteurs, corridors et entreprises.
 
-Les guides détaillés sont dans `docs/` :
-- `docs/getting-started.md` : onboarding rapide et scripts utiles
-- `docs/frontend/` : architecture Angular signal-first, sélecteurs `[data-og7]`
-- `docs/strapi/` : conventions CMS et seeds idempotents
-- `docs/first-contribution.md` : checklist pour une première PR
-- `docs/roadmap.md` : feuille de route publique et priorités
+OpenG7 sert à fournir :
+- une surface produit unifiée pour explorer, découvrir et suivre l'activité
+- des contrats partagés entre le front et le CMS
+- des hooks UI et sélecteurs réutilisables pour l'instrumentation et les tests
+- une base plateforme documentée qui peut évoluer à travers plusieurs repos et packages
 
-## Tableau de bord Ops propriétaire
+### Ce que ça permet
 
-La plateforme inclut maintenant un tableau de bord d'exploitation pour owner/admin :
+- Découverte d'entreprises et expériences de répertoire
+- Cartographie des corridors et échanges interprovinciaux
+- Recherche, recherches enregistrées, favoris et alertes
+- Feed et pages de détail pour opportunités, alertes et indicateurs
+- Parcours d'import d'entreprises et bulk import
+- Endpoints d'ops admin pour la santé runtime, les backups, les imports et la sécurité
 
-- Route frontend : `/admin/ops`
+### Structure du dépôt
+
+- `openg7-org/` : application Angular, SSR, configuration runtime, tests Playwright et unitaires
+- `strapi/` : CMS, seeds, policies, APIs backend et scripts d'intégration
+- `packages/contracts/` : contrats d'API et validation
+- `packages/tooling/` : outillage transverse comme la validation des sélecteurs
+- `docs/` : onboarding, architecture, frontend, Strapi, écosystème et roadmap
+- `infra/` : manifests de déploiement et infrastructure
+
+### Pour commencer
+
+1. Activez Corepack et vérifiez Yarn :
+   ```bash
+   corepack enable
+   yarn --version
+   ```
+2. Installez les dépendances :
+   ```bash
+   yarn install
+   ```
+3. Si vous voulez des identifiants locaux personnalisés, créez `strapi/.env` et définissez `STRAPI_ADMIN_*`.
+   Pour un setup local simple sans services externes, privilégiez des valeurs locales comme `DATABASE_CLIENT=sqlite`.
+4. Lancez Strapi :
+   ```bash
+   yarn dev:cms
+   ```
+5. Lancez le front Angular dans un second terminal :
+   ```bash
+   yarn dev:web
+   ```
+6. En développement, les seeds Strapi créent ou mettent à jour automatiquement le compte admin à partir de `STRAPI_ADMIN_*`.
+
+> Sous Windows, `Run-Installer-pwsh.cmd` exécute `install-dev-basics_robuste.ps1` pour préparer l'environnement et proposer un menu sur les principales commandes `yarn`.
+
+Guides détaillés dans `docs/` :
+- `docs/getting-started.md` : onboarding et détails de setup local
+- `docs/frontend/` : architecture Angular, sélecteurs, notes UX
+- `docs/strapi/` : conventions CMS et comportement des seeds
+- `docs/first-contribution.md` : checklist de première PR
+- `docs/roadmap.md` : feuille de route et priorités
+
+### Tableau de bord Ops
+
+La plateforme inclut des surfaces d'exploitation pour suivre la santé runtime et l'état opérationnel.
+
+- Route frontend : `/admin/ops` pour l'interface d'administration
 - Endpoints API :
   - `GET /api/admin/ops/health`
   - `GET /api/admin/ops/backups`
   - `GET /api/admin/ops/imports`
   - `GET /api/admin/ops/security`
-- Contrôle d'accès : rôles `Admin` ou `Owner` uniquement
-- Policy Strapi : `global::owner-admin-ops` (appliquée sur toutes les routes `/api/admin/ops/*`)
+- Policy API : `global::owner-admin-ops`
+- Accès API : rôles `Admin` et `Owner`
+- Accès frontend à `/admin/ops` : actuellement réservé aux admins
 
-Ce tableau de bord centralise la santé runtime, la visibilité des backups, le suivi des imports et les indicateurs de sécurité.
+### Où vit le code ?
 
-## Ou vit le code?
+- Lisez `CHARTER.md` pour le périmètre et les non-objectifs
+- Utilisez `docs/ecosystem/ECOSYSTEM-MAP.md` pour identifier le repo canonique d'une capacité
+- Si une logique doit être partagée entre plusieurs repos, créez un package `@openg7/*` au lieu de copier
+- La plateforme est avant tout une couche d'orchestration et d'intégration, pas le foyer canonique de chaque domaine
 
-- Lisez CHARTER.md pour la portee et les non-objectifs de openg7-nexus.
-- Utilisez docs/ecosystem/ECOSYSTEM-MAP.md pour trouver le repo canonique.
-- Si c'est partage entre repos, creez un package @openg7/* au lieu de copier.
-- Platform = orchestration / integration, pas de logique canonique.
+### Contribuer
 
-## Contribuer
+Lisez `CONTRIBUTING.md` pour le workflow, les vérifications attendues et la politique de gestion des secrets.
+Le code de conduite dans `CODE_OF_CONDUCT.md` s'applique à tous les espaces communautaires.
+Les détails de support et de gouvernance sont dans `SUPPORT.md`.
 
-Lisez `CONTRIBUTING.md` pour connaître le flux de développement, les vérifications à exécuter avant une PR et la politique de gestion des secrets.  
-Le code de conduite (`CODE_OF_CONDUCT.md`) s’applique à tous les espaces communautaires.  
-Un guide « première contribution » est disponible dans `docs/first-contribution.md`.
+Premiers pas communautaires :
+- utilisez les templates d'issues et de PR
+- regardez les labels `good first issue` et `help wanted`
+- ajoutez des captures pour les changements UI visibles
+- documentez tout impact de configuration ou de sécurité
 
-### Canaux publics & support
-
-- **Issues GitHub** : bugs, demandes de fonctionnalités, documentation (modèles fournis, label `needs-triage` par défaut).
-- **Discussions GitHub** : questions générales ou idées exploratoires.
-- **Support & gouvernance** : consultez `SUPPORT.md` pour les temps de réponse, l’escalade et le processus de décision.
-
-### Premiers pas communautaires
-
-- Des modèles d’issues/PR sont fournis pour accélérer le tri et clarifier les attentes.
-- Les labels `good first issue` et `help wanted` signalent des sujets adaptés aux nouveaux arrivants.
-- Ajoutez des captures d’écran pour toute évolution UI perceptible et documentez les impacts de configuration ou de sécurité.
-
-## Licence et sécurité
+### Licence & sécurité
 
 - Licence : MIT (`LICENSE`)
-- Divulgation responsable : voir `SECURITY.md` (contact : contact@openg7.org)
-
+- Divulgation responsable : voir `SECURITY.md`

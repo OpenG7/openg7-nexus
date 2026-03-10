@@ -10,13 +10,14 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 @Component({
   selector: 'og7-feed-page',
   standalone: true,
-  imports: [CommonModule, TranslateModule, Og7FeedStreamComponent],
+  imports: [CommonModule, TranslateModule, FeedPublishSectionComponent, Og7FeedStreamComponent],
   templateUrl: './feed.page.html',
   styleUrls: ['./feed.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

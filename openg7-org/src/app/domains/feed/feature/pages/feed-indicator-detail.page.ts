@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -58,6 +59,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 export class FeedIndicatorDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
@@ -343,6 +345,10 @@ export class FeedIndicatorDetailPage {
   }
 
   protected openAlertDrawer(): void {
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
+      return;
+    }
     this.resetAlertSubmitState();
     this.drawerOpen.set(true);
   }
@@ -367,6 +373,11 @@ export class FeedIndicatorDetailPage {
   private async submitAlertDraft(draft: IndicatorAlertDraft): Promise<void> {
     const detail = this.detailVm();
     if (!detail || this.alertSubmitState() === 'submitting') {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
       return;
     }
 
@@ -864,6 +875,22 @@ export class FeedIndicatorDetailPage {
   private currentUrl(): string {
     if (typeof window !== 'undefined' && window.location?.href) {
       return window.location.href;
+    }
+    const id = this.itemId() ?? 'unknown';
+    return `/feed/indicators/${id}`;
+  }
+
+  private redirectToLogin(): void {
+    void this.router.navigate(['/login'], {
+      queryParams: { redirect: this.currentInternalUrl() },
+    });
+  }
+
+  private currentInternalUrl(): string {
+    const navigation = this.router.getCurrentNavigation();
+    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    if (typeof url === 'string' && url.trim().length > 0) {
+      return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/indicators/${id}`;

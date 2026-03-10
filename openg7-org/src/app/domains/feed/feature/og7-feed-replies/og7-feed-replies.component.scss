@@ -4,6 +4,11 @@
   gap: 1rem;
 }
 
+.feed-replies h3 {
+  margin: 0;
+  color: var(--og7-feed-text-strong, #f8fafc);
+}
+
 .feed-replies__list {
   list-style: none;
   padding: 0;
@@ -15,17 +20,19 @@
 .feed-reply {
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
+  background: var(--og7-feed-surface-muted, rgba(10, 28, 70, 0.72));
 }
 
 .feed-reply header {
   display: flex;
   justify-content: space-between;
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--og7-feed-text-muted, #93c5fd);
 }
 
 .feed-reply p {
   margin: 0.5rem 0 0;
+  color: var(--og7-feed-text, #e2e8f0);
   white-space: pre-wrap;
 }

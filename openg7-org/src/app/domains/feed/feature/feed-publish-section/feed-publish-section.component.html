@@ -1,0 +1,21 @@
+<section class="feed-publish" data-og7="feed-publish-section">
+  <ng-container *ngIf="isAuthenticated(); else authGate">
+    <og7-feed-composer data-og7="feed-composer"></og7-feed-composer>
+  </ng-container>
+
+  <ng-template #authGate>
+    <section class="feed-publish__auth-gate" data-og7="feed-composer-auth-gate" role="note">
+      <h2>{{ 'feed.composer.authRequired.title' | translate }}</h2>
+      <p>{{ 'feed.composer.authRequired.description' | translate }}</p>
+      <a
+        class="feed-publish__auth-link"
+        [routerLink]="['/login']"
+        [queryParams]="{ redirect: redirectTarget() }"
+        data-og7="action"
+        data-og7-id="feed-login-to-publish"
+      >
+        {{ 'feed.composer.authRequired.cta' | translate }}
+      </a>
+    </section>
+  </ng-template>
+</section>

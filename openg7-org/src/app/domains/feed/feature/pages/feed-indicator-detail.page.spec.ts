@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -81,12 +82,19 @@ describe('FeedIndicatorDetailPage', () => {
   let store: StoreMock;
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let authState: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    authState = signal(true);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
+    router.getCurrentNavigation.and.returnValue(null);
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => '/feed/indicators/indicator-spot-ontario',
+    });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'indicator-spot-ontario' }));
     const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
@@ -105,6 +113,12 @@ describe('FeedIndicatorDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: authState.asReadonly(),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
       ],
     })
       .overrideComponent(FeedIndicatorDetailPage, {
@@ -231,6 +245,27 @@ describe('FeedIndicatorDetailPage', () => {
     component.openAlertDrawer();
     fixture.detectChanges();
     expect(component.drawerOpen()).toBeTrue();
+  });
+
+  it('redirects anonymous users to login instead of opening the alert drawer', async () => {
+    authState.set(false);
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      drawerOpen: () => boolean;
+      openAlertDrawer: () => void;
+    };
+
+    component.openAlertDrawer();
+
+    expect(component.drawerOpen()).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/feed/indicators/indicator-spot-ontario' },
+    });
+    expect(feed.publishDraft).not.toHaveBeenCalled();
   });
 
   it('publishes mapped alert draft and updates subscribed state on successful submit', async () => {
