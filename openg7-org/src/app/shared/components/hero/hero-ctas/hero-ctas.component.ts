@@ -40,11 +40,7 @@ export class HeroCtasComponent {
     trackingType: 'pro-mode',
   };
 
-  @Input() tertiaryCta: HeroCta | null = {
-    label: 'hero.actions.preview',
-    routerLink: '/preview/homepage',
-    trackingType: 'preview',
-  };
+  @Input() tertiaryCta: HeroCta | null = null;
 
   @Output() readonly ctaClicked = new EventEmitter<HeroCtaClickEvent>();
 

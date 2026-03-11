@@ -1,0 +1,109 @@
+.opportunity-report-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+
+.opportunity-report-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(15 23 42 / 55%);
+}
+
+.opportunity-report-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: min(100%, 28rem);
+  height: 100%;
+  padding: 1.5rem;
+  gap: 1rem;
+  background: #fff;
+  box-shadow: -16px 0 48px rgb(15 23 42 / 18%);
+}
+
+.opportunity-report-drawer__panel header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.opportunity-report-drawer__panel h2 {
+  margin: 0;
+}
+
+.opportunity-report-drawer__panel header button {
+  justify-self: end;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.opportunity-report-drawer form {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.opportunity-report-drawer label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.opportunity-report-drawer label span {
+  font-weight: 600;
+}
+
+.opportunity-report-drawer select,
+.opportunity-report-drawer textarea {
+  width: 100%;
+  border: 1px solid rgb(148 163 184);
+  border-radius: 0.9rem;
+  padding: 0.8rem 0.95rem;
+  font: inherit;
+}
+
+.opportunity-report-drawer select:focus,
+.opportunity-report-drawer textarea:focus {
+  outline: 2px solid rgb(14 165 233 / 30%);
+  outline-offset: 2px;
+}
+
+.opportunity-report-drawer__status {
+  margin: 0;
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+}
+
+.opportunity-report-drawer__status--success {
+  background: rgb(220 252 231);
+  color: rgb(22 101 52);
+}
+
+.opportunity-report-drawer__status--error {
+  background: rgb(254 242 242);
+  color: rgb(153 27 27);
+}
+
+.opportunity-report-drawer__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.opportunity-report-drawer__actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8rem 1.25rem;
+  background: rgb(15 23 42);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.opportunity-report-drawer__actions button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

@@ -13,6 +13,8 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { FavoritesService } from '@app/core/favorites.service';
+import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,11 +30,16 @@ import {
   OpportunityOfferSubmitState,
   OpportunityQnaMessage,
   OpportunityQnaTab,
+  OpportunityReportPayload,
+  OpportunityReportSubmitState,
   OpportunitySyncState,
 } from '../components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
+import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
+import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 @Component({
   selector: 'og7-feed-opportunity-detail-page',
@@ -45,6 +52,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
     OpportunityDetailBodyComponent,
     OpportunityContextAsideComponent,
     OpportunityOfferDrawerComponent,
+    OpportunityReportDrawerComponent,
   ],
   templateUrl: './feed-opportunity-detail.page.html',
   styleUrl: './feed-opportunity-detail.page.scss',
@@ -54,7 +62,11 @@ export class FeedOpportunityDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly favorites = inject(FavoritesService);
+  private readonly notifications = injectNotificationStore();
   private readonly feed = inject(FeedRealtimeService);
+  private readonly conversationDrafts = inject(OpportunityConversationDraftsService);
+  private readonly reportQueue = inject(OpportunityReportQueueService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -63,22 +75,24 @@ export class FeedOpportunityDetailPage {
     initialValue: this.route.snapshot.paramMap.get('itemId'),
   });
 
-  private readonly localMessages = signal<readonly OpportunityQnaMessage[]>([]);
   private readonly syncTimers: ReturnType<typeof setTimeout>[] = [];
   private readonly detailItem = signal<FeedItem | null>(null);
   private readonly detailLoading = signal(false);
   private readonly detailError = signal<string | null>(null);
   private pendingOfferPayload: OpportunityOfferPayload | null = null;
   private offerStatusTimer: ReturnType<typeof setTimeout> | null = null;
+  private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());
   protected readonly error = computed(() => this.detailError() ?? this.feed.error());
 
   protected readonly headerCompact = signal(false);
   protected readonly offerDrawerOpen = signal(false);
+  protected readonly reportDrawerOpen = signal(false);
   protected readonly offerSubmitState = signal<OpportunityOfferSubmitState>('idle');
   protected readonly offerSubmitError = signal<string | null>(null);
-  protected readonly saved = signal(false);
+  protected readonly reportSubmitState = signal<OpportunityReportSubmitState>('idle');
+  protected readonly reportSubmitError = signal<string | null>(null);
   protected readonly qnaTab = signal<OpportunityQnaTab>('questions');
   protected readonly syncState = signal<OpportunitySyncState>('synced');
 
@@ -113,6 +127,19 @@ export class FeedOpportunityDetailPage {
     return this.feed.items().find(item => item.id === id) ?? null;
   });
 
+  protected readonly favoriteKey = computed(() => {
+    const item = this.selectedItem();
+    if (!item?.id) {
+      return null;
+    }
+    return `opportunity:${item.id}`;
+  });
+
+  protected readonly saved = computed(() => {
+    const key = this.favoriteKey();
+    return key ? this.favorites.list().includes(key) : false;
+  });
+
   protected readonly detailVm = computed(() => {
     const item = this.selectedItem();
     if (!item) {
@@ -123,10 +150,12 @@ export class FeedOpportunityDetailPage {
 
   protected readonly qnaMessages = computed(() => {
     const detail = this.detailVm();
+    const itemId = detail?.item.id ?? this.itemId();
+    const localMessages = this.conversationDrafts.messagesFor(itemId);
     if (!detail) {
-      return this.localMessages();
+      return localMessages;
     }
-    return [...detail.qnaMessages, ...this.localMessages()];
+    return [...detail.qnaMessages, ...localMessages];
   });
 
   protected readonly isConnected = computed(() => this.feed.connectionState.connected());
@@ -191,12 +220,18 @@ export class FeedOpportunityDetailPage {
     });
 
     effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.favorites.refresh();
+      }
+    });
+
+    effect(() => {
       this.itemId();
-      this.localMessages.set([]);
       this.qnaTab.set('questions');
       this.offerDrawerOpen.set(false);
+      this.reportDrawerOpen.set(false);
       this.resetOfferSubmitState();
-      this.saved.set(false);
+      this.resetReportSubmitState();
     });
 
     effect(() => {
@@ -212,6 +247,7 @@ export class FeedOpportunityDetailPage {
     this.destroyRef.onDestroy(() => {
       this.clearSyncTimers();
       this.clearOfferStatusTimer();
+      this.clearReportStatusTimer();
     });
   }
 
@@ -265,8 +301,21 @@ export class FeedOpportunityDetailPage {
     this.resetOfferSubmitState();
   }
 
+  protected closeReportDrawer(): void {
+    this.reportDrawerOpen.set(false);
+    this.resetReportSubmitState();
+  }
+
   protected handleSaveToggle(): void {
-    this.saved.update(value => !value);
+    const key = this.favoriteKey();
+    if (!key) {
+      return;
+    }
+    if (this.saved()) {
+      this.favorites.remove(key);
+    } else {
+      this.favorites.add(key);
+    }
     this.simulateSync();
   }
 
@@ -299,7 +348,14 @@ export class FeedOpportunityDetailPage {
       queryParams['mode'] = 'IMPORT';
     }
 
-    if (normalized.includes('energy') && detail?.item.sectorId) {
+    if (normalized.includes('export')) {
+      queryParams['mode'] = 'EXPORT';
+    }
+
+    const sectorLabel = detail?.item.sectorId
+      ? this.resolveSectorLabel(detail.item.sectorId)?.trim().toLowerCase() ?? null
+      : null;
+    if (detail?.item.sectorId && sectorLabel && normalized === sectorLabel) {
       queryParams['sector'] = detail.item.sectorId;
     }
 
@@ -307,14 +363,18 @@ export class FeedOpportunityDetailPage {
       queryParams['q'] = 'winter';
     }
 
+    if (!queryParams['q'] && !queryParams['sector'] && !queryParams['mode']) {
+      queryParams['q'] = normalized;
+    }
+
     void this.router.navigate(['/feed'], {
       queryParams,
-      queryParamsHandling: 'merge',
     });
   }
 
   protected handleReport(): void {
-    this.syncState.set('saved-local');
+    this.resetReportSubmitState();
+    this.reportDrawerOpen.set(true);
   }
 
   protected handleDuplicate(): void {
@@ -341,6 +401,47 @@ export class FeedOpportunityDetailPage {
     void this.submitOfferPayload(payload);
   }
 
+  protected handleReportSubmitted(payload: OpportunityReportPayload): void {
+    const detail = this.detailVm();
+    if (!detail) {
+      return;
+    }
+
+    try {
+      const record = this.reportQueue.queueReport({
+        itemId: detail.item.id,
+        itemTitle: detail.title,
+        route: this.currentInternalUrl(),
+        payload,
+      });
+
+      this.reportSubmitState.set('success');
+      this.reportSubmitError.set(null);
+      this.syncState.set('saved-local');
+      this.notifications.success(this.translate.instant('feed.opportunity.detail.report.status.success'), {
+        source: 'feed',
+        metadata: {
+          itemId: detail.item.id,
+          reportId: record.id,
+          reason: payload.reason,
+        },
+      });
+      this.closeReportDrawerAfterSuccess();
+    } catch (error) {
+      const message = this.resolveLoadError(error);
+      this.reportSubmitState.set('error');
+      this.reportSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          itemId: detail.item.id,
+          reason: payload.reason,
+        },
+      });
+    }
+  }
+
   protected handleOfferRetryRequested(): void {
     if (!this.pendingOfferPayload) {
       return;
@@ -349,17 +450,18 @@ export class FeedOpportunityDetailPage {
   }
 
   protected handleQnaSubmit(content: string): void {
+    const itemId = this.itemId();
+    if (!itemId) {
+      return;
+    }
     const tab = this.qnaTab();
-    this.localMessages.update(entries => [
-      {
-        id: `qna-${Date.now()}`,
-        tab,
-        author: this.translate.instant('feed.sourceYou'),
-        content,
-        createdAt: this.translate.instant('feed.opportunity.detail.justNow'),
-      },
-      ...entries,
-    ]);
+    this.conversationDrafts.append(itemId, {
+      id: `qna-${Date.now()}`,
+      tab,
+      author: this.translate.instant('feed.sourceYou'),
+      content,
+      createdAt: this.translate.instant('feed.opportunity.detail.justNow'),
+    });
     this.simulateSync();
   }
 
@@ -404,16 +506,13 @@ export class FeedOpportunityDetailPage {
     }
 
     const message = this.buildOfferMessage(payload);
-    this.localMessages.update(entries => [
-      {
-        id: `offer-${Date.now()}`,
-        tab: 'offers',
-        author: this.translate.instant('feed.sourceYou'),
-        content: message,
-        createdAt: this.translate.instant('feed.opportunity.detail.justNow'),
-      },
-      ...entries,
-    ]);
+    this.conversationDrafts.append(detail.item.id, {
+      id: `offer-${Date.now()}`,
+      tab: 'offers',
+      author: this.translate.instant('feed.sourceYou'),
+      content: message,
+      createdAt: this.translate.instant('feed.opportunity.detail.justNow'),
+    });
     this.qnaTab.set('offers');
     this.offerSubmitState.set('success');
     this.offerSubmitError.set(null);
@@ -475,11 +574,25 @@ export class FeedOpportunityDetailPage {
     }, 750);
   }
 
+  private closeReportDrawerAfterSuccess(): void {
+    this.clearReportStatusTimer();
+    this.reportStatusTimer = setTimeout(() => {
+      this.reportDrawerOpen.set(false);
+      this.reportSubmitState.set('idle');
+    }, 750);
+  }
+
   private resetOfferSubmitState(): void {
     this.clearOfferStatusTimer();
     this.pendingOfferPayload = null;
     this.offerSubmitState.set('idle');
     this.offerSubmitError.set(null);
+  }
+
+  private resetReportSubmitState(): void {
+    this.clearReportStatusTimer();
+    this.reportSubmitState.set('idle');
+    this.reportSubmitError.set(null);
   }
 
   private clearOfferStatusTimer(): void {
@@ -488,6 +601,14 @@ export class FeedOpportunityDetailPage {
     }
     clearTimeout(this.offerStatusTimer);
     this.offerStatusTimer = null;
+  }
+
+  private clearReportStatusTimer(): void {
+    if (!this.reportStatusTimer) {
+      return;
+    }
+    clearTimeout(this.reportStatusTimer);
+    this.reportStatusTimer = null;
   }
 
   private buildDetailVm(item: FeedItem): OpportunityDetailVm {

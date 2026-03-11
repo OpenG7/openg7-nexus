@@ -893,6 +893,23 @@
           "send": "Send offer",
           "sending": "Sending..."
         },
+        "report": {
+          "title": "Report this opportunity",
+          "reasonLabel": "Reason",
+          "commentLabel": "Details",
+          "commentPlaceholder": "Describe the issue so the review team has usable context.",
+          "submit": "Submit report",
+          "reason": {
+            "incorrect": "Incorrect information",
+            "duplicate": "Duplicate entry",
+            "abuse": "Abusive or misleading content",
+            "stale": "Outdated opportunity"
+          },
+          "status": {
+            "success": "Report saved locally for review.",
+            "errorGeneric": "Unable to save this report."
+          }
+        },
         "cta": {
           "makeOffer": "Propose an offer",
           "save": "Save",

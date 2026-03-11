@@ -56,12 +56,25 @@ describe('OpportunityDetailHeaderComponent', () => {
     expect(feedLink).toBeTruthy();
     expect(feedLink.getAttribute('href')).toContain('/feed');
   });
+
+  it('binds the opportunities breadcrumb to the current feed item type', () => {
+    const fixture = TestBed.createComponent(OpportunityDetailHeaderComponent);
+    setRequiredInputs(fixture);
+    fixture.componentRef.setInput('breadcrumbType', 'OFFER');
+    fixture.detectChanges();
+
+    const breadcrumbLinks = fixture.nativeElement.querySelectorAll('.opportunity-header__breadcrumb a');
+    const opportunitiesLink = breadcrumbLinks.item(1) as HTMLAnchorElement;
+
+    expect(opportunitiesLink.getAttribute('href')).toContain('/feed?type=OFFER');
+  });
 });
 
 function setRequiredInputs(
   fixture: ReturnType<typeof TestBed.createComponent<OpportunityDetailHeaderComponent>>
 ): void {
   fixture.componentRef.setInput('title', 'Short-term import of 300 MW');
+  fixture.componentRef.setInput('breadcrumbType', 'REQUEST');
   fixture.componentRef.setInput('routeLabel', 'Quebec -> Ontario');
   fixture.componentRef.setInput('subtitle', 'Energy | Import | Short window');
   fixture.componentRef.setInput('tags', ['Energy', 'Import', 'Winter']);

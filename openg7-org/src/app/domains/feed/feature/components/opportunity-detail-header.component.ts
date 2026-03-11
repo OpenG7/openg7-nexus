@@ -1,5 +1,5 @@
 ﻿import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -15,6 +15,7 @@ import { OpportunitySyncState } from './opportunity-detail.models';
 })
 export class OpportunityDetailHeaderComponent {
   readonly title = input.required<string>();
+  readonly breadcrumbType = input<string | null>(null);
   readonly routeLabel = input.required<string>();
   readonly subtitle = input.required<string>();
   readonly tags = input<readonly string[]>([]);
@@ -33,6 +34,11 @@ export class OpportunityDetailHeaderComponent {
   readonly duplicate = output<void>();
   readonly report = output<void>();
   readonly archive = output<void>();
+
+  protected readonly breadcrumbQueryParams = computed(() => {
+    const type = this.breadcrumbType();
+    return type ? { type } : {};
+  });
 
   protected trackTag(index: number, tag: string): string {
     return `${tag}-${index}`;

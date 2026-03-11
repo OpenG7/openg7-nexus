@@ -1,9 +1,8 @@
 import { DialogModule } from '@angular/cdk/dialog';
-import { HttpBackend, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   APP_INITIALIZER,
-  PLATFORM_ID,
   TransferState,
   importProvidersFrom,
   inject,
@@ -14,12 +13,10 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
-import { TranslateLoader, TranslateModule, provideTranslateService } from '@ngx-translate/core';
-import { provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader';
+import { provideTranslateLoader, provideTranslateService } from '@ngx-translate/core';
 
 import { appConfigProvider } from './app.config.provider';
 import { routes } from './app.routes';
-import { I18N_PREFIX } from './core/config/environment.tokens';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { csrfInterceptor } from './core/http/csrf.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
@@ -46,23 +43,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptors([authInterceptor, csrfInterceptor, errorInterceptor])),
-    provideTranslateService(),
+    ...provideTranslateService({
+      lang: 'fr',
+      fallbackLang: 'en',
+      loader: provideTranslateLoader(AppTranslateLoader),
+    }),
     provideAnimations(),
-    ...provideTranslateHttpLoader(),
-    {
-      provide: TRANSLATE_HTTP_LOADER_CONFIG,
-      useFactory: () => ({ prefix: inject(I18N_PREFIX), suffix: '.json' }),
-    },
-    importProvidersFrom(
-      TranslateModule.forRoot({
-        fallbackLang: 'en',
-        loader: {
-          provide: TranslateLoader,
-          useClass: AppTranslateLoader,
-          deps: [HttpBackend, TransferState, PLATFORM_ID],
-        },
-      })
-    ),
     importProvidersFrom(DialogModule),
     TransferState,
     provideStore({

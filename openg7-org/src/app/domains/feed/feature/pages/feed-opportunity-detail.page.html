@@ -2,6 +2,7 @@
   <ng-container *ngIf="detailVm() as detail; else emptyState">
     <og7-opportunity-detail-header
       [title]="detail.title"
+      [breadcrumbType]="detail.item.type"
       [routeLabel]="detail.routeLabel"
       [subtitle]="detail.subtitle"
       [statusLabel]="detail.statusLabel"
@@ -61,6 +62,15 @@
       (submitted)="handleOfferSubmitted($event)"
       (retryRequested)="handleOfferRetryRequested()"
     ></og7-opportunity-offer-drawer>
+
+    <og7-opportunity-report-drawer
+      [open]="reportDrawerOpen()"
+      [opportunityTitle]="detail.title"
+      [submitState]="reportSubmitState()"
+      [submitError]="reportSubmitError()"
+      (closed)="closeReportDrawer()"
+      (submitted)="handleReportSubmitted($event)"
+    ></og7-opportunity-report-drawer>
   </ng-container>
 
   <ng-template #emptyState>

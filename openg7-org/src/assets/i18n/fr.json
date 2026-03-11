@@ -782,6 +782,23 @@
           "send": "Envoyer l'offre",
           "sending": "Envoi..."
         },
+        "report": {
+          "title": "Signaler cette opportunite",
+          "reasonLabel": "Motif",
+          "commentLabel": "Details",
+          "commentPlaceholder": "Precisez le probleme constate pour faciliter la revue.",
+          "submit": "Envoyer le signalement",
+          "reason": {
+            "incorrect": "Information incorrecte",
+            "duplicate": "Doublon",
+            "abuse": "Contenu abusif ou trompeur",
+            "stale": "Opportunite obsolète"
+          },
+          "status": {
+            "success": "Signalement enregistre localement pour revue.",
+            "errorGeneric": "Impossible d'enregistrer ce signalement."
+          }
+        },
         "cta": {
           "makeOffer": "Proposer une offre",
           "save": "Enregistrer",
