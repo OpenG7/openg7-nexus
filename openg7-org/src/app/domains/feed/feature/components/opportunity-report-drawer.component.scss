@@ -1,6 +1,6 @@
 .opportunity-report-drawer {
   position: fixed;
-  inset: 0;
+  inset: 4rem 0 0 0;
   z-index: 70;
 }
 
@@ -18,10 +18,13 @@
   display: grid;
   width: min(100%, 28rem);
   height: 100%;
+  box-sizing: border-box;
   padding: 1.5rem;
   gap: 1rem;
   background: #fff;
   box-shadow: -16px 0 48px rgb(15 23 42 / 18%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .opportunity-report-drawer__panel header {

@@ -41,6 +41,15 @@
         (openAllAlerts)="openAllAlerts()"
       ></og7-alert-context-aside>
     </div>
+
+    <og7-alert-update-drawer
+      [open]="reportDrawerOpen()"
+      [alertTitle]="detail.title"
+      [submitState]="reportSubmitState()"
+      [submitError]="reportSubmitError()"
+      (closed)="closeReportDrawer()"
+      (submitted)="handleReportSubmitted($event)"
+    ></og7-alert-update-drawer>
   </ng-container>
 
   <ng-template #emptyState>

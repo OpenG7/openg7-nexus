@@ -2,9 +2,12 @@
   <header class="og7-feed__header">
     <h1 id="feed-heading">{{ 'feed.title' | translate }}</h1>
     <p class="og7-feed__subtitle">{{ 'feed.subtitle' | translate }}</p>
+    <p *ngIf="sourceContextKey() as sourceContextKey" class="og7-feed__source-context" data-og7="feed-source-context">
+      {{ sourceContextKey | translate }}
+    </p>
   </header>
 
-  <og7-feed-publish-section></og7-feed-publish-section>
+  <og7-feed-publish-section #publishSection></og7-feed-publish-section>
 
   <div class="og7-feed__layout">
     <og7-feed-stream
@@ -13,11 +16,16 @@
       [loading]="loading()"
       [error]="error()"
       [unreadCount]="unreadCount()"
+      [highlightedItemId]="highlightedItemId()"
+      [savedKeys]="savedKeys()"
       [connectionState]="connectionState"
       (loadMore)="handleLoadMore()"
       (refresh)="handleRefresh()"
       (openItem)="openItem($event)"
       (closeItem)="closeItem()"
+      (saveItem)="handleSaveItem($event)"
+      (contactItem)="handleContactItem($event)"
+      (composeRequested)="handleComposeRequested()"
     ></og7-feed-stream>
     <section
       class="og7-feed__aside"
@@ -47,4 +55,15 @@
       </ul>
     </section>
   </div>
+
+  <og7-opportunity-offer-drawer
+    [open]="contactDrawerOpen()"
+    [initialCapacityMw]="contactDrawerInitialCapacityMw()"
+    [submitState]="contactSubmitState()"
+    [submitError]="contactSubmitError()"
+    [retryEnabled]="contactSubmitState() === 'error' || contactSubmitState() === 'offline'"
+    (closed)="closeContactDrawer()"
+    (submitted)="handleContactSubmitted($event)"
+    (retryRequested)="handleContactRetryRequested()"
+  ></og7-opportunity-offer-drawer>
 </section>

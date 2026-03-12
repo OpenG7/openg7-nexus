@@ -1,10 +1,72 @@
-import { signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, input, output, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
+import { FavoritesService } from '@app/core/favorites.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
 
+import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { FeedPage } from './feed.page';
-import { FeedItem } from './models/feed.models';
+import { FeedComposerDraft, FeedItem } from './models/feed.models';
 import { FeedRealtimeService } from './services/feed-realtime.service';
+
+@Component({
+  selector: 'og7-feed-publish-section',
+  standalone: true,
+  template: '',
+})
+class FeedPublishSectionStubComponent {
+  readonly focusPrimaryAction = jasmine.createSpy('focusPrimaryAction');
+}
+
+@Component({
+  selector: 'og7-feed-stream',
+  standalone: true,
+  template: '',
+})
+class FeedStreamStubComponent {
+  readonly items = input<readonly FeedItem[]>([]);
+  readonly loading = input(false);
+  readonly error = input<string | null>(null);
+  readonly unreadCount = input(0);
+  readonly highlightedItemId = input<string | null>(null);
+  readonly savedKeys = input<ReadonlySet<string>>(new Set<string>());
+  readonly connectionState = input.required<{
+    connected: () => boolean;
+    reconnecting: () => boolean;
+    error: () => string | null;
+  }>();
+
+  readonly loadMore = output<void>();
+  readonly refresh = output<void>();
+  readonly openItem = output<string>();
+  readonly closeItem = output<void>();
+  readonly saveItem = output<FeedItem>();
+  readonly contactItem = output<FeedItem>();
+  readonly composeRequested = output<void>();
+}
+
+@Component({
+  selector: 'og7-opportunity-offer-drawer',
+  standalone: true,
+  template: '',
+})
+class OpportunityOfferDrawerStubComponent {
+  readonly open = input(false);
+  readonly initialCapacityMw = input(300);
+  readonly initialStartDate = input<string | null>('');
+  readonly initialEndDate = input<string | null>('');
+  readonly submitState = input<OpportunityOfferSubmitState>('idle');
+  readonly submitError = input<string | null>(null);
+  readonly retryEnabled = input(false);
+
+  readonly closed = output<void>();
+  readonly submitted = output<OpportunityOfferPayload>();
+  readonly retryRequested = output<void>();
+}
 
 class FeedRealtimeServiceMock {
   readonly items = signal<readonly FeedItem[]>([]);
@@ -23,6 +85,28 @@ class FeedRealtimeServiceMock {
   readonly reload = jasmine.createSpy('reload');
   readonly openDrawer = jasmine.createSpy('openDrawer');
   readonly unreadCount = jasmine.createSpy('unreadCount').and.returnValue(0);
+  readonly markOnboardingSeen = jasmine.createSpy('markOnboardingSeen');
+  readonly publishDraft = jasmine.createSpy('publishDraft').and.resolveTo({
+    status: 'success',
+    validation: { valid: true, errors: [], warnings: [] },
+  });
+}
+
+class FavoritesServiceMock {
+  private readonly itemsSig = signal<string[]>([]);
+
+  readonly list = this.itemsSig.asReadonly();
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly add = jasmine.createSpy('add').and.callFake((item: string) => {
+    this.itemsSig.update(current => (current.includes(item) ? current : [...current, item]));
+  });
+  readonly remove = jasmine.createSpy('remove').and.callFake((item: string) => {
+    this.itemsSig.update(current => current.filter(entry => entry !== item));
+  });
+
+  setItems(items: string[]): void {
+    this.itemsSig.set(items);
+  }
 }
 
 function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
@@ -34,9 +118,14 @@ function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
     sectorId: 'energy',
     title: `Item ${id}`,
     summary: `Summary ${id}`,
-    fromProvinceId: null,
-    toProvinceId: null,
-    mode: 'BOTH',
+    fromProvinceId: 'qc',
+    toProvinceId: 'on',
+    mode: 'IMPORT',
+    quantity: {
+      value: 320,
+      unit: 'MW',
+    },
+    tags: ['winter', 'peak'],
     source: {
       kind: 'PARTNER',
       label: 'Grid Ops',
@@ -44,31 +133,74 @@ function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
   };
 }
 
+function createOfferPayload(): OpportunityOfferPayload {
+  return {
+    capacityMw: 340,
+    startDate: '2026-01-20',
+    endDate: '2026-02-18',
+    pricingModel: 'spot',
+    comment: 'Firm import block for winter peak support.',
+    attachmentName: 'term-sheet.pdf',
+  };
+}
+
 describe('FeedPage', () => {
   let feed: FeedRealtimeServiceMock;
+  let favorites: FavoritesServiceMock;
   let router: jasmine.SpyObj<Router>;
-  let route: ActivatedRoute;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let authState: ReturnType<typeof signal<boolean>>;
+  let currentUrl: string;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    favorites = new FavoritesServiceMock();
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
-    route = {} as ActivatedRoute;
+    router.getCurrentNavigation.and.returnValue(null);
+    currentUrl = '/feed';
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => currentUrl,
+    });
 
-    TestBed.configureTestingModule({
-      imports: [FeedPage],
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
+    authState = signal(true);
+
+    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'snapshot'> = {
+      queryParamMap: queryParamMap$.asObservable(),
+      get snapshot() {
+        return { queryParamMap: queryParamMap$.value } as ActivatedRoute['snapshot'];
+      },
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [FeedPage, TranslateModule.forRoot()],
       providers: [
         { provide: FeedRealtimeService, useValue: feed },
+        { provide: FavoritesService, useValue: favorites },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: route },
+        { provide: ActivatedRoute, useValue: routeStub },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: authState.asReadonly(),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
       ],
-    });
-    TestBed.overrideComponent(FeedPage, {
-      set: {
-        imports: [],
-        template: '',
-      },
-    });
+    })
+      .overrideComponent(FeedPage, {
+        set: {
+          imports: [
+            CommonModule,
+            TranslateModule,
+            FeedPublishSectionStubComponent,
+            FeedStreamStubComponent,
+            OpportunityOfferDrawerStubComponent,
+          ],
+        },
+      })
+      .compileComponents();
   });
 
   it('loads initial feed stream when page opens and state is not hydrated', () => {
@@ -89,6 +221,28 @@ describe('FeedPage', () => {
     expect(component.items()[0]?.id).toBe('request-001');
   });
 
+  it('highlights a home feed panel item when source context is present', () => {
+    queryParamMap$.next(convertToParamMap({ source: 'home-feed-panels', feedItemId: 'request-001' }));
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    expect(stream.highlightedItemId()).toBe('request-001');
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-source-context"]')).toBeTruthy();
+  });
+
+  it('does not highlight an item for unknown source contexts', () => {
+    queryParamMap$.next(convertToParamMap({ source: 'admin', feedItemId: 'request-001' }));
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    expect(stream.highlightedItemId()).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-source-context"]')).toBeNull();
+  });
+
   it('routes indicator items to /feed/indicators/:id', () => {
     const fixture = TestBed.createComponent(FeedPage);
     const component = fixture.componentInstance;
@@ -97,7 +251,7 @@ describe('FeedPage', () => {
     component.openItem('indicator-spot-ontario');
 
     expect(router.navigate).toHaveBeenCalledWith(['indicators', 'indicator-spot-ontario'], {
-      relativeTo: route,
+      relativeTo: TestBed.inject(ActivatedRoute),
       queryParamsHandling: 'preserve',
     });
   });
@@ -110,7 +264,7 @@ describe('FeedPage', () => {
     component.openItem('alert-ice-storm');
 
     expect(router.navigate).toHaveBeenCalledWith(['alerts', 'alert-ice-storm'], {
-      relativeTo: route,
+      relativeTo: TestBed.inject(ActivatedRoute),
       queryParamsHandling: 'preserve',
     });
   });
@@ -123,8 +277,93 @@ describe('FeedPage', () => {
     component.openItem('opportunity-300mw');
 
     expect(router.navigate).toHaveBeenCalledWith(['opportunities', 'opportunity-300mw'], {
-      relativeTo: route,
+      relativeTo: TestBed.inject(ActivatedRoute),
       queryParamsHandling: 'preserve',
     });
+  });
+
+  it('toggles favorites when save is requested from the stream', () => {
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.saveItem.emit(item);
+    expect(favorites.add).toHaveBeenCalledWith('opportunity:opportunity-300mw');
+
+    stream.saveItem.emit(item);
+    expect(favorites.remove).toHaveBeenCalledWith('opportunity:opportunity-300mw');
+  });
+
+  it('opens the in-place contact drawer for opportunity items', () => {
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+    fixture.detectChanges();
+
+    const drawer = fixture.debugElement.query(By.directive(OpportunityOfferDrawerStubComponent))
+      .componentInstance as OpportunityOfferDrawerStubComponent;
+    expect(drawer.open()).toBeTrue();
+    expect(drawer.initialCapacityMw()).toBe(320);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('redirects anonymous users to login when contact is requested', () => {
+    authState.set(false);
+    currentUrl = '/feed?source=home-feed-panels&feedItemId=opportunity-300mw';
+
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/feed?source=home-feed-panels&feedItemId=opportunity-300mw' },
+    });
+  });
+
+  it('maps contact drawer submissions to an offer draft', async () => {
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+    fixture.detectChanges();
+
+    const drawer = fixture.debugElement.query(By.directive(OpportunityOfferDrawerStubComponent))
+      .componentInstance as OpportunityOfferDrawerStubComponent;
+    drawer.submitted.emit(createOfferPayload());
+    await fixture.whenStable();
+
+    expect(feed.publishDraft).toHaveBeenCalledTimes(1);
+    const publishedDraft = feed.publishDraft.calls.mostRecent().args[0] as FeedComposerDraft;
+    expect(publishedDraft.type).toBe('OFFER');
+    expect(publishedDraft.title).toContain('Item opportunity-300mw');
+    expect(publishedDraft.summary).toContain('340 MW');
+    expect(publishedDraft.summary).toContain('term-sheet.pdf');
+    expect(publishedDraft.mode).toBe('IMPORT');
+    expect(publishedDraft.fromProvinceId).toBe('qc');
+    expect(publishedDraft.toProvinceId).toBe('on');
+    expect(publishedDraft.quantity).toEqual({ value: 340, unit: 'MW' });
+  });
+
+  it('marks onboarding seen and focuses the publish section when compose is requested', () => {
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const publishSection = fixture.debugElement.query(By.directive(FeedPublishSectionStubComponent))
+      .componentInstance as FeedPublishSectionStubComponent;
+
+    stream.composeRequested.emit();
+
+    expect(feed.markOnboardingSeen).toHaveBeenCalledTimes(1);
+    expect(publishSection.focusPrimaryAction).toHaveBeenCalledTimes(1);
   });
 });

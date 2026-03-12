@@ -32,6 +32,8 @@ import { Og7FeedCardComponent } from '../og7-feed-card/og7-feed-card.component';
 import { Og7FeedPostDrawerComponent } from '../og7-feed-post-drawer/og7-feed-post-drawer.component';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
+import { buildFeedFavoriteKey } from '../feed-item.helpers';
+
 @Component({
   selector: 'og7-feed-stream',
   standalone: true,
@@ -46,6 +48,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Og7FeedStreamComponent {
+  private readonly hostRef = inject(ElementRef<HTMLElement>);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
   private readonly feed = inject(FeedRealtimeService);
@@ -55,6 +58,8 @@ export class Og7FeedStreamComponent {
   readonly loading = input(false);
   readonly error = input<string | null>(null);
   readonly unreadCount = input(0);
+  readonly highlightedItemId = input<string | null>(null);
+  readonly savedKeys = input<ReadonlySet<string>>(new Set<string>());
   readonly connectionState = input.required<FeedRealtimeConnectionState>();
 
   readonly loadMore = output<void>();
@@ -63,9 +68,11 @@ export class Og7FeedStreamComponent {
   readonly closeItem = output<void>();
   readonly saveItem = output<FeedItem>();
   readonly contactItem = output<FeedItem>();
+  readonly composeRequested = output<void>();
 
   private readonly sentinelRef = viewChild<ElementRef<HTMLElement>>('sentinel');
   private lastFocusedElement: HTMLElement | null = null;
+  private lastScrolledHighlightedId: string | null = null;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly fromProvinceId = fromProvinceIdSig;
@@ -140,6 +147,29 @@ export class Og7FeedStreamComponent {
       }
       this.setupObserver(sentinel.nativeElement);
     });
+    effect(() => {
+      const highlightedItemId = this.highlightedItemId();
+      if (!highlightedItemId) {
+        this.lastScrolledHighlightedId = null;
+        return;
+      }
+      if (this.lastScrolledHighlightedId === highlightedItemId) {
+        return;
+      }
+      if (!this.items().some(item => item.id === highlightedItemId)) {
+        return;
+      }
+
+      this.lastScrolledHighlightedId = highlightedItemId;
+      this.zone.runOutsideAngular(() => {
+        const focusTarget = () => this.scrollHighlightedCardIntoView(highlightedItemId);
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(focusTarget);
+        } else {
+          setTimeout(focusTarget, 0);
+        }
+      });
+    });
     this.destroyRef.onDestroy(() => {
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
@@ -166,6 +196,10 @@ export class Og7FeedStreamComponent {
 
   protected handleContactItem(item: FeedItem): void {
     this.contactItem.emit(item);
+  }
+
+  protected handleComposeRequested(): void {
+    this.composeRequested.emit();
   }
 
   protected handleCloseDrawer(): void {
@@ -229,6 +263,11 @@ export class Og7FeedStreamComponent {
     return this.sectorLabelMap().get(id) ?? id;
   }
 
+  protected isSaved(item: FeedItem): boolean {
+    const favoriteKey = buildFeedFavoriteKey(item);
+    return favoriteKey ? this.savedKeys().has(favoriteKey) : false;
+  }
+
   protected trackItem(index: number, item: FeedItem): string {
     return item.id ?? `item-${index}`;
   }
@@ -278,5 +317,22 @@ export class Og7FeedStreamComponent {
         setTimeout(invoke, 0);
       }
     });
+  }
+
+  private scrollHighlightedCardIntoView(itemId: string): void {
+    const cards = this.hostRef.nativeElement.querySelectorAll('[data-feed-item-id]');
+    const target = Array.from(cards).find(
+      (card): card is HTMLElement => card instanceof HTMLElement && card.dataset['feedItemId'] === itemId
+    );
+    if (!target) {
+      return;
+    }
+
+    if (typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    if (typeof target.focus === 'function') {
+      target.focus();
+    }
   }
 }

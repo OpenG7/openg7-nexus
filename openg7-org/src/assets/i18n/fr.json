@@ -475,7 +475,7 @@
       "legal": "Mentions légales",
       "credits": "Crédits & partenaires",
       "ariaLabel": "Navigation principale",
-      "favoritesAriaLabel": "Voir les opportunités enregistrées"
+      "favoritesAriaLabel": "Voir vos favoris"
     },
     "cta": {
       "publish": "Publier mon entreprise"
@@ -488,8 +488,8 @@
       "results": {
         "query": "Afficher les résultats pour « {{query}} »",
         "queryDesc": "Ouvrir la recherche avec le filtre « {{query}} »",
-        "matches": "Mes opportunités",
-        "matchesDesc": "Retrouvez vos entreprises et projets enregistrés",
+        "matches": "Favoris",
+        "matchesDesc": "Retrouvez rapidement vos éléments enregistrés",
         "stats": "Explorer les statistiques",
         "statsDesc": "Données interprovinciales et tendances sectorielles",
         "pricing": "Plans et abonnements",
@@ -514,7 +514,7 @@
       "open": "Plus d’options"
     },
     "profile": {
-      "matches": "Mes opportunités",
+      "matches": "Favoris",
       "savedSearches": "Recherches sauvegardées",
       "alerts": "Boite d'alertes",
       "account": "Mon profil",
@@ -588,10 +588,10 @@
       "mode": "Mode",
       "sort": {
         "label": "Tri",
-        "newest": "Recent",
+        "newest": "Récence",
         "urgency": "Urgence",
         "volume": "Volume",
-        "credibility": "Credibilite"
+        "credibility": "Crédibilité"
       },
       "clear": "Reinitialiser"
     },
@@ -611,6 +611,7 @@
     "cta": {
       "open": "Ouvrir",
       "save": "Sauvegarder",
+      "saved": "Enregistre",
       "contact": "Contacter"
     },
     "from": "De",
@@ -684,6 +685,9 @@
       "connectionLost": "Mises a jour en pause. Nouvelle tentative imminente.",
       "connectionRestored": "Mises a jour retablies.",
       "reconnecting": "Reconnexion dans {{ seconds }} s..."
+    },
+    "context": {
+      "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil."
     },
     "error": {
       "generic": "Un probleme est survenu. Veuillez reessayer.",
@@ -885,6 +889,26 @@
           "createOpportunityTitlePrefix": "Opportunite liee"
         },
         "lastUpdate": "Derniere mise a jour : {{ value }}",
+        "report": {
+          "title": "Signaler une mise a jour",
+          "reviewHint": "Votre signalement est place en file de revue et rattache a cette alerte.",
+          "reasonLabel": "Type de mise a jour",
+          "reason": {
+            "correction": "Correction",
+            "escalation": "Aggravation",
+            "resolved": "Resolution",
+            "newSource": "Nouvelle source"
+          },
+          "summaryLabel": "Details de la mise a jour",
+          "summaryPlaceholder": "Decrivez ce qui a change, quand, et quelle source l'a confirme.",
+          "sourceUrlLabel": "URL source (optionnel)",
+          "sourceUrlPlaceholder": "https://exemple.org/avis",
+          "status": {
+            "success": "Mise a jour placee en file de revue.",
+            "errorGeneric": "Impossible d'enregistrer cette mise a jour."
+          },
+          "submit": "Envoyer la mise a jour"
+        },
         "sections": {
           "summary": "Resume et impact estime",
           "impact": "Impacts potentiels",

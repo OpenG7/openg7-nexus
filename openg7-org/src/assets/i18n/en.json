@@ -475,7 +475,7 @@
       "legal": "Legal notice",
       "credits": "Credits & partners",
       "ariaLabel": "Primary navigation",
-      "favoritesAriaLabel": "View saved opportunities"
+      "favoritesAriaLabel": "View your favorites"
     },
     "cta": {
       "publish": "Create account"
@@ -488,8 +488,8 @@
       "results": {
         "query": "Show results for “{{query}}”",
         "queryDesc": "Open search with the “{{query}}” filter",
-        "matches": "My matches",
-        "matchesDesc": "Access your saved companies and projects",
+        "matches": "Favorites",
+        "matchesDesc": "Quickly reopen your saved items",
         "stats": "Explore statistics",
         "statsDesc": "Interprovincial data and sector trends",
         "pricing": "Plans & pricing",
@@ -514,7 +514,7 @@
       "open": "More options"
     },
     "profile": {
-      "matches": "My matches",
+      "matches": "Favorites",
       "savedSearches": "Saved searches",
       "alerts": "Alerts inbox",
       "account": "My profile",
@@ -722,6 +722,7 @@
     "cta": {
       "open": "Open",
       "save": "Save",
+      "saved": "Saved",
       "contact": "Contact"
     },
     "from": "From",
@@ -795,6 +796,9 @@
       "connectionLost": "Live updates are temporarily paused. We will retry shortly.",
       "connectionRestored": "Live updates are back online.",
       "reconnecting": "Reconnecting in {{ seconds }}s..."
+    },
+    "context": {
+      "homeFeedPanels": "Context preserved from the home feed panels."
     },
     "error": {
       "generic": "Something went wrong. Please try again.",
@@ -996,6 +1000,26 @@
           "createOpportunityTitlePrefix": "Linked opportunity"
         },
         "lastUpdate": "Last update: {{ value }}",
+        "report": {
+          "title": "Contribute an update",
+          "reviewHint": "Your update is queued for review and linked to this alert.",
+          "reasonLabel": "Type of update",
+          "reason": {
+            "correction": "Correction",
+            "escalation": "Escalation",
+            "resolved": "Resolved",
+            "newSource": "New source"
+          },
+          "summaryLabel": "Update details",
+          "summaryPlaceholder": "Describe what changed, when it changed, and who confirmed it.",
+          "sourceUrlLabel": "Source URL (optional)",
+          "sourceUrlPlaceholder": "https://example.org/advisory",
+          "status": {
+            "success": "Update queued for review.",
+            "errorGeneric": "We could not record this update."
+          },
+          "submit": "Send update"
+        },
         "sections": {
           "summary": "Summary and estimated impact",
           "impact": "Potential impacts",

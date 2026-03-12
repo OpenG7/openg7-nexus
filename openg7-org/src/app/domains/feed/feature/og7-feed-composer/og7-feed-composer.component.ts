@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
   effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap } from '@angular/router';
@@ -29,6 +31,7 @@ export class Og7FeedComposerComponent {
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
+  private readonly titleInputRef = viewChild<ElementRef<HTMLInputElement>>('titleInput');
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -172,6 +175,13 @@ export class Og7FeedComposerComponent {
     this.quantityValue.set('');
     this.quantityUnit.set('');
     this.tagsInput.set('');
+  }
+
+  focusPrimaryField(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    this.titleInputRef()?.nativeElement.focus();
   }
 
   private applyDraftPrefill(query: ParamMap): void {

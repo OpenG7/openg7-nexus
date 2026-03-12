@@ -25,6 +25,7 @@ export class Og7FeedCardComponent {
   readonly item = input.required<FeedItem>();
   readonly highlight = input(false);
   readonly disabled = input(false);
+  readonly saved = input(false);
   readonly fromLabel = input<string | null>(null);
   readonly toLabel = input<string | null>(null);
   readonly sectorLabel = input<string | null>(null);

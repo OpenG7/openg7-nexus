@@ -54,10 +54,23 @@
       >
         {{ 'feed.cta.open' | translate }}
       </button>
-      <button type="button" class="feed-card__action" (click)="handleSave()">
-        {{ 'feed.cta.save' | translate }}
+      <button
+        type="button"
+        class="feed-card__action"
+        [attr.aria-pressed]="saved()"
+        data-og7="action"
+        data-og7-id="feed-save-item"
+        (click)="handleSave()"
+      >
+        {{ saved() ? ('feed.cta.saved' | translate) : ('feed.cta.save' | translate) }}
       </button>
-      <button type="button" class="feed-card__action feed-card__action--primary" (click)="handleContact()">
+      <button
+        type="button"
+        class="feed-card__action feed-card__action--primary"
+        data-og7="action"
+        data-og7-id="feed-contact-item"
+        (click)="handleContact()"
+      >
         {{ 'feed.cta.contact' | translate }}
       </button>
     </div>
