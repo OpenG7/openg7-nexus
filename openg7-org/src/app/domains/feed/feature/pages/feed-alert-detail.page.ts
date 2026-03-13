@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
   computed,
   effect,
@@ -11,6 +12,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectProvinces } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,8 +25,12 @@ import {
   AlertDetailVm,
   AlertRelatedAlertEntry,
   AlertRelatedOpportunityEntry,
+  AlertUpdatePayload,
+  AlertUpdateSubmitState,
 } from '../components/alert-detail.models';
+import { AlertUpdateDrawerComponent } from '../components/alert-update-drawer.component';
 import { FeedItem } from '../models/feed.models';
+import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({
@@ -37,6 +43,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
     AlertDetailHeaderComponent,
     AlertDetailBodyComponent,
     AlertContextAsideComponent,
+    AlertUpdateDrawerComponent,
   ],
   templateUrl: './feed-alert-detail.page.html',
   styleUrl: './feed-alert-detail.page.scss',
@@ -45,9 +52,12 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 export class FeedAlertDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly notifications = injectNotificationStore();
   private readonly feed = inject(FeedRealtimeService);
+  private readonly alertUpdateQueue = inject(AlertUpdateQueueService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
     initialValue: this.route.snapshot.paramMap.get('itemId'),
@@ -56,12 +66,16 @@ export class FeedAlertDetailPage {
   private readonly detailItem = signal<FeedItem | null>(null);
   private readonly detailLoading = signal(false);
   private readonly detailError = signal<string | null>(null);
+  private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());
   protected readonly error = computed(() => this.detailError() ?? this.feed.error());
 
   protected readonly headerCompact = signal(false);
   protected readonly subscribed = signal(false);
+  protected readonly reportDrawerOpen = signal(false);
+  protected readonly reportSubmitState = signal<AlertUpdateSubmitState>('idle');
+  protected readonly reportSubmitError = signal<string | null>(null);
 
   protected readonly provinces = this.store.selectSignal(selectProvinces);
 
@@ -139,6 +153,15 @@ export class FeedAlertDetailPage {
         cancelled = true;
       });
     });
+
+    effect(() => {
+      this.itemId();
+      this.subscribed.set(false);
+      this.reportDrawerOpen.set(false);
+      this.resetReportSubmitState();
+    });
+
+    this.destroyRef.onDestroy(() => this.clearReportStatusTimer());
   }
 
   @HostListener('window:scroll')
@@ -154,7 +177,20 @@ export class FeedAlertDetailPage {
     if (event.metaKey || event.ctrlKey || event.altKey) {
       return;
     }
-    if (event.key.toLowerCase() !== 's') {
+
+    const key = event.key.toLowerCase();
+
+    if (key === 'escape' && this.reportDrawerOpen()) {
+      event.preventDefault();
+      this.closeReportDrawer();
+      return;
+    }
+
+    if (this.reportDrawerOpen()) {
+      return;
+    }
+
+    if (key !== 's') {
       return;
     }
     const target = event.target;
@@ -170,6 +206,11 @@ export class FeedAlertDetailPage {
 
   protected toggleSubscribe(): void {
     this.subscribed.update(value => !value);
+  }
+
+  protected closeReportDrawer(): void {
+    this.reportDrawerOpen.set(false);
+    this.resetReportSubmitState();
   }
 
   protected async share(): Promise<void> {
@@ -197,7 +238,49 @@ export class FeedAlertDetailPage {
   }
 
   protected reportUpdate(): void {
-    this.subscribed.set(true);
+    this.resetReportSubmitState();
+    this.reportDrawerOpen.set(true);
+  }
+
+  protected handleReportSubmitted(payload: AlertUpdatePayload): void {
+    const detail = this.detailVm();
+    if (!detail) {
+      return;
+    }
+
+    try {
+      const record = this.alertUpdateQueue.queueUpdate({
+        alertId: detail.item.id,
+        alertTitle: detail.title,
+        route: this.currentInternalUrl(),
+        payload,
+      });
+
+      this.reportSubmitState.set('success');
+      this.reportSubmitError.set(null);
+      this.subscribed.set(true);
+      this.notifications.success(this.translate.instant('feed.alert.detail.report.status.success'), {
+        source: 'feed',
+        metadata: {
+          itemId: detail.item.id,
+          reportId: record.id,
+          reason: payload.reason,
+        },
+      });
+      this.closeReportDrawerAfterSuccess();
+    } catch (error) {
+      const message = this.resolveLoadError(error);
+      this.reportSubmitState.set('error');
+      this.reportSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          itemId: detail.item.id,
+          reason: payload.reason,
+        },
+      });
+    }
   }
 
   protected createOpportunity(): void {
@@ -548,6 +631,38 @@ export class FeedAlertDetailPage {
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/alerts/${id}`;
+  }
+
+  private currentInternalUrl(): string {
+    const navigation = this.router.getCurrentNavigation?.();
+    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    if (typeof url === 'string' && url.trim().length > 0) {
+      return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
+    }
+    const id = this.itemId() ?? 'unknown';
+    return `/feed/alerts/${id}`;
+  }
+
+  private closeReportDrawerAfterSuccess(): void {
+    this.clearReportStatusTimer();
+    this.reportStatusTimer = setTimeout(() => {
+      this.reportDrawerOpen.set(false);
+      this.reportSubmitState.set('idle');
+    }, 750);
+  }
+
+  private resetReportSubmitState(): void {
+    this.clearReportStatusTimer();
+    this.reportSubmitState.set('idle');
+    this.reportSubmitError.set(null);
+  }
+
+  private clearReportStatusTimer(): void {
+    if (!this.reportStatusTimer) {
+      return;
+    }
+    clearTimeout(this.reportStatusTimer);
+    this.reportStatusTimer = null;
   }
 
   private resolveLoadError(error: unknown): string {

@@ -2,12 +2,16 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { FavoritesService } from '@app/core/favorites.service';
+import { NotificationStore } from '@app/core/observability/notification.store';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
+import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 import { FeedOpportunityDetailPage } from './feed-opportunity-detail.page';
 
@@ -52,6 +56,61 @@ class StoreMock {
   });
 }
 
+class FavoritesServiceMock {
+  private readonly listSig = signal<string[]>([]);
+
+  readonly list = this.listSig.asReadonly();
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly add = jasmine.createSpy('add').and.callFake((item: string) => {
+    this.listSig.update(current => (current.includes(item) ? current : [...current, item]));
+  });
+  readonly remove = jasmine.createSpy('remove').and.callFake((item: string) => {
+    this.listSig.update(current => current.filter(entry => entry !== item));
+  });
+
+  setItems(items: string[]): void {
+    this.listSig.set(items);
+  }
+}
+
+class OpportunityReportQueueServiceMock {
+  readonly queueReport = jasmine.createSpy('queueReport').and.returnValue({
+    id: 'report-1',
+    itemId: 'opportunity-300mw',
+    itemTitle: 'Short-term import of 300 MW',
+    route: '/feed/opportunities/opportunity-300mw',
+    reason: 'incorrect',
+    comment: 'Incorrect route data.',
+    createdAt: '2026-03-10T20:00:00.000Z',
+    status: 'pending',
+  });
+}
+
+class OpportunityConversationDraftsServiceMock {
+  private readonly entriesSig = signal<Record<string, readonly { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }[]>>({});
+
+  messagesFor(itemId: string | null | undefined) {
+    if (!itemId) {
+      return [];
+    }
+    return this.entriesSig()[itemId] ?? [];
+  }
+
+  append(itemId: string, message: { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }) {
+    this.entriesSig.update(current => ({
+      ...current,
+      [itemId]: [message, ...(current[itemId] ?? [])],
+    }));
+  }
+
+  setMessages(itemId: string, messages: readonly { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }[]) {
+    this.entriesSig.update(current => ({
+      ...current,
+      [itemId]: messages,
+    }));
+  }
+}
+
 function createOpportunityItem(id: string): FeedItem {
   return {
     id,
@@ -81,6 +140,10 @@ function createOpportunityItem(id: string): FeedItem {
 describe('FeedOpportunityDetailPage', () => {
   let feed: FeedRealtimeServiceMock;
   let store: StoreMock;
+  let favorites: FavoritesServiceMock;
+  let reportQueue: OpportunityReportQueueServiceMock;
+  let conversationDrafts: OpportunityConversationDraftsServiceMock;
+  let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -88,6 +151,13 @@ describe('FeedOpportunityDetailPage', () => {
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
+    favorites = new FavoritesServiceMock();
+    reportQueue = new OpportunityReportQueueServiceMock();
+    conversationDrafts = new OpportunityConversationDraftsServiceMock();
+    notifications = {
+      success: jasmine.createSpy('success'),
+      error: jasmine.createSpy('error'),
+    };
     authState = signal(true);
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
@@ -114,6 +184,10 @@ describe('FeedOpportunityDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
+        { provide: FavoritesService, useValue: favorites },
+        { provide: OpportunityReportQueueService, useValue: reportQueue },
+        { provide: OpportunityConversationDraftsService, useValue: conversationDrafts },
+        { provide: NotificationStore, useValue: notifications },
         {
           provide: AuthService,
           useValue: {
@@ -186,7 +260,7 @@ describe('FeedOpportunityDetailPage', () => {
     expect(feed.publishDraft).not.toHaveBeenCalled();
   });
 
-  it('toggles saved state when save action is triggered', async () => {
+  it('persists saved state through FavoritesService when save action is triggered', async () => {
     const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -198,9 +272,26 @@ describe('FeedOpportunityDetailPage', () => {
 
     expect(component.saved()).toBeFalse();
     component.handleSaveToggle();
+    expect(favorites.add).toHaveBeenCalledWith('opportunity:opportunity-300mw');
     expect(component.saved()).toBeTrue();
     component.handleSaveToggle();
+    expect(favorites.remove).toHaveBeenCalledWith('opportunity:opportunity-300mw');
     expect(component.saved()).toBeFalse();
+  });
+
+  it('reflects an already saved opportunity from FavoritesService', async () => {
+    favorites.setItems(['opportunity:opportunity-300mw']);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      saved: () => boolean;
+    };
+
+    expect(component.saved()).toBeTrue();
+    expect(favorites.refresh).toHaveBeenCalled();
   });
 
   it('shares opportunity detail using clipboard fallback', async () => {
@@ -262,6 +353,28 @@ describe('FeedOpportunityDetailPage', () => {
     expect(newMessage?.tab).toBe('history');
   });
 
+  it('hydrates qna messages from locally persisted conversation drafts', async () => {
+    conversationDrafts.setMessages('opportunity-300mw', [
+      {
+        id: 'draft-1',
+        tab: 'questions',
+        author: 'You',
+        content: 'Persisted local follow-up',
+        createdAt: 'now',
+      },
+    ]);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      qnaMessages: () => readonly { content: string }[];
+    };
+
+    expect(component.qnaMessages().some(message => message.content === 'Persisted local follow-up')).toBeTrue();
+  });
+
   it('navigates to alert detail when opening a related alert from context aside', async () => {
     const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
     fixture.detectChanges();
@@ -273,6 +386,72 @@ describe('FeedOpportunityDetailPage', () => {
 
     component.openRelatedAlert('alert-001');
     expect(router.navigate).toHaveBeenCalledWith(['/feed', 'alerts', 'alert-001']);
+  });
+
+  it('maps export tag clicks to a deterministic feed filter', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      handleTagFilter: (tag: string) => void;
+    };
+
+    component.handleTagFilter('Export');
+
+    expect(router.navigate).toHaveBeenCalledWith(['/feed'], {
+      queryParams: { mode: 'EXPORT' },
+    });
+  });
+
+  it('opens the report drawer and queues a structured report on submit', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      reportDrawerOpen: () => boolean;
+      handleReport: () => void;
+      handleReportSubmitted: (payload: { reason: 'incorrect'; comment: string }) => void;
+      reportSubmitState: () => 'idle' | 'success' | 'error';
+    };
+
+    expect(component.reportDrawerOpen()).toBeFalse();
+    component.handleReport();
+    expect(component.reportDrawerOpen()).toBeTrue();
+
+    component.handleReportSubmitted({
+      reason: 'incorrect',
+      comment: 'Route and quantity mismatch with source document.',
+    });
+
+    expect(reportQueue.queueReport).toHaveBeenCalledWith({
+      itemId: 'opportunity-300mw',
+      itemTitle: 'Short-term import of 300 MW',
+      route: '/feed/opportunities/opportunity-300mw',
+      payload: {
+        reason: 'incorrect',
+        comment: 'Route and quantity mismatch with source document.',
+      },
+    });
+    expect(component.reportSubmitState()).toBe('success');
+    expect(notifications.success).toHaveBeenCalled();
+  });
+
+  it('falls back to search query for unsupported tag shortcuts', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      handleTagFilter: (tag: string) => void;
+    };
+
+    component.handleTagFilter('Peak');
+
+    expect(router.navigate).toHaveBeenCalledWith(['/feed'], {
+      queryParams: { q: 'peak' },
+    });
   });
 
   it('loads detail by id via service fallback when feed collection is unavailable', async () => {

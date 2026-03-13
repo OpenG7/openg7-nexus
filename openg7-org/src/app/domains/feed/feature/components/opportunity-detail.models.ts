@@ -4,6 +4,10 @@ export type OpportunityQnaTab = 'questions' | 'offers' | 'history';
 
 export type OpportunitySyncState = 'offline' | 'saved-local' | 'syncing' | 'synced';
 
+export type OpportunityReportReason = 'incorrect' | 'duplicate' | 'abuse' | 'stale';
+
+export type OpportunityReportSubmitState = 'idle' | 'success' | 'error';
+
 export interface OpportunityDetailSectionItem {
   readonly labelKey: string;
   readonly value: string;
@@ -46,6 +50,11 @@ export interface OpportunityOfferPayload {
   readonly pricingModel: string;
   readonly comment: string;
   readonly attachmentName: string | null;
+}
+
+export interface OpportunityReportPayload {
+  readonly reason: OpportunityReportReason;
+  readonly comment: string;
 }
 
 export type OpportunityOfferSubmitState = 'idle' | 'submitting' | 'success' | 'error' | 'offline';

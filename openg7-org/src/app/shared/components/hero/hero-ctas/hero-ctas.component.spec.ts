@@ -86,4 +86,12 @@ describe('HeroCtasComponent', () => {
 
     expect(location.path()).toBe('/sectors');
   }));
+
+  it('does not expose the preview CTA by default', () => {
+    const fixture = TestBed.createComponent(HeroCtasComponent);
+    fixture.detectChanges();
+
+    const previewCta: HTMLAnchorElement | null = fixture.nativeElement.querySelector('[data-og7-id="preview"]');
+    expect(previewCta).toBeNull();
+  });
 });

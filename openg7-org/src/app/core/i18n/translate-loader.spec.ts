@@ -60,7 +60,29 @@ describe('AppTranslateLoader', () => {
   });
 
   it('loads translations without interceptor loop', () => {
-    translate.use('en').subscribe();
-    http.expectOne('/assets/i18n/en.json').flush({});
+    let resolved: unknown;
+
+    translate.use('en').subscribe((value) => {
+      resolved = value;
+    });
+
+    http.expectOne('/assets/i18n/en.json').flush('{}');
+
+    expect(resolved).toEqual({});
+  });
+
+  it('parses translation files that start with a UTF-8 BOM', () => {
+    let resolved: unknown;
+
+    translate.use('en').subscribe((value) => {
+      resolved = value;
+    });
+
+    http.expectOne('/assets/i18n/en.json').flush('\uFEFF{"hero":{"title":"Hello"}}');
+
+    expect(resolved).toEqual({
+      hero: { title: 'Hello' },
+    });
+    expect(translate.instant('hero.title')).toBe('Hello');
   });
 });

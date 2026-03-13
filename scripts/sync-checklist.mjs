@@ -151,7 +151,9 @@ async function computeChecklistState() {
     fileExists(path.join(repoRoot, 'openg7-org', 'src', 'assets', 'i18n', 'fr.json')),
     fileExists(path.join(repoRoot, 'openg7-org', 'src', 'assets', 'i18n', 'en.json')),
   ]).then(results => results.every(Boolean));
-  const i18nOk = i18nAssetsOk && appConfigContent.includes('AppTranslateLoader') && appConfigContent.includes('TranslateModule.forRoot');
+  const i18nProviderConfigured =
+    appConfigContent.includes('provideTranslateService') || appConfigContent.includes('TranslateModule.forRoot');
+  const i18nOk = i18nAssetsOk && appConfigContent.includes('AppTranslateLoader') && i18nProviderConfigured;
 
   const guardsOk = /canMatch\s*:\s*\[/.test(appRoutesContent) && appRoutesContent.includes('roleGuard');
 

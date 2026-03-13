@@ -1,0 +1,126 @@
+.alert-update-drawer {
+  position: fixed;
+  inset: 4rem 0 0 0;
+  z-index: 70;
+}
+
+.alert-update-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(3 10 24 / 72%);
+}
+
+.alert-update-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 30rem);
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgb(7 20 45 / 98%), rgb(3 10 24 / 98%));
+  border-left: 1px solid rgb(56 189 248 / 28%);
+  box-shadow: -20px 0 48px rgb(3 10 24 / 45%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.alert-update-drawer__panel header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.alert-update-drawer__panel h2 {
+  margin: 0;
+}
+
+.alert-update-drawer__panel header button {
+  justify-self: end;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.alert-update-drawer__hint {
+  margin: 0;
+  color: rgb(191 219 254 / 82%);
+  font-size: 0.92rem;
+}
+
+.alert-update-drawer form {
+  display: grid;
+  gap: 1rem;
+}
+
+.alert-update-drawer label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.alert-update-drawer label span {
+  font-weight: 600;
+}
+
+.alert-update-drawer select,
+.alert-update-drawer textarea,
+.alert-update-drawer input {
+  width: 100%;
+  border: 1px solid rgb(125 211 252 / 24%);
+  border-radius: 0.85rem;
+  background: rgb(15 23 42 / 88%);
+  color: inherit;
+  padding: 0.85rem 0.95rem;
+}
+
+.alert-update-drawer select:focus,
+.alert-update-drawer textarea:focus,
+.alert-update-drawer input:focus {
+  outline: 2px solid rgb(34 211 238 / 55%);
+  outline-offset: 2px;
+}
+
+.alert-update-drawer small {
+  color: rgb(253 186 116);
+  font-size: 0.82rem;
+}
+
+.alert-update-drawer__status {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.85rem;
+  font-weight: 600;
+}
+
+.alert-update-drawer__status--success {
+  background: rgb(22 163 74 / 18%);
+  color: rgb(187 247 208);
+}
+
+.alert-update-drawer__status--error {
+  background: rgb(220 38 38 / 18%);
+  color: rgb(254 202 202);
+}
+
+.alert-update-drawer__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.alert-update-drawer__actions button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgb(34 211 238), rgb(59 130 246));
+  color: rgb(2 6 23);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.8rem 1.2rem;
+}
+
+.alert-update-drawer__actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}

@@ -96,7 +96,8 @@ export class SiteHeaderComponent {
     return initials ? initials.toUpperCase() : (user.email?.charAt(0) ?? '?').toUpperCase();
   });
 
-  readonly matchesCountSig = this.favorites.count;
+  readonly favoritesCountSig = this.favorites.count;
+  readonly hasFavoritesSig = computed(() => this.favoritesCountSig() > 0);
 
   readonly unreadCount = computed(() =>
     this.isAuthSig() ? this.userAlerts.unreadCount() : this.notifications.unreadCount()

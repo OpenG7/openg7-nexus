@@ -137,6 +137,7 @@ describe('SiteHeaderComponent', () => {
   let component: SiteHeaderComponent;
   let router: Router;
   let auth: MockAuthService;
+  let favorites: MockFavoritesService;
   let translate: MockTranslateService;
   let notifications: MockNotificationStore;
   let userAlerts: MockUserAlertsService;
@@ -160,6 +161,7 @@ describe('SiteHeaderComponent', () => {
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
     auth = TestBed.inject(AuthService) as unknown as MockAuthService;
+    favorites = TestBed.inject(FavoritesService) as unknown as MockFavoritesService;
     translate = TestBed.inject(TranslateService) as unknown as MockTranslateService;
     notifications = TestBed.inject(NotificationStore) as unknown as MockNotificationStore;
     userAlerts = TestBed.inject(UserAlertsService) as unknown as MockUserAlertsService;
@@ -234,6 +236,23 @@ describe('SiteHeaderComponent', () => {
 
     const badge = notifButton?.querySelector('span.absolute');
     expect(badge?.textContent?.trim()).toBe('3');
+  });
+
+  it('surfaces a favorites reminder when saved items exist', () => {
+    auth.isAuthenticatedSig.set(true);
+    favorites.count.set(2);
+    component.toggleProfile();
+    fixture.detectChanges();
+
+    const profileButton: HTMLElement | null = fixture.nativeElement.querySelector('[data-og7="profile"] > button');
+    const reminder: HTMLElement | null = fixture.nativeElement.querySelector('.site-header__favorites-reminder');
+    const favoritesBadge: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-og7="profile"] [data-og7-id="favorites"] .site-header__favorites-count'
+    );
+
+    expect(profileButton?.classList.contains('site-header__profile-button--favorites')).toBeTrue();
+    expect(reminder).not.toBeNull();
+    expect(favoritesBadge?.textContent?.trim()).toBe('2');
   });
 
   it('uses persisted user alerts count when authenticated', () => {

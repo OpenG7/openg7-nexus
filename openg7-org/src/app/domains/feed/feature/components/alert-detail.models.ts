@@ -1,4 +1,14 @@
-﻿import { FeedItem } from '../models/feed.models';
+import { FeedItem } from '../models/feed.models';
+
+export type AlertUpdateReason = 'correction' | 'escalation' | 'resolved' | 'newSource';
+
+export type AlertUpdateSubmitState = 'idle' | 'success' | 'error';
+
+export interface AlertUpdatePayload {
+  readonly reason: AlertUpdateReason;
+  readonly summary: string;
+  readonly sourceUrl: string | null;
+}
 
 export interface AlertTimelineEntry {
   readonly id: string;

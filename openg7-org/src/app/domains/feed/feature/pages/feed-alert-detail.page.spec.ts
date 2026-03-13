@@ -1,11 +1,13 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { NotificationStore } from '@app/core/observability/notification.store';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedItem } from '../models/feed.models';
+import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 import { FeedAlertDetailPage } from './feed-alert-detail.page';
@@ -30,6 +32,20 @@ class StoreMock {
   ]);
 
   readonly selectSignal = jasmine.createSpy('selectSignal').and.returnValue(this.provincesSig.asReadonly());
+}
+
+class AlertUpdateQueueServiceMock {
+  readonly queueUpdate = jasmine.createSpy('queueUpdate').and.returnValue({
+    id: 'alert-update-1',
+    alertId: 'alert-001',
+    alertTitle: 'Ice storm risk on Ontario transmission lines',
+    route: '/feed/alerts/alert-001',
+    reason: 'correction',
+    summary: 'Environment Canada raised the icing threshold.',
+    sourceUrl: 'https://weather.gc.ca',
+    createdAt: '2026-03-10T20:00:00.000Z',
+    status: 'pending',
+  });
 }
 
 function createAlertItem(id: string): FeedItem {
@@ -57,14 +73,26 @@ function createAlertItem(id: string): FeedItem {
 describe('FeedAlertDetailPage', () => {
   let feed: FeedRealtimeServiceMock;
   let store: StoreMock;
+  let alertUpdateQueue: AlertUpdateQueueServiceMock;
+  let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    alertUpdateQueue = new AlertUpdateQueueServiceMock();
+    notifications = {
+      success: jasmine.createSpy('success'),
+      error: jasmine.createSpy('error'),
+    };
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
+    router.getCurrentNavigation.and.returnValue(null);
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => '/feed/alerts/alert-001',
+    });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'alert-001' }));
     const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
@@ -83,6 +111,8 @@ describe('FeedAlertDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
+        { provide: AlertUpdateQueueService, useValue: alertUpdateQueue },
+        { provide: NotificationStore, useValue: notifications },
       ],
     })
       .overrideComponent(FeedAlertDetailPage, {
@@ -148,19 +178,43 @@ describe('FeedAlertDetailPage', () => {
     }
   });
 
-  it('marks alert as subscribed when reporting an update', async () => {
+  it('opens the report drawer and queues a structured alert update on submit', async () => {
     const fixture = TestBed.createComponent(FeedAlertDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const component = fixture.componentInstance as unknown as {
+      reportDrawerOpen: () => boolean;
       subscribed: () => boolean;
       reportUpdate: () => void;
+      handleReportSubmitted: (payload: { reason: 'correction'; summary: string; sourceUrl: string | null }) => void;
+      reportSubmitState: () => 'idle' | 'success' | 'error';
     };
 
+    expect(component.reportDrawerOpen()).toBeFalse();
     expect(component.subscribed()).toBeFalse();
     component.reportUpdate();
+    expect(component.reportDrawerOpen()).toBeTrue();
+
+    component.handleReportSubmitted({
+      reason: 'correction',
+      summary: 'Environment Canada upgraded the ice accumulation estimate to 20 mm.',
+      sourceUrl: 'https://weather.gc.ca',
+    });
+
+    expect(alertUpdateQueue.queueUpdate).toHaveBeenCalledWith({
+      alertId: 'alert-001',
+      alertTitle: 'Ice storm risk on Ontario transmission lines',
+      route: '/feed/alerts/alert-001',
+      payload: {
+        reason: 'correction',
+        summary: 'Environment Canada upgraded the ice accumulation estimate to 20 mm.',
+        sourceUrl: 'https://weather.gc.ca',
+      },
+    });
+    expect(component.reportSubmitState()).toBe('success');
     expect(component.subscribed()).toBeTrue();
+    expect(notifications.success).toHaveBeenCalled();
   });
 
   it('navigates to feed with linked opportunity draft query params', async () => {

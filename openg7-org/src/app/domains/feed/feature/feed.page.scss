@@ -51,6 +51,21 @@
   font-size: clamp(1rem, 2vw, 1.125rem);
 }
 
+.og7-feed__source-context {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--og7-feed-border-strong);
+  background: rgba(34, 211, 238, 0.14);
+  color: var(--og7-feed-text-strong);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .og7-feed__layout {
   display: grid;
   gap: 1rem;

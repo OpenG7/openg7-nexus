@@ -2,7 +2,7 @@
   <div class="opportunity-header__breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/feed">{{ 'feed.title' | translate }}</a>
     <span>/</span>
-    <a routerLink="/feed" [queryParams]="{ type: 'REQUEST' }">{{ 'feed.opportunity.detail.breadcrumbOpportunities' | translate }}</a>
+    <a routerLink="/feed" [queryParams]="breadcrumbQueryParams()">{{ 'feed.opportunity.detail.breadcrumbOpportunities' | translate }}</a>
     <span>/</span>
     <strong>{{ 'feed.opportunity.detail.breadcrumbCurrent' | translate }}</strong>
   </div>
@@ -44,10 +44,11 @@
         type="button"
         class="opportunity-header__action"
         (click)="toggleSave.emit()"
+        [attr.aria-pressed]="saved()"
         data-og7="action"
         data-og7-id="opportunity-save"
       >
-        {{ saved() ? ('feed.opportunity.detail.cta.saved' | translate) : ('feed.opportunity.detail.cta.save' | translate) }}
+        {{ saved() ? ('feed.opportunity.detail.cta.remove' | translate) : ('feed.opportunity.detail.cta.save' | translate) }}
       </button>
 
       <button

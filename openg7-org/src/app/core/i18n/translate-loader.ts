@@ -2,7 +2,7 @@ import { isPlatformServer } from '@angular/common';
 import { HttpBackend, HttpClient } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
-import { Observable, catchError, from, of, tap } from 'rxjs';
+import { Observable, catchError, from, map, of, tap } from 'rxjs';
 
 import { I18N_PREFIX } from '../config/environment.tokens';
 
@@ -90,7 +90,7 @@ export class AppTranslateLoader implements TranslateLoader {
               for (const p of paths) {
                 try {
                   const content = await readFile(p, 'utf-8');
-                  const data = JSON.parse(content);
+                  const data = this.parseTranslationText(content);
                   this.transferState.set(KEY, data);
                   return data;
                 } catch {
@@ -109,7 +109,8 @@ export class AppTranslateLoader implements TranslateLoader {
       );
     }
 
-    return this.http.get<TranslationObject>(this.composeHttpUrl(lang)).pipe(
+    return this.http.get(this.composeHttpUrl(lang), { responseType: 'text' }).pipe(
+      map((content) => this.parseTranslationText(content)),
       tap((data) => this.transferState.set(KEY, data)),
       catchError((err) => {
         console.error('Translation load error', err?.message, err?.status);
@@ -130,5 +131,19 @@ export class AppTranslateLoader implements TranslateLoader {
       .split('/')
       .map((segment) => segment.trim())
       .filter((segment) => segment.length > 0);
+  }
+
+  private parseTranslationText(content: string): TranslationObject {
+    const sanitized = content.replace(/^\uFEFF/, '').trim();
+    if (!sanitized) {
+      return {};
+    }
+
+    const parsed = JSON.parse(sanitized);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
+
+    return parsed as TranslationObject;
   }
 }

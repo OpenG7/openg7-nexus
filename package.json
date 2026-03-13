@@ -39,7 +39,7 @@
     "docs:core": "typedoc --options typedoc.core.json",
     "docs:full": "typedoc --options typedoc.full.json",
     "predeploy:cms-cache": "yarn workspace @openg7/strapi seed:dev",
-    "predeploy:preprod": "yarn lint && yarn validate:selectors && yarn prebuild:web && yarn validate:preprod-runtime-config && yarn build:web",
+    "predeploy:preprod": "yarn sync:checklist && yarn lint && yarn validate:selectors && yarn prebuild:web && yarn validate:preprod-runtime-config && yarn build:web",
     "projects:reset:steering": "powershell -ExecutionPolicy Bypass -File ./tools/projects/reset-openg7-steering.ps1",
     "projects:get-project-id": "powershell -ExecutionPolicy Bypass -File ./tools/projects/get-github-project-id.ps1",
     "projects:seed:steering": "ts-node --project tsconfig.tools.json tools/projects/seed-openg7-steering.ts",

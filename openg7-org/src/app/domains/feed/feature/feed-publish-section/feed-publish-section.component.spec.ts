@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,7 +19,9 @@ class DummyPageComponent {}
   standalone: true,
   template: '<div data-testid="feed-composer-stub"></div>',
 })
-class FeedComposerStubComponent {}
+class FeedComposerStubComponent {
+  readonly focusPrimaryField = jasmine.createSpy('focusPrimaryField');
+}
 
 describe('FeedPublishSectionComponent', () => {
   const authState = signal(false);
@@ -79,5 +81,33 @@ describe('FeedPublishSectionComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="feed-composer-auth-gate"]')).toBeNull();
+  });
+
+  it('focuses the login CTA for anonymous users when requested', () => {
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const link = fixture.nativeElement.querySelector('[data-og7-id="feed-login-to-publish"]') as HTMLAnchorElement;
+    const focusSpy = spyOn(link, 'focus');
+
+    component.focusPrimaryAction();
+
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates focus to the composer when the user is authenticated', () => {
+    authState.set(true);
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const composer = fixture.debugElement.query(By.directive(FeedComposerStubComponent))
+      .componentInstance as FeedComposerStubComponent;
+
+    component.focusPrimaryAction();
+
+    expect(composer.focusPrimaryField).toHaveBeenCalledTimes(1);
   });
 });

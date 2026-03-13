@@ -1,0 +1,57 @@
+<div class="opportunity-report-drawer" *ngIf="open()" data-og7="opportunity-report-drawer">
+  <button class="opportunity-report-drawer__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+
+  <section class="opportunity-report-drawer__panel" role="dialog" [attr.aria-modal]="true">
+    <header>
+      <h2>{{ 'feed.opportunity.detail.report.title' | translate }}</h2>
+      <small *ngIf="opportunityTitle()">{{ opportunityTitle() }}</small>
+      <button type="button" [attr.aria-label]="'feed.drawer.close' | translate" (click)="closed.emit()">x</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <label>
+        <span>{{ 'feed.opportunity.detail.report.reasonLabel' | translate }}</span>
+        <select formControlName="reason" data-og7="opportunity-report-field" data-og7-id="reason">
+          <option value="incorrect">{{ 'feed.opportunity.detail.report.reason.incorrect' | translate }}</option>
+          <option value="duplicate">{{ 'feed.opportunity.detail.report.reason.duplicate' | translate }}</option>
+          <option value="abuse">{{ 'feed.opportunity.detail.report.reason.abuse' | translate }}</option>
+          <option value="stale">{{ 'feed.opportunity.detail.report.reason.stale' | translate }}</option>
+        </select>
+      </label>
+
+      <label>
+        <span>{{ 'feed.opportunity.detail.report.commentLabel' | translate }}</span>
+        <textarea
+          rows="5"
+          formControlName="comment"
+          [placeholder]="'feed.opportunity.detail.report.commentPlaceholder' | translate"
+          data-og7="opportunity-report-field"
+          data-og7-id="comment"
+        ></textarea>
+      </label>
+
+      <p
+        class="opportunity-report-drawer__status opportunity-report-drawer__status--success"
+        *ngIf="submitState() === 'success'"
+        data-og7="opportunity-report-status"
+        data-og7-id="success"
+      >
+        {{ 'feed.opportunity.detail.report.status.success' | translate }}
+      </p>
+      <p
+        class="opportunity-report-drawer__status opportunity-report-drawer__status--error"
+        *ngIf="submitState() === 'error'"
+        data-og7="opportunity-report-status"
+        data-og7-id="error"
+      >
+        {{ submitError() || ('feed.opportunity.detail.report.status.errorGeneric' | translate) }}
+      </p>
+
+      <div class="opportunity-report-drawer__actions">
+        <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="opportunity-report-submit">
+          {{ 'feed.opportunity.detail.report.submit' | translate }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
