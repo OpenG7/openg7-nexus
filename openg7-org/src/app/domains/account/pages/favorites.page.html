@@ -17,7 +17,7 @@
         </p>
       </div>
       <div
-        class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700"
+        class="inline-flex items-center rounded-full border border-cyan-200/80 bg-cyan-50/80 px-3 py-1 text-xs font-semibold text-cyan-800 shadow-sm"
         data-og7-id="favorites-count"
       >
         {{ 'pages.favorites.labels.total' | translate:{ count: favoritesView().length } }}
@@ -25,7 +25,7 @@
     </div>
   </header>
 
-  <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]">
+  <section class="mt-6 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-cyan-50/40 p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="text-lg font-semibold text-slate-900">
         {{ 'pages.favorites.listTitle' | translate }}
@@ -33,7 +33,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:opacity-50"
+          class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-100 disabled:opacity-50"
           (click)="refreshFavorites()"
           [disabled]="loading()"
           data-og7-id="favorites-refresh"
@@ -43,7 +43,7 @@
 
         <button
           type="button"
-          class="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 disabled:opacity-50"
+          class="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:border-rose-300 hover:bg-rose-100 disabled:opacity-50"
           (click)="clearFavorites()"
           [disabled]="loading() || !hasFavorites()"
           data-og7-id="favorites-clear"
@@ -76,10 +76,10 @@
     </ng-container>
 
     <ng-template #ready>
-      <ul *ngIf="hasFavorites(); else emptyState" class="mt-4 grid gap-3 sm:grid-cols-2" data-og7-id="favorites-list">
+      <ul *ngIf="hasFavorites(); else emptyState" class="mt-4 grid gap-4 sm:grid-cols-2" data-og7-id="favorites-list">
         <li
           *ngFor="let item of favoritesView(); trackBy: trackByKey"
-          class="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+          class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50/90 to-cyan-50/45 p-4 shadow-sm transition hover:border-sky-200 hover:shadow-[0_18px_38px_-32px_rgba(14,165,233,0.45)]"
           data-og7="favorites-item"
           [attr.data-og7-id]="item.entityType"
         >
@@ -97,7 +97,7 @@
 
             <button
               type="button"
-              class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+              class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
               (click)="removeFavorite(item.key)"
               data-og7-id="favorites-remove"
             >
@@ -109,7 +109,7 @@
             <a
               [routerLink]="item.routeCommands"
               [queryParams]="item.queryParams"
-              class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:no-underline"
+              class="inline-flex items-center rounded-xl border border-sky-200 bg-sky-50 px-3.5 py-2 text-xs font-semibold text-sky-800 shadow-sm transition hover:border-sky-300 hover:bg-sky-100 hover:no-underline"
               data-og7-id="favorites-open"
             >
               {{ 'pages.favorites.actions.open' | translate }}
@@ -120,22 +120,25 @@
 
       <ng-template #emptyState>
         <div
-          class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-6 py-10 text-center"
+          class="mt-4 rounded-3xl border border-dashed border-sky-200 bg-gradient-to-br from-slate-50 to-cyan-50/70 px-6 py-10 text-center shadow-inner shadow-cyan-100/40"
           data-og7-id="favorites-empty"
         >
-          <p class="text-base font-medium text-slate-900">{{ 'pages.favorites.empty' | translate }}</p>
+          <div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-200 bg-white/90 text-cyan-700 shadow-sm">
+            <span class="text-lg font-semibold">F</span>
+          </div>
+          <p class="mt-4 text-base font-medium text-slate-900">{{ 'pages.favorites.empty' | translate }}</p>
           <p class="mt-2 text-sm text-slate-600">{{ 'pages.favorites.emptyHint' | translate }}</p>
           <div class="mt-5 flex flex-wrap justify-center gap-2">
             <a
               routerLink="/feed"
-              class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 hover:no-underline"
+              class="inline-flex items-center rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_18px_40px_-20px_rgba(14,165,233,0.55)] transition hover:from-cyan-400 hover:via-sky-400 hover:to-blue-400 hover:no-underline"
               data-og7-id="favorites-empty-feed"
             >
               {{ 'pages.favorites.actions.openFeed' | translate }}
             </a>
             <a
               routerLink="/saved-searches"
-              class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:no-underline"
+              class="inline-flex items-center rounded-xl border border-slate-300 bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-sky-200 hover:bg-cyan-50 hover:no-underline"
               data-og7-id="favorites-empty-saved-searches"
             >
               {{ 'pages.favorites.actions.openSavedSearches' | translate }}
