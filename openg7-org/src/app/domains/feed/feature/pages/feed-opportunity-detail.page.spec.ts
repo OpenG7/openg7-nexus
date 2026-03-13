@@ -9,8 +9,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
-import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 import { FeedOpportunityDetailPage } from './feed-opportunity-detail.page';

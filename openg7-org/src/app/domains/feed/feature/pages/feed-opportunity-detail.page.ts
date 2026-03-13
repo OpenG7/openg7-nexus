@@ -37,8 +37,8 @@ import {
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
-import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 @Component({

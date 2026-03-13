@@ -15,12 +15,12 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
+import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
-import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
+import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 @Component({

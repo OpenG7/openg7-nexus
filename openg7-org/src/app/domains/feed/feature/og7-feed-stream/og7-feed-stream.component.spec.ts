@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { FeedRealtimeConnectionState } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';

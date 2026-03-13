@@ -1,5 +1,5 @@
-import { authGuard } from './core/auth/auth.guard';
 import { routes } from './app.routes';
+import { authGuard } from './core/auth/auth.guard';
 
 describe('app routes', () => {
   it('registers /sectors route with lazy loadComponent', () => {

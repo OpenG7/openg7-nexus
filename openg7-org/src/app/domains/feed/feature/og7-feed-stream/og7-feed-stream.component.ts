@@ -27,12 +27,11 @@ import {
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { buildFeedFavoriteKey } from '../feed-item.helpers';
 import { FeedItem, FeedItemType, FeedRealtimeConnectionState, FeedSort, FlowMode } from '../models/feed.models';
 import { Og7FeedCardComponent } from '../og7-feed-card/og7-feed-card.component';
 import { Og7FeedPostDrawerComponent } from '../og7-feed-post-drawer/og7-feed-post-drawer.component';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
-
-import { buildFeedFavoriteKey } from '../feed-item.helpers';
 
 @Component({
   selector: 'og7-feed-stream',

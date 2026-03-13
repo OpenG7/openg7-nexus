@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
