@@ -806,7 +806,7 @@
         "cta": {
           "makeOffer": "Proposer une offre",
           "save": "Enregistrer",
-          "saved": "Enregistre",
+          "remove": "Retirer des favoris",
           "share": "Partager",
           "duplicate": "Dupliquer",
           "archive": "Archiver",

@@ -115,6 +115,10 @@ export class Og7FeedStreamComponent {
     }
     return state.error() ? 'feed.status.degraded' : 'feed.status.online';
   });
+  protected readonly showConnectionRetry = computed(() => {
+    const state = this.connectionState();
+    return !state.connected() || Boolean(state.error());
+  });
 
   protected readonly selectedItem = computed(() => {
     const id = focusItemIdSig();

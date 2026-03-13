@@ -5,8 +5,9 @@
 
 .feed-stream__status {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
@@ -14,9 +15,21 @@
   color: var(--og7-feed-text, #e2e8f0);
 }
 
+.feed-stream__status--with-action {
+  justify-content: space-between;
+}
+
+.feed-stream__status-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .feed-stream__status button,
 .feed-stream__banner button,
 .feed-stream__coachmark button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   appearance: none;
   border: 1px solid var(--og7-feed-border-strong, rgba(125, 211, 252, 0.38));
   border-radius: 0.65rem;

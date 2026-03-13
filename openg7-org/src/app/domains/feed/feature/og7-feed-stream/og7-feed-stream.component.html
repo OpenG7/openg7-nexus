@@ -1,7 +1,7 @@
 <section class="feed-stream" [attr.aria-busy]="loading()">
-  <div class="feed-stream__status" role="status">
-    <span>{{ connectionLabel() | translate }}</span>
-    <button type="button" (click)="handleRefresh()">
+  <div class="feed-stream__status" [class.feed-stream__status--with-action]="showConnectionRetry()" role="status">
+    <span class="feed-stream__status-label">{{ connectionLabel() | translate }}</span>
+    <button *ngIf="showConnectionRetry()" type="button" (click)="handleRefresh()">
       {{ 'feed.stream.refresh' | translate }}
     </button>
   </div>

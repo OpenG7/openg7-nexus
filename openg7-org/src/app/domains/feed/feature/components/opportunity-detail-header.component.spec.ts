@@ -27,7 +27,7 @@ describe('OpportunityDetailHeaderComponent', () => {
               cta: {
                 makeOffer: 'Make offer',
                 save: 'Save',
-                saved: 'Saved',
+                remove: 'Remove from favorites',
                 share: 'Share',
                 report: 'Report',
                 duplicate: 'Duplicate',
@@ -67,6 +67,23 @@ describe('OpportunityDetailHeaderComponent', () => {
     const opportunitiesLink = breadcrumbLinks.item(1) as HTMLAnchorElement;
 
     expect(opportunitiesLink.getAttribute('href')).toContain('/feed?type=OFFER');
+  });
+
+  it('switches the save button label to the inverse action once saved', () => {
+    const fixture = TestBed.createComponent(OpportunityDetailHeaderComponent);
+    setRequiredInputs(fixture);
+    fixture.detectChanges();
+
+    let saveButton = fixture.nativeElement.querySelector('[data-og7-id="opportunity-save"]') as HTMLButtonElement;
+    expect(saveButton.textContent?.trim()).toBe('Save');
+    expect(saveButton.getAttribute('aria-pressed')).toBe('false');
+
+    fixture.componentRef.setInput('saved', true);
+    fixture.detectChanges();
+
+    saveButton = fixture.nativeElement.querySelector('[data-og7-id="opportunity-save"]') as HTMLButtonElement;
+    expect(saveButton.textContent?.trim()).toBe('Remove from favorites');
+    expect(saveButton.getAttribute('aria-pressed')).toBe('true');
   });
 });
 
