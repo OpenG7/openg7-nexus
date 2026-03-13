@@ -3709,6 +3709,10 @@
   "importCompaniesBulkPage": {
     "title": "Importation asynchrone en lot des entreprises",
     "subtitle": "Créez un job d’import asynchrone à partir d’un fichier CSV/JSONL ou d’un payload JSON et suivez la progression en temps réel.",
+    "badges": {
+      "formats": "CSV, JSONL, NDJSON",
+      "liveTracking": "Suivi en direct"
+    },
     "fields": {
       "mode": "Mode d’exécution",
       "dryRun": "Simulation (aucune écriture)",

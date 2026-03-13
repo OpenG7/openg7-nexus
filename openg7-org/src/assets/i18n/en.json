@@ -3795,6 +3795,10 @@
   "importCompaniesBulkPage": {
     "title": "Asynchronous company bulk import",
     "subtitle": "Create an asynchronous import job from CSV/JSONL file or JSON payload and track progress in real time.",
+    "badges": {
+      "formats": "CSV, JSONL, NDJSON",
+      "liveTracking": "Live tracking"
+    },
     "fields": {
       "mode": "Execution mode",
       "dryRun": "Dry run (no write)",
