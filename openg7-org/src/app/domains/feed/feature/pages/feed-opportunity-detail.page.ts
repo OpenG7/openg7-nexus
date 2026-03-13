@@ -679,13 +679,13 @@ export class FeedOpportunityDetailPage {
 
     const alerts: OpportunityAlertItem[] = [
       {
-        id: `${item.id}-a1`,
+        id: 'alert-001',
         title: this.translate.instant('feed.opportunity.detail.demo.alertIceStormTitle'),
         detail: this.translate.instant('feed.opportunity.detail.demo.alertIceStormDetail'),
         severity: 'warning',
       },
       {
-        id: `${item.id}-a2`,
+        id: 'alert-002',
         title: this.translate.instant('feed.opportunity.detail.demo.alertSmokeTitle'),
         detail: this.translate.instant('feed.opportunity.detail.demo.alertSmokeDetail'),
         severity: 'info',

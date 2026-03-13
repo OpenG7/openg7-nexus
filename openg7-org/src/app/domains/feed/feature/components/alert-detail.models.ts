@@ -38,7 +38,7 @@ export interface AlertIndicatorEntry {
 }
 
 export interface AlertRelatedAlertEntry {
-  readonly id: string;
+  readonly id: string | null;
   readonly title: string;
   readonly region: string;
   readonly severity: string;

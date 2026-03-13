@@ -259,6 +259,25 @@ describe('FeedAlertDetailPage', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/feed', 'opportunities', 'opportunity-001']);
   });
 
+  it('falls back to the alerts collection when a related alert has no resolvable id', async () => {
+    const fixture = TestBed.createComponent(FeedAlertDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      detailVm: () => { relatedAlerts: readonly { id: string | null }[] } | null;
+      openRelatedAlert: (id: string | null) => void;
+    };
+
+    expect(component.detailVm()?.relatedAlerts.map(entry => entry.id)).toEqual([null, null]);
+
+    component.openRelatedAlert(null);
+    expect(router.navigate).toHaveBeenCalledWith(['/feed'], {
+      queryParams: { type: 'ALERT' },
+      queryParamsHandling: 'merge',
+    });
+  });
+
   it('loads alert detail by id via service fallback when feed collection is unavailable', async () => {
     const item = createAlertItem('alert-fallback');
     feed.items.set([]);

@@ -375,6 +375,18 @@ describe('FeedOpportunityDetailPage', () => {
     expect(component.qnaMessages().some(message => message.content === 'Persisted local follow-up')).toBeTrue();
   });
 
+  it('exposes linked alerts with stable ids that resolve to real alert detail routes', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      detailVm: () => { alerts: readonly { id: string }[] } | null;
+    };
+
+    expect(component.detailVm()?.alerts.map(alert => alert.id)).toEqual(['alert-001', 'alert-002']);
+  });
+
   it('navigates to alert detail when opening a related alert from context aside', async () => {
     const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
     fixture.detectChanges();
