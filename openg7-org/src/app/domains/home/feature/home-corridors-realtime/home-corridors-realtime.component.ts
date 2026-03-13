@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import {
   CorridorsRealtimeItem,
   CorridorsRealtimeSnapshot,
@@ -135,7 +136,18 @@ export class HomeCorridorsRealtimeComponent {
   }
 
   protected openCorridor(item: CorridorsRealtimeItem): void {
-    this.openMap(item);
+    const corridorContext = resolveCorridorContext(item.id);
+    const queryParams: Record<string, string> = {
+      source: 'corridors-realtime',
+    };
+
+    if (corridorContext?.id) {
+      queryParams['corridorId'] = corridorContext.id;
+    } else if (item.id) {
+      queryParams['corridorId'] = item.id;
+    }
+
+    void this.router.navigate(['/feed'], { queryParams });
   }
 
   protected openMap(item?: CorridorsRealtimeItem): void {

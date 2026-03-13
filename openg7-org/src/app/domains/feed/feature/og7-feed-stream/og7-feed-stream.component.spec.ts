@@ -1,8 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
+import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
+import {
+  feedModeSig,
+  feedSearchSig,
+  feedSortSig,
+  feedTypeSig,
+  fromProvinceIdSig,
+  sectorIdSig,
+  toProvinceIdSig,
+} from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { FeedRealtimeConnectionState } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
@@ -14,14 +25,22 @@ class FeedRealtimeServiceMock {
 }
 
 class StoreMock {
-  private readonly provincesSig = signal([]);
-  private readonly sectorsSig = signal([]);
-  private selectCallCount = 0;
+  private readonly provincesSig = signal<{ id: string; name: string }[]>([]);
+  private readonly sectorsSig = signal<{ id: string; name: string }[]>([]);
 
-  readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake(() => {
-    this.selectCallCount += 1;
-    return this.selectCallCount === 1 ? this.provincesSig.asReadonly() : this.sectorsSig.asReadonly();
+  readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake((selector: unknown) => {
+    if (selector === selectProvinces) {
+      return this.provincesSig.asReadonly();
+    }
+    if (selector === selectSectors) {
+      return this.sectorsSig.asReadonly();
+    }
+    throw new Error(`Unexpected selector in StoreMock: ${String(selector)}`);
   });
+
+  setProvinces(provinces: { id: string; name: string }[]): void {
+    this.provincesSig.set(provinces);
+  }
 }
 
 function createConnectionState({
@@ -40,8 +59,20 @@ function createConnectionState({
   };
 }
 
+function resetFeedFilters(): void {
+  fromProvinceIdSig.set(null);
+  toProvinceIdSig.set(null);
+  sectorIdSig.set(null);
+  feedTypeSig.set(null);
+  feedModeSig.set('BOTH');
+  feedSearchSig.set('');
+  feedSortSig.set('NEWEST');
+}
+
 describe('Og7FeedStreamComponent', () => {
   beforeEach(async () => {
+    resetFeedFilters();
+
     await TestBed.configureTestingModule({
       imports: [Og7FeedStreamComponent, TranslateModule.forRoot()],
       providers: [
@@ -51,11 +82,42 @@ describe('Og7FeedStreamComponent', () => {
     })
       .overrideComponent(Og7FeedStreamComponent, {
         set: {
-          imports: [CommonModule, TranslateModule],
+          imports: [CommonModule, FormsModule, TranslateModule],
           schemas: [CUSTOM_ELEMENTS_SCHEMA],
         },
       })
       .compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(
+      'fr',
+      {
+        feed: {
+          filters: {
+            allProvinces: 'Toutes les provinces',
+            allTypes: 'Tous les types',
+          },
+          status: {
+            online: 'Mises a jour en direct actives',
+            degraded: 'Mises a jour degradees',
+            offline: 'Hors connexion',
+            reconnecting: 'Reconnexion...',
+          },
+          stream: {
+            refresh: 'Reessayer la connexion',
+          },
+          type: {
+            ALERT: 'Alerte',
+          },
+        },
+      },
+      true
+    );
+    translate.use('fr');
+  });
+
+  afterEach(() => {
+    resetFeedFilters();
   });
 
   it('hides the retry button when the realtime connection is healthy', () => {
@@ -81,4 +143,50 @@ describe('Og7FeedStreamComponent', () => {
 
     expect(fixture.nativeElement.querySelector('.feed-stream__status button')).not.toBeNull();
   });
+
+  it('renders the translated retry label instead of the raw i18n key', () => {
+    const fixture = TestBed.createComponent(Og7FeedStreamComponent);
+    fixture.componentRef.setInput('connectionState', createConnectionState({ connected: false }));
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('.feed-stream__status button') as HTMLButtonElement;
+
+    expect(button.textContent?.trim()).toBe('Reessayer la connexion');
+  });
+
+  it('keeps the filter selects in sync with active filters when province options load later', async () => {
+    const fixture = TestBed.createComponent(Og7FeedStreamComponent);
+    const store = TestBed.inject(Store) as unknown as StoreMock;
+
+    fixture.componentRef.setInput('connectionState', createConnectionState({ connected: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    feedTypeSig.set('ALERT');
+    fromProvinceIdSig.set('QC');
+    toProvinceIdSig.set('ON');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    store.setProvinces([
+      { id: 'QC', name: 'Quebec' },
+      { id: 'ON', name: 'Ontario' },
+    ]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const typeSelect = host.querySelector('#feed-type') as HTMLSelectElement;
+    const fromSelect = host.querySelector('#feed-from') as HTMLSelectElement;
+    const toSelect = host.querySelector('#feed-to') as HTMLSelectElement;
+
+    expect(selectedOptionLabel(typeSelect)).toBe('Alerte');
+    expect(selectedOptionLabel(fromSelect)).toBe('Quebec');
+    expect(selectedOptionLabel(toSelect)).toBe('Ontario');
+  });
 });
+
+function selectedOptionLabel(select: HTMLSelectElement): string {
+  return select.selectedOptions[0]?.textContent?.trim() ?? '';
+}

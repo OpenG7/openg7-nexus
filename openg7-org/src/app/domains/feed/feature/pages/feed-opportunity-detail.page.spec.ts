@@ -146,6 +146,7 @@ describe('FeedOpportunityDetailPage', () => {
   let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
@@ -168,9 +169,27 @@ describe('FeedOpportunityDetailPage', () => {
     });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'opportunity-300mw' }));
-    const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({
+      source: 'corridors-realtime',
+      corridorId: 'essential-services',
+    }));
+    const routeStub: Pick<ActivatedRoute, 'paramMap' | 'queryParamMap' | 'snapshot'> = {
       paramMap: routeParamMap$.asObservable(),
-      snapshot: { paramMap: convertToParamMap({ itemId: 'opportunity-300mw' }) } as ActivatedRoute['snapshot'],
+      queryParamMap: queryParamMap$.asObservable(),
+      get snapshot() {
+        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>((params, key) => {
+          const value = queryParamMap$.value.get(key);
+          if (typeof value === 'string') {
+            params[key] = value;
+          }
+          return params;
+        }, {});
+        return {
+          paramMap: routeParamMap$.value,
+          queryParamMap: queryParamMap$.value,
+          queryParams,
+        } as ActivatedRoute['snapshot'];
+      },
     };
 
     const item = createOpportunityItem('opportunity-300mw');
@@ -398,6 +417,26 @@ describe('FeedOpportunityDetailPage', () => {
 
     component.openRelatedAlert('alert-001');
     expect(router.navigate).toHaveBeenCalledWith(['/feed', 'alerts', 'alert-001']);
+  });
+
+  it('opens the alerts collection with ALERT filter while preserving corridor context', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      openAlerts: () => void;
+    };
+
+    component.openAlerts();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/feed'], {
+      queryParams: {
+        source: 'corridors-realtime',
+        corridorId: 'essential-services',
+        type: 'ALERT',
+      },
+    });
   });
 
   it('maps export tag clicks to a deterministic feed filter', async () => {

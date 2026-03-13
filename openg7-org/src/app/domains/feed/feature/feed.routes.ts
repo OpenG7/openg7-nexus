@@ -12,28 +12,15 @@ import { Store } from '@ngrx/store';
 import { firstValueFrom, merge, timer } from 'rxjs';
 import { filter, map, take } from 'rxjs/operators';
 
-import { FeedFilterState, FeedItemType, FeedSort, FlowMode } from './models/feed.models';
+import { parseFeedFilters } from './feed-route-filters';
 import { FeedRealtimeService } from './services/feed-realtime.service';
-
-type MaybeString = string | null | undefined;
-
-const SORT_OPTIONS = new Set<FeedSort>(['NEWEST', 'URGENCY', 'VOLUME', 'CREDIBILITY']);
-const TYPE_OPTIONS = new Set<FeedItemType>([
-  'OFFER',
-  'REQUEST',
-  'ALERT',
-  'TENDER',
-  'CAPACITY',
-  'INDICATOR',
-]);
-const MODE_OPTIONS = new Set<FlowMode>(['EXPORT', 'IMPORT', 'BOTH']);
 const LEGACY_ALERT_PREFIXES = ['alert-', 'alerte-'] as const;
 const LEGACY_INDICATOR_PREFIXES = ['indicator-', 'indicateur-'] as const;
 
 const setupFeedResolver: ResolveFn<boolean> = async route => {
   const store = inject(Store);
   const feed = inject(FeedRealtimeService);
-  const filters = parseFilters(route);
+  const filters = parseFeedFilters(route.queryParamMap);
   store.dispatch(FeedActions.applyFilters({ filters }));
   if (!feed.hasHydrated()) {
     feed.loadInitial();
@@ -114,47 +101,6 @@ export const routes: Routes = [
 ];
 
 export default routes;
-
-function parseFilters(route: ActivatedRouteSnapshot): FeedFilterState {
-  const query = route.queryParamMap;
-  const sortParam = normalizeString(query.get('sort'))?.toUpperCase();
-  const sort = SORT_OPTIONS.has(sortParam as FeedSort) ? (sortParam as FeedSort) : 'NEWEST';
-  const typeParam = normalizeString(query.get('type'))?.toUpperCase();
-  const type = TYPE_OPTIONS.has(typeParam as FeedItemType) ? (typeParam as FeedItemType) : null;
-  const modeParam = normalizeString(query.get('mode'))?.toUpperCase();
-  const mode = MODE_OPTIONS.has(modeParam as FlowMode) ? (modeParam as FlowMode) : 'BOTH';
-  const sectorId =
-    normalizeString(query.get('sector')) ??
-    normalizeString(query.get('sectorId')) ??
-    null;
-  const fromProvinceId =
-    normalizeString(query.get('fromProvince')) ??
-    normalizeString(query.get('fromProvinceId')) ??
-    null;
-  const toProvinceId =
-    normalizeString(query.get('toProvince')) ??
-    normalizeString(query.get('toProvinceId')) ??
-    null;
-  const search = normalizeString(query.get('q')) ?? '';
-
-  return {
-    fromProvinceId,
-    toProvinceId,
-    sectorId,
-    type,
-    mode,
-    sort,
-    search,
-  };
-}
-
-function normalizeString(value: MaybeString): string | undefined {
-  if (typeof value !== 'string') {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : undefined;
-}
 
 function createLegacyPrefixedItemMatcher(prefixes: readonly string[]) {
   return (segments: UrlSegment[]): UrlMatchResult | null => {

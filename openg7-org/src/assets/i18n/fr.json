@@ -554,6 +554,7 @@
     "shortcuts": {
       "title": "Raccourcis clavier",
       "description": "Naviguez plus vite sur ordinateur et tablette.",
+      "publish": "Ouvrir la publication",
       "refresh": "Actualiser le fil",
       "loadMore": "Charger plus d'elements",
       "closeDrawer": "Fermer le panneau de details"
@@ -567,7 +568,7 @@
       "failed": "Echec de publication"
     },
     "stream": {
-      "refresh": "Reessayer la connexion",
+      "refresh": "Réessayer la connexion",
       "newItems": "{{ count, plural, one {# nouvel element disponible.} other {# nouveaux elements disponibles.} }}",
       "showNew": "Voir les nouveautes",
       "onboarding": "Partagez une offre ou une demande pour informer rapidement vos partenaires.",
@@ -636,6 +637,13 @@
       "close": "Fermer le detail",
       "aria": "Panneau de details"
     },
+    "publishBar": {
+      "title": "Partager une offre, une demande ou une alerte",
+      "description": "Ouvrez le panneau de publication sans quitter le fil.",
+      "cta": "Publier un echange",
+      "shortcut": "Raccourci",
+      "prefill": "Les filtres actifs servent de point de depart."
+    },
     "composer": {
       "title": "Publier un echange",
       "subtitle": "Partagez des offres ou des demandes avec un titre clair, un secteur et un trajet.",
@@ -687,7 +695,8 @@
       "reconnecting": "Reconnexion dans {{ seconds }} s..."
     },
     "context": {
-      "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil."
+      "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil.",
+      "corridorFocus": "Corridor suivi :"
     },
     "error": {
       "generic": "Un probleme est survenu. Veuillez reessayer.",

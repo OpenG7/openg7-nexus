@@ -1,22 +1,75 @@
 <section class="feed-publish" data-og7="feed-publish-section">
-  <ng-container *ngIf="isAuthenticated(); else authGate">
-    <og7-feed-composer #composer data-og7="feed-composer"></og7-feed-composer>
-  </ng-container>
+  <div class="feed-publish__bar">
+    <div class="feed-publish__copy">
+      <h2>{{ 'feed.publishBar.title' | translate }}</h2>
+      <p>{{ 'feed.publishBar.description' | translate }}</p>
+    </div>
 
-  <ng-template #authGate>
-    <section class="feed-publish__auth-gate" data-og7="feed-composer-auth-gate" role="note">
-      <h2>{{ 'feed.composer.authRequired.title' | translate }}</h2>
-      <p>{{ 'feed.composer.authRequired.description' | translate }}</p>
-      <a
-        #authLink
-        class="feed-publish__auth-link"
-        [routerLink]="['/login']"
-        [queryParams]="{ redirect: redirectTarget() }"
+    <div class="feed-publish__actions">
+      <div class="feed-publish__shortcut" aria-hidden="true">
+        <kbd>P</kbd>
+        <span>{{ 'feed.publishBar.shortcut' | translate }}</span>
+      </div>
+
+      <button
+        #publishButton
+        class="feed-publish__cta"
+        type="button"
         data-og7="action"
-        data-og7-id="feed-login-to-publish"
+        data-og7-id="feed-open-publish-drawer"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="drawerOpen()"
+        [attr.aria-controls]="drawerOpen() ? 'feed-publish-drawer' : null"
+        (click)="openDrawer()"
       >
-        {{ 'feed.composer.authRequired.cta' | translate }}
-      </a>
+        {{ 'feed.publishBar.cta' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="feed-publish__drawer" *ngIf="drawerOpen()" id="feed-publish-drawer" data-og7="feed-publish-drawer">
+    <button class="feed-publish__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+
+    <section class="feed-publish__panel" role="dialog" [attr.aria-modal]="true" aria-labelledby="feed-publish-drawer-title">
+      <header class="feed-publish__panel-header">
+        <div class="feed-publish__panel-copy">
+          <h2 id="feed-publish-drawer-title">{{ 'feed.composer.title' | translate }}</h2>
+          <p>{{ 'feed.composer.subtitle' | translate }}</p>
+          <small>{{ 'feed.publishBar.prefill' | translate }}</small>
+        </div>
+
+        <button
+          type="button"
+          class="feed-publish__close"
+          [attr.aria-label]="'feed.drawer.close' | translate"
+          data-og7="action"
+          data-og7-id="feed-close-publish-drawer"
+          (click)="closeDrawer()"
+        >
+          x
+        </button>
+      </header>
+
+      <ng-container *ngIf="isAuthenticated(); else authGate">
+        <og7-feed-composer #composer [showHeader]="false" data-og7="feed-composer"></og7-feed-composer>
+      </ng-container>
+
+      <ng-template #authGate>
+        <section class="feed-publish__auth-gate" data-og7="feed-composer-auth-gate" role="note">
+          <h3>{{ 'feed.composer.authRequired.title' | translate }}</h3>
+          <p>{{ 'feed.composer.authRequired.description' | translate }}</p>
+          <a
+            #authLink
+            class="feed-publish__auth-link"
+            [routerLink]="['/login']"
+            [queryParams]="{ redirect: redirectTarget() }"
+            data-og7="action"
+            data-og7-id="feed-login-to-publish"
+          >
+            {{ 'feed.composer.authRequired.cta' | translate }}
+          </a>
+        </section>
+      </ng-template>
     </section>
-  </ng-template>
+  </div>
 </section>

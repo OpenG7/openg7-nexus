@@ -386,9 +386,13 @@ export class FeedOpportunityDetailPage {
   }
 
   protected openAlerts(): void {
+    const queryParams: Params = {
+      ...this.route.snapshot.queryParams,
+      type: 'ALERT',
+    };
+
     void this.router.navigate(['/feed'], {
-      queryParams: { type: 'ALERT' },
-      queryParamsHandling: 'merge',
+      queryParams,
     });
   }
 

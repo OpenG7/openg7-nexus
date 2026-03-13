@@ -2,7 +2,16 @@
   <header class="og7-feed__header">
     <h1 id="feed-heading">{{ 'feed.title' | translate }}</h1>
     <p class="og7-feed__subtitle">{{ 'feed.subtitle' | translate }}</p>
-    <p *ngIf="sourceContextKey() as sourceContextKey" class="og7-feed__source-context" data-og7="feed-source-context">
+    <p *ngIf="corridorContext() as corridorContext" class="og7-feed__source-context" data-og7="feed-source-context">
+      {{ 'feed.context.corridorFocus' | translate }}
+      <strong>{{ corridorContext.labelKey | translate }}</strong>
+      <span *ngIf="corridorContext.routeKey"> - {{ corridorContext.routeKey | translate }}</span>
+    </p>
+    <p
+      *ngIf="!corridorContext() && sourceContextKey() as sourceContextKey"
+      class="og7-feed__source-context"
+      data-og7="feed-source-context"
+    >
       {{ sourceContextKey | translate }}
     </p>
   </header>
@@ -40,6 +49,10 @@
         {{ 'feed.shortcuts.description' | translate }}
       </p>
       <ul class="og7-feed__shortcut-list">
+        <li>
+          <kbd>P</kbd>
+          <span>{{ 'feed.shortcuts.publish' | translate }}</span>
+        </li>
         <li>
           <kbd>R</kbd>
           <span>{{ 'feed.shortcuts.refresh' | translate }}</span>

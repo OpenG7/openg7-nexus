@@ -44,6 +44,7 @@ const requiredLeafPaths: ReadonlyArray<readonly string[]> = [
   ['empty', 'directory', 'title'],
   ['empty', 'directory', 'description'],
   ['empty', 'directory', 'cta'],
+  ['feed', 'stream', 'refresh'],
 ];
 
 function getValue(source: Record<string, unknown>, path: readonly string[]): unknown {
@@ -57,8 +58,8 @@ function getValue(source: Record<string, unknown>, path: readonly string[]): unk
   return current;
 }
 
-describe('i18n auth translations', () => {
-  it('exposes the required auth keys for each supported locale', () => {
+describe('i18n required translations', () => {
+  it('exposes the required keys for each supported locale', () => {
     for (const [locale, data] of Object.entries(locales)) {
       const authBlock = getValue(data, ['auth']);
 

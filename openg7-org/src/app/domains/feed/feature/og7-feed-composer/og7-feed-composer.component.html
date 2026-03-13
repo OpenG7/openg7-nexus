@@ -1,5 +1,5 @@
 <form class="feed-composer" (ngSubmit)="handleSubmit()" role="form">
-  <header class="feed-composer__header">
+  <header class="feed-composer__header" *ngIf="showHeader()">
     <div>
       <h2>{{ 'feed.composer.title' | translate }}</h2>
       <p>{{ 'feed.composer.subtitle' | translate }}</p>
@@ -9,9 +9,14 @@
   <div class="feed-composer__grid">
     <div class="feed-composer__field">
       <label for="composer-type">{{ 'feed.composer.type' | translate }}</label>
-      <select id="composer-type" [value]="type() ?? ''" (change)="updateType($any($event.target).value)">
-        <option value="">{{ 'feed.composer.typePlaceholder' | translate }}</option>
-        <option *ngFor="let option of typeOptions" [value]="option">
+      <select
+        id="composer-type"
+        name="composer-type"
+        [ngModel]="type()"
+        (ngModelChange)="updateType($event ?? '')"
+      >
+        <option [ngValue]="null">{{ 'feed.composer.typePlaceholder' | translate }}</option>
+        <option *ngFor="let option of typeOptions" [ngValue]="option">
           {{ ('feed.type.' + option) | translate }}
         </option>
       </select>
@@ -19,16 +24,26 @@
 
     <div class="feed-composer__field">
       <label for="composer-sector">{{ 'feed.composer.sector' | translate }}</label>
-      <select id="composer-sector" [value]="sectorId() ?? ''" (change)="updateSector($any($event.target).value)">
-        <option value="">{{ 'feed.composer.sectorPlaceholder' | translate }}</option>
-        <option *ngFor="let sector of sectors()" [value]="sector.id">{{ sector.name }}</option>
+      <select
+        id="composer-sector"
+        name="composer-sector"
+        [ngModel]="sectorId()"
+        (ngModelChange)="updateSector($event ?? '')"
+      >
+        <option [ngValue]="null">{{ 'feed.composer.sectorPlaceholder' | translate }}</option>
+        <option *ngFor="let sector of sectors()" [ngValue]="sector.id">{{ sector.name }}</option>
       </select>
     </div>
 
     <div class="feed-composer__field">
       <label for="composer-mode">{{ 'feed.composer.mode' | translate }}</label>
-      <select id="composer-mode" [value]="mode()" (change)="updateMode($any($event.target).value)">
-        <option *ngFor="let option of modeOptions" [value]="option">
+      <select
+        id="composer-mode"
+        name="composer-mode"
+        [ngModel]="mode()"
+        (ngModelChange)="updateMode($event ?? 'BOTH')"
+      >
+        <option *ngFor="let option of modeOptions" [ngValue]="option">
           {{ ('feed.mode.' + (option | lowercase)) | translate }}
         </option>
       </select>
@@ -36,17 +51,27 @@
 
     <div class="feed-composer__field">
       <label for="composer-from">{{ 'feed.composer.fromProvince' | translate }}</label>
-      <select id="composer-from" [value]="fromProvinceId() ?? ''" (change)="updateFromProvince($any($event.target).value)">
-        <option value="">{{ 'feed.composer.provincePlaceholder' | translate }}</option>
-        <option *ngFor="let province of provinces()" [value]="province.id">{{ province.name }}</option>
+      <select
+        id="composer-from"
+        name="composer-from"
+        [ngModel]="fromProvinceId()"
+        (ngModelChange)="updateFromProvince($event ?? '')"
+      >
+        <option [ngValue]="null">{{ 'feed.composer.provincePlaceholder' | translate }}</option>
+        <option *ngFor="let province of provinces()" [ngValue]="province.id">{{ province.name }}</option>
       </select>
     </div>
 
     <div class="feed-composer__field">
       <label for="composer-to">{{ 'feed.composer.toProvince' | translate }}</label>
-      <select id="composer-to" [value]="toProvinceId() ?? ''" (change)="updateToProvince($any($event.target).value)">
-        <option value="">{{ 'feed.composer.provincePlaceholder' | translate }}</option>
-        <option *ngFor="let province of provinces()" [value]="province.id">{{ province.name }}</option>
+      <select
+        id="composer-to"
+        name="composer-to"
+        [ngModel]="toProvinceId()"
+        (ngModelChange)="updateToProvince($event ?? '')"
+      >
+        <option [ngValue]="null">{{ 'feed.composer.provincePlaceholder' | translate }}</option>
+        <option *ngFor="let province of provinces()" [ngValue]="province.id">{{ province.name }}</option>
       </select>
     </div>
 
@@ -90,11 +115,12 @@
       <label for="composer-quantity-unit">{{ 'feed.composer.quantityUnit' | translate }}</label>
       <select
         id="composer-quantity-unit"
-        [value]="quantityUnit()"
-        (change)="quantityUnit.set($any($event.target).value || '')"
+        name="composer-quantity-unit"
+        [ngModel]="quantityUnit() || null"
+        (ngModelChange)="quantityUnit.set($event || '')"
       >
-        <option value="">{{ 'feed.composer.quantityUnitPlaceholder' | translate }}</option>
-        <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+        <option [ngValue]="null">{{ 'feed.composer.quantityUnitPlaceholder' | translate }}</option>
+        <option *ngFor="let unit of unitOptions" [ngValue]="unit">{{ unit }}</option>
       </select>
     </div>
 

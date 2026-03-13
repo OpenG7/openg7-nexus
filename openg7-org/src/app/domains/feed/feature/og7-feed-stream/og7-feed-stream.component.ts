@@ -12,6 +12,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
   feedModeSig,
@@ -38,6 +39,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     TranslateModule,
     Og7FeedCardComponent,
     Og7FeedPostDrawerComponent,

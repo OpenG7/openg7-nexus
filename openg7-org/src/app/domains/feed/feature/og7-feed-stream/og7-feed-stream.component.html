@@ -30,9 +30,9 @@
 
     <div class="feed-stream__filter">
       <label for="feed-type">{{ 'feed.filters.type' | translate }}</label>
-      <select id="feed-type" [value]="selectedType() ?? ''" (change)="updateType($any($event.target).value)">
-        <option value="">{{ 'feed.filters.allTypes' | translate }}</option>
-        <option *ngFor="let type of typeOptions" [value]="type">
+      <select id="feed-type" [ngModel]="selectedType()" (ngModelChange)="updateType($event ?? '')">
+        <option [ngValue]="null">{{ 'feed.filters.allTypes' | translate }}</option>
+        <option *ngFor="let type of typeOptions" [ngValue]="type">
           {{ ('feed.type.' + type) | translate }}
         </option>
       </select>
@@ -40,9 +40,9 @@
 
     <div class="feed-stream__filter">
       <label for="feed-sector">{{ 'feed.filters.sector' | translate }}</label>
-      <select id="feed-sector" [value]="sectorId() ?? ''" (change)="updateSector($any($event.target).value)">
-        <option value="">{{ 'feed.filters.allSectors' | translate }}</option>
-        <option *ngFor="let sector of sectors()" [value]="sector.id">
+      <select id="feed-sector" [ngModel]="sectorId()" (ngModelChange)="updateSector($event ?? '')">
+        <option [ngValue]="null">{{ 'feed.filters.allSectors' | translate }}</option>
+        <option *ngFor="let sector of sectors()" [ngValue]="sector.id">
           {{ sector.name }}
         </option>
       </select>
@@ -50,9 +50,9 @@
 
     <div class="feed-stream__filter">
       <label for="feed-from">{{ 'feed.filters.fromProvince' | translate }}</label>
-      <select id="feed-from" [value]="fromProvinceId() ?? ''" (change)="updateFromProvince($any($event.target).value)">
-        <option value="">{{ 'feed.filters.allProvinces' | translate }}</option>
-        <option *ngFor="let province of provinces()" [value]="province.id">
+      <select id="feed-from" [ngModel]="fromProvinceId()" (ngModelChange)="updateFromProvince($event ?? '')">
+        <option [ngValue]="null">{{ 'feed.filters.allProvinces' | translate }}</option>
+        <option *ngFor="let province of provinces()" [ngValue]="province.id">
           {{ province.name }}
         </option>
       </select>
@@ -60,9 +60,9 @@
 
     <div class="feed-stream__filter">
       <label for="feed-to">{{ 'feed.filters.toProvince' | translate }}</label>
-      <select id="feed-to" [value]="toProvinceId() ?? ''" (change)="updateToProvince($any($event.target).value)">
-        <option value="">{{ 'feed.filters.allProvinces' | translate }}</option>
-        <option *ngFor="let province of provinces()" [value]="province.id">
+      <select id="feed-to" [ngModel]="toProvinceId()" (ngModelChange)="updateToProvince($event ?? '')">
+        <option [ngValue]="null">{{ 'feed.filters.allProvinces' | translate }}</option>
+        <option *ngFor="let province of provinces()" [ngValue]="province.id">
           {{ province.name }}
         </option>
       </select>
@@ -70,8 +70,8 @@
 
     <div class="feed-stream__filter">
       <label for="feed-mode">{{ 'feed.filters.mode' | translate }}</label>
-      <select id="feed-mode" [value]="selectedMode()" (change)="updateMode($any($event.target).value)">
-        <option *ngFor="let mode of modeOptions" [value]="mode">
+      <select id="feed-mode" [ngModel]="selectedMode()" (ngModelChange)="updateMode($event ?? 'BOTH')">
+        <option *ngFor="let mode of modeOptions" [ngValue]="mode">
           {{ ('feed.mode.' + (mode | lowercase)) | translate }}
         </option>
       </select>
@@ -79,8 +79,8 @@
 
     <div class="feed-stream__filter">
       <label for="feed-sort">{{ 'feed.filters.sort.label' | translate }}</label>
-      <select id="feed-sort" [value]="sortOrder()" (change)="updateSort($any($event.target).value)">
-        <option *ngFor="let sort of sortOptions" [value]="sort">
+      <select id="feed-sort" [ngModel]="sortOrder()" (ngModelChange)="updateSort($event ?? 'NEWEST')">
+        <option *ngFor="let sort of sortOptions" [ngValue]="sort">
           {{ ('feed.filters.sort.' + (sort | lowercase)) | translate }}
         </option>
       </select>
