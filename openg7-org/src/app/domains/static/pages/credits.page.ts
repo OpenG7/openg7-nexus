@@ -67,7 +67,7 @@ export class ChipComponent {
   styles: [
     `
       :host {
-        background: var(--og7-color-page);
+        background: transparent;
         color: var(--og7-color-body);
         display: block;
       }
@@ -76,27 +76,227 @@ export class ChipComponent {
         position: relative;
       }
 
+      .credits-shell .og7-static-backdrop__aurora {
+        background:
+          radial-gradient(
+            circle at 10% 4%,
+            color-mix(in srgb, var(--og7-color-primary-soft) 46%, transparent) 0%,
+            transparent 30%
+          ),
+          radial-gradient(circle at 84% 8%, rgba(148, 163, 184, 0.06) 0%, transparent 34%),
+          radial-gradient(
+            circle at 52% 100%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 26%, transparent) 0%,
+            transparent 42%
+          );
+        opacity: 0.44;
+      }
+
+      .credits-shell .og7-static-backdrop__stars {
+        mask-image: linear-gradient(180deg, #000 8%, transparent 84%);
+        opacity: 0.03;
+      }
+
+      .credits-shell .og7-static-backdrop__veil {
+        background: linear-gradient(
+          180deg,
+          rgba(5, 24, 64, 0.02) 0%,
+          rgba(5, 24, 64, 0.09) 45%,
+          rgba(5, 24, 64, 0.2) 100%
+        );
+      }
+
+      .credits-shell .og7-static-hero {
+        background:
+          linear-gradient(
+            145deg,
+            color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 100%
+          );
+        border-color: color-mix(in srgb, var(--og7-color-primary) 14%, var(--og7-color-border));
+        box-shadow:
+          0 30px 60px -42px rgba(15, 23, 42, 0.26),
+          var(--og7-shadow-e1);
+        backdrop-filter: blur(16px) saturate(118%);
+      }
+
+      .credits-hero {
+        align-items: start;
+        position: relative;
+      }
+
+      .credits-hero::after {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--og7-color-primary) 18%, var(--og7-color-border)),
+          transparent
+        );
+        content: '';
+        height: 1px;
+        inset: auto 1.5rem 0;
+        position: absolute;
+      }
+
+      .credits-shell .og7-static-kicker {
+        color: color-mix(in srgb, var(--og7-color-primary) 76%, var(--og7-color-title));
+      }
+
+      .credits-shell .og7-static-intro {
+        color: var(--og7-color-body);
+        max-width: 60ch;
+      }
+
+      .credits-shell .og7-static-action-primary {
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-primary) 94%, white 6%),
+          color-mix(in srgb, var(--og7-color-primary) 86%, black 14%)
+        );
+        border-color: color-mix(in srgb, var(--og7-color-primary) 45%, var(--og7-color-border));
+        box-shadow: 0 18px 34px -26px color-mix(in srgb, var(--og7-color-primary) 52%, transparent);
+      }
+
+      .credits-shell .og7-static-action-primary:hover {
+        box-shadow: 0 22px 40px -26px color-mix(in srgb, var(--og7-color-primary) 56%, transparent);
+      }
+
+      .credits-shell .og7-static-action-secondary {
+        background: color-mix(in srgb, var(--og7-color-surface-muted) 76%, var(--og7-color-surface));
+        border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+        color: var(--og7-color-title);
+      }
+
+      .credits-shell .og7-static-card--muted {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 100%
+          );
+      }
+
+      .credits-shell .og7-static-input {
+        background: color-mix(in srgb, var(--og7-color-surface) 74%, transparent);
+      }
+
+      .credits-shell .og7-static-chip {
+        background: color-mix(in srgb, var(--og7-color-surface-muted) 70%, transparent);
+        border-color: color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
+        color: var(--og7-color-body);
+      }
+
+      .credits-shell .og7-static-chip:hover {
+        background: color-mix(in srgb, var(--og7-color-surface) 78%, transparent);
+        border-color: color-mix(in srgb, var(--og7-color-primary) 22%, var(--og7-color-border));
+      }
+
+      .credits-shell .og7-static-chip.is-active {
+        background: color-mix(in srgb, var(--og7-color-primary-soft) 56%, transparent);
+        border-color: color-mix(in srgb, var(--og7-color-primary) 36%, var(--og7-color-border));
+        color: var(--og7-color-title);
+      }
+
+      .credits-hero-summary {
+        border-color: color-mix(in srgb, var(--og7-color-primary) 16%, var(--og7-color-border));
+        box-shadow: none;
+      }
+
+      .credits-coverage__pill {
+        align-items: center;
+        background: color-mix(in srgb, var(--og7-color-surface) 72%, transparent);
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+        border-radius: 999px;
+        color: var(--og7-color-title);
+        display: inline-flex;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 0.38rem 0.72rem;
+        text-transform: uppercase;
+      }
+
+      .credits-hero-rail {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 100%
+          );
+        border-color: color-mix(in srgb, var(--og7-color-primary) 14%, var(--og7-color-border));
+        box-shadow: none;
+      }
+
+      .credits-hero-rail__footer {
+        background: color-mix(in srgb, var(--og7-color-primary-soft) 34%, transparent);
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 16%, var(--og7-color-border));
+      }
+
       .credits-kpi-card {
-        background: var(--og7-color-surface);
-        border: 1px solid var(--og7-color-border);
-        border-radius: 0.95rem;
+        background: color-mix(in srgb, var(--og7-color-surface) 66%, transparent);
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+        border-radius: 1rem;
         display: grid;
-        gap: 0.15rem;
-        padding: 0.8rem;
-        text-align: center;
+        gap: 0.2rem;
+        overflow: hidden;
+        padding: 0.95rem;
+        position: relative;
+        text-align: left;
+      }
+
+      .credits-kpi-card::before {
+        background: color-mix(in srgb, var(--og7-color-primary) 72%, white 28%);
+        content: '';
+        inset: 0 auto 0 0;
+        position: absolute;
+        width: 3px;
       }
 
       .credits-kpi-value {
         color: var(--og7-color-title);
-        font-size: 1.45rem;
+        font-size: 1.6rem;
         font-weight: 700;
         line-height: 1.1;
       }
 
       .credits-kpi-label {
         color: var(--og7-color-subtle);
-        font-size: 0.78rem;
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
         line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      .credits-directory {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
+          );
+        border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+      }
+
+      .credits-directory__header {
+        border-bottom: 1px solid color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
+        padding-bottom: 1rem;
+      }
+
+      .credits-toolbar,
+      .credits-pillar-section,
+      .credits-community-panel,
+      .credits-sidebar-section {
+        border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+        box-shadow: none;
+      }
+
+      .credits-toolbar {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
+          );
       }
 
       .credits-filter-chips {
@@ -113,23 +313,50 @@ export class ChipComponent {
       }
 
       .credits-contributor-card {
-        min-height: 14.5rem;
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 100%
+          );
+        border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
+        box-shadow: none;
+        min-height: 15rem;
         transition:
           transform var(--og7-transition-base),
           box-shadow var(--og7-transition-base),
           border-color var(--og7-transition-base);
       }
 
+      .credits-contributor-card::before {
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--og7-color-primary) 76%, white 24%) 0%,
+          transparent 72%
+        );
+        content: '';
+        height: 4px;
+        inset: 0 0 auto;
+        position: absolute;
+      }
+
       .credits-contributor-card:hover,
       .credits-contributor-card:focus-within {
-        border-color: color-mix(in srgb, var(--og7-color-primary) 34%, var(--og7-color-border));
-        box-shadow: var(--og7-shadow-card);
-        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--og7-color-primary) 24%, var(--og7-color-border));
+        box-shadow:
+          0 20px 32px -28px color-mix(in srgb, var(--og7-color-primary) 42%, transparent),
+          var(--og7-shadow-e1);
+        transform: translateY(-3px);
       }
 
       .contributors-avatar {
-        background: var(--og7-color-surface-muted);
-        border: 1px solid var(--og7-color-border);
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 100%
+          );
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 10%, var(--og7-color-border));
         border-radius: 0.85rem;
         overflow: hidden;
       }
@@ -139,20 +366,70 @@ export class ChipComponent {
       }
 
       .contributors-badge {
-        background: color-mix(in srgb, var(--og7-color-primary-soft) 66%, var(--og7-color-surface));
-        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 26%, var(--og7-color-border));
+        background: color-mix(in srgb, var(--og7-color-primary-soft) 54%, var(--og7-color-surface));
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 24%, var(--og7-color-border));
         border-radius: 9999px;
-        color: color-mix(in srgb, var(--og7-color-primary) 66%, var(--og7-color-title));
+        color: var(--og7-color-title);
         font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.03em;
-        padding: 0.18rem 0.52rem;
+        letter-spacing: 0.08em;
+        padding: 0.22rem 0.58rem;
+        text-transform: uppercase;
+      }
+
+      .credits-pillar-section {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
+          );
+      }
+
+      .credits-community-panel {
+        background:
+          linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--og7-color-primary-soft) 38%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 72%
+          );
+        position: relative;
+      }
+
+      .credits-shell .og7-static-hero,
+      .credits-directory,
+      .credits-toolbar,
+      .credits-pillar-section,
+      .credits-community-panel,
+      .credits-sidebar-section,
+      .credits-hero-summary,
+      .credits-hero-rail,
+      .credits-kpi-card,
+      .credits-contributor-card {
+        backdrop-filter: blur(16px) saturate(118%);
+      }
+
+      .credits-community-panel::before {
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--og7-color-primary) 72%, white 28%),
+          transparent
+        );
+        content: '';
+        height: 4px;
+        inset: 0 0 auto;
+        position: absolute;
+      }
+
+      .credits-sidebar {
+        display: grid;
+        gap: 1.5rem;
       }
 
       .stack-marker {
         align-items: center;
-        background: color-mix(in srgb, var(--og7-color-primary-soft) 84%, var(--og7-color-surface));
-        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 24%, var(--og7-color-border));
+        background: color-mix(in srgb, var(--og7-color-surface-muted) 84%, var(--og7-color-surface));
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 18%, var(--og7-color-border));
         border-radius: 0.7rem;
         color: var(--og7-color-primary);
         display: inline-flex;
@@ -166,7 +443,7 @@ export class ChipComponent {
       }
 
       .method-step-index {
-        color: var(--og7-color-primary);
+        color: color-mix(in srgb, var(--og7-color-primary) 82%, var(--og7-color-title));
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.2em;
@@ -178,10 +455,14 @@ export class ChipComponent {
       }
 
       .governance-list li::marker {
-        color: color-mix(in srgb, var(--og7-color-primary) 55%, var(--og7-color-subtle));
+        color: var(--og7-color-primary);
       }
 
       @media (max-width: 767px) {
+        .credits-hero::after {
+          inset-inline: 1rem;
+        }
+
         .credits-contributor-card {
           min-height: auto;
         }

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { StatisticsService } from '@app/core/services/statistics.service';
 import { StatisticsFilters } from '@app/core/models/statistics';
+import { StatisticsService } from '@app/core/services/statistics.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { catchError, map, of, switchMap, withLatestFrom } from 'rxjs';

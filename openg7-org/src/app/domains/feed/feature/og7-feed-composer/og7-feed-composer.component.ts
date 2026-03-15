@@ -10,8 +10,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdSig } from '@app/state/shared-feed-signals';

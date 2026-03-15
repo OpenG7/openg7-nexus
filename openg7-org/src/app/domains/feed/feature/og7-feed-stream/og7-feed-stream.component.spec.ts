@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
   feedModeSig,
