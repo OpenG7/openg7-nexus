@@ -35,7 +35,13 @@ describe('RegisterPage', () => {
   };
 
   beforeEach(async () => {
-    auth = jasmine.createSpyObj<AuthService>('AuthService', ['register']);
+    auth = jasmine.createSpyObj<AuthService>('AuthService', [
+      'register',
+      'ensureSessionRestored',
+      'isAuthenticated',
+    ]);
+    auth.ensureSessionRestored.and.resolveTo();
+    auth.isAuthenticated.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [RegisterPage, RouterTestingModule],
@@ -52,6 +58,8 @@ describe('RegisterPage', () => {
 
     fixture = TestBed.createComponent(RegisterPage);
     component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
   });
 
@@ -100,5 +108,16 @@ describe('RegisterPage', () => {
     (component as any).onSubmit();
 
     expect((component as any).apiError()).toBe('auth.errors.emailAlreadyExists');
+  });
+
+  it('redirects authenticated users away from /register on init', async () => {
+    auth.isAuthenticated.and.returnValue(true);
+    navigateSpy.calls.reset();
+
+    const authenticatedFixture = TestBed.createComponent(RegisterPage);
+    authenticatedFixture.detectChanges();
+    await authenticatedFixture.whenStable();
+
+    expect(navigateSpy).toHaveBeenCalledWith('/profile');
   });
 });

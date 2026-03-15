@@ -1,4 +1,4 @@
-import './setup';
+﻿import './setup';
 import { expect, test } from '@playwright/test';
 
 interface PageExpectation {
@@ -13,38 +13,39 @@ const staticPages: readonly PageExpectation[] = [
     linkSelector: '[data-og7="footer-link-credits"]',
     urlPart: '/credits',
     pageAttr: 'credits',
-    headings: ['An ecosystem built together', 'Un ecosysteme construit ensemble'],
+    headings: ['An ecosystem built together', 'Un ecosysteme construit ensemble', 'pages.credits.title'],
   },
   {
     linkSelector: '[data-og7="footer-link-faq"]',
     urlPart: '/faq',
     pageAttr: 'faq',
-    headings: ['Frequently asked questions', 'Foire aux questions'],
+    headings: ['Frequently asked questions', 'Foire aux questions', 'pages.faq.title'],
   },
   {
     linkSelector: '[data-og7="footer-link-terms"]',
     urlPart: '/terms',
     pageAttr: 'terms',
-    headings: ['Terms of Service', "Conditions d'utilisation"],
+    headings: ['Terms of Service', "Conditions d'utilisation", 'pages.terms.title'],
   },
   {
     linkSelector: '[data-og7="footer-link-privacy"]',
     urlPart: '/privacy',
     pageAttr: 'privacy',
-    headings: ['Privacy policy', 'Politique de confidentialite'],
+    headings: ['Privacy policy', 'Politique de confidentialite', 'pages.privacy.title'],
   },
   {
     linkSelector: '[data-og7="footer-link-legal"]',
     urlPart: '/legal',
     pageAttr: 'legal',
-    headings: ['Legal notice', 'Mentions legales'],
+    headings: ['Legal notice', 'Mentions legales', 'pages.legal.title'],
   },
 ];
+
 const normalizeHeading = (value: string): string =>
   value
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
-    .replace(/[�']/g, '')
+    .replace(/[’']/g, '')
     .replace(/[^a-zA-Z0-9 ]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
@@ -73,4 +74,3 @@ test.describe('Static informational pages', () => {
     });
   }
 });
-

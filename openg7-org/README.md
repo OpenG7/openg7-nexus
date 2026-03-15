@@ -63,13 +63,26 @@ ng test
 
 ## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+This app uses Playwright for end-to-end testing. From `openg7-org/`, run:
 
 ```bash
-ng e2e
+yarn e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Useful variants:
+
+```bash
+yarn e2e:smoke
+yarn e2e:regression
+```
+
+From the monorepo root, the equivalent commands are:
+
+```bash
+yarn test:e2e
+yarn test:e2e:smoke
+yarn test:e2e:regression
+```
 
 ## Documentation
 

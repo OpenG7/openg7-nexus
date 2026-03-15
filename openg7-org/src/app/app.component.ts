@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, PLATFORM_ID, Type, inject, signal } from '@angular/core';
+import { afterNextRender, Component, PLATFORM_ID, Type, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -75,6 +75,7 @@ export class AppComponent {
     starHeight: 1,
   };
   readonly componentLabComponent = signal<Type<unknown> | null>(null);
+  readonly appReady = signal(false);
   readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly isHandset = toSignal(
@@ -87,6 +88,9 @@ export class AppComponent {
   constructor() {
     void this.globalShortcuts;
     void this.loadComponentLabIfEnabled();
+    if (this.isBrowser) {
+      afterNextRender(() => this.appReady.set(true));
+    }
   }
 
   private async loadComponentLabIfEnabled(): Promise<void> {

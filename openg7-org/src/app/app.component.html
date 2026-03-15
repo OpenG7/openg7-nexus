@@ -1,4 +1,4 @@
-<div data-og7="app-shell" class="app-shell flex min-h-screen flex-col bg-page text-body" [og7CtrlK]="false"
+<div data-og7="app-shell" [attr.data-og7-ready]="appReady() ? 'true' : 'false'" class="app-shell flex min-h-screen flex-col bg-page text-body" [og7CtrlK]="false"
   og7CtrlKSource="global">
   <og7-site-header [handset]="isHandset()" (menuToggle)="null"></og7-site-header>
   <og7-under-construction-banner></og7-under-construction-banner>

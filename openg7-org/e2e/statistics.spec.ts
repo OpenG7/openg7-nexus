@@ -123,10 +123,24 @@ test('statistics filters update the dataset', async ({ page }) => {
   });
 
   await page.goto('/statistics');
+  await expect(page.locator('[data-og7="app-shell"][data-og7-ready="true"]')).toBeVisible();
   await expect(page.locator('[data-og7="statistics-scope-toggle"]')).toBeVisible();
 
-  await page.locator('[data-og7="statistics-scope-toggle"] button').nth(1).click();
-  await page.locator('[data-og7="statistics-intrant-filter"][data-og7-value="energy"]').click();
+  await Promise.all([
+    page.waitForResponse((response) => {
+      const url = response.url();
+      return url.includes('/api/statistics') && url.includes('scope=international') && !url.includes('intrant=');
+    }),
+    page.locator('[data-og7="statistics-scope-toggle"] button').nth(1).click(),
+  ]);
+
+  await Promise.all([
+    page.waitForResponse((response) => {
+      const url = response.url();
+      return url.includes('/api/statistics') && url.includes('scope=international') && url.includes('intrant=energy');
+    }),
+    page.locator('[data-og7="statistics-intrant-filter"][data-og7-value="energy"]').click(),
+  ]);
 
   const summaryCards = page.locator('[data-og7="statistics-summary-card"]');
   const emptyState = page.locator('[data-og7="statistics-empty"]');
@@ -134,11 +148,14 @@ test('statistics filters update the dataset', async ({ page }) => {
 
   if ((await summaryCards.count()) > 0) {
     await expect(summaryCards.first()).toBeVisible();
-
-    const intrants = await summaryCards.evaluateAll(cards =>
-      cards.map(card => card.getAttribute('data-og7-intrant'))
-    );
-    expect(unique(intrants)).toEqual(['energy']);
+    await expect
+      .poll(async () => {
+        const intrants = await summaryCards.evaluateAll(cards =>
+          cards.map(card => card.getAttribute('data-og7-intrant'))
+        );
+        return unique(intrants);
+      })
+      .toEqual(['energy']);
     return;
   }
 
