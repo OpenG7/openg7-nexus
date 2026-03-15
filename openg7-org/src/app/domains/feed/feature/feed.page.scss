@@ -1,7 +1,7 @@
 .og7-feed {
   --og7-feed-bg: #020b27;
-  --og7-feed-surface: rgba(8, 20, 56, 0.82);
-  --og7-feed-surface-muted: rgba(10, 28, 70, 0.72);
+  --og7-feed-surface: rgba(8, 20, 56, 0.66);
+  --og7-feed-surface-muted: rgba(10, 28, 70, 0.54);
   --og7-feed-border: rgba(125, 211, 252, 0.24);
   --og7-feed-border-strong: rgba(125, 211, 252, 0.38);
   --og7-feed-text: #e2e8f0;
@@ -20,9 +20,9 @@
   gap: 1.5rem;
   padding: 1.5rem clamp(1rem, 3vw, 3rem);
   background:
-    radial-gradient(circle at 15% 12%, rgba(34, 211, 238, 0.18), transparent 35%),
-    radial-gradient(circle at 88% 28%, rgba(59, 130, 246, 0.2), transparent 36%),
-    linear-gradient(180deg, rgba(1, 11, 39, 0.96), rgba(1, 8, 28, 1));
+    radial-gradient(circle at 15% 12%, rgba(34, 211, 238, 0.1), transparent 34%),
+    radial-gradient(circle at 88% 28%, rgba(59, 130, 246, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(1, 11, 39, 0.52), rgba(1, 8, 28, 0.76));
   color: var(--og7-feed-text);
   min-height: 100%;
 }
@@ -35,7 +35,8 @@
   border-radius: 1.25rem;
   border: 1px solid var(--og7-feed-border);
   background: var(--og7-feed-surface);
-  box-shadow: 0 26px 70px -46px rgba(14, 165, 233, 0.62);
+  box-shadow: 0 26px 70px -52px rgba(14, 165, 233, 0.46);
+  backdrop-filter: blur(16px) saturate(118%);
 }
 
 .og7-feed__header h1 {
@@ -80,6 +81,7 @@
   border-radius: 1rem;
   border: 1px solid var(--og7-feed-border);
   background: var(--og7-feed-surface-muted);
+  backdrop-filter: blur(14px) saturate(116%);
 }
 
 .og7-feed__aside-title {
@@ -117,7 +119,7 @@
   align-items: center;
   border-radius: 0.55rem;
   border: 1px solid var(--og7-feed-border-strong);
-  background: rgba(6, 17, 45, 0.9);
+  background: rgba(6, 17, 45, 0.72);
   color: var(--og7-feed-text-strong);
   font-weight: 600;
   padding: 0.2rem 0.45rem;

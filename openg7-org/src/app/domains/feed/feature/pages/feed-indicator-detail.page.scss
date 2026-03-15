@@ -19,17 +19,14 @@
 
 .feed-indicator-detail::before {
   background:
-    radial-gradient(circle at 16% 10%, rgba(234, 179, 8, 0.2), transparent 46%),
-    radial-gradient(circle at 82% 18%, rgba(14, 116, 144, 0.24), transparent 45%),
-    radial-gradient(circle at 48% 90%, rgba(30, 41, 59, 0.45), transparent 62%);
+    radial-gradient(circle at 16% 10%, rgba(234, 179, 8, 0.16), transparent 44%),
+    radial-gradient(circle at 82% 18%, rgba(14, 116, 144, 0.16), transparent 44%),
+    radial-gradient(circle at 48% 90%, rgba(30, 41, 59, 0.28), transparent 60%);
   z-index: 0;
 }
 
 .feed-indicator-detail::after {
-  background-image: radial-gradient(circle, rgba(226, 232, 240, 0.2) 0.8px, transparent 1px);
-  background-size: 4px 4px;
-  opacity: 0.28;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.84), transparent 82%);
+  background: none;
   z-index: 0;
 }
 
@@ -42,7 +39,8 @@
   margin: 0.75rem 0 0;
   border-radius: 0.78rem;
   border: 1px solid rgba(248, 113, 113, 0.4);
-  background: rgba(127, 29, 29, 0.32);
+  background: rgba(127, 29, 29, 0.24);
+  backdrop-filter: blur(14px) saturate(116%);
   padding: 0.42rem 0.66rem;
   color: #fecaca;
   font-size: 0.82rem;
@@ -65,7 +63,8 @@
 .feed-indicator-detail__empty {
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.25);
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.34);
+  backdrop-filter: blur(16px) saturate(118%);
   padding: 1rem;
   display: grid;
   gap: 0.75rem;

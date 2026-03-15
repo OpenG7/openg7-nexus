@@ -7,11 +7,11 @@
   top: 0.45rem;
   z-index: 6;
   border-radius: 1rem;
-  border: 1px solid rgba(251, 191, 36, 0.24);
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.93), rgba(15, 23, 42, 0.84));
-  box-shadow: 0 20px 40px -32px rgba(2, 6, 23, 0.98);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.82), rgba(15, 23, 42, 0.7));
+  box-shadow: 0 20px 40px -32px rgba(2, 6, 23, 0.74);
   padding: 1rem;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px) saturate(118%);
 }
 
 .indicator-hero--compact {
@@ -62,7 +62,7 @@
 .indicator-hero__action {
   border-radius: 0.7rem;
   border: 1px solid rgba(148, 163, 184, 0.32);
-  background: rgba(15, 23, 42, 0.58);
+  background: rgba(15, 23, 42, 0.44);
   color: #e2e8f0;
   padding: 0.42rem 0.74rem;
   cursor: pointer;
@@ -86,7 +86,7 @@
 .chip {
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.36);
   color: rgba(226, 232, 240, 0.94);
   padding: 0.22rem 0.66rem;
   font-size: 0.9rem;
@@ -103,7 +103,7 @@
   display: inline-flex;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.33);
-  background: rgba(15, 23, 42, 0.46);
+  background: rgba(15, 23, 42, 0.34);
   overflow: hidden;
 }
 
