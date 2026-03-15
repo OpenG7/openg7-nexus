@@ -1,10 +1,11 @@
 :host {
   display: block;
+  --og7-drawer-header-offset: 4rem;
 }
 
 .opportunity-report-drawer {
   position: fixed;
-  inset: 4rem 0 0 0;
+  inset: var(--og7-drawer-header-offset) 0 0 0;
   z-index: 70;
 }
 

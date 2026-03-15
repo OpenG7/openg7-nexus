@@ -665,6 +665,7 @@
     "shortcuts": {
       "title": "Keyboard shortcuts",
       "description": "Navigate faster on desktop and tablets.",
+      "publish": "Open publishing",
       "refresh": "Refresh the feed",
       "loadMore": "Load more items",
       "closeDrawer": "Close the details panel"
@@ -747,6 +748,13 @@
       "close": "Close details",
       "aria": "Item details panel"
     },
+    "publishBar": {
+      "title": "Share an offer, a request, or an alert",
+      "description": "Open the publishing panel without leaving the feed.",
+      "cta": "Publish an exchange",
+      "shortcut": "Shortcut",
+      "prefill": "Active filters are used as the starting point."
+    },
     "composer": {
       "title": "Publish an exchange",
       "subtitle": "Share offers or requests with a clear title, sector, and route.",
@@ -798,7 +806,8 @@
       "reconnecting": "Reconnecting in {{ seconds }}s..."
     },
     "context": {
-      "homeFeedPanels": "Context preserved from the home feed panels."
+      "homeFeedPanels": "Context preserved from the home feed panels.",
+      "corridorFocus": "Focused corridor:"
     },
     "error": {
       "generic": "Something went wrong. Please try again.",
@@ -3786,6 +3795,10 @@
   "importCompaniesBulkPage": {
     "title": "Asynchronous company bulk import",
     "subtitle": "Create an asynchronous import job from CSV/JSONL file or JSON payload and track progress in real time.",
+    "badges": {
+      "formats": "CSV, JSONL, NDJSON",
+      "liveTracking": "Live tracking"
+    },
     "fields": {
       "mode": "Execution mode",
       "dryRun": "Dry run (no write)",

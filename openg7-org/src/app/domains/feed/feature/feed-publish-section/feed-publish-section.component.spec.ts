@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
@@ -20,6 +20,7 @@ class DummyPageComponent {}
   template: '<div data-testid="feed-composer-stub"></div>',
 })
 class FeedComposerStubComponent {
+  readonly showHeader = input(true);
   readonly focusPrimaryField = jasmine.createSpy('focusPrimaryField');
 }
 
@@ -55,8 +56,20 @@ describe('FeedPublishSectionComponent', () => {
     await router.navigateByUrl('/feed?draftSource=alert&draftTitle=Winter%20peak');
   });
 
-  it('renders a login CTA for anonymous visitors and preserves the current feed URL', () => {
+  it('renders the compact publish bar and keeps the drawer closed by default', () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.feed-publish__bar')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
+  });
+
+  it('opens the auth gate inside the drawer for anonymous visitors and preserves the current feed URL', () => {
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    openButton.click();
     fixture.detectChanges();
 
     const gate = fixture.nativeElement.querySelector('[data-og7="feed-composer-auth-gate"]');
@@ -73,41 +86,68 @@ describe('FeedPublishSectionComponent', () => {
     });
   });
 
-  it('renders the composer when the user is authenticated', () => {
+  it('opens the composer drawer when the user is authenticated', () => {
     authState.set(true);
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    openButton.click();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="feed-composer-auth-gate"]')).toBeNull();
   });
 
-  it('focuses the login CTA for anonymous users when requested', () => {
+  it('opens the drawer and focuses the login CTA for anonymous users when requested', async () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance;
+    const component = fixture.componentInstance as FeedPublishSectionComponent;
+    component.focusPrimaryAction();
+    fixture.detectChanges();
+
     const link = fixture.nativeElement.querySelector('[data-og7-id="feed-login-to-publish"]') as HTMLAnchorElement;
     const focusSpy = spyOn(link, 'focus');
 
-    component.focusPrimaryAction();
+    await fixture.whenStable();
 
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeTruthy();
     expect(focusSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('delegates focus to the composer when the user is authenticated', () => {
+  it('opens the drawer and delegates focus to the composer when the user is authenticated', async () => {
     authState.set(true);
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance;
+    const component = fixture.componentInstance as FeedPublishSectionComponent;
+    component.focusPrimaryAction();
+    fixture.detectChanges();
+
     const composer = fixture.debugElement.query(By.directive(FeedComposerStubComponent))
       .componentInstance as FeedComposerStubComponent;
 
-    component.focusPrimaryAction();
+    await fixture.whenStable();
 
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeTruthy();
     expect(composer.focusPrimaryField).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the drawer when the backdrop is clicked', () => {
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    openButton.click();
+    fixture.detectChanges();
+
+    const backdrop = fixture.nativeElement.querySelector('.feed-publish__backdrop') as HTMLButtonElement;
+    backdrop.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
   });
 });

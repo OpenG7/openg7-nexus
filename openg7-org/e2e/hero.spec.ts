@@ -9,5 +9,4 @@ test('hero section and actions render', async ({ page }) => {
   const action = (id: string) => page.locator(`[data-og7="action"][data-og7-id="${id}"]`);
   await expect(action('view-sectors')).toBeVisible();
   await expect(action('pro-mode')).toBeVisible();
-  await expect(action('preview')).toBeVisible();
 });

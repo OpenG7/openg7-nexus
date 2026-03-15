@@ -1,13 +1,15 @@
 :host {
   display: block;
+  --og7-drawer-header-offset: 4rem;
 }
 
 .indicator-alert-drawer {
   position: fixed;
-  inset: 0;
+  inset: var(--og7-drawer-header-offset) 0 0 0;
   z-index: 25;
   display: flex;
   justify-content: flex-end;
+  pointer-events: none;
 }
 
 .indicator-alert-drawer__backdrop {
@@ -15,17 +17,24 @@
   inset: 0;
   border: none;
   background: rgba(2, 6, 23, 0.64);
+  pointer-events: auto;
 }
 
 .indicator-alert-drawer__panel {
   position: relative;
   width: min(420px, 100%);
   height: 100%;
+  box-sizing: border-box;
   border-left: 1px solid rgba(148, 163, 184, 0.24);
   background: linear-gradient(180deg, rgba(2, 6, 23, 0.96), rgba(15, 23, 42, 0.94));
   backdrop-filter: blur(14px);
   padding: 1rem 1rem 1.2rem;
-  overflow: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
 }
 
 .indicator-alert-drawer__panel header {
@@ -55,9 +64,9 @@
 }
 
 .indicator-alert-drawer form {
-  margin-top: 1rem;
   display: grid;
   gap: 0.8rem;
+  align-content: start;
 }
 
 .indicator-alert-drawer label {

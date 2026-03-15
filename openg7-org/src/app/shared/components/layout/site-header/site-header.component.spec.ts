@@ -340,5 +340,25 @@ describe('SiteHeaderComponent', () => {
       expect(configuredPaths.has(target)).withContext(`Missing route for ${target}`).toBeTrue();
     });
   });
+
+  it('hides the register link from the more menu for authenticated users', () => {
+    component.isMoreOpen.set(true);
+    fixture.detectChanges();
+
+    const registerLinksForGuests = fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
+
+    expect(registerLinksForGuests.length).toBe(1);
+
+    auth.isAuthenticatedSig.set(true);
+    fixture.detectChanges();
+
+    const registerLinksForAuthenticatedUsers = fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
+
+    expect(registerLinksForAuthenticatedUsers.length).toBe(0);
+  });
 });
 

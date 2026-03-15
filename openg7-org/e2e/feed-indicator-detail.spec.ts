@@ -1,12 +1,12 @@
 import './setup';
 import { expect, test } from '@playwright/test';
 
-import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
+import { mockAuthenticatedSessionApis, seedAuthenticatedSession } from './helpers/auth-session';
 
 test.describe('Feed indicator detail', () => {
-  test('renders indicator detail and supports alert drawer flow', async ({ page }) => {
+  test('renders indicator detail and gates alert creation behind login', async ({ page }) => {
     await mockAuthenticatedSessionApis(page);
-    await loginAsAuthenticatedE2eUser(page, '/feed/indicators/indicator-001');
+    await page.goto('/feed/indicators/indicator-001');
     await expect(page).toHaveURL(/\/feed\/indicators\/indicator-001/);
 
     await expect(page.locator('[data-og7="indicator-detail-page"]')).toBeVisible();
@@ -17,6 +17,14 @@ test.describe('Feed indicator detail', () => {
     await page.locator('[data-og7-id="indicator-subscribe"]').click();
     await page.locator('[data-og7-id="indicator-timeframe-24h"]').click();
     await page.locator('[data-og7-id="indicator-granularity-hour"]').click();
+
+    await page.locator('[data-og7-id="indicator-create-alert"]').click();
+    await expect(page).toHaveURL(/\/login\?redirect=%2Ffeed%2Findicators%2Findicator-001/);
+
+    await seedAuthenticatedSession(page);
+    await page.goto('/feed/indicators/indicator-001');
+    await expect(page).toHaveURL(/\/feed\/indicators\/indicator-001/);
+    await expect(page.locator('[data-og7="indicator-detail-page"]')).toBeVisible();
 
     await page.locator('[data-og7-id="indicator-create-alert"]').click();
     await expect(page.locator('[data-og7="indicator-alert-drawer"]')).toBeVisible();

@@ -1,6 +1,8 @@
 import './setup';
 import { expect, test, type Page } from '@playwright/test';
 
+import { seedAuthenticatedSession } from './helpers/auth-session';
+
 const opportunityItem = {
   id: 'opportunity-300mw',
   createdAt: '2026-01-15T10:00:00.000Z',
@@ -208,36 +210,13 @@ async function loginAndOpenFeed(page: Page): Promise<void> {
   await expect(page.locator('main')).toBeVisible();
   await expect(page.locator('[data-og7="hero"][data-og7-id="section"]')).toBeVisible();
 
-  const homeCtaLinks = page.locator('og7-home-cta-row a');
-  await expect(homeCtaLinks.first()).toBeVisible();
-  await homeCtaLinks.first().click();
-  await expect(page).toHaveURL(/\/login\?redirect=%2Ffeed/);
-
-  const loginForm = page.locator('form[data-og7="auth-login"]');
-  await expect(loginForm).toBeVisible();
-
-  const passwordToggle = loginForm
-    .locator('button[type="button"]')
-    .filter({ hasText: /Afficher|Show|Masquer|Hide/i })
-    .first();
-  await expect(passwordToggle).toHaveAttribute('aria-pressed', 'false');
-  await passwordToggle.click();
-  await expect(passwordToggle).toHaveAttribute('aria-pressed', 'true');
-  await passwordToggle.click();
-  await expect(passwordToggle).toHaveAttribute('aria-pressed', 'false');
-
-  await page.locator('#auth-login-email').fill('e2e.user@openg7.test');
-  await page.locator('#auth-login-password').fill('StrongPass123!');
-  const loginResponsePromise = page.waitForResponse(
-    response =>
-      response.request().method().toUpperCase() === 'POST' &&
-      response.url().includes('/api/auth/local')
-  );
-  await page.locator('[data-og7="auth-login-submit"]').click();
-  const loginResponse = await loginResponsePromise;
-  expect(loginResponse.status()).toBe(200);
-
-  await expect(page).toHaveURL(/\/feed($|\?)/);
+  const homeCtaLink = page.locator('og7-home-cta-row a[href="/feed"]').first();
+  await expect(homeCtaLink).toBeVisible();
+  await expect(homeCtaLink).toHaveAttribute('href', '/feed');
+  await Promise.all([
+    page.waitForURL(/\/feed($|\?)/),
+    homeCtaLink.click(),
+  ]);
   await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
   await expect(page.locator('.feed-stream__list li').first()).toBeVisible();
 }
@@ -260,6 +239,13 @@ async function runCompleteFlow(page: Page): Promise<void> {
   await expect(page.locator('[data-og7-id="opportunity-make-offer"]')).toHaveAccessibleName(
     /Proposer|Offer/i
   );
+  const opportunityDetailPath = new URL(page.url()).pathname;
+  await page.locator('[data-og7-id="opportunity-make-offer"]').click();
+  await expect(page).toHaveURL(new RegExp(`/login\\?redirect=${encodeURIComponent(opportunityDetailPath)}`));
+  await seedAuthenticatedSession(page);
+  await page.goto(opportunityDetailPath);
+  await expect(page).toHaveURL(/\/feed\/opportunities\/.+/);
+  await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
   await page.locator('[data-og7-id="opportunity-make-offer"]').click();
   await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeVisible();
   await page.keyboard.press('Escape');

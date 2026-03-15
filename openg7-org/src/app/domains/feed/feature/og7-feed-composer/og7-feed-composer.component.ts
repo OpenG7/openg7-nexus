@@ -6,10 +6,12 @@ import {
   computed,
   effect,
   inject,
+  input,
   signal,
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdSig } from '@app/state/shared-feed-signals';
@@ -22,7 +24,7 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 @Component({
   selector: 'og7-feed-composer',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './og7-feed-composer.component.html',
   styleUrls: ['./og7-feed-composer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +38,7 @@ export class Og7FeedComposerComponent {
     initialValue: this.route.snapshot.queryParamMap,
   });
   private readonly appliedPrefillKey = signal<string | null>(null);
+  readonly showHeader = input(true);
 
   protected readonly type = signal<FeedItemType | null>(feedTypeSig());
   protected readonly sectorId = signal<string | null>(sectorIdSig());

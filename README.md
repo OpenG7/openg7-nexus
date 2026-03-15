@@ -97,6 +97,13 @@ OpenG7 exists to provide:
 
 > On Windows, `Run-Installer-pwsh.cmd` runs `install-dev-basics_robuste.ps1` to prepare the environment and offers a menu for the main `yarn` commands.
 
+Useful repo-level scripts:
+- `yarn test:e2e`: run the full Playwright end-to-end suite from the monorepo root
+- `yarn test:e2e:smoke`: run the critical smoke journey only
+- `yarn test:e2e:regression`: run the broader regression journey
+- `yarn predeploy:preprod`: run pre-production checks plus the smoke E2E gate
+- `yarn predeploy:preprod:full`: run the same checks plus the full E2E suite
+
 Detailed guides live in `docs/`:
 - `docs/getting-started.md`: onboarding and local setup details
 - `docs/frontend/`: Angular architecture, selectors, UX notes
@@ -210,6 +217,13 @@ OpenG7 sert à fournir :
 6. En développement, les seeds Strapi créent ou mettent à jour automatiquement le compte admin à partir de `STRAPI_ADMIN_*`.
 
 > Sous Windows, `Run-Installer-pwsh.cmd` exécute `install-dev-basics_robuste.ps1` pour préparer l'environnement et proposer un menu sur les principales commandes `yarn`.
+
+Scripts utiles à la racine :
+- `yarn test:e2e` : lance toute la suite Playwright depuis la racine du monorepo
+- `yarn test:e2e:smoke` : lance uniquement le parcours critique smoke
+- `yarn test:e2e:regression` : lance le parcours de régression plus large
+- `yarn predeploy:preprod` : exécute les vérifications de préproduction puis le garde-fou E2E smoke
+- `yarn predeploy:preprod:full` : exécute les mêmes vérifications puis toute la suite E2E
 
 Guides détaillés dans `docs/` :
 - `docs/getting-started.md` : onboarding et détails de setup local

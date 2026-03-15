@@ -1,7 +1,7 @@
 import './setup';
 import { expect, test } from '@playwright/test';
 
-import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
+import { mockAuthenticatedSessionApis, seedAuthenticatedSession } from './helpers/auth-session';
 
 interface SavedSearchRecord {
   id: string;
@@ -88,8 +88,9 @@ test.describe('Saved searches page', () => {
       });
     });
 
-    await loginAsAuthenticatedE2eUser(page, '/profile');
-    await expect(page).toHaveURL(/\/profile$/);
+    await seedAuthenticatedSession(page);
+    await page.goto('/');
+    await expect(page.locator('[data-og7="profile"] > button')).toBeVisible();
 
     await page.locator('[data-og7="profile"] > button').click();
     await page.locator('[data-og7-id="saved-searches"]').first().click();

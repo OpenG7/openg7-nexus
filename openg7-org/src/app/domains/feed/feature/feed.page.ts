@@ -12,6 +12,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -57,12 +58,20 @@ export class FeedPage {
   readonly unreadCount = computed(() => this.feed.unreadCount());
   readonly connectionState = this.feed.connectionState;
   readonly savedKeys = computed(() => new Set(this.favorites.list()));
+  private readonly sourceContext = computed(() => {
+    return this.normalizeQueryParam(this.queryParamMap().get('source'));
+  });
   readonly sourceContextKey = computed(() => {
-    const source = this.normalizeQueryParam(this.queryParamMap().get('source'));
-    return source === 'home-feed-panels' ? 'feed.context.homeFeedPanels' : null;
+    return this.sourceContext() === 'home-feed-panels' ? 'feed.context.homeFeedPanels' : null;
+  });
+  readonly corridorContext = computed(() => {
+    if (this.sourceContext() !== 'corridors-realtime') {
+      return null;
+    }
+    return resolveCorridorContext(this.normalizeQueryParam(this.queryParamMap().get('corridorId')));
   });
   readonly highlightedItemId = computed(() =>
-    this.sourceContextKey() ? this.normalizeQueryParam(this.queryParamMap().get('feedItemId')) : null
+    this.sourceContext() === 'home-feed-panels' ? this.normalizeQueryParam(this.queryParamMap().get('feedItemId')) : null
   );
   protected readonly shortcutsHeadingId = 'feed-shortcuts-heading';
   protected readonly contactItem = signal<FeedItem | null>(null);
@@ -114,6 +123,10 @@ export class FeedPage {
       }
     }
     const key = event.key.toLowerCase();
+    if (key === 'p') {
+      event.preventDefault();
+      this.handleComposeRequested();
+    }
     if (key === 'r') {
       event.preventDefault();
       this.handleRefresh();

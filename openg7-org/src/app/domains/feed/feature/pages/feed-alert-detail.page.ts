@@ -322,7 +322,14 @@ export class FeedAlertDetailPage {
     });
   }
 
-  protected openRelatedAlert(alertId: string): void {
+  protected openRelatedAlert(alertId: string | null): void {
+    if (!alertId) {
+      void this.router.navigate(['/feed'], {
+        queryParams: { type: 'ALERT' },
+        queryParamsHandling: 'merge',
+      });
+      return;
+    }
     void this.router.navigate(['/feed', 'alerts', alertId]);
   }
 
@@ -483,13 +490,13 @@ export class FeedAlertDetailPage {
 
     return [
       {
-        id: 'demo-high-winds-warning',
+        id: null,
         title: this.translate.instant('feed.alert.detail.demo.relatedAlert1'),
         region: provinceLabel,
         severity: this.translate.instant('feed.alert.detail.severity.medium'),
       },
       {
-        id: 'demo-heavy-snowfall-alert',
+        id: null,
         title: this.translate.instant('feed.alert.detail.demo.relatedAlert2'),
         region: this.translate.instant('feed.alert.detail.quebec'),
         severity: this.translate.instant('feed.alert.detail.severity.high'),

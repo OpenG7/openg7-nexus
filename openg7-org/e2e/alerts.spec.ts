@@ -1,7 +1,8 @@
 import './setup';
 import { expect, test } from '@playwright/test';
 
-import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
+import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
+import { mockProfileAndFavoritesApis } from './helpers/domain-mocks';
 
 interface SavedSearchSeed {
   id: string;
@@ -39,7 +40,7 @@ test.describe('Alerts page', () => {
 
     const alerts: AlertRecord[] = [];
 
-    await mockAuthenticatedSessionApis(page);
+    await mockProfileAndFavoritesApis(page);
 
     await page.route('**/api/users/me/alerts**', async (route) => {
       const request = route.request();
@@ -208,12 +209,7 @@ test.describe('Alerts page', () => {
       });
     });
 
-    await loginAsAuthenticatedE2eUser(page, '/profile');
-    await expect(page).toHaveURL(/\/profile$/);
-
-    await page.locator('[data-og7="profile"] > button').click();
-    await page.locator('[data-og7-id="alerts"]').first().click();
-
+    await loginAsAuthenticatedE2eUser(page, '/alerts');
     await expect(page).toHaveURL(/\/alerts$/);
     await expect(page.locator('[data-og7="user-alerts"]')).toBeVisible();
 

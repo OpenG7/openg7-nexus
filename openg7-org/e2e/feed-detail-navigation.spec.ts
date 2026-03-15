@@ -1,12 +1,12 @@
 import './setup';
 import { expect, test } from '@playwright/test';
 
-import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
+import { mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test.describe('Feed detail navigation', () => {
   test('opens opportunity or alert detail page depending on tile type', async ({ page }) => {
     await mockAuthenticatedSessionApis(page);
-    await loginAsAuthenticatedE2eUser(page, '/feed');
+    await page.goto('/feed');
     await expect(page).toHaveURL(/\/feed($|\?)/);
 
     const opportunityCard = page.locator('.feed-stream__list li').filter({

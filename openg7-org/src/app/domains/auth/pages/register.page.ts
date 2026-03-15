@@ -92,10 +92,18 @@ export class RegisterPage implements OnInit {
     { validators: this.passwordsMatchValidator }
   );
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const redirectParam = this.route.snapshot.queryParamMap.get('redirect');
     if (redirectParam) {
       this.authRedirect.captureRedirectParam(redirectParam);
+    }
+
+    await this.auth.ensureSessionRestored();
+
+    if (this.auth.isAuthenticated()) {
+      const destination = this.authRedirect.consumeRedirectUrl('/profile');
+      void this.router.navigateByUrl(destination);
+      return;
     }
 
     this.redirectTarget.set(this.authRedirect.peekRedirectUrl('/profile'));

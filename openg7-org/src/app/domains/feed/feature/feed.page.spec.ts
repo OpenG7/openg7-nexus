@@ -5,7 +5,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
@@ -201,6 +201,29 @@ describe('FeedPage', () => {
         },
       })
       .compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(
+      'en',
+      {
+        feed: {
+          context: {
+            homeFeedPanels: 'Context preserved from the home feed panels.',
+            corridorFocus: 'Focused corridor:',
+          },
+        },
+        home: {
+          corridorsRealtime: {
+            items: {
+              essentialServices: 'Essential services',
+              qcOn: 'QC -> ON',
+            },
+          },
+        },
+      },
+      true
+    );
+    translate.use('en');
   });
 
   it('loads initial feed stream when page opens and state is not hydrated', () => {
@@ -241,6 +264,22 @@ describe('FeedPage', () => {
     const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
     expect(stream.highlightedItemId()).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-og7="feed-source-context"]')).toBeNull();
+  });
+
+  it('shows corridor context when the feed is opened from realtime corridors', () => {
+    queryParamMap$.next(convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }));
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const context = fixture.nativeElement.querySelector('[data-og7="feed-source-context"]') as HTMLElement;
+
+    expect(stream.highlightedItemId()).toBeNull();
+    expect(context).toBeTruthy();
+    expect(context.textContent).toContain('Focused corridor:');
+    expect(context.textContent).toContain('Essential services');
+    expect(context.textContent).toContain('QC -> ON');
   });
 
   it('routes indicator items to /feed/indicators/:id', () => {
@@ -362,6 +401,20 @@ describe('FeedPage', () => {
       .componentInstance as FeedPublishSectionStubComponent;
 
     stream.composeRequested.emit();
+
+    expect(feed.markOnboardingSeen).toHaveBeenCalledTimes(1);
+    expect(publishSection.focusPrimaryAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the publish drawer from the keyboard shortcut P', () => {
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const publishSection = fixture.debugElement.query(By.directive(FeedPublishSectionStubComponent))
+      .componentInstance as FeedPublishSectionStubComponent;
+
+    component.handleShortcuts(new KeyboardEvent('keydown', { key: 'p' }));
 
     expect(feed.markOnboardingSeen).toHaveBeenCalledTimes(1);
     expect(publishSection.focusPrimaryAction).toHaveBeenCalledTimes(1);
