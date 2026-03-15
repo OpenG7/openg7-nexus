@@ -10,7 +10,8 @@
 .opportunity-body__card {
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba(15, 23, 42, 0.32);
+  backdrop-filter: blur(14px) saturate(116%);
   padding: 1rem;
   box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
 }
@@ -64,7 +65,7 @@
   align-items: center;
   border-radius: 0.75rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(2, 6, 23, 0.32);
+  background: rgba(2, 6, 23, 0.24);
   padding: 0.55rem 0.7rem;
 }
 

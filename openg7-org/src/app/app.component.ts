@@ -1,18 +1,18 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, PLATFORM_ID, Type, inject, signal } from '@angular/core';
+import { afterNextRender, Component, PLATFORM_ID, Type, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
 import { SiteHeaderComponent } from '@app/shared/components/layout/site-header/site-header.component';
 import { UnderConstructionBannerComponent } from '@app/shared/components/layout/under-construction-banner/under-construction-banner.component';
 import { CtrlKDirective } from '@app/shared/directives/ctrl-k.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxStarrySkyComponent } from '@omnedia/ngx-starry-sky';
-import { map } from 'rxjs';
+import { filter, map } from 'rxjs';
 
 import { FEATURE_FLAGS } from './core/config/environment.tokens';
 import { GlobalShortcutsService } from './core/shortcuts/global-shortcuts.service';
@@ -49,6 +49,7 @@ export class AppComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly globalShortcuts = inject(GlobalShortcutsService);
   private readonly featureFlags = inject(FEATURE_FLAGS);
+  private readonly router = inject(Router);
 
    readonly starrySkyColor = 'transparent';
   readonly starsBackgroundConfig = {
@@ -82,6 +83,14 @@ export class AppComponent {
     this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
     { initialValue: false },
   );
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+  readonly immersiveMainContent = computed(() => isImmersiveMainContentUrl(this.currentUrl()));
 
   readonly currentYear = new Date().getFullYear();
 
@@ -104,4 +113,29 @@ export class AppComponent {
 
     this.componentLabComponent.set(component);
   }
+}
+
+const IMMERSIVE_MAIN_CONTENT_PREFIXES = ['/feed'];
+const IMMERSIVE_MAIN_CONTENT_PATHS = new Set([
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/credits',
+  '/auth/callback',
+]);
+
+function isImmersiveMainContentUrl(url: string): boolean {
+  const normalized = normalizeUrlPath(url);
+  if (IMMERSIVE_MAIN_CONTENT_PATHS.has(normalized)) {
+    return true;
+  }
+
+  return IMMERSIVE_MAIN_CONTENT_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
+}
+
+function normalizeUrlPath(url: string): string {
+  const [pathWithoutHash] = url.split('#', 1);
+  const [pathWithoutQuery] = pathWithoutHash.split('?', 1);
+  return pathWithoutQuery || '/';
 }

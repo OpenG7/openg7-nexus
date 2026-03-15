@@ -12,6 +12,7 @@
   border-radius: 0.75rem;
   border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
   background: var(--og7-feed-surface, rgba(8, 20, 56, 0.82));
+  backdrop-filter: blur(14px) saturate(116%);
   color: var(--og7-feed-text, #e2e8f0);
 }
 
@@ -33,7 +34,7 @@
   appearance: none;
   border: 1px solid var(--og7-feed-border-strong, rgba(125, 211, 252, 0.38));
   border-radius: 0.65rem;
-  background: rgba(8, 25, 64, 0.84);
+  background: rgba(8, 25, 64, 0.66);
   color: var(--og7-feed-text-strong, #f8fafc);
   font-weight: 600;
   padding: 0.4rem 0.75rem;
@@ -77,6 +78,7 @@
   border-radius: 0.9rem;
   border: 1px solid var(--og7-feed-border, rgba(125, 211, 252, 0.24));
   background: var(--og7-feed-surface, rgba(8, 20, 56, 0.82));
+  backdrop-filter: blur(14px) saturate(116%);
 }
 
 .feed-stream__filter {

@@ -5,7 +5,8 @@
 .indicator-chart {
   border-radius: 1rem;
   border: 1px solid rgba(251, 191, 36, 0.22);
-  background: rgba(2, 6, 23, 0.52);
+  background: rgba(2, 6, 23, 0.38);
+  backdrop-filter: blur(14px) saturate(116%);
   padding: 1rem;
   display: grid;
   gap: 0.75rem;
@@ -42,7 +43,7 @@
 .indicator-chart__state {
   border-radius: 0.75rem;
   border: 1px dashed rgba(148, 163, 184, 0.3);
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.34);
   padding: 0.65rem 0.75rem;
   color: rgba(226, 232, 240, 0.85);
 }
@@ -68,7 +69,7 @@
   background:
     radial-gradient(circle at 68% 18%, rgba(245, 158, 11, 0.24), transparent 46%),
     radial-gradient(circle at 12% 84%, rgba(30, 41, 59, 0.36), transparent 60%),
-    rgba(2, 6, 23, 0.62);
+    rgba(2, 6, 23, 0.46);
   padding: 0.35rem;
   overflow: hidden;
 }
@@ -131,7 +132,7 @@
   min-width: 9.8rem;
   border-radius: 0.72rem;
   border: 1px solid rgba(251, 191, 36, 0.4);
-  background: rgba(2, 6, 23, 0.88);
+  background: rgba(2, 6, 23, 0.72);
   padding: 0.45rem 0.55rem;
   color: #f8fafc;
   pointer-events: none;
@@ -163,7 +164,7 @@
 .indicator-chart__table-wrap table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(2, 6, 23, 0.62);
+  background: rgba(2, 6, 23, 0.46);
 }
 
 .indicator-chart__table-wrap caption {
