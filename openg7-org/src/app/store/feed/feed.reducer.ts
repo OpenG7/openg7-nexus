@@ -24,6 +24,7 @@ export interface FeedState {
   readonly drawerItemId: string | null;
   readonly hydrated: boolean;
   readonly unseenIds: readonly string[];
+  readonly localPublishedIds: readonly string[];
 }
 
 const INITIAL_FILTERS: FeedFilterState = {
@@ -51,6 +52,7 @@ const INITIAL_STATE: FeedState = {
   drawerItemId: null,
   hydrated: false,
   unseenIds: [],
+  localPublishedIds: [],
 };
 
 export const feedReducer = createReducer(
@@ -75,6 +77,7 @@ export const feedReducer = createReducer(
     ...mergeItems(append ? state.items : [], append ? state.itemIndex : {}, items),
     hydrated: true,
     unseenIds: append ? state.unseenIds : [],
+    localPublishedIds: append ? state.localPublishedIds : [],
   })),
   on(FeedActions.loadFailure, (state, { error }) => ({
     ...state,
@@ -114,6 +117,9 @@ export const feedReducer = createReducer(
       itemIndex: createItemIndex(items),
       optimisticMap,
       unseenIds: state.unseenIds.filter(id => id !== tempId && id !== item.id),
+      localPublishedIds: state.localPublishedIds.includes(item.id)
+        ? state.localPublishedIds
+        : [item.id, ...state.localPublishedIds].slice(0, 50),
     };
   }),
   on(FeedActions.publishFailure, (state, { tempId, error }) => {
@@ -146,6 +152,7 @@ export const feedReducer = createReducer(
     filters: snapshot.filters,
     onboardingSeen: snapshot.onboardingSeen,
     hydrated: true,
+    localPublishedIds: [],
   })),
   on(FeedActions.markOnboardingSeen, state => ({
     ...state,
@@ -250,13 +257,17 @@ function reduceRealtimeEnvelope(state: FeedState, envelope: FeedRealtimeEnvelope
     case 'feed.item.created': {
       const item = payload as FeedItem;
       const merged = mergeItems(state.items, state.itemIndex, [item]);
+      const isLocalPublish = state.localPublishedIds.includes(item.id);
       return {
         ...state,
         ...merged,
         cursor: cursor ?? state.cursor,
-        unseenIds: state.unseenIds.includes(item.id)
+        unseenIds: isLocalPublish || state.unseenIds.includes(item.id)
           ? state.unseenIds
           : [item.id, ...state.unseenIds].slice(0, 200),
+        localPublishedIds: isLocalPublish
+          ? state.localPublishedIds.filter(id => id !== item.id)
+          : state.localPublishedIds,
       };
     }
     case 'feed.item.updated': {
@@ -274,6 +285,7 @@ function reduceRealtimeEnvelope(state: FeedState, envelope: FeedRealtimeEnvelope
         items,
         itemIndex: createItemIndex(items),
         unseenIds: state.unseenIds.filter(id => id !== item.id),
+        localPublishedIds: state.localPublishedIds.filter(id => id !== item.id),
       };
     }
     default:

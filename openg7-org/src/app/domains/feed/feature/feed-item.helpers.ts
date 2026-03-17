@@ -14,3 +14,19 @@ export function buildFeedFavoriteKey(item: Pick<FeedItem, 'id' | 'type'>): strin
 
   return isFeedOpportunityType(item.type) ? `opportunity:${itemId}` : itemId;
 }
+
+export function resolveFeedConnectionMatchId(
+  item: Pick<FeedItem, 'type' | 'connectionMatchId'> | null | undefined
+): number | null {
+  if (!item || !isFeedOpportunityType(item.type)) {
+    return null;
+  }
+
+  const matchId = item.connectionMatchId;
+  if (!Number.isFinite(matchId ?? NaN)) {
+    return null;
+  }
+
+  const normalized = Math.trunc(matchId as number);
+  return normalized > 0 ? normalized : null;
+}

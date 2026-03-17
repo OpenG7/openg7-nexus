@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { LinkupDataService } from '@app/domains/matchmaking/data-access/linkup-data.service';
 import {
   LINKUP_STATUS_META,
   LINKUP_TRADE_MODE_OPTIONS,
   LinkupRecord,
   LinkupStatus,
-  LinkupStore,
   LinkupTradeMode,
-} from '@app/domains/matchmaking/data-access/linkup.store';
+} from '@app/domains/matchmaking/data-access/linkup.models';
 import { Og7SearchFieldComponent } from '@app/shared/components/search/og7-search-field.component';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -37,14 +37,15 @@ interface TradeModeFilterOption {
   styleUrls: ['./og7-linkup-history-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-/**
- * Contexte : Page d’historique des mises en relation (
- * route `/linkups`).
- * Raison d’être : Offrir un tableau filtrable des
- * mises en relation traitées via OpenG7.
- */
 export class Og7LinkupHistoryPageComponent {
-  private readonly store = inject(LinkupStore);
+  private readonly linkups = inject(LinkupDataService);
+  private readonly itemsSignal = signal<readonly LinkupRecord[]>([]);
+  private readonly loadingSignal = signal(true);
+  private readonly errorKeySignal = signal<string | null>(null);
+
+  private readonly filterStatusSignal = signal<LinkupStatus | 'all'>('all');
+  private readonly filterModeSignal = signal<LinkupTradeMode | 'all'>('all');
+  private readonly searchTermSignal = signal('');
 
   protected readonly statuses: readonly StatusFilterOption[] = [
     { id: 'all', labelKey: 'pages.linkups.filters.status.all' },
@@ -61,14 +62,57 @@ export class Og7LinkupHistoryPageComponent {
     { id: 'both', labelKey: LINKUP_TRADE_MODE_OPTIONS.both },
   ];
 
-  protected readonly filterStatus = this.store.filterStatus.asReadonly();
-  protected readonly filterMode = this.store.filterMode.asReadonly();
-  protected readonly searchTerm = this.store.searchTerm.asReadonly();
-  protected readonly filteredLinkups = this.store.filteredLinkups;
-  protected readonly hasActiveFilters = this.store.hasActiveFilters;
+  protected readonly loading = this.loadingSignal.asReadonly();
+  protected readonly errorKey = this.errorKeySignal.asReadonly();
+  protected readonly filterStatus = this.filterStatusSignal.asReadonly();
+  protected readonly filterMode = this.filterModeSignal.asReadonly();
+  protected readonly searchTerm = this.searchTermSignal.asReadonly();
 
-  protected readonly statusCounts = computed(() => this.store.statusCounts());
-  protected readonly totalLinkups = computed(() => this.store.items().length);
+  protected readonly filteredLinkups = computed(() => {
+    const statusFilter = this.filterStatusSignal();
+    const tradeModeFilter = this.filterModeSignal();
+    const search = this.searchTermSignal().trim().toLowerCase();
+
+    return this.itemsSignal().filter((linkup) => {
+      if (statusFilter !== 'all' && linkup.status !== statusFilter) {
+        return false;
+      }
+      if (tradeModeFilter !== 'all' && linkup.tradeMode !== tradeModeFilter) {
+        return false;
+      }
+      if (!search) {
+        return true;
+      }
+      return this.matchesSearch(linkup, search);
+    });
+  });
+
+  protected readonly hasActiveFilters = computed(() => {
+    return (
+      this.filterStatusSignal() !== 'all'
+      || this.filterModeSignal() !== 'all'
+      || Boolean(this.searchTermSignal().trim())
+    );
+  });
+
+  protected readonly statusCounts = computed(() => {
+    const counts: Record<LinkupStatus, number> = {
+      pending: 0,
+      inDiscussion: 0,
+      completed: 0,
+      closed: 0,
+    };
+    for (const linkup of this.itemsSignal()) {
+      counts[linkup.status] += 1;
+    }
+    return counts as Readonly<Record<LinkupStatus, number>>;
+  });
+
+  protected readonly totalLinkups = computed(() => this.itemsSignal().length);
+
+  constructor() {
+    void this.loadHistory();
+  }
 
   protected statusClass(status: LinkupStatus): string {
     return LINKUP_STATUS_META[status].chipClass;
@@ -78,27 +122,57 @@ export class Og7LinkupHistoryPageComponent {
     return LINKUP_STATUS_META[status].labelKey;
   }
 
-  protected tradeModeLabel(mode: LinkupTradeMode): string {
-    return LINKUP_TRADE_MODE_OPTIONS[mode];
-  }
-
   protected onStatusSelected(status: LinkupStatus | 'all'): void {
-    this.store.setStatusFilter(status);
+    this.filterStatusSignal.set(status);
   }
 
   protected onTradeModeSelected(mode: LinkupTradeMode | 'all'): void {
-    this.store.setTradeModeFilter(mode);
+    this.filterModeSignal.set(mode);
   }
 
   protected onSearchChanged(term: string): void {
-    this.store.setSearchTerm(term);
+    this.searchTermSignal.set(term);
   }
 
   protected onResetFilters(): void {
-    this.store.resetFilters();
+    this.filterStatusSignal.set('all');
+    this.filterModeSignal.set('all');
+    this.searchTermSignal.set('');
+  }
+
+  protected onRetry(): void {
+    void this.loadHistory();
   }
 
   protected trackByLinkupId(_: number, item: LinkupRecord): string {
     return item.id;
+  }
+
+  private async loadHistory(): Promise<void> {
+    this.loadingSignal.set(true);
+    this.errorKeySignal.set(null);
+    try {
+      this.itemsSignal.set(await this.linkups.loadHistory());
+    } catch {
+      this.itemsSignal.set([]);
+      this.errorKeySignal.set('pages.linkups.errors.load');
+    } finally {
+      this.loadingSignal.set(false);
+    }
+  }
+
+  private matchesSearch(linkup: LinkupRecord, query: string): boolean {
+    const haystacks = [
+      linkup.companyA.name,
+      linkup.companyA.province ?? '',
+      linkup.companyA.sector ?? '',
+      linkup.companyB.name,
+      linkup.companyB.province ?? '',
+      linkup.companyB.sector ?? '',
+      linkup.primarySector ?? '',
+      linkup.summary,
+    ];
+
+    return haystacks.some((value) => value.toLowerCase().includes(query));
   }
 }

@@ -1013,6 +1013,7 @@
         },
         "cta": {
           "subscribe": "Subscribe",
+          "subscribing": "Subscribing...",
           "subscribed": "Subscribed",
           "share": "Share",
           "reportUpdate": "Report update",
@@ -1022,6 +1023,14 @@
           "createOpportunityTitlePrefix": "Linked opportunity"
         },
         "lastUpdate": "Last update: {{ value }}",
+        "subscription": {
+          "generatedTitlePrefix": "Alert subscription",
+          "generatedMessage": "You subscribed to updates for {{ title }}.",
+          "status": {
+            "success": "Subscription saved. This alert is now tracked in your inbox.",
+            "errorGeneric": "Unable to subscribe to this alert. Please try again."
+          }
+        },
         "report": {
           "title": "Contribute an update",
           "viewTitle": "My report",
@@ -1126,6 +1135,7 @@
         "breadcrumbCurrent": "Ontario electricity",
         "actions": {
           "subscribe": "Subscribe",
+          "subscribing": "Subscribing...",
           "subscribed": "Subscribed",
           "share": "Share",
           "createAlert": "Create alert"
@@ -2248,6 +2258,20 @@
       "eyebrow": "Matchmaking hub",
       "title": "Linkups",
       "subtitle": "Track the history of your economic connections and where each request stands.",
+      "loading": {
+        "title": "Loading linkups",
+        "description": "We are synchronizing your bilateral connections with the OpenG7 backend."
+      },
+      "actions": {
+        "retry": "Retry"
+      },
+      "errors": {
+        "title": "Unable to load linkups",
+        "load": "The linkups history could not be loaded. Please try again."
+      },
+      "channels": {
+        "platform": "OpenG7 platform"
+      },
       "filters": {
         "reset": "Reset filters",
         "status": {
@@ -2284,9 +2308,32 @@
         "export": "Export",
         "both": "Import + export"
       },
+      "timeline": {
+        "stage": {
+          "intro": "Introduction submitted",
+          "reply": "Linkup created",
+          "meeting": "Coordination in progress",
+          "review": "Relationship under review",
+          "deal": "Relationship advanced"
+        },
+        "status": {
+          "pending": "Status: pending",
+          "inDiscussion": "Status: in discussion",
+          "completed": "Status: completed",
+          "closed": "Status: closed"
+        }
+      },
       "detail": {
         "backToList": "Back to linkups",
         "eyebrow": "Detailed record",
+        "loading": {
+          "title": "Loading linkup",
+          "description": "We are fetching the bilateral details for this record."
+        },
+        "errors": {
+          "load": "The linkup could not be loaded. Please try again."
+        },
+        "systemAuthor": "OpenG7 system",
         "reference": "Reference",
         "createdAt": "Created on",
         "updatedAt": "Last updated",
@@ -2430,6 +2477,7 @@
       },
       "errors": {
         "load": "Unable to load alerts. Please try again.",
+        "create": "Unable to create this alert right now. Please try again.",
         "generate": "Unable to generate alerts right now. Please try again.",
         "update": "Unable to update this alert. Please try again.",
         "delete": "Unable to delete this alert. Please try again."

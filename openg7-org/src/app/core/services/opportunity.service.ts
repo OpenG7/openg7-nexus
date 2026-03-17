@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, Signal, TransferState, inject, makeStateKey, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
+import { Observable, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { API_URL } from '../config/environment.tokens';
@@ -242,6 +242,65 @@ export class OpportunityService {
     );
   }
 
+  /**
+   * Contexte : Used by lightweight business flows that need match candidates without mutating the
+   * global opportunities view state.
+   * Raison d'etre : Queries the opportunity-matches endpoint silently and falls back to the
+   * currently cached collection if the network request fails.
+   * @param query Optional filters applied to the candidate lookup.
+   * @returns Promise resolving to candidate matches ordered as returned by the API or cache.
+   */
+  async searchMatches(query?: OpportunityMatchQuery): Promise<readonly OpportunityMatch[]> {
+    const url = this.composeUrl();
+    const params = this.buildHttpParams(query);
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<OpportunityMatchesResponse>(url, { params })
+      );
+      return this.filterMatches(this.mapMatches(response), query);
+    } catch {
+      return this.filterMatches(this.itemsSignal(), query);
+    }
+  }
+
+  /**
+   * Contexte : Used by secondary read flows that need one match to enrich another screen without
+   * surfacing global feed notifications.
+   * Raison d'etre : Resolves a single match quietly, reuses cache when available, and stores the
+   * result back into the local cache on success.
+   * @param id Identifier of the match to resolve.
+   * @returns Promise resolving to the match or null when it cannot be fetched.
+   */
+  async findMatchById(id: number): Promise<OpportunityMatch | null> {
+    if (!Number.isFinite(id)) {
+      return null;
+    }
+
+    const existing = this.itemsSignal().find((match) => match.id === id);
+    if (existing) {
+      return existing;
+    }
+
+    const url = `${this.composeUrl()}/${id}`;
+    const params = this.buildHttpParams();
+
+    try {
+      const response = await firstValueFrom(this.http.get<OpportunityMatchResponse>(url, { params }));
+      const match = response?.data ? this.mapMatch(response.data) : null;
+      if (!match) {
+        return null;
+      }
+      const current = this.itemsSignal();
+      if (!current.some((item) => item.id === match.id)) {
+        this.itemsSignal.set([...current, match]);
+      }
+      return match;
+    } catch {
+      return null;
+    }
+  }
+
   private buildHttpParams(query?: OpportunityMatchQuery): HttpParams {
     let params = new HttpParams().set('populate', 'buyer,seller');
     if (!query) {
@@ -417,5 +476,52 @@ export class OpportunityService {
       segments.push(`pageSize=${query.pageSize}`);
     }
     return segments.join('|') || 'default';
+  }
+
+  private filterMatches(
+    matches: readonly OpportunityMatch[],
+    query?: OpportunityMatchQuery
+  ): readonly OpportunityMatch[] {
+    if (!query) {
+      return [...matches];
+    }
+
+    const search = query.q?.trim().toLowerCase() ?? '';
+    const filtered = matches.filter((match) => {
+      if (query.mode && match.mode !== 'all' && match.mode !== query.mode) {
+        return false;
+      }
+
+      if (
+        query.province &&
+        match.buyer.province !== query.province &&
+        match.seller.province !== query.province
+      ) {
+        return false;
+      }
+
+      if (
+        query.sector &&
+        match.buyer.sector !== query.sector &&
+        match.seller.sector !== query.sector
+      ) {
+        return false;
+      }
+
+      if (!search) {
+        return true;
+      }
+
+      const haystack = `${match.commodity} ${match.buyer.name} ${match.seller.name}`.toLowerCase();
+      return haystack.includes(search);
+    });
+
+    if (!query.pageSize || query.pageSize < 1) {
+      return filtered;
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const start = (page - 1) * query.pageSize;
+    return filtered.slice(start, start + query.pageSize);
   }
 }

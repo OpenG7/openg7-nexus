@@ -82,7 +82,7 @@
         id="composer-title"
         type="text"
         [value]="title()"
-        (input)="title.set($any($event.target).value || '')"
+        (input)="updateTitle($any($event.target).value || '')"
         [placeholder]="'feed.composer.titlePlaceholder' | translate"
       />
     </div>
@@ -93,7 +93,7 @@
         id="composer-summary"
         rows="4"
         [value]="summary()"
-        (input)="summary.set($any($event.target).value || '')"
+        (input)="updateSummary($any($event.target).value || '')"
         [placeholder]="'feed.composer.summaryPlaceholder' | translate"
       ></textarea>
     </div>
@@ -106,7 +106,7 @@
         min="0"
         step="any"
         [value]="quantityValue()"
-        (input)="quantityValue.set($any($event.target).value || '')"
+        (input)="updateQuantityValue($any($event.target).value || '')"
         [placeholder]="'feed.composer.quantityValuePlaceholder' | translate"
       />
     </div>
@@ -117,7 +117,7 @@
         id="composer-quantity-unit"
         name="composer-quantity-unit"
         [ngModel]="quantityUnit() || null"
-        (ngModelChange)="quantityUnit.set($event || '')"
+        (ngModelChange)="updateQuantityUnit($event || '')"
       >
         <option [ngValue]="null">{{ 'feed.composer.quantityUnitPlaceholder' | translate }}</option>
         <option *ngFor="let unit of unitOptions" [ngValue]="unit">{{ unit }}</option>
@@ -130,12 +130,15 @@
         id="composer-tags"
         type="text"
         [value]="tagsInput()"
-        (input)="tagsInput.set($any($event.target).value || '')"
+        (input)="updateTagsInput($any($event.target).value || '')"
         [placeholder]="'feed.composer.tagsPlaceholder' | translate"
       />
     </div>
   </div>
 
+  <p *ngIf="submitError()" class="feed-composer__status feed-composer__status--error" role="alert" data-og7="feed-composer-status">
+    {{ submitError() | translate }}
+  </p>
   <ul *ngIf="errors().length" class="feed-composer__errors" role="alert">
     <li *ngFor="let error of errors()">{{ error | translate }}</li>
   </ul>
@@ -147,7 +150,7 @@
     <button type="submit" class="feed-composer__submit" [disabled]="!canSubmit()">
       {{ submitting() ? ('feed.composer.submitting' | translate) : ('feed.composer.submit' | translate) }}
     </button>
-    <button type="button" class="feed-composer__clear" (click)="clearDraft()">
+    <button type="button" class="feed-composer__clear" [disabled]="submitting()" (click)="clearDraft()">
       {{ 'feed.composer.clear' | translate }}
     </button>
   </footer>

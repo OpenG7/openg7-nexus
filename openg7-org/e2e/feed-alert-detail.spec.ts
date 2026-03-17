@@ -4,7 +4,17 @@ import { expect, test } from '@playwright/test';
 import { mockAuthenticatedSessionApis, seedAuthenticatedSession } from './helpers/auth-session';
 
 test.describe('Feed alert detail', () => {
-  test('renders alert details with dedicated CTA and related links', async ({ page }) => {
+  test('redirects anonymous users to login when subscribing from alert detail', async ({ page }) => {
+    await mockAuthenticatedSessionApis(page);
+    await page.goto('/feed/alerts/alert-001');
+    await expect(page).toHaveURL(/\/feed\/alerts\/alert-001/);
+
+    await page.locator('[data-og7-id="alert-subscribe"]').click();
+
+    await expect(page).toHaveURL(/\/login\?redirect=%2Ffeed%2Falerts%2Falert-001$/);
+  });
+
+  test('renders alert details with report flow and related links', async ({ page }) => {
     await mockAuthenticatedSessionApis(page);
     await page.goto('/feed/alerts/alert-001');
     await expect(page).toHaveURL(/\/feed\/alerts\/alert-001/);
@@ -14,7 +24,6 @@ test.describe('Feed alert detail', () => {
     await expect(page.locator('[data-og7="alert-detail-body"]')).toBeVisible();
     await expect(page.locator('[data-og7="alert-context-aside"]')).toBeVisible();
 
-    await page.locator('[data-og7-id="alert-subscribe"]').click();
     await page.locator('[data-og7-id="alert-share"]').click();
     await page.locator('[data-og7-id="alert-report-update"]').click();
     await expect(page.locator('[data-og7="alert-update-drawer"]')).toBeVisible();
@@ -44,6 +53,25 @@ test.describe('Feed alert detail', () => {
 
     await page.locator('[data-og7="alert-related-opportunities"] ul li button').first().click();
     await expect(page).toHaveURL(/\/feed\/opportunities\/[^/]+$/);
+  });
+
+  test('persists an authenticated alert subscription across reloads', async ({ page }) => {
+    await mockAuthenticatedSessionApis(page);
+    await seedAuthenticatedSession(page);
+    await page.goto('/feed/alerts/alert-001');
+
+    const subscribeButton = page.locator('[data-og7-id="alert-subscribe"]');
+    await expect(subscribeButton).toHaveText(/S'abonner|Subscribe/i);
+    await expect(subscribeButton).toBeEnabled();
+
+    await subscribeButton.click();
+
+    await expect(subscribeButton).toHaveText(/Abonne|Subscribed/i);
+    await expect(subscribeButton).toBeDisabled();
+
+    await page.reload();
+    await expect(page.locator('[data-og7-id="alert-subscribe"]')).toHaveText(/Abonne|Subscribed/i);
+    await expect(page.locator('[data-og7-id="alert-subscribe"]')).toBeDisabled();
   });
 
   test('opens the linked opportunity composer directly from the alert CTA', async ({ page }) => {

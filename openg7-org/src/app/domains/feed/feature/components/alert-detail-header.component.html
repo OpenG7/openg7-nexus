@@ -24,9 +24,17 @@
         class="alert-detail-header__action alert-detail-header__action--primary"
         data-og7="action"
         data-og7-id="alert-subscribe"
-        (click)="toggleSubscribe.emit()"
+        [disabled]="subscribeDisabled()"
+        [attr.aria-busy]="subscribePending() ? 'true' : null"
+        (click)="subscribe.emit()"
       >
-        {{ subscribed() ? ('feed.alert.detail.cta.subscribed' | translate) : ('feed.alert.detail.cta.subscribe' | translate) }}
+        {{
+          subscribePending()
+            ? ('feed.alert.detail.cta.subscribing' | translate)
+            : subscribed()
+              ? ('feed.alert.detail.cta.subscribed' | translate)
+              : ('feed.alert.detail.cta.subscribe' | translate)
+        }}
       </button>
 
       <button
@@ -39,15 +47,39 @@
         {{ 'feed.alert.detail.cta.share' | translate }}
       </button>
 
-      <button
-        type="button"
-        class="alert-detail-header__action"
-        data-og7="action"
-        data-og7-id="alert-report-update"
-        (click)="reportUpdate.emit()"
-      >
-        {{ 'feed.alert.detail.cta.reportUpdate' | translate }}
-      </button>
+      <ng-container *ngIf="hasPendingReport(); else reportUpdateAction">
+        <button
+          type="button"
+          class="alert-detail-header__action"
+          data-og7="action"
+          data-og7-id="alert-view-my-report"
+          (click)="reportUpdate.emit()"
+        >
+          {{ 'feed.alert.detail.cta.viewMyReport' | translate }}
+        </button>
+
+        <button
+          type="button"
+          class="alert-detail-header__action"
+          data-og7="action"
+          data-og7-id="alert-report-update-another"
+          (click)="reportAnotherUpdate.emit()"
+        >
+          {{ 'feed.alert.detail.cta.reportAnotherUpdate' | translate }}
+        </button>
+      </ng-container>
+
+      <ng-template #reportUpdateAction>
+        <button
+          type="button"
+          class="alert-detail-header__action"
+          data-og7="action"
+          data-og7-id="alert-report-update"
+          (click)="reportUpdate.emit()"
+        >
+          {{ 'feed.alert.detail.cta.reportUpdate' | translate }}
+        </button>
+      </ng-template>
 
       <button
         *ngIf="canCreateOpportunity()"

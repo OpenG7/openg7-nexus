@@ -184,7 +184,7 @@ class OpportunityOffersServiceMock {
   }
 }
 
-function createOpportunityItem(id: string): FeedItem {
+function createOpportunityItem(id: string, overrides: Partial<FeedItem> = {}): FeedItem {
   return {
     id,
     createdAt: '2026-01-15T10:00:00.000Z',
@@ -207,6 +207,7 @@ function createOpportunityItem(id: string): FeedItem {
       kind: 'PARTNER',
       label: 'Hydro Desk',
     },
+    ...overrides,
   };
 }
 
@@ -367,6 +368,32 @@ describe('FeedOpportunityDetailPage', () => {
     expect(component.offerDrawerOpen()).toBeFalse();
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { redirect: '/feed/opportunities/opportunity-300mw' },
+    });
+    expect(feed.publishDraft).not.toHaveBeenCalled();
+  });
+
+  it('routes to linkup when the opportunity carries a connection match id', async () => {
+    const linkedItem = createOpportunityItem('opportunity-300mw', { connectionMatchId: 73 });
+    feed.findItemById.and.resolveTo(linkedItem);
+    feed.items.set([linkedItem]);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      offerDrawerOpen: () => boolean;
+      openOfferDrawer: () => void;
+    };
+
+    component.openOfferDrawer();
+
+    expect(component.offerDrawerOpen()).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/linkup', 73], {
+      queryParams: {
+        source: 'feed',
+        feedItemId: 'opportunity-300mw',
+      },
     });
     expect(feed.publishDraft).not.toHaveBeenCalled();
   });

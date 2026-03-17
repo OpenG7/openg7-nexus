@@ -2,12 +2,16 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from '@app/core/auth/auth.service';
 import {
+  CreateUserAlertPayload,
   UserAlertRecord,
   UserAlertsApiService,
 } from '@app/core/services/user-alerts-api.service';
 import { of } from 'rxjs';
 
-import { UserAlertsService } from './user-alerts.service';
+import {
+  FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+  UserAlertsService,
+} from './user-alerts.service';
 
 function buildRecord(id: string, patch: Partial<UserAlertRecord> = {}): UserAlertRecord {
   return {
@@ -36,6 +40,7 @@ describe('UserAlertsService', () => {
     authState = signal(false);
 
     api = jasmine.createSpyObj<UserAlertsApiService>('UserAlertsApiService', [
+      'createMine',
       'listMine',
       'generateFromSavedSearches',
       'markRead',
@@ -45,6 +50,18 @@ describe('UserAlertsService', () => {
     ]);
 
     api.listMine.and.returnValue(of([]));
+    api.createMine.and.callFake((payload: CreateUserAlertPayload) =>
+      of(
+        buildRecord('created-1', {
+          title: payload.title,
+          message: payload.message,
+          severity: payload.severity ?? 'info',
+          sourceType: payload.sourceType ?? null,
+          sourceId: payload.sourceId ?? null,
+          metadata: payload.metadata ?? null,
+        })
+      )
+    );
     api.generateFromSavedSearches.and.returnValue(of({ count: 0, skipped: 0, generated: [] }));
     api.markRead.and.returnValue(of(buildRecord('1', { isRead: true, readAt: '2026-02-10T09:00:00.000Z' })));
     api.markAllRead.and.returnValue(of({ updated: 0, readAt: null }));
@@ -120,6 +137,57 @@ describe('UserAlertsService', () => {
 
     expect(api.generateFromSavedSearches).toHaveBeenCalled();
     expect(service.entries().map((entry) => entry.id)).toEqual(['generated-1']);
+  });
+
+  it('creates a persisted alert and tracks pending state by source', async () => {
+    authState.set(true);
+    const service = createService();
+
+    const result = await service.create({
+      title: 'Alert subscription: Ice storm risk on Ontario transmission lines',
+      message: 'You subscribed to updates for Ice storm risk on Ontario transmission lines.',
+      sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+      sourceId: 'alert-001',
+      metadata: {
+        route: '/feed/alerts/alert-001',
+      },
+    });
+
+    expect(api.createMine).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+        sourceId: 'alert-001',
+      })
+    );
+    expect(result.status).toBe('created');
+    expect(service.hasSource(FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, 'alert-001')).toBeTrue();
+    expect(service.isSourcePending(FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, 'alert-001')).toBeFalse();
+  });
+
+  it('does not create a duplicate alert for the same source', async () => {
+    authState.set(true);
+    api.listMine.and.returnValue(
+      of([
+        buildRecord('existing-subscription', {
+          sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+          sourceId: 'alert-001',
+        }),
+      ])
+    );
+
+    const service = createService();
+    service.refresh();
+    api.createMine.calls.reset();
+
+    const result = await service.create({
+      title: 'Alert subscription: Ice storm risk on Ontario transmission lines',
+      message: 'You subscribed to updates for Ice storm risk on Ontario transmission lines.',
+      sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+      sourceId: 'alert-001',
+    });
+
+    expect(result.status).toBe('duplicate');
+    expect(api.createMine).not.toHaveBeenCalled();
   });
 
   it('marks an alert as read', () => {

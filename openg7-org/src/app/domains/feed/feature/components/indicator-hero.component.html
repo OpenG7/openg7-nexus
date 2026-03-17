@@ -19,9 +19,17 @@
         class="indicator-hero__action"
         data-og7="action"
         data-og7-id="indicator-subscribe"
-        (click)="toggleSubscribe.emit()"
+        [disabled]="subscribeDisabled()"
+        [attr.aria-busy]="subscribePending() ? 'true' : null"
+        (click)="subscribe.emit()"
       >
-        {{ subscribed() ? ('feed.indicator.detail.actions.subscribed' | translate) : ('feed.indicator.detail.actions.subscribe' | translate) }}
+        {{
+          subscribePending()
+            ? ('feed.indicator.detail.actions.subscribing' | translate)
+            : subscribed()
+              ? ('feed.indicator.detail.actions.subscribed' | translate)
+              : ('feed.indicator.detail.actions.subscribe' | translate)
+        }}
       </button>
       <button
         type="button"

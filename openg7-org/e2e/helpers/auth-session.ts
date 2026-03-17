@@ -15,6 +15,20 @@ export interface E2eAuthProfile {
   };
 }
 
+interface E2eUserAlertRecord {
+  id: string;
+  title: string;
+  message: string;
+  severity: 'info' | 'success' | 'warning' | 'critical';
+  sourceType: string | null;
+  sourceId: string | null;
+  metadata: Record<string, unknown> | null;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const DEFAULT_PROFILE: E2eAuthProfile = {
   id: 'e2e-user-1',
   email: 'e2e.user@openg7.test',
@@ -34,6 +48,8 @@ export async function mockAuthenticatedSessionApis(
   page: Page,
   profile: E2eAuthProfile = DEFAULT_PROFILE
 ): Promise<void> {
+  const alerts: E2eUserAlertRecord[] = [];
+
   await page.route('**/api/sectors**', async route => {
     await route.fulfill({
       status: 200,
@@ -103,9 +119,9 @@ export async function mockAuthenticatedSessionApis(
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([]),
+          body: JSON.stringify(alerts),
         });
-          return;
+        return;
       }
 
       if (path.endsWith('/profile/export')) {
@@ -118,7 +134,7 @@ export async function mockAuthenticatedSessionApis(
             account: profile,
             favorites: [],
             savedSearches: [],
-            alerts: [],
+            alerts,
           }),
         });
         return;
@@ -135,6 +151,39 @@ export async function mockAuthenticatedSessionApis(
         });
         return;
       }
+    }
+
+    if (method === 'POST' && path.endsWith('/alerts')) {
+      const payload = (request.postDataJSON?.() ?? {}) as Partial<E2eUserAlertRecord>;
+      const now = new Date().toISOString();
+      const created: E2eUserAlertRecord = {
+        id: `user-alert-${alerts.length + 1}`,
+        title: typeof payload.title === 'string' ? payload.title : 'Alert',
+        message: typeof payload.message === 'string' ? payload.message : '',
+        severity:
+          payload.severity === 'success' ||
+          payload.severity === 'warning' ||
+          payload.severity === 'critical'
+            ? payload.severity
+            : 'info',
+        sourceType: typeof payload.sourceType === 'string' ? payload.sourceType : null,
+        sourceId: typeof payload.sourceId === 'string' ? payload.sourceId : null,
+        metadata:
+          payload.metadata && typeof payload.metadata === 'object' && !Array.isArray(payload.metadata)
+            ? (payload.metadata as Record<string, unknown>)
+            : null,
+        isRead: false,
+        readAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      alerts.unshift(created);
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify(created),
+      });
+      return;
     }
 
     if (method === 'POST' && path.endsWith('/profile/email-change')) {

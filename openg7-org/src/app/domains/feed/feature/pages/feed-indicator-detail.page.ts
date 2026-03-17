@@ -85,7 +85,6 @@ export class FeedIndicatorDetailPage {
 
   protected readonly timeframe = signal<IndicatorTimeframe>('72h');
   protected readonly granularity = signal<IndicatorGranularity>('hour');
-  protected readonly subscribed = signal(false);
   protected readonly headerCompact = signal(false);
   protected readonly drawerOpen = signal(false);
   protected readonly alertSubmitState = signal<IndicatorAlertSubmitState>('idle');
@@ -129,6 +128,15 @@ export class FeedIndicatorDetailPage {
     }
     return this.buildDetailVm(item);
   });
+  protected readonly subscribed = computed(() => {
+    const detail = this.detailVm();
+    if (!detail || !this.auth.isAuthenticated()) {
+      return false;
+    }
+    return this.indicatorAlertRules.hasActiveRuleForIndicator(detail.item.id);
+  });
+  protected readonly subscribePending = computed(() => this.alertSubmitState() === 'submitting');
+  protected readonly subscribeDisabled = computed(() => this.subscribePending() || this.subscribed());
 
   protected readonly connectionState = computed<IndicatorConnectionState>(() => {
     if (!this.feed.connectionState.connected()) {
@@ -291,9 +299,14 @@ export class FeedIndicatorDetailPage {
       this.itemId();
       this.timeframe.set('72h');
       this.granularity.set('hour');
-      this.subscribed.set(false);
       this.drawerOpen.set(false);
       this.resetAlertSubmitState();
+    });
+
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.indicatorAlertRules.refresh();
+      }
     });
 
     this.destroyRef.onDestroy(() => this.clearAlertStatusTimer());
@@ -326,7 +339,7 @@ export class FeedIndicatorDetailPage {
 
     if (key === 's') {
       event.preventDefault();
-      this.toggleSubscribe();
+      this.subscribe();
     }
   }
 
@@ -345,8 +358,12 @@ export class FeedIndicatorDetailPage {
     this.granularity.set(value);
   }
 
-  protected toggleSubscribe(): void {
-    this.subscribed.update(value => !value);
+  protected subscribe(): void {
+    const detail = this.detailVm();
+    if (!detail || this.subscribePending() || this.subscribed()) {
+      return;
+    }
+    this.openAlertDrawer();
   }
 
   protected openAlertDrawer(): void {
@@ -408,7 +425,6 @@ export class FeedIndicatorDetailPage {
     this.alertSubmitState.set('success');
     this.alertSubmitError.set(null);
     this.pendingAlertDraft = null;
-    this.subscribed.set(true);
     this.closeAlertDrawerAfterSuccess();
   }
 

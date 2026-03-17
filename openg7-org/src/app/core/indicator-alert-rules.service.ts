@@ -128,6 +128,22 @@ export class IndicatorAlertRulesService {
     this.persist(userId, nextEntries);
   }
 
+  findActiveRuleForIndicator(indicatorId: string): IndicatorAlertRuleRecord | null {
+    const normalizedIndicatorId = this.normalizeId(indicatorId);
+    if (!normalizedIndicatorId) {
+      return null;
+    }
+    return (
+      this.entriesSig().find(
+        (entry) => entry.active && entry.indicatorId === normalizedIndicatorId
+      ) ?? null
+    );
+  }
+
+  hasActiveRuleForIndicator(indicatorId: string): boolean {
+    return this.findActiveRuleForIndicator(indicatorId) !== null;
+  }
+
   private currentUserId(): string | null {
     if (!this.browser || !this.auth.isAuthenticated()) {
       return null;

@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { LinkupDataService } from '@app/domains/matchmaking/data-access/linkup-data.service';
 import {
   LINKUP_STATUS_META,
   LINKUP_TRADE_MODE_OPTIONS,
   LinkupNoteEntry,
+  LinkupRecord,
   LinkupStatus,
-  LinkupStore,
   LinkupTimelineEntry,
   LinkupTradeMode,
-} from '@app/domains/matchmaking/data-access/linkup.store';
+} from '@app/domains/matchmaking/data-access/linkup.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs';
 
@@ -22,38 +23,31 @@ import { map } from 'rxjs';
   styleUrls: ['./og7-linkup-detail-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-/**
- * Contexte : Page de détail d’une mise en relation (`/linkups/:id`).
- * Raison d’être : Visualiser l’état courant, la timeline et les notes internes
- * associées à une relation d’affaires orchestrée via OpenG7.
- */
 export class Og7LinkupDetailPageComponent {
-  private readonly store = inject(LinkupStore);
+  private readonly linkups = inject(LinkupDataService);
   private readonly route = inject(ActivatedRoute);
 
-  private readonly linkupId = toSignal(
-    this.route.paramMap.pipe(map(params => params.get('id'))),
-    { initialValue: this.route.snapshot.paramMap.get('id') },
-  );
+  private readonly linkupIdSignal = signal<string | null>(this.route.snapshot.paramMap.get('id'));
+  private readonly linkupSignal = signal<LinkupRecord | null>(null);
+  private readonly loadingSignal = signal(true);
+  private readonly errorKeySignal = signal<string | null>(null);
+  private readonly notFoundSignal = signal(false);
 
-  protected readonly linkup = computed(() => {
-    const id = this.linkupId();
-    if (!id) {
-      return null;
-    }
-    return this.store.getLinkupById(id);
-  });
+  protected readonly linkup = this.linkupSignal.asReadonly();
+  protected readonly loading = this.loadingSignal.asReadonly();
+  protected readonly errorKey = this.errorKeySignal.asReadonly();
+  protected readonly notFound = this.notFoundSignal.asReadonly();
 
   protected readonly headerTitle = computed(() => {
-    const linkup = this.linkup();
+    const linkup = this.linkupSignal();
     if (!linkup) {
       return '';
     }
-    return `${linkup.companyA.name} ↔ ${linkup.companyB.name}`;
+    return `${linkup.companyA.name} <-> ${linkup.companyB.name}`;
   });
 
   protected readonly sortedTimeline = computed<readonly LinkupTimelineEntry[]>(() => {
-    const linkup = this.linkup();
+    const linkup = this.linkupSignal();
     if (!linkup) {
       return [];
     }
@@ -61,12 +55,24 @@ export class Og7LinkupDetailPageComponent {
   });
 
   protected readonly notes = computed<readonly LinkupNoteEntry[]>(() => {
-    const linkup = this.linkup();
+    const linkup = this.linkupSignal();
     if (!linkup) {
       return [];
     }
     return [...linkup.notes].sort((a, b) => b.date.localeCompare(a.date));
   });
+
+  constructor() {
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id')),
+        takeUntilDestroyed(),
+      )
+      .subscribe((id) => {
+        this.linkupIdSignal.set(id);
+        void this.loadLinkup(id);
+      });
+  }
 
   protected statusClass(status: LinkupStatus): string {
     return LINKUP_STATUS_META[status].chipClass;
@@ -78,5 +84,34 @@ export class Og7LinkupDetailPageComponent {
 
   protected tradeModeLabel(mode: LinkupTradeMode): string {
     return LINKUP_TRADE_MODE_OPTIONS[mode];
+  }
+
+  protected onRetry(): void {
+    void this.loadLinkup(this.linkupIdSignal());
+  }
+
+  private async loadLinkup(id: string | null): Promise<void> {
+    if (!id) {
+      this.linkupSignal.set(null);
+      this.loadingSignal.set(false);
+      this.notFoundSignal.set(true);
+      this.errorKeySignal.set(null);
+      return;
+    }
+
+    this.loadingSignal.set(true);
+    this.errorKeySignal.set(null);
+    this.notFoundSignal.set(false);
+
+    try {
+      const linkup = await this.linkups.loadById(id);
+      this.linkupSignal.set(linkup);
+      this.notFoundSignal.set(linkup === null);
+    } catch {
+      this.linkupSignal.set(null);
+      this.errorKeySignal.set('pages.linkups.detail.errors.load');
+    } finally {
+      this.loadingSignal.set(false);
+    }
   }
 }

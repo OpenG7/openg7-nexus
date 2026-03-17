@@ -83,6 +83,10 @@ const schema = {
     originId: {
       type: 'string',
     },
+    connectionMatchId: {
+      type: 'integer',
+      min: 1,
+    },
     sourceKind: {
       type: 'enumeration',
       enum: ['GOV', 'COMPANY', 'PARTNER', 'USER'],

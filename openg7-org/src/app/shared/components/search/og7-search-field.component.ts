@@ -14,10 +14,17 @@ import {
   signal,
   ChangeDetectionStrategy,
   inject,
+  forwardRef,
 } from '@angular/core';
 import {
-  ControlValueAccessor, ValidationErrors, AbstractControl, Validator,
-  ReactiveFormsModule, FormsModule
+  AbstractControl,
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validator,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuickSearchLauncherService } from '@app/domains/search/feature/quick-search-modal/quick-search-launcher.service';
@@ -40,6 +47,18 @@ interface PaletteSection {
   selector: 'og7-search-field',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => Og7SearchFieldComponent),
+      multi: true,
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => Og7SearchFieldComponent),
+      multi: true,
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './og7-search-field.component.html',
 })

@@ -19,10 +19,12 @@ export class AlertDetailHeaderComponent {
   readonly windowLabel = input.required<string>();
   readonly compact = input(false);
   readonly subscribed = input(false);
+  readonly subscribePending = input(false);
+  readonly subscribeDisabled = input(false);
   readonly canCreateOpportunity = input(true);
   readonly hasPendingReport = input(false);
 
-  readonly toggleSubscribe = output<void>();
+  readonly subscribe = output<void>();
   readonly share = output<void>();
   readonly reportUpdate = output<void>();
   readonly reportAnotherUpdate = output<void>();

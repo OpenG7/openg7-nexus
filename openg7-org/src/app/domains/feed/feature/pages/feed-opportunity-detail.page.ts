@@ -41,6 +41,7 @@ import {
 } from '../components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
+import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
@@ -316,6 +317,12 @@ export class FeedOpportunityDetailPage {
       return;
     }
 
+    const connectionMatchId = resolveFeedConnectionMatchId(this.detailVm()?.item);
+    if (connectionMatchId) {
+      void this.openLinkup(connectionMatchId);
+      return;
+    }
+
     this.resetOfferSubmitState();
     this.offerDrawerOpen.set(true);
   }
@@ -516,6 +523,16 @@ export class FeedOpportunityDetailPage {
       queryParams: {
         section: 'offers',
         offerId: offer.id,
+      },
+    });
+  }
+
+  private openLinkup(matchId: number): Promise<boolean> {
+    const itemId = this.detailVm()?.item.id ?? this.itemId();
+    return this.router.navigate(['/linkup', matchId], {
+      queryParams: {
+        source: 'feed',
+        ...(itemId ? { feedItemId: itemId } : {}),
       },
     });
   }

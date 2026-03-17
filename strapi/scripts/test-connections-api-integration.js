@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const { compileStrapi, createStrapi } = require('@strapi/strapi');
 
+const ACCOUNT_PROFILE_UID = 'api::account-profile.account-profile';
 const TEST_DB_FILENAME = `db.connections.integration.${process.pid}.${Date.now()}.sqlite`;
 const TEST_PASSWORD = 'S3cureConnection!123';
 const CONNECTION_ACTIONS = [
@@ -135,7 +136,9 @@ function buildConnectionPayload(runId, overrides = {}) {
       match: 1000,
       intro_message: `Connection intro ${runId}: this proposal includes enough detail for validation checks.`,
       buyer_profile: 101,
+      buyer_organization: 'Hydro Quebec Transition',
       supplier_profile: 202,
+      supplier_organization: 'Prairie Electrolyzers Inc.',
       locale: 'fr',
       attachments: ['nda', 'rfq'],
       logistics_plan: {
@@ -149,6 +152,34 @@ function buildConnectionPayload(runId, overrides = {}) {
       ...overrides,
     },
   };
+}
+
+async function upsertAccountProfile(strapi, userId, organization) {
+  const found = await strapi.entityService.findMany(ACCOUNT_PROFILE_UID, {
+    filters: {
+      user: {
+        id: userId,
+      },
+    },
+    limit: 1,
+  });
+  const existing = Array.isArray(found) ? found[0] : found;
+
+  if (existing?.id) {
+    await strapi.entityService.update(ACCOUNT_PROFILE_UID, existing.id, {
+      data: {
+        organization,
+      },
+    });
+    return;
+  }
+
+  await strapi.entityService.create(ACCOUNT_PROFILE_UID, {
+    data: {
+      user: userId,
+      organization,
+    },
+  });
 }
 
 async function run() {
@@ -169,6 +200,11 @@ async function run() {
 
     const userA = await createAuthenticatedUser(baseUrl, runId, 'a');
     const userB = await createAuthenticatedUser(baseUrl, runId, 'b');
+    const userC = await createAuthenticatedUser(baseUrl, runId, 'c');
+
+    await upsertAccountProfile(app, userA.userId, 'Hydro Quebec Transition');
+    await upsertAccountProfile(app, userB.userId, 'Prairie Electrolyzers Inc.');
+    await upsertAccountProfile(app, userC.userId, 'Unrelated Trading House');
 
     const unauthorizedCreate = await requestJson(`${baseUrl}/api/connections`, {
       method: 'POST',
@@ -214,11 +250,21 @@ async function run() {
     const historyB = await requestJson(`${baseUrl}/api/connections`, {
       headers: { Authorization: `Bearer ${userB.jwt}` },
     });
-    assert.equal(historyB.status, 200, 'Expected history request to succeed for second user.');
+    assert.equal(historyB.status, 200, 'Expected history request to succeed for the second actor.');
     assert.ok(Array.isArray(historyB.body?.data), 'Expected second history list.');
     assert.ok(
-      historyB.body.data.every((item) => item.id !== connectionId),
-      'Expected user history isolation between accounts.'
+      historyB.body.data.some((item) => item.id === connectionId),
+      'Expected the counterparty history to include the shared connection.'
+    );
+
+    const historyC = await requestJson(`${baseUrl}/api/connections`, {
+      headers: { Authorization: `Bearer ${userC.jwt}` },
+    });
+    assert.equal(historyC.status, 200, 'Expected unrelated history request to succeed.');
+    assert.ok(Array.isArray(historyC.body?.data), 'Expected unrelated history list.');
+    assert.ok(
+      historyC.body.data.every((item) => item.id !== connectionId),
+      'Expected unrelated users to remain isolated from the connection.'
     );
 
     const findOneA = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
@@ -230,7 +276,13 @@ async function run() {
     const findOneB = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
       headers: { Authorization: `Bearer ${userB.jwt}` },
     });
-    assert.equal(findOneB.status, 404, 'Expected non-owner findOne to be denied as not found.');
+    assert.equal(findOneB.status, 200, 'Expected the counterparty findOne to succeed.');
+    assert.equal(findOneB.body?.data?.id, connectionId, 'Expected counterparty findOne to return the connection.');
+
+    const findOneC = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
+      headers: { Authorization: `Bearer ${userC.jwt}` },
+    });
+    assert.equal(findOneC.status, 404, 'Expected unrelated findOne to be denied as not found.');
 
     const updateByOtherUser = await requestJson(
       `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}/status`,
@@ -240,7 +292,22 @@ async function run() {
         body: JSON.stringify({ data: { status: 'inDiscussion' } }),
       }
     );
-    assert.equal(updateByOtherUser.status, 404, 'Expected non-owner status update to be denied.');
+    assert.equal(updateByOtherUser.status, 200, 'Expected the counterparty status update to succeed.');
+    assert.equal(
+      updateByOtherUser.body?.data?.attributes?.status,
+      'inDiscussion',
+      'Expected the counterparty to advance the shared status.'
+    );
+
+    const updateByUnrelatedUser = await requestJson(
+      `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}/status`,
+      {
+        method: 'PATCH',
+        headers: authHeaders(userC.jwt),
+        body: JSON.stringify({ data: { status: 'completed' } }),
+      }
+    );
+    assert.equal(updateByUnrelatedUser.status, 404, 'Expected unrelated status update to be denied.');
 
     const statusInDiscussion = await requestJson(
       `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}/status`,

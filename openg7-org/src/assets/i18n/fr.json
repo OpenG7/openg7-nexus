@@ -902,6 +902,7 @@
         },
         "cta": {
           "subscribe": "S'abonner",
+          "subscribing": "Abonnement...",
           "subscribed": "Abonne",
           "share": "Partager",
           "reportUpdate": "Signaler une mise a jour",
@@ -911,6 +912,14 @@
           "createOpportunityTitlePrefix": "Opportunite liee"
         },
         "lastUpdate": "Derniere mise a jour : {{ value }}",
+        "subscription": {
+          "generatedTitlePrefix": "Abonnement alerte",
+          "generatedMessage": "Vous etes abonne aux mises a jour pour {{ title }}.",
+          "status": {
+            "success": "Abonnement enregistre. Cette alerte est maintenant suivie dans votre boite d'alertes.",
+            "errorGeneric": "Impossible de vous abonner a cette alerte. Veuillez reessayer."
+          }
+        },
         "report": {
           "title": "Signaler une mise a jour",
           "viewTitle": "Mon signalement",
@@ -1015,6 +1024,7 @@
         "breadcrumbCurrent": "Electricite Ontario",
         "actions": {
           "subscribe": "S'abonner",
+          "subscribing": "Abonnement...",
           "subscribed": "Abonne",
           "share": "Partager",
           "createAlert": "Creer une alerte"
@@ -2137,6 +2147,20 @@
       "eyebrow": "Centre de mises en relation",
       "title": "Mises en relation",
       "subtitle": "Suivez l’historique de vos connexions économiques et l’état de chaque dossier.",
+      "loading": {
+        "title": "Chargement des mises en relation",
+        "description": "Nous synchronisons vos connexions bilatérales avec le backend OpenG7."
+      },
+      "actions": {
+        "retry": "Réessayer"
+      },
+      "errors": {
+        "title": "Impossible de charger les mises en relation",
+        "load": "Le chargement des mises en relation a échoué. Veuillez réessayer."
+      },
+      "channels": {
+        "platform": "Plateforme OpenG7"
+      },
       "filters": {
         "reset": "Réinitialiser",
         "status": {
@@ -2173,9 +2197,32 @@
         "export": "Export",
         "both": "Import + export"
       },
+      "timeline": {
+        "stage": {
+          "intro": "Introduction soumise",
+          "reply": "Dossier créé",
+          "meeting": "Coordination en cours",
+          "review": "Revue de la relation",
+          "deal": "Relation avancée"
+        },
+        "status": {
+          "pending": "Statut: en attente",
+          "inDiscussion": "Statut: en discussion",
+          "completed": "Statut: complétée",
+          "closed": "Statut: fermée"
+        }
+      },
       "detail": {
         "backToList": "Retour aux mises en relation",
         "eyebrow": "Fiche détaillée",
+        "loading": {
+          "title": "Chargement de la mise en relation",
+          "description": "Nous récupérons le détail bilatéral de ce dossier."
+        },
+        "errors": {
+          "load": "Le chargement de cette mise en relation a échoué. Veuillez réessayer."
+        },
+        "systemAuthor": "Système OpenG7",
         "reference": "Référence",
         "createdAt": "Créée le",
         "updatedAt": "Dernière mise à jour",
@@ -2319,6 +2366,7 @@
       },
       "errors": {
         "load": "Impossible de charger les alertes. Veuillez reessayer.",
+        "create": "Impossible de creer cette alerte pour le moment. Veuillez reessayer.",
         "generate": "Impossible de generer les alertes pour le moment. Veuillez reessayer.",
         "update": "Impossible de mettre a jour cette alerte. Veuillez reessayer.",
         "delete": "Impossible de supprimer cette alerte. Veuillez reessayer."
