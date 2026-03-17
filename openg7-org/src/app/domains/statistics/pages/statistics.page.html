@@ -1,39 +1,37 @@
-<div class="space-y-16 lg:space-y-24">
-  <section class="relative overflow-hidden bg-slate-900 text-white">
-    <div class="absolute inset-0 bg-gradient-to-br from-blue-700/40 via-slate-900 to-slate-900"></div>
-    <div class="relative mx-auto flex max-w-6xl flex-col gap-10 px-6 py-16 lg:flex-row lg:items-center lg:py-24">
-      <div class="flex-1 space-y-6">
-        <p class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-medium uppercase tracking-wide text-blue-100 backdrop-blur">
+<div class="statistics-page">
+  <section class="statistics-panel statistics-hero">
+    <div class="statistics-hero__inner">
+      <div class="statistics-hero__copy">
+        <p class="statistics-kicker">
           {{ 'pages.statistics.hero.kicker' | translate }}
         </p>
-        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+        <h1 class="statistics-hero__title">
           {{ 'pages.statistics.hero.title' | translate }}
         </h1>
-        <p class="text-lg leading-relaxed text-blue-100 lg:text-xl">
+        <p class="statistics-hero__subtitle">
           {{ 'pages.statistics.hero.subtitle' | translate }}
         </p>
-        <p class="max-w-2xl text-base text-blue-100/90">
+        <p class="statistics-hero__description">
           {{ 'pages.statistics.hero.description' | translate }}
         </p>
-        <div class="flex flex-wrap items-center gap-3" data-og7="statistics-scope-toggle">
-          <span class="text-sm font-medium uppercase tracking-wide text-blue-200">
+
+        <div class="statistics-scope-toggle" data-og7="statistics-scope-toggle">
+          <span class="statistics-scope-toggle__label">
             {{ 'pages.statistics.hero.toggleLabel' | translate }}
           </span>
-          <div class="inline-flex rounded-full bg-white/10 p-1">
+          <div class="statistics-scope-toggle__rail">
             <button
               type="button"
-              class="rounded-full px-4 py-2 text-sm font-semibold transition"
-              [class.bg-white]="filtersSig().scope === 'interprovincial'"
-              [class.text-slate-900]="filtersSig().scope === 'interprovincial'"
+              class="statistics-scope-toggle__button"
+              [class.statistics-scope-toggle__button--active]="filtersSig().scope === 'interprovincial'"
               (click)="setScope('interprovincial')"
             >
               {{ 'pages.statistics.hero.interprovincial' | translate }}
             </button>
             <button
               type="button"
-              class="rounded-full px-4 py-2 text-sm font-semibold transition"
-              [class.bg-white]="filtersSig().scope === 'international'"
-              [class.text-slate-900]="filtersSig().scope === 'international'"
+              class="statistics-scope-toggle__button"
+              [class.statistics-scope-toggle__button--active]="filtersSig().scope === 'international'"
               (click)="setScope('international')"
             >
               {{ 'pages.statistics.hero.international' | translate }}
@@ -41,72 +39,87 @@
           </div>
         </div>
       </div>
-      <div class="flex w-full max-w-md flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur" data-og7="statistics-snapshot">
-        <div class="flex items-center justify-between">
-          <p class="text-sm uppercase tracking-wide text-blue-200">
-            {{ ('pages.statistics.hero.snapshot.title.' + filtersSig().scope) | translate }}
-          </p>
-          <span class="text-xs text-blue-200/80">
+
+      <div class="statistics-snapshot-panel" data-og7="statistics-snapshot">
+        <div class="statistics-snapshot-panel__header">
+          <div>
+            <p class="statistics-snapshot-panel__eyebrow">
+              {{ ('pages.statistics.hero.snapshot.title.' + filtersSig().scope) | translate }}
+            </p>
+            <h2 class="statistics-snapshot-panel__title">
+              {{ 'pages.statistics.sections.exchanges.title' | translate }}
+            </h2>
+          </div>
+          <span class="statistics-snapshot-panel__updated">
             {{ 'pages.statistics.hero.snapshot.updated' | translate }}
           </span>
         </div>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3">
-            <p class="text-sm font-medium text-blue-100">
+
+        <div class="statistics-snapshot-panel__metrics">
+          <article class="statistics-kpi-tile statistics-kpi-tile--primary">
+            <p class="statistics-kpi-tile__label">
               {{ 'pages.statistics.hero.snapshot.totalFlows' | translate }}
             </p>
-            <div class="text-right">
-              <p class="text-xl font-semibold text-white">
+            <div class="statistics-kpi-tile__value-group">
+              <p class="statistics-kpi-tile__value">
                 {{ formatNumber(snapshotSig()?.totalFlows) }}
               </p>
-              <p class="text-xs text-blue-200">
+              <p class="statistics-kpi-tile__unit">
                 {{ snapshotSig()?.totalFlowsUnitKey ? (snapshotSig()?.totalFlowsUnitKey | translate) : ('pages.statistics.units.billionCAD' | translate) }}
               </p>
             </div>
-          </div>
-          <div class="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
-            <p class="text-sm font-medium text-blue-100">
+          </article>
+
+          <article class="statistics-kpi-tile">
+            <p class="statistics-kpi-tile__label">
               {{ 'pages.statistics.hero.snapshot.activeCorridors' | translate }}
             </p>
-            <div class="text-right">
-              <p class="text-xl font-semibold text-white">
-                {{ snapshotSig()?.activeCorridors ?? '—' }}
+            <div class="statistics-kpi-tile__value-group">
+              <p class="statistics-kpi-tile__value">
+                {{ snapshotSig()?.activeCorridors ?? '--' }}
               </p>
-              <p class="text-xs text-blue-200">
+              <p class="statistics-kpi-tile__unit">
                 {{ 'pages.statistics.units.corridors' | translate }}
               </p>
             </div>
-          </div>
-          <div class="rounded-2xl bg-white/5 p-4 text-sm text-blue-100/90">
-            {{ 'pages.statistics.hero.snapshot.note' | translate }}
-          </div>
+          </article>
+        </div>
+
+        <div class="statistics-snapshot-panel__note">
+          {{ 'pages.statistics.hero.snapshot.note' | translate }}
         </div>
       </div>
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl space-y-10 rounded-3xl border border-slate-400/35 bg-slate-950/65 px-6 py-8 shadow-2xl backdrop-blur-sm">
-    <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div class="space-y-2">
-        <h2 class="text-2xl font-semibold text-slate-50">
+  <section class="statistics-panel statistics-workspace">
+    <header class="statistics-section-header">
+      <div class="statistics-section-header__copy">
+        <h2 class="statistics-section-header__title">
           {{ 'pages.statistics.sections.exchanges.title' | translate }}
         </h2>
-        <p class="max-w-2xl text-base text-slate-200">
+        <p class="statistics-section-header__description">
           {{ 'pages.statistics.sections.exchanges.description' | translate }}
         </p>
       </div>
-      <div class="flex flex-wrap items-center gap-3" data-og7="statistics-filter-bar">
-        <span class="text-sm font-semibold text-slate-100">
+      <div class="statistics-section-header__status">
+        <span class="statistics-status-chip">
+          {{ ('pages.statistics.hero.snapshot.title.' + filtersSig().scope) | translate }}
+        </span>
+      </div>
+    </header>
+
+    <div class="statistics-toolbar" data-og7="statistics-filter-bar">
+      <div class="statistics-toolbar__lead">
+        <span class="statistics-toolbar__label">
           {{ 'pages.statistics.filters.label' | translate }}
         </span>
-        <div class="flex flex-wrap gap-2" data-og7="statistics-intrant-group">
+        <div class="statistics-toolbar__chips" data-og7="statistics-intrant-group">
           <button
             *ngFor="let filter of intrantFilters"
             type="button"
-            class="rounded-full border border-white/35 bg-slate-900/40 px-3 py-1 text-sm font-medium text-slate-100 transition hover:border-cyan-200 hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-            [class.border-cyan-200]="filtersSig().intrant === filter.id"
-            [class.bg-cyan-200]="filtersSig().intrant === filter.id"
-            [class.text-slate-900]="filtersSig().intrant === filter.id"
+            class="statistics-filter-chip"
+            [class.statistics-filter-chip--active]="filtersSig().intrant === filter.id"
             (click)="setIntrant(filter.id)"
             data-og7="statistics-intrant-filter"
             [attr.data-og7-value]="filter.id"
@@ -114,12 +127,15 @@
             {{ filter.label | translate }}
           </button>
         </div>
-        <label class="flex items-center gap-2 text-sm text-slate-200" data-og7="statistics-period-filter">
-          <span class="font-medium">
+      </div>
+
+      <div class="statistics-toolbar__controls">
+        <label class="statistics-filter-select" data-og7="statistics-period-filter">
+          <span class="statistics-filter-select__label">
             {{ 'pages.statistics.filters.period' | translate }}
           </span>
           <select
-            class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+            class="statistics-filter-select__control"
             (change)="onPeriodChange($any($event.target).value)"
           >
             <option value="">
@@ -134,12 +150,13 @@
             </option>
           </select>
         </label>
-        <label class="flex items-center gap-2 text-sm text-slate-200" data-og7="statistics-country-filter">
-          <span class="font-medium">
+
+        <label class="statistics-filter-select" data-og7="statistics-country-filter">
+          <span class="statistics-filter-select__label">
             {{ 'pages.statistics.filters.country' | translate }}
           </span>
           <select
-            class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+            class="statistics-filter-select__control"
             (change)="onCountryChange($any($event.target).value)"
           >
             <option value="">
@@ -154,12 +171,13 @@
             </option>
           </select>
         </label>
-        <label class="flex items-center gap-2 text-sm text-slate-200" data-og7="statistics-province-filter">
-          <span class="font-medium">
+
+        <label class="statistics-filter-select" data-og7="statistics-province-filter">
+          <span class="statistics-filter-select__label">
             {{ 'pages.statistics.filters.province' | translate }}
           </span>
           <select
-            class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+            class="statistics-filter-select__control"
             (change)="onProvinceChange($any($event.target).value)"
           >
             <option value="">
@@ -174,217 +192,252 @@
             </option>
           </select>
         </label>
-        <button
-          type="button"
-          class="rounded-full border border-white/45 bg-slate-900/40 px-3 py-1 text-sm font-medium text-slate-100 transition hover:border-cyan-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-          (click)="resetFilters()"
-          data-og7="statistics-action"
-          data-og7-id="reset-filters"
-        >
-          {{ 'pages.statistics.actions.resetFilters' | translate }}
-        </button>
       </div>
-    </header>
+
+      <button
+        type="button"
+        class="statistics-toolbar__reset"
+        (click)="resetFilters()"
+        data-og7="statistics-action"
+        data-og7-id="reset-filters"
+      >
+        {{ 'pages.statistics.actions.resetFilters' | translate }}
+      </button>
+    </div>
 
     <div
       *ngIf="isFallbackSig() && !loadingSig() && !errorSig()"
-      class="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      class="statistics-fallback"
       data-og7="statistics-fallback"
     >
-      <p class="font-semibold">
+      <p class="statistics-fallback__title">
         {{ 'pages.statistics.states.fallbackLabel' | translate }}
       </p>
-      <p class="mt-1">
+      <p class="statistics-fallback__body">
         {{ 'pages.statistics.states.fallbackBody' | translate }}
       </p>
     </div>
 
-    <ng-container *ngIf="loadingSig(); else statisticsReady">
-      <div class="statistics-scroll" data-og7="statistics-loading">
-        <div class="statistics-scroll__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <article
-            *ngFor="let skeleton of loadingSkeletons; trackBy: trackLoadingSkeleton"
-            class="animate-pulse rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-          >
-            <div class="h-4 w-28 rounded bg-slate-200"></div>
-            <div class="mt-4 h-6 w-3/4 rounded bg-slate-200"></div>
-            <div class="mt-3 h-4 w-full rounded bg-slate-200"></div>
-            <div class="mt-2 h-4 w-2/3 rounded bg-slate-200"></div>
-            <div class="mt-8 h-8 w-24 rounded bg-slate-200"></div>
-          </article>
-        </div>
-      </div>
-    </ng-container>
-
-    <ng-template #statisticsReady>
-      <ng-container *ngIf="errorSig(); else statisticsResolved">
-        <div class="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center text-rose-900" data-og7="statistics-error">
-          <h3 class="text-lg font-semibold">
-            {{ 'pages.statistics.states.errorTitle' | translate }}
-          </h3>
-          <p class="mx-auto mt-2 max-w-xl text-sm text-rose-800">
-            {{ 'pages.statistics.states.errorBody' | translate }}
-          </p>
-          <button
-            type="button"
-            class="mt-5 inline-flex items-center justify-center rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300"
-            (click)="retryLoad()"
-            data-og7="statistics-action"
-            data-og7-id="retry"
-          >
-            {{ 'pages.statistics.actions.retry' | translate }}
-          </button>
-        </div>
-      </ng-container>
-    </ng-template>
-
-    <ng-template #statisticsResolved>
-      <ng-container *ngIf="summariesSig().length; else statisticsEmpty">
-        <div class="statistics-scroll" data-og7="statistics-summary-scroll">
-          <div class="statistics-scroll__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <article
-              *ngFor="let summary of summariesSig(); trackBy: trackSummary"
-              class="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              data-og7="statistics-summary-card"
-              [attr.data-og7-scope]="summary.scope"
-              [attr.data-og7-intrant]="summary.intrant"
-              [attr.data-og7-period]="summary.period"
-              [attr.data-og7-province]="summary.province"
-              [attr.data-og7-country]="summary.country"
-            >
-              <div class="space-y-3">
-                <p class="text-sm font-semibold uppercase tracking-wide text-blue-600">
-                  {{ ('pages.statistics.summaries.scopeLabel.' + summary.scope) | translate }}
-                </p>
-                <h3 class="text-xl font-semibold text-slate-900">
-                  {{ summary.titleKey | translate }}
-                </h3>
-                <p class="text-sm text-slate-600">
-                  {{ summary.descriptionKey | translate }}
-                </p>
-              </div>
-              <div class="mt-6 flex items-end justify-between">
-                <div>
-                  <p class="text-3xl font-semibold text-slate-900">
-                    {{ formatNumber(summary.value) }}
-                  </p>
-                  <p class="text-sm text-slate-500">
-                    {{ summary.unitKey ? (summary.unitKey | translate) : ('pages.statistics.units.billionCAD' | translate) }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-full px-3 py-1 text-sm font-medium"
-                  [class.bg-green-50]="summary.change > 0"
-                  [class.text-green-700]="summary.change > 0"
-                  [class.bg-red-50]="summary.change < 0"
-                  [class.text-red-700]="summary.change < 0"
-                  *ngIf="summary.change !== null && summary.change !== undefined && summary.change !== 0"
-                >
-                  {{ summary.change! > 0 ? '+' : '' }}{{ summary.change }}%
-                </div>
-              </div>
-            </article>
+    <div class="statistics-workspace__grid">
+      <div class="statistics-workspace__main">
+        <ng-container *ngIf="loadingSig(); else statisticsReady">
+          <div class="statistics-scroll" data-og7="statistics-loading">
+            <div class="statistics-card-grid">
+              <article
+                *ngFor="let skeleton of loadingSkeletons; trackBy: trackLoadingSkeleton"
+                class="statistics-card-skeleton"
+              >
+                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--eyebrow"></div>
+                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--title"></div>
+                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--body"></div>
+                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--body-short"></div>
+                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--value"></div>
+              </article>
+            </div>
           </div>
-        </div>
-      </ng-container>
-    </ng-template>
+        </ng-container>
 
-    <ng-template #statisticsEmpty>
-      <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-slate-700" data-og7="statistics-empty">
-        <h3 class="text-lg font-semibold text-slate-900">
-          {{ 'pages.statistics.states.emptyTitle' | translate }}
-        </h3>
-        <p class="mx-auto mt-2 max-w-xl text-sm text-slate-600">
-          {{ 'pages.statistics.states.emptyBody' | translate }}
-        </p>
-        <button
-          type="button"
-          class="mt-5 inline-flex items-center justify-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-500 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-          (click)="resetFilters()"
-          data-og7="statistics-action"
-          data-og7-id="reset-filters-empty"
-        >
-          {{ 'pages.statistics.actions.resetFilters' | translate }}
-        </button>
+        <ng-template #statisticsReady>
+          <ng-container *ngIf="errorSig(); else statisticsResolved">
+            <div class="statistics-state statistics-state--error" data-og7="statistics-error">
+              <h3 class="statistics-state__title">
+                {{ 'pages.statistics.states.errorTitle' | translate }}
+              </h3>
+              <p class="statistics-state__body">
+                {{ 'pages.statistics.states.errorBody' | translate }}
+              </p>
+              <button
+                type="button"
+                class="statistics-state__action statistics-state__action--critical"
+                (click)="retryLoad()"
+                data-og7="statistics-action"
+                data-og7-id="retry"
+              >
+                {{ 'pages.statistics.actions.retry' | translate }}
+              </button>
+            </div>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #statisticsResolved>
+          <ng-container *ngIf="summariesSig().length; else statisticsEmpty">
+            <div class="statistics-scroll" data-og7="statistics-summary-scroll">
+              <div class="statistics-card-grid">
+                <article
+                  *ngFor="let summary of summariesSig(); trackBy: trackSummary"
+                  class="statistics-summary-card"
+                  data-og7="statistics-summary-card"
+                  [attr.data-og7-scope]="summary.scope"
+                  [attr.data-og7-intrant]="summary.intrant"
+                  [attr.data-og7-period]="summary.period"
+                  [attr.data-og7-province]="summary.province"
+                  [attr.data-og7-country]="summary.country"
+                >
+                  <div class="statistics-summary-card__header">
+                    <p class="statistics-summary-card__scope">
+                      {{ ('pages.statistics.summaries.scopeLabel.' + summary.scope) | translate }}
+                    </p>
+                    <div
+                      *ngIf="summary.change !== null && summary.change !== undefined && summary.change !== 0"
+                      class="statistics-change-badge"
+                      [class.statistics-change-badge--positive]="summary.change > 0"
+                      [class.statistics-change-badge--negative]="summary.change < 0"
+                    >
+                      {{ summary.change! > 0 ? '+' : '' }}{{ summary.change }}%
+                    </div>
+                  </div>
+
+                  <div class="statistics-summary-card__body">
+                    <h3 class="statistics-summary-card__title">
+                      {{ summary.titleKey | translate }}
+                    </h3>
+                    <p class="statistics-summary-card__description">
+                      {{ summary.descriptionKey | translate }}
+                    </p>
+                  </div>
+
+                  <div class="statistics-summary-card__value-row">
+                    <div>
+                      <p class="statistics-summary-card__value">
+                        {{ formatNumber(summary.value) }}
+                      </p>
+                      <p class="statistics-summary-card__unit">
+                        {{ summary.unitKey ? (summary.unitKey | translate) : ('pages.statistics.units.billionCAD' | translate) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="statistics-summary-card__meta">
+                    <span *ngIf="summary.period" class="statistics-meta-chip">
+                      {{ summary.period }}
+                    </span>
+                    <span *ngIf="summary.province" class="statistics-meta-chip">
+                      {{ summary.province }}
+                    </span>
+                    <span *ngIf="summary.country" class="statistics-meta-chip">
+                      {{ ('countries.' + summary.country) | translate }}
+                    </span>
+                  </div>
+
+                  <div class="statistics-summary-card__trend">
+                    <span
+                      class="statistics-summary-card__trend-bar"
+                      [style.width.%]="summaryTrendWidth(summary.change)"
+                    ></span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #statisticsEmpty>
+          <div class="statistics-state statistics-state--empty" data-og7="statistics-empty">
+            <h3 class="statistics-state__title">
+              {{ 'pages.statistics.states.emptyTitle' | translate }}
+            </h3>
+            <p class="statistics-state__body">
+              {{ 'pages.statistics.states.emptyBody' | translate }}
+            </p>
+            <button
+              type="button"
+              class="statistics-state__action"
+              (click)="resetFilters()"
+              data-og7="statistics-action"
+              data-og7-id="reset-filters-empty"
+            >
+              {{ 'pages.statistics.actions.resetFilters' | translate }}
+            </button>
+          </div>
+        </ng-template>
       </div>
-    </ng-template>
 
-    <div class="grid gap-6 lg:grid-cols-2">
-      <aside
-        class="rounded-3xl border border-blue-100 bg-blue-50/80 p-6 text-blue-900"
-        role="complementary"
-        [attr.aria-labelledby]="guidanceAsideId"
-      >
-        <h3 class="text-lg font-semibold" [attr.id]="guidanceAsideId">
-          {{ 'pages.statistics.sections.exchanges.guidance.title' | translate }}
-        </h3>
-        <p class="mt-2 text-sm leading-relaxed">
-          {{ 'pages.statistics.sections.exchanges.guidance.body' | translate }}
-        </p>
-      </aside>
-      <aside
-        class="rounded-3xl border border-amber-100 bg-amber-50/80 p-6 text-amber-900"
-        role="complementary"
-        [attr.aria-labelledby]="alertAsideId"
-      >
-        <h3 class="text-lg font-semibold" [attr.id]="alertAsideId">
-          {{ 'pages.statistics.sections.exchanges.alert.title' | translate }}
-        </h3>
-        <p class="mt-2 text-sm leading-relaxed">
-          {{ 'pages.statistics.sections.exchanges.alert.body' | translate }}
-        </p>
-      </aside>
+      <div class="statistics-context-rail">
+        <aside
+          class="statistics-context-card statistics-context-card--guidance"
+          role="complementary"
+          [attr.aria-labelledby]="guidanceAsideId"
+        >
+          <h3 class="statistics-context-card__title" [attr.id]="guidanceAsideId">
+            {{ 'pages.statistics.sections.exchanges.guidance.title' | translate }}
+          </h3>
+          <p class="statistics-context-card__body">
+            {{ 'pages.statistics.sections.exchanges.guidance.body' | translate }}
+          </p>
+        </aside>
+
+        <aside
+          class="statistics-context-card statistics-context-card--alert"
+          role="complementary"
+          [attr.aria-labelledby]="alertAsideId"
+        >
+          <h3 class="statistics-context-card__title" [attr.id]="alertAsideId">
+            {{ 'pages.statistics.sections.exchanges.alert.title' | translate }}
+          </h3>
+          <p class="statistics-context-card__body">
+            {{ 'pages.statistics.sections.exchanges.alert.body' | translate }}
+          </p>
+        </aside>
+      </div>
     </div>
   </section>
 
-  <section class="bg-slate-50 py-16">
-    <div class="mx-auto max-w-6xl space-y-10 px-6">
-      <header class="space-y-3 text-center">
-        <h2 class="text-2xl font-semibold text-slate-900">
+  <section *ngIf="insightsSig().length" class="statistics-panel statistics-insights">
+    <header class="statistics-section-header statistics-section-header--centered">
+      <div class="statistics-section-header__copy">
+        <h2 class="statistics-section-header__title">
           {{ 'pages.statistics.sections.partnerships.title' | translate }}
         </h2>
-        <p class="mx-auto max-w-3xl text-base text-slate-600">
+        <p class="statistics-section-header__description">
           {{ 'pages.statistics.sections.partnerships.description' | translate }}
         </p>
-      </header>
+      </div>
+    </header>
 
-      <div class="statistics-scroll" data-og7="statistics-insight-scroll">
-        <div class="statistics-scroll__inner grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <article
-            *ngFor="let insight of insightsSig(); trackBy: trackInsight"
-            class="rounded-3xl border border-slate-200 bg-white/70 p-6 text-left shadow-sm backdrop-blur"
-            data-og7="statistics-insight-card"
-            [attr.data-og7-intrant]="insight.intrant"
-          >
-            <h3 class="text-lg font-semibold text-slate-900">
-              {{ insight.titleKey | translate }}
-            </h3>
-            <p class="mt-3 text-sm leading-relaxed text-slate-600">
-              {{ insight.descriptionKey | translate }}
-            </p>
-          </article>
-        </div>
+    <div class="statistics-scroll" data-og7="statistics-insight-scroll">
+      <div class="statistics-insight-grid">
+        <article
+          *ngFor="let insight of insightsSig(); trackBy: trackInsight"
+          class="statistics-insight-card"
+          data-og7="statistics-insight-card"
+          [attr.data-og7-intrant]="insight.intrant"
+        >
+          <p class="statistics-insight-card__eyebrow">
+            {{ ('pages.statistics.filters.' + insight.intrant) | translate }}
+          </p>
+          <h3 class="statistics-insight-card__title">
+            {{ insight.titleKey | translate }}
+          </h3>
+          <p class="statistics-insight-card__body">
+            {{ insight.descriptionKey | translate }}
+          </p>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="mx-auto max-w-5xl space-y-6 rounded-3xl bg-slate-950 px-6 py-16 text-white shadow-lg lg:px-12">
-    <h2 class="text-3xl font-semibold">
-      {{ 'pages.statistics.conclusion.title' | translate }}
-    </h2>
-    <p class="text-base text-slate-100">
-      {{ 'pages.statistics.conclusion.description' | translate }}
-    </p>
-    <div class="flex flex-wrap items-center gap-4">
-      <a
-        routerLink="/register"
-        class="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold !text-slate-900 shadow-sm transition hover:bg-blue-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
-      >
-        {{ 'pages.statistics.conclusion.cta' | translate }}
-      </a>
-      <p class="text-sm text-slate-200">
-        {{ 'pages.statistics.conclusion.supporting' | translate }}
+  <section class="statistics-panel statistics-conclusion">
+    <div class="statistics-conclusion__copy">
+      <h2 class="statistics-conclusion__title">
+        {{ 'pages.statistics.conclusion.title' | translate }}
+      </h2>
+      <p class="statistics-conclusion__description">
+        {{ 'pages.statistics.conclusion.description' | translate }}
       </p>
+    </div>
+
+    <div class="statistics-conclusion__actions">
+      <div class="statistics-conclusion__card">
+        <a
+          routerLink="/register"
+          class="statistics-conclusion__cta"
+        >
+          {{ 'pages.statistics.conclusion.cta' | translate }}
+        </a>
+        <p class="statistics-conclusion__supporting">
+          {{ 'pages.statistics.conclusion.supporting' | translate }}
+        </p>
+      </div>
     </div>
   </section>
 </div>
