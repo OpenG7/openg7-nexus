@@ -1,9 +1,8 @@
-import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
-
+import { provideRouter } from '@angular/router';
 import { LinkupDataService } from '@app/domains/matchmaking/data-access/linkup-data.service';
 import { LinkupRecord } from '@app/domains/matchmaking/data-access/linkup.models';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { Og7LinkupHistoryPageComponent } from './og7-linkup-history-page.component';
 

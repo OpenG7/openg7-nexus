@@ -1,10 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
-
 import { LinkupDataService } from '@app/domains/matchmaking/data-access/linkup-data.service';
 import { LinkupRecord } from '@app/domains/matchmaking/data-access/linkup.models';
+import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { Og7LinkupDetailPageComponent } from './og7-linkup-detail-page.component';
 

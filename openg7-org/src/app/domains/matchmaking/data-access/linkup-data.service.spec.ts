@@ -1,11 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
-
 import { ConnectionDetails } from '@app/core/models/connection';
 import { OpportunityMatch } from '@app/core/models/opportunity';
 import { ConnectionsService } from '@app/core/services/connections.service';
 import { OpportunityService } from '@app/core/services/opportunity.service';
+import { of, throwError } from 'rxjs';
 
 import { LinkupDataService } from './linkup-data.service';
 

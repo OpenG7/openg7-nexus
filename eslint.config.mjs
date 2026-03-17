@@ -17,6 +17,11 @@ const ignores = [
   '.coverage/**',
   '.tmp/**',
   '.tmp-build/**',
+  // TypeScript artifacts occasionally generated into the Angular source tree.
+  'openg7-org/src/**/*.js',
+  'openg7-org/src/**/*.js.map',
+  'openg7-org/e2e/**/*.js',
+  'openg7-org/e2e/**/*.js.map',
   '**/*.d.ts',
 ];
 
@@ -154,6 +159,14 @@ export default [
     files: ['strapi/**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['strapi/**/*.{js,cjs,mjs}'],
+    languageOptions: {
+      globals: {
+        strapi: 'readonly',
+      },
     },
   },
   {

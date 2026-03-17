@@ -62,7 +62,7 @@ class UserAlertsServiceMock {
 
   readonly entries = this.entriesSig.asReadonly();
   readonly refresh = jasmine.createSpy('refresh');
-  readonly create = jasmine.createSpy('create').and.callFake(async (payload: Record<string, unknown>) => {
+  readonly create = jasmine.createSpy('create').and.callFake(async (_payload: Record<string, unknown>) => {
     if (this.createResult.status === 'created' && this.createResult.entry) {
       this.entriesSig.update((current) => [this.createResult.entry!, ...current]);
     }

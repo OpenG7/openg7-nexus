@@ -36,8 +36,8 @@ import {
 } from '../components/alert-detail.models';
 import { AlertUpdateDrawerComponent } from '../components/alert-update-drawer.component';
 import { FeedItem } from '../models/feed.models';
-import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
+import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({

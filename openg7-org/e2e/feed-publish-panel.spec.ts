@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 import { mockAuthenticatedSessionApis, seedAuthenticatedSession } from './helpers/auth-session';
 
-type FeedApiItem = {
+interface FeedApiItem {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -22,7 +22,7 @@ type FeedApiItem = {
     label: string;
   };
   status: 'confirmed';
-};
+}
 
 test.describe('Feed publish panel', () => {
   test('publishes a prefilled exchange, clears the draft URL, and persists after reload', async ({ page }) => {
