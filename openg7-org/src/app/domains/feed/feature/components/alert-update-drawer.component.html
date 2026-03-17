@@ -3,77 +3,126 @@
 
   <section class="alert-update-drawer__panel" role="dialog" [attr.aria-modal]="true">
     <header>
-      <h2>{{ 'feed.alert.detail.report.title' | translate }}</h2>
+      <h2>
+        {{
+          viewingReport()
+            ? ('feed.alert.detail.report.viewTitle' | translate)
+            : ('feed.alert.detail.report.title' | translate)
+        }}
+      </h2>
       <small *ngIf="alertTitle()">{{ alertTitle() }}</small>
       <button type="button" [attr.aria-label]="'feed.drawer.close' | translate" (click)="closed.emit()">x</button>
     </header>
 
-    <p class="alert-update-drawer__hint">{{ 'feed.alert.detail.report.reviewHint' | translate }}</p>
+    <ng-container *ngIf="viewingReport() && existingReport() as report; else composeForm">
+      <p class="alert-update-drawer__hint">{{ 'feed.alert.detail.report.viewHint' | translate }}</p>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <label>
-        <span>{{ 'feed.alert.detail.report.reasonLabel' | translate }}</span>
-        <select formControlName="reason" data-og7="alert-update-field" data-og7-id="reason">
-          <option value="correction">{{ 'feed.alert.detail.report.reason.correction' | translate }}</option>
-          <option value="escalation">{{ 'feed.alert.detail.report.reason.escalation' | translate }}</option>
-          <option value="resolved">{{ 'feed.alert.detail.report.reason.resolved' | translate }}</option>
-          <option value="newSource">{{ 'feed.alert.detail.report.reason.newSource' | translate }}</option>
-        </select>
-      </label>
+      <article class="alert-update-drawer__report-card" data-og7="alert-update-report-view">
+        <span
+          class="alert-update-drawer__report-status"
+          data-og7="alert-update-report-status"
+          [attr.data-og7-id]="report.status"
+        >
+          {{ ('feed.alert.detail.report.queueStatus.' + report.status) | translate }}
+        </span>
 
-      <label>
-        <span>{{ 'feed.alert.detail.report.summaryLabel' | translate }}</span>
-        <textarea
-          rows="5"
-          formControlName="summary"
-          [placeholder]="'feed.alert.detail.report.summaryPlaceholder' | translate"
-          data-og7="alert-update-field"
-          data-og7-id="summary"
-        ></textarea>
-        <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('required')">
-          {{ 'validation.required' | translate }}
-        </small>
-        <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('minlength')">
-          {{ 'validation.minLength' | translate:{ min: 10 } }}
-        </small>
-      </label>
-
-      <label>
-        <span>{{ 'feed.alert.detail.report.sourceUrlLabel' | translate }}</span>
-        <input
-          type="url"
-          formControlName="sourceUrl"
-          [placeholder]="'feed.alert.detail.report.sourceUrlPlaceholder' | translate"
-          data-og7="alert-update-field"
-          data-og7-id="source-url"
-        />
-        <small *ngIf="form.controls.sourceUrl.touched && form.controls.sourceUrl.hasError('pattern')">
-          {{ 'validation.url' | translate }}
-        </small>
-      </label>
-
-      <p
-        class="alert-update-drawer__status alert-update-drawer__status--success"
-        *ngIf="submitState() === 'success'"
-        data-og7="alert-update-status"
-        data-og7-id="success"
-      >
-        {{ 'feed.alert.detail.report.status.success' | translate }}
-      </p>
-      <p
-        class="alert-update-drawer__status alert-update-drawer__status--error"
-        *ngIf="submitState() === 'error'"
-        data-og7="alert-update-status"
-        data-og7-id="error"
-      >
-        {{ submitError() || ('feed.alert.detail.report.status.errorGeneric' | translate) }}
-      </p>
+        <dl class="alert-update-drawer__report-grid">
+          <div>
+            <dt>{{ 'feed.alert.detail.report.submittedAtLabel' | translate }}</dt>
+            <dd>{{ report.createdAt | date:'medium' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.alert.detail.report.reasonLabel' | translate }}</dt>
+            <dd>{{ ('feed.alert.detail.report.reason.' + report.reason) | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.alert.detail.report.summaryValueLabel' | translate }}</dt>
+            <dd>{{ report.summary }}</dd>
+          </div>
+          <div *ngIf="report.sourceUrl">
+            <dt>{{ 'feed.alert.detail.report.sourceUrlLabel' | translate }}</dt>
+            <dd>
+              <a [href]="report.sourceUrl" target="_blank" rel="noreferrer">{{ report.sourceUrl }}</a>
+            </dd>
+          </div>
+        </dl>
+      </article>
 
       <div class="alert-update-drawer__actions">
-        <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="alert-update-submit">
-          {{ 'feed.alert.detail.report.submit' | translate }}
+        <button type="button" data-og7="action" data-og7-id="alert-update-view-close" (click)="closed.emit()">
+          {{ 'feed.drawer.close' | translate }}
         </button>
       </div>
-    </form>
+    </ng-container>
+
+    <ng-template #composeForm>
+      <p class="alert-update-drawer__hint">{{ 'feed.alert.detail.report.reviewHint' | translate }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <label>
+          <span>{{ 'feed.alert.detail.report.reasonLabel' | translate }}</span>
+          <select formControlName="reason" data-og7="alert-update-field" data-og7-id="reason">
+            <option value="correction">{{ 'feed.alert.detail.report.reason.correction' | translate }}</option>
+            <option value="escalation">{{ 'feed.alert.detail.report.reason.escalation' | translate }}</option>
+            <option value="resolved">{{ 'feed.alert.detail.report.reason.resolved' | translate }}</option>
+            <option value="newSource">{{ 'feed.alert.detail.report.reason.newSource' | translate }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>{{ 'feed.alert.detail.report.summaryLabel' | translate }}</span>
+          <textarea
+            rows="5"
+            formControlName="summary"
+            [placeholder]="'feed.alert.detail.report.summaryPlaceholder' | translate"
+            data-og7="alert-update-field"
+            data-og7-id="summary"
+          ></textarea>
+          <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('required')">
+            {{ 'validation.required' | translate }}
+          </small>
+          <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('minlength')">
+            {{ 'validation.minLength' | translate:{ min: 10 } }}
+          </small>
+        </label>
+
+        <label>
+          <span>{{ 'feed.alert.detail.report.sourceUrlLabel' | translate }}</span>
+          <input
+            type="url"
+            formControlName="sourceUrl"
+            [placeholder]="'feed.alert.detail.report.sourceUrlPlaceholder' | translate"
+            data-og7="alert-update-field"
+            data-og7-id="source-url"
+          />
+          <small *ngIf="form.controls.sourceUrl.touched && form.controls.sourceUrl.hasError('pattern')">
+            {{ 'validation.url' | translate }}
+          </small>
+        </label>
+
+        <p
+          class="alert-update-drawer__status alert-update-drawer__status--success"
+          *ngIf="submitState() === 'success'"
+          data-og7="alert-update-status"
+          data-og7-id="success"
+        >
+          {{ 'feed.alert.detail.report.status.success' | translate }}
+        </p>
+        <p
+          class="alert-update-drawer__status alert-update-drawer__status--error"
+          *ngIf="submitState() === 'error'"
+          data-og7="alert-update-status"
+          data-og7-id="error"
+        >
+          {{ submitError() || ('feed.alert.detail.report.status.errorGeneric' | translate) }}
+        </p>
+
+        <div class="alert-update-drawer__actions">
+          <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="alert-update-submit">
+            {{ 'feed.alert.detail.report.submit' | translate }}
+          </button>
+        </div>
+      </form>
+    </ng-template>
   </section>
 </div>

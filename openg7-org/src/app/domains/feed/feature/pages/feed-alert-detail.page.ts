@@ -23,6 +23,7 @@ import { AlertDetailBodyComponent } from '../components/alert-detail-body.compon
 import { AlertDetailHeaderComponent } from '../components/alert-detail-header.component';
 import {
   AlertDetailVm,
+  AlertUpdateDrawerMode,
   AlertRelatedAlertEntry,
   AlertRelatedOpportunityEntry,
   AlertUpdatePayload,
@@ -74,6 +75,7 @@ export class FeedAlertDetailPage {
   protected readonly headerCompact = signal(false);
   protected readonly subscribed = signal(false);
   protected readonly reportDrawerOpen = signal(false);
+  protected readonly reportDrawerMode = signal<AlertUpdateDrawerMode>('compose');
   protected readonly reportSubmitState = signal<AlertUpdateSubmitState>('idle');
   protected readonly reportSubmitError = signal<string | null>(null);
 
@@ -114,6 +116,14 @@ export class FeedAlertDetailPage {
     }
     return this.relativeTime(detail.updatedAtIso);
   });
+  protected readonly pendingReport = computed(() => {
+    const detail = this.detailVm();
+    if (!detail) {
+      return null;
+    }
+    return this.alertUpdateQueue.latestPendingForAlert(detail.item.id);
+  });
+  protected readonly hasPendingReport = computed(() => Boolean(this.pendingReport()));
 
   constructor() {
     effect(onCleanup => {
@@ -158,6 +168,7 @@ export class FeedAlertDetailPage {
       this.itemId();
       this.subscribed.set(false);
       this.reportDrawerOpen.set(false);
+      this.reportDrawerMode.set('compose');
       this.resetReportSubmitState();
     });
 
@@ -210,6 +221,7 @@ export class FeedAlertDetailPage {
 
   protected closeReportDrawer(): void {
     this.reportDrawerOpen.set(false);
+    this.reportDrawerMode.set('compose');
     this.resetReportSubmitState();
   }
 
@@ -239,6 +251,13 @@ export class FeedAlertDetailPage {
 
   protected reportUpdate(): void {
     this.resetReportSubmitState();
+    this.reportDrawerMode.set(this.pendingReport() ? 'view' : 'compose');
+    this.reportDrawerOpen.set(true);
+  }
+
+  protected reportAnotherUpdate(): void {
+    this.resetReportSubmitState();
+    this.reportDrawerMode.set('compose');
     this.reportDrawerOpen.set(true);
   }
 
@@ -310,6 +329,8 @@ export class FeedAlertDetailPage {
         q: detail.title,
         draftSource: 'alert',
         draftAlertId: detail.item.id,
+        draftOriginType: 'alert',
+        draftOriginId: detail.item.id,
         draftType: 'REQUEST',
         draftMode: inferredMode,
         draftSectorId: detail.item.sectorId ?? null,
@@ -654,6 +675,7 @@ export class FeedAlertDetailPage {
     this.clearReportStatusTimer();
     this.reportStatusTimer = setTimeout(() => {
       this.reportDrawerOpen.set(false);
+      this.reportDrawerMode.set('compose');
       this.reportSubmitState.set('idle');
     }, 750);
   }

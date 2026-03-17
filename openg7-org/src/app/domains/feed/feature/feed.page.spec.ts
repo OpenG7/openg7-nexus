@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -109,6 +110,17 @@ class FavoritesServiceMock {
   }
 }
 
+class OpportunityOffersServiceMock {
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly create = jasmine.createSpy('create').and.callFake((payload) => ({
+    id: 'offer-record-1',
+    reference: 'OG7-OFR-20260120-AB12',
+    status: 'submitted',
+    ...payload,
+  }));
+  readonly withdraw = jasmine.createSpy('withdraw');
+}
+
 function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
   return {
     id,
@@ -147,6 +159,7 @@ function createOfferPayload(): OpportunityOfferPayload {
 describe('FeedPage', () => {
   let feed: FeedRealtimeServiceMock;
   let favorites: FavoritesServiceMock;
+  let opportunityOffers: OpportunityOffersServiceMock;
   let router: jasmine.SpyObj<Router>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -155,6 +168,7 @@ describe('FeedPage', () => {
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     favorites = new FavoritesServiceMock();
+    opportunityOffers = new OpportunityOffersServiceMock();
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
     router.getCurrentNavigation.and.returnValue(null);
@@ -179,6 +193,7 @@ describe('FeedPage', () => {
       providers: [
         { provide: FeedRealtimeService, useValue: feed },
         { provide: FavoritesService, useValue: favorites },
+        { provide: OpportunityOffersService, useValue: opportunityOffers },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         {
@@ -390,6 +405,19 @@ describe('FeedPage', () => {
     expect(publishedDraft.fromProvinceId).toBe('qc');
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 340, unit: 'MW' });
+    expect(opportunityOffers.create).toHaveBeenCalledWith({
+      opportunityId: 'opportunity-300mw',
+      opportunityTitle: 'Item opportunity-300mw',
+      opportunityRoute: '/feed',
+      recipientKind: 'PARTNER',
+      recipientLabel: 'Grid Ops',
+      capacityMw: 340,
+      startDate: '2026-01-20',
+      endDate: '2026-02-18',
+      pricingModel: 'spot',
+      comment: 'Firm import block for winter peak support.',
+      attachmentName: 'term-sheet.pdf',
+    });
   });
 
   it('marks onboarding seen and focuses the publish section when compose is requested', () => {

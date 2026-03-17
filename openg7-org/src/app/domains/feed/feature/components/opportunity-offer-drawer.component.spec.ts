@@ -76,4 +76,24 @@ describe('OpportunityOfferDrawerComponent', () => {
       attachmentName: 'term-sheet.pdf',
     });
   });
+
+  it('shows inline validation errors when submit is attempted with an invalid form', () => {
+    const fixture = TestBed.createComponent(OpportunityOfferDrawerComponent);
+    const submittedSpy = jasmine.createSpy('submitted');
+    fixture.componentInstance.submitted.subscribe(submittedSpy);
+
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-offer-submit"]');
+
+    submitButton.click();
+    fixture.detectChanges();
+
+    expect(submittedSpy).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-offer-validation"][data-og7-id="summary"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelectorAll('.opportunity-offer-drawer__field-error').length).toBeGreaterThan(0);
+    expect((fixture.nativeElement.querySelector('[data-og7-id="start-date"]') as HTMLInputElement).getAttribute('aria-invalid')).toBe('true');
+    expect((fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement).getAttribute('aria-invalid')).toBe('true');
+  });
 });

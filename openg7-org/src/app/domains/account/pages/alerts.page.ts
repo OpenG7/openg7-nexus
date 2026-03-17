@@ -1,8 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  IndicatorAlertRuleRecord,
+  IndicatorAlertRulesService,
+} from '@app/core/indicator-alert-rules.service';
+import {
+  OpportunityOfferActivityRecord,
+  OpportunityOfferRecord,
+  OpportunityOffersService,
+} from '@app/core/opportunity-offers.service';
 import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
 import { UserAlertsService } from '@app/core/user-alerts.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { map } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -17,7 +29,12 @@ import { TranslateModule } from '@ngx-translate/core';
  * @returns AlertsPage geree par le framework.
  */
 export class AlertsPage {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly alerts = inject(UserAlertsService);
+  private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
+  private readonly opportunityOffers = inject(OpportunityOffersService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly loading = this.alerts.loading;
   protected readonly generating = this.alerts.generating;
@@ -27,11 +44,32 @@ export class AlertsPage {
   protected readonly entries = this.alerts.entries;
   protected readonly hasEntries = this.alerts.hasEntries;
   protected readonly unreadCount = this.alerts.unreadCount;
+  protected readonly indicatorRuleEntries = this.indicatorAlertRules.entries;
+  protected readonly hasIndicatorRuleEntries = this.indicatorAlertRules.hasEntries;
+  protected readonly opportunityOfferEntries = this.opportunityOffers.entries;
+  protected readonly hasOpportunityOfferEntries = this.opportunityOffers.hasEntries;
   protected readonly hasReadEntries = computed(() => this.entries().some((entry) => entry.isRead));
   protected readonly pendingById = this.alerts.pendingById;
+  protected readonly expandedOpportunityOfferIds = signal<readonly string[]>([]);
+  protected readonly highlightedOpportunityOfferId = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('offerId'))),
+    {
+      initialValue: this.route.snapshot.queryParamMap.get('offerId'),
+    }
+  );
 
   constructor() {
     this.alerts.refresh();
+    this.indicatorAlertRules.refresh();
+    this.opportunityOffers.refresh();
+
+    effect(() => {
+      const selectedOfferId = this.highlightedOpportunityOfferId();
+      if (!selectedOfferId) {
+        return;
+      }
+      this.expandedOpportunityOfferIds.set([selectedOfferId]);
+    });
   }
 
   protected onGenerate(): void {
@@ -52,6 +90,44 @@ export class AlertsPage {
 
   protected onDelete(id: string): void {
     this.alerts.remove(id);
+  }
+
+  protected onToggleIndicatorRule(entry: IndicatorAlertRuleRecord): void {
+    this.indicatorAlertRules.setActive(entry.id, !entry.active);
+  }
+
+  protected onDeleteIndicatorRule(id: string): void {
+    this.indicatorAlertRules.remove(id);
+  }
+
+  protected onOpenOpportunityOffer(entry: OpportunityOfferRecord): void {
+    const route = entry.opportunityRoute;
+    if (route?.startsWith('/')) {
+      void this.router.navigateByUrl(route);
+      return;
+    }
+    void this.router.navigate(['/feed', 'opportunities', entry.opportunityId]);
+  }
+
+  protected onWithdrawOpportunityOffer(id: string): void {
+    this.opportunityOffers.withdraw(id);
+  }
+
+  protected toggleOpportunityOfferDetails(id: string): void {
+    this.expandedOpportunityOfferIds.update((current) => {
+      if (current.includes(id)) {
+        return current.filter((entryId) => entryId !== id);
+      }
+      return [...current, id];
+    });
+  }
+
+  protected isOpportunityOfferExpanded(id: string): boolean {
+    return this.expandedOpportunityOfferIds().includes(id);
+  }
+
+  protected isOpportunityOfferHighlighted(id: string): boolean {
+    return this.highlightedOpportunityOfferId() === id;
   }
 
   protected isPending(id: string): boolean {
@@ -82,5 +158,66 @@ export class AlertsPage {
     return 'pages.alerts.sources.system';
   }
 
+  protected indicatorRuleState(entry: IndicatorAlertRuleRecord): 'active' | 'inactive' {
+    return entry.active ? 'active' : 'inactive';
+  }
+
+  protected indicatorRuleDirectionLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.direction.${entry.thresholdDirection}`);
+  }
+
+  protected indicatorRuleWindowLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.window.${entry.window}`);
+  }
+
+  protected indicatorRuleFrequencyLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.frequency.${entry.frequency}`);
+  }
+
+  protected indicatorRuleNotifyDeltaLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(
+      entry.notifyDelta ? 'pages.alerts.rules.notifyDelta.on' : 'pages.alerts.rules.notifyDelta.off'
+    );
+  }
+
+  protected opportunityOfferState(entry: OpportunityOfferRecord): 'submitted' | 'withdrawn' {
+    return entry.status;
+  }
+
+  protected opportunityOfferRecipientLabel(entry: OpportunityOfferRecord): string {
+    return this.translate.instant(`pages.alerts.offers.recipientKinds.${entry.recipientKind}`, {
+      recipient: entry.recipientLabel,
+    });
+  }
+
+  protected opportunityOfferLastActivity(entry: OpportunityOfferRecord): OpportunityOfferActivityRecord | null {
+    return entry.activities[0] ?? null;
+  }
+
+  protected opportunityOfferActivityCount(entry: OpportunityOfferRecord): number {
+    return entry.activities.length;
+  }
+
+  protected opportunityOfferActivityActorLabel(entry: OpportunityOfferActivityRecord): string {
+    return this.translate.instant(`pages.alerts.offers.activity.actors.${entry.actor}`);
+  }
+
+  protected opportunityOfferActivityTitle(entry: OpportunityOfferActivityRecord): string {
+    return this.translate.instant(`pages.alerts.offers.activity.types.${entry.type}.title`);
+  }
+
+  protected opportunityOfferActivityBody(
+    offer: OpportunityOfferRecord,
+    activity: OpportunityOfferActivityRecord
+  ): string {
+    return this.translate.instant(`pages.alerts.offers.activity.types.${activity.type}.body`, {
+      reference: offer.reference,
+      recipient: offer.recipientLabel,
+    });
+  }
+
   protected trackById = (_: number, entry: UserAlertRecord) => entry.id;
+  protected trackIndicatorRuleById = (_: number, entry: IndicatorAlertRuleRecord) => entry.id;
+  protected trackOpportunityOfferById = (_: number, entry: OpportunityOfferRecord) => entry.id;
+  protected trackOpportunityOfferActivityById = (_: number, entry: OpportunityOfferActivityRecord) => entry.id;
 }

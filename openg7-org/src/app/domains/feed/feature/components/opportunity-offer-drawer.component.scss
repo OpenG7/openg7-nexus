@@ -94,6 +94,13 @@
   outline-offset: 2px;
 }
 
+.opportunity-offer-drawer input[aria-invalid='true'],
+.opportunity-offer-drawer select[aria-invalid='true'],
+.opportunity-offer-drawer textarea[aria-invalid='true'] {
+  border-color: rgba(248, 113, 113, 0.58);
+  background: rgba(127, 29, 29, 0.18);
+}
+
 .opportunity-offer-drawer__field-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -114,6 +121,22 @@
 .opportunity-offer-drawer__attachment {
   margin: 0;
   color: rgba(186, 230, 253, 0.9);
+  font-size: 0.8rem;
+}
+
+.opportunity-offer-drawer__field-error {
+  margin: 0;
+  color: rgba(254, 202, 202, 0.96);
+  font-size: 0.76rem;
+}
+
+.opportunity-offer-drawer__validation-summary {
+  margin: 0;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(127, 29, 29, 0.18);
+  color: rgba(254, 226, 226, 0.96);
+  padding: 0.55rem 0.62rem;
   font-size: 0.8rem;
 }
 

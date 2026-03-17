@@ -14,6 +14,7 @@ const MAX_PAGE_LIMIT = 100;
 
 const FEED_TYPES = new Set(['OFFER', 'REQUEST', 'ALERT', 'TENDER', 'CAPACITY', 'INDICATOR']);
 const FEED_MODES = new Set(['EXPORT', 'IMPORT', 'BOTH']);
+const FEED_ORIGIN_TYPES = new Set(['alert', 'opportunity', 'indicator']);
 const FEED_SOURCES = new Set(['GOV', 'COMPANY', 'PARTNER', 'USER']);
 const FEED_STATUSES = new Set(['confirmed', 'pending', 'failed']);
 const FEED_SORTS = new Set(['NEWEST', 'URGENCY', 'VOLUME', 'CREDIBILITY']);
@@ -46,6 +47,7 @@ const MAX_HIGHLIGHTS_POOL_LIMIT = 500;
 type FeedSort = 'NEWEST' | 'URGENCY' | 'VOLUME' | 'CREDIBILITY';
 type FeedMode = 'EXPORT' | 'IMPORT' | 'BOTH';
 type FeedType = 'OFFER' | 'REQUEST' | 'ALERT' | 'TENDER' | 'CAPACITY' | 'INDICATOR';
+type FeedOriginType = 'alert' | 'opportunity' | 'indicator';
 type FeedSourceKind = 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
 type FeedStatus = 'confirmed' | 'pending' | 'failed';
 type FeedQuantityUnit = 'MW' | 'MWh' | 'bbl_d' | 'ton' | 'kg' | 'hours' | 'cad' | 'usd';
@@ -92,6 +94,8 @@ interface FeedResponseItem {
   readonly credibility: 1 | 2 | 3 | null;
   readonly volumeScore: number | null;
   readonly tags: readonly string[];
+  readonly originType: FeedOriginType | null;
+  readonly originId: string | null;
   readonly source: {
     readonly kind: FeedSourceKind;
     readonly label: string;
@@ -114,6 +118,8 @@ interface FeedCreatePayload {
   readonly urgency: 1 | 2 | 3;
   readonly credibility: 1 | 2 | 3;
   readonly tags: readonly string[];
+  readonly originType: FeedOriginType | null;
+  readonly originId: string | null;
   readonly accessibilitySummary: string | null;
   readonly geo?: FeedGeo;
 }
@@ -220,6 +226,14 @@ function normalizeFeedMode(value: unknown): FeedMode | null {
     return null;
   }
   return normalized as FeedMode;
+}
+
+function normalizeOriginType(value: unknown): FeedOriginType | null {
+  const normalized = normalizeString(value, 24)?.toLowerCase();
+  if (!normalized || !FEED_ORIGIN_TYPES.has(normalized)) {
+    return null;
+  }
+  return normalized as FeedOriginType;
 }
 
 function normalizeSourceKind(value: unknown): FeedSourceKind {
@@ -452,6 +466,8 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
     credibility: normalizeUrgencyOrCredibility(entity.credibility, 1),
     volumeScore: normalizeNumber(entity.volumeScore),
     tags: normalizeFeedTags(entity.tags),
+    originType: normalizeOriginType(entity.originType),
+    originId: normalizeString(entity.originId, 120),
     source: {
       kind: normalizeSourceKind(entity.sourceKind),
       label: sourceLabel,
@@ -511,6 +527,11 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
   const urgency = normalizeUrgencyOrCredibility(source.urgency, 1);
   const credibility = normalizeUrgencyOrCredibility(source.credibility, 1);
   const tags = normalizeFeedTags(source.tags);
+  const originType = normalizeOriginType(source.originType);
+  const originId = normalizeString(source.originId, 120);
+  if ((originType && !originId) || (!originType && originId)) {
+    throw new Error('originType and originId must either both be provided or both be omitted.');
+  }
   const accessibilitySummary = normalizeString(source.accessibilitySummary, 5000);
   const geo = normalizeFeedGeo(source.geo);
 
@@ -526,6 +547,8 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     urgency,
     credibility,
     tags,
+    originType,
+    originId,
     accessibilitySummary,
     ...(geo ? { geo } : {}),
   };
@@ -1116,6 +1139,8 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         credibility: payload.credibility,
         volumeScore,
         tags: payload.tags,
+        originType: payload.originType,
+        originId: payload.originId,
         sourceKind: 'USER',
         sourceLabel: buildSourceLabel(currentUser),
         sourceUrl: null,

@@ -76,6 +76,13 @@ const schema = {
     tags: {
       type: 'json',
     },
+    originType: {
+      type: 'enumeration',
+      enum: ['alert', 'opportunity', 'indicator'],
+    },
+    originId: {
+      type: 'string',
+    },
     sourceKind: {
       type: 'enumeration',
       enum: ['GOV', 'COMPANY', 'PARTNER', 'USER'],

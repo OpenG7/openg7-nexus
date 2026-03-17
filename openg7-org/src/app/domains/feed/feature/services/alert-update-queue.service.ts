@@ -1,27 +1,16 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 
-import { AlertUpdatePayload } from '../components/alert-detail.models';
+import { AlertUpdatePayload, AlertUpdateRecord } from '../components/alert-detail.models';
 
 const STORAGE_KEY = 'og7.alert-update-queue';
 const MAX_UPDATES = 50;
-
-export interface AlertUpdateRecord {
-  readonly id: string;
-  readonly alertId: string;
-  readonly alertTitle: string;
-  readonly route: string;
-  readonly reason: AlertUpdatePayload['reason'];
-  readonly summary: string;
-  readonly sourceUrl: string | null;
-  readonly createdAt: string;
-  readonly status: 'pending';
-}
 
 @Injectable({ providedIn: 'root' })
 export class AlertUpdateQueueService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly browser = isPlatformBrowser(this.platformId);
+  private readonly records = signal<readonly AlertUpdateRecord[]>(this.restore());
 
   queueUpdate(input: {
     alertId: string;
@@ -41,9 +30,21 @@ export class AlertUpdateQueueService {
       status: 'pending',
     };
 
-    const next = [record, ...this.restore()].slice(0, MAX_UPDATES);
+    const next = [record, ...this.records()].slice(0, MAX_UPDATES);
+    this.records.set(next);
     this.persist(next);
     return record;
+  }
+
+  latestPendingForAlert(alertId: string): AlertUpdateRecord | null {
+    const normalizedAlertId = alertId.trim();
+    if (!normalizedAlertId) {
+      return null;
+    }
+
+    return (
+      this.records().find(record => record.alertId === normalizedAlertId && record.status === 'pending') ?? null
+    );
   }
 
   private restore(): AlertUpdateRecord[] {
@@ -98,7 +99,7 @@ export class AlertUpdateQueueService {
       typeof entry.summary === 'string' &&
       typeof entry.createdAt === 'string' &&
       (typeof entry.sourceUrl === 'string' || entry.sourceUrl === null) &&
-      entry.status === 'pending' &&
+      ['pending', 'reviewed', 'applied', 'rejected'].includes(entry.status ?? '') &&
       ['correction', 'escalation', 'resolved', 'newSource'].includes(entry.reason ?? '')
     );
   }

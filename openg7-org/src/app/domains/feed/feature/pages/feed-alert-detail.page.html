@@ -1,69 +1,75 @@
-﻿<section class="feed-alert-detail" data-og7="alert-detail-page">
-  <ng-container *ngIf="detailVm() as detail; else emptyState">
-    <og7-alert-detail-header
-      [title]="detail.title"
-      [subtitle]="detail.subtitle"
-      [severityLabel]="detail.severityLabel"
-      [confidenceLabel]="detail.confidenceLabel"
-      [windowLabel]="detail.windowLabel"
-      [compact]="headerCompact()"
-      [subscribed]="subscribed()"
-      [canCreateOpportunity]="true"
-      (toggleSubscribe)="toggleSubscribe()"
-      (share)="share()"
-      (reportUpdate)="reportUpdate()"
-      (createOpportunity)="createOpportunity()"
-    ></og7-alert-detail-header>
+<section class="feed-alert-detail" data-og7="alert-detail-page">
+  <div class="feed-alert-detail__inner">
+    <ng-container *ngIf="detailVm() as detail; else emptyState">
+      <og7-alert-detail-header
+        [title]="detail.title"
+        [subtitle]="detail.subtitle"
+        [severityLabel]="detail.severityLabel"
+        [confidenceLabel]="detail.confidenceLabel"
+        [windowLabel]="detail.windowLabel"
+        [compact]="headerCompact()"
+        [subscribed]="subscribed()"
+        [hasPendingReport]="hasPendingReport()"
+        [canCreateOpportunity]="true"
+        (toggleSubscribe)="toggleSubscribe()"
+        (share)="share()"
+        (reportUpdate)="reportUpdate()"
+        (reportAnotherUpdate)="reportAnotherUpdate()"
+        (createOpportunity)="createOpportunity()"
+      ></og7-alert-detail-header>
 
-    <p class="feed-alert-detail__update-label">
-      {{ 'feed.alert.detail.lastUpdate' | translate:{ value: lastUpdatedLabel() } }}
-    </p>
+      <p class="feed-alert-detail__update-label">
+        {{ 'feed.alert.detail.lastUpdate' | translate:{ value: lastUpdatedLabel() } }}
+      </p>
 
-    <div class="feed-alert-detail__layout">
-      <og7-alert-detail-body
-        [summaryHeadline]="detail.summaryHeadline"
-        [summaryPoints]="detail.summaryPoints"
-        [impactPoints]="detail.impactPoints"
-        [zones]="detail.zones"
-        [infrastructures]="detail.infrastructures"
-        [timeline]="detail.timeline"
-        [updates]="detail.updates"
-        [recommendations]="detail.recommendations"
-        [sources]="detail.sources"
-      ></og7-alert-detail-body>
+      <div class="feed-alert-detail__layout">
+        <og7-alert-detail-body
+          [summaryHeadline]="detail.summaryHeadline"
+          [summaryPoints]="detail.summaryPoints"
+          [impactPoints]="detail.impactPoints"
+          [zones]="detail.zones"
+          [infrastructures]="detail.infrastructures"
+          [timeline]="detail.timeline"
+          [updates]="detail.updates"
+          [recommendations]="detail.recommendations"
+          [sources]="detail.sources"
+        ></og7-alert-detail-body>
 
-      <og7-alert-context-aside
-        [indicators]="detail.indicators"
-        [relatedAlerts]="detail.relatedAlerts"
-        [relatedOpportunities]="detail.relatedOpportunities"
-        (openRelatedAlert)="openRelatedAlert($event)"
-        (openRelatedOpportunity)="openRelatedOpportunity($event)"
-        (openAllAlerts)="openAllAlerts()"
-      ></og7-alert-context-aside>
-    </div>
+        <og7-alert-context-aside
+          [indicators]="detail.indicators"
+          [relatedAlerts]="detail.relatedAlerts"
+          [relatedOpportunities]="detail.relatedOpportunities"
+          (openRelatedAlert)="openRelatedAlert($event)"
+          (openRelatedOpportunity)="openRelatedOpportunity($event)"
+          (openAllAlerts)="openAllAlerts()"
+        ></og7-alert-context-aside>
+      </div>
 
-    <og7-alert-update-drawer
-      [open]="reportDrawerOpen()"
-      [alertTitle]="detail.title"
-      [submitState]="reportSubmitState()"
-      [submitError]="reportSubmitError()"
-      (closed)="closeReportDrawer()"
-      (submitted)="handleReportSubmitted($event)"
-    ></og7-alert-update-drawer>
-  </ng-container>
+      <og7-alert-update-drawer
+        [open]="reportDrawerOpen()"
+        [mode]="reportDrawerMode()"
+        [alertTitle]="detail.title"
+        [existingReport]="pendingReport()"
+        [submitState]="reportSubmitState()"
+        [submitError]="reportSubmitError()"
+        (closed)="closeReportDrawer()"
+        (submitted)="handleReportSubmitted($event)"
+      ></og7-alert-update-drawer>
+    </ng-container>
 
-  <ng-template #emptyState>
-    <article class="feed-alert-detail__empty" *ngIf="loading(); else missingState" data-og7="alert-detail-loading">
-      <h2>{{ 'feed.alert.detail.loadingTitle' | translate }}</h2>
-      <p>{{ 'feed.alert.detail.loadingBody' | translate }}</p>
-    </article>
-
-    <ng-template #missingState>
-      <article class="feed-alert-detail__empty" data-og7="alert-detail-missing">
-        <h2>{{ 'feed.alert.detail.notFoundTitle' | translate }}</h2>
-        <p>{{ error() || ('feed.alert.detail.notFoundBody' | translate) }}</p>
-        <a routerLink="/feed">{{ 'feed.alert.detail.backToFeed' | translate }}</a>
+    <ng-template #emptyState>
+      <article class="feed-alert-detail__empty" *ngIf="loading(); else missingState" data-og7="alert-detail-loading">
+        <h2>{{ 'feed.alert.detail.loadingTitle' | translate }}</h2>
+        <p>{{ 'feed.alert.detail.loadingBody' | translate }}</p>
       </article>
+
+      <ng-template #missingState>
+        <article class="feed-alert-detail__empty" data-og7="alert-detail-missing">
+          <h2>{{ 'feed.alert.detail.notFoundTitle' | translate }}</h2>
+          <p>{{ error() || ('feed.alert.detail.notFoundBody' | translate) }}</p>
+          <a routerLink="/feed">{{ 'feed.alert.detail.backToFeed' | translate }}</a>
+        </article>
+      </ng-template>
     </ng-template>
-  </ng-template>
+  </div>
 </section>

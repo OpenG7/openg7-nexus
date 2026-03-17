@@ -794,6 +794,7 @@
       "summaryTooLong": "Summary cannot exceed 5,000 characters.",
       "quantityInvalid": "Quantity must be a positive number.",
       "quantityUnitRequired": "Select a quantity unit.",
+      "originIncomplete": "The business origin must include both a type and an identifier.",
       "routeIncomplete": "Add both origin and destination for import/export flows.",
       "moderationFlag": "Review the language for a respectful, inclusive tone."
     },
@@ -900,8 +901,14 @@
           "generatedTitlePrefix": "Offer",
           "status": {
             "success": "Offer sent to feed.",
+            "successReference": "Offer recorded under reference {{ reference }}.",
+            "existingOfferRedirect": "Offer {{ reference }} already exists. Opening tracking.",
             "offline": "Offline: offer saved locally. Retry when connected.",
             "errorGeneric": "Unable to send offer. Try again."
+          },
+          "validation": {
+            "summary": "Fix the required fields before sending the offer.",
+            "capacityMin": "Capacity must be at least 1 MW."
           },
           "send": "Send offer",
           "sending": "Sending..."
@@ -912,6 +919,9 @@
           "commentLabel": "Details",
           "commentPlaceholder": "Describe the issue so the review team has usable context.",
           "submit": "Submit report",
+          "validation": {
+            "maxLength": "Enter no more than {{ max }} characters."
+          },
           "reason": {
             "incorrect": "Incorrect information",
             "duplicate": "Duplicate entry",
@@ -925,6 +935,7 @@
         },
         "cta": {
           "makeOffer": "Propose an offer",
+          "openExistingOffer": "Open my offer",
           "save": "Save",
           "remove": "Remove from favorites",
           "share": "Share",
@@ -1005,13 +1016,17 @@
           "subscribed": "Subscribed",
           "share": "Share",
           "reportUpdate": "Report update",
+          "viewMyReport": "View my report",
+          "reportAnotherUpdate": "Report another update",
           "createOpportunity": "Create linked opportunity",
           "createOpportunityTitlePrefix": "Linked opportunity"
         },
         "lastUpdate": "Last update: {{ value }}",
         "report": {
           "title": "Contribute an update",
+          "viewTitle": "My report",
           "reviewHint": "Your update is queued for review and linked to this alert.",
+          "viewHint": "This report is still pending review. You can send another update if the situation changes.",
           "reasonLabel": "Type of update",
           "reason": {
             "correction": "Correction",
@@ -1020,9 +1035,17 @@
             "newSource": "New source"
           },
           "summaryLabel": "Update details",
+          "summaryValueLabel": "Report details",
+          "submittedAtLabel": "Submitted on",
           "summaryPlaceholder": "Describe what changed, when it changed, and who confirmed it.",
           "sourceUrlLabel": "Source URL (optional)",
           "sourceUrlPlaceholder": "https://example.org/advisory",
+          "queueStatus": {
+            "pending": "Pending review",
+            "reviewed": "Reviewed",
+            "applied": "Applied",
+            "rejected": "Rejected"
+          },
           "status": {
             "success": "Update queued for review.",
             "errorGeneric": "We could not record this update."
@@ -2410,6 +2433,87 @@
         "generate": "Unable to generate alerts right now. Please try again.",
         "update": "Unable to update this alert. Please try again.",
         "delete": "Unable to delete this alert. Please try again."
+      },
+      "rules": {
+        "title": "Indicator alert rules",
+        "subtitle": "Personal monitoring rules configured from indicator detail pages.",
+        "count": "{{ count }} rules",
+        "empty": "No indicator alert rules yet.",
+        "threshold": "Threshold",
+        "note": "Note",
+        "states": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "enable": "Enable",
+          "disable": "Disable"
+        },
+        "direction": {
+          "gt": "above",
+          "lt": "below"
+        },
+        "window": {
+          "1h": "1h window",
+          "24h": "24h window"
+        },
+        "frequency": {
+          "instant": "Instant",
+          "hourly": "Hourly",
+          "daily": "Daily"
+        },
+        "notifyDelta": {
+          "label": "Delta",
+          "on": "Enabled",
+          "off": "Disabled"
+        }
+      },
+      "offers": {
+        "title": "Opportunity offers",
+        "subtitle": "Track your offers in a local outbox with activity history.",
+        "count": "{{ count }} offers",
+        "empty": "No submitted offers yet.",
+        "attachment": "Attachment",
+        "lastActivity": "Last activity",
+        "activityCount": "{{ count }} activities",
+        "threadTitle": "Tracking history",
+        "referenceLabel": "Reference {{ reference }}",
+        "states": {
+          "submitted": "Submitted",
+          "withdrawn": "Withdrawn"
+        },
+        "recipientKinds": {
+          "GOV": "Public recipient: {{ recipient }}",
+          "COMPANY": "Company recipient: {{ recipient }}",
+          "PARTNER": "Partner recipient: {{ recipient }}",
+          "USER": "User recipient: {{ recipient }}"
+        },
+        "actions": {
+          "open": "Open opportunity",
+          "withdraw": "Withdraw offer",
+          "showDetails": "View tracking",
+          "hideDetails": "Hide tracking"
+        },
+        "activity": {
+          "actors": {
+            "sender": "You",
+            "system": "System"
+          },
+          "types": {
+            "submitted": {
+              "title": "Offer sent",
+              "body": "Your proposal was attached to the opportunity and prepared for tracking."
+            },
+            "tracked": {
+              "title": "Tracking active",
+              "body": "Reference {{ reference }} is now visible in your outbox."
+            },
+            "withdrawn": {
+              "title": "Offer withdrawn",
+              "body": "You removed this offer from local tracking."
+            }
+          }
+        }
       }
     },
     "terms": {

@@ -592,6 +592,8 @@ export interface ApiFeedFeed extends Struct.CollectionTypeSchema {
     mode: Schema.Attribute.Enumeration<['EXPORT', 'IMPORT', 'BOTH']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'BOTH'>;
+    originId: Schema.Attribute.String;
+    originType: Schema.Attribute.Enumeration<['alert', 'opportunity', 'indicator']>;
     publishedAt: Schema.Attribute.DateTime;
     quantityUnit: Schema.Attribute.Enumeration<
       ['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']

@@ -683,6 +683,7 @@
       "summaryTooLong": "Le resume ne peut pas depasser 5 000 caracteres.",
       "quantityInvalid": "La quantite doit etre un nombre positif.",
       "quantityUnitRequired": "Selectionnez une unite.",
+      "originIncomplete": "L'origine metier doit inclure un type et un identifiant.",
       "routeIncomplete": "Ajoutez origine et destination pour les flux import/export.",
       "moderationFlag": "Verifiez le langage pour un ton respectueux et inclusif."
     },
@@ -789,8 +790,14 @@
           "generatedTitlePrefix": "Offre",
           "status": {
             "success": "Offre envoyee dans le fil.",
+            "successReference": "Offre enregistree sous la reference {{ reference }}.",
+            "existingOfferRedirect": "L'offre {{ reference }} existe deja. Ouverture du suivi.",
             "offline": "Hors ligne : offre sauvegardee localement. Reessayez une fois reconnecte.",
             "errorGeneric": "Impossible d'envoyer l'offre. Reessayez."
+          },
+          "validation": {
+            "summary": "Corrigez les champs obligatoires avant d'envoyer l'offre.",
+            "capacityMin": "La capacite doit etre superieure ou egale a 1 MW."
           },
           "send": "Envoyer l'offre",
           "sending": "Envoi..."
@@ -801,6 +808,9 @@
           "commentLabel": "Details",
           "commentPlaceholder": "Precisez le probleme constate pour faciliter la revue.",
           "submit": "Envoyer le signalement",
+          "validation": {
+            "maxLength": "Saisissez au maximum {{ max }} caracteres."
+          },
           "reason": {
             "incorrect": "Information incorrecte",
             "duplicate": "Doublon",
@@ -814,6 +824,7 @@
         },
         "cta": {
           "makeOffer": "Proposer une offre",
+          "openExistingOffer": "Ouvrir mon offre",
           "save": "Enregistrer",
           "remove": "Retirer des favoris",
           "share": "Partager",
@@ -894,13 +905,17 @@
           "subscribed": "Abonne",
           "share": "Partager",
           "reportUpdate": "Signaler une mise a jour",
+          "viewMyReport": "Voir mon signalement",
+          "reportAnotherUpdate": "Signaler une autre mise a jour",
           "createOpportunity": "Creer une opportunite liee",
           "createOpportunityTitlePrefix": "Opportunite liee"
         },
         "lastUpdate": "Derniere mise a jour : {{ value }}",
         "report": {
           "title": "Signaler une mise a jour",
+          "viewTitle": "Mon signalement",
           "reviewHint": "Votre signalement est place en file de revue et rattache a cette alerte.",
+          "viewHint": "Ce signalement est toujours en attente de revue. Vous pouvez envoyer une autre mise a jour si la situation evolue.",
           "reasonLabel": "Type de mise a jour",
           "reason": {
             "correction": "Correction",
@@ -909,9 +924,17 @@
             "newSource": "Nouvelle source"
           },
           "summaryLabel": "Details de la mise a jour",
+          "summaryValueLabel": "Contenu du signalement",
+          "submittedAtLabel": "Envoye le",
           "summaryPlaceholder": "Decrivez ce qui a change, quand, et quelle source l'a confirme.",
           "sourceUrlLabel": "URL source (optionnel)",
           "sourceUrlPlaceholder": "https://exemple.org/avis",
+          "queueStatus": {
+            "pending": "En attente de revue",
+            "reviewed": "Revise",
+            "applied": "Applique",
+            "rejected": "Refuse"
+          },
           "status": {
             "success": "Mise a jour placee en file de revue.",
             "errorGeneric": "Impossible d'enregistrer cette mise a jour."
@@ -2299,6 +2322,87 @@
         "generate": "Impossible de generer les alertes pour le moment. Veuillez reessayer.",
         "update": "Impossible de mettre a jour cette alerte. Veuillez reessayer.",
         "delete": "Impossible de supprimer cette alerte. Veuillez reessayer."
+      },
+      "rules": {
+        "title": "Regles d'alerte indicateur",
+        "subtitle": "Surveillances personnelles configurees depuis les pages indicateur.",
+        "count": "{{ count }} regles",
+        "empty": "Aucune regle d'alerte indicateur pour le moment.",
+        "threshold": "Seuil",
+        "note": "Note",
+        "states": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "enable": "Activer",
+          "disable": "Desactiver"
+        },
+        "direction": {
+          "gt": "au-dessus de",
+          "lt": "en dessous de"
+        },
+        "window": {
+          "1h": "Fenetre 1 h",
+          "24h": "Fenetre 24 h"
+        },
+        "frequency": {
+          "instant": "Instant",
+          "hourly": "Horaire",
+          "daily": "Quotidien"
+        },
+        "notifyDelta": {
+          "label": "Variation",
+          "on": "Activee",
+          "off": "Desactivee"
+        }
+      },
+      "offers": {
+        "title": "Offres d'opportunite",
+        "subtitle": "Suivez vos offres dans une boite d'envoi locale avec historique d'activite.",
+        "count": "{{ count }} offres",
+        "empty": "Aucune offre soumise pour le moment.",
+        "attachment": "Piece jointe",
+        "lastActivity": "Derniere activite",
+        "activityCount": "{{ count }} activites",
+        "threadTitle": "Historique de suivi",
+        "referenceLabel": "Reference {{ reference }}",
+        "states": {
+          "submitted": "Soumise",
+          "withdrawn": "Retiree"
+        },
+        "recipientKinds": {
+          "GOV": "Destinataire public : {{ recipient }}",
+          "COMPANY": "Destinataire entreprise : {{ recipient }}",
+          "PARTNER": "Destinataire partenaire : {{ recipient }}",
+          "USER": "Destinataire utilisateur : {{ recipient }}"
+        },
+        "actions": {
+          "open": "Ouvrir l'opportunite",
+          "withdraw": "Retirer l'offre",
+          "showDetails": "Voir le suivi",
+          "hideDetails": "Masquer le suivi"
+        },
+        "activity": {
+          "actors": {
+            "sender": "Vous",
+            "system": "Systeme"
+          },
+          "types": {
+            "submitted": {
+              "title": "Offre envoyee",
+              "body": "Votre proposition a ete rattachee a l'opportunite et preparee pour le suivi."
+            },
+            "tracked": {
+              "title": "Suivi active",
+              "body": "La reference {{ reference }} est maintenant visible dans votre boite d'envoi."
+            },
+            "withdrawn": {
+              "title": "Offre retiree",
+              "body": "Vous avez retire cette offre du suivi local."
+            }
+          }
+        }
       }
     },
     "statistics": {

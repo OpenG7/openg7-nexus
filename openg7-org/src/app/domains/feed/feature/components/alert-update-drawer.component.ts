@@ -19,7 +19,9 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
+  AlertUpdateDrawerMode,
   AlertUpdatePayload,
+  AlertUpdateRecord,
   AlertUpdateReason,
   AlertUpdateSubmitState,
 } from './alert-detail.models';
@@ -48,7 +50,9 @@ function optionalHttpUrlValidator(control: AbstractControl<string>): ValidationE
 })
 export class AlertUpdateDrawerComponent {
   readonly open = input(false);
+  readonly mode = input<AlertUpdateDrawerMode>('compose');
   readonly alertTitle = input('');
+  readonly existingReport = input<AlertUpdateRecord | null>(null);
   readonly submitState = input<AlertUpdateSubmitState>('idle');
   readonly submitError = input<string | null>(null);
 
@@ -68,6 +72,9 @@ export class AlertUpdateDrawerComponent {
   });
 
   protected readonly submitting = computed(() => false);
+  protected readonly viewingReport = computed(
+    () => this.mode() === 'view' && Boolean(this.existingReport())
+  );
 
   constructor() {
     effect(() => {
@@ -82,7 +89,7 @@ export class AlertUpdateDrawerComponent {
     });
 
     effect(() => {
-      if (!this.open()) {
+      if (!this.open() || this.mode() !== 'compose') {
         return;
       }
       this.form.reset({

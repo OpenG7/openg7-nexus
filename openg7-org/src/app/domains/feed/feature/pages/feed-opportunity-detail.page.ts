@@ -15,6 +15,11 @@ import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
+import {
+  CreateOpportunityOfferPayload,
+  OpportunityOfferRecord,
+  OpportunityOffersService,
+} from '@app/core/opportunity-offers.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -64,6 +69,7 @@ export class FeedOpportunityDetailPage {
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
   private readonly notifications = injectNotificationStore();
+  private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly feed = inject(FeedRealtimeService);
   private readonly conversationDrafts = inject(OpportunityConversationDraftsService);
   private readonly reportQueue = inject(OpportunityReportQueueService);
@@ -152,11 +158,22 @@ export class FeedOpportunityDetailPage {
     const detail = this.detailVm();
     const itemId = detail?.item.id ?? this.itemId();
     const localMessages = this.conversationDrafts.messagesFor(itemId);
+    const offerMessages = this.opportunityOffers
+      .entriesForOpportunity(itemId)
+      .map((entry) => this.toOfferMessage(entry));
     if (!detail) {
-      return localMessages;
+      return [...offerMessages, ...localMessages];
     }
-    return [...detail.qnaMessages, ...localMessages];
+    return [...offerMessages, ...detail.qnaMessages, ...localMessages];
   });
+  protected readonly existingSubmittedOffer = computed(() => {
+    const detail = this.detailVm();
+    const itemId = detail?.item.id ?? this.itemId();
+    return this.opportunityOffers
+      .entriesForOpportunity(itemId)
+      .find((entry) => entry.status === 'submitted') ?? null;
+  });
+  protected readonly hasExistingSubmittedOffer = computed(() => this.existingSubmittedOffer() !== null);
 
   protected readonly isConnected = computed(() => this.feed.connectionState.connected());
   protected readonly offerRetryEnabled = computed(() => {
@@ -292,6 +309,13 @@ export class FeedOpportunityDetailPage {
       this.redirectToLogin();
       return;
     }
+
+    const existingOffer = this.existingSubmittedOffer();
+    if (existingOffer) {
+      this.openExistingOffer(existingOffer);
+      return;
+    }
+
     this.resetOfferSubmitState();
     this.offerDrawerOpen.set(true);
   }
@@ -473,6 +497,29 @@ export class FeedOpportunityDetailPage {
     this.qnaTab.set(tab);
   }
 
+  private openExistingOffer(offer: OpportunityOfferRecord): void {
+    this.notifications.info(
+      this.translate.instant('feed.opportunity.detail.offer.status.existingOfferRedirect', {
+        reference: offer.reference,
+      }),
+      {
+        source: 'feed',
+        metadata: {
+          itemId: offer.opportunityId,
+          offerId: offer.id,
+          offerReference: offer.reference,
+          route: 'alerts',
+        },
+      }
+    );
+    void this.router.navigate(['/alerts'], {
+      queryParams: {
+        section: 'offers',
+        offerId: offer.id,
+      },
+    });
+  }
+
   private async submitOfferPayload(payload: OpportunityOfferPayload): Promise<void> {
     const detail = this.detailVm();
     if (!detail || this.offerSubmitState() === 'submitting') {
@@ -509,19 +556,25 @@ export class FeedOpportunityDetailPage {
       return;
     }
 
-    const message = this.buildOfferMessage(payload);
-    this.conversationDrafts.append(detail.item.id, {
-      id: `offer-${Date.now()}`,
-      tab: 'offers',
-      author: this.translate.instant('feed.sourceYou'),
-      content: message,
-      createdAt: this.translate.instant('feed.opportunity.detail.justNow'),
-    });
+    const record = this.opportunityOffers.create(this.buildOfferRecordPayload(detail, payload));
     this.qnaTab.set('offers');
     this.offerSubmitState.set('success');
     this.offerSubmitError.set(null);
     this.pendingOfferPayload = null;
     this.simulateSync();
+    this.notifications.success(
+      this.translate.instant('feed.opportunity.detail.offer.status.successReference', {
+        reference: record.reference,
+      }),
+      {
+        source: 'feed',
+        metadata: {
+          itemId: detail.item.id,
+          offerId: record.id,
+          offerReference: record.reference,
+        },
+      }
+    );
     this.closeOfferDrawerAfterSuccess();
   }
 
@@ -540,7 +593,6 @@ export class FeedOpportunityDetailPage {
         : null,
     ].filter((line): line is string => Boolean(line));
     const tags = new Set<string>(['offer', 'opportunity', ...(detail.item.tags ?? [])]);
-
     return {
       type: 'OFFER',
       title,
@@ -557,8 +609,46 @@ export class FeedOpportunityDetailPage {
     };
   }
 
-  private buildOfferMessage(payload: OpportunityOfferPayload): string {
-    return `${payload.capacityMw} MW | ${payload.pricingModel} | ${payload.startDate} -> ${payload.endDate}`;
+  private buildOfferRecordPayload(
+    detail: OpportunityDetailVm,
+    payload: OpportunityOfferPayload
+  ): CreateOpportunityOfferPayload {
+    return {
+      opportunityId: detail.item.id,
+      opportunityTitle: detail.title,
+      opportunityRoute: this.currentInternalUrl(),
+      recipientKind: detail.item.source.kind,
+      recipientLabel: detail.item.source.label,
+      capacityMw: payload.capacityMw,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      pricingModel: payload.pricingModel,
+      comment: payload.comment,
+      attachmentName: payload.attachmentName,
+    };
+  }
+
+  private buildOfferMessage(offer: OpportunityOfferRecord): string {
+    const segments = [
+      offer.reference,
+      `${offer.capacityMw} MW`,
+      offer.pricingModel,
+      `${offer.startDate} -> ${offer.endDate}`,
+    ];
+    if (offer.attachmentName) {
+      segments.push(offer.attachmentName);
+    }
+    return segments.join(' | ');
+  }
+
+  private toOfferMessage(offer: OpportunityOfferRecord): OpportunityQnaMessage {
+    return {
+      id: `offer-record-${offer.id}`,
+      tab: 'offers',
+      author: offer.senderLabel,
+      content: this.buildOfferMessage(offer),
+      createdAt: this.relativeTime(offer.createdAt),
+    };
   }
 
   private resolveValidationMessage(errors: readonly string[]): string {

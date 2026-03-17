@@ -18,7 +18,7 @@ import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdS
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { FeedComposerDraft, FeedItemType, FlowMode, QuantityUnit } from '../models/feed.models';
+import { FeedComposerDraft, FeedItemType, FeedOriginType, FlowMode, QuantityUnit } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({
@@ -50,6 +50,8 @@ export class Og7FeedComposerComponent {
   protected readonly quantityValue = signal('');
   protected readonly quantityUnit = signal<QuantityUnit | ''>('');
   protected readonly tagsInput = signal('');
+  protected readonly originType = signal<FeedOriginType | null>(null);
+  protected readonly originId = signal<string | null>(null);
 
   protected readonly submitting = signal(false);
   protected readonly errors = signal<readonly string[]>([]);
@@ -97,7 +99,10 @@ export class Og7FeedComposerComponent {
           return;
         }
         const source = this.normalizeQueryText(query.get('draftSource'));
-        if (source !== 'alert') {
+        const hasExplicitOrigin = Boolean(
+          this.normalizeDraftOriginType(query.get('draftOriginType')) && this.normalizeQueryText(query.get('draftOriginId'))
+        );
+        if (source !== 'alert' && !hasExplicitOrigin) {
           return;
         }
         const prefillKey = this.buildPrefillKey(query);
@@ -136,6 +141,8 @@ export class Og7FeedComposerComponent {
       mode: this.mode(),
       quantity,
       tags: tags.length ? tags : undefined,
+      originType: this.originType(),
+      originId: this.originId(),
     };
     const validation = this.feed.publish(draft);
     this.errors.set(validation.errors);
@@ -147,6 +154,8 @@ export class Og7FeedComposerComponent {
       this.quantityValue.set('');
       this.quantityUnit.set('');
       this.tagsInput.set('');
+      this.originType.set(null);
+      this.originId.set(null);
       setTimeout(() => this.submitting.set(false), 250);
     }
   }
@@ -178,6 +187,8 @@ export class Og7FeedComposerComponent {
     this.quantityValue.set('');
     this.quantityUnit.set('');
     this.tagsInput.set('');
+    this.originType.set(null);
+    this.originId.set(null);
   }
 
   focusPrimaryField(): void {
@@ -227,6 +238,20 @@ export class Og7FeedComposerComponent {
     if (draftTags) {
       this.tagsInput.set(draftTags);
     }
+
+    const draftOriginType = this.normalizeDraftOriginType(query.get('draftOriginType'));
+    const draftOriginId = this.normalizeQueryText(query.get('draftOriginId'));
+    if (draftOriginType && draftOriginId) {
+      this.originType.set(draftOriginType);
+      this.originId.set(draftOriginId);
+      return;
+    }
+
+    const legacyAlertId = this.normalizeQueryText(query.get('draftAlertId'));
+    if (this.normalizeQueryText(query.get('draftSource')) === 'alert' && legacyAlertId) {
+      this.originType.set('alert');
+      this.originId.set(legacyAlertId);
+    }
   }
 
   private buildPrefillKey(query: ParamMap): string {
@@ -241,6 +266,8 @@ export class Og7FeedComposerComponent {
       'draftTitle',
       'draftSummary',
       'draftTags',
+      'draftOriginType',
+      'draftOriginId',
     ];
     return keys.map(key => query.get(key) ?? '').join('|');
   }
@@ -267,6 +294,14 @@ export class Og7FeedComposerComponent {
       return null;
     }
     return this.modeOptions.includes(normalized as FlowMode) ? (normalized as FlowMode) : null;
+  }
+
+  private normalizeDraftOriginType(value: string | null): FeedOriginType | null {
+    const normalized = this.normalizeQueryText(value)?.toLowerCase() ?? null;
+    if (!normalized || !['alert', 'opportunity', 'indicator'].includes(normalized)) {
+      return null;
+    }
+    return normalized as FeedOriginType;
   }
 
   private normalizeDraftTags(value: string | null): string | null {

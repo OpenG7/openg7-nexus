@@ -56,6 +56,18 @@ openg7-cms/*.sqlite
 # Env Strapi
 openg7-cms/.env
 openg7-cms/.env.*
+# Current Strapi workspace
+strapi/.tmp/
+strapi/.cache/
+strapi/build/
+strapi/coverage/
+strapi/public/uploads/
+strapi/exports/
+strapi/data/
+strapi/*.db
+strapi/*.sqlite
+strapi/.env
+strapi/.env.*
 # Legacy/new Strapi workspaces rely on the root Yarn lockfile
 strapi-legacy/yarn.lock
 strapi/yarn.lock
@@ -67,6 +79,7 @@ strapi/data/db.sqlite
 **/dist/
 **/build/
 **/coverage/
+*.tsbuildinfo
 docs/reference/
 
 # --- Variables d'environnement (partout) -----------------------------------

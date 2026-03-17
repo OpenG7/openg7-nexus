@@ -29,10 +29,10 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 /**
- * Contexte : Chargée par le routeur Angular pour afficher la page « Statistics » du dossier « domains/statistics/pages ».
- * Raison d’être : Lie le template standalone et les dépendances de cette page pour la rendre navigable.
- * @param dependencies Dépendances injectées automatiquement par Angular.
- * @returns StatisticsPage gérée par le framework.
+ * Contexte : Chargee par le routeur Angular pour afficher la page « Statistics » du dossier « domains/statistics/pages ».
+ * Raison d'etre : Lie le template standalone et les dependances de cette page pour la rendre navigable.
+ * @param dependencies Dependances injectees automatiquement par Angular.
+ * @returns StatisticsPage geree par le framework.
  */
 export class StatisticsPage {
   private readonly store = inject(Store);
@@ -73,7 +73,7 @@ export class StatisticsPage {
     if (typeof value === 'number') {
       return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
-    return '—';
+    return '--';
   }
 
   setScope(scope: StatisticsScope) {
@@ -140,6 +140,14 @@ export class StatisticsPage {
 
   resetFilters() {
     this.store.dispatch(StatisticsActions.resetFilters());
+  }
+
+  summaryTrendWidth(change: number | null | undefined): number {
+    if (typeof change !== 'number') {
+      return 24;
+    }
+
+    return Math.max(20, Math.min(92, 42 + Math.abs(change) * 5));
   }
 
   trackSummary = (_: number, summary: { id: number }) => summary.id;

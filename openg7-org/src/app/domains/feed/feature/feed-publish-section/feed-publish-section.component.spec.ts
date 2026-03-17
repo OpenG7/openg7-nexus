@@ -53,7 +53,7 @@ describe('FeedPublishSectionComponent', () => {
       .compileComponents();
 
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/feed?draftSource=alert&draftTitle=Winter%20peak');
+    await router.navigateByUrl('/feed');
   });
 
   it('renders the compact publish bar and keeps the drawer closed by default', () => {
@@ -64,12 +64,11 @@ describe('FeedPublishSectionComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
   });
 
-  it('opens the auth gate inside the drawer for anonymous visitors and preserves the current feed URL', () => {
-    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
-    fixture.detectChanges();
+  it('auto-opens the auth gate for anonymous visitors when arriving with an alert draft and preserves the current feed URL', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/feed?draftSource=alert&draftTitle=Winter%20peak');
 
-    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
-    openButton.click();
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
     const gate = fixture.nativeElement.querySelector('[data-og7="feed-composer-auth-gate"]');
@@ -98,6 +97,30 @@ describe('FeedPublishSectionComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="feed-composer-auth-gate"]')).toBeNull();
+  });
+
+  it('auto-opens the composer drawer when the user is authenticated and an alert draft is present', async () => {
+    authState.set(true);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/feed?draftSource=alert&draftTitle=Winter%20peak&draftAlertId=alert-001');
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
+  });
+
+  it('auto-opens the composer drawer when the user is authenticated and an explicit origin draft is present', async () => {
+    authState.set(true);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/feed?draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak');
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
   });
 
   it('opens the drawer and focuses the login CTA for anonymous users when requested', async () => {
