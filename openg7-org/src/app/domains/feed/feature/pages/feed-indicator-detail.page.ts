@@ -13,6 +13,10 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import {
+  CreateIndicatorAlertRulePayload,
+  IndicatorAlertRulesService,
+} from '@app/core/indicator-alert-rules.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,7 +39,7 @@ import { IndicatorHeroComponent } from '../components/indicator-hero.component';
 import { IndicatorKeyDataComponent } from '../components/indicator-key-data.component';
 import { IndicatorRelatedListComponent } from '../components/indicator-related-list.component';
 import { IndicatorStatsAsideComponent } from '../components/indicator-stats-aside.component';
-import { FeedComposerDraft, FeedItem } from '../models/feed.models';
+import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({
@@ -60,6 +64,7 @@ export class FeedIndicatorDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
@@ -390,18 +395,13 @@ export class FeedIndicatorDetailPage {
     }
 
     this.alertSubmitState.set('submitting');
-    const composerDraft = this.buildAlertComposerDraft(detail, draft);
-    const outcome = await this.feed.publishDraft(composerDraft);
+    const rulePayload = this.buildIndicatorAlertRulePayload(detail, draft);
 
-    if (outcome.status === 'validation-error') {
+    try {
+      this.indicatorAlertRules.create(rulePayload);
+    } catch (error) {
       this.alertSubmitState.set('error');
-      this.alertSubmitError.set(this.resolveValidationMessage(outcome.validation.errors));
-      return;
-    }
-
-    if (outcome.status === 'request-error') {
-      this.alertSubmitState.set('error');
-      this.alertSubmitError.set(outcome.error ?? this.translate.instant('feed.error.generic'));
+      this.alertSubmitError.set(this.resolveLoadError(error));
       return;
     }
 
@@ -412,45 +412,21 @@ export class FeedIndicatorDetailPage {
     this.closeAlertDrawerAfterSuccess();
   }
 
-  private buildAlertComposerDraft(detail: IndicatorDetailVm, draft: IndicatorAlertDraft): FeedComposerDraft {
-    const sectorFallback = this.sectors()[0]?.id ?? null;
-    const titlePrefix = this.translate.instant('feed.indicator.detail.drawer.generatedTitlePrefix');
-    const title = `${titlePrefix}: ${detail.title}`.slice(0, 160);
-    const directionLabel = this.translate.instant(
-      `feed.indicator.detail.drawer.direction.${draft.thresholdDirection}`
-    );
-    const windowLabel = this.translate.instant(`feed.indicator.detail.drawer.window${draft.window}`);
-    const frequencyLabel = this.translate.instant(
-      `feed.indicator.detail.drawer.frequency${this.toTitleCase(draft.frequency)}`
-    );
-    const summaryLines = [
-      `${this.translate.instant('feed.indicator.detail.drawer.thresholdDirection')}: ${directionLabel}`,
-      `${this.translate.instant('feed.indicator.detail.drawer.thresholdValue')}: ${draft.thresholdValue}%`,
-      `${this.translate.instant('feed.indicator.detail.drawer.window')}: ${windowLabel}`,
-      `${this.translate.instant('feed.indicator.detail.drawer.frequency')}: ${frequencyLabel}`,
-      `${this.translate.instant('feed.indicator.detail.drawer.notifyDelta')}: ${draft.notifyDelta ? 'on' : 'off'}`,
-      draft.note ? `${this.translate.instant('feed.indicator.detail.drawer.note')}: ${draft.note}` : null,
-    ].filter((line): line is string => Boolean(line));
-
+  private buildIndicatorAlertRulePayload(
+    detail: IndicatorDetailVm,
+    draft: IndicatorAlertDraft
+  ): CreateIndicatorAlertRulePayload {
     return {
-      type: 'ALERT',
-      title,
-      summary: summaryLines.join(' | ').slice(0, 5000),
-      sectorId: detail.item.sectorId ?? sectorFallback,
-      fromProvinceId: detail.item.fromProvinceId ?? null,
-      toProvinceId: detail.item.toProvinceId ?? null,
-      mode: detail.item.mode ?? 'BOTH',
-      tags: ['indicator-alert', draft.window, draft.frequency],
+      indicatorId: detail.item.id,
+      indicatorTitle: detail.title,
+      thresholdDirection: draft.thresholdDirection,
+      thresholdValue: draft.thresholdValue,
+      window: draft.window,
+      frequency: draft.frequency,
+      notifyDelta: draft.notifyDelta,
+      note: draft.note,
+      route: this.currentInternalUrl(),
     };
-  }
-
-  private resolveValidationMessage(errors: readonly string[]): string {
-    const [firstError] = errors;
-    if (!firstError) {
-      return this.translate.instant('feed.error.generic');
-    }
-    const translated = this.translate.instant(firstError);
-    return translated === firstError ? this.translate.instant('feed.error.generic') : translated;
   }
 
   private closeAlertDrawerAfterSuccess(): void {
@@ -859,10 +835,6 @@ export class FeedIndicatorDetailPage {
 
   private formatNumber(value: number): string {
     return value.toFixed(1).replace(/\.0$/, '');
-  }
-
-  private toTitleCase(value: string): string {
-    return value.slice(0, 1).toUpperCase() + value.slice(1).toLowerCase();
   }
 
   private isEditingTarget(target: EventTarget | null): boolean {

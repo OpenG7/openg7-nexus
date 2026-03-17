@@ -2,11 +2,12 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { IndicatorAlertRulesService } from '@app/core/indicator-alert-rules.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { FeedComposerDraft, FeedItem } from '../models/feed.models';
+import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 import { FeedIndicatorDetailPage } from './feed-indicator-detail.page';
@@ -55,6 +56,24 @@ class StoreMock {
   });
 }
 
+class IndicatorAlertRulesServiceMock {
+  readonly create = jasmine.createSpy('create').and.callFake(() => ({
+    id: 'indicator-rule-1',
+    indicatorId: 'indicator-spot-ontario',
+    indicatorTitle: 'Spot electricity price up 12 percent',
+    thresholdDirection: 'gt' as const,
+    thresholdValue: 25,
+    window: '24h' as const,
+    frequency: 'hourly' as const,
+    notifyDelta: true,
+    note: 'Watch evening peak',
+    route: '/feed/indicators/indicator-spot-ontario',
+    active: true,
+    createdAt: '2026-01-21T09:05:00.000Z',
+    updatedAt: '2026-01-21T09:05:00.000Z',
+  }));
+}
+
 function createIndicatorItem(id: string): FeedItem {
   return {
     id,
@@ -80,6 +99,7 @@ function createIndicatorItem(id: string): FeedItem {
 describe('FeedIndicatorDetailPage', () => {
   let feed: FeedRealtimeServiceMock;
   let store: StoreMock;
+  let indicatorAlertRules: IndicatorAlertRulesServiceMock;
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -87,6 +107,7 @@ describe('FeedIndicatorDetailPage', () => {
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
+    indicatorAlertRules = new IndicatorAlertRulesServiceMock();
     authState = signal(true);
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
@@ -111,6 +132,7 @@ describe('FeedIndicatorDetailPage', () => {
       providers: [
         { provide: FeedRealtimeService, useValue: feed },
         { provide: Store, useValue: store },
+        { provide: IndicatorAlertRulesService, useValue: indicatorAlertRules },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         {
@@ -265,10 +287,10 @@ describe('FeedIndicatorDetailPage', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { redirect: '/feed/indicators/indicator-spot-ontario' },
     });
-    expect(feed.publishDraft).not.toHaveBeenCalled();
+    expect(indicatorAlertRules.create).not.toHaveBeenCalled();
   });
 
-  it('publishes mapped alert draft and updates subscribed state on successful submit', async () => {
+  it('creates a mapped indicator alert rule and updates subscribed state on successful submit', async () => {
     const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -285,17 +307,27 @@ describe('FeedIndicatorDetailPage', () => {
     component.onAlertDraftSubmitted(createAlertDraft());
     await fixture.whenStable();
 
-    expect(feed.publishDraft).toHaveBeenCalledTimes(1);
-    const publishedDraft = feed.publishDraft.calls.mostRecent().args[0] as FeedComposerDraft;
-    expect(publishedDraft.type).toBe('ALERT');
-    expect(publishedDraft.title).toContain('Spot electricity price up 12 percent');
-    expect(publishedDraft.summary).toContain('25%');
-    expect(publishedDraft.summary).toContain('Watch evening peak');
-    expect(publishedDraft.sectorId).toBe('energy');
-    expect(publishedDraft.fromProvinceId).toBeNull();
-    expect(publishedDraft.toProvinceId).toBe('on');
-    expect(publishedDraft.mode).toBe('BOTH');
-    expect(publishedDraft.tags).toEqual(['indicator-alert', '24h', 'hourly']);
+    expect(indicatorAlertRules.create).toHaveBeenCalledTimes(1);
+    const createdPayload = indicatorAlertRules.create.calls.mostRecent().args[0] as {
+      indicatorId: string;
+      indicatorTitle: string;
+      thresholdDirection: 'gt' | 'lt';
+      thresholdValue: number;
+      window: '1h' | '24h';
+      frequency: 'instant' | 'hourly' | 'daily';
+      notifyDelta: boolean;
+      note?: string;
+      route?: string | null;
+    };
+    expect(createdPayload.indicatorId).toBe('indicator-spot-ontario');
+    expect(createdPayload.indicatorTitle).toContain('Spot electricity price up 12 percent');
+    expect(createdPayload.thresholdDirection).toBe('gt');
+    expect(createdPayload.thresholdValue).toBe(25);
+    expect(createdPayload.window).toBe('24h');
+    expect(createdPayload.frequency).toBe('hourly');
+    expect(createdPayload.notifyDelta).toBeTrue();
+    expect(createdPayload.note).toBe('Watch evening peak');
+    expect(createdPayload.route).toBe('/feed/indicators/indicator-spot-ontario');
     expect(component.alertSubmitState()).toBe('success');
     expect(component.subscribed()).toBeTrue();
   });
@@ -319,7 +351,7 @@ describe('FeedIndicatorDetailPage', () => {
     component.onAlertDraftSubmitted(createAlertDraft());
     await fixture.whenStable();
 
-    expect(feed.publishDraft).not.toHaveBeenCalled();
+    expect(indicatorAlertRules.create).not.toHaveBeenCalled();
     expect(component.alertSubmitState()).toBe('offline');
     expect(component.alertRetryEnabled()).toBeFalse();
 
@@ -329,7 +361,7 @@ describe('FeedIndicatorDetailPage', () => {
 
     component.onAlertDraftRetryRequested();
     await fixture.whenStable();
-    expect(feed.publishDraft).toHaveBeenCalledTimes(1);
+    expect(indicatorAlertRules.create).toHaveBeenCalledTimes(1);
     expect(component.alertSubmitState()).toBe('success');
   });
 

@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
+import {
+  IndicatorAlertRuleRecord,
+  IndicatorAlertRulesService,
+} from '@app/core/indicator-alert-rules.service';
 import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
 import { UserAlertsService } from '@app/core/user-alerts.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: true,
@@ -18,6 +22,8 @@ import { TranslateModule } from '@ngx-translate/core';
  */
 export class AlertsPage {
   private readonly alerts = inject(UserAlertsService);
+  private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
+  private readonly translate = inject(TranslateService);
 
   protected readonly loading = this.alerts.loading;
   protected readonly generating = this.alerts.generating;
@@ -27,11 +33,14 @@ export class AlertsPage {
   protected readonly entries = this.alerts.entries;
   protected readonly hasEntries = this.alerts.hasEntries;
   protected readonly unreadCount = this.alerts.unreadCount;
+  protected readonly indicatorRuleEntries = this.indicatorAlertRules.entries;
+  protected readonly hasIndicatorRuleEntries = this.indicatorAlertRules.hasEntries;
   protected readonly hasReadEntries = computed(() => this.entries().some((entry) => entry.isRead));
   protected readonly pendingById = this.alerts.pendingById;
 
   constructor() {
     this.alerts.refresh();
+    this.indicatorAlertRules.refresh();
   }
 
   protected onGenerate(): void {
@@ -52,6 +61,14 @@ export class AlertsPage {
 
   protected onDelete(id: string): void {
     this.alerts.remove(id);
+  }
+
+  protected onToggleIndicatorRule(entry: IndicatorAlertRuleRecord): void {
+    this.indicatorAlertRules.setActive(entry.id, !entry.active);
+  }
+
+  protected onDeleteIndicatorRule(id: string): void {
+    this.indicatorAlertRules.remove(id);
   }
 
   protected isPending(id: string): boolean {
@@ -82,5 +99,28 @@ export class AlertsPage {
     return 'pages.alerts.sources.system';
   }
 
+  protected indicatorRuleState(entry: IndicatorAlertRuleRecord): 'active' | 'inactive' {
+    return entry.active ? 'active' : 'inactive';
+  }
+
+  protected indicatorRuleDirectionLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.direction.${entry.thresholdDirection}`);
+  }
+
+  protected indicatorRuleWindowLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.window.${entry.window}`);
+  }
+
+  protected indicatorRuleFrequencyLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(`pages.alerts.rules.frequency.${entry.frequency}`);
+  }
+
+  protected indicatorRuleNotifyDeltaLabel(entry: IndicatorAlertRuleRecord): string {
+    return this.translate.instant(
+      entry.notifyDelta ? 'pages.alerts.rules.notifyDelta.on' : 'pages.alerts.rules.notifyDelta.off'
+    );
+  }
+
   protected trackById = (_: number, entry: UserAlertRecord) => entry.id;
+  protected trackIndicatorRuleById = (_: number, entry: IndicatorAlertRuleRecord) => entry.id;
 }

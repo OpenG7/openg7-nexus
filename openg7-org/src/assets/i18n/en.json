@@ -2410,6 +2410,40 @@
         "generate": "Unable to generate alerts right now. Please try again.",
         "update": "Unable to update this alert. Please try again.",
         "delete": "Unable to delete this alert. Please try again."
+      },
+      "rules": {
+        "title": "Indicator alert rules",
+        "subtitle": "Personal monitoring rules configured from indicator detail pages.",
+        "count": "{{ count }} rules",
+        "empty": "No indicator alert rules yet.",
+        "threshold": "Threshold",
+        "note": "Note",
+        "states": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "enable": "Enable",
+          "disable": "Disable"
+        },
+        "direction": {
+          "gt": "above",
+          "lt": "below"
+        },
+        "window": {
+          "1h": "1h window",
+          "24h": "24h window"
+        },
+        "frequency": {
+          "instant": "Instant",
+          "hourly": "Hourly",
+          "daily": "Daily"
+        },
+        "notifyDelta": {
+          "label": "Delta",
+          "on": "Enabled",
+          "off": "Disabled"
+        }
       }
     },
     "terms": {

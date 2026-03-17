@@ -151,4 +151,96 @@
       </ul>
     </ng-template>
   </section>
+
+  <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">
+          {{ 'pages.alerts.rules.title' | translate }}
+        </h2>
+        <p class="mt-1 text-sm text-slate-600">
+          {{ 'pages.alerts.rules.subtitle' | translate }}
+        </p>
+      </div>
+
+      <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+        {{ 'pages.alerts.rules.count' | translate:{ count: indicatorRuleEntries().length } }}
+      </div>
+    </div>
+
+    <p *ngIf="!hasIndicatorRuleEntries()" class="mt-4 text-sm text-slate-600" data-og7-id="indicator-alert-rules-empty">
+      {{ 'pages.alerts.rules.empty' | translate }}
+    </p>
+
+    <ul *ngIf="hasIndicatorRuleEntries()" class="mt-4 space-y-3">
+      <li
+        *ngFor="let entry of indicatorRuleEntries(); trackBy: trackIndicatorRuleById"
+        class="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+        data-og7="indicator-alert-rule-item"
+        [attr.data-og7-state]="indicatorRuleState(entry)"
+      >
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide"
+                [class.border-emerald-200]="entry.active"
+                [class.bg-emerald-50]="entry.active"
+                [class.text-emerald-700]="entry.active"
+                [class.border-slate-200]="!entry.active"
+                [class.bg-white]="!entry.active"
+                [class.text-slate-600]="!entry.active"
+                data-og7-id="indicator-alert-rule-status"
+              >
+                {{ ('pages.alerts.rules.states.' + indicatorRuleState(entry)) | translate }}
+              </span>
+              <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-slate-600">
+                {{ indicatorRuleFrequencyLabel(entry) }}
+              </span>
+              <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-slate-600">
+                {{ indicatorRuleWindowLabel(entry) }}
+              </span>
+            </div>
+
+            <p class="mt-2 text-sm font-semibold text-slate-900">
+              {{ entry.indicatorTitle }}
+            </p>
+            <p class="mt-1 text-sm text-slate-700">
+              {{ 'pages.alerts.rules.threshold' | translate }}:
+              {{ indicatorRuleDirectionLabel(entry) }}
+              {{ entry.thresholdValue }}%
+              <span class="text-slate-500">|</span>
+              {{ 'pages.alerts.rules.notifyDelta.label' | translate }}:
+              {{ indicatorRuleNotifyDeltaLabel(entry) }}
+            </p>
+            <p *ngIf="entry.note" class="mt-1 text-sm text-slate-600">
+              {{ 'pages.alerts.rules.note' | translate }}: {{ entry.note }}
+            </p>
+            <p class="mt-2 text-xs text-slate-500">
+              {{ 'pages.alerts.labels.createdAt' | translate }}: {{ entry.createdAt | date:'medium' }}
+            </p>
+          </div>
+
+          <div class="flex shrink-0 flex-row gap-2 sm:flex-col">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+              (click)="onToggleIndicatorRule(entry)"
+              data-og7-id="indicator-alert-rule-toggle"
+            >
+              {{ ('pages.alerts.rules.actions.' + (entry.active ? 'disable' : 'enable')) | translate }}
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+              (click)="onDeleteIndicatorRule(entry.id)"
+              data-og7-id="indicator-alert-rule-delete"
+            >
+              {{ 'pages.alerts.actions.delete' | translate }}
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
 </section>

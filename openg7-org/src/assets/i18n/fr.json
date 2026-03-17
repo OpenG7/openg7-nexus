@@ -2299,6 +2299,40 @@
         "generate": "Impossible de generer les alertes pour le moment. Veuillez reessayer.",
         "update": "Impossible de mettre a jour cette alerte. Veuillez reessayer.",
         "delete": "Impossible de supprimer cette alerte. Veuillez reessayer."
+      },
+      "rules": {
+        "title": "Regles d'alerte indicateur",
+        "subtitle": "Surveillances personnelles configurees depuis les pages indicateur.",
+        "count": "{{ count }} regles",
+        "empty": "Aucune regle d'alerte indicateur pour le moment.",
+        "threshold": "Seuil",
+        "note": "Note",
+        "states": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "actions": {
+          "enable": "Activer",
+          "disable": "Desactiver"
+        },
+        "direction": {
+          "gt": "au-dessus de",
+          "lt": "en dessous de"
+        },
+        "window": {
+          "1h": "Fenetre 1 h",
+          "24h": "Fenetre 24 h"
+        },
+        "frequency": {
+          "instant": "Instant",
+          "hourly": "Horaire",
+          "daily": "Quotidien"
+        },
+        "notifyDelta": {
+          "label": "Variation",
+          "on": "Activee",
+          "off": "Desactivee"
+        }
       }
     },
     "statistics": {
