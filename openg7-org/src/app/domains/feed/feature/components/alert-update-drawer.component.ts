@@ -72,7 +72,9 @@ export class AlertUpdateDrawerComponent {
   });
 
   protected readonly submitting = computed(() => false);
-  protected readonly viewingReport = computed(() => this.mode() === 'view' && !!this.existingReport());
+  protected readonly viewingReport = computed(
+    () => this.mode() === 'view' && Boolean(this.existingReport())
+  );
 
   constructor() {
     effect(() => {

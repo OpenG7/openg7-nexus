@@ -1,6 +1,6 @@
+import { PLATFORM_ID } from '@angular/core';
 import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { PLATFORM_ID } from '@angular/core';
 
 import { AuthService } from './auth/auth.service';
 import {

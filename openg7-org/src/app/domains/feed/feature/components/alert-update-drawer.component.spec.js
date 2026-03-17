@@ -1,5 +1,8 @@
+/* global beforeEach, describe, expect, it, jasmine */
+
 import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
+
 import { AlertUpdateDrawerComponent } from './alert-update-drawer.component';
 describe('AlertUpdateDrawerComponent', () => {
     beforeEach(() => {
