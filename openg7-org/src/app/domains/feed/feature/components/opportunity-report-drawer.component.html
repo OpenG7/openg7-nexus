@@ -24,10 +24,20 @@
         <textarea
           rows="5"
           formControlName="comment"
+          [attr.aria-invalid]="form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted()) ? 'true' : null"
           [placeholder]="'feed.opportunity.detail.report.commentPlaceholder' | translate"
           data-og7="opportunity-report-field"
           data-og7-id="comment"
         ></textarea>
+        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('required') && (form.controls.comment.touched || submitAttempted())">
+          {{ 'validation.required' | translate }}
+        </p>
+        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('minlength') && (form.controls.comment.touched || submitAttempted())">
+          {{ 'validation.minLength' | translate : { min: minCommentLength } }}
+        </p>
+        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('maxlength') && (form.controls.comment.touched || submitAttempted())">
+          {{ 'feed.opportunity.detail.report.validation.maxLength' | translate : { max: maxCommentLength } }}
+        </p>
       </label>
 
       <p

@@ -8,6 +8,7 @@ import {
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,6 +39,13 @@ export class OpportunityOfferDrawerComponent {
   readonly retryRequested = output<void>();
 
   protected readonly visible = computed(() => this.open());
+  protected readonly submitAttempted = signal(false);
+  protected readonly minCommentLength = 10;
+  /**
+   * Computed signal that indicates whether the form submission is currently in progress.
+   * Returns true when the submit state equals 'submitting', false otherwise.
+   * This is a read-only computed property that reactively tracks the submission status.
+   */
   protected readonly submitting = computed(() => this.submitState() === 'submitting');
   protected readonly showRetry = computed(() => {
     const state = this.submitState();
@@ -79,6 +87,7 @@ export class OpportunityOfferDrawerComponent {
       });
       this.form.markAsPristine();
       this.form.markAsUntouched();
+      this.submitAttempted.set(false);
     });
   }
 
@@ -104,6 +113,8 @@ export class OpportunityOfferDrawerComponent {
   }
 
   protected submit(): void {
+    this.submitAttempted.set(true);
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs/operators';
@@ -28,11 +28,13 @@ import { Og7FeedComposerComponent } from '../og7-feed-composer/og7-feed-composer
 })
 export class FeedPublishSectionComponent {
   private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authLinkRef = viewChild<ElementRef<HTMLAnchorElement>>('authLink');
   private readonly publishButtonRef = viewChild<ElementRef<HTMLButtonElement>>('publishButton');
   private readonly composerRef = viewChild<{ focusPrimaryField?: () => void }>('composer');
   private readonly pendingAutoFocus = signal(false);
+  private readonly autoOpenedDraftKey = signal<string | null>(null);
 
   private readonly redirectTargetSig = toSignal(
     this.router.events.pipe(
@@ -41,6 +43,9 @@ export class FeedPublishSectionComponent {
     ),
     { initialValue: this.resolveInternalUrl() }
   );
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
 
   protected readonly isAuthenticated = this.auth.isAuthenticated;
   protected readonly redirectTarget = computed(() => this.redirectTargetSig());
@@ -69,6 +74,16 @@ export class FeedPublishSectionComponent {
 
       this.pendingAutoFocus.set(false);
       this.scheduleFocus(() => authLink.nativeElement.focus());
+    });
+
+    effect(() => {
+      const draftKey = this.buildAlertDraftKey();
+      if (!draftKey || draftKey === this.autoOpenedDraftKey()) {
+        return;
+      }
+
+      this.autoOpenedDraftKey.set(draftKey);
+      this.openDrawer();
     });
   }
 
@@ -130,5 +145,34 @@ export class FeedPublishSectionComponent {
 
   private scheduleFocus(action: () => void): void {
     setTimeout(action, 0);
+  }
+
+  private buildAlertDraftKey(): string | null {
+    const query = this.queryParamMap();
+    const source = query.get('draftSource')?.trim();
+    const originType = query.get('draftOriginType')?.trim();
+    const originId = query.get('draftOriginId')?.trim();
+    const hasExplicitOrigin = Boolean(originType && originId);
+    if (source !== 'alert' && !hasExplicitOrigin) {
+      return null;
+    }
+
+    const keys = [
+      'draftAlertId',
+      'draftOriginType',
+      'draftOriginId',
+      'draftType',
+      'draftMode',
+      'draftSectorId',
+      'draftFromProvinceId',
+      'draftToProvinceId',
+      'draftTitle',
+      'draftSummary',
+      'draftTags',
+    ];
+    const values = keys.map(key => query.get(key)?.trim() ?? '');
+
+    const keyPrefix = source || 'origin';
+    return values.some(Boolean) ? [keyPrefix, ...values].join('|') : null;
   }
 }

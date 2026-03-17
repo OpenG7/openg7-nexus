@@ -4,6 +4,10 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
+import {
+  OpportunityOfferRecord,
+  OpportunityOffersService,
+} from '@app/core/opportunity-offers.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -111,6 +115,75 @@ class OpportunityConversationDraftsServiceMock {
   }
 }
 
+class OpportunityOffersServiceMock {
+  private readonly entriesSig = signal<OpportunityOfferRecord[]>([]);
+  readonly entries = this.entriesSig.asReadonly();
+  readonly hasEntries = signal(false).asReadonly();
+
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly withdraw = jasmine.createSpy('withdraw');
+  readonly create = jasmine.createSpy('create').and.callFake((payload: {
+    opportunityId: string;
+    opportunityTitle: string;
+    opportunityRoute?: string | null;
+    recipientKind: 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
+    recipientLabel: string;
+    capacityMw: number;
+    startDate: string;
+    endDate: string;
+    pricingModel: string;
+    comment: string;
+    attachmentName?: string | null;
+  }) => {
+    const record: OpportunityOfferRecord = {
+      id: 'offer-record-1',
+      reference: 'OG7-OFR-20260115-AB12',
+      opportunityId: payload.opportunityId,
+      opportunityTitle: payload.opportunityTitle,
+      opportunityRoute: payload.opportunityRoute ?? null,
+      recipientKind: payload.recipientKind,
+      recipientLabel: payload.recipientLabel,
+      senderUserId: 'user-1',
+      senderLabel: 'E2E User',
+      senderEmail: 'e2e.user@openg7.test',
+      capacityMw: payload.capacityMw,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      pricingModel: payload.pricingModel,
+      comment: payload.comment,
+      attachmentName: payload.attachmentName ?? null,
+      status: 'submitted',
+      createdAt: '2026-01-15T10:06:00.000Z',
+      updatedAt: '2026-01-15T10:06:00.000Z',
+      submittedAt: '2026-01-15T10:06:00.000Z',
+      withdrawnAt: null,
+      activities: [
+        {
+          id: 'offer-activity-track-1',
+          type: 'tracked',
+          actor: 'system',
+          createdAt: '2026-01-15T10:06:00.000Z',
+        },
+        {
+          id: 'offer-activity-submit-1',
+          type: 'submitted',
+          actor: 'sender',
+          createdAt: '2026-01-15T10:06:00.000Z',
+        },
+      ],
+    };
+    this.entriesSig.update((current) => [record, ...current]);
+    return record;
+  });
+
+  entriesForOpportunity(itemId: string | null | undefined): readonly OpportunityOfferRecord[] {
+    if (!itemId) {
+      return [];
+    }
+    return this.entriesSig().filter((entry) => entry.opportunityId === itemId);
+  }
+}
+
 function createOpportunityItem(id: string): FeedItem {
   return {
     id,
@@ -143,7 +216,8 @@ describe('FeedOpportunityDetailPage', () => {
   let favorites: FavoritesServiceMock;
   let reportQueue: OpportunityReportQueueServiceMock;
   let conversationDrafts: OpportunityConversationDraftsServiceMock;
-  let notifications: { success: jasmine.Spy; error: jasmine.Spy };
+  let opportunityOffers: OpportunityOffersServiceMock;
+  let notifications: { success: jasmine.Spy; info: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
@@ -155,8 +229,10 @@ describe('FeedOpportunityDetailPage', () => {
     favorites = new FavoritesServiceMock();
     reportQueue = new OpportunityReportQueueServiceMock();
     conversationDrafts = new OpportunityConversationDraftsServiceMock();
+    opportunityOffers = new OpportunityOffersServiceMock();
     notifications = {
       success: jasmine.createSpy('success'),
+      info: jasmine.createSpy('info'),
       error: jasmine.createSpy('error'),
     };
     authState = signal(true);
@@ -206,6 +282,7 @@ describe('FeedOpportunityDetailPage', () => {
         { provide: FavoritesService, useValue: favorites },
         { provide: OpportunityReportQueueService, useValue: reportQueue },
         { provide: OpportunityConversationDraftsService, useValue: conversationDrafts },
+        { provide: OpportunityOffersService, useValue: opportunityOffers },
         { provide: NotificationStore, useValue: notifications },
         {
           provide: AuthService,
@@ -224,7 +301,7 @@ describe('FeedOpportunityDetailPage', () => {
       .compileComponents();
   });
 
-  it('opens offer drawer and publishes mapped offer draft on submission', async () => {
+  it('opens offer drawer, publishes the draft, and records a tracked opportunity offer', async () => {
     const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -255,7 +332,22 @@ describe('FeedOpportunityDetailPage', () => {
     expect(publishedDraft.fromProvinceId).toBe('qc');
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 320, unit: 'MW' });
+    expect(opportunityOffers.create).toHaveBeenCalledTimes(1);
+    expect(opportunityOffers.create).toHaveBeenCalledWith({
+      opportunityId: 'opportunity-300mw',
+      opportunityTitle: 'Short-term import of 300 MW',
+      opportunityRoute: '/feed/opportunities/opportunity-300mw',
+      recipientKind: 'PARTNER',
+      recipientLabel: 'Hydro Desk',
+      capacityMw: 320,
+      startDate: '2026-01-15',
+      endDate: '2026-02-15',
+      pricingModel: 'spot',
+      comment: 'Firm import block for winter peak support.',
+      attachmentName: 'term-sheet.pdf',
+    });
     expect(component.offerSubmitState()).toBe('success');
+    expect(notifications.success).toHaveBeenCalled();
   });
 
   it('redirects anonymous users to login instead of opening the offer drawer', async () => {
@@ -277,6 +369,44 @@ describe('FeedOpportunityDetailPage', () => {
       queryParams: { redirect: '/feed/opportunities/opportunity-300mw' },
     });
     expect(feed.publishDraft).not.toHaveBeenCalled();
+  });
+
+  it('opens the existing tracked offer instead of the submission drawer when one already exists', async () => {
+    opportunityOffers.create({
+      opportunityId: 'opportunity-300mw',
+      opportunityTitle: 'Short-term import of 300 MW',
+      opportunityRoute: '/feed/opportunities/opportunity-300mw',
+      recipientKind: 'PARTNER',
+      recipientLabel: 'Hydro Desk',
+      capacityMw: 320,
+      startDate: '2026-01-15',
+      endDate: '2026-02-15',
+      pricingModel: 'spot',
+      comment: 'Firm import block for winter peak support.',
+      attachmentName: 'term-sheet.pdf',
+    });
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      offerDrawerOpen: () => boolean;
+      openOfferDrawer: () => void;
+      existingSubmittedOffer: () => OpportunityOfferRecord | null;
+    };
+
+    component.openOfferDrawer();
+
+    expect(component.existingSubmittedOffer()?.reference).toContain('OG7-OFR-');
+    expect(component.offerDrawerOpen()).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/alerts'], {
+      queryParams: {
+        section: 'offers',
+        offerId: 'offer-record-1',
+      },
+    });
+    expect(notifications.info).toHaveBeenCalled();
   });
 
   it('persists saved state through FavoritesService when save action is triggered', async () => {
@@ -392,6 +522,32 @@ describe('FeedOpportunityDetailPage', () => {
     };
 
     expect(component.qnaMessages().some(message => message.content === 'Persisted local follow-up')).toBeTrue();
+  });
+
+  it('surfaces persisted tracked offers inside the offers tab conversation stream', async () => {
+    opportunityOffers.create({
+      opportunityId: 'opportunity-300mw',
+      opportunityTitle: 'Short-term import of 300 MW',
+      opportunityRoute: '/feed/opportunities/opportunity-300mw',
+      recipientKind: 'PARTNER',
+      recipientLabel: 'Hydro Desk',
+      capacityMw: 320,
+      startDate: '2026-01-15',
+      endDate: '2026-02-15',
+      pricingModel: 'spot',
+      comment: 'Firm import block for winter peak support.',
+      attachmentName: 'term-sheet.pdf',
+    });
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      qnaMessages: () => readonly { tab: 'questions' | 'offers' | 'history'; content: string }[];
+    };
+
+    expect(component.qnaMessages().some((message) => message.content.includes('OG7-OFR-20260115-AB12'))).toBeTrue();
   });
 
   it('exposes linked alerts with stable ids that resolve to real alert detail routes', async () => {

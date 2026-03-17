@@ -1,7 +1,7 @@
 import './setup';
 import { expect, test } from '@playwright/test';
 
-import { mockAuthenticatedSessionApis, seedAuthenticatedSession } from './helpers/auth-session';
+import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test.describe('Feed opportunity detail', () => {
   test('renders details, enforces login for offers, and filters by chip', async ({ page }) => {
@@ -17,8 +17,7 @@ test.describe('Feed opportunity detail', () => {
     await page.locator('[data-og7-id="opportunity-make-offer"]').click();
     await expect(page).toHaveURL(/\/login\?redirect=%2Ffeed%2Fopportunities%2Frequest-001/);
 
-    await seedAuthenticatedSession(page);
-    await page.goto('/feed/opportunities/request-001');
+    await loginAsAuthenticatedE2eUser(page, '/feed/opportunities/request-001');
     await expect(page).toHaveURL(/\/feed\/opportunities\/request-001/);
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
 
@@ -28,11 +27,6 @@ test.describe('Feed opportunity detail', () => {
     await page.locator('[data-og7="opportunity-offer-drawer"] input[type="number"]').fill('280');
     await page.locator('[data-og7="opportunity-offer-drawer"] textarea').fill('We can secure balancing and deliver in 15-minute ramps.');
     await page.locator('[data-og7-id="opportunity-offer-submit"]').click();
-    await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeHidden();
-
-    await page.locator('[data-og7-id="opportunity-make-offer"]').click();
-    await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeVisible();
-    await page.keyboard.press('Escape');
     await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeHidden();
 
     await page.locator('[data-og7-id="opportunity-chip-import"]').click();

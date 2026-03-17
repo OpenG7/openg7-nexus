@@ -26,6 +26,7 @@ export class OpportunityDetailHeaderComponent {
   readonly saved = input(false);
   readonly syncState = input<OpportunitySyncState>('synced');
   readonly ownerMode = input(false);
+  readonly hasExistingOffer = input(false);
 
   readonly makeOffer = output<void>();
   readonly toggleSave = output<void>();
@@ -39,6 +40,12 @@ export class OpportunityDetailHeaderComponent {
     const type = this.breadcrumbType();
     return type ? { type } : {};
   });
+
+  protected readonly makeOfferLabelKey = computed(() =>
+    this.hasExistingOffer()
+      ? 'feed.opportunity.detail.cta.openExistingOffer'
+      : 'feed.opportunity.detail.cta.makeOffer'
+  );
 
   protected trackTag(index: number, tag: string): string {
     return `${tag}-${index}`;

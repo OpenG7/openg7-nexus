@@ -3,11 +3,25 @@ import { FeedItem } from '../models/feed.models';
 export type AlertUpdateReason = 'correction' | 'escalation' | 'resolved' | 'newSource';
 
 export type AlertUpdateSubmitState = 'idle' | 'success' | 'error';
+export type AlertUpdateDrawerMode = 'compose' | 'view';
+export type AlertUpdateStatus = 'pending' | 'reviewed' | 'applied' | 'rejected';
 
 export interface AlertUpdatePayload {
   readonly reason: AlertUpdateReason;
   readonly summary: string;
   readonly sourceUrl: string | null;
+}
+
+export interface AlertUpdateRecord {
+  readonly id: string;
+  readonly alertId: string;
+  readonly alertTitle: string;
+  readonly route: string;
+  readonly reason: AlertUpdateReason;
+  readonly summary: string;
+  readonly sourceUrl: string | null;
+  readonly createdAt: string;
+  readonly status: AlertUpdateStatus;
 }
 
 export interface AlertTimelineEntry {

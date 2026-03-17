@@ -20,9 +20,11 @@ export class AlertDetailHeaderComponent {
   readonly compact = input(false);
   readonly subscribed = input(false);
   readonly canCreateOpportunity = input(true);
+  readonly hasPendingReport = input(false);
 
   readonly toggleSubscribe = output<void>();
   readonly share = output<void>();
   readonly reportUpdate = output<void>();
+  readonly reportAnotherUpdate = output<void>();
   readonly createOpportunity = output<void>();
 }

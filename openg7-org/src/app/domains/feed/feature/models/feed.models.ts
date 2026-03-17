@@ -8,6 +8,8 @@ export type FeedItemType =
   | 'CAPACITY'
   | 'INDICATOR';
 
+export type FeedOriginType = 'alert' | 'opportunity' | 'indicator';
+
 export type FlowMode = 'EXPORT' | 'IMPORT' | 'BOTH';
 
 export type FeedSort = 'NEWEST' | 'URGENCY' | 'VOLUME' | 'CREDIBILITY';
@@ -41,6 +43,8 @@ export interface FeedItem {
   readonly credibility?: 1 | 2 | 3 | null;
   readonly volumeScore?: number | null;
   readonly tags?: readonly string[];
+  readonly originType?: FeedOriginType | null;
+  readonly originId?: string | null;
   readonly source: FeedItemSource;
   readonly status?: 'confirmed' | 'pending' | 'failed';
   readonly optimisticIdempotencyKey?: string;
@@ -85,6 +89,8 @@ export interface FeedComposerDraft {
   readonly mode: FlowMode;
   readonly quantity?: Quantity | null;
   readonly tags?: readonly string[];
+  readonly originType?: FeedOriginType | null;
+  readonly originId?: string | null;
 }
 
 export interface FeedComposerValidationResult {

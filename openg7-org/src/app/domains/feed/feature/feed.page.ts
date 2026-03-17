@@ -14,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
+import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
@@ -44,6 +45,7 @@ export class FeedPage {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
+  private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly translate = inject(TranslateService);
   private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>('publishSection');
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
@@ -253,6 +255,19 @@ export class FeedPage {
       return;
     }
 
+    this.opportunityOffers.create({
+      opportunityId: item.id,
+      opportunityTitle: item.title,
+      opportunityRoute: this.currentInternalUrl(),
+      recipientKind: item.source.kind,
+      recipientLabel: item.source.label,
+      capacityMw: payload.capacityMw,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      pricingModel: payload.pricingModel,
+      comment: payload.comment,
+      attachmentName: payload.attachmentName,
+    });
     this.contactSubmitState.set('success');
     this.contactSubmitError.set(null);
     this.pendingContactPayload = null;

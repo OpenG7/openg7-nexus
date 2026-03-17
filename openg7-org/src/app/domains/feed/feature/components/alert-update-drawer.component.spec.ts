@@ -53,4 +53,26 @@ describe('AlertUpdateDrawerComponent', () => {
       sourceUrl: 'https://example.org/grid-bulletin',
     });
   });
+
+  it('renders the latest pending report in view mode', () => {
+    const fixture = TestBed.createComponent(AlertUpdateDrawerComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('mode', 'view');
+    fixture.componentRef.setInput('existingReport', {
+      id: 'alert-update-1',
+      alertId: 'alert-001',
+      alertTitle: 'Ice storm risk on Ontario transmission lines',
+      route: '/feed/alerts/alert-001',
+      reason: 'correction',
+      summary: 'Environment Canada confirmed the event is now impacting two corridors.',
+      sourceUrl: 'https://weather.gc.ca',
+      createdAt: '2026-03-11T09:30:00.000Z',
+      status: 'pending',
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="alert-update-report-view"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Environment Canada confirmed the event is now impacting two corridors.');
+  });
 });

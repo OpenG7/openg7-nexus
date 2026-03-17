@@ -7,6 +7,7 @@ import {
   effect,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -38,6 +39,9 @@ export class OpportunityReportDrawerComponent {
 
   readonly closed = output<void>();
   readonly submitted = output<OpportunityReportPayload>();
+  protected readonly submitAttempted = signal(false);
+  protected readonly minCommentLength = 10;
+  protected readonly maxCommentLength = 500;
 
   protected readonly form = new FormGroup<OpportunityReportFormModel>({
     reason: new FormControl<OpportunityReportReason>('incorrect', { nonNullable: true }),
@@ -71,6 +75,7 @@ export class OpportunityReportDrawerComponent {
       });
       this.form.markAsPristine();
       this.form.markAsUntouched();
+      this.submitAttempted.set(false);
     });
   }
 
@@ -91,6 +96,7 @@ export class OpportunityReportDrawerComponent {
   }
 
   protected onSubmit(): void {
+    this.submitAttempted.set(true);
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       return;

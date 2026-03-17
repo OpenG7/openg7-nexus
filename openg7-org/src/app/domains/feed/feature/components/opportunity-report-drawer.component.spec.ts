@@ -47,4 +47,21 @@ describe('OpportunityReportDrawerComponent', () => {
       comment: 'Suspicious pricing and unverifiable capacity details.',
     });
   });
+
+  it('shows inline validation errors when submit is attempted with an invalid form', () => {
+    const fixture = TestBed.createComponent(OpportunityReportDrawerComponent);
+    const submittedSpy = jasmine.createSpy('submitted');
+    fixture.componentInstance.submitted.subscribe(submittedSpy);
+
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]');
+    submitButton.click();
+    fixture.detectChanges();
+
+    expect(submittedSpy).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelectorAll('.opportunity-report-drawer__field-error').length).toBeGreaterThan(0);
+    expect((fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement).getAttribute('aria-invalid')).toBe('true');
+  });
 });

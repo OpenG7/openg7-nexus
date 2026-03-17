@@ -111,6 +111,18 @@
   outline-offset: 2px;
 }
 
+.opportunity-report-drawer select[aria-invalid='true'],
+.opportunity-report-drawer textarea[aria-invalid='true'] {
+  border-color: rgb(248 113 113 / 58%);
+  background: rgb(127 29 29 / 18%);
+}
+
+.opportunity-report-drawer__field-error {
+  margin: 0;
+  color: rgb(254 202 202 / 96%);
+  font-size: 0.78rem;
+}
+
 .opportunity-report-drawer__status {
   margin: 0;
   border: 1px solid transparent;

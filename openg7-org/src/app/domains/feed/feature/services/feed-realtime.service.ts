@@ -49,6 +49,7 @@ import {
   FeedComposerValidationResult,
   FeedFilterState,
   FeedItem,
+  FeedOriginType,
   FeedPublishOutcome,
   FeedRealtimeEnvelope,
   FeedSnapshot,
@@ -316,6 +317,11 @@ export class FeedRealtimeService {
       if (!draft.quantity.unit) {
         errors.push('feed.validation.quantityUnitRequired');
       }
+    }
+    const originType = this.normalizeOriginType(draft.originType);
+    const originId = this.normalizeOriginId(draft.originId);
+    if ((originType && !originId) || (!originType && originId)) {
+      errors.push('feed.validation.originIncomplete');
     }
     if (draft.mode !== 'BOTH' && (!draft.fromProvinceId || !draft.toProvinceId)) {
       warnings.push('feed.validation.routeIncomplete');
@@ -940,6 +946,8 @@ export class FeedRealtimeService {
       urgency: item.urgency ?? null,
       credibility: item.credibility ?? null,
       tags: item.tags ?? [],
+      originType: this.normalizeOriginType(item.originType),
+      originId: this.normalizeOriginId(item.originId),
       source: item.source ?? { kind: 'USER', label: this.translate.instant('feed.sourceUnknown') },
     };
   }
@@ -960,6 +968,8 @@ export class FeedRealtimeService {
       mode: draft.mode ?? 'BOTH',
       quantity: draft.quantity ?? null,
       tags: draft.tags ?? [],
+      originType: this.normalizeOriginType(draft.originType),
+      originId: this.normalizeOriginId(draft.originId),
       source: {
         kind: 'USER',
         label: this.translate.instant('feed.sourceYou'),
@@ -979,7 +989,28 @@ export class FeedRealtimeService {
       mode: draft.mode ?? 'BOTH',
       quantity: draft.quantity ?? null,
       tags: draft.tags?.filter(Boolean) ?? [],
+      originType: this.normalizeOriginType(draft.originType),
+      originId: this.normalizeOriginId(draft.originId),
     };
+  }
+
+  private normalizeOriginType(value: FeedOriginType | string | null | undefined): FeedOriginType | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const normalized = value.trim().toLowerCase();
+    if (!['alert', 'opportunity', 'indicator'].includes(normalized)) {
+      return null;
+    }
+    return normalized as FeedOriginType;
+  }
+
+  private normalizeOriginId(value: string | null | undefined): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const normalized = value.trim();
+    return normalized.length ? normalized : null;
   }
 
   private extractError(error: unknown): string {
