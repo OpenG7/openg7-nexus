@@ -9,10 +9,12 @@
         [windowLabel]="detail.windowLabel"
         [compact]="headerCompact()"
         [subscribed]="subscribed()"
+        [hasPendingReport]="hasPendingReport()"
         [canCreateOpportunity]="true"
         (toggleSubscribe)="toggleSubscribe()"
         (share)="share()"
         (reportUpdate)="reportUpdate()"
+        (reportAnotherUpdate)="reportAnotherUpdate()"
         (createOpportunity)="createOpportunity()"
       ></og7-alert-detail-header>
 
@@ -45,7 +47,9 @@
 
       <og7-alert-update-drawer
         [open]="reportDrawerOpen()"
+        [mode]="reportDrawerMode()"
         [alertTitle]="detail.title"
+        [existingReport]="pendingReport()"
         [submitState]="reportSubmitState()"
         [submitError]="reportSubmitError()"
         (closed)="closeReportDrawer()"
