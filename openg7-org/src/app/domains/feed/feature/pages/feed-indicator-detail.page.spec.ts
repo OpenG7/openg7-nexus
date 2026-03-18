@@ -11,8 +11,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedItem } from '../models/feed.models';
-import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.service';
 
 import { FeedIndicatorDetailPage } from './feed-indicator-detail.page';
 

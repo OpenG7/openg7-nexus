@@ -12,13 +12,14 @@ import {
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { OpportunityReportRecord } from '../services/opportunity-report-queue.service';
+
 import {
   OpportunityReportDrawerMode,
   OpportunityReportPayload,
   OpportunityReportReason,
   OpportunityReportSubmitState,
 } from './opportunity-detail.models';
-import { OpportunityReportRecord } from '../services/opportunity-report-queue.service';
 
 interface OpportunityReportFormModel {
   readonly reason: FormControl<OpportunityReportReason>;

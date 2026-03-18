@@ -9,8 +9,8 @@ import {
   output,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import { IndicatorAlertRuleRecord } from '@app/core/indicator-alert-rules.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 import {
   IndicatorAlertDraft,

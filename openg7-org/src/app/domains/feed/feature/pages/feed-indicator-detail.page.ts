@@ -81,7 +81,7 @@ export class FeedIndicatorDetailPage {
   private readonly detailItem = signal<FeedItem | null>(null);
   private readonly detailLoading = signal(false);
   private readonly detailError = signal<string | null>(null);
-  private readonly pendingAlertDraft = signal<IndicatorAlertDraft | null>(null);
+  protected readonly pendingAlertDraft = signal<IndicatorAlertDraft | null>(null);
   private alertStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());

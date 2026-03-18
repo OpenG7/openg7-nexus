@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
 import { AlertUpdatePayload, AlertUpdateRecord } from '../components/alert-detail.models';
+
 import {
   createLocalPendingSubmissionQueueStore,
   generateLocalPendingSubmissionId,

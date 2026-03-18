@@ -1,6 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
 import { OpportunityReportPayload, OpportunityReportReason } from '../components/opportunity-detail.models';
+
 import {
   createLocalPendingSubmissionQueueStore,
   generateLocalPendingSubmissionId,
