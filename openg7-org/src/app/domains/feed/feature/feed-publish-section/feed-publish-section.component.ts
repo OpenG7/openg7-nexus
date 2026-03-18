@@ -16,6 +16,10 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs/operators';
 
+import {
+  buildFeedDraftPrefillClearQueryParams,
+  buildFeedDraftPrefillKey,
+} from '../feed-draft-prefill.helpers';
 import { Og7FeedComposerComponent } from '../og7-feed-composer/og7-feed-composer.component';
 
 @Component({
@@ -160,51 +164,17 @@ export class FeedPublishSectionComponent {
   }
 
   private buildDraftKey(): string | null {
-    const query = this.queryParamMap();
-    const keys = [
-      'draftSource',
-      'draftAlertId',
-      'draftOriginType',
-      'draftOriginId',
-      'draftConnectionMatchId',
-      'draftType',
-      'draftMode',
-      'draftSectorId',
-      'draftFromProvinceId',
-      'draftToProvinceId',
-      'draftTitle',
-      'draftSummary',
-      'draftTags',
-    ];
-    const values = keys.map(key => query.get(key)?.trim() ?? '');
-    return values.some(Boolean) ? values.join('|') : null;
+    return buildFeedDraftPrefillKey(this.queryParamMap());
   }
 
   private clearDraftQueryParams(): void {
-    const query = this.queryParamMap();
-    const keys = [
-      'draftSource',
-      'draftAlertId',
-      'draftOriginType',
-      'draftOriginId',
-      'draftConnectionMatchId',
-      'draftType',
-      'draftMode',
-      'draftSectorId',
-      'draftFromProvinceId',
-      'draftToProvinceId',
-      'draftTitle',
-      'draftSummary',
-      'draftTags',
-    ];
-    if (!keys.some(key => query.get(key) !== null)) {
+    if (!this.buildDraftKey()) {
       return;
     }
 
-    const clearedQuery = Object.fromEntries(keys.map(key => [key, null]));
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: clearedQuery,
+      queryParams: buildFeedDraftPrefillClearQueryParams(),
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });

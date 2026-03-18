@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { NotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -161,6 +162,7 @@ describe('FeedPage', () => {
   let feed: FeedRealtimeServiceMock;
   let favorites: FavoritesServiceMock;
   let opportunityOffers: OpportunityOffersServiceMock;
+  let notifications: { success: jasmine.Spy; info: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -170,6 +172,11 @@ describe('FeedPage', () => {
     feed = new FeedRealtimeServiceMock();
     favorites = new FavoritesServiceMock();
     opportunityOffers = new OpportunityOffersServiceMock();
+    notifications = {
+      success: jasmine.createSpy('success'),
+      info: jasmine.createSpy('info'),
+      error: jasmine.createSpy('error'),
+    };
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
     router.getCurrentNavigation.and.returnValue(null);
@@ -195,6 +202,7 @@ describe('FeedPage', () => {
         { provide: FeedRealtimeService, useValue: feed },
         { provide: FavoritesService, useValue: favorites },
         { provide: OpportunityOffersService, useValue: opportunityOffers },
+        { provide: NotificationStore, useValue: notifications },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         {
@@ -434,6 +442,56 @@ describe('FeedPage', () => {
       pricingModel: 'spot',
       comment: 'Firm import block for winter peak support.',
       attachmentName: 'term-sheet.pdf',
+    });
+    expect(notifications.success).toHaveBeenCalledWith('feed.opportunity.detail.offer.status.successReference', {
+      source: 'feed',
+      metadata: {
+        action: 'create-opportunity-offer',
+        itemId: 'opportunity-300mw',
+        offerId: 'offer-record-1',
+        offerReference: 'OG7-OFR-20260120-AB12',
+      },
+    });
+  });
+
+  it('surfaces an error toast when contact submission fails', async () => {
+    feed.publishDraft.and.resolveTo({
+      status: 'request-error',
+      validation: {
+        valid: true,
+        errors: [],
+        warnings: [],
+      },
+      error: 'feed.error.generic',
+    });
+
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+    fixture.detectChanges();
+
+    const drawer = fixture.debugElement.query(By.directive(OpportunityOfferDrawerStubComponent))
+      .componentInstance as OpportunityOfferDrawerStubComponent;
+    const component = fixture.componentInstance as unknown as {
+      contactSubmitState: () => 'idle' | 'submitting' | 'success' | 'error' | 'offline';
+      contactSubmitError: () => string | null;
+    };
+
+    drawer.submitted.emit(createOfferPayload());
+    await fixture.whenStable();
+
+    expect(component.contactSubmitState()).toBe('error');
+    expect(component.contactSubmitError()).toBe('feed.error.generic');
+    expect(opportunityOffers.create).not.toHaveBeenCalled();
+    expect(notifications.error).toHaveBeenCalledWith('feed.error.generic', {
+      source: 'feed',
+      metadata: {
+        action: 'create-opportunity-offer',
+        itemId: 'opportunity-300mw',
+      },
     });
   });
 

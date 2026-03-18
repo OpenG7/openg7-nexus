@@ -412,7 +412,7 @@ describe('FeedAlertDetailPage', () => {
         draftSectorId: 'energy',
         draftFromProvinceId: 'qc',
         draftToProvinceId: 'on',
-        draftConnectionMatchId: 73,
+        draftConnectionMatchId: '73',
       })
     );
     expect(notifications.success).toHaveBeenCalledWith(

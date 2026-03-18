@@ -20,6 +20,10 @@ import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdS
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
+import {
+  buildFeedDraftPrefillKey,
+  readFeedDraftPrefillQuery,
+} from '../feed-draft-prefill.helpers';
 import { FeedComposerDraft, FeedItem, FeedItemType, FeedOriginType, FlowMode, QuantityUnit } from '../models/feed.models';
 import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
@@ -110,7 +114,7 @@ export class Og7FeedComposerComponent {
         if (!query) {
           return;
         }
-        const prefillKey = this.buildPrefillKey(query);
+        const prefillKey = buildFeedDraftPrefillKey(query);
         if (!prefillKey) {
           return;
         }
@@ -288,49 +292,51 @@ export class Og7FeedComposerComponent {
   }
 
   private applyDraftPrefill(query: ParamMap): void {
-    const draftType = this.normalizeDraftType(query.get('draftType'));
+    const prefill = readFeedDraftPrefillQuery(query);
+
+    const draftType = this.normalizeDraftType(prefill.draftType);
     if (draftType) {
       this.type.set(draftType);
     }
 
-    const draftMode = this.normalizeDraftMode(query.get('draftMode'));
+    const draftMode = this.normalizeDraftMode(prefill.draftMode);
     if (draftMode) {
       this.mode.set(draftMode);
     }
 
-    const draftSectorId = this.normalizeQueryText(query.get('draftSectorId'));
+    const draftSectorId = this.normalizeQueryText(prefill.draftSectorId);
     if (draftSectorId) {
       this.sectorId.set(draftSectorId);
     }
 
-    const draftFromProvinceId = this.normalizeQueryText(query.get('draftFromProvinceId'));
+    const draftFromProvinceId = this.normalizeQueryText(prefill.draftFromProvinceId);
     if (draftFromProvinceId) {
       this.fromProvinceId.set(draftFromProvinceId);
     }
 
-    const draftToProvinceId = this.normalizeQueryText(query.get('draftToProvinceId'));
+    const draftToProvinceId = this.normalizeQueryText(prefill.draftToProvinceId);
     if (draftToProvinceId) {
       this.toProvinceId.set(draftToProvinceId);
     }
 
-    const draftTitle = this.normalizeQueryText(query.get('draftTitle'));
+    const draftTitle = this.normalizeQueryText(prefill.draftTitle);
     if (draftTitle) {
       this.title.set(draftTitle.slice(0, 160));
     }
 
-    const draftSummary = this.normalizeQueryText(query.get('draftSummary'));
+    const draftSummary = this.normalizeQueryText(prefill.draftSummary);
     if (draftSummary) {
       this.summary.set(draftSummary.slice(0, 5000));
     }
 
-    const draftTags = this.normalizeDraftTags(query.get('draftTags'));
+    const draftTags = this.normalizeDraftTags(prefill.draftTags);
     if (draftTags) {
       this.tagsInput.set(draftTags);
     }
 
-    const draftOriginType = this.normalizeDraftOriginType(query.get('draftOriginType'));
-    const draftOriginId = this.normalizeQueryText(query.get('draftOriginId'));
-    const draftConnectionMatchId = this.normalizeDraftConnectionMatchId(query.get('draftConnectionMatchId'));
+    const draftOriginType = this.normalizeDraftOriginType(prefill.draftOriginType);
+    const draftOriginId = this.normalizeQueryText(prefill.draftOriginId);
+    const draftConnectionMatchId = this.normalizeDraftConnectionMatchId(prefill.draftConnectionMatchId);
     this.connectionMatchId.set(draftConnectionMatchId);
     if (draftOriginType && draftOriginId) {
       this.originType.set(draftOriginType);
@@ -338,31 +344,11 @@ export class Og7FeedComposerComponent {
       return;
     }
 
-    const legacyAlertId = this.normalizeQueryText(query.get('draftAlertId'));
-    if (this.normalizeQueryText(query.get('draftSource')) === 'alert' && legacyAlertId) {
+    const legacyAlertId = this.normalizeQueryText(prefill.draftAlertId);
+    if (this.normalizeQueryText(prefill.draftSource) === 'alert' && legacyAlertId) {
       this.originType.set('alert');
       this.originId.set(legacyAlertId);
     }
-  }
-
-  private buildPrefillKey(query: ParamMap): string | null {
-    const keys = [
-      'draftSource',
-      'draftAlertId',
-      'draftType',
-      'draftMode',
-      'draftSectorId',
-      'draftFromProvinceId',
-      'draftToProvinceId',
-      'draftTitle',
-      'draftSummary',
-      'draftTags',
-      'draftOriginType',
-      'draftOriginId',
-      'draftConnectionMatchId',
-    ];
-    const values = keys.map(key => query.get(key) ?? '');
-    return values.some(Boolean) ? values.join('|') : null;
   }
 
   private normalizeQueryText(value: string | null): string | null {

@@ -35,6 +35,7 @@ import {
   AlertUpdateSubmitState,
 } from '../components/alert-detail.models';
 import { AlertUpdateDrawerComponent } from '../components/alert-update-drawer.component';
+import { buildFeedDraftPrefillQueryParams } from '../feed-draft-prefill.helpers';
 import { FeedItem } from '../models/feed.models';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
 import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
@@ -398,19 +399,21 @@ export class FeedAlertDetailPage {
           fromProvince: detail.item.fromProvinceId ?? null,
           toProvince: fallbackToProvinceId,
           q: detail.title,
-          draftSource: 'alert',
-          draftAlertId: detail.item.id,
-          draftOriginType: 'alert',
-          draftOriginId: detail.item.id,
-          draftType: 'REQUEST',
-          draftMode: inferredMode,
-          draftSectorId: detail.item.sectorId ?? null,
-          draftFromProvinceId: detail.item.fromProvinceId ?? null,
-          draftToProvinceId: fallbackToProvinceId,
-          draftTitle,
-          draftSummary,
-          draftTags: draftTags || null,
-          draftConnectionMatchId: draftConnectionMatchId ?? null,
+          ...buildFeedDraftPrefillQueryParams({
+            draftSource: 'alert',
+            draftAlertId: detail.item.id,
+            draftOriginType: 'alert',
+            draftOriginId: detail.item.id,
+            draftType: 'REQUEST',
+            draftMode: inferredMode,
+            draftSectorId: detail.item.sectorId ?? null,
+            draftFromProvinceId: detail.item.fromProvinceId ?? null,
+            draftToProvinceId: fallbackToProvinceId,
+            draftTitle,
+            draftSummary,
+            draftTags: draftTags || null,
+            draftConnectionMatchId: draftConnectionMatchId ?? null,
+          }),
         },
       });
 

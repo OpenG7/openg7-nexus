@@ -377,7 +377,51 @@ describe('FeedOpportunityDetailPage', () => {
       attachmentName: 'term-sheet.pdf',
     });
     expect(component.offerSubmitState()).toBe('success');
-    expect(notifications.success).toHaveBeenCalled();
+    expect(notifications.success).toHaveBeenCalledWith('feed.opportunity.detail.offer.status.successReference', {
+      source: 'feed',
+      metadata: {
+        action: 'create-opportunity-offer',
+        itemId: 'opportunity-300mw',
+        offerId: 'offer-record-1',
+        offerReference: 'OG7-OFR-20260115-AB12',
+      },
+    });
+  });
+
+  it('surfaces an error toast when offer publication fails', async () => {
+    feed.publishDraft.and.resolveTo({
+      status: 'request-error',
+      validation: {
+        valid: true,
+        errors: [],
+        warnings: [],
+      },
+      error: 'feed.error.generic',
+    });
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      handleOfferSubmitted: (payload: ReturnType<typeof createOfferPayload>) => void;
+      offerSubmitState: () => 'idle' | 'submitting' | 'success' | 'error' | 'offline';
+      offerSubmitError: () => string | null;
+    };
+
+    component.handleOfferSubmitted(createOfferPayload());
+    await fixture.whenStable();
+
+    expect(component.offerSubmitState()).toBe('error');
+    expect(component.offerSubmitError()).toBe('feed.error.generic');
+    expect(opportunityOffers.create).not.toHaveBeenCalled();
+    expect(notifications.error).toHaveBeenCalledWith('feed.error.generic', {
+      source: 'feed',
+      metadata: {
+        action: 'create-opportunity-offer',
+        itemId: 'opportunity-300mw',
+      },
+    });
   });
 
   it('redirects anonymous users to login instead of opening the offer drawer', async () => {
