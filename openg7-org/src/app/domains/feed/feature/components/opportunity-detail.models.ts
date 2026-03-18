@@ -7,6 +7,7 @@ export type OpportunitySyncState = 'offline' | 'saved-local' | 'syncing' | 'sync
 export type OpportunityReportReason = 'incorrect' | 'duplicate' | 'abuse' | 'stale';
 
 export type OpportunityReportSubmitState = 'idle' | 'success' | 'error';
+export type OpportunityReportDrawerMode = 'compose' | 'view';
 
 export interface OpportunityDetailSectionItem {
   readonly labelKey: string;

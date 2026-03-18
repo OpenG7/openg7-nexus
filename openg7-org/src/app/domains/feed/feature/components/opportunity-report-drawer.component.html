@@ -3,65 +3,110 @@
 
   <section class="opportunity-report-drawer__panel" role="dialog" [attr.aria-modal]="true">
     <header>
-      <h2>{{ 'feed.opportunity.detail.report.title' | translate }}</h2>
+      <h2>
+        {{
+          viewingReport()
+            ? ('feed.opportunity.detail.report.viewTitle' | translate)
+            : ('feed.opportunity.detail.report.title' | translate)
+        }}
+      </h2>
       <small *ngIf="opportunityTitle()">{{ opportunityTitle() }}</small>
       <button type="button" [attr.aria-label]="'feed.drawer.close' | translate" (click)="closed.emit()">x</button>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <label>
-        <span>{{ 'feed.opportunity.detail.report.reasonLabel' | translate }}</span>
-        <select formControlName="reason" data-og7="opportunity-report-field" data-og7-id="reason">
-          <option value="incorrect">{{ 'feed.opportunity.detail.report.reason.incorrect' | translate }}</option>
-          <option value="duplicate">{{ 'feed.opportunity.detail.report.reason.duplicate' | translate }}</option>
-          <option value="abuse">{{ 'feed.opportunity.detail.report.reason.abuse' | translate }}</option>
-          <option value="stale">{{ 'feed.opportunity.detail.report.reason.stale' | translate }}</option>
-        </select>
-      </label>
+    <ng-container *ngIf="viewingReport() && existingReport() as report; else composeForm">
+      <p class="opportunity-report-drawer__hint">{{ 'feed.opportunity.detail.report.viewHint' | translate }}</p>
 
-      <label>
-        <span>{{ 'feed.opportunity.detail.report.commentLabel' | translate }}</span>
-        <textarea
-          rows="5"
-          formControlName="comment"
-          [attr.aria-invalid]="form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted()) ? 'true' : null"
-          [placeholder]="'feed.opportunity.detail.report.commentPlaceholder' | translate"
-          data-og7="opportunity-report-field"
-          data-og7-id="comment"
-        ></textarea>
-        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('required') && (form.controls.comment.touched || submitAttempted())">
-          {{ 'validation.required' | translate }}
-        </p>
-        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('minlength') && (form.controls.comment.touched || submitAttempted())">
-          {{ 'validation.minLength' | translate : { min: minCommentLength } }}
-        </p>
-        <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('maxlength') && (form.controls.comment.touched || submitAttempted())">
-          {{ 'feed.opportunity.detail.report.validation.maxLength' | translate : { max: maxCommentLength } }}
-        </p>
-      </label>
+      <article class="opportunity-report-drawer__report-card" data-og7="opportunity-report-view">
+        <span
+          class="opportunity-report-drawer__report-status"
+          data-og7="opportunity-report-status"
+          [attr.data-og7-id]="report.status"
+        >
+          {{ ('feed.opportunity.detail.report.queueStatus.' + report.status) | translate }}
+        </span>
 
-      <p
-        class="opportunity-report-drawer__status opportunity-report-drawer__status--success"
-        *ngIf="submitState() === 'success'"
-        data-og7="opportunity-report-status"
-        data-og7-id="success"
-      >
-        {{ 'feed.opportunity.detail.report.status.success' | translate }}
-      </p>
-      <p
-        class="opportunity-report-drawer__status opportunity-report-drawer__status--error"
-        *ngIf="submitState() === 'error'"
-        data-og7="opportunity-report-status"
-        data-og7-id="error"
-      >
-        {{ submitError() || ('feed.opportunity.detail.report.status.errorGeneric' | translate) }}
-      </p>
+        <dl class="opportunity-report-drawer__report-grid">
+          <div>
+            <dt>{{ 'feed.opportunity.detail.report.submittedAtLabel' | translate }}</dt>
+            <dd>{{ report.createdAt | date:'medium' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.opportunity.detail.report.reasonLabel' | translate }}</dt>
+            <dd>{{ ('feed.opportunity.detail.report.reason.' + report.reason) | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.opportunity.detail.report.commentValueLabel' | translate }}</dt>
+            <dd>{{ report.comment }}</dd>
+          </div>
+        </dl>
+      </article>
 
       <div class="opportunity-report-drawer__actions">
-        <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="opportunity-report-submit">
-          {{ 'feed.opportunity.detail.report.submit' | translate }}
+        <button type="button" data-og7="action" data-og7-id="opportunity-report-view-close" (click)="closed.emit()">
+          {{ 'feed.drawer.close' | translate }}
         </button>
       </div>
-    </form>
+    </ng-container>
+
+    <ng-template #composeForm>
+      <p class="opportunity-report-drawer__hint">{{ 'feed.opportunity.detail.report.reviewHint' | translate }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <label>
+          <span>{{ 'feed.opportunity.detail.report.reasonLabel' | translate }}</span>
+          <select formControlName="reason" data-og7="opportunity-report-field" data-og7-id="reason">
+            <option value="incorrect">{{ 'feed.opportunity.detail.report.reason.incorrect' | translate }}</option>
+            <option value="duplicate">{{ 'feed.opportunity.detail.report.reason.duplicate' | translate }}</option>
+            <option value="abuse">{{ 'feed.opportunity.detail.report.reason.abuse' | translate }}</option>
+            <option value="stale">{{ 'feed.opportunity.detail.report.reason.stale' | translate }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>{{ 'feed.opportunity.detail.report.commentLabel' | translate }}</span>
+          <textarea
+            rows="5"
+            formControlName="comment"
+            [attr.aria-invalid]="form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted()) ? 'true' : null"
+            [placeholder]="'feed.opportunity.detail.report.commentPlaceholder' | translate"
+            data-og7="opportunity-report-field"
+            data-og7-id="comment"
+          ></textarea>
+          <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('required') && (form.controls.comment.touched || submitAttempted())">
+            {{ 'validation.required' | translate }}
+          </p>
+          <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('minlength') && (form.controls.comment.touched || submitAttempted())">
+            {{ 'validation.minLength' | translate : { min: minCommentLength } }}
+          </p>
+          <p class="opportunity-report-drawer__field-error" *ngIf="form.controls.comment.hasError('maxlength') && (form.controls.comment.touched || submitAttempted())">
+            {{ 'feed.opportunity.detail.report.validation.maxLength' | translate : { max: maxCommentLength } }}
+          </p>
+        </label>
+
+        <p
+          class="opportunity-report-drawer__status opportunity-report-drawer__status--success"
+          *ngIf="submitState() === 'success'"
+          data-og7="opportunity-report-status"
+          data-og7-id="success"
+        >
+          {{ 'feed.opportunity.detail.report.status.success' | translate }}
+        </p>
+        <p
+          class="opportunity-report-drawer__status opportunity-report-drawer__status--error"
+          *ngIf="submitState() === 'error'"
+          data-og7="opportunity-report-status"
+          data-og7-id="error"
+        >
+          {{ submitError() || ('feed.opportunity.detail.report.status.errorGeneric' | translate) }}
+        </p>
+
+        <div class="opportunity-report-drawer__actions">
+          <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="opportunity-report-submit">
+            {{ 'feed.opportunity.detail.report.submit' | translate }}
+          </button>
+        </div>
+      </form>
+    </ng-template>
   </section>
 </div>

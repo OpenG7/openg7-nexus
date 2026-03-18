@@ -79,14 +79,41 @@
         {{ 'feed.opportunity.detail.cta.archive' | translate }}
       </button>
 
-      <button
-        *ngIf="!ownerMode()"
-        type="button"
-        class="opportunity-header__action"
-        (click)="report.emit()"
-      >
-        {{ 'feed.opportunity.detail.cta.report' | translate }}
-      </button>
+      <ng-container *ngIf="!ownerMode()">
+        <ng-container *ngIf="hasPendingReport(); else reportAction">
+          <button
+            type="button"
+            class="opportunity-header__action"
+            data-og7="action"
+            data-og7-id="opportunity-view-my-report"
+            (click)="report.emit()"
+          >
+            {{ 'feed.opportunity.detail.cta.viewMyReport' | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="opportunity-header__action"
+            data-og7="action"
+            data-og7-id="opportunity-report-another"
+            (click)="reportAnother.emit()"
+          >
+            {{ 'feed.opportunity.detail.cta.reportAnother' | translate }}
+          </button>
+        </ng-container>
+
+        <ng-template #reportAction>
+          <button
+            type="button"
+            class="opportunity-header__action"
+            data-og7="action"
+            data-og7-id="opportunity-report"
+            (click)="report.emit()"
+          >
+            {{ 'feed.opportunity.detail.cta.report' | translate }}
+          </button>
+        </ng-template>
+      </ng-container>
 
       <span class="opportunity-header__sync" [attr.data-og7-state]="syncState()">
         {{ ('feed.opportunity.detail.sync.' + syncState()) | translate }}

@@ -64,4 +64,25 @@ describe('OpportunityReportDrawerComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.opportunity-report-drawer__field-error').length).toBeGreaterThan(0);
     expect((fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement).getAttribute('aria-invalid')).toBe('true');
   });
+
+  it('renders the latest pending report in view mode', () => {
+    const fixture = TestBed.createComponent(OpportunityReportDrawerComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('mode', 'view');
+    fixture.componentRef.setInput('existingReport', {
+      id: 'opportunity-report-1',
+      itemId: 'offer-001',
+      itemTitle: 'Firm export block',
+      route: '/feed/opportunities/offer-001',
+      reason: 'duplicate',
+      comment: 'This opportunity duplicates another active listing.',
+      createdAt: '2026-03-11T09:30:00.000Z',
+      status: 'pending',
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-report-view"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('This opportunity duplicates another active listing.');
+  });
 });

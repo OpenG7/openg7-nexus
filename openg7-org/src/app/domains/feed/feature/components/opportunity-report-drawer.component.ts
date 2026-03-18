@@ -13,10 +13,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
+  OpportunityReportDrawerMode,
   OpportunityReportPayload,
   OpportunityReportReason,
   OpportunityReportSubmitState,
 } from './opportunity-detail.models';
+import { OpportunityReportRecord } from '../services/opportunity-report-queue.service';
 
 interface OpportunityReportFormModel {
   readonly reason: FormControl<OpportunityReportReason>;
@@ -33,7 +35,9 @@ interface OpportunityReportFormModel {
 })
 export class OpportunityReportDrawerComponent {
   readonly open = input(false);
+  readonly mode = input<OpportunityReportDrawerMode>('compose');
   readonly opportunityTitle = input('');
+  readonly existingReport = input<OpportunityReportRecord | null>(null);
   readonly submitState = input<OpportunityReportSubmitState>('idle');
   readonly submitError = input<string | null>(null);
 
@@ -52,6 +56,9 @@ export class OpportunityReportDrawerComponent {
   });
 
   protected readonly submitting = computed(() => false);
+  protected readonly viewingReport = computed(
+    () => this.mode() === 'view' && Boolean(this.existingReport())
+  );
 
   constructor() {
     effect(() => {
@@ -66,7 +73,7 @@ export class OpportunityReportDrawerComponent {
     });
 
     effect(() => {
-      if (!this.open()) {
+      if (!this.open() || this.mode() !== 'compose') {
         return;
       }
       this.form.reset({

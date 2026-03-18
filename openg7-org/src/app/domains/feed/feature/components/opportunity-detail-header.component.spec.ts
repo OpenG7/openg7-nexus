@@ -29,6 +29,8 @@ describe('OpportunityDetailHeaderComponent', () => {
                 save: 'Save',
                 remove: 'Remove from favorites',
                 share: 'Share',
+                viewMyReport: 'View my report',
+                reportAnother: 'Report another one',
                 report: 'Report',
                 duplicate: 'Duplicate',
                 archive: 'Archive',
@@ -84,6 +86,23 @@ describe('OpportunityDetailHeaderComponent', () => {
     saveButton = fixture.nativeElement.querySelector('[data-og7-id="opportunity-save"]') as HTMLButtonElement;
     expect(saveButton.textContent?.trim()).toBe('Remove from favorites');
     expect(saveButton.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('replaces the report CTA with view and report-again actions when a pending report exists', () => {
+    const fixture = TestBed.createComponent(OpportunityDetailHeaderComponent);
+    setRequiredInputs(fixture);
+    fixture.componentRef.setInput('hasPendingReport', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7-id="opportunity-report"]')).toBeNull();
+    expect(
+      (fixture.nativeElement.querySelector('[data-og7-id="opportunity-view-my-report"]') as HTMLButtonElement)
+        .textContent?.trim()
+    ).toBe('View my report');
+    expect(
+      (fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-another"]') as HTMLButtonElement)
+        .textContent?.trim()
+    ).toBe('Report another one');
   });
 });
 

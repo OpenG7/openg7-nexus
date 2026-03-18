@@ -35,6 +35,7 @@ import {
   OpportunityOfferSubmitState,
   OpportunityQnaMessage,
   OpportunityQnaTab,
+  OpportunityReportDrawerMode,
   OpportunityReportPayload,
   OpportunityReportSubmitState,
   OpportunitySyncState,
@@ -96,6 +97,7 @@ export class FeedOpportunityDetailPage {
   protected readonly headerCompact = signal(false);
   protected readonly offerDrawerOpen = signal(false);
   protected readonly reportDrawerOpen = signal(false);
+  protected readonly reportDrawerMode = signal<OpportunityReportDrawerMode>('compose');
   protected readonly offerSubmitState = signal<OpportunityOfferSubmitState>('idle');
   protected readonly offerSubmitError = signal<string | null>(null);
   protected readonly reportSubmitState = signal<OpportunityReportSubmitState>('idle');
@@ -175,6 +177,14 @@ export class FeedOpportunityDetailPage {
       .find((entry) => entry.status === 'submitted') ?? null;
   });
   protected readonly hasExistingSubmittedOffer = computed(() => this.existingSubmittedOffer() !== null);
+  protected readonly pendingReport = computed(() => {
+    const detail = this.detailVm();
+    if (!detail) {
+      return null;
+    }
+    return this.reportQueue.latestPendingForOpportunity(detail.item.id);
+  });
+  protected readonly hasPendingReport = computed(() => Boolean(this.pendingReport()));
 
   protected readonly isConnected = computed(() => this.feed.connectionState.connected());
   protected readonly offerRetryEnabled = computed(() => {
@@ -248,6 +258,7 @@ export class FeedOpportunityDetailPage {
       this.qnaTab.set('questions');
       this.offerDrawerOpen.set(false);
       this.reportDrawerOpen.set(false);
+      this.reportDrawerMode.set('compose');
       this.resetOfferSubmitState();
       this.resetReportSubmitState();
     });
@@ -334,6 +345,7 @@ export class FeedOpportunityDetailPage {
 
   protected closeReportDrawer(): void {
     this.reportDrawerOpen.set(false);
+    this.reportDrawerMode.set('compose');
     this.resetReportSubmitState();
   }
 
@@ -405,6 +417,13 @@ export class FeedOpportunityDetailPage {
 
   protected handleReport(): void {
     this.resetReportSubmitState();
+    this.reportDrawerMode.set(this.pendingReport() ? 'view' : 'compose');
+    this.reportDrawerOpen.set(true);
+  }
+
+  protected handleReportAnother(): void {
+    this.resetReportSubmitState();
+    this.reportDrawerMode.set('compose');
     this.reportDrawerOpen.set(true);
   }
 
@@ -689,6 +708,7 @@ export class FeedOpportunityDetailPage {
     this.clearReportStatusTimer();
     this.reportStatusTimer = setTimeout(() => {
       this.reportDrawerOpen.set(false);
+      this.reportDrawerMode.set('compose');
       this.reportSubmitState.set('idle');
     }, 750);
   }

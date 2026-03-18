@@ -74,6 +74,12 @@
   cursor: pointer;
 }
 
+.opportunity-report-drawer__hint {
+  margin: 0;
+  color: rgb(191 219 254 / 88%);
+  line-height: 1.5;
+}
+
 .opportunity-report-drawer form {
   display: grid;
   gap: 1rem;
@@ -123,6 +129,46 @@
   font-size: 0.78rem;
 }
 
+.opportunity-report-drawer__report-card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid rgb(125 211 252 / 22%);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: rgb(15 23 42 / 72%);
+}
+
+.opportunity-report-drawer__report-status {
+  justify-self: start;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: rgb(8 47 73 / 72%);
+  color: rgb(186 230 253);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.opportunity-report-drawer__report-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+}
+
+.opportunity-report-drawer__report-grid div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.opportunity-report-drawer__report-grid dt {
+  color: rgb(148 163 184 / 92%);
+  font-size: 0.78rem;
+}
+
+.opportunity-report-drawer__report-grid dd {
+  margin: 0;
+  color: rgb(226 232 240);
+}
+
 .opportunity-report-drawer__status {
   margin: 0;
   border: 1px solid transparent;
@@ -158,6 +204,13 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+}
+
+.opportunity-report-drawer__actions button[type='button'] {
+  background: rgb(15 23 42 / 72%);
+  box-shadow: none;
+  color: rgb(226 232 240);
+  border: 1px solid rgb(148 163 184 / 28%);
 }
 
 .opportunity-report-drawer__actions button:disabled {

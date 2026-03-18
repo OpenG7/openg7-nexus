@@ -1,7 +1,10 @@
-import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
 import { OpportunityReportPayload, OpportunityReportReason } from '../components/opportunity-detail.models';
+import {
+  createLocalPendingSubmissionQueueStore,
+  generateLocalPendingSubmissionId,
+} from './local-pending-submission-queue';
 
 const STORAGE_KEY = 'og7.opportunity-report-queue';
 const MAX_REPORTS = 50;
@@ -17,10 +20,32 @@ export interface OpportunityReportRecord {
   readonly status: 'pending';
 }
 
+function isOpportunityReportRecord(value: unknown): value is OpportunityReportRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  const entry = value as Partial<OpportunityReportRecord>;
+  return (
+    typeof entry.id === 'string' &&
+    typeof entry.itemId === 'string' &&
+    typeof entry.itemTitle === 'string' &&
+    typeof entry.route === 'string' &&
+    typeof entry.comment === 'string' &&
+    typeof entry.createdAt === 'string' &&
+    entry.status === 'pending' &&
+    ['incorrect', 'duplicate', 'abuse', 'stale'].includes(entry.reason ?? '')
+  );
+}
+
 @Injectable({ providedIn: 'root' })
 export class OpportunityReportQueueService {
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly browser = isPlatformBrowser(this.platformId);
+  private readonly queueStore = createLocalPendingSubmissionQueueStore<OpportunityReportRecord>({
+    platformId: inject(PLATFORM_ID),
+    storageKey: STORAGE_KEY,
+    maxEntries: MAX_REPORTS,
+    isRecord: isOpportunityReportRecord,
+  });
 
   queueReport(input: {
     itemId: string;
@@ -29,7 +54,7 @@ export class OpportunityReportQueueService {
     payload: OpportunityReportPayload;
   }): OpportunityReportRecord {
     const record: OpportunityReportRecord = {
-      id: this.generateId(),
+      id: generateLocalPendingSubmissionId('opportunity-report'),
       itemId: input.itemId,
       itemTitle: input.itemTitle.trim(),
       route: input.route.trim(),
@@ -39,64 +64,20 @@ export class OpportunityReportQueueService {
       status: 'pending',
     };
 
-    const next = [record, ...this.restore()].slice(0, MAX_REPORTS);
-    this.persist(next);
+    this.queueStore.append(record);
     return record;
   }
 
-  private restore(): OpportunityReportRecord[] {
-    if (!this.browser) {
-      return [];
+  latestPendingForOpportunity(itemId: string): OpportunityReportRecord | null {
+    const normalizedItemId = itemId.trim();
+    if (!normalizedItemId) {
+      return null;
     }
 
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        return [];
-      }
-
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      return parsed.filter((entry): entry is OpportunityReportRecord => this.isReportRecord(entry));
-    } catch {
-      return [];
-    }
-  }
-
-  private persist(records: readonly OpportunityReportRecord[]): void {
-    if (!this.browser) {
-      return;
-    }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }
-
-  private generateId(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID();
-    }
-
-    return `opportunity-report-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  }
-
-  private isReportRecord(value: unknown): value is OpportunityReportRecord {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-      return false;
-    }
-
-    const entry = value as Partial<OpportunityReportRecord>;
     return (
-      typeof entry.id === 'string' &&
-      typeof entry.itemId === 'string' &&
-      typeof entry.itemTitle === 'string' &&
-      typeof entry.route === 'string' &&
-      typeof entry.comment === 'string' &&
-      typeof entry.createdAt === 'string' &&
-      entry.status === 'pending' &&
-      ['incorrect', 'duplicate', 'abuse', 'stale'].includes(entry.reason ?? '')
+      this.queueStore.records().find(
+        record => record.itemId === normalizedItemId && record.status === 'pending'
+      ) ?? null
     );
   }
 }

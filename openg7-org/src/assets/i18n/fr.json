@@ -804,10 +804,21 @@
         },
         "report": {
           "title": "Signaler cette opportunite",
+          "viewTitle": "Mon signalement",
+          "reviewHint": "Votre signalement est place en file de revue et rattache a cette opportunite.",
+          "viewHint": "Ce signalement est toujours en attente de revue. Vous pouvez en envoyer un autre si le contexte evolue.",
           "reasonLabel": "Motif",
           "commentLabel": "Details",
+          "commentValueLabel": "Contenu du signalement",
+          "submittedAtLabel": "Envoye le",
           "commentPlaceholder": "Precisez le probleme constate pour faciliter la revue.",
           "submit": "Envoyer le signalement",
+          "queueStatus": {
+            "pending": "En attente de revue",
+            "reviewed": "Revise",
+            "applied": "Applique",
+            "rejected": "Refuse"
+          },
           "validation": {
             "maxLength": "Saisissez au maximum {{ max }} caracteres."
           },
@@ -828,6 +839,8 @@
           "save": "Enregistrer",
           "remove": "Retirer des favoris",
           "share": "Partager",
+          "viewMyReport": "Voir mon signalement",
+          "reportAnother": "Signaler a nouveau",
           "duplicate": "Dupliquer",
           "archive": "Archiver",
           "report": "Signaler"

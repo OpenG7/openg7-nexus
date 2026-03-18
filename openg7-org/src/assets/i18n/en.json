@@ -915,10 +915,21 @@
         },
         "report": {
           "title": "Report this opportunity",
+          "viewTitle": "My report",
+          "reviewHint": "Your report is queued for review and linked to this opportunity.",
+          "viewHint": "This report is still pending review. You can send another one if the context changes.",
           "reasonLabel": "Reason",
           "commentLabel": "Details",
+          "commentValueLabel": "Report details",
+          "submittedAtLabel": "Submitted on",
           "commentPlaceholder": "Describe the issue so the review team has usable context.",
           "submit": "Submit report",
+          "queueStatus": {
+            "pending": "Pending review",
+            "reviewed": "Reviewed",
+            "applied": "Applied",
+            "rejected": "Rejected"
+          },
           "validation": {
             "maxLength": "Enter no more than {{ max }} characters."
           },
@@ -939,6 +950,8 @@
           "save": "Save",
           "remove": "Remove from favorites",
           "share": "Share",
+          "viewMyReport": "View my report",
+          "reportAnother": "Report another one",
           "duplicate": "Duplicate",
           "archive": "Archive",
           "report": "Report"
