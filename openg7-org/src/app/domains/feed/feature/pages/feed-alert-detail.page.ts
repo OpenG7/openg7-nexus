@@ -368,50 +368,81 @@ export class FeedAlertDetailPage {
     if (!detail) {
       return;
     }
-    const inferredMode =
-      detail.item.fromProvinceId &&
-      detail.item.toProvinceId &&
-      detail.item.fromProvinceId !== detail.item.toProvinceId
-        ? 'IMPORT'
-        : 'BOTH';
-    const fallbackToProvinceId = detail.item.toProvinceId ?? detail.item.fromProvinceId ?? null;
-    const draftTitlePrefix = this.translate.instant('feed.alert.detail.cta.createOpportunityTitlePrefix');
-    const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
-    const draftSummary = detail.summaryHeadline.slice(0, 5000);
-    const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
-    const draftConnectionMatchId = await this.connectionMatcher.resolveDraftConnectionMatchId({
-      type: 'REQUEST',
-      title: draftTitle,
-      summary: draftSummary,
-      sectorId: detail.item.sectorId ?? null,
-      fromProvinceId: detail.item.fromProvinceId ?? null,
-      toProvinceId: fallbackToProvinceId,
-      mode: inferredMode,
-    });
-
-    await this.router.navigate(['/feed'], {
-      queryParams: {
+    try {
+      const inferredMode =
+        detail.item.fromProvinceId &&
+        detail.item.toProvinceId &&
+        detail.item.fromProvinceId !== detail.item.toProvinceId
+          ? 'IMPORT'
+          : 'BOTH';
+      const fallbackToProvinceId = detail.item.toProvinceId ?? detail.item.fromProvinceId ?? null;
+      const draftTitlePrefix = this.translate.instant('feed.alert.detail.cta.createOpportunityTitlePrefix');
+      const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
+      const draftSummary = detail.summaryHeadline.slice(0, 5000);
+      const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
+      const draftConnectionMatchId = await this.connectionMatcher.resolveDraftConnectionMatchId({
         type: 'REQUEST',
+        title: draftTitle,
+        summary: draftSummary,
+        sectorId: detail.item.sectorId ?? null,
+        fromProvinceId: detail.item.fromProvinceId ?? null,
+        toProvinceId: fallbackToProvinceId,
         mode: inferredMode,
-        sector: detail.item.sectorId ?? null,
-        fromProvince: detail.item.fromProvinceId ?? null,
-        toProvince: fallbackToProvinceId,
-        q: detail.title,
-        draftSource: 'alert',
-        draftAlertId: detail.item.id,
-        draftOriginType: 'alert',
-        draftOriginId: detail.item.id,
-        draftType: 'REQUEST',
-        draftMode: inferredMode,
-        draftSectorId: detail.item.sectorId ?? null,
-        draftFromProvinceId: detail.item.fromProvinceId ?? null,
-        draftToProvinceId: fallbackToProvinceId,
-        draftTitle,
-        draftSummary,
-        draftTags: draftTags || null,
-        draftConnectionMatchId: draftConnectionMatchId ?? null,
-      },
-    });
+      });
+
+      const navigated = await this.router.navigate(['/feed'], {
+        queryParams: {
+          type: 'REQUEST',
+          mode: inferredMode,
+          sector: detail.item.sectorId ?? null,
+          fromProvince: detail.item.fromProvinceId ?? null,
+          toProvince: fallbackToProvinceId,
+          q: detail.title,
+          draftSource: 'alert',
+          draftAlertId: detail.item.id,
+          draftOriginType: 'alert',
+          draftOriginId: detail.item.id,
+          draftType: 'REQUEST',
+          draftMode: inferredMode,
+          draftSectorId: detail.item.sectorId ?? null,
+          draftFromProvinceId: detail.item.fromProvinceId ?? null,
+          draftToProvinceId: fallbackToProvinceId,
+          draftTitle,
+          draftSummary,
+          draftTags: draftTags || null,
+          draftConnectionMatchId: draftConnectionMatchId ?? null,
+        },
+      });
+
+      if (!navigated) {
+        this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
+          source: 'feed',
+          metadata: {
+            action: 'create-linked-opportunity',
+            itemId: detail.item.id,
+          },
+        });
+        return;
+      }
+
+      this.notifications.success(this.translate.instant('feed.alert.detail.opportunity.status.success'), {
+        source: 'feed',
+        metadata: {
+          action: 'create-linked-opportunity',
+          itemId: detail.item.id,
+          draftConnectionMatchId: draftConnectionMatchId ?? null,
+        },
+      });
+    } catch (error) {
+      this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'create-linked-opportunity',
+          itemId: detail.item.id,
+        },
+      });
+    }
   }
 
   protected openRelatedAlert(alertId: string | null): void {

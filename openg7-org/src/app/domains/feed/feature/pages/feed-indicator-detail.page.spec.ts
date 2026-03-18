@@ -6,6 +6,7 @@ import {
   IndicatorAlertRuleRecord,
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
+import { NotificationStore } from '@app/core/observability/notification.store';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -166,6 +167,7 @@ describe('FeedIndicatorDetailPage', () => {
   let store: StoreMock;
   let indicatorAlertRules: IndicatorAlertRulesServiceMock;
   let indicatorAlertDrafts: IndicatorAlertDraftsServiceMock;
+  let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -175,6 +177,10 @@ describe('FeedIndicatorDetailPage', () => {
     store = new StoreMock();
     indicatorAlertRules = new IndicatorAlertRulesServiceMock();
     indicatorAlertDrafts = new IndicatorAlertDraftsServiceMock();
+    notifications = {
+      success: jasmine.createSpy('success'),
+      error: jasmine.createSpy('error'),
+    };
     authState = signal(true);
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
@@ -201,6 +207,7 @@ describe('FeedIndicatorDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: IndicatorAlertRulesService, useValue: indicatorAlertRules },
         { provide: IndicatorAlertDraftsService, useValue: indicatorAlertDrafts },
+        { provide: NotificationStore, useValue: notifications },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         {
@@ -506,6 +513,48 @@ describe('FeedIndicatorDetailPage', () => {
     expect(component.alertSubmitState()).toBe('success');
     expect(component.subscribed()).toBeTrue();
     expect(indicatorAlertDrafts.clear).toHaveBeenCalledWith('indicator-spot-ontario');
+    expect(notifications.success).toHaveBeenCalledWith(
+      jasmine.any(String),
+      jasmine.objectContaining({
+        source: 'feed',
+        metadata: jasmine.objectContaining({
+          action: 'create-indicator-alert',
+          itemId: 'indicator-spot-ontario',
+          indicatorAlertRuleId: 'indicator-rule-1',
+        }),
+      })
+    );
+  });
+
+  it('surfaces an error toast when indicator alert creation fails', async () => {
+    indicatorAlertRules.create.and.throwError('Indicator alert creation failed.');
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      openAlertDrawer: () => void;
+      onAlertDraftSubmitted: (draft: ReturnType<typeof createAlertDraft>) => void;
+      alertSubmitState: () => 'idle' | 'submitting' | 'success' | 'error' | 'offline';
+    };
+
+    component.openAlertDrawer();
+    component.onAlertDraftSubmitted(createAlertDraft());
+    await fixture.whenStable();
+
+    expect(component.alertSubmitState()).toBe('error');
+    expect(notifications.error).toHaveBeenCalledWith(
+      'Indicator alert creation failed.',
+      jasmine.objectContaining({
+        source: 'feed',
+        metadata: jasmine.objectContaining({
+          action: 'create-indicator-alert',
+          itemId: 'indicator-spot-ontario',
+        }),
+      })
+    );
   });
 
   it('routes keyboard shortcut through the subscribe flow', async () => {

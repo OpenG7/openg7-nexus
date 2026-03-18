@@ -933,6 +933,12 @@
             "errorGeneric": "Impossible de vous abonner a cette alerte. Veuillez reessayer."
           }
         },
+        "opportunity": {
+          "status": {
+            "success": "Le brouillon d'opportunite liee est pret dans le fil.",
+            "errorGeneric": "Impossible de preparer l'opportunite liee. Veuillez reessayer."
+          }
+        },
         "report": {
           "title": "Signaler une mise a jour",
           "viewTitle": "Mon signalement",

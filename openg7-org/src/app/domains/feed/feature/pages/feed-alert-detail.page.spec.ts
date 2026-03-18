@@ -415,6 +415,42 @@ describe('FeedAlertDetailPage', () => {
         draftConnectionMatchId: 73,
       })
     );
+    expect(notifications.success).toHaveBeenCalledWith(
+      jasmine.any(String),
+      jasmine.objectContaining({
+        source: 'feed',
+        metadata: jasmine.objectContaining({
+          action: 'create-linked-opportunity',
+          itemId: 'alert-001',
+          draftConnectionMatchId: 73,
+        }),
+      })
+    );
+  });
+
+  it('surfaces an error toast when linked opportunity navigation fails', async () => {
+    router.navigate.and.resolveTo(false);
+
+    const fixture = TestBed.createComponent(FeedAlertDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      createOpportunity: () => Promise<void>;
+    };
+
+    await component.createOpportunity();
+
+    expect(notifications.error).toHaveBeenCalledWith(
+      jasmine.any(String),
+      jasmine.objectContaining({
+        source: 'feed',
+        metadata: jasmine.objectContaining({
+          action: 'create-linked-opportunity',
+          itemId: 'alert-001',
+        }),
+      })
+    );
   });
 
   it('navigates to associated opportunity detail', async () => {

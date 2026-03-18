@@ -1044,6 +1044,12 @@
             "errorGeneric": "Unable to subscribe to this alert. Please try again."
           }
         },
+        "opportunity": {
+          "status": {
+            "success": "The linked opportunity draft is ready in the feed.",
+            "errorGeneric": "Unable to prepare the linked opportunity. Please try again."
+          }
+        },
         "report": {
           "title": "Contribute an update",
           "viewTitle": "My report",

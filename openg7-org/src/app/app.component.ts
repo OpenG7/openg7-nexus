@@ -7,6 +7,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
+import { NotificationToastTrayComponent } from '@app/shared/components/layout/notification-toast-tray/notification-toast-tray.component';
 import { SiteHeaderComponent } from '@app/shared/components/layout/site-header/site-header.component';
 import { UnderConstructionBannerComponent } from '@app/shared/components/layout/under-construction-banner/under-construction-banner.component';
 import { CtrlKDirective } from '@app/shared/directives/ctrl-k.directive';
@@ -29,6 +30,7 @@ import { Og7ModalContainerComponent } from './core/ui/modal/og7-modal-container.
     SiteHeaderComponent,
     UnderConstructionBannerComponent,
     Og7OnboardingFlowComponent,
+    NotificationToastTrayComponent,
     Og7ModalContainerComponent,
     RouterLink,
     TranslateModule,
