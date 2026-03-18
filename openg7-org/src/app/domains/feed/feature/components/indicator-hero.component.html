@@ -27,7 +27,7 @@
           subscribePending()
             ? ('feed.indicator.detail.actions.subscribing' | translate)
             : subscribed()
-              ? ('feed.indicator.detail.actions.subscribed' | translate)
+              ? ('feed.indicator.detail.actions.viewMyAlert' | translate)
               : ('feed.indicator.detail.actions.subscribe' | translate)
         }}
       </button>
@@ -43,11 +43,17 @@
       <button
         type="button"
         class="indicator-hero__action indicator-hero__action--primary"
+        [class.indicator-hero__action--active]="subscribed()"
         data-og7="action"
         data-og7-id="indicator-create-alert"
+        [attr.data-og7-state]="subscribed() ? 'active' : 'idle'"
         (click)="createAlert.emit()"
       >
-        {{ 'feed.indicator.detail.actions.createAlert' | translate }}
+        {{
+          subscribed()
+            ? ('feed.indicator.detail.actions.createAnotherAlert' | translate)
+            : ('feed.indicator.detail.actions.createAlert' | translate)
+        }}
       </button>
     </div>
   </div>

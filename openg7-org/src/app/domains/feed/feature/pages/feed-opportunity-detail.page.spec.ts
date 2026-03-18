@@ -78,6 +78,17 @@ class FavoritesServiceMock {
 }
 
 class OpportunityReportQueueServiceMock {
+  private pendingReport: {
+    id: string;
+    itemId: string;
+    itemTitle: string;
+    route: string;
+    reason: 'incorrect' | 'duplicate' | 'abuse' | 'stale';
+    comment: string;
+    createdAt: string;
+    status: 'pending';
+  } | null = null;
+
   readonly queueReport = jasmine.createSpy('queueReport').and.returnValue({
     id: 'report-1',
     itemId: 'opportunity-300mw',
@@ -88,6 +99,24 @@ class OpportunityReportQueueServiceMock {
     createdAt: '2026-03-10T20:00:00.000Z',
     status: 'pending',
   });
+  readonly latestPendingForOpportunity = jasmine
+    .createSpy('latestPendingForOpportunity')
+    .and.callFake(() => this.pendingReport);
+
+  setPendingReport(
+    record: {
+      id: string;
+      itemId: string;
+      itemTitle: string;
+      route: string;
+      reason: 'incorrect' | 'duplicate' | 'abuse' | 'stale';
+      comment: string;
+      createdAt: string;
+      status: 'pending';
+    } | null
+  ): void {
+    this.pendingReport = record;
+  }
 }
 
 class OpportunityConversationDraftsServiceMock {
@@ -645,6 +674,7 @@ describe('FeedOpportunityDetailPage', () => {
 
     const component = fixture.componentInstance as unknown as {
       reportDrawerOpen: () => boolean;
+      reportDrawerMode: () => 'compose' | 'view';
       handleReport: () => void;
       handleReportSubmitted: (payload: { reason: 'incorrect'; comment: string }) => void;
       reportSubmitState: () => 'idle' | 'success' | 'error';
@@ -653,6 +683,7 @@ describe('FeedOpportunityDetailPage', () => {
     expect(component.reportDrawerOpen()).toBeFalse();
     component.handleReport();
     expect(component.reportDrawerOpen()).toBeTrue();
+    expect(component.reportDrawerMode()).toBe('compose');
 
     component.handleReportSubmitted({
       reason: 'incorrect',
@@ -670,6 +701,39 @@ describe('FeedOpportunityDetailPage', () => {
     });
     expect(component.reportSubmitState()).toBe('success');
     expect(notifications.success).toHaveBeenCalled();
+  });
+
+  it('opens the report drawer in view mode when a pending report already exists', async () => {
+    reportQueue.setPendingReport({
+      id: 'report-1',
+      itemId: 'opportunity-300mw',
+      itemTitle: 'Short-term import of 300 MW',
+      route: '/feed/opportunities/opportunity-300mw',
+      reason: 'duplicate',
+      comment: 'This duplicates the earlier corridor listing.',
+      createdAt: '2026-03-10T20:00:00.000Z',
+      status: 'pending',
+    });
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      reportDrawerOpen: () => boolean;
+      reportDrawerMode: () => 'compose' | 'view';
+      hasPendingReport: () => boolean;
+      handleReport: () => void;
+      handleReportAnother: () => void;
+    };
+
+    expect(component.hasPendingReport()).toBeTrue();
+    component.handleReport();
+    expect(component.reportDrawerOpen()).toBeTrue();
+    expect(component.reportDrawerMode()).toBe('view');
+
+    component.handleReportAnother();
+    expect(component.reportDrawerMode()).toBe('compose');
   });
 
   it('falls back to search query for unsupported tag shortcuts', async () => {

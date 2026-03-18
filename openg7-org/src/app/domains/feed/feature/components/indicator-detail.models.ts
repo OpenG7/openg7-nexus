@@ -64,4 +64,6 @@ export interface IndicatorAlertDraft {
   readonly note: string;
 }
 
+export type IndicatorAlertDrawerMode = 'compose' | 'view';
+
 export type IndicatorAlertSubmitState = 'idle' | 'submitting' | 'success' | 'error' | 'offline';

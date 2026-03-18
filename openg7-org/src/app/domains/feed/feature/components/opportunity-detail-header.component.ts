@@ -27,6 +27,7 @@ export class OpportunityDetailHeaderComponent {
   readonly syncState = input<OpportunitySyncState>('synced');
   readonly ownerMode = input(false);
   readonly hasExistingOffer = input(false);
+  readonly hasPendingReport = input(false);
 
   readonly makeOffer = output<void>();
   readonly toggleSave = output<void>();
@@ -34,6 +35,7 @@ export class OpportunityDetailHeaderComponent {
   readonly tagClick = output<string>();
   readonly duplicate = output<void>();
   readonly report = output<void>();
+  readonly reportAnother = output<void>();
   readonly archive = output<void>();
 
   protected readonly breadcrumbQueryParams = computed(() => {

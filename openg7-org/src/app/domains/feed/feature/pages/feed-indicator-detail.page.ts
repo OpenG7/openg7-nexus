@@ -15,6 +15,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import {
   CreateIndicatorAlertRulePayload,
+  IndicatorAlertRuleRecord,
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
@@ -26,6 +27,7 @@ import { IndicatorAlertDrawerComponent } from '../components/indicator-alert-dra
 import { IndicatorChartComponent } from '../components/indicator-chart.component';
 import {
   IndicatorAlertDraft,
+  IndicatorAlertDrawerMode,
   IndicatorAlertSubmitState,
   IndicatorConnectionState,
   IndicatorDetailVm,
@@ -41,6 +43,7 @@ import { IndicatorRelatedListComponent } from '../components/indicator-related-l
 import { IndicatorStatsAsideComponent } from '../components/indicator-stats-aside.component';
 import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.service';
 
 @Component({
   selector: 'og7-feed-indicator-detail-page',
@@ -65,6 +68,7 @@ export class FeedIndicatorDetailPage {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
+  private readonly indicatorAlertDrafts = inject(IndicatorAlertDraftsService);
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
@@ -77,7 +81,7 @@ export class FeedIndicatorDetailPage {
   private readonly detailItem = signal<FeedItem | null>(null);
   private readonly detailLoading = signal(false);
   private readonly detailError = signal<string | null>(null);
-  private pendingAlertDraft: IndicatorAlertDraft | null = null;
+  protected readonly pendingAlertDraft = signal<IndicatorAlertDraft | null>(null);
   private alertStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());
@@ -87,6 +91,7 @@ export class FeedIndicatorDetailPage {
   protected readonly granularity = signal<IndicatorGranularity>('hour');
   protected readonly headerCompact = signal(false);
   protected readonly drawerOpen = signal(false);
+  protected readonly alertDrawerMode = signal<IndicatorAlertDrawerMode>('compose');
   protected readonly alertSubmitState = signal<IndicatorAlertSubmitState>('idle');
   protected readonly alertSubmitError = signal<string | null>(null);
 
@@ -128,15 +133,16 @@ export class FeedIndicatorDetailPage {
     }
     return this.buildDetailVm(item);
   });
-  protected readonly subscribed = computed(() => {
+  protected readonly activeAlertRule = computed<IndicatorAlertRuleRecord | null>(() => {
     const detail = this.detailVm();
     if (!detail || !this.auth.isAuthenticated()) {
-      return false;
+      return null;
     }
-    return this.indicatorAlertRules.hasActiveRuleForIndicator(detail.item.id);
+    return this.indicatorAlertRules.findActiveRuleForIndicator(detail.item.id);
   });
+  protected readonly subscribed = computed(() => this.activeAlertRule() !== null);
   protected readonly subscribePending = computed(() => this.alertSubmitState() === 'submitting');
-  protected readonly subscribeDisabled = computed(() => this.subscribePending() || this.subscribed());
+  protected readonly subscribeDisabled = computed(() => this.subscribePending());
 
   protected readonly connectionState = computed<IndicatorConnectionState>(() => {
     if (!this.feed.connectionState.connected()) {
@@ -148,7 +154,7 @@ export class FeedIndicatorDetailPage {
     return 'online';
   });
   protected readonly alertRetryEnabled = computed(() => {
-    if (!this.pendingAlertDraft) {
+    if (!this.pendingAlertDraft()) {
       return false;
     }
     const state = this.alertSubmitState();
@@ -360,19 +366,18 @@ export class FeedIndicatorDetailPage {
 
   protected subscribe(): void {
     const detail = this.detailVm();
-    if (!detail || this.subscribePending() || this.subscribed()) {
+    if (!detail || this.subscribePending()) {
+      return;
+    }
+    if (this.activeAlertRule()) {
+      this.openAlertDrawerInViewMode();
       return;
     }
     this.openAlertDrawer();
   }
 
   protected openAlertDrawer(): void {
-    if (!this.auth.isAuthenticated()) {
-      this.redirectToLogin();
-      return;
-    }
-    this.resetAlertSubmitState();
-    this.drawerOpen.set(true);
+    this.openAlertDrawerInComposeMode();
   }
 
   protected closeAlertDrawer(): void {
@@ -381,15 +386,54 @@ export class FeedIndicatorDetailPage {
   }
 
   protected onAlertDraftSubmitted(draft: IndicatorAlertDraft): void {
-    this.pendingAlertDraft = draft;
+    this.pendingAlertDraft.set(draft);
     void this.submitAlertDraft(draft);
   }
 
   protected onAlertDraftRetryRequested(): void {
-    if (!this.pendingAlertDraft) {
+    const draft = this.pendingAlertDraft();
+    if (!draft) {
       return;
     }
-    void this.submitAlertDraft(this.pendingAlertDraft);
+    void this.submitAlertDraft(draft);
+  }
+
+  private openAlertDrawerInViewMode(): void {
+    const detail = this.detailVm();
+    if (!detail) {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
+      return;
+    }
+
+    this.resetAlertSubmitState();
+    this.alertDrawerMode.set('view');
+    this.drawerOpen.set(true);
+  }
+
+  private openAlertDrawerInComposeMode(): void {
+    const detail = this.detailVm();
+    if (!detail) {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
+      return;
+    }
+
+    this.resetAlertSubmitState();
+    this.alertDrawerMode.set('compose');
+    const restoredDraft = this.indicatorAlertDrafts.draftForIndicator(detail.item.id);
+    if (restoredDraft) {
+      this.pendingAlertDraft.set(restoredDraft);
+      this.alertSubmitState.set('offline');
+      this.alertSubmitError.set(this.translate.instant('feed.error.offline'));
+    }
+    this.drawerOpen.set(true);
   }
 
   private async submitAlertDraft(draft: IndicatorAlertDraft): Promise<void> {
@@ -406,6 +450,8 @@ export class FeedIndicatorDetailPage {
     this.alertSubmitError.set(null);
 
     if (!this.feed.connectionState.connected()) {
+      this.pendingAlertDraft.set(draft);
+      this.indicatorAlertDrafts.save(detail.item.id, draft);
       this.alertSubmitState.set('offline');
       this.alertSubmitError.set(this.translate.instant('feed.error.offline'));
       return;
@@ -422,9 +468,10 @@ export class FeedIndicatorDetailPage {
       return;
     }
 
+    this.indicatorAlertDrafts.clear(detail.item.id);
     this.alertSubmitState.set('success');
     this.alertSubmitError.set(null);
-    this.pendingAlertDraft = null;
+    this.pendingAlertDraft.set(null);
     this.closeAlertDrawerAfterSuccess();
   }
 
@@ -455,7 +502,8 @@ export class FeedIndicatorDetailPage {
 
   private resetAlertSubmitState(): void {
     this.clearAlertStatusTimer();
-    this.pendingAlertDraft = null;
+    this.alertDrawerMode.set('compose');
+    this.pendingAlertDraft.set(null);
     this.alertSubmitState.set('idle');
     this.alertSubmitError.set(null);
   }

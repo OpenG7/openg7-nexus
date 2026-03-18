@@ -80,6 +80,13 @@
   font-weight: 600;
 }
 
+.indicator-hero__action--primary.indicator-hero__action--active {
+  border-color: rgba(16, 185, 129, 0.54);
+  background: linear-gradient(90deg, rgba(5, 150, 105, 0.72), rgba(16, 185, 129, 0.58));
+  box-shadow: inset 0 0 0 1px rgba(167, 243, 208, 0.18);
+  color: #ecfdf5;
+}
+
 .indicator-hero__chips {
   margin-top: 0.8rem;
   display: flex;

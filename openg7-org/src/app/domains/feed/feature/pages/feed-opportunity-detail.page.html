@@ -13,11 +13,13 @@
       [saved]="saved()"
       [syncState]="syncState()"
       [ownerMode]="ownerMode()"
+      [hasPendingReport]="hasPendingReport()"
       (makeOffer)="openOfferDrawer()"
       (toggleSave)="handleSaveToggle()"
       (share)="handleShare()"
       (tagClick)="handleTagFilter($event)"
       (report)="handleReport()"
+      (reportAnother)="handleReportAnother()"
       (duplicate)="handleDuplicate()"
       (archive)="handleArchive()"
     ></og7-opportunity-detail-header>
@@ -65,7 +67,9 @@
 
     <og7-opportunity-report-drawer
       [open]="reportDrawerOpen()"
+      [mode]="reportDrawerMode()"
       [opportunityTitle]="detail.title"
+      [existingReport]="pendingReport()"
       [submitState]="reportSubmitState()"
       [submitError]="reportSubmitError()"
       (closed)="closeReportDrawer()"

@@ -915,10 +915,21 @@
         },
         "report": {
           "title": "Report this opportunity",
+          "viewTitle": "My report",
+          "reviewHint": "Your report is queued for review and linked to this opportunity.",
+          "viewHint": "This report is still pending review. You can send another one if the context changes.",
           "reasonLabel": "Reason",
           "commentLabel": "Details",
+          "commentValueLabel": "Report details",
+          "submittedAtLabel": "Submitted on",
           "commentPlaceholder": "Describe the issue so the review team has usable context.",
           "submit": "Submit report",
+          "queueStatus": {
+            "pending": "Pending review",
+            "reviewed": "Reviewed",
+            "applied": "Applied",
+            "rejected": "Rejected"
+          },
           "validation": {
             "maxLength": "Enter no more than {{ max }} characters."
           },
@@ -939,6 +950,8 @@
           "save": "Save",
           "remove": "Remove from favorites",
           "share": "Share",
+          "viewMyReport": "View my report",
+          "reportAnother": "Report another one",
           "duplicate": "Duplicate",
           "archive": "Archive",
           "report": "Report"
@@ -1137,8 +1150,10 @@
           "subscribe": "Subscribe",
           "subscribing": "Subscribing...",
           "subscribed": "Subscribed",
+          "viewMyAlert": "View my alert",
           "share": "Share",
-          "createAlert": "Create alert"
+          "createAlert": "Create alert",
+          "createAnotherAlert": "Create another alert"
         },
         "connection": {
           "online": "Connected",
@@ -1190,6 +1205,9 @@
           "viewOpportunities": "View opportunities ->"
         },
         "drawer": {
+          "viewTitle": "My alert",
+          "viewHint": "This active rule is already tracking this indicator.",
+          "statusLabel": "Status",
           "thresholdDirection": "Threshold",
           "thresholdValue": "Threshold value",
           "direction": {
@@ -1204,8 +1222,17 @@
           "frequencyHourly": "Hourly digest",
           "frequencyDaily": "Daily digest",
           "notifyDelta": "Notify me when delta exceeds +X%",
+          "notifyDeltaState": {
+            "on": "Yes",
+            "off": "No"
+          },
           "note": "Comment",
+          "createdAt": "Created on",
           "generatedTitlePrefix": "Indicator alert",
+          "ruleState": {
+            "active": "Active",
+            "inactive": "Inactive"
+          },
           "retry": "Retry",
           "submitting": "Creating...",
           "status": {
