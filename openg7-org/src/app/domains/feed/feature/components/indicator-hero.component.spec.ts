@@ -23,6 +23,7 @@ describe('IndicatorHeroComponent', () => {
               breadcrumbCurrent: 'Ontario electricity',
               actions: {
                 subscribe: 'Subscribe',
+                subscribing: 'Subscribing...',
                 subscribed: 'Subscribed',
                 share: 'Share',
                 createAlert: 'Create alert',
@@ -47,10 +48,10 @@ describe('IndicatorHeroComponent', () => {
     translate.use('en');
   });
 
-  it('emits subscribe toggle when clicking the subscribe action', () => {
+  it('emits subscribe when clicking the subscribe action', () => {
     const fixture = TestBed.createComponent(IndicatorHeroComponent);
-    const subscribeSpy = jasmine.createSpy('toggleSubscribe');
-    fixture.componentInstance.toggleSubscribe.subscribe(subscribeSpy);
+    const subscribeSpy = jasmine.createSpy('subscribe');
+    fixture.componentInstance.subscribe.subscribe(subscribeSpy);
 
     setRequiredInputs(fixture, { subscribed: false });
     fixture.detectChanges();
@@ -78,6 +79,19 @@ describe('IndicatorHeroComponent', () => {
     expect(subscribeButton?.textContent).toContain('Subscribed');
   });
 
+  it('renders pending label and disables subscribe action while pending', () => {
+    const fixture = TestBed.createComponent(IndicatorHeroComponent);
+
+    setRequiredInputs(fixture, { subscribed: false, subscribePending: true, subscribeDisabled: true });
+    fixture.detectChanges();
+
+    const subscribeButton: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('[data-og7-id="indicator-subscribe"]');
+    expect(subscribeButton?.disabled).toBeTrue();
+    expect(subscribeButton?.textContent).toContain('Subscribing...');
+    expect(subscribeButton?.getAttribute('aria-busy')).toBe('true');
+  });
+
   it('emits createAlert when clicking the create alert action', () => {
     const fixture = TestBed.createComponent(IndicatorHeroComponent);
     const createAlertSpy = jasmine.createSpy('createAlert');
@@ -97,7 +111,11 @@ describe('IndicatorHeroComponent', () => {
 
 function setRequiredInputs(
   fixture: ReturnType<typeof TestBed.createComponent<IndicatorHeroComponent>>,
-  options: { subscribed: boolean }
+  options: {
+    subscribed: boolean;
+    subscribePending?: boolean;
+    subscribeDisabled?: boolean;
+  }
 ): void {
   fixture.componentRef.setInput('title', 'Spot electricity price up 12 percent');
   fixture.componentRef.setInput('subtitle', 'Ontario - Electricity - Spot');
@@ -107,4 +125,6 @@ function setRequiredInputs(
   fixture.componentRef.setInput('granularityLabel', 'Spot / hourly');
   fixture.componentRef.setInput('lastUpdatedLabel', '2 min ago');
   fixture.componentRef.setInput('subscribed', options.subscribed);
+  fixture.componentRef.setInput('subscribePending', options.subscribePending ?? false);
+  fixture.componentRef.setInput('subscribeDisabled', options.subscribeDisabled ?? false);
 }

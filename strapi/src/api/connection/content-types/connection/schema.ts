@@ -30,8 +30,24 @@ const schema = {
       type: 'integer',
       required: true,
     },
+    buyerOrganization: {
+      type: 'string',
+      required: true,
+    },
+    buyerOrganizationKey: {
+      type: 'string',
+      required: true,
+    },
     supplierProfileId: {
       type: 'integer',
+      required: true,
+    },
+    supplierOrganization: {
+      type: 'string',
+      required: true,
+    },
+    supplierOrganizationKey: {
+      type: 'string',
       required: true,
     },
     introMessage: {

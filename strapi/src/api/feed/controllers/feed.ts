@@ -96,6 +96,7 @@ interface FeedResponseItem {
   readonly tags: readonly string[];
   readonly originType: FeedOriginType | null;
   readonly originId: string | null;
+  readonly connectionMatchId?: number | null;
   readonly source: {
     readonly kind: FeedSourceKind;
     readonly label: string;
@@ -120,6 +121,7 @@ interface FeedCreatePayload {
   readonly tags: readonly string[];
   readonly originType: FeedOriginType | null;
   readonly originId: string | null;
+  readonly connectionMatchId: number | null;
   readonly accessibilitySummary: string | null;
   readonly geo?: FeedGeo;
 }
@@ -202,6 +204,11 @@ function normalizeInteger(value: unknown): number | null {
   }
   const parsed = Number.parseInt(normalized, 10);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizePositiveInteger(value: unknown): number | null {
+  const parsed = normalizeInteger(value);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 function normalizeSort(value: unknown): FeedSort {
@@ -449,6 +456,7 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
 
   const sourceLabel = normalizeString(entity.sourceLabel, 180) ?? 'OpenG7';
   const sourceUrl = normalizeString(entity.sourceUrl, 500);
+  const connectionMatchId = normalizePositiveInteger(entity.connectionMatchId);
 
   const mapped: FeedResponseItem = {
     id: String(entity.id),
@@ -468,6 +476,7 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
     tags: normalizeFeedTags(entity.tags),
     originType: normalizeOriginType(entity.originType),
     originId: normalizeString(entity.originId, 120),
+    ...(connectionMatchId ? { connectionMatchId } : {}),
     source: {
       kind: normalizeSourceKind(entity.sourceKind),
       label: sourceLabel,
@@ -532,6 +541,12 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
   if ((originType && !originId) || (!originType && originId)) {
     throw new Error('originType and originId must either both be provided or both be omitted.');
   }
+  const connectionMatchIdRaw = source.connectionMatchId;
+  const connectionMatchId =
+    connectionMatchIdRaw == null ? null : normalizePositiveInteger(connectionMatchIdRaw);
+  if (connectionMatchIdRaw != null && connectionMatchId == null) {
+    throw new Error('connectionMatchId must be a positive integer when provided.');
+  }
   const accessibilitySummary = normalizeString(source.accessibilitySummary, 5000);
   const geo = normalizeFeedGeo(source.geo);
 
@@ -549,6 +564,7 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     tags,
     originType,
     originId,
+    connectionMatchId,
     accessibilitySummary,
     ...(geo ? { geo } : {}),
   };
@@ -1141,6 +1157,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         tags: payload.tags,
         originType: payload.originType,
         originId: payload.originId,
+        connectionMatchId: payload.connectionMatchId,
         sourceKind: 'USER',
         sourceLabel: buildSourceLabel(currentUser),
         sourceUrl: null,

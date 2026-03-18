@@ -19,7 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
-import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
+import { buildFeedFavoriteKey, isFeedOpportunityType, resolveFeedConnectionMatchId } from './feed-item.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
@@ -174,6 +174,12 @@ export class FeedPage {
 
     if (!this.auth.isAuthenticated()) {
       this.redirectToLogin();
+      return;
+    }
+
+    const connectionMatchId = resolveFeedConnectionMatchId(item);
+    if (connectionMatchId) {
+      void this.openLinkup(connectionMatchId, item.id);
       return;
     }
 
@@ -342,6 +348,15 @@ export class FeedPage {
   private redirectToLogin(): void {
     void this.router.navigate(['/login'], {
       queryParams: { redirect: this.currentInternalUrl() },
+    });
+  }
+
+  private openLinkup(matchId: number, itemId: string): Promise<boolean> {
+    return this.router.navigate(['/linkup', matchId], {
+      queryParams: {
+        source: 'feed',
+        feedItemId: itemId,
+      },
     });
   }
 

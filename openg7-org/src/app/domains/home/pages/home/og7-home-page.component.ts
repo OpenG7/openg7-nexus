@@ -9,6 +9,7 @@ import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { MapStatsService } from '@app/core/services/map-stats.service';
 import { OpportunityAiPrefillService } from '@app/core/services/opportunity-ai-prefill.service';
 import { OpportunityService } from '@app/core/services/opportunity.service';
+import { resolveFeedConnectionMatchId } from '@app/domains/feed/feature/feed-item.helpers';
 import { FeedItem, FeedItemType } from '@app/domains/feed/feature/models/feed.models';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
 import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
@@ -229,11 +230,19 @@ export class Og7HomePageComponent {
     if (!itemId) {
       return;
     }
+    const connectionMatchId = resolveFeedConnectionMatchId(item);
+    const route = connectionMatchId ? `/linkup/${connectionMatchId}` : `/feed/opportunities/${itemId}`;
     this.analytics.emit(
       'home_feed_panel_connect_requested',
-      { itemId, itemType: item.type, route: `/feed/opportunities/${itemId}` },
+      { itemId, itemType: item.type, route },
       { priority: true }
     );
+    if (connectionMatchId) {
+      void this.router.navigate(['/linkup', connectionMatchId], {
+        queryParams: { source: 'home-feed-panels', feedItemId: item.id },
+      });
+      return;
+    }
     void this.router.navigate(['/feed', 'opportunities', itemId], {
       queryParams: { source: 'home-feed-panels', feedItemId: item.id },
     });

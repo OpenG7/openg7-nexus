@@ -12,7 +12,12 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
+import {
+  FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+  UserAlertsService,
+} from '@app/core/user-alerts.service';
 import { selectProvinces } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -32,6 +37,7 @@ import {
 import { AlertUpdateDrawerComponent } from '../components/alert-update-drawer.component';
 import { FeedItem } from '../models/feed.models';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
+import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({
@@ -53,9 +59,12 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 export class FeedAlertDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   private readonly notifications = injectNotificationStore();
   private readonly feed = inject(FeedRealtimeService);
+  private readonly connectionMatcher = inject(FeedConnectionMatchService);
   private readonly alertUpdateQueue = inject(AlertUpdateQueueService);
+  private readonly userAlerts = inject(UserAlertsService);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -73,7 +82,6 @@ export class FeedAlertDetailPage {
   protected readonly error = computed(() => this.detailError() ?? this.feed.error());
 
   protected readonly headerCompact = signal(false);
-  protected readonly subscribed = signal(false);
   protected readonly reportDrawerOpen = signal(false);
   protected readonly reportDrawerMode = signal<AlertUpdateDrawerMode>('compose');
   protected readonly reportSubmitState = signal<AlertUpdateSubmitState>('idle');
@@ -124,6 +132,20 @@ export class FeedAlertDetailPage {
     return this.alertUpdateQueue.latestPendingForAlert(detail.item.id);
   });
   protected readonly hasPendingReport = computed(() => Boolean(this.pendingReport()));
+  protected readonly subscribed = computed(() => {
+    const detail = this.detailVm();
+    if (!detail || !this.auth.isAuthenticated()) {
+      return false;
+    }
+    return this.userAlerts.hasSource(FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, detail.item.id);
+  });
+  protected readonly subscribePending = computed(() => {
+    const detail = this.detailVm();
+    if (!detail || !this.auth.isAuthenticated()) {
+      return false;
+    }
+    return this.userAlerts.isSourcePending(FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, detail.item.id);
+  });
 
   constructor() {
     effect(onCleanup => {
@@ -166,10 +188,15 @@ export class FeedAlertDetailPage {
 
     effect(() => {
       this.itemId();
-      this.subscribed.set(false);
       this.reportDrawerOpen.set(false);
       this.reportDrawerMode.set('compose');
       this.resetReportSubmitState();
+    });
+
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.userAlerts.refresh();
+      }
     });
 
     this.destroyRef.onDestroy(() => this.clearReportStatusTimer());
@@ -212,11 +239,46 @@ export class FeedAlertDetailPage {
       return;
     }
     event.preventDefault();
-    this.toggleSubscribe();
+    void this.subscribe();
   }
 
-  protected toggleSubscribe(): void {
-    this.subscribed.update(value => !value);
+  protected async subscribe(): Promise<void> {
+    const detail = this.detailVm();
+    if (!detail || this.subscribePending() || this.subscribed()) {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      this.redirectToLogin();
+      return;
+    }
+
+    const result = await this.userAlerts.create(this.buildSubscriptionAlertPayload(detail));
+    if (result.status === 'created') {
+      this.notifications.success(
+        this.translate.instant('feed.alert.detail.subscription.status.success'),
+        {
+          source: 'feed',
+          metadata: {
+            action: 'subscribe-alert',
+            itemId: detail.item.id,
+            subscriptionAlertId: result.entry?.id ?? null,
+          },
+        }
+      );
+      return;
+    }
+
+    if (result.status === 'error') {
+      const message = this.translate.instant('feed.alert.detail.subscription.status.errorGeneric');
+      this.notifications.error(message, {
+        source: 'feed',
+        metadata: {
+          action: 'subscribe-alert',
+          itemId: detail.item.id,
+        },
+      });
+    }
   }
 
   protected closeReportDrawer(): void {
@@ -277,7 +339,6 @@ export class FeedAlertDetailPage {
 
       this.reportSubmitState.set('success');
       this.reportSubmitError.set(null);
-      this.subscribed.set(true);
       this.notifications.success(this.translate.instant('feed.alert.detail.report.status.success'), {
         source: 'feed',
         metadata: {
@@ -302,7 +363,7 @@ export class FeedAlertDetailPage {
     }
   }
 
-  protected createOpportunity(): void {
+  protected async createOpportunity(): Promise<void> {
     const detail = this.detailVm();
     if (!detail) {
       return;
@@ -318,8 +379,17 @@ export class FeedAlertDetailPage {
     const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
     const draftSummary = detail.summaryHeadline.slice(0, 5000);
     const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
+    const draftConnectionMatchId = await this.connectionMatcher.resolveDraftConnectionMatchId({
+      type: 'REQUEST',
+      title: draftTitle,
+      summary: draftSummary,
+      sectorId: detail.item.sectorId ?? null,
+      fromProvinceId: detail.item.fromProvinceId ?? null,
+      toProvinceId: fallbackToProvinceId,
+      mode: inferredMode,
+    });
 
-    void this.router.navigate(['/feed'], {
+    await this.router.navigate(['/feed'], {
       queryParams: {
         type: 'REQUEST',
         mode: inferredMode,
@@ -339,6 +409,7 @@ export class FeedAlertDetailPage {
         draftTitle,
         draftSummary,
         draftTags: draftTags || null,
+        draftConnectionMatchId: draftConnectionMatchId ?? null,
       },
     });
   }
@@ -565,7 +636,7 @@ export class FeedAlertDetailPage {
     const from = this.resolveProvinceLabel(item.fromProvinceId);
     const to = this.resolveProvinceLabel(item.toProvinceId);
     if (from && to) {
-      return `${from} -> ${to}`;
+    return `${from} -> ${to}`;
     }
     if (to) {
       return to;
@@ -659,6 +730,34 @@ export class FeedAlertDetailPage {
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/alerts/${id}`;
+  }
+
+  private buildSubscriptionAlertPayload(detail: AlertDetailVm) {
+    const generatedTitlePrefix = this.translate.instant(
+      'feed.alert.detail.subscription.generatedTitlePrefix'
+    );
+
+    return {
+      title: `${generatedTitlePrefix}: ${detail.title}`.slice(0, 140),
+      message: this.translate.instant('feed.alert.detail.subscription.generatedMessage', {
+        title: detail.title,
+      }),
+      severity: 'info' as const,
+      sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+      sourceId: detail.item.id,
+      metadata: {
+        kind: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+        route: this.currentInternalUrl(),
+        alertId: detail.item.id,
+        alertTitle: detail.title,
+      },
+    };
+  }
+
+  private redirectToLogin(): void {
+    void this.router.navigate(['/login'], {
+      queryParams: { redirect: this.currentInternalUrl() },
+    });
   }
 
   private currentInternalUrl(): string {

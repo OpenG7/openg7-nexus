@@ -28,10 +28,12 @@ export class IndicatorHeroComponent {
   readonly granularity = input<IndicatorGranularity>('hour');
   readonly compact = input(false);
   readonly subscribed = input(false);
+  readonly subscribePending = input(false);
+  readonly subscribeDisabled = input(false);
   readonly connectionState = input<IndicatorConnectionState>('online');
   readonly lastUpdatedLabel = input.required<string>();
 
-  readonly toggleSubscribe = output<void>();
+  readonly subscribe = output<void>();
   readonly share = output<void>();
   readonly createAlert = output<void>();
   readonly timeframeChange = output<IndicatorTimeframe>();

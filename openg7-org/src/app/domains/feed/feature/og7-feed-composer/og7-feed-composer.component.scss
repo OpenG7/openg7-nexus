@@ -74,6 +74,15 @@
   font-size: 0.875rem;
 }
 
+.feed-composer__status {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.feed-composer__status--error {
+  color: var(--og7-feed-danger-text, #fecaca);
+}
+
 .feed-composer__errors {
   color: var(--og7-feed-danger-text, #fecaca);
 }
@@ -110,6 +119,11 @@
 .feed-composer__clear {
   background: rgba(8, 25, 64, 0.9);
   color: var(--og7-feed-text-strong, #f8fafc);
+}
+
+.feed-composer__clear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 720px) {

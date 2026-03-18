@@ -2,7 +2,10 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
-import { IndicatorAlertRulesService } from '@app/core/indicator-alert-rules.service';
+import {
+  IndicatorAlertRuleRecord,
+  IndicatorAlertRulesService,
+} from '@app/core/indicator-alert-rules.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
@@ -57,21 +60,42 @@ class StoreMock {
 }
 
 class IndicatorAlertRulesServiceMock {
-  readonly create = jasmine.createSpy('create').and.callFake(() => ({
-    id: 'indicator-rule-1',
-    indicatorId: 'indicator-spot-ontario',
-    indicatorTitle: 'Spot electricity price up 12 percent',
-    thresholdDirection: 'gt' as const,
-    thresholdValue: 25,
-    window: '24h' as const,
-    frequency: 'hourly' as const,
-    notifyDelta: true,
-    note: 'Watch evening peak',
-    route: '/feed/indicators/indicator-spot-ontario',
-    active: true,
-    createdAt: '2026-01-21T09:05:00.000Z',
-    updatedAt: '2026-01-21T09:05:00.000Z',
-  }));
+  readonly entries = signal<IndicatorAlertRuleRecord[]>([]);
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly create = jasmine.createSpy('create').and.callFake((payload: {
+    indicatorId: string;
+    indicatorTitle: string;
+    thresholdDirection: 'gt' | 'lt';
+    thresholdValue: number;
+    window: '1h' | '24h';
+    frequency: 'instant' | 'hourly' | 'daily';
+    notifyDelta: boolean;
+    note?: string | null;
+    route?: string | null;
+  }) => {
+    const record: IndicatorAlertRuleRecord = {
+      id: `indicator-rule-${this.entries().length + 1}`,
+      indicatorId: payload.indicatorId,
+      indicatorTitle: payload.indicatorTitle,
+      thresholdDirection: payload.thresholdDirection,
+      thresholdValue: payload.thresholdValue,
+      window: payload.window,
+      frequency: payload.frequency,
+      notifyDelta: payload.notifyDelta,
+      note: payload.note ?? '',
+      route: payload.route ?? null,
+      active: true,
+      createdAt: '2026-01-21T09:05:00.000Z',
+      updatedAt: '2026-01-21T09:05:00.000Z',
+    };
+    this.entries.update((current) => [record, ...current]);
+    return record;
+  });
+  readonly hasActiveRuleForIndicator = jasmine
+    .createSpy('hasActiveRuleForIndicator')
+    .and.callFake((indicatorId: string) =>
+      this.entries().some((entry) => entry.active && entry.indicatorId === indicatorId)
+    );
 }
 
 function createIndicatorItem(id: string): FeedItem {
@@ -230,25 +254,24 @@ describe('FeedIndicatorDetailPage', () => {
     expect(component.granularity()).toBe('hour');
   });
 
-  it('toggles subscribed state when subscribe action is triggered', async () => {
+  it('opens indicator alert drawer when subscribe action is triggered for authenticated users', async () => {
     const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const component = fixture.componentInstance as unknown as {
+      drawerOpen: () => boolean;
       subscribed: () => boolean;
-      toggleSubscribe: () => void;
+      subscribe: () => void;
     };
 
     expect(component.subscribed()).toBeFalse();
+    expect(component.drawerOpen()).toBeFalse();
 
-    component.toggleSubscribe();
+    component.subscribe();
     fixture.detectChanges();
-    expect(component.subscribed()).toBeTrue();
-
-    component.toggleSubscribe();
-    fixture.detectChanges();
+    expect(component.drawerOpen()).toBeTrue();
     expect(component.subscribed()).toBeFalse();
   });
 
@@ -269,7 +292,7 @@ describe('FeedIndicatorDetailPage', () => {
     expect(component.drawerOpen()).toBeTrue();
   });
 
-  it('redirects anonymous users to login instead of opening the alert drawer', async () => {
+  it('redirects anonymous users to login instead of opening the alert drawer when subscribe is triggered', async () => {
     authState.set(false);
 
     const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
@@ -278,16 +301,48 @@ describe('FeedIndicatorDetailPage', () => {
 
     const component = fixture.componentInstance as unknown as {
       drawerOpen: () => boolean;
-      openAlertDrawer: () => void;
+      subscribe: () => void;
     };
 
-    component.openAlertDrawer();
+    component.subscribe();
 
     expect(component.drawerOpen()).toBeFalse();
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { redirect: '/feed/indicators/indicator-spot-ontario' },
     });
     expect(indicatorAlertRules.create).not.toHaveBeenCalled();
+  });
+
+  it('derives subscribed state from active persisted rules', async () => {
+    indicatorAlertRules.entries.set([
+      {
+        id: 'indicator-rule-1',
+        indicatorId: 'indicator-spot-ontario',
+        indicatorTitle: 'Spot electricity price up 12 percent',
+        thresholdDirection: 'gt',
+        thresholdValue: 25,
+        window: '24h',
+        frequency: 'hourly',
+        notifyDelta: true,
+        note: 'Watch evening peak',
+        route: '/feed/indicators/indicator-spot-ontario',
+        active: true,
+        createdAt: '2026-01-21T09:05:00.000Z',
+        updatedAt: '2026-01-21T09:05:00.000Z',
+      },
+    ]);
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      subscribed: () => boolean;
+    };
+
+    expect(component.subscribed()).toBeTrue();
+    expect(indicatorAlertRules.hasActiveRuleForIndicator).toHaveBeenCalledWith('indicator-spot-ontario');
   });
 
   it('creates a mapped indicator alert rule and updates subscribed state on successful submit', async () => {
@@ -330,6 +385,25 @@ describe('FeedIndicatorDetailPage', () => {
     expect(createdPayload.route).toBe('/feed/indicators/indicator-spot-ontario');
     expect(component.alertSubmitState()).toBe('success');
     expect(component.subscribed()).toBeTrue();
+  });
+
+  it('routes keyboard shortcut through the subscribe flow', async () => {
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      drawerOpen: () => boolean;
+      onKeyboardShortcut: (event: KeyboardEvent) => void;
+    };
+
+    expect(component.drawerOpen()).toBeFalse();
+
+    component.onKeyboardShortcut(new KeyboardEvent('keydown', { key: 's' }));
+    fixture.detectChanges();
+
+    expect(component.drawerOpen()).toBeTrue();
   });
 
   it('stores draft in offline mode and allows retry after reconnection', async () => {

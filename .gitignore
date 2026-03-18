@@ -7,7 +7,7 @@
 .yarn/install-state.gz
 .yarn/unplugged/
 .yarn/build-state.yml
-# Garder ces sous-dossiers Yarn si tu les utilises
+# Keep these Yarn subfolders if you use them
 .yarn/*
 !.yarn/plugins/
 !.yarn/releases/
@@ -45,15 +45,15 @@ openg7-cms/.tmp/
 openg7-cms/.cache/
 openg7-cms/build/
 openg7-cms/coverage/
-# Uploads locaux (si provider local en dev)
+# Local uploads (if using a local provider in dev)
 openg7-cms/public/uploads/
-# Exports/backup éventuels
+# Exports / backups
 openg7-cms/exports/
-# DB locale éventuelle
+# Local DB
 openg7-cms/data/
 openg7-cms/*.db
 openg7-cms/*.sqlite
-# Env Strapi
+# Strapi env files
 openg7-cms/.env
 openg7-cms/.env.*
 # Current Strapi workspace
@@ -75,14 +75,16 @@ strapi/.strapi-updater.json
 # Local Strapi SQLite database (dev only)
 strapi/data/db.sqlite
 
-# --- Générique build & tests -----------------------------------------------
+# --- Generic build and tests ------------------------------------------------
 **/dist/
 **/build/
 **/coverage/
+**/*.js
+**/*.js.map
 *.tsbuildinfo
 docs/reference/
 
-# --- Variables d'environnement (partout) -----------------------------------
+# --- Env vars (everywhere) --------------------------------------------------
 .env
 .env.*
 !.env.example

@@ -7,18 +7,21 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdSig } from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { FeedComposerDraft, FeedItemType, FeedOriginType, FlowMode, QuantityUnit } from '../models/feed.models';
+import { FeedComposerDraft, FeedItem, FeedItemType, FeedOriginType, FlowMode, QuantityUnit } from '../models/feed.models';
+import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 @Component({
@@ -30,15 +33,21 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Og7FeedComposerComponent {
+  private static readonly SUBMIT_ERROR_FALLBACK = 'feed.error.generic';
+
+  private readonly auth = inject(AuthService);
   private readonly feed = inject(FeedRealtimeService);
+  private readonly connectionMatcher = inject(FeedConnectionMatchService);
   private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly titleInputRef = viewChild<ElementRef<HTMLInputElement>>('titleInput');
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
   private readonly appliedPrefillKey = signal<string | null>(null);
   readonly showHeader = input(true);
+  readonly published = output<FeedItem>();
 
   protected readonly type = signal<FeedItemType | null>(feedTypeSig());
   protected readonly sectorId = signal<string | null>(sectorIdSig());
@@ -52,8 +61,11 @@ export class Og7FeedComposerComponent {
   protected readonly tagsInput = signal('');
   protected readonly originType = signal<FeedOriginType | null>(null);
   protected readonly originId = signal<string | null>(null);
+  protected readonly connectionMatchId = signal<number | null>(null);
 
-  protected readonly submitting = signal(false);
+  protected readonly submitState = signal<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle');
+  protected readonly submitting = computed(() => this.submitState() === 'submitting');
+  protected readonly submitError = signal<string | null>(null);
   protected readonly errors = signal<readonly string[]>([]);
   protected readonly warnings = signal<readonly string[]>([]);
 
@@ -98,28 +110,115 @@ export class Og7FeedComposerComponent {
         if (!query) {
           return;
         }
-        const source = this.normalizeQueryText(query.get('draftSource'));
-        const hasExplicitOrigin = Boolean(
-          this.normalizeDraftOriginType(query.get('draftOriginType')) && this.normalizeQueryText(query.get('draftOriginId'))
-        );
-        if (source !== 'alert' && !hasExplicitOrigin) {
+        const prefillKey = this.buildPrefillKey(query);
+        if (!prefillKey) {
           return;
         }
-        const prefillKey = this.buildPrefillKey(query);
         if (prefillKey === this.appliedPrefillKey()) {
           return;
         }
         this.appliedPrefillKey.set(prefillKey);
         this.applyDraftPrefill(query);
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 
   protected handleSubmit(): void {
+    void this.submitDraft();
+  }
+
+  protected updateType(value: string): void {
+    this.resetSubmitState();
+    const next = value ? (value as FeedItemType) : null;
+    this.type.set(next);
+  }
+
+  protected updateSector(value: string): void {
+    this.resetSubmitState();
+    this.sectorId.set(value || null);
+  }
+
+  protected updateMode(value: string): void {
+    this.resetSubmitState();
+    this.mode.set((value as FlowMode) || 'BOTH');
+  }
+
+  protected updateFromProvince(value: string): void {
+    this.resetSubmitState();
+    this.fromProvinceId.set(value || null);
+  }
+
+  protected updateToProvince(value: string): void {
+    this.resetSubmitState();
+    this.toProvinceId.set(value || null);
+  }
+
+  protected updateTitle(value: string): void {
+    this.resetSubmitState();
+    this.title.set(value || '');
+  }
+
+  protected updateSummary(value: string): void {
+    this.resetSubmitState();
+    this.summary.set(value || '');
+  }
+
+  protected updateQuantityValue(value: string): void {
+    this.resetSubmitState();
+    this.quantityValue.set(value || '');
+  }
+
+  protected updateQuantityUnit(value: string): void {
+    this.resetSubmitState();
+    this.quantityUnit.set((value || '') as QuantityUnit | '');
+  }
+
+  protected updateTagsInput(value: string): void {
+    this.resetSubmitState();
+    this.tagsInput.set(value || '');
+  }
+
+  protected clearDraft(): void {
+    this.resetSubmitState();
+    this.title.set('');
+    this.summary.set('');
+    this.quantityValue.set('');
+    this.quantityUnit.set('');
+    this.tagsInput.set('');
+    this.originType.set(null);
+    this.originId.set(null);
+    this.connectionMatchId.set(null);
+  }
+
+  focusPrimaryField(): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    this.titleInputRef()?.nativeElement.focus();
+  }
+
+  private async submitDraft(): Promise<void> {
     if (!this.canSubmit()) {
       return;
     }
+
+    this.submitError.set(null);
+    this.errors.set([]);
+    this.warnings.set([]);
+
+    if (!this.auth.isAuthenticated()) {
+      await this.router.navigate(['/login'], {
+        queryParams: { redirect: this.resolveInternalUrl() },
+      });
+      return;
+    }
+
+    if (!this.feed.connectionState.connected()) {
+      this.submitState.set('offline');
+      this.submitError.set('feed.error.offline');
+      return;
+    }
+
     const quantity =
       this.quantityValue().trim().length > 0
         ? {
@@ -131,6 +230,18 @@ export class Og7FeedComposerComponent {
       .split(',')
       .map(tag => tag.trim())
       .filter(Boolean);
+    const resolvedConnectionMatchId =
+      this.connectionMatchId() ??
+      (await this.connectionMatcher.resolveDraftConnectionMatchId({
+        type: this.type(),
+        title: this.title(),
+        summary: this.summary(),
+        sectorId: this.sectorId(),
+        fromProvinceId: this.fromProvinceId(),
+        toProvinceId: this.toProvinceId(),
+        mode: this.mode(),
+      }));
+
     const draft: FeedComposerDraft = {
       type: this.type(),
       title: this.title(),
@@ -143,45 +254,26 @@ export class Og7FeedComposerComponent {
       tags: tags.length ? tags : undefined,
       originType: this.originType(),
       originId: this.originId(),
+      connectionMatchId: resolvedConnectionMatchId,
     };
-    const validation = this.feed.publish(draft);
-    this.errors.set(validation.errors);
-    this.warnings.set(validation.warnings);
-    if (validation.valid) {
-      this.submitting.set(true);
-      this.title.set('');
-      this.summary.set('');
-      this.quantityValue.set('');
-      this.quantityUnit.set('');
-      this.tagsInput.set('');
-      this.originType.set(null);
-      this.originId.set(null);
-      setTimeout(() => this.submitting.set(false), 250);
+    this.submitState.set('submitting');
+
+    const outcome = await this.feed.publishDraft(draft);
+    this.errors.set(outcome.validation.errors);
+    this.warnings.set(outcome.validation.warnings);
+
+    if (outcome.status === 'validation-error') {
+      this.submitState.set('error');
+      return;
     }
-  }
 
-  protected updateType(value: string): void {
-    const next = value ? (value as FeedItemType) : null;
-    this.type.set(next);
-  }
+    if (outcome.status === 'request-error') {
+      this.submitState.set('error');
+      this.submitError.set(outcome.error || Og7FeedComposerComponent.SUBMIT_ERROR_FALLBACK);
+      return;
+    }
 
-  protected updateSector(value: string): void {
-    this.sectorId.set(value || null);
-  }
-
-  protected updateMode(value: string): void {
-    this.mode.set((value as FlowMode) || 'BOTH');
-  }
-
-  protected updateFromProvince(value: string): void {
-    this.fromProvinceId.set(value || null);
-  }
-
-  protected updateToProvince(value: string): void {
-    this.toProvinceId.set(value || null);
-  }
-
-  protected clearDraft(): void {
+    this.submitState.set('success');
     this.title.set('');
     this.summary.set('');
     this.quantityValue.set('');
@@ -189,13 +281,10 @@ export class Og7FeedComposerComponent {
     this.tagsInput.set('');
     this.originType.set(null);
     this.originId.set(null);
-  }
-
-  focusPrimaryField(): void {
-    if (typeof document === 'undefined') {
-      return;
+    this.connectionMatchId.set(null);
+    if (outcome.item) {
+      this.published.emit(outcome.item);
     }
-    this.titleInputRef()?.nativeElement.focus();
   }
 
   private applyDraftPrefill(query: ParamMap): void {
@@ -241,6 +330,8 @@ export class Og7FeedComposerComponent {
 
     const draftOriginType = this.normalizeDraftOriginType(query.get('draftOriginType'));
     const draftOriginId = this.normalizeQueryText(query.get('draftOriginId'));
+    const draftConnectionMatchId = this.normalizeDraftConnectionMatchId(query.get('draftConnectionMatchId'));
+    this.connectionMatchId.set(draftConnectionMatchId);
     if (draftOriginType && draftOriginId) {
       this.originType.set(draftOriginType);
       this.originId.set(draftOriginId);
@@ -254,7 +345,7 @@ export class Og7FeedComposerComponent {
     }
   }
 
-  private buildPrefillKey(query: ParamMap): string {
+  private buildPrefillKey(query: ParamMap): string | null {
     const keys = [
       'draftSource',
       'draftAlertId',
@@ -268,8 +359,10 @@ export class Og7FeedComposerComponent {
       'draftTags',
       'draftOriginType',
       'draftOriginId',
+      'draftConnectionMatchId',
     ];
-    return keys.map(key => query.get(key) ?? '').join('|');
+    const values = keys.map(key => query.get(key) ?? '');
+    return values.some(Boolean) ? values.join('|') : null;
   }
 
   private normalizeQueryText(value: string | null): string | null {
@@ -316,5 +409,38 @@ export class Og7FeedComposerComponent {
       .slice(0, 8)
       .join(', ');
     return normalized.length ? normalized : null;
+  }
+
+  private normalizeDraftConnectionMatchId(value: string | null): number | null {
+    const raw = this.normalizeQueryText(value);
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return null;
+    }
+    return parsed;
+  }
+
+  private resetSubmitState(): void {
+    this.submitState.set('idle');
+    this.submitError.set(null);
+    this.errors.set([]);
+    this.warnings.set([]);
+  }
+
+  private resolveInternalUrl(): string {
+    const url = this.router.url;
+    if (typeof url !== 'string') {
+      return '/feed';
+    }
+
+    const normalized = url.trim();
+    if (!normalized) {
+      return '/feed';
+    }
+
+    return normalized.startsWith('/') ? normalized : `/${normalized.replace(/^\/+/, '')}`;
   }
 }

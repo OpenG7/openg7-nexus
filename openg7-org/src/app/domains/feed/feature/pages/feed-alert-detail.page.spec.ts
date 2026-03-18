@@ -1,13 +1,20 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { AuthService } from '@app/core/auth/auth.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
+import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
+import {
+  FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+  UserAlertsService,
+} from '@app/core/user-alerts.service';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedItem } from '../models/feed.models';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
+import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 import { FeedAlertDetailPage } from './feed-alert-detail.page';
@@ -46,6 +53,64 @@ class AlertUpdateQueueServiceMock {
     createdAt: '2026-03-10T20:00:00.000Z',
     status: 'pending',
   });
+  readonly latestPendingForAlert = jasmine.createSpy('latestPendingForAlert').and.returnValue(null);
+}
+
+class UserAlertsServiceMock {
+  private readonly entriesSig = signal<UserAlertRecord[]>([]);
+  private readonly pendingBySourceSig = signal<Record<string, boolean>>({});
+
+  readonly entries = this.entriesSig.asReadonly();
+  readonly refresh = jasmine.createSpy('refresh');
+  readonly create = jasmine.createSpy('create').and.callFake(async (_payload: Record<string, unknown>) => {
+    if (this.createResult.status === 'created' && this.createResult.entry) {
+      this.entriesSig.update((current) => [this.createResult.entry!, ...current]);
+    }
+    return this.createResult;
+  });
+
+  createResult: {
+    status: 'created' | 'duplicate' | 'pending' | 'unauthenticated' | 'invalid' | 'error';
+    entry: UserAlertRecord | null;
+    errorKey: string | null;
+  } = {
+    status: 'created',
+    entry: buildSubscriptionAlertRecord('alert-001'),
+    errorKey: null,
+  };
+
+  setEntries(entries: UserAlertRecord[]): void {
+    this.entriesSig.set(entries);
+  }
+
+  hasSource(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+    return this.entriesSig().some(
+      (entry) => entry.sourceType === sourceType && entry.sourceId === sourceId
+    );
+  }
+
+  isSourcePending(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+    return Boolean(this.pendingBySourceSig()[`${sourceType ?? ''}::${sourceId ?? ''}`]);
+  }
+
+  setPending(sourceType: string, sourceId: string, pending: boolean): void {
+    const key = `${sourceType}::${sourceId}`;
+    this.pendingBySourceSig.update((current) => {
+      const next = { ...current };
+      if (pending) {
+        next[key] = true;
+      } else {
+        delete next[key];
+      }
+      return next;
+    });
+  }
+}
+
+class FeedConnectionMatchServiceMock {
+  readonly resolveDraftConnectionMatchId = jasmine
+    .createSpy('resolveDraftConnectionMatchId')
+    .and.resolveTo(73);
 }
 
 function createAlertItem(id: string): FeedItem {
@@ -70,18 +135,43 @@ function createAlertItem(id: string): FeedItem {
   };
 }
 
+function buildSubscriptionAlertRecord(alertId: string): UserAlertRecord {
+  return {
+    id: `user-alert-${alertId}`,
+    title: 'Alert subscription: Ice storm risk on Ontario transmission lines',
+    message: 'You subscribed to updates for Ice storm risk on Ontario transmission lines.',
+    severity: 'info',
+    sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+    sourceId: alertId,
+    metadata: {
+      route: `/feed/alerts/${alertId}`,
+      kind: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+    },
+    isRead: false,
+    readAt: null,
+    createdAt: '2026-03-10T20:00:00.000Z',
+    updatedAt: '2026-03-10T20:00:00.000Z',
+  };
+}
+
 describe('FeedAlertDetailPage', () => {
   let feed: FeedRealtimeServiceMock;
   let store: StoreMock;
   let alertUpdateQueue: AlertUpdateQueueServiceMock;
+  let userAlerts: UserAlertsServiceMock;
+  let connectionMatcher: FeedConnectionMatchServiceMock;
   let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let authState: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
     alertUpdateQueue = new AlertUpdateQueueServiceMock();
+    userAlerts = new UserAlertsServiceMock();
+    connectionMatcher = new FeedConnectionMatchServiceMock();
+    authState = signal(true);
     notifications = {
       success: jasmine.createSpy('success'),
       error: jasmine.createSpy('error'),
@@ -112,6 +202,14 @@ describe('FeedAlertDetailPage', () => {
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         { provide: AlertUpdateQueueService, useValue: alertUpdateQueue },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: computed(() => authState()),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
+        { provide: UserAlertsService, useValue: userAlerts },
+        { provide: FeedConnectionMatchService, useValue: connectionMatcher },
         { provide: NotificationStore, useValue: notifications },
       ],
     })
@@ -124,21 +222,84 @@ describe('FeedAlertDetailPage', () => {
       .compileComponents();
   });
 
-  it('toggles subscribed state when subscribe action is triggered', async () => {
+  it('creates a persisted subscription when subscribe action succeeds', async () => {
     const fixture = TestBed.createComponent(FeedAlertDetailPage);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const component = fixture.componentInstance as unknown as {
       subscribed: () => boolean;
-      toggleSubscribe: () => void;
+      subscribe: () => Promise<void>;
     };
 
     expect(component.subscribed()).toBeFalse();
-    component.toggleSubscribe();
+    await component.subscribe();
     expect(component.subscribed()).toBeTrue();
-    component.toggleSubscribe();
+    expect(userAlerts.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
+        sourceId: 'alert-001',
+        metadata: jasmine.objectContaining({
+          route: '/feed/alerts/alert-001',
+        }),
+      })
+    );
+    expect(notifications.success).toHaveBeenCalled();
+  });
+
+  it('redirects to login when subscribe is triggered while unauthenticated', async () => {
+    authState.set(false);
+
+    const fixture = TestBed.createComponent(FeedAlertDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      subscribed: () => boolean;
+      subscribe: () => Promise<void>;
+    };
+
     expect(component.subscribed()).toBeFalse();
+    await component.subscribe();
+    expect(userAlerts.create).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/feed/alerts/alert-001' },
+    });
+  });
+
+  it('surfaces subscribe failures without flipping subscribed state', async () => {
+    userAlerts.createResult = {
+      status: 'error',
+      entry: null,
+      errorKey: 'pages.alerts.errors.create',
+    };
+
+    const fixture = TestBed.createComponent(FeedAlertDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      subscribed: () => boolean;
+      subscribe: () => Promise<void>;
+    };
+
+    await component.subscribe();
+    expect(component.subscribed()).toBeFalse();
+    expect(notifications.error).toHaveBeenCalled();
+  });
+
+  it('reflects an existing persisted subscription on load', async () => {
+    userAlerts.setEntries([buildSubscriptionAlertRecord('alert-001')]);
+
+    const fixture = TestBed.createComponent(FeedAlertDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      subscribed: () => boolean;
+    };
+
+    expect(component.subscribed()).toBeTrue();
   });
 
   it('shares alert detail using clipboard fallback', async () => {
@@ -213,7 +374,7 @@ describe('FeedAlertDetailPage', () => {
       },
     });
     expect(component.reportSubmitState()).toBe('success');
-    expect(component.subscribed()).toBeTrue();
+    expect(component.subscribed()).toBeFalse();
     expect(notifications.success).toHaveBeenCalled();
   });
 
@@ -223,14 +384,23 @@ describe('FeedAlertDetailPage', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance as unknown as {
-      createOpportunity: () => void;
+      createOpportunity: () => Promise<void>;
     };
 
-    component.createOpportunity();
+    await component.createOpportunity();
 
     expect(router.navigate).toHaveBeenCalledTimes(1);
     const callArgs = router.navigate.calls.mostRecent().args;
     expect(callArgs[0]).toEqual(['/feed']);
+    expect(connectionMatcher.resolveDraftConnectionMatchId).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: 'REQUEST',
+        sectorId: 'energy',
+        fromProvinceId: 'qc',
+        toProvinceId: 'on',
+        mode: 'IMPORT',
+      })
+    );
     expect(callArgs[1]?.queryParams).toEqual(
       jasmine.objectContaining({
         type: 'REQUEST',
@@ -242,6 +412,7 @@ describe('FeedAlertDetailPage', () => {
         draftSectorId: 'energy',
         draftFromProvinceId: 'qc',
         draftToProvinceId: 'on',
+        draftConnectionMatchId: 73,
       })
     );
   });

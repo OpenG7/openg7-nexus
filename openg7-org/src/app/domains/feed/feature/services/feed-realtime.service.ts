@@ -948,6 +948,7 @@ export class FeedRealtimeService {
       tags: item.tags ?? [],
       originType: this.normalizeOriginType(item.originType),
       originId: this.normalizeOriginId(item.originId),
+      connectionMatchId: this.normalizeConnectionMatchId(item.connectionMatchId),
       source: item.source ?? { kind: 'USER', label: this.translate.instant('feed.sourceUnknown') },
     };
   }
@@ -970,6 +971,7 @@ export class FeedRealtimeService {
       tags: draft.tags ?? [],
       originType: this.normalizeOriginType(draft.originType),
       originId: this.normalizeOriginId(draft.originId),
+      connectionMatchId: this.normalizeConnectionMatchId(draft.connectionMatchId),
       source: {
         kind: 'USER',
         label: this.translate.instant('feed.sourceYou'),
@@ -991,6 +993,7 @@ export class FeedRealtimeService {
       tags: draft.tags?.filter(Boolean) ?? [],
       originType: this.normalizeOriginType(draft.originType),
       originId: this.normalizeOriginId(draft.originId),
+      connectionMatchId: this.normalizeConnectionMatchId(draft.connectionMatchId),
     };
   }
 
@@ -1011,6 +1014,14 @@ export class FeedRealtimeService {
     }
     const normalized = value.trim();
     return normalized.length ? normalized : null;
+  }
+
+  private normalizeConnectionMatchId(value: number | null | undefined): number | null {
+    if (!Number.isFinite(value ?? NaN)) {
+      return null;
+    }
+    const normalized = Math.trunc(value as number);
+    return normalized > 0 ? normalized : null;
   }
 
   private extractError(error: unknown): string {

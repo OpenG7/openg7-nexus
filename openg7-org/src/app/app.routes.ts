@@ -176,16 +176,19 @@ export const routes: Routes = [
     path: 'linkups',
     loadComponent: () =>
       import('./domains/matchmaking/pages/linkup-history.page').then(m => m.LinkupHistoryPage),
+    canMatch: [authGuard],
   },
   {
     path: 'linkups/:id',
     loadComponent: () =>
       import('./domains/matchmaking/pages/linkup-detail.page').then(m => m.LinkupDetailPage),
+    canMatch: [authGuard],
   },
   {
     path: 'linkup/:id',
     loadComponent: () =>
       import('./domains/matchmaking/pages/linkup.page').then(m => m.LinkupPage),
+    canMatch: [authGuard],
   },
   {
     path: 'partners/:id',

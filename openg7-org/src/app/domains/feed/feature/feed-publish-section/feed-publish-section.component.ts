@@ -77,8 +77,15 @@ export class FeedPublishSectionComponent {
     });
 
     effect(() => {
-      const draftKey = this.buildAlertDraftKey();
-      if (!draftKey || draftKey === this.autoOpenedDraftKey()) {
+      const draftKey = this.buildDraftKey();
+      if (!draftKey) {
+        if (this.autoOpenedDraftKey() !== null) {
+          this.autoOpenedDraftKey.set(null);
+        }
+        return;
+      }
+
+      if (draftKey === this.autoOpenedDraftKey()) {
         return;
       }
 
@@ -119,6 +126,11 @@ export class FeedPublishSectionComponent {
     this.closeDrawer();
   }
 
+  protected handlePublished(): void {
+    this.clearDraftQueryParams();
+    this.closeDrawer();
+  }
+
   private resolveInternalUrl(): string {
     const navigation = this.router.getCurrentNavigation();
     const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
@@ -147,20 +159,14 @@ export class FeedPublishSectionComponent {
     setTimeout(action, 0);
   }
 
-  private buildAlertDraftKey(): string | null {
+  private buildDraftKey(): string | null {
     const query = this.queryParamMap();
-    const source = query.get('draftSource')?.trim();
-    const originType = query.get('draftOriginType')?.trim();
-    const originId = query.get('draftOriginId')?.trim();
-    const hasExplicitOrigin = Boolean(originType && originId);
-    if (source !== 'alert' && !hasExplicitOrigin) {
-      return null;
-    }
-
     const keys = [
+      'draftSource',
       'draftAlertId',
       'draftOriginType',
       'draftOriginId',
+      'draftConnectionMatchId',
       'draftType',
       'draftMode',
       'draftSectorId',
@@ -171,8 +177,36 @@ export class FeedPublishSectionComponent {
       'draftTags',
     ];
     const values = keys.map(key => query.get(key)?.trim() ?? '');
+    return values.some(Boolean) ? values.join('|') : null;
+  }
 
-    const keyPrefix = source || 'origin';
-    return values.some(Boolean) ? [keyPrefix, ...values].join('|') : null;
+  private clearDraftQueryParams(): void {
+    const query = this.queryParamMap();
+    const keys = [
+      'draftSource',
+      'draftAlertId',
+      'draftOriginType',
+      'draftOriginId',
+      'draftConnectionMatchId',
+      'draftType',
+      'draftMode',
+      'draftSectorId',
+      'draftFromProvinceId',
+      'draftToProvinceId',
+      'draftTitle',
+      'draftSummary',
+      'draftTags',
+    ];
+    if (!keys.some(key => query.get(key) !== null)) {
+      return;
+    }
+
+    const clearedQuery = Object.fromEntries(keys.map(key => [key, null]));
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: clearedQuery,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 }

@@ -121,7 +121,7 @@ class OpportunityOffersServiceMock {
   readonly withdraw = jasmine.createSpy('withdraw');
 }
 
-function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
+function createFeedItem(type: FeedItem['type'], id: string, overrides: Partial<FeedItem> = {}): FeedItem {
   return {
     id,
     createdAt: '2026-01-15T10:00:00.000Z',
@@ -142,6 +142,7 @@ function createFeedItem(type: FeedItem['type'], id: string): FeedItem {
       kind: 'PARTNER',
       label: 'Grid Ops',
     },
+    ...overrides,
   };
 }
 
@@ -378,6 +379,22 @@ describe('FeedPage', () => {
 
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { redirect: '/feed?source=home-feed-panels&feedItemId=opportunity-300mw' },
+    });
+  });
+
+  it('routes contact requests to linkup when the item carries a connection match id', () => {
+    const item = createFeedItem('REQUEST', 'opportunity-300mw', { connectionMatchId: 73 });
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/linkup', 73], {
+      queryParams: {
+        source: 'feed',
+        feedItemId: 'opportunity-300mw',
+      },
     });
   });
 

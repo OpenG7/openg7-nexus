@@ -502,6 +502,8 @@ export interface ApiConnectionConnection extends Struct.CollectionTypeSchema {
   attributes: {
     attachments: Schema.Attribute.JSON;
     buyerProfileId: Schema.Attribute.Integer & Schema.Attribute.Required;
+    buyerOrganization: Schema.Attribute.String & Schema.Attribute.Required;
+    buyerOrganizationKey: Schema.Attribute.String & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     introMessage: Schema.Attribute.Text & Schema.Attribute.Required;
@@ -522,6 +524,8 @@ export interface ApiConnectionConnection extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'pending'>;
     statusHistory: Schema.Attribute.JSON;
     supplierProfileId: Schema.Attribute.Integer & Schema.Attribute.Required;
+    supplierOrganization: Schema.Attribute.String & Schema.Attribute.Required;
+    supplierOrganizationKey: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     user: Schema.Attribute.Relation<'manyToOne', 'plugin::users-permissions.user'> &
@@ -572,6 +576,13 @@ export interface ApiFeedFeed extends Struct.CollectionTypeSchema {
   };
   attributes: {
     accessibilitySummary: Schema.Attribute.Text;
+    connectionMatchId: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     credibility: Schema.Attribute.Integer &

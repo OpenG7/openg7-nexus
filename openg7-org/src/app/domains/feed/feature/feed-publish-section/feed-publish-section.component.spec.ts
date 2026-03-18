@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
@@ -22,6 +22,7 @@ class DummyPageComponent {}
 class FeedComposerStubComponent {
   readonly showHeader = input(true);
   readonly focusPrimaryField = jasmine.createSpy('focusPrimaryField');
+  readonly published = output<void>();
 }
 
 describe('FeedPublishSectionComponent', () => {
@@ -123,6 +124,18 @@ describe('FeedPublishSectionComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
   });
 
+  it('auto-opens the composer drawer when a connection-linked draft is present', async () => {
+    authState.set(true);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/feed?draftType=REQUEST&draftTitle=Winter%20support&draftConnectionMatchId=73');
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="feed-composer-stub"]')).toBeTruthy();
+  });
+
   it('opens the drawer and focuses the login CTA for anonymous users when requested', async () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
@@ -172,5 +185,25 @@ describe('FeedPublishSectionComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
+  });
+
+  it('closes the drawer and clears draft query params after a successful publication', async () => {
+    authState.set(true);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/feed?draftSource=alert&draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak&draftConnectionMatchId=73');
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const composer = fixture.debugElement.query(By.directive(FeedComposerStubComponent))
+      .componentInstance as FeedComposerStubComponent;
+
+    composer.published.emit();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
+    expect(router.url).toBe('/feed');
   });
 });

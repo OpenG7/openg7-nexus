@@ -84,6 +84,23 @@ describe('IndicatorAlertRulesService', () => {
     service.remove(created.id);
     expect(service.entries()).toEqual([]);
   });
+
+  it('reports active rules for a given indicator id', () => {
+    authState.set(true);
+    userState.set({ id: 'user-1' });
+
+    const service = createService();
+    const activeRule = service.create(createPayload({ indicatorId: 'indicator-1' }));
+    service.create(createPayload({ indicatorId: 'indicator-2' }));
+
+    expect(service.hasActiveRuleForIndicator('indicator-1')).toBeTrue();
+    expect(service.findActiveRuleForIndicator('indicator-1')?.id).toBe(activeRule.id);
+    expect(service.hasActiveRuleForIndicator('indicator-3')).toBeFalse();
+
+    service.setActive(activeRule.id, false);
+    expect(service.hasActiveRuleForIndicator('indicator-1')).toBeFalse();
+    expect(service.findActiveRuleForIndicator('indicator-1')).toBeNull();
+  });
 });
 
 function createPayload(

@@ -1,5 +1,6 @@
 import type { Core } from '@strapi/strapi';
 
+const ACCOUNT_PROFILE_UID = 'api::account-profile.account-profile' as any;
 const CONNECTION_UID = 'api::connection.connection' as any;
 
 const DEFAULT_HISTORY_LIMIT = 20;
@@ -21,6 +22,10 @@ interface ConnectionCreatePayload {
   readonly matchId: number;
   readonly buyerProfileId: number;
   readonly supplierProfileId: number;
+  readonly buyerOrganization: string;
+  readonly buyerOrganizationKey: string;
+  readonly supplierOrganization: string;
+  readonly supplierOrganizationKey: string;
   readonly introMessage: string;
   readonly locale: 'fr' | 'en';
   readonly attachments: readonly string[];
@@ -48,6 +53,12 @@ interface StatusHistoryEntry {
   readonly note?: string;
 }
 
+interface ActorContext {
+  readonly userId: number | string;
+  readonly organization: string | null;
+  readonly organizationKey: string | null;
+}
+
 const ALLOWED_STATUS_TRANSITIONS: Record<ConnectionStatus, readonly ConnectionStatus[]> = {
   pending: ['inDiscussion', 'completed', 'closed'],
   inDiscussion: ['completed', 'closed'],
@@ -64,6 +75,14 @@ function normalizeString(value: unknown, maxLength = 500): string | null {
     return null;
   }
   return normalized.slice(0, maxLength);
+}
+
+function normalizeOrganizationKey(value: unknown): string | null {
+  const normalized = normalizeString(value, 160);
+  if (!normalized) {
+    return null;
+  }
+  return normalized.toLowerCase().replace(/\s+/g, ' ');
 }
 
 function normalizeInteger(value: unknown): number | null {
@@ -142,6 +161,18 @@ function parseRequiredPositiveInteger(fieldName: string, value: unknown): number
     throw new Error(`${fieldName} is required and must be a positive integer.`);
   }
   return parsed;
+}
+
+function sanitizeRequiredOrganization(fieldName: string, value: unknown): {
+  readonly name: string;
+  readonly key: string;
+} {
+  const name = normalizeString(value, 160);
+  const key = normalizeOrganizationKey(value);
+  if (!name || !key) {
+    throw new Error(`${fieldName} is required.`);
+  }
+  return { name, key };
 }
 
 function sanitizeIntroMessage(value: unknown): string {
@@ -299,6 +330,14 @@ function sanitizeCreatePayload(input: unknown): ConnectionCreatePayload {
   const matchId = parseRequiredPositiveInteger('match', source.match);
   const buyerProfileId = parseRequiredPositiveInteger('buyer_profile', source.buyer_profile);
   const supplierProfileId = parseRequiredPositiveInteger('supplier_profile', source.supplier_profile);
+  const buyerOrganization = sanitizeRequiredOrganization(
+    'buyer_organization',
+    source.buyer_organization
+  );
+  const supplierOrganization = sanitizeRequiredOrganization(
+    'supplier_organization',
+    source.supplier_organization
+  );
   const introMessage = sanitizeIntroMessage(source.intro_message);
   const locale = parseLocale(source.locale);
   const attachments = sanitizeAttachments(source.attachments);
@@ -313,6 +352,10 @@ function sanitizeCreatePayload(input: unknown): ConnectionCreatePayload {
     matchId,
     buyerProfileId,
     supplierProfileId,
+    buyerOrganization: buyerOrganization.name,
+    buyerOrganizationKey: buyerOrganization.key,
+    supplierOrganization: supplierOrganization.name,
+    supplierOrganizationKey: supplierOrganization.key,
     introMessage,
     locale,
     attachments,
@@ -467,6 +510,8 @@ function toConnectionResponse(entity: Record<string, unknown>) {
       match: normalizeInteger(entity.matchId) ?? null,
       buyer_profile: normalizeInteger(entity.buyerProfileId) ?? null,
       supplier_profile: normalizeInteger(entity.supplierProfileId) ?? null,
+      buyer_organization: normalizeString(entity.buyerOrganization, 160) ?? null,
+      supplier_organization: normalizeString(entity.supplierOrganization, 160) ?? null,
       intro_message: normalizeString(entity.introMessage, 4000) ?? '',
       locale,
       attachments,
@@ -483,18 +528,58 @@ function toConnectionResponse(entity: Record<string, unknown>) {
   };
 }
 
-async function findConnectionForUser(
+async function resolveActorContext(
   strapi: Core.Strapi,
-  userId: number | string,
+  userId: number | string
+): Promise<ActorContext> {
+  const profiles = normalizeFindManyResult(
+    await strapi.entityService.findMany(ACCOUNT_PROFILE_UID, {
+      filters: {
+        user: {
+          id: userId,
+        },
+      },
+      limit: 1,
+    })
+  );
+
+  const profile = (profiles[0] as Record<string, unknown> | undefined) ?? null;
+  const organization = normalizeString(profile?.organization, 160);
+
+  return {
+    userId,
+    organization,
+    organizationKey: normalizeOrganizationKey(organization),
+  };
+}
+
+function buildActorAccessFilters(actor: ActorContext): Record<string, unknown>[] {
+  const filters: Record<string, unknown>[] = [
+    {
+      user: {
+        id: actor.userId,
+      },
+    },
+  ];
+
+  if (actor.organizationKey) {
+    filters.push({ buyerOrganizationKey: actor.organizationKey });
+    filters.push({ supplierOrganizationKey: actor.organizationKey });
+  }
+
+  return filters;
+}
+
+async function findConnectionForActor(
+  strapi: Core.Strapi,
+  actor: ActorContext,
   connectionId: number | string
 ): Promise<Record<string, unknown> | null> {
   const matches = normalizeFindManyResult(
     await strapi.entityService.findMany(CONNECTION_UID, {
       filters: {
         id: connectionId,
-        user: {
-          id: userId,
-        },
+        $or: buildActorAccessFilters(actor),
       },
       limit: 1,
     })
@@ -532,6 +617,10 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         matchId: payload.matchId,
         buyerProfileId: payload.buyerProfileId,
         supplierProfileId: payload.supplierProfileId,
+        buyerOrganization: payload.buyerOrganization,
+        buyerOrganizationKey: payload.buyerOrganizationKey,
+        supplierOrganization: payload.supplierOrganization,
+        supplierOrganizationKey: payload.supplierOrganizationKey,
         introMessage: payload.introMessage,
         locale: payload.locale,
         attachments: payload.attachments,
@@ -574,6 +663,8 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       return (ctx as any).unauthorized();
     }
 
+    const actor = await resolveActorContext(strapi, currentUser.id);
+
     const query =
       ctx.request && typeof ctx.request === 'object'
         ? (((ctx.request as Record<string, unknown>).query as Record<string, unknown>) ?? {})
@@ -581,9 +672,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const parsed = parseHistoryQuery(query);
 
     const filters: Record<string, unknown> = {
-      user: {
-        id: currentUser.id,
-      },
+      $or: buildActorAccessFilters(actor),
     };
 
     if (parsed.status) {
@@ -618,13 +707,14 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
+    const actor = await resolveActorContext(strapi, currentUser.id);
 
     const connectionId = normalizeId((ctx.params as Record<string, unknown> | undefined)?.id);
     if (!connectionId) {
       return (ctx as any).badRequest('id is required.');
     }
 
-    const existing = await findConnectionForUser(strapi, currentUser.id, connectionId);
+    const existing = await findConnectionForActor(strapi, actor, connectionId);
     if (!existing) {
       return (ctx as any).notFound('connection.notFound');
     }
@@ -639,13 +729,14 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
+    const actor = await resolveActorContext(strapi, currentUser.id);
 
     const connectionId = normalizeId((ctx.params as Record<string, unknown> | undefined)?.id);
     if (!connectionId) {
       return (ctx as any).badRequest('id is required.');
     }
 
-    const existing = await findConnectionForUser(strapi, currentUser.id, connectionId);
+    const existing = await findConnectionForActor(strapi, actor, connectionId);
     if (!existing) {
       return (ctx as any).notFound('connection.notFound');
     }

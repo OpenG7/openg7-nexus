@@ -45,6 +45,7 @@ export interface FeedItem {
   readonly tags?: readonly string[];
   readonly originType?: FeedOriginType | null;
   readonly originId?: string | null;
+  readonly connectionMatchId?: number | null;
   readonly source: FeedItemSource;
   readonly status?: 'confirmed' | 'pending' | 'failed';
   readonly optimisticIdempotencyKey?: string;
@@ -91,6 +92,7 @@ export interface FeedComposerDraft {
   readonly tags?: readonly string[];
   readonly originType?: FeedOriginType | null;
   readonly originId?: string | null;
+  readonly connectionMatchId?: number | null;
 }
 
 export interface FeedComposerValidationResult {

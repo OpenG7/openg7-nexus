@@ -1,8 +1,20 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '@app/core/auth/auth.service';
-import { UserAlertRecord, UserAlertsApiService } from '@app/core/services/user-alerts-api.service';
-import { finalize } from 'rxjs';
+import {
+  CreateUserAlertPayload,
+  UserAlertRecord,
+  UserAlertsApiService,
+} from '@app/core/services/user-alerts-api.service';
+import { finalize, firstValueFrom } from 'rxjs';
+
+export const FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE = 'feed-alert-subscription';
+
+export interface CreateUserAlertResult {
+  status: 'created' | 'duplicate' | 'pending' | 'unauthenticated' | 'invalid' | 'error';
+  entry: UserAlertRecord | null;
+  errorKey: string | null;
+}
 
 @Injectable({ providedIn: 'root' })
 /**
@@ -23,6 +35,7 @@ export class UserAlertsService {
   private readonly clearReadPendingSig = signal(false);
   private readonly errorSig = signal<string | null>(null);
   private readonly pendingByIdSig = signal<Record<string, boolean>>({});
+  private readonly pendingBySourceSig = signal<Record<string, boolean>>({});
 
   readonly entries = this.entriesSig.asReadonly();
   readonly loading = this.loadingSig.asReadonly();
@@ -31,9 +44,18 @@ export class UserAlertsService {
   readonly clearReadPending = this.clearReadPendingSig.asReadonly();
   readonly error = this.errorSig.asReadonly();
   readonly pendingById = this.pendingByIdSig.asReadonly();
+  readonly pendingBySource = this.pendingBySourceSig.asReadonly();
 
   readonly hasEntries = computed(() => this.entriesSig().length > 0);
   readonly unreadCount = computed(() => this.entriesSig().filter((entry) => !entry.isRead).length);
+
+  constructor() {
+    effect(() => {
+      if (!this.auth.isAuthenticated()) {
+        this.resetState();
+      }
+    });
+  }
 
   /**
    * Contexte : Appelee a l'ouverture de la page pour synchroniser l'inbox utilisateur.
@@ -42,13 +64,7 @@ export class UserAlertsService {
    */
   refresh(): void {
     if (!this.auth.isAuthenticated()) {
-      this.entriesSig.set([]);
-      this.pendingByIdSig.set({});
-      this.loadingSig.set(false);
-      this.generatingSig.set(false);
-      this.markAllReadPendingSig.set(false);
-      this.clearReadPendingSig.set(false);
-      this.errorSig.set(null);
+      this.resetState();
       return;
     }
 
@@ -69,6 +85,48 @@ export class UserAlertsService {
           this.errorSig.set('pages.alerts.errors.load');
         },
       });
+  }
+
+  /**
+   * Contexte : Utilisee par les CTA du feed pour creer une alerte utilisateur persistante.
+   * Raison d'etre : Persiste l'abonnement ou l'evenement utilisateur et fusionne la reponse dans l'etat local.
+   * @param payload Donnees de l'alerte a creer.
+   * @returns Resultat de creation permettant a l'appelant de distinguer succes, doublon ou erreur.
+   */
+  async create(payload: CreateUserAlertPayload): Promise<CreateUserAlertResult> {
+    if (!this.auth.isAuthenticated()) {
+      return { status: 'unauthenticated', entry: null, errorKey: null };
+    }
+
+    const sanitizedPayload = this.sanitizeCreatePayload(payload);
+    if (!sanitizedPayload) {
+      return { status: 'invalid', entry: null, errorKey: null };
+    }
+
+    const existing = this.findBySource(sanitizedPayload.sourceType ?? null, sanitizedPayload.sourceId ?? null);
+    if (existing) {
+      return { status: 'duplicate', entry: existing, errorKey: null };
+    }
+
+    const sourceKey = this.composeSourceKey(sanitizedPayload.sourceType ?? null, sanitizedPayload.sourceId ?? null);
+    if (sourceKey && this.pendingBySourceSig()[sourceKey]) {
+      return { status: 'pending', entry: null, errorKey: null };
+    }
+
+    this.errorSig.set(null);
+    this.setPendingSource(sourceKey, true);
+
+    try {
+      const created = await firstValueFrom(this.api.createMine(sanitizedPayload));
+      this.entriesSig.update((current) => this.sortEntries(this.upsert(current, created)));
+      return { status: 'created', entry: created, errorKey: null };
+    } catch {
+      const errorKey = 'pages.alerts.errors.create';
+      this.errorSig.set(errorKey);
+      return { status: 'error', entry: null, errorKey };
+    } finally {
+      this.setPendingSource(sourceKey, false);
+    }
   }
 
   /**
@@ -261,6 +319,31 @@ export class UserAlertsService {
       });
   }
 
+  hasSource(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+    return Boolean(this.findBySource(sourceType, sourceId));
+  }
+
+  isSourcePending(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+    const sourceKey = this.composeSourceKey(sourceType, sourceId);
+    return sourceKey ? Boolean(this.pendingBySourceSig()[sourceKey]) : false;
+  }
+
+  findBySource(
+    sourceType: string | null | undefined,
+    sourceId: string | null | undefined
+  ): UserAlertRecord | null {
+    const sourceKey = this.composeSourceKey(sourceType, sourceId);
+    if (!sourceKey) {
+      return null;
+    }
+
+    return (
+      this.entriesSig().find((entry) =>
+        this.composeSourceKey(entry.sourceType, entry.sourceId) === sourceKey
+      ) ?? null
+    );
+  }
+
   private normalizeId(id: string): string | null {
     if (typeof id !== 'string') {
       return null;
@@ -317,5 +400,76 @@ export class UserAlertsService {
       }
       return next;
     });
+  }
+
+  private setPendingSource(sourceKey: string | null, pending: boolean): void {
+    if (!sourceKey) {
+      return;
+    }
+
+    this.pendingBySourceSig.update((current) => {
+      const next = { ...current };
+      if (pending) {
+        next[sourceKey] = true;
+      } else {
+        delete next[sourceKey];
+      }
+      return next;
+    });
+  }
+
+  private composeSourceKey(
+    sourceType: string | null | undefined,
+    sourceId: string | null | undefined
+  ): string | null {
+    const normalizedType = this.normalizeSourceType(sourceType);
+    const normalizedId = this.normalizeSourceId(sourceId);
+    if (!normalizedType || !normalizedId) {
+      return null;
+    }
+    return `${normalizedType}::${normalizedId}`;
+  }
+
+  private normalizeSourceType(sourceType: string | null | undefined): string | null {
+    if (typeof sourceType !== 'string') {
+      return null;
+    }
+    const normalized = sourceType.trim().toLowerCase();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  private normalizeSourceId(sourceId: string | null | undefined): string | null {
+    if (typeof sourceId !== 'string') {
+      return null;
+    }
+    const normalized = sourceId.trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  private sanitizeCreatePayload(payload: CreateUserAlertPayload): CreateUserAlertPayload | null {
+    const title = typeof payload.title === 'string' ? payload.title.trim() : '';
+    const message = typeof payload.message === 'string' ? payload.message.trim() : '';
+    if (!title || !message) {
+      return null;
+    }
+
+    return {
+      ...payload,
+      title: title.slice(0, 140),
+      message: message.slice(0, 1000),
+      sourceType: this.normalizeSourceType(payload.sourceType ?? null),
+      sourceId: this.normalizeSourceId(payload.sourceId ?? null),
+    };
+  }
+
+  private resetState(): void {
+    this.entriesSig.set([]);
+    this.pendingByIdSig.set({});
+    this.pendingBySourceSig.set({});
+    this.loadingSig.set(false);
+    this.generatingSig.set(false);
+    this.markAllReadPendingSig.set(false);
+    this.clearReadPendingSig.set(false);
+    this.errorSig.set(null);
   }
 }

@@ -280,4 +280,91 @@ describe('OpportunityService', () => {
     httpMock.expectNone('https://cms.local/api/opportunity-matches/55');
     expect(result?.id).toBe(55);
   });
+
+  it('searches matches without mutating the reactive collection and falls back to cached items on request failure', async () => {
+    service.hydrateWithDemo([
+      {
+        id: 88,
+        commodity: 'Hydrogen corridor',
+        mode: 'import',
+        confidence: 0.8,
+        buyer: {
+          id: 880,
+          name: 'Hydrogen Buyer',
+          province: 'QC',
+          sector: 'energy',
+          capability: 'import',
+        },
+        seller: {
+          id: 881,
+          name: 'Hydrogen Seller',
+          province: 'ON',
+          sector: 'energy',
+          capability: 'export',
+        },
+      },
+    ]);
+
+    const pending = service.searchMatches({ sector: 'energy', province: 'QC', q: 'hydrogen' });
+    const request = httpMock.expectOne(
+      (req) =>
+        req.url === 'https://cms.local/api/opportunity-matches' &&
+        req.params.get('sector') === 'energy' &&
+        req.params.get('province') === 'QC' &&
+        req.params.get('q') === 'hydrogen'
+    );
+    request.flush('downstream failure', { status: 500, statusText: 'Server Error' });
+
+    const result = await pending;
+
+    expect(result.map((entry) => entry.id)).toEqual([88]);
+    expect(service.items()().map((entry) => entry.id)).toEqual([88]);
+  });
+
+  it('finds one match silently by id and caches it without notifications', async () => {
+    const pending = service.findMatchById(91);
+    const request = httpMock.expectOne(
+      (req) => req.url === 'https://cms.local/api/opportunity-matches/91' && req.params.get('populate') === 'buyer,seller'
+    );
+
+    request.flush({
+      data: {
+        id: 91,
+        attributes: {
+          commodity: 'Green steel',
+          mode: 'export',
+          confidence: 0.74,
+          buyer: {
+            data: {
+              id: 910,
+              attributes: {
+                name: 'Steel Buyer',
+                province: 'QC',
+                sector: 'manufacturing',
+                capability: 'import',
+              },
+            },
+          },
+          seller: {
+            data: {
+              id: 911,
+              attributes: {
+                name: 'Steel Seller',
+                province: 'ON',
+                sector: 'manufacturing',
+                capability: 'export',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const match = await pending;
+
+    expect(match?.id).toBe(91);
+    expect(service.items()().some((item) => item.id === 91)).toBeTrue();
+    expect(notifications.error).not.toHaveBeenCalled();
+    expect(notifications.info).not.toHaveBeenCalledWith('demo-translation', jasmine.anything());
+  });
 });

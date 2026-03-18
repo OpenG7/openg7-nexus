@@ -68,6 +68,11 @@
   cursor: pointer;
 }
 
+.indicator-hero__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 .indicator-hero__action--primary {
   border-color: rgba(251, 191, 36, 0.62);
   background: linear-gradient(90deg, rgba(217, 119, 6, 0.66), rgba(245, 158, 11, 0.55));

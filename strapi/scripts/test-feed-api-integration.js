@@ -321,7 +321,12 @@ async function run() {
     const offerA = await createFeedItem(
       baseUrl,
       jwt,
-      buildFeedPayload(runId, 'ALPHA', { mode: 'EXPORT', fromProvinceId: 'qc', toProvinceId: 'on' }),
+      buildFeedPayload(runId, 'ALPHA', {
+        mode: 'EXPORT',
+        fromProvinceId: 'qc',
+        toProvinceId: 'on',
+        connectionMatchId: 73,
+      }),
       `feed-it-${runId}-alpha`
     );
     const offerB = await createFeedItem(
@@ -341,6 +346,8 @@ async function run() {
     });
     assert.equal(findOne.status, 200, 'Expected /api/feed/:id read to succeed.');
     assert.equal(findOne.body?.data?.id, offerA.id, 'Expected /api/feed/:id payload to match the requested item.');
+    assert.equal(offerA.connectionMatchId, 73, 'Expected feed create response to roundtrip connectionMatchId.');
+    assert.equal(findOne.body?.data?.connectionMatchId, 73, 'Expected /api/feed/:id to include connectionMatchId.');
 
     const missing = await requestJson(`${baseUrl}/api/feed/999999999`, {
       headers: { Authorization: `Bearer ${jwt}` },
