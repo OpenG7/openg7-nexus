@@ -79,7 +79,10 @@
 
     <og7-indicator-alert-drawer
       [open]="drawerOpen()"
+      [mode]="alertDrawerMode()"
       [indicatorTitle]="detail.title"
+      [existingRule]="activeAlertRule()"
+      [initialDraft]="pendingAlertDraft()"
       [submitState]="alertSubmitState()"
       [submitError]="alertSubmitError()"
       [retryEnabled]="alertRetryEnabled()"

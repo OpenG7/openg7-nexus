@@ -1039,8 +1039,10 @@
           "subscribe": "S'abonner",
           "subscribing": "Abonnement...",
           "subscribed": "Abonne",
+          "viewMyAlert": "Voir mon alerte",
           "share": "Partager",
-          "createAlert": "Creer une alerte"
+          "createAlert": "Creer une alerte",
+          "createAnotherAlert": "Creer une autre alerte"
         },
         "connection": {
           "online": "Connecte",
@@ -1092,6 +1094,9 @@
           "viewOpportunities": "Voir les opportunites ->"
         },
         "drawer": {
+          "viewTitle": "Mon alerte",
+          "viewHint": "Cette regle active est deja suivie pour cet indicateur.",
+          "statusLabel": "Statut",
           "thresholdDirection": "Seuil",
           "thresholdValue": "Valeur du seuil",
           "direction": {
@@ -1106,8 +1111,17 @@
           "frequencyHourly": "Resume horaire",
           "frequencyDaily": "Resume quotidien",
           "notifyDelta": "Me notifier si depasse +X%",
+          "notifyDeltaState": {
+            "on": "Oui",
+            "off": "Non"
+          },
           "note": "Commentaire",
+          "createdAt": "Creee le",
           "generatedTitlePrefix": "Alerte indicateur",
+          "ruleState": {
+            "active": "Active",
+            "inactive": "Inactive"
+          },
           "retry": "Reessayer",
           "submitting": "Creation...",
           "status": {

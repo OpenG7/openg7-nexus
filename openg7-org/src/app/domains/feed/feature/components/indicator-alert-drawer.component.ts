@@ -10,8 +10,13 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { IndicatorAlertRuleRecord } from '@app/core/indicator-alert-rules.service';
 
-import { IndicatorAlertDraft, IndicatorAlertSubmitState } from './indicator-detail.models';
+import {
+  IndicatorAlertDraft,
+  IndicatorAlertDrawerMode,
+  IndicatorAlertSubmitState,
+} from './indicator-detail.models';
 
 interface IndicatorAlertFormModel {
   readonly thresholdDirection: FormControl<'gt' | 'lt'>;
@@ -32,7 +37,10 @@ interface IndicatorAlertFormModel {
 })
 export class IndicatorAlertDrawerComponent {
   readonly open = input(false);
+  readonly mode = input<IndicatorAlertDrawerMode>('compose');
   readonly indicatorTitle = input<string>('');
+  readonly existingRule = input<IndicatorAlertRuleRecord | null>(null);
+  readonly initialDraft = input<IndicatorAlertDraft | null>(null);
   readonly submitState = input<IndicatorAlertSubmitState>('idle');
   readonly submitError = input<string | null>(null);
   readonly retryEnabled = input(false);
@@ -42,6 +50,9 @@ export class IndicatorAlertDrawerComponent {
   readonly retryRequested = output<void>();
 
   protected readonly submitting = computed(() => this.submitState() === 'submitting');
+  protected readonly viewingRule = computed(
+    () => this.mode() === 'view' && Boolean(this.existingRule())
+  );
   protected readonly showRetry = computed(() => {
     const state = this.submitState();
     return this.retryEnabled() && (state === 'error' || state === 'offline');
@@ -72,16 +83,17 @@ export class IndicatorAlertDrawerComponent {
     });
 
     effect(() => {
-      if (!this.open()) {
+      if (!this.open() || this.mode() !== 'compose') {
         return;
       }
+      const draft = this.initialDraft();
       this.form.reset({
-        thresholdDirection: 'gt',
-        thresholdValue: 12,
-        window: '1h',
-        frequency: 'instant',
-        notifyDelta: true,
-        note: '',
+        thresholdDirection: draft?.thresholdDirection ?? 'gt',
+        thresholdValue: draft?.thresholdValue ?? 12,
+        window: draft?.window ?? '1h',
+        frequency: draft?.frequency ?? 'instant',
+        notifyDelta: draft?.notifyDelta ?? true,
+        note: draft?.note ?? '',
       });
       this.form.markAsPristine();
       this.form.markAsUntouched();

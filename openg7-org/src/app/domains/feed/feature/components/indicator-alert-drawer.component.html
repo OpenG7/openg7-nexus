@@ -3,114 +3,206 @@
 
   <section class="indicator-alert-drawer__panel" role="dialog" [attr.aria-modal]="true">
     <header>
-      <h2>{{ 'feed.indicator.detail.actions.createAlert' | translate }}</h2>
+      <h2>
+        {{
+          viewingRule()
+            ? ('feed.indicator.detail.drawer.viewTitle' | translate)
+            : ('feed.indicator.detail.actions.createAlert' | translate)
+        }}
+      </h2>
       <small *ngIf="indicatorTitle()">{{ indicatorTitle() }}</small>
       <button type="button" [attr.aria-label]="'feed.drawer.close' | translate" (click)="closed.emit()">x</button>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <label>
-        <span>{{ 'feed.indicator.detail.drawer.thresholdDirection' | translate }}</span>
-        <select
-          formControlName="thresholdDirection"
-          data-og7="indicator-alert-field"
-          data-og7-id="threshold-direction"
+    <ng-container *ngIf="viewingRule() && existingRule() as rule; else composeForm">
+      <p class="indicator-alert-drawer__hint">{{ 'feed.indicator.detail.drawer.viewHint' | translate }}</p>
+
+      <article class="indicator-alert-drawer__rule-card" data-og7="indicator-alert-view">
+        <span
+          class="indicator-alert-drawer__rule-status"
+          data-og7="indicator-alert-rule-status"
+          [attr.data-og7-id]="rule.active ? 'active' : 'inactive'"
         >
-          <option value="gt">{{ 'feed.indicator.detail.drawer.direction.gt' | translate }}</option>
-          <option value="lt">{{ 'feed.indicator.detail.drawer.direction.lt' | translate }}</option>
-        </select>
-      </label>
+          {{
+            ('feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')) | translate
+          }}
+        </span>
 
-      <label>
-        <span>{{ 'feed.indicator.detail.drawer.thresholdValue' | translate }}</span>
-        <div class="indicator-alert-drawer__field-row">
-          <input
-            type="number"
-            min="0"
-            max="500"
-            formControlName="thresholdValue"
-            data-og7="indicator-alert-field"
-            data-og7-id="threshold-value"
-          />
-          <small>%</small>
-        </div>
-      </label>
-
-      <div class="indicator-alert-drawer__grid">
-        <label>
-          <span>{{ 'feed.indicator.detail.drawer.window' | translate }}</span>
-          <select formControlName="window" data-og7="indicator-alert-field" data-og7-id="window">
-            <option value="1h">{{ 'feed.indicator.detail.drawer.window1h' | translate }}</option>
-            <option value="24h">{{ 'feed.indicator.detail.drawer.window24h' | translate }}</option>
-          </select>
-        </label>
-
-        <label>
-          <span>{{ 'feed.indicator.detail.drawer.frequency' | translate }}</span>
-          <select formControlName="frequency" data-og7="indicator-alert-field" data-og7-id="frequency">
-            <option value="instant">{{ 'feed.indicator.detail.drawer.frequencyInstant' | translate }}</option>
-            <option value="hourly">{{ 'feed.indicator.detail.drawer.frequencyHourly' | translate }}</option>
-            <option value="daily">{{ 'feed.indicator.detail.drawer.frequencyDaily' | translate }}</option>
-          </select>
-        </label>
-      </div>
-
-      <label class="indicator-alert-drawer__toggle">
-        <input
-          type="checkbox"
-          formControlName="notifyDelta"
-          data-og7="indicator-alert-field"
-          data-og7-id="notify-delta"
-        />
-        <span>{{ 'feed.indicator.detail.drawer.notifyDelta' | translate }}</span>
-      </label>
-
-      <label>
-        <span>{{ 'feed.indicator.detail.drawer.note' | translate }}</span>
-        <textarea rows="4" formControlName="note" data-og7="indicator-alert-field" data-og7-id="note"></textarea>
-      </label>
-
-      <p
-        class="indicator-alert-drawer__status indicator-alert-drawer__status--success"
-        *ngIf="submitState() === 'success'"
-        data-og7="indicator-alert-status"
-        data-og7-id="success"
-      >
-        {{ 'feed.indicator.detail.drawer.status.success' | translate }}
-      </p>
-      <p
-        class="indicator-alert-drawer__status indicator-alert-drawer__status--offline"
-        *ngIf="submitState() === 'offline'"
-        data-og7="indicator-alert-status"
-        data-og7-id="offline"
-      >
-        {{ 'feed.indicator.detail.drawer.status.offline' | translate }}
-      </p>
-      <p
-        class="indicator-alert-drawer__status indicator-alert-drawer__status--error"
-        *ngIf="submitState() === 'error'"
-        data-og7="indicator-alert-status"
-        data-og7-id="error"
-      >
-        {{ submitError() || ('feed.indicator.detail.drawer.status.errorGeneric' | translate) }}
-      </p>
+        <dl class="indicator-alert-drawer__rule-grid">
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.statusLabel' | translate }}</dt>
+            <dd>
+              {{
+                ('feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')) | translate
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.thresholdDirection' | translate }}</dt>
+            <dd>
+              {{ ('feed.indicator.detail.drawer.direction.' + rule.thresholdDirection) | translate }}
+              {{ rule.thresholdValue }}%
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.window' | translate }}</dt>
+            <dd>
+              {{
+                rule.window === '1h'
+                  ? ('feed.indicator.detail.drawer.window1h' | translate)
+                  : ('feed.indicator.detail.drawer.window24h' | translate)
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.frequency' | translate }}</dt>
+            <dd>
+              {{
+                rule.frequency === 'instant'
+                  ? ('feed.indicator.detail.drawer.frequencyInstant' | translate)
+                  : rule.frequency === 'hourly'
+                    ? ('feed.indicator.detail.drawer.frequencyHourly' | translate)
+                    : ('feed.indicator.detail.drawer.frequencyDaily' | translate)
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.notifyDelta' | translate }}</dt>
+            <dd>
+              {{
+                ('feed.indicator.detail.drawer.notifyDeltaState.' + (rule.notifyDelta ? 'on' : 'off')) | translate
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'feed.indicator.detail.drawer.createdAt' | translate }}</dt>
+            <dd>{{ rule.createdAt | date:'medium' }}</dd>
+          </div>
+          <div *ngIf="rule.note">
+            <dt>{{ 'feed.indicator.detail.drawer.note' | translate }}</dt>
+            <dd>{{ rule.note }}</dd>
+          </div>
+        </dl>
+      </article>
 
       <div class="indicator-alert-drawer__actions">
         <button
-          *ngIf="showRetry()"
           type="button"
-          class="indicator-alert-drawer__retry"
-          [disabled]="submitting()"
-          (click)="retryRequested.emit()"
+          class="indicator-alert-drawer__secondary"
           data-og7="action"
-          data-og7-id="indicator-alert-retry"
+          data-og7-id="indicator-alert-view-close"
+          (click)="closed.emit()"
         >
-          {{ 'feed.indicator.detail.drawer.retry' | translate }}
-        </button>
-        <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="indicator-alert-submit">
-          {{ submitting() ? ('feed.indicator.detail.drawer.submitting' | translate) : ('feed.indicator.detail.drawer.submit' | translate) }}
+          {{ 'feed.drawer.close' | translate }}
         </button>
       </div>
-    </form>
+    </ng-container>
+
+    <ng-template #composeForm>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <label>
+          <span>{{ 'feed.indicator.detail.drawer.thresholdDirection' | translate }}</span>
+          <select
+            formControlName="thresholdDirection"
+            data-og7="indicator-alert-field"
+            data-og7-id="threshold-direction"
+          >
+            <option value="gt">{{ 'feed.indicator.detail.drawer.direction.gt' | translate }}</option>
+            <option value="lt">{{ 'feed.indicator.detail.drawer.direction.lt' | translate }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>{{ 'feed.indicator.detail.drawer.thresholdValue' | translate }}</span>
+          <div class="indicator-alert-drawer__field-row">
+            <input
+              type="number"
+              min="0"
+              max="500"
+              formControlName="thresholdValue"
+              data-og7="indicator-alert-field"
+              data-og7-id="threshold-value"
+            />
+            <small>%</small>
+          </div>
+        </label>
+
+        <div class="indicator-alert-drawer__grid">
+          <label>
+            <span>{{ 'feed.indicator.detail.drawer.window' | translate }}</span>
+            <select formControlName="window" data-og7="indicator-alert-field" data-og7-id="window">
+              <option value="1h">{{ 'feed.indicator.detail.drawer.window1h' | translate }}</option>
+              <option value="24h">{{ 'feed.indicator.detail.drawer.window24h' | translate }}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>{{ 'feed.indicator.detail.drawer.frequency' | translate }}</span>
+            <select formControlName="frequency" data-og7="indicator-alert-field" data-og7-id="frequency">
+              <option value="instant">{{ 'feed.indicator.detail.drawer.frequencyInstant' | translate }}</option>
+              <option value="hourly">{{ 'feed.indicator.detail.drawer.frequencyHourly' | translate }}</option>
+              <option value="daily">{{ 'feed.indicator.detail.drawer.frequencyDaily' | translate }}</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="indicator-alert-drawer__toggle">
+          <input
+            type="checkbox"
+            formControlName="notifyDelta"
+            data-og7="indicator-alert-field"
+            data-og7-id="notify-delta"
+          />
+          <span>{{ 'feed.indicator.detail.drawer.notifyDelta' | translate }}</span>
+        </label>
+
+        <label>
+          <span>{{ 'feed.indicator.detail.drawer.note' | translate }}</span>
+          <textarea rows="4" formControlName="note" data-og7="indicator-alert-field" data-og7-id="note"></textarea>
+        </label>
+
+        <p
+          class="indicator-alert-drawer__status indicator-alert-drawer__status--success"
+          *ngIf="submitState() === 'success'"
+          data-og7="indicator-alert-status"
+          data-og7-id="success"
+        >
+          {{ 'feed.indicator.detail.drawer.status.success' | translate }}
+        </p>
+        <p
+          class="indicator-alert-drawer__status indicator-alert-drawer__status--offline"
+          *ngIf="submitState() === 'offline'"
+          data-og7="indicator-alert-status"
+          data-og7-id="offline"
+        >
+          {{ 'feed.indicator.detail.drawer.status.offline' | translate }}
+        </p>
+        <p
+          class="indicator-alert-drawer__status indicator-alert-drawer__status--error"
+          *ngIf="submitState() === 'error'"
+          data-og7="indicator-alert-status"
+          data-og7-id="error"
+        >
+          {{ submitError() || ('feed.indicator.detail.drawer.status.errorGeneric' | translate) }}
+        </p>
+
+        <div class="indicator-alert-drawer__actions">
+          <button
+            *ngIf="showRetry()"
+            type="button"
+            class="indicator-alert-drawer__retry"
+            [disabled]="submitting()"
+            (click)="retryRequested.emit()"
+            data-og7="action"
+            data-og7-id="indicator-alert-retry"
+          >
+            {{ 'feed.indicator.detail.drawer.retry' | translate }}
+          </button>
+          <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="indicator-alert-submit">
+            {{ submitting() ? ('feed.indicator.detail.drawer.submitting' | translate) : ('feed.indicator.detail.drawer.submit' | translate) }}
+          </button>
+        </div>
+      </form>
+    </ng-template>
   </section>
 </div>

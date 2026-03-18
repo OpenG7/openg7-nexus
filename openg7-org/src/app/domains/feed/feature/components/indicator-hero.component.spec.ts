@@ -25,8 +25,10 @@ describe('IndicatorHeroComponent', () => {
                 subscribe: 'Subscribe',
                 subscribing: 'Subscribing...',
                 subscribed: 'Subscribed',
+                viewMyAlert: 'View my alert',
                 share: 'Share',
                 createAlert: 'Create alert',
+                createAnotherAlert: 'Create another alert',
               },
               connection: {
                 online: 'Connected',
@@ -64,7 +66,7 @@ describe('IndicatorHeroComponent', () => {
     expect(subscribeSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('renders subscribed label when subscribed input is true', () => {
+  it('renders view and create-another labels when an active alert already exists', () => {
     const fixture = TestBed.createComponent(IndicatorHeroComponent);
 
     setRequiredInputs(fixture, { subscribed: false });
@@ -72,11 +74,17 @@ describe('IndicatorHeroComponent', () => {
 
     const subscribeButton: HTMLButtonElement | null =
       fixture.nativeElement.querySelector('[data-og7-id="indicator-subscribe"]');
+    const createAlertButton: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('[data-og7-id="indicator-create-alert"]');
     expect(subscribeButton?.textContent).toContain('Subscribe');
+    expect(createAlertButton?.textContent).toContain('Create alert');
 
     setRequiredInputs(fixture, { subscribed: true });
     fixture.detectChanges();
-    expect(subscribeButton?.textContent).toContain('Subscribed');
+    expect(subscribeButton?.textContent).toContain('View my alert');
+    expect(createAlertButton?.textContent).toContain('Create another alert');
+    expect(createAlertButton?.dataset['og7State']).toBe('active');
+    expect(createAlertButton?.classList.contains('indicator-hero__action--active')).toBeTrue();
   });
 
   it('renders pending label and disables subscribe action while pending', () => {

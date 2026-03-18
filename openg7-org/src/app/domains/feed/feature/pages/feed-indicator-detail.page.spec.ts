@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { FeedItem } from '../models/feed.models';
+import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
 import { FeedIndicatorDetailPage } from './feed-indicator-detail.page';
@@ -91,11 +92,51 @@ class IndicatorAlertRulesServiceMock {
     this.entries.update((current) => [record, ...current]);
     return record;
   });
+  readonly findActiveRuleForIndicator = jasmine
+    .createSpy('findActiveRuleForIndicator')
+    .and.callFake((indicatorId: string) =>
+      this.entries().find((entry) => entry.active && entry.indicatorId === indicatorId) ?? null
+    );
   readonly hasActiveRuleForIndicator = jasmine
     .createSpy('hasActiveRuleForIndicator')
     .and.callFake((indicatorId: string) =>
       this.entries().some((entry) => entry.active && entry.indicatorId === indicatorId)
     );
+}
+
+class IndicatorAlertDraftsServiceMock {
+  private readonly draftsSig = signal<Record<string, ReturnType<typeof createAlertDraft>>>({});
+
+  readonly draftForIndicator = jasmine
+    .createSpy('draftForIndicator')
+    .and.callFake((indicatorId: string) => this.draftsSig()[indicatorId] ?? null);
+  readonly save = jasmine
+    .createSpy('save')
+    .and.callFake((indicatorId: string, draft: ReturnType<typeof createAlertDraft>) => {
+      this.draftsSig.update((current) => ({
+        ...current,
+        [indicatorId]: draft,
+      }));
+    });
+  readonly clear = jasmine.createSpy('clear').and.callFake((indicatorId: string) => {
+    this.draftsSig.update((current) => {
+      const next = { ...current };
+      delete next[indicatorId];
+      return next;
+    });
+  });
+
+  setDraft(indicatorId: string, draft: ReturnType<typeof createAlertDraft> | null): void {
+    this.draftsSig.update((current) => {
+      const next = { ...current };
+      if (draft) {
+        next[indicatorId] = draft;
+      } else {
+        delete next[indicatorId];
+      }
+      return next;
+    });
+  }
 }
 
 function createIndicatorItem(id: string): FeedItem {
@@ -124,6 +165,7 @@ describe('FeedIndicatorDetailPage', () => {
   let feed: FeedRealtimeServiceMock;
   let store: StoreMock;
   let indicatorAlertRules: IndicatorAlertRulesServiceMock;
+  let indicatorAlertDrafts: IndicatorAlertDraftsServiceMock;
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
@@ -132,6 +174,7 @@ describe('FeedIndicatorDetailPage', () => {
     feed = new FeedRealtimeServiceMock();
     store = new StoreMock();
     indicatorAlertRules = new IndicatorAlertRulesServiceMock();
+    indicatorAlertDrafts = new IndicatorAlertDraftsServiceMock();
     authState = signal(true);
     router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
     router.navigate.and.resolveTo(true);
@@ -157,6 +200,7 @@ describe('FeedIndicatorDetailPage', () => {
         { provide: FeedRealtimeService, useValue: feed },
         { provide: Store, useValue: store },
         { provide: IndicatorAlertRulesService, useValue: indicatorAlertRules },
+        { provide: IndicatorAlertDraftsService, useValue: indicatorAlertDrafts },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         {
@@ -275,6 +319,45 @@ describe('FeedIndicatorDetailPage', () => {
     expect(component.subscribed()).toBeFalse();
   });
 
+  it('opens the existing active alert rule in view mode when subscribe is triggered for a subscribed indicator', async () => {
+    indicatorAlertRules.entries.set([
+      {
+        id: 'indicator-rule-1',
+        indicatorId: 'indicator-spot-ontario',
+        indicatorTitle: 'Spot electricity price up 12 percent',
+        thresholdDirection: 'gt',
+        thresholdValue: 25,
+        window: '24h',
+        frequency: 'hourly',
+        notifyDelta: true,
+        note: 'Watch evening peak',
+        route: '/feed/indicators/indicator-spot-ontario',
+        active: true,
+        createdAt: '2026-01-21T09:05:00.000Z',
+        updatedAt: '2026-01-21T09:05:00.000Z',
+      },
+    ]);
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      drawerOpen: () => boolean;
+      alertDrawerMode: () => 'compose' | 'view';
+      subscribe: () => void;
+      activeAlertRule: () => IndicatorAlertRuleRecord | null;
+    };
+
+    component.subscribe();
+    fixture.detectChanges();
+
+    expect(component.drawerOpen()).toBeTrue();
+    expect(component.alertDrawerMode()).toBe('view');
+    expect(component.activeAlertRule()?.id).toBe('indicator-rule-1');
+  });
+
   it('opens indicator alert drawer when create alert action is triggered', async () => {
     const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
     fixture.detectChanges();
@@ -290,6 +373,43 @@ describe('FeedIndicatorDetailPage', () => {
     component.openAlertDrawer();
     fixture.detectChanges();
     expect(component.drawerOpen()).toBeTrue();
+  });
+
+  it('keeps create alert in compose mode even when an active rule already exists', async () => {
+    indicatorAlertRules.entries.set([
+      {
+        id: 'indicator-rule-1',
+        indicatorId: 'indicator-spot-ontario',
+        indicatorTitle: 'Spot electricity price up 12 percent',
+        thresholdDirection: 'gt',
+        thresholdValue: 25,
+        window: '24h',
+        frequency: 'hourly',
+        notifyDelta: true,
+        note: 'Watch evening peak',
+        route: '/feed/indicators/indicator-spot-ontario',
+        active: true,
+        createdAt: '2026-01-21T09:05:00.000Z',
+        updatedAt: '2026-01-21T09:05:00.000Z',
+      },
+    ]);
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      drawerOpen: () => boolean;
+      alertDrawerMode: () => 'compose' | 'view';
+      openAlertDrawer: () => void;
+    };
+
+    component.openAlertDrawer();
+    fixture.detectChanges();
+
+    expect(component.drawerOpen()).toBeTrue();
+    expect(component.alertDrawerMode()).toBe('compose');
   });
 
   it('redirects anonymous users to login instead of opening the alert drawer when subscribe is triggered', async () => {
@@ -342,7 +462,7 @@ describe('FeedIndicatorDetailPage', () => {
     };
 
     expect(component.subscribed()).toBeTrue();
-    expect(indicatorAlertRules.hasActiveRuleForIndicator).toHaveBeenCalledWith('indicator-spot-ontario');
+    expect(indicatorAlertRules.findActiveRuleForIndicator).toHaveBeenCalledWith('indicator-spot-ontario');
   });
 
   it('creates a mapped indicator alert rule and updates subscribed state on successful submit', async () => {
@@ -385,6 +505,7 @@ describe('FeedIndicatorDetailPage', () => {
     expect(createdPayload.route).toBe('/feed/indicators/indicator-spot-ontario');
     expect(component.alertSubmitState()).toBe('success');
     expect(component.subscribed()).toBeTrue();
+    expect(indicatorAlertDrafts.clear).toHaveBeenCalledWith('indicator-spot-ontario');
   });
 
   it('routes keyboard shortcut through the subscribe flow', async () => {
@@ -426,6 +547,7 @@ describe('FeedIndicatorDetailPage', () => {
     await fixture.whenStable();
 
     expect(indicatorAlertRules.create).not.toHaveBeenCalled();
+    expect(indicatorAlertDrafts.save).toHaveBeenCalledWith('indicator-spot-ontario', createAlertDraft());
     expect(component.alertSubmitState()).toBe('offline');
     expect(component.alertRetryEnabled()).toBeFalse();
 
@@ -436,7 +558,37 @@ describe('FeedIndicatorDetailPage', () => {
     component.onAlertDraftRetryRequested();
     await fixture.whenStable();
     expect(indicatorAlertRules.create).toHaveBeenCalledTimes(1);
+    expect(indicatorAlertDrafts.clear).toHaveBeenCalledWith('indicator-spot-ontario');
     expect(component.alertSubmitState()).toBe('success');
+  });
+
+  it('restores a saved offline draft when reopening the alert drawer', async () => {
+    indicatorAlertDrafts.setDraft('indicator-spot-ontario', createAlertDraft());
+
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      openAlertDrawer: () => void;
+      closeAlertDrawer: () => void;
+      alertSubmitState: () => 'idle' | 'submitting' | 'success' | 'error' | 'offline';
+      alertRetryEnabled: () => boolean;
+      pendingAlertDraft: () => ReturnType<typeof createAlertDraft> | null;
+    };
+
+    component.openAlertDrawer();
+    expect(component.alertSubmitState()).toBe('offline');
+    expect(component.pendingAlertDraft()).toEqual(createAlertDraft());
+
+    feed.setConnected(true);
+    fixture.detectChanges();
+    expect(component.alertRetryEnabled()).toBeTrue();
+
+    component.closeAlertDrawer();
+    component.openAlertDrawer();
+    expect(component.pendingAlertDraft()).toEqual(createAlertDraft());
   });
 
   it('navigates to alert detail when opening a related alert entry', async () => {

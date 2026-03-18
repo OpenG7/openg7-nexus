@@ -1150,8 +1150,10 @@
           "subscribe": "Subscribe",
           "subscribing": "Subscribing...",
           "subscribed": "Subscribed",
+          "viewMyAlert": "View my alert",
           "share": "Share",
-          "createAlert": "Create alert"
+          "createAlert": "Create alert",
+          "createAnotherAlert": "Create another alert"
         },
         "connection": {
           "online": "Connected",
@@ -1203,6 +1205,9 @@
           "viewOpportunities": "View opportunities ->"
         },
         "drawer": {
+          "viewTitle": "My alert",
+          "viewHint": "This active rule is already tracking this indicator.",
+          "statusLabel": "Status",
           "thresholdDirection": "Threshold",
           "thresholdValue": "Threshold value",
           "direction": {
@@ -1217,8 +1222,17 @@
           "frequencyHourly": "Hourly digest",
           "frequencyDaily": "Daily digest",
           "notifyDelta": "Notify me when delta exceeds +X%",
+          "notifyDeltaState": {
+            "on": "Yes",
+            "off": "No"
+          },
           "note": "Comment",
+          "createdAt": "Created on",
           "generatedTitlePrefix": "Indicator alert",
+          "ruleState": {
+            "active": "Active",
+            "inactive": "Inactive"
+          },
           "retry": "Retry",
           "submitting": "Creating...",
           "status": {
