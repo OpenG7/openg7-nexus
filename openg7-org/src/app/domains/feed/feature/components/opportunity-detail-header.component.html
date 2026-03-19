@@ -36,8 +36,9 @@
         (click)="makeOffer.emit()"
         data-og7="action"
         data-og7-id="opportunity-make-offer"
+        [attr.data-og7-state]="hasExistingOffer() ? 'existing' : null"
       >
-        {{ 'feed.opportunity.detail.cta.makeOffer' | translate }}
+        {{ makeOfferLabelKey() | translate }}
       </button>
 
       <button

@@ -259,6 +259,16 @@ describe('FeedPage', () => {
     expect(feed.loadInitial).toHaveBeenCalledTimes(1);
   });
 
+  it('does not trigger a second initial load while a previous one is already in flight', () => {
+    feed.hasHydrated.and.returnValue(false);
+    feed.loading.set(true);
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    expect(feed.loadInitial).not.toHaveBeenCalled();
+  });
+
   it('exposes feed items stream for tile rendering', () => {
     const fixture = TestBed.createComponent(FeedPage);
     const component = fixture.componentInstance;

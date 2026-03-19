@@ -1,3 +1,4 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   STRAPI_ROUTES,
@@ -7,6 +8,7 @@ import {
   strapiAlertReadAll,
   strapiGenerateAlerts,
 } from '@app/core/api/strapi.routes';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
 import { Observable } from 'rxjs';
 
@@ -66,7 +68,9 @@ export class UserAlertsApiService {
    * @returns Observable avec la collection des alertes.
    */
   listMine(): Observable<UserAlertRecord[]> {
-    return this.http.get<UserAlertRecord[]>(STRAPI_ROUTES.users.meAlerts);
+    return this.http.get<UserAlertRecord[]>(STRAPI_ROUTES.users.meAlerts, {
+      context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+    });
   }
 
   /**

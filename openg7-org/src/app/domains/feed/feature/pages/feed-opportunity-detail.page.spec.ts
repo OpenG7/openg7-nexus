@@ -814,6 +814,28 @@ describe('FeedOpportunityDetailPage', () => {
     expect(feed.findItemById).toHaveBeenCalledWith('opportunity-fallback');
     expect(component.detailVm()?.item.id).toBe('opportunity-fallback');
   });
+
+  it('ignores non-opportunity detail payloads returned for the route id', async () => {
+    const wrongTypeItem = createOpportunityItem('opportunity-wrong-type', {
+      type: 'ALERT',
+      title: 'Unexpected alert payload',
+    });
+    feed.items.set([]);
+    feed.findItemById.and.resolveTo(wrongTypeItem);
+    routeParamMap$.next(convertToParamMap({ itemId: 'opportunity-wrong-type' }));
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      detailVm: () => { item: FeedItem } | null;
+    };
+
+    expect(feed.findItemById).toHaveBeenCalledWith('opportunity-wrong-type');
+    expect(component.detailVm()).toBeNull();
+  });
 });
 
 function createOfferPayload() {

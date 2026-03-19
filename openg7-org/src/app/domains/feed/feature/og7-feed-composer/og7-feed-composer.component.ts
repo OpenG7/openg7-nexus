@@ -21,6 +21,7 @@ import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
+  buildFeedDraftPrefillClearQueryParams,
   buildFeedDraftPrefillKey,
   readFeedDraftPrefillQuery,
 } from '../feed-draft-prefill.helpers';
@@ -72,6 +73,33 @@ export class Og7FeedComposerComponent {
   protected readonly submitError = signal<string | null>(null);
   protected readonly errors = signal<readonly string[]>([]);
   protected readonly warnings = signal<readonly string[]>([]);
+  protected readonly draftNotice = computed(() => {
+    const query = this.queryParamMap();
+    if (!buildFeedDraftPrefillKey(query)) {
+      return null;
+    }
+
+    const prefill = readFeedDraftPrefillQuery(query);
+    const explicitOriginType = this.normalizeDraftOriginType(prefill.draftOriginType);
+    const legacyOriginType =
+      this.normalizeQueryText(prefill.draftSource) === 'alert' &&
+      this.normalizeQueryText(prefill.draftAlertId)
+        ? 'alert'
+        : null;
+    const originType = explicitOriginType ?? legacyOriginType;
+
+    return {
+      contextKey:
+        originType === 'alert'
+          ? 'feed.composer.draft.fromAlert'
+          : originType === 'indicator'
+            ? 'feed.composer.draft.fromIndicator'
+            : originType === 'opportunity'
+              ? 'feed.composer.draft.fromOpportunity'
+              : 'feed.composer.draft.fromContext',
+      prefilledTitle: this.normalizeQueryText(prefill.draftTitle),
+    };
+  });
 
   protected readonly provinces = this.store.selectSignal(selectProvinces);
   protected readonly sectors = this.store.selectSignal(selectSectors);
@@ -192,6 +220,18 @@ export class Og7FeedComposerComponent {
     this.originType.set(null);
     this.originId.set(null);
     this.connectionMatchId.set(null);
+
+    if (!buildFeedDraftPrefillKey(this.queryParamMap())) {
+      return;
+    }
+
+    this.appliedPrefillKey.set(null);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: buildFeedDraftPrefillClearQueryParams(),
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   focusPrimaryField(): void {

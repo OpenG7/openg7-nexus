@@ -642,7 +642,8 @@
       "description": "Ouvrez le panneau de publication sans quitter le fil.",
       "cta": "Publier un echange",
       "shortcut": "Raccourci",
-      "prefill": "Les filtres actifs servent de point de depart."
+      "prefill": "Les filtres actifs servent de point de depart.",
+      "draftReady": "Un brouillon pre-rempli est ouvert."
     },
     "composer": {
       "title": "Publier un echange",
@@ -669,6 +670,16 @@
         "title": "Connectez-vous pour publier",
         "description": "Vous pouvez parcourir le fil anonymement, mais publier une offre ou une demande exige un compte authentifie.",
         "cta": "Connexion pour publier"
+      },
+      "draft": {
+        "badge": "Brouillon",
+        "fromAlert": "Cette publication est pre-remplie a partir d'une alerte du fil.",
+        "fromIndicator": "Cette publication est pre-remplie a partir d'un indicateur du fil.",
+        "fromOpportunity": "Cette publication est pre-remplie a partir d'une opportunite du fil.",
+        "fromContext": "Cette publication est pre-remplie a partir du contexte courant.",
+        "description": "Non publie. Ajoutez ou modifiez des informations avant publication.",
+        "prefilledTitle": "Titre propose : {{ title }}",
+        "clear": "Effacer le brouillon"
       },
       "submit": "Publier",
       "submitting": "Publication...",
@@ -3237,7 +3248,9 @@
   },
   "errors": {
     "generic": "Une erreur inattendue est survenue",
-    "404": "Ressource introuvable"
+    "404": "Ressource introuvable",
+    "404WithResource": "Ressource introuvable pour {{ resource }}.",
+    "statusTitle": "Erreur HTTP {{ status }}"
   },
   "metrics": {
     "tradeValue": "Valeur des échanges",

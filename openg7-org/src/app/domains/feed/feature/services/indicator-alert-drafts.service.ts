@@ -1,6 +1,6 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, effect, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { AuthService } from '@app/core/auth/auth.service';
+import { createUserScopedPersistentState } from '@app/core/storage/user-scoped-persistent-state';
 
 import { IndicatorAlertDraft } from '../components/indicator-detail.models';
 
@@ -11,28 +11,16 @@ type DraftMap = Readonly<Record<string, IndicatorAlertDraft>>;
 @Injectable({ providedIn: 'root' })
 export class IndicatorAlertDraftsService {
   private readonly auth = inject(AuthService);
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly browser = isPlatformBrowser(this.platformId);
-  private readonly draftsSig = signal<DraftMap>({});
-
-  constructor() {
-    effect(() => {
-      const userId = this.currentUserId();
-      if (!userId) {
-        this.draftsSig.set({});
-        return;
-      }
-      this.draftsSig.set(this.restore(userId));
-    });
-  }
+  private readonly state = createUserScopedPersistentState<DraftMap>({
+    auth: this.auth,
+    platformId: inject(PLATFORM_ID),
+    storageKeyPrefix: STORAGE_KEY_PREFIX,
+    createEmptyValue: () => ({}),
+    deserialize: (value) => this.deserializeDraftMap(value),
+  });
 
   refresh(): void {
-    const userId = this.currentUserId();
-    if (!userId) {
-      this.draftsSig.set({});
-      return;
-    }
-    this.draftsSig.set(this.restore(userId));
+    this.state.refresh();
   }
 
   draftForIndicator(indicatorId: string | null | undefined): IndicatorAlertDraft | null {
@@ -40,11 +28,10 @@ export class IndicatorAlertDraftsService {
     if (!normalizedIndicatorId) {
       return null;
     }
-    return this.draftsSig()[normalizedIndicatorId] ?? null;
+    return this.state.value()[normalizedIndicatorId] ?? null;
   }
 
   save(indicatorId: string, draft: IndicatorAlertDraft): void {
-    const userId = this.currentUserIdOrThrow();
     const normalizedIndicatorId = this.normalizeId(indicatorId);
     if (!normalizedIndicatorId) {
       return;
@@ -52,100 +39,48 @@ export class IndicatorAlertDraftsService {
 
     const nextDraft = this.normalizeDraft(draft);
     const next: DraftMap = {
-      ...this.draftsSig(),
+      ...this.state.value(),
       [normalizedIndicatorId]: nextDraft,
     };
 
-    this.draftsSig.set(next);
-    this.persist(userId, next);
+    this.state.setForCurrentUser(next, 'Indicator alert drafts require an authenticated session.');
   }
 
   clear(indicatorId: string): void {
-    const userId = this.currentUserIdOrThrow();
     const normalizedIndicatorId = this.normalizeId(indicatorId);
     if (!normalizedIndicatorId) {
       return;
     }
 
-    const current = this.draftsSig();
+    const current = this.state.value();
     if (!(normalizedIndicatorId in current)) {
       return;
     }
 
     const next = { ...current };
     delete next[normalizedIndicatorId];
-    this.draftsSig.set(next);
-    this.persist(userId, next);
+    this.state.setForCurrentUser(next, 'Indicator alert drafts require an authenticated session.');
   }
 
-  private currentUserId(): string | null {
-    if (!this.browser || !this.auth.isAuthenticated()) {
+  private deserializeDraftMap(value: unknown): DraftMap | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
-    return this.normalizeId(this.auth.user()?.id ?? null);
-  }
 
-  private currentUserIdOrThrow(): string {
-    const userId = this.currentUserId();
-    if (userId) {
-      return userId;
-    }
-    throw new Error('Indicator alert drafts require an authenticated session.');
-  }
-
-  private storageKey(userId: string): string {
-    return `${STORAGE_KEY_PREFIX}.${userId}`;
-  }
-
-  private restore(userId: string): DraftMap {
-    const storage = this.getStorage();
-    if (!storage) {
-      return {};
-    }
-
-    const raw = storage.getItem(this.storageKey(userId));
-    if (!raw) {
-      return {};
-    }
-
-    try {
-      const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        storage.removeItem(this.storageKey(userId));
-        return {};
+    const restored: Record<string, IndicatorAlertDraft> = {};
+    for (const [indicatorId, draft] of Object.entries(value as Record<string, unknown>)) {
+      const normalizedIndicatorId = this.normalizeId(indicatorId);
+      if (!normalizedIndicatorId) {
+        continue;
       }
 
-      const restored: Record<string, IndicatorAlertDraft> = {};
-      for (const [indicatorId, draft] of Object.entries(parsed as Record<string, unknown>)) {
-        const normalizedIndicatorId = this.normalizeId(indicatorId);
-        if (!normalizedIndicatorId) {
-          continue;
-        }
-
-        const normalizedDraft = this.normalizeDraftCandidate(draft);
-        if (normalizedDraft) {
-          restored[normalizedIndicatorId] = normalizedDraft;
-        }
+      const normalizedDraft = this.normalizeDraftCandidate(draft);
+      if (normalizedDraft) {
+        restored[normalizedIndicatorId] = normalizedDraft;
       }
-
-      return restored;
-    } catch {
-      storage.removeItem(this.storageKey(userId));
-      return {};
-    }
-  }
-
-  private persist(userId: string, drafts: DraftMap): void {
-    const storage = this.getStorage();
-    if (!storage) {
-      return;
     }
 
-    try {
-      storage.setItem(this.storageKey(userId), JSON.stringify(drafts));
-    } catch {
-      // Keep the in-memory state when storage is unavailable.
-    }
+    return restored;
   }
 
   private normalizeDraft(draft: IndicatorAlertDraft): IndicatorAlertDraft {
@@ -214,24 +149,4 @@ export class IndicatorAlertDraftsService {
     return normalized.length > 0 ? normalized : null;
   }
 
-  private getStorage(): Storage | null {
-    if (!this.browser) {
-      return null;
-    }
-
-    const storage =
-      typeof window !== 'undefined'
-        ? window.localStorage
-        : (globalThis as { localStorage?: Storage }).localStorage;
-
-    if (!storage) {
-      return null;
-    }
-
-    try {
-      return storage;
-    } catch {
-      return null;
-    }
-  }
 }

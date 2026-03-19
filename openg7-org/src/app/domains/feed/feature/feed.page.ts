@@ -20,7 +20,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
-import { buildFeedFavoriteKey, isFeedOpportunityType, resolveFeedConnectionMatchId } from './feed-item.helpers';
+import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
   buildOpportunityOfferDraft,
   buildOpportunityOfferRecordPayload,
@@ -30,6 +30,7 @@ import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish
 import { FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
+import { OpportunityEngagementService } from './services/opportunity-engagement.service';
 
 @Component({
   selector: 'og7-feed-page',
@@ -53,6 +54,7 @@ export class FeedPage {
   private readonly favorites = inject(FavoritesService);
   private readonly notifications = injectNotificationStore();
   private readonly opportunityOffers = inject(OpportunityOffersService);
+  private readonly opportunityEngagement = inject(OpportunityEngagementService);
   private readonly translate = inject(TranslateService);
   private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>('publishSection');
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
@@ -97,7 +99,7 @@ export class FeedPage {
 
   constructor() {
     effect(() => {
-      if (!this.feed.hasHydrated()) {
+      if (!this.feed.hasHydrated() && !this.loading() && !this.error()) {
         this.feed.loadInitial();
       }
     });
@@ -179,14 +181,17 @@ export class FeedPage {
       return;
     }
 
-    if (!this.auth.isAuthenticated()) {
-      this.redirectToLogin();
-      return;
-    }
+    const decision = this.opportunityEngagement.plan({
+      item,
+      source: 'feed',
+      fallback: 'drawer',
+      currentUrl: this.currentInternalUrl('/feed'),
+      requiresAuthentication: true,
+      isAuthenticated: this.auth.isAuthenticated(),
+    });
 
-    const connectionMatchId = resolveFeedConnectionMatchId(item);
-    if (connectionMatchId) {
-      void this.openLinkup(connectionMatchId, item.id);
+    if (decision.kind === 'redirect-login' || decision.kind === 'open-linkup') {
+      void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
       return;
     }
 
@@ -320,33 +325,17 @@ export class FeedPage {
   }
 
   private redirectToLogin(): void {
-    void this.router.navigate(['/login'], {
-      queryParams: { redirect: this.currentInternalUrl() },
-    });
+    const navigation = this.opportunityEngagement.buildLoginNavigation(
+      this.currentInternalUrl('/feed'),
+      '/feed'
+    );
+    void this.router.navigate(navigation.commands, navigation.extras);
   }
 
-  private openLinkup(matchId: number, itemId: string): Promise<boolean> {
-    return this.router.navigate(['/linkup', matchId], {
-      queryParams: {
-        source: 'feed',
-        feedItemId: itemId,
-      },
-    });
-  }
-
-  private currentInternalUrl(): string {
+  private currentInternalUrl(fallback = '/feed'): string {
     const navigation = this.router.getCurrentNavigation();
     const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
-    if (typeof url !== 'string') {
-      return '/feed';
-    }
-
-    const normalized = url.trim();
-    if (!normalized) {
-      return '/feed';
-    }
-
-    return normalized.startsWith('/') ? normalized : `/${normalized.replace(/^\/+/, '')}`;
+    return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
   }
 
   private normalizeQueryParam(value: string | null): string | null {

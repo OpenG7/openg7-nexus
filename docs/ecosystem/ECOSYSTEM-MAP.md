@@ -1,6 +1,6 @@
 # OpenG7 Ecosystem Map
 
-This repository (openg7-nexus) is the orchestration and integration layer. It consumes canonical capabilities from other repos. Domain logic must not be duplicated here.
+This repository (`openg7-nexus`) is the orchestration and integration layer. It consumes canonical capabilities from other repos. Domain logic must not be duplicated here.
 
 ## Capability -> Canonical Repository
 
@@ -15,16 +15,19 @@ This repository (openg7-nexus) is the orchestration and integration layer. It co
 | community_thermometer | openg7-community-health-dashboard | Community health metrics |
 
 ## What is allowed in openg7-nexus
-- Integration glue (adapters, clients, wiring) for canonical capabilities.
-- UI composition and feature orchestration.
-- Platform-specific contracts and runtime config used by the web app or CMS.
 
-## What is NOT allowed here
-- Canonical domain schemas, policies, or evidence/audit/metric logic.
-- Duplicated implementations that should live in a shared @openg7/* package.
-- Re-implementations of canonical repos under new folder names.
+- Integration glue: adapters, clients, wiring for canonical capabilities
+- UI composition and feature orchestration
+- Platform-specific contracts and runtime config used by the web app or CMS
 
-## Fast decision guide
-1) Is this domain-defining or reusable across repos? -> Put it in the canonical repo.
-2) Is it only integration or delivery for platform? -> It can live here.
-3) If in doubt, create a shared package instead of copying.
+## What is not allowed here
+
+- Canonical domain schemas, policies, or evidence/audit/metric logic
+- Duplicated implementations that should live in a shared `@openg7/*` package
+- Re-implementations of canonical repos under new folder names
+
+## Fast Decision Guide
+
+1. Is this domain-defining or reusable across repos? Put it in the canonical repo.
+2. Is it only integration or delivery for the platform? It can live here.
+3. If in doubt, create a shared package instead of copying.

@@ -1,11 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, Signal, TransferState, inject, makeStateKey, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { API_URL } from '../config/environment.tokens';
+import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
 import {
   CompanySummary,
   Mode,
@@ -253,10 +254,11 @@ export class OpportunityService {
   async searchMatches(query?: OpportunityMatchQuery): Promise<readonly OpportunityMatch[]> {
     const url = this.composeUrl();
     const params = this.buildHttpParams(query);
+    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
 
     try {
       const response = await firstValueFrom(
-        this.http.get<OpportunityMatchesResponse>(url, { params })
+        this.http.get<OpportunityMatchesResponse>(url, { params, context })
       );
       return this.filterMatches(this.mapMatches(response), query);
     } catch {
@@ -284,9 +286,12 @@ export class OpportunityService {
 
     const url = `${this.composeUrl()}/${id}`;
     const params = this.buildHttpParams();
+    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
 
     try {
-      const response = await firstValueFrom(this.http.get<OpportunityMatchResponse>(url, { params }));
+      const response = await firstValueFrom(
+        this.http.get<OpportunityMatchResponse>(url, { params, context })
+      );
       const match = response?.data ? this.mapMatch(response.data) : null;
       if (!match) {
         return null;

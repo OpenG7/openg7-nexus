@@ -35,7 +35,7 @@
         <div class="feed-publish__panel-copy">
           <h2 id="feed-publish-drawer-title">{{ 'feed.composer.title' | translate }}</h2>
           <p>{{ 'feed.composer.subtitle' | translate }}</p>
-          <small>{{ 'feed.publishBar.prefill' | translate }}</small>
+          <small *ngIf="hasDraftPrefill()">{{ 'feed.publishBar.draftReady' | translate }}</small>
         </div>
 
         <button

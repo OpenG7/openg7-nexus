@@ -6,6 +6,23 @@
     </div>
   </header>
 
+  <section
+    *ngIf="draftNotice() as draftNotice"
+    class="feed-composer__draft"
+    data-og7="feed-composer-draft"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="feed-composer__draft-badge">{{ 'feed.composer.draft.badge' | translate }}</span>
+    <div class="feed-composer__draft-copy">
+      <p class="feed-composer__draft-title">{{ draftNotice.contextKey | translate }}</p>
+      <p class="feed-composer__draft-description">{{ 'feed.composer.draft.description' | translate }}</p>
+      <p *ngIf="draftNotice.prefilledTitle" class="feed-composer__draft-meta">
+        {{ 'feed.composer.draft.prefilledTitle' | translate: { title: draftNotice.prefilledTitle } }}
+      </p>
+    </div>
+  </section>
+
   <div class="feed-composer__grid">
     <div class="feed-composer__field">
       <label for="composer-type">{{ 'feed.composer.type' | translate }}</label>
@@ -151,7 +168,7 @@
       {{ submitting() ? ('feed.composer.submitting' | translate) : ('feed.composer.submit' | translate) }}
     </button>
     <button type="button" class="feed-composer__clear" [disabled]="submitting()" (click)="clearDraft()">
-      {{ 'feed.composer.clear' | translate }}
+      {{ (draftNotice() ? 'feed.composer.draft.clear' : 'feed.composer.clear') | translate }}
     </button>
   </footer>
 </form>

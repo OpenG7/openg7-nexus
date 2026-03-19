@@ -91,18 +91,24 @@ test.describe('Feed alert detail', () => {
     await expect(page.locator('#composer-type')).toHaveValue(/REQUEST$/);
   });
 
-  test('shows a success toast when the linked opportunity draft opens successfully', async ({ page }) => {
+  test('opens the linked opportunity draft without showing an immediate toast and surfaces the draft state', async ({
+    page,
+  }) => {
     await mockAuthenticatedSessionApis(page);
+    await seedAuthenticatedSession(page);
     await page.goto('/feed/alerts/alert-001');
 
     await page.locator('[data-og7-id="alert-create-opportunity"]').click();
 
     await expect(page).toHaveURL(/\/feed\?.*draftSource=alert/);
     await expect(page.locator('[data-og7="feed-publish-drawer"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-composer-auth-gate"]')).toBeVisible();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]')).toContainText(
-      /Le brouillon d'opportunite liee est pret dans le fil\.|The linked opportunity draft is ready in the feed\./i
+    await expect(page.locator('[data-og7="feed-composer"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-composer-draft"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-composer-draft"]')).toContainText(
+      /Brouillon|Draft/i
     );
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(0);
   });
 
   test('shows an error toast when linked opportunity navigation fails', async ({ page }) => {

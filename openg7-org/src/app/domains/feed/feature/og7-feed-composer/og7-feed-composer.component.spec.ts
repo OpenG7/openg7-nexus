@@ -195,6 +195,42 @@ describe('Og7FeedComposerComponent', () => {
     expect(connectionMatcher.resolveDraftConnectionMatchId).not.toHaveBeenCalled();
   });
 
+  it('renders a draft banner for a linked draft and clears the prefill query params when requested', async () => {
+    const fixture = TestBed.createComponent(Og7FeedComposerComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const draftBanner = fixture.nativeElement.querySelector('[data-og7="feed-composer-draft"]') as HTMLElement;
+    const clearButton = fixture.nativeElement.querySelector('.feed-composer__clear') as HTMLButtonElement;
+
+    expect(draftBanner).toBeTruthy();
+
+    clearButton.click();
+    await fixture.whenStable();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams: jasmine.objectContaining({
+        draftSource: null,
+        draftAlertId: null,
+        draftOriginType: null,
+        draftOriginId: null,
+        draftConnectionMatchId: null,
+        draftType: null,
+        draftMode: null,
+        draftSectorId: null,
+        draftFromProvinceId: null,
+        draftToProvinceId: null,
+        draftTitle: null,
+        draftSummary: null,
+        draftTags: null,
+      }),
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  });
+
   it('resolves a match id from the opportunity service when a request draft has no explicit connection match id', async () => {
     queryParamMap$.next(
       convertToParamMap({

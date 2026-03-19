@@ -42,7 +42,12 @@ describe('errorInterceptor', () => {
     notifications = TestBed.inject(NotificationStore) as NotificationStoreApi;
     translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', {
-      errors: { generic: 'generic', 404: 'not found' },
+      errors: {
+        generic: 'generic',
+        404: 'not found',
+        '404WithResource': 'not found for {{ resource }}',
+        statusTitle: 'http error {{ status }}',
+      },
       auth: { sessionExpired: 'session expired' },
     });
     translate.use('en');
@@ -57,8 +62,9 @@ describe('errorInterceptor', () => {
       errorInterceptor(req, handler).subscribe({ error: () => {} })
     );
     expect(notifications.error).toHaveBeenCalledWith(
-      'not found',
+      'not found for test',
       jasmine.objectContaining({
+        title: 'http error 404',
         source: 'http',
         metadata: jasmine.objectContaining({ status: 404 }),
       })

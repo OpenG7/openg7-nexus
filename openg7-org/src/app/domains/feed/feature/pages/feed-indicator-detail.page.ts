@@ -1,17 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   HostListener,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import {
   CreateIndicatorAlertRulePayload,
@@ -19,10 +16,7 @@ import {
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { Store } from '@ngrx/store';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { IndicatorAlertDrawerComponent } from '../components/indicator-alert-drawer.component';
 import { IndicatorChartComponent } from '../components/indicator-chart.component';
@@ -43,8 +37,9 @@ import { IndicatorKeyDataComponent } from '../components/indicator-key-data.comp
 import { IndicatorRelatedListComponent } from '../components/indicator-related-list.component';
 import { IndicatorStatsAsideComponent } from '../components/indicator-stats-aside.component';
 import { FeedItem } from '../models/feed.models';
-import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.service';
+
+import { FeedDetailPageBase } from './feed-detail-page.base';
 
 @Component({
   selector: 'og7-feed-indicator-detail-page',
@@ -64,25 +59,11 @@ import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.
   styleUrl: './feed-indicator-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedIndicatorDetailPage {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   private readonly auth = inject(AuthService);
   private readonly notifications = injectNotificationStore();
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly indicatorAlertDrafts = inject(IndicatorAlertDraftsService);
-  private readonly feed = inject(FeedRealtimeService);
-  private readonly store = inject(Store);
-  private readonly translate = inject(TranslateService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  private readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
-    initialValue: this.route.snapshot.paramMap.get('itemId'),
-  });
-
-  private readonly detailItem = signal<FeedItem | null>(null);
-  private readonly detailLoading = signal(false);
-  private readonly detailError = signal<string | null>(null);
   protected readonly pendingAlertDraft = signal<IndicatorAlertDraft | null>(null);
   private alertStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -91,42 +72,10 @@ export class FeedIndicatorDetailPage {
 
   protected readonly timeframe = signal<IndicatorTimeframe>('72h');
   protected readonly granularity = signal<IndicatorGranularity>('hour');
-  protected readonly headerCompact = signal(false);
   protected readonly drawerOpen = signal(false);
   protected readonly alertDrawerMode = signal<IndicatorAlertDrawerMode>('compose');
   protected readonly alertSubmitState = signal<IndicatorAlertSubmitState>('idle');
   protected readonly alertSubmitError = signal<string | null>(null);
-
-  protected readonly provinces = this.store.selectSignal(selectProvinces);
-  protected readonly sectors = this.store.selectSignal(selectSectors);
-
-  protected readonly provinceNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const province of this.provinces()) {
-      map.set(province.id, province.name);
-    }
-    return map;
-  });
-
-  protected readonly sectorNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const sector of this.sectors()) {
-      map.set(sector.id, sector.name);
-    }
-    return map;
-  });
-
-  protected readonly selectedItem = computed(() => {
-    const id = this.itemId();
-    if (!id) {
-      return null;
-    }
-    const resolved = this.detailItem();
-    if (resolved?.id === id) {
-      return resolved;
-    }
-    return this.feed.items().find(item => item.id === id) ?? null;
-  });
 
   protected readonly detailVm = computed(() => {
     const item = this.selectedItem();
@@ -265,43 +214,7 @@ export class FeedIndicatorDetailPage {
   });
 
   constructor() {
-    effect(onCleanup => {
-      const itemId = this.itemId();
-      this.detailItem.set(null);
-      this.detailError.set(null);
-
-      if (!itemId) {
-        this.detailLoading.set(false);
-        return;
-      }
-
-      let cancelled = false;
-      this.detailLoading.set(true);
-
-      void this.feed
-        .findItemById(itemId)
-        .then(item => {
-          if (cancelled) {
-            return;
-          }
-          this.detailItem.set(item);
-        })
-        .catch(error => {
-          if (cancelled) {
-            return;
-          }
-          this.detailError.set(this.resolveLoadError(error));
-        })
-        .finally(() => {
-          if (!cancelled) {
-            this.detailLoading.set(false);
-          }
-        });
-
-      onCleanup(() => {
-        cancelled = true;
-      });
-    });
+    super();
 
     effect(() => {
       this.itemId();
@@ -322,10 +235,7 @@ export class FeedIndicatorDetailPage {
 
   @HostListener('window:scroll')
   protected onScroll(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    this.headerCompact.set(window.scrollY > 56);
+    this.updateHeaderCompactFromScroll();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -587,6 +497,7 @@ export class FeedIndicatorDetailPage {
 
   protected retry(): void {
     this.feed.reload();
+    this.triggerDetailReload();
   }
 
   protected unitLabel(): string {
@@ -951,21 +862,7 @@ export class FeedIndicatorDetailPage {
     return `/feed/indicators/${id}`;
   }
 
-  private resolveLoadError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error === 'string' && error.error.trim().length) {
-        return error.error;
-      }
-      if (typeof error.error?.message === 'string' && error.error.message.length) {
-        return error.error.message;
-      }
-      if (typeof error.message === 'string' && error.message.length) {
-        return error.message;
-      }
-    }
-    if (error instanceof Error && error.message.length) {
-      return error.message;
-    }
-    return this.translate.instant('feed.error.generic');
+  protected override isExpectedItem(item: FeedItem | null): item is FeedItem {
+    return item?.type === 'INDICATOR';
   }
 }

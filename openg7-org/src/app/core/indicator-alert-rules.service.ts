@@ -1,7 +1,7 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject } from '@angular/core';
 
 import { AuthService } from './auth/auth.service';
+import { createUserScopedPersistentState } from './storage/user-scoped-persistent-state';
 
 const STORAGE_KEY_PREFIX = 'og7.indicator-alert-rules.v1';
 
@@ -40,35 +40,22 @@ export interface CreateIndicatorAlertRulePayload {
 @Injectable({ providedIn: 'root' })
 export class IndicatorAlertRulesService {
   private readonly auth = inject(AuthService);
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly browser = isPlatformBrowser(this.platformId);
-  private readonly entriesSig = signal<IndicatorAlertRuleRecord[]>([]);
+  private readonly state = createUserScopedPersistentState<IndicatorAlertRuleRecord[]>({
+    auth: this.auth,
+    platformId: inject(PLATFORM_ID),
+    storageKeyPrefix: STORAGE_KEY_PREFIX,
+    createEmptyValue: () => [],
+    deserialize: (value) => this.deserializeEntries(value),
+  });
 
-  readonly entries = this.entriesSig.asReadonly();
-  readonly hasEntries = computed(() => this.entriesSig().length > 0);
-
-  constructor() {
-    effect(() => {
-      const userId = this.currentUserId();
-      if (!userId) {
-        this.entriesSig.set([]);
-        return;
-      }
-      this.entriesSig.set(this.restore(userId));
-    });
-  }
+  readonly entries = this.state.value;
+  readonly hasEntries = computed(() => this.entries().length > 0);
 
   refresh(): void {
-    const userId = this.currentUserId();
-    if (!userId) {
-      this.entriesSig.set([]);
-      return;
-    }
-    this.entriesSig.set(this.restore(userId));
+    this.state.refresh();
   }
 
   create(payload: CreateIndicatorAlertRulePayload): IndicatorAlertRuleRecord {
-    const userId = this.currentUserIdOrThrow();
     const now = new Date().toISOString();
     const nextEntry = this.normalizeRecord({
       id: this.generateId(),
@@ -86,14 +73,15 @@ export class IndicatorAlertRulesService {
       updatedAt: now,
     });
 
-    const nextEntries = this.sortEntries([nextEntry, ...this.entriesSig()]);
-    this.entriesSig.set(nextEntries);
-    this.persist(userId, nextEntries);
+    const nextEntries = this.sortEntries([nextEntry, ...this.entries()]);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Indicator alert rules require an authenticated session.'
+    );
     return nextEntry;
   }
 
   setActive(id: string, active: boolean): void {
-    const userId = this.currentUserIdOrThrow();
     const normalizedId = this.normalizeId(id);
     if (!normalizedId) {
       return;
@@ -101,7 +89,7 @@ export class IndicatorAlertRulesService {
 
     const now = new Date().toISOString();
     const nextEntries = this.sortEntries(
-      this.entriesSig().map((entry) =>
+      this.entries().map((entry) =>
         entry.id === normalizedId
           ? {
               ...entry,
@@ -112,20 +100,23 @@ export class IndicatorAlertRulesService {
       )
     );
 
-    this.entriesSig.set(nextEntries);
-    this.persist(userId, nextEntries);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Indicator alert rules require an authenticated session.'
+    );
   }
 
   remove(id: string): void {
-    const userId = this.currentUserIdOrThrow();
     const normalizedId = this.normalizeId(id);
     if (!normalizedId) {
       return;
     }
 
-    const nextEntries = this.entriesSig().filter((entry) => entry.id !== normalizedId);
-    this.entriesSig.set(nextEntries);
-    this.persist(userId, nextEntries);
+    const nextEntries = this.entries().filter((entry) => entry.id !== normalizedId);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Indicator alert rules require an authenticated session.'
+    );
   }
 
   findActiveRuleForIndicator(indicatorId: string): IndicatorAlertRuleRecord | null {
@@ -134,7 +125,7 @@ export class IndicatorAlertRulesService {
       return null;
     }
     return (
-      this.entriesSig().find(
+      this.entries().find(
         (entry) => entry.active && entry.indicatorId === normalizedIndicatorId
       ) ?? null
     );
@@ -144,60 +135,12 @@ export class IndicatorAlertRulesService {
     return this.findActiveRuleForIndicator(indicatorId) !== null;
   }
 
-  private currentUserId(): string | null {
-    if (!this.browser || !this.auth.isAuthenticated()) {
+  private deserializeEntries(value: unknown): IndicatorAlertRuleRecord[] | null {
+    if (!Array.isArray(value)) {
       return null;
     }
-    return this.normalizeId(this.auth.user()?.id ?? null);
-  }
 
-  private currentUserIdOrThrow(): string {
-    const userId = this.currentUserId();
-    if (userId) {
-      return userId;
-    }
-    throw new Error('Indicator alert rules require an authenticated session.');
-  }
-
-  private storageKey(userId: string): string {
-    return `${STORAGE_KEY_PREFIX}.${userId}`;
-  }
-
-  private restore(userId: string): IndicatorAlertRuleRecord[] {
-    const storage = this.getStorage();
-    if (!storage) {
-      return [];
-    }
-
-    const raw = storage.getItem(this.storageKey(userId));
-    if (!raw) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        storage.removeItem(this.storageKey(userId));
-        return [];
-      }
-      return this.sortEntries(parsed.map((entry) => this.normalizeRecord(entry)));
-    } catch {
-      storage.removeItem(this.storageKey(userId));
-      return [];
-    }
-  }
-
-  private persist(userId: string, entries: readonly IndicatorAlertRuleRecord[]): void {
-    const storage = this.getStorage();
-    if (!storage) {
-      return;
-    }
-
-    try {
-      storage.setItem(this.storageKey(userId), JSON.stringify(entries));
-    } catch {
-      // Ignore storage failures and keep the in-memory state.
-    }
+    return this.sortEntries(value.map((entry) => this.normalizeRecord(entry)));
   }
 
   private normalizeRecord(candidate: unknown): IndicatorAlertRuleRecord {
@@ -298,24 +241,4 @@ export class IndicatorAlertRulesService {
     return `indicator-alert-rule-${Date.now()}-${Math.round(Math.random() * 1_000_000)}`;
   }
 
-  private getStorage(): Storage | null {
-    if (!this.browser) {
-      return null;
-    }
-
-    const storage =
-      typeof window !== 'undefined'
-        ? window.localStorage
-        : (globalThis as { localStorage?: Storage }).localStorage;
-
-    if (!storage) {
-      return null;
-    }
-
-    try {
-      return storage;
-    } catch {
-      return null;
-    }
-  }
 }

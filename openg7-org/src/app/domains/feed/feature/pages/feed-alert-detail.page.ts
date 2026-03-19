@@ -3,7 +3,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   HostListener,
   computed,
   effect,
@@ -11,16 +10,14 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
   FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
   UserAlertsService,
 } from '@app/core/user-alerts.service';
-import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { Store } from '@ngrx/store';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs/operators';
 
 import { AlertContextAsideComponent } from '../components/alert-context-aside.component';
@@ -39,7 +36,8 @@ import { buildFeedDraftPrefillQueryParams } from '../feed-draft-prefill.helpers'
 import { FeedItem } from '../models/feed.models';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
 import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
-import { FeedRealtimeService } from '../services/feed-realtime.service';
+
+import { FeedDetailPageBase } from './feed-detail-page.base';
 
 @Component({
   selector: 'og7-feed-alert-detail-page',
@@ -57,18 +55,12 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
   styleUrl: './feed-alert-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedAlertDetailPage {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+export class FeedAlertDetailPage extends FeedDetailPageBase {
   private readonly auth = inject(AuthService);
   private readonly notifications = injectNotificationStore();
-  private readonly feed = inject(FeedRealtimeService);
   private readonly connectionMatcher = inject(FeedConnectionMatchService);
   private readonly alertUpdateQueue = inject(AlertUpdateQueueService);
   private readonly userAlerts = inject(UserAlertsService);
-  private readonly store = inject(Store);
-  private readonly translate = inject(TranslateService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly activeLanguage = toSignal(
     this.translate.onLangChange.pipe(
       map(event => event.lang),
@@ -79,14 +71,6 @@ export class FeedAlertDetailPage {
     }
   );
 
-  private readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
-    initialValue: this.route.snapshot.paramMap.get('itemId'),
-  });
-  private readonly reloadVersion = signal(0);
-
-  private readonly detailItem = signal<FeedItem | null>(null);
-  private readonly detailLoading = signal(false);
-  private readonly detailError = signal<string | null>(null);
   private readonly detailErrorKind = signal<'notFound' | 'unavailable' | null>(null);
   private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -95,41 +79,10 @@ export class FeedAlertDetailPage {
   protected readonly notFound = computed(() => this.detailErrorKind() === 'notFound');
   protected readonly retryAvailable = computed(() => this.detailErrorKind() === 'unavailable');
 
-  protected readonly headerCompact = signal(false);
   protected readonly reportDrawerOpen = signal(false);
   protected readonly reportDrawerMode = signal<AlertUpdateDrawerMode>('compose');
   protected readonly reportSubmitState = signal<AlertUpdateSubmitState>('idle');
   protected readonly reportSubmitError = signal<string | null>(null);
-
-  protected readonly provinces = this.store.selectSignal(selectProvinces);
-  protected readonly sectors = this.store.selectSignal(selectSectors);
-
-  protected readonly provinceNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const province of this.provinces()) {
-      map.set(province.id, province.name);
-    }
-    return map;
-  });
-  protected readonly sectorNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const sector of this.sectors()) {
-      map.set(sector.id, sector.name);
-    }
-    return map;
-  });
-
-  protected readonly selectedItem = computed(() => {
-    const id = this.itemId();
-    if (!id) {
-      return null;
-    }
-    const resolved = this.detailItem();
-    if (resolved?.id === id) {
-      return resolved;
-    }
-    return this.feed.items().find(item => item.id === id) ?? null;
-  });
 
   protected readonly detailVm = computed(() => {
     this.activeLanguage();
@@ -172,51 +125,7 @@ export class FeedAlertDetailPage {
   });
 
   constructor() {
-    effect(onCleanup => {
-      const itemId = this.itemId();
-      this.reloadVersion();
-      this.detailItem.set(null);
-      this.detailError.set(null);
-      this.detailErrorKind.set(null);
-
-      if (!itemId) {
-        this.detailLoading.set(false);
-        this.detailErrorKind.set('notFound');
-        return;
-      }
-
-      let cancelled = false;
-      this.detailLoading.set(true);
-
-      void this.feed
-        .findItemById(itemId)
-        .then(item => {
-          if (cancelled) {
-            return;
-          }
-          if (!item || item.type !== 'ALERT') {
-            this.detailErrorKind.set('notFound');
-            return;
-          }
-          this.detailItem.set(item);
-        })
-        .catch(error => {
-          if (cancelled) {
-            return;
-          }
-          this.detailErrorKind.set(this.resolveErrorKind(error));
-          this.detailError.set(this.resolveLoadError(error));
-        })
-        .finally(() => {
-          if (!cancelled) {
-            this.detailLoading.set(false);
-          }
-        });
-
-      onCleanup(() => {
-        cancelled = true;
-      });
-    });
+    super();
 
     effect(() => {
       this.itemId();
@@ -236,10 +145,7 @@ export class FeedAlertDetailPage {
 
   @HostListener('window:scroll')
   protected onScroll(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    this.headerCompact.set(window.scrollY > 56);
+    this.updateHeaderCompactFromScroll();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -405,7 +311,7 @@ export class FeedAlertDetailPage {
       return;
     }
     this.feed.reload();
-    this.reloadVersion.update(version => version + 1);
+    this.triggerDetailReload();
   }
 
   protected reportUpdate(): void {
@@ -528,15 +434,6 @@ export class FeedAlertDetailPage {
         });
         return;
       }
-
-      this.notifications.success(this.translate.instant('feed.alert.detail.opportunity.status.success'), {
-        source: 'feed',
-        metadata: {
-          action: 'create-linked-opportunity',
-          itemId: detail.item.id,
-          draftConnectionMatchId: draftConnectionMatchId ?? null,
-        },
-      });
     } catch (error) {
       this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
         source: 'feed',
@@ -1182,28 +1079,31 @@ export class FeedAlertDetailPage {
     this.reportStatusTimer = null;
   }
 
-  private resolveLoadError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error === 'string' && error.error.trim().length) {
-        return error.error;
-      }
-      if (typeof error.error?.message === 'string' && error.error.message.length) {
-        return error.error.message;
-      }
-      if (typeof error.message === 'string' && error.message.length) {
-        return error.message;
-      }
-    }
-    if (error instanceof Error && error.message.length) {
-      return error.message;
-    }
-    return this.translate.instant('feed.error.generic');
-  }
-
   private resolveErrorKind(error: unknown): 'notFound' | 'unavailable' {
     if (error instanceof HttpErrorResponse && error.status === 404) {
       return 'notFound';
     }
     return 'unavailable';
+  }
+
+  protected override beforeItemLoad(): void {
+    this.detailErrorKind.set(null);
+  }
+
+  protected override onMissingItemId(): void {
+    this.detailErrorKind.set('notFound');
+  }
+
+  protected override onUnexpectedItem(_item: FeedItem | null): void {
+    this.detailErrorKind.set('notFound');
+  }
+
+  protected override onLoadError(error: unknown): void {
+    this.detailErrorKind.set(this.resolveErrorKind(error));
+    super.onLoadError(error);
+  }
+
+  protected override isExpectedItem(item: FeedItem | null): item is FeedItem {
+    return item?.type === 'ALERT';
   }
 }

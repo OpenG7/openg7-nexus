@@ -7,22 +7,8 @@
     <ng-container *ngComponentOutlet="component"></ng-container>
   </ng-container>
   <main class="app-main flex-1">
-    @if (isBrowser) {
-    <div class="particles">
-      <om-starry-sky
-        class="app-starry-sky"
-        [skyColor]="starrySkyColor"
-        [starsBackgroundConfig]="starsBackgroundConfig"
-        [shootingStarsConfig]="shootingStarsConfig"
-        [disableShootingStars]="false"
-        styleClass="app-starry-sky"
-        aria-hidden="true"
-      ></om-starry-sky>
-      <div class="particles-gradient"></div>
-
-      <!-- <om-galaxy [starSpeed]="0" [speed]="0" [rotationSpeed]="0.005" [mouseInteraction]="false"
-        [glowIntensity]="0.25" [twinkleIntensity]="0.2" [density]="1"></om-galaxy> -->
-    </div>
+    @if (isBrowser && backgroundComponent()) {
+    <ng-container *ngComponentOutlet="backgroundComponent()"></ng-container>
     }
     <div class="app-main__content w-full" [class.app-main__content--immersive]="immersiveMainContent()">
       <router-outlet></router-outlet>

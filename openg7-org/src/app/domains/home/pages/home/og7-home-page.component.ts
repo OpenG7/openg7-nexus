@@ -9,8 +9,8 @@ import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { MapStatsService } from '@app/core/services/map-stats.service';
 import { OpportunityAiPrefillService } from '@app/core/services/opportunity-ai-prefill.service';
 import { OpportunityService } from '@app/core/services/opportunity.service';
-import { resolveFeedConnectionMatchId } from '@app/domains/feed/feature/feed-item.helpers';
 import { FeedItem, FeedItemType } from '@app/domains/feed/feature/models/feed.models';
+import { OpportunityEngagementService } from '@app/domains/feed/feature/services/opportunity-engagement.service';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
 import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
 import { IntroductionRequestContext } from '@app/domains/matchmaking/sections/og7-intro-billboard.section';
@@ -48,6 +48,7 @@ export class Og7HomePageComponent {
   private readonly filters = inject(FiltersService);
   private readonly mapStats = inject(MapStatsService);
   private readonly homeFeed = inject(HomeFeedService);
+  private readonly opportunityEngagement = inject(OpportunityEngagementService);
 
   private readonly selectedMatchId = signal<number | null>(null);
   private readonly financingBanner = signal<FinancingBanner | null>(null);
@@ -230,22 +231,21 @@ export class Og7HomePageComponent {
     if (!itemId) {
       return;
     }
-    const connectionMatchId = resolveFeedConnectionMatchId(item);
-    const route = connectionMatchId ? `/linkup/${connectionMatchId}` : `/feed/opportunities/${itemId}`;
-    this.analytics.emit(
-      'home_feed_panel_connect_requested',
-      { itemId, itemType: item.type, route },
-      { priority: true }
-    );
-    if (connectionMatchId) {
-      void this.router.navigate(['/linkup', connectionMatchId], {
-        queryParams: { source: 'home-feed-panels', feedItemId: item.id },
-      });
+    const decision = this.opportunityEngagement.plan({
+      item,
+      source: 'home-feed-panels',
+      fallback: 'detail',
+    });
+    if (decision.kind !== 'open-linkup' && decision.kind !== 'open-detail') {
       return;
     }
-    void this.router.navigate(['/feed', 'opportunities', itemId], {
-      queryParams: { source: 'home-feed-panels', feedItemId: item.id },
-    });
+
+    this.analytics.emit(
+      'home_feed_panel_connect_requested',
+      { itemId, itemType: item.type, route: decision.navigation.route },
+      { priority: true }
+    );
+    void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
   }
 
   protected onRetryRequested(): void {

@@ -26,6 +26,7 @@ describe('OpportunityDetailHeaderComponent', () => {
               visibility: 'Visibility',
               cta: {
                 makeOffer: 'Make offer',
+                openExistingOffer: 'Open existing offer',
                 save: 'Save',
                 remove: 'Remove from favorites',
                 share: 'Share',
@@ -103,6 +104,20 @@ describe('OpportunityDetailHeaderComponent', () => {
       (fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-another"]') as HTMLButtonElement)
         .textContent?.trim()
     ).toBe('Report another one');
+  });
+
+  it('marks the primary CTA as existing when an offer is already tracked', () => {
+    const fixture = TestBed.createComponent(OpportunityDetailHeaderComponent);
+    setRequiredInputs(fixture);
+    fixture.componentRef.setInput('hasExistingOffer', true);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-make-offer"]'
+    ) as HTMLButtonElement;
+
+    expect(button.getAttribute('data-og7-state')).toBe('existing');
+    expect(button.textContent?.trim()).toBe('Open existing offer');
   });
 });
 
