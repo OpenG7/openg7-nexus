@@ -3,39 +3,30 @@
     <h2>{{ 'feed.alert.detail.sections.summary' | translate }}</h2>
     <p>{{ summaryHeadline() }}</p>
     <ul>
-      <li *ngFor="let point of summaryPoints()">{{ point }}</li>
+      <li *ngFor="let point of summaryPoints(); trackBy: trackByValue">{{ point }}</li>
     </ul>
     <h3>{{ 'feed.alert.detail.sections.impact' | translate }}</h3>
     <ul>
-      <li *ngFor="let impact of impactPoints()">{{ impact }}</li>
+      <li *ngFor="let impact of impactPoints(); trackBy: trackByValue">{{ impact }}</li>
     </ul>
   </article>
 
   <article class="alert-detail-body__card">
     <h2>{{ 'feed.alert.detail.sections.zones' | translate }}</h2>
-    <div class="alert-detail-body__zones-layout">
-      <div>
-        <h3>{{ 'feed.alert.detail.sections.regions' | translate }}</h3>
-        <ul>
-          <li *ngFor="let zone of zones()">{{ zone }}</li>
-        </ul>
-        <h3>{{ 'feed.alert.detail.sections.infrastructure' | translate }}</h3>
-        <ul>
-          <li *ngFor="let infrastructure of infrastructures()">{{ infrastructure }}</li>
-        </ul>
-      </div>
-
-      <div class="alert-detail-body__map" aria-hidden="true">
-        <div class="alert-detail-body__map-main"></div>
-        <div class="alert-detail-body__map-mini"></div>
-      </div>
-    </div>
+    <h3>{{ 'feed.alert.detail.sections.regions' | translate }}</h3>
+    <ul>
+      <li *ngFor="let zone of zones(); trackBy: trackByValue">{{ zone }}</li>
+    </ul>
+    <h3>{{ 'feed.alert.detail.sections.infrastructure' | translate }}</h3>
+    <ul>
+      <li *ngFor="let infrastructure of infrastructures(); trackBy: trackByValue">{{ infrastructure }}</li>
+    </ul>
   </article>
 
   <article class="alert-detail-body__card">
     <h2>{{ 'feed.alert.detail.sections.timeline' | translate }}</h2>
     <ul>
-      <li *ngFor="let row of timeline()">
+      <li *ngFor="let row of timeline(); trackBy: trackByTimelineEntry">
         <span>{{ row.label }}</span>
         <strong>{{ row.value }}</strong>
       </li>
@@ -43,7 +34,7 @@
 
     <h3>{{ 'feed.alert.detail.sections.updates' | translate }}</h3>
     <ul class="alert-detail-body__updates">
-      <li *ngFor="let update of updates()">
+      <li *ngFor="let update of updates(); trackBy: trackByUpdateEntry">
         <strong>{{ update.title }}</strong>
         <small>{{ update.when }}</small>
       </li>
@@ -53,15 +44,20 @@
   <article class="alert-detail-body__card">
     <h2>{{ 'feed.alert.detail.sections.recommendations' | translate }}</h2>
     <ul>
-      <li *ngFor="let recommendation of recommendations()">{{ recommendation }}</li>
+      <li *ngFor="let recommendation of recommendations(); trackBy: trackByValue">{{ recommendation }}</li>
     </ul>
   </article>
 
   <article class="alert-detail-body__card">
     <h2>{{ 'feed.alert.detail.sections.sources' | translate }}</h2>
     <ul class="alert-detail-body__sources">
-      <li *ngFor="let source of sources()">
-        <a [href]="source.href" target="_blank" rel="noopener">{{ source.label }}</a>
+      <li *ngFor="let source of sources(); trackBy: trackBySourceEntry">
+        <ng-container *ngIf="source.href; else sourceLabel">
+          <a [href]="source.href" target="_blank" rel="noopener">{{ source.label }}</a>
+        </ng-container>
+        <ng-template #sourceLabel>
+          <strong>{{ source.label }}</strong>
+        </ng-template>
         <small>{{ source.confidence }}</small>
       </li>
     </ul>

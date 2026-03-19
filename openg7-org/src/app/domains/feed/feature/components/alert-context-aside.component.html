@@ -1,8 +1,8 @@
 ﻿<aside class="alert-context-aside" data-og7="alert-context-aside">
   <section class="alert-context-aside__card" data-og7="alert-indicators">
     <h3>{{ 'feed.alert.detail.relatedIndicators' | translate }}</h3>
-    <ul>
-      <li *ngFor="let indicator of indicators()">
+    <ul *ngIf="indicators().length; else emptyIndicators">
+      <li *ngFor="let indicator of indicators(); trackBy: trackByIndicator">
         <div>
           <strong>{{ indicator.label }}</strong>
           <small>{{ indicator.context }}</small>
@@ -10,30 +10,24 @@
         <span [class]="'trend trend--' + indicator.trend">{{ indicator.value }}</span>
       </li>
     </ul>
+    <ng-template #emptyIndicators>
+      <p class="alert-context-aside__empty">{{ 'feed.alert.detail.relatedIndicatorsEmpty' | translate }}</p>
+    </ng-template>
   </section>
 
   <section class="alert-context-aside__card" data-og7="alert-related-alerts">
     <h3>{{ 'feed.alert.detail.relatedAlerts' | translate }}</h3>
-    <ul>
-      <li *ngFor="let related of relatedAlerts()">
+    <ul *ngIf="relatedAlerts().length; else emptyAlerts">
+      <li *ngFor="let related of relatedAlerts(); trackBy: trackByRelatedAlert">
         <button type="button" (click)="openRelatedAlert.emit(related.id)">
           <strong>{{ related.title }}</strong>
           <small>{{ related.region }} · {{ related.severity }}</small>
         </button>
       </li>
     </ul>
-  </section>
-
-  <section class="alert-context-aside__card" data-og7="alert-related-opportunities">
-    <h3>{{ 'feed.alert.detail.relatedOpportunities' | translate }}</h3>
-    <ul>
-      <li *ngFor="let related of relatedOpportunities()">
-        <button type="button" (click)="openRelatedOpportunity.emit(related.id)">
-          <strong>{{ related.title }}</strong>
-          <small>{{ related.routeLabel }}</small>
-        </button>
-      </li>
-    </ul>
+    <ng-template #emptyAlerts>
+      <p class="alert-context-aside__empty">{{ 'feed.alert.detail.relatedAlertsEmpty' | translate }}</p>
+    </ng-template>
     <button
       type="button"
       class="alert-context-aside__footer-action"
@@ -43,5 +37,20 @@
     >
       {{ 'feed.alert.detail.viewAllAlerts' | translate }}
     </button>
+  </section>
+
+  <section class="alert-context-aside__card" data-og7="alert-related-opportunities">
+    <h3>{{ 'feed.alert.detail.relatedOpportunities' | translate }}</h3>
+    <ul *ngIf="relatedOpportunities().length; else emptyOpportunities">
+      <li *ngFor="let related of relatedOpportunities(); trackBy: trackByRelatedOpportunity">
+        <button type="button" (click)="openRelatedOpportunity.emit(related.id)">
+          <strong>{{ related.title }}</strong>
+          <small>{{ related.routeLabel }}</small>
+        </button>
+      </li>
+    </ul>
+    <ng-template #emptyOpportunities>
+      <p class="alert-context-aside__empty">{{ 'feed.alert.detail.relatedOpportunitiesEmpty' | translate }}</p>
+    </ng-template>
   </section>
 </aside>

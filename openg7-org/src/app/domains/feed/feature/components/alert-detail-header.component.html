@@ -1,11 +1,11 @@
 ﻿<header class="alert-detail-header" [class.alert-detail-header--compact]="compact()" data-og7="alert-detail-header">
-  <div class="alert-detail-header__breadcrumb" aria-label="Breadcrumb">
+  <nav class="alert-detail-header__breadcrumb" [attr.aria-label]="'feed.alert.detail.breadcrumbNav' | translate">
     <a routerLink="/feed">{{ 'feed.title' | translate }}</a>
-    <span>/</span>
+    <span aria-hidden="true">/</span>
     <a routerLink="/feed" [queryParams]="{ type: 'ALERT' }">{{ 'feed.alert.detail.breadcrumbAlerts' | translate }}</a>
-    <span>/</span>
-    <strong>{{ 'feed.alert.detail.breadcrumbCurrent' | translate }}</strong>
-  </div>
+    <span aria-hidden="true">/</span>
+    <strong aria-current="page">{{ title() }}</strong>
+  </nav>
 
   <div class="alert-detail-header__content">
     <div class="alert-detail-header__main">

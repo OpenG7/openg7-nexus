@@ -2,7 +2,7 @@ import { FeedItem } from '../models/feed.models';
 
 export type AlertUpdateReason = 'correction' | 'escalation' | 'resolved' | 'newSource';
 
-export type AlertUpdateSubmitState = 'idle' | 'success' | 'error';
+export type AlertUpdateSubmitState = 'idle' | 'submitting' | 'success' | 'error';
 export type AlertUpdateDrawerMode = 'compose' | 'view';
 export type AlertUpdateStatus = 'pending' | 'reviewed' | 'applied' | 'rejected';
 
@@ -39,7 +39,7 @@ export interface AlertUpdateEntry {
 export interface AlertSourceEntry {
   readonly id: string;
   readonly label: string;
-  readonly href: string;
+  readonly href?: string | null;
   readonly confidence: string;
 }
 

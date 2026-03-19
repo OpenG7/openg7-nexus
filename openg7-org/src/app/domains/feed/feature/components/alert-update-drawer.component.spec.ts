@@ -75,4 +75,74 @@ describe('AlertUpdateDrawerComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Environment Canada confirmed the event is now impacting two corridors.');
   });
+
+  it('wires dialog accessibility attributes and blocks submit while submitting', async () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const fixture = TestBed.createComponent(AlertUpdateDrawerComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('submitState', 'submitting');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const dialog: HTMLElement = fixture.nativeElement.querySelector('[role="dialog"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]');
+
+    expect(dialog.getAttribute('aria-labelledby')).toBe('og7-alert-update-title');
+    expect(dialog.getAttribute('aria-describedby')).toBe('og7-alert-update-description');
+    expect(submitButton.disabled).toBeTrue();
+    expect(document.activeElement).toBe(dialog);
+
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(trigger);
+    trigger.remove();
+  });
+
+  it('associates field errors and status messages with accessible semantics', () => {
+    const fixture = TestBed.createComponent(AlertUpdateDrawerComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const summaryInput: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="summary"]');
+    const sourceUrlInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="source-url"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]');
+
+    summaryInput.value = 'short';
+    summaryInput.dispatchEvent(new Event('input'));
+    sourceUrlInput.value = 'invalid-url';
+    sourceUrlInput.dispatchEvent(new Event('input'));
+    submitButton.click();
+    fixture.detectChanges();
+
+    const summaryError: HTMLElement = fixture.nativeElement.querySelector('#og7-alert-update-summary-error');
+    const sourceUrlError: HTMLElement = fixture.nativeElement.querySelector('#og7-alert-update-source-url-error');
+
+    expect(summaryInput.getAttribute('aria-invalid')).toBe('true');
+    expect(summaryInput.getAttribute('aria-describedby')).toBe('og7-alert-update-summary-error');
+    expect(summaryError.textContent?.trim().length).toBeGreaterThan(0);
+
+    expect(sourceUrlInput.getAttribute('aria-invalid')).toBe('true');
+    expect(sourceUrlInput.getAttribute('aria-describedby')).toBe('og7-alert-update-source-url-error');
+    expect(sourceUrlError.textContent?.trim().length).toBeGreaterThan(0);
+
+    fixture.componentRef.setInput('submitState', 'error');
+    fixture.componentRef.setInput('submitError', 'Request failed');
+    fixture.detectChanges();
+
+    const errorStatus: HTMLElement = fixture.nativeElement.querySelector('[data-og7="alert-update-status"][data-og7-id="error"]');
+    expect(errorStatus.getAttribute('role')).toBe('alert');
+    expect(errorStatus.getAttribute('aria-live')).toBe('assertive');
+
+    fixture.componentRef.setInput('submitState', 'success');
+    fixture.detectChanges();
+
+    const successStatus: HTMLElement = fixture.nativeElement.querySelector('[data-og7="alert-update-status"][data-og7-id="success"]');
+    expect(successStatus.getAttribute('role')).toBe('status');
+    expect(successStatus.getAttribute('aria-live')).toBe('polite');
+  });
 });

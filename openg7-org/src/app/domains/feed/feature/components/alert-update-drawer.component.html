@@ -1,9 +1,17 @@
 <div class="alert-update-drawer" *ngIf="open()" data-og7="alert-update-drawer">
-  <button class="alert-update-drawer__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+  <div class="alert-update-drawer__backdrop" (click)="onBackdropClick()" aria-hidden="true"></div>
 
-  <section class="alert-update-drawer__panel" role="dialog" [attr.aria-modal]="true">
+  <section
+    #panel
+    class="alert-update-drawer__panel"
+    role="dialog"
+    tabindex="-1"
+    [attr.aria-modal]="true"
+    [attr.aria-labelledby]="dialogTitleId"
+    [attr.aria-describedby]="dialogDescriptionId"
+  >
     <header>
-      <h2>
+      <h2 [id]="dialogTitleId">
         {{
           viewingReport()
             ? ('feed.alert.detail.report.viewTitle' | translate)
@@ -15,7 +23,9 @@
     </header>
 
     <ng-container *ngIf="viewingReport() && existingReport() as report; else composeForm">
-      <p class="alert-update-drawer__hint">{{ 'feed.alert.detail.report.viewHint' | translate }}</p>
+      <p class="alert-update-drawer__hint" [id]="dialogDescriptionId">
+        {{ 'feed.alert.detail.report.viewHint' | translate }}
+      </p>
 
       <article class="alert-update-drawer__report-card" data-og7="alert-update-report-view">
         <span
@@ -29,7 +39,7 @@
         <dl class="alert-update-drawer__report-grid">
           <div>
             <dt>{{ 'feed.alert.detail.report.submittedAtLabel' | translate }}</dt>
-            <dd>{{ report.createdAt | date:'medium' }}</dd>
+            <dd>{{ formatReportDate(report.createdAt) }}</dd>
           </div>
           <div>
             <dt>{{ 'feed.alert.detail.report.reasonLabel' | translate }}</dt>
@@ -42,7 +52,7 @@
           <div *ngIf="report.sourceUrl">
             <dt>{{ 'feed.alert.detail.report.sourceUrlLabel' | translate }}</dt>
             <dd>
-              <a [href]="report.sourceUrl" target="_blank" rel="noreferrer">{{ report.sourceUrl }}</a>
+              <a [href]="report.sourceUrl" target="_blank" rel="noopener noreferrer">{{ report.sourceUrl }}</a>
             </dd>
           </div>
         </dl>
@@ -56,12 +66,19 @@
     </ng-container>
 
     <ng-template #composeForm>
-      <p class="alert-update-drawer__hint">{{ 'feed.alert.detail.report.reviewHint' | translate }}</p>
+      <p class="alert-update-drawer__hint" [id]="dialogDescriptionId">
+        {{ 'feed.alert.detail.report.reviewHint' | translate }}
+      </p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <label>
           <span>{{ 'feed.alert.detail.report.reasonLabel' | translate }}</span>
-          <select formControlName="reason" data-og7="alert-update-field" data-og7-id="reason">
+          <select
+            [id]="reasonFieldId"
+            formControlName="reason"
+            data-og7="alert-update-field"
+            data-og7-id="reason"
+          >
             <option value="correction">{{ 'feed.alert.detail.report.reason.correction' | translate }}</option>
             <option value="escalation">{{ 'feed.alert.detail.report.reason.escalation' | translate }}</option>
             <option value="resolved">{{ 'feed.alert.detail.report.reason.resolved' | translate }}</option>
@@ -72,32 +89,41 @@
         <label>
           <span>{{ 'feed.alert.detail.report.summaryLabel' | translate }}</span>
           <textarea
+            [id]="summaryFieldId"
             rows="5"
             formControlName="summary"
+            [attr.aria-invalid]="summaryInvalid() ? 'true' : null"
+            [attr.aria-describedby]="summaryErrorMessage() ? summaryErrorId : null"
+            [attr.maxlength]="maxSummaryLength"
             [placeholder]="'feed.alert.detail.report.summaryPlaceholder' | translate"
             data-og7="alert-update-field"
             data-og7-id="summary"
           ></textarea>
-          <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('required')">
-            {{ 'validation.required' | translate }}
-          </small>
-          <small *ngIf="form.controls.summary.touched && form.controls.summary.hasError('minlength')">
-            {{ 'validation.minLength' | translate:{ min: 10 } }}
-          </small>
+          <p class="alert-update-drawer__field-error" *ngIf="summaryErrorMessage() as error" [id]="summaryErrorId">
+            {{ error }}
+          </p>
         </label>
 
         <label>
           <span>{{ 'feed.alert.detail.report.sourceUrlLabel' | translate }}</span>
           <input
+            [id]="sourceUrlFieldId"
             type="url"
             formControlName="sourceUrl"
+            autocomplete="url"
+            [attr.aria-invalid]="sourceUrlInvalid() ? 'true' : null"
+            [attr.aria-describedby]="sourceUrlErrorMessage() ? sourceUrlErrorId : null"
             [placeholder]="'feed.alert.detail.report.sourceUrlPlaceholder' | translate"
             data-og7="alert-update-field"
             data-og7-id="source-url"
           />
-          <small *ngIf="form.controls.sourceUrl.touched && form.controls.sourceUrl.hasError('pattern')">
-            {{ 'validation.url' | translate }}
-          </small>
+          <p
+            class="alert-update-drawer__field-error"
+            *ngIf="sourceUrlErrorMessage() as error"
+            [id]="sourceUrlErrorId"
+          >
+            {{ error }}
+          </p>
         </label>
 
         <p
@@ -105,6 +131,8 @@
           *ngIf="submitState() === 'success'"
           data-og7="alert-update-status"
           data-og7-id="success"
+          role="status"
+          aria-live="polite"
         >
           {{ 'feed.alert.detail.report.status.success' | translate }}
         </p>
@@ -113,6 +141,8 @@
           *ngIf="submitState() === 'error'"
           data-og7="alert-update-status"
           data-og7-id="error"
+          role="alert"
+          aria-live="assertive"
         >
           {{ submitError() || ('feed.alert.detail.report.status.errorGeneric' | translate) }}
         </p>
