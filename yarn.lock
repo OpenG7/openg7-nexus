@@ -6186,6 +6186,7 @@ __metadata:
     prom-client: "npm:^15.1.3"
     qrcode: "npm:^1.5.4"
     rxjs: "npm:^7.8.1"
+    selfsigned: "npm:^2.4.1"
     tailwindcss: "npm:^4.1.13"
     three: "npm:^0.182.0"
     three-globe: "npm:^2.45.0"
