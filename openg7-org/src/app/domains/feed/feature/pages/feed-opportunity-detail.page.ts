@@ -16,7 +16,6 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
-  CreateOpportunityOfferPayload,
   OpportunityOfferRecord,
   OpportunityOffersService,
 } from '@app/core/opportunity-offers.service';
@@ -43,7 +42,12 @@ import {
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
-import { FeedComposerDraft, FeedItem } from '../models/feed.models';
+import {
+  buildOpportunityOfferDraft,
+  buildOpportunityOfferRecordPayload,
+  resolveOpportunityOfferSubmitErrorMessage,
+} from '../feed-offer-submission.helpers';
+import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
@@ -577,22 +581,52 @@ export class FeedOpportunityDetailPage {
     }
 
     this.offerSubmitState.set('submitting');
-    const draft = this.buildOfferDraft(detail, payload);
-    const outcome = await this.feed.publishDraft(draft);
+    const outcome = await this.feed.publishDraft(
+      buildOpportunityOfferDraft(
+        {
+          title: detail.title,
+          sectorId: detail.item.sectorId,
+          fromProvinceId: detail.item.fromProvinceId,
+          toProvinceId: detail.item.toProvinceId,
+          mode: detail.item.mode,
+          tags: detail.item.tags,
+        },
+        payload,
+        this.sectors()[0]?.id ?? null,
+        this.translate
+      )
+    );
+    const errorMessage = resolveOpportunityOfferSubmitErrorMessage(outcome, this.translate);
 
-    if (outcome.status === 'validation-error') {
+    if (errorMessage) {
       this.offerSubmitState.set('error');
-      this.offerSubmitError.set(this.resolveValidationMessage(outcome.validation.errors));
+      this.offerSubmitError.set(errorMessage);
+      this.notifications.error(errorMessage, {
+        source: 'feed',
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: detail.item.id,
+        },
+      });
       return;
     }
 
-    if (outcome.status === 'request-error') {
-      this.offerSubmitState.set('error');
-      this.offerSubmitError.set(outcome.error ?? this.translate.instant('feed.error.generic'));
-      return;
-    }
-
-    const record = this.opportunityOffers.create(this.buildOfferRecordPayload(detail, payload));
+    const record = this.opportunityOffers.create(
+      buildOpportunityOfferRecordPayload(
+        {
+          id: detail.item.id,
+          title: detail.title,
+          sectorId: detail.item.sectorId,
+          fromProvinceId: detail.item.fromProvinceId,
+          toProvinceId: detail.item.toProvinceId,
+          mode: detail.item.mode,
+          tags: detail.item.tags,
+          source: detail.item.source,
+        },
+        this.currentInternalUrl(),
+        payload
+      )
+    );
     this.qnaTab.set('offers');
     this.offerSubmitState.set('success');
     this.offerSubmitError.set(null);
@@ -605,6 +639,7 @@ export class FeedOpportunityDetailPage {
       {
         source: 'feed',
         metadata: {
+          action: 'create-opportunity-offer',
           itemId: detail.item.id,
           offerId: record.id,
           offerReference: record.reference,
@@ -612,56 +647,6 @@ export class FeedOpportunityDetailPage {
       }
     );
     this.closeOfferDrawerAfterSuccess();
-  }
-
-  private buildOfferDraft(detail: OpportunityDetailVm, payload: OpportunityOfferPayload): FeedComposerDraft {
-    const sectorFallback = this.sectors()[0]?.id ?? null;
-    const titlePrefix = this.translate.instant('feed.opportunity.detail.offer.generatedTitlePrefix');
-    const title = `${titlePrefix}: ${detail.title}`.slice(0, 160);
-    const summaryLines = [
-      `${this.translate.instant('feed.opportunity.detail.offer.capacity')}: ${payload.capacityMw} MW`,
-      `${this.translate.instant('feed.opportunity.detail.offer.start')}: ${payload.startDate}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.end')}: ${payload.endDate}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.pricing')}: ${payload.pricingModel}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.comment')}: ${payload.comment}`,
-      payload.attachmentName
-        ? `${this.translate.instant('feed.opportunity.detail.offer.attachment')}: ${payload.attachmentName}`
-        : null,
-    ].filter((line): line is string => Boolean(line));
-    const tags = new Set<string>(['offer', 'opportunity', ...(detail.item.tags ?? [])]);
-    return {
-      type: 'OFFER',
-      title,
-      summary: summaryLines.join(' | ').slice(0, 5000),
-      sectorId: detail.item.sectorId ?? sectorFallback,
-      fromProvinceId: detail.item.fromProvinceId ?? null,
-      toProvinceId: detail.item.toProvinceId ?? null,
-      mode: detail.item.mode ?? 'BOTH',
-      quantity: {
-        value: payload.capacityMw,
-        unit: 'MW',
-      },
-      tags: Array.from(tags).slice(0, 8),
-    };
-  }
-
-  private buildOfferRecordPayload(
-    detail: OpportunityDetailVm,
-    payload: OpportunityOfferPayload
-  ): CreateOpportunityOfferPayload {
-    return {
-      opportunityId: detail.item.id,
-      opportunityTitle: detail.title,
-      opportunityRoute: this.currentInternalUrl(),
-      recipientKind: detail.item.source.kind,
-      recipientLabel: detail.item.source.label,
-      capacityMw: payload.capacityMw,
-      startDate: payload.startDate,
-      endDate: payload.endDate,
-      pricingModel: payload.pricingModel,
-      comment: payload.comment,
-      attachmentName: payload.attachmentName,
-    };
   }
 
   private buildOfferMessage(offer: OpportunityOfferRecord): string {
@@ -685,15 +670,6 @@ export class FeedOpportunityDetailPage {
       content: this.buildOfferMessage(offer),
       createdAt: this.relativeTime(offer.createdAt),
     };
-  }
-
-  private resolveValidationMessage(errors: readonly string[]): string {
-    const [firstError] = errors;
-    if (!firstError) {
-      return this.translate.instant('feed.error.generic');
-    }
-    const translated = this.translate.instant(firstError);
-    return translated === firstError ? this.translate.instant('feed.error.generic') : translated;
   }
 
   private closeOfferDrawerAfterSuccess(): void {

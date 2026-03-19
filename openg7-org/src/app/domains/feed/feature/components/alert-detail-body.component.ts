@@ -22,4 +22,20 @@ export class AlertDetailBodyComponent {
   readonly updates = input<readonly AlertUpdateEntry[]>([]);
   readonly recommendations = input<readonly string[]>([]);
   readonly sources = input<readonly AlertSourceEntry[]>([]);
+
+  protected trackByValue(_index: number, value: string): string {
+    return value;
+  }
+
+  protected trackByTimelineEntry(_index: number, entry: AlertTimelineEntry): string {
+    return entry.id;
+  }
+
+  protected trackByUpdateEntry(_index: number, entry: AlertUpdateEntry): string {
+    return entry.id;
+  }
+
+  protected trackBySourceEntry(_index: number, entry: AlertSourceEntry): string {
+    return entry.id;
+  }
 }

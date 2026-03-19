@@ -67,9 +67,32 @@
 
       <ng-template #missingState>
         <article class="feed-alert-detail__empty" data-og7="alert-detail-missing">
-          <h2>{{ 'feed.alert.detail.notFoundTitle' | translate }}</h2>
-          <p>{{ error() || ('feed.alert.detail.notFoundBody' | translate) }}</p>
-          <a routerLink="/feed">{{ 'feed.alert.detail.backToFeed' | translate }}</a>
+          <h2>
+            {{
+              notFound()
+                ? ('feed.alert.detail.notFoundTitle' | translate)
+                : ('feed.alert.detail.errorTitle' | translate)
+            }}
+          </h2>
+          <p>
+            {{
+              notFound()
+                ? ('feed.alert.detail.notFoundBody' | translate)
+                : (error() || ('feed.alert.detail.errorBody' | translate))
+            }}
+          </p>
+          <div class="feed-alert-detail__empty-actions">
+            <button
+              *ngIf="retryAvailable()"
+              type="button"
+              data-og7="action"
+              data-og7-id="alert-detail-retry"
+              (click)="retry()"
+            >
+              {{ 'feed.alert.detail.retry' | translate }}
+            </button>
+            <a routerLink="/feed">{{ 'feed.alert.detail.backToFeed' | translate }}</a>
+          </div>
         </article>
       </ng-template>
     </ng-template>

@@ -14,14 +14,20 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
+import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType, resolveFeedConnectionMatchId } from './feed-item.helpers';
+import {
+  buildOpportunityOfferDraft,
+  buildOpportunityOfferRecordPayload,
+  resolveOpportunityOfferSubmitErrorMessage,
+} from './feed-offer-submission.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
-import { FeedComposerDraft, FeedItem } from './models/feed.models';
+import { FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
@@ -45,6 +51,7 @@ export class FeedPage {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
+  private readonly notifications = injectNotificationStore();
   private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly translate = inject(TranslateService);
   private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>('publishSection');
@@ -247,78 +254,45 @@ export class FeedPage {
     }
 
     this.contactSubmitState.set('submitting');
-    const outcome = await this.feed.publishDraft(this.buildContactDraft(item, payload));
+    const outcome = await this.feed.publishDraft(
+      buildOpportunityOfferDraft(item, payload, this.items().find(entry => entry.sectorId)?.sectorId ?? null, this.translate)
+    );
+    const errorMessage = resolveOpportunityOfferSubmitErrorMessage(outcome, this.translate);
 
-    if (outcome.status === 'validation-error') {
+    if (errorMessage) {
       this.contactSubmitState.set('error');
-      this.contactSubmitError.set(this.resolveValidationMessage(outcome.validation.errors));
+      this.contactSubmitError.set(errorMessage);
+      this.notifications.error(errorMessage, {
+        source: 'feed',
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: item.id,
+        },
+      });
       return;
     }
 
-    if (outcome.status === 'request-error') {
-      this.contactSubmitState.set('error');
-      this.contactSubmitError.set(outcome.error ?? this.translate.instant('feed.error.generic'));
-      return;
-    }
-
-    this.opportunityOffers.create({
-      opportunityId: item.id,
-      opportunityTitle: item.title,
-      opportunityRoute: this.currentInternalUrl(),
-      recipientKind: item.source.kind,
-      recipientLabel: item.source.label,
-      capacityMw: payload.capacityMw,
-      startDate: payload.startDate,
-      endDate: payload.endDate,
-      pricingModel: payload.pricingModel,
-      comment: payload.comment,
-      attachmentName: payload.attachmentName,
-    });
+    const record = this.opportunityOffers.create(
+      buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload)
+    );
     this.contactSubmitState.set('success');
     this.contactSubmitError.set(null);
     this.pendingContactPayload = null;
+    this.notifications.success(
+      this.translate.instant('feed.opportunity.detail.offer.status.successReference', {
+        reference: record.reference,
+      }),
+      {
+        source: 'feed',
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: item.id,
+          offerId: record.id,
+          offerReference: record.reference,
+        },
+      }
+    );
     this.closeContactDrawerAfterSuccess();
-  }
-
-  private buildContactDraft(item: FeedItem, payload: OpportunityOfferPayload): FeedComposerDraft {
-    const sectorFallback = this.items().find(entry => entry.sectorId)?.sectorId ?? null;
-    const titlePrefix = this.translate.instant('feed.opportunity.detail.offer.generatedTitlePrefix');
-    const title = `${titlePrefix}: ${item.title}`.slice(0, 160);
-    const summaryLines = [
-      `${this.translate.instant('feed.opportunity.detail.offer.capacity')}: ${payload.capacityMw} MW`,
-      `${this.translate.instant('feed.opportunity.detail.offer.start')}: ${payload.startDate}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.end')}: ${payload.endDate}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.pricing')}: ${payload.pricingModel}`,
-      `${this.translate.instant('feed.opportunity.detail.offer.comment')}: ${payload.comment}`,
-      payload.attachmentName
-        ? `${this.translate.instant('feed.opportunity.detail.offer.attachment')}: ${payload.attachmentName}`
-        : null,
-    ].filter((line): line is string => Boolean(line));
-    const tags = new Set<string>(['offer', 'opportunity', ...(item.tags ?? [])]);
-
-    return {
-      type: 'OFFER',
-      title,
-      summary: summaryLines.join(' | ').slice(0, 5000),
-      sectorId: item.sectorId ?? sectorFallback,
-      fromProvinceId: item.fromProvinceId ?? null,
-      toProvinceId: item.toProvinceId ?? null,
-      mode: item.mode ?? 'BOTH',
-      quantity: {
-        value: payload.capacityMw,
-        unit: 'MW',
-      },
-      tags: Array.from(tags).slice(0, 8),
-    };
-  }
-
-  private resolveValidationMessage(errors: readonly string[]): string {
-    const [firstError] = errors;
-    if (!firstError) {
-      return this.translate.instant('feed.error.generic');
-    }
-    const translated = this.translate.instant(firstError);
-    return translated === firstError ? this.translate.instant('feed.error.generic') : translated;
   }
 
   private closeContactDrawerAfterSuccess(): void {

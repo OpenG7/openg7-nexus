@@ -213,8 +213,7 @@ export class ImportationFiltersStore {
         this.fetchSuppliers(filters);
         this.fetchCollaboration(filters);
         this.fetchKnowledge();
-      },
-      { allowSignalWrites: true }
+      }
     );
   }
 

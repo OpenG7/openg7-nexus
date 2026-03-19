@@ -1,0 +1,36 @@
+<section
+  *ngIf="notifications().length"
+  class="notification-toast-tray"
+  data-og7="notification-toast-tray"
+  aria-live="polite"
+  aria-relevant="additions text"
+>
+  <ol class="notification-toast-tray__list">
+    <li
+      *ngFor="let item of notifications(); trackBy: trackById"
+      class="notification-toast-tray__item"
+      [class.notification-toast-tray__item--success]="item.type === 'success'"
+      [class.notification-toast-tray__item--error]="item.type === 'error'"
+      [class.notification-toast-tray__item--info]="item.type === 'info'"
+      [attr.role]="isError(item) ? 'alert' : 'status'"
+      data-og7="notification-toast"
+      [attr.data-og7-id]="item.type"
+    >
+      <div class="notification-toast-tray__header">
+        <p class="notification-toast-tray__title">
+          {{ item.title || ('notifications.types.' + item.type | translate) }}
+        </p>
+        <button
+          type="button"
+          class="notification-toast-tray__dismiss"
+          (click)="dismiss(item.id)"
+          [attr.aria-label]="'notifications.panel.dismiss' | translate"
+          data-og7="notification-toast-dismiss"
+        >
+          x
+        </button>
+      </div>
+      <p class="notification-toast-tray__message">{{ item.message }}</p>
+    </li>
+  </ol>
+</section>

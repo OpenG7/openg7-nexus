@@ -90,6 +90,45 @@ test.describe('Feed alert detail', () => {
     await expect(page.locator('#composer-summary')).not.toHaveValue('');
     await expect(page.locator('#composer-type')).toHaveValue(/REQUEST$/);
   });
+
+  test('shows a success toast when the linked opportunity draft opens successfully', async ({ page }) => {
+    await mockAuthenticatedSessionApis(page);
+    await page.goto('/feed/alerts/alert-001');
+
+    await page.locator('[data-og7-id="alert-create-opportunity"]').click();
+
+    await expect(page).toHaveURL(/\/feed\?.*draftSource=alert/);
+    await expect(page.locator('[data-og7="feed-publish-drawer"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-composer-auth-gate"]')).toBeVisible();
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]')).toContainText(
+      /Le brouillon d'opportunite liee est pret dans le fil\.|The linked opportunity draft is ready in the feed\./i
+    );
+  });
+
+  test('shows an error toast when linked opportunity navigation fails', async ({ page }) => {
+    await mockAuthenticatedSessionApis(page);
+    await page.goto('/feed/alerts/alert-001');
+
+    await page.evaluate(() => {
+      const failNavigation = () => {
+        throw new Error('e2e-forced-navigation-failure');
+      };
+      window.history.pushState = failNavigation as History['pushState'];
+    });
+
+    await page.locator('[data-og7-id="alert-create-opportunity"]').click();
+
+    await expect(page).toHaveURL(/\/feed\/alerts\/alert-001$/);
+    await expect(page.locator('[data-og7="alert-detail-page"]')).toBeVisible();
+    await expect(
+      page
+        .locator('[data-og7="notification-toast"][data-og7-id="error"]')
+        .filter({
+          hasText:
+            /Impossible de preparer l'opportunite liee\. Veuillez reessayer\.|Unable to prepare the linked opportunity\. Please try again\./i,
+        })
+    ).toBeVisible();
+  });
 });
 
 

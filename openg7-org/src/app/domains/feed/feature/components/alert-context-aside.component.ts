@@ -24,4 +24,16 @@ export class AlertContextAsideComponent {
   readonly openRelatedAlert = output<string | null>();
   readonly openRelatedOpportunity = output<string>();
   readonly openAllAlerts = output<void>();
+
+  protected trackByIndicator(_index: number, entry: AlertIndicatorEntry): string {
+    return entry.id;
+  }
+
+  protected trackByRelatedAlert(_index: number, entry: AlertRelatedAlertEntry): string {
+    return `${entry.id ?? 'missing'}:${entry.title}`;
+  }
+
+  protected trackByRelatedOpportunity(_index: number, entry: AlertRelatedOpportunityEntry): string {
+    return entry.id;
+  }
 }

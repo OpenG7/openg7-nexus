@@ -18,6 +18,7 @@ import {
   IndicatorAlertRuleRecord,
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
+import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -67,6 +68,7 @@ export class FeedIndicatorDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly notifications = injectNotificationStore();
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly indicatorAlertDrafts = inject(IndicatorAlertDraftsService);
   private readonly feed = inject(FeedRealtimeService);
@@ -461,10 +463,27 @@ export class FeedIndicatorDetailPage {
     const rulePayload = this.buildIndicatorAlertRulePayload(detail, draft);
 
     try {
-      this.indicatorAlertRules.create(rulePayload);
+      const record = this.indicatorAlertRules.create(rulePayload);
+      this.notifications.success(this.translate.instant('feed.indicator.detail.drawer.status.success'), {
+        source: 'feed',
+        metadata: {
+          action: 'create-indicator-alert',
+          itemId: detail.item.id,
+          indicatorAlertRuleId: record.id,
+        },
+      });
     } catch (error) {
+      const message = this.resolveLoadError(error);
       this.alertSubmitState.set('error');
-      this.alertSubmitError.set(this.resolveLoadError(error));
+      this.alertSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'create-indicator-alert',
+          itemId: detail.item.id,
+        },
+      });
       return;
     }
 

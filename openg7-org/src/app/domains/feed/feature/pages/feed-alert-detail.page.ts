@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -18,10 +18,10 @@ import {
   FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
   UserAlertsService,
 } from '@app/core/user-alerts.service';
-import { selectProvinces } from '@app/state/catalog/catalog.selectors';
+import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 
 import { AlertContextAsideComponent } from '../components/alert-context-aside.component';
 import { AlertDetailBodyComponent } from '../components/alert-detail-body.component';
@@ -35,6 +35,7 @@ import {
   AlertUpdateSubmitState,
 } from '../components/alert-detail.models';
 import { AlertUpdateDrawerComponent } from '../components/alert-update-drawer.component';
+import { buildFeedDraftPrefillQueryParams } from '../feed-draft-prefill.helpers';
 import { FeedItem } from '../models/feed.models';
 import { AlertUpdateQueueService } from '../services/alert-update-queue.service';
 import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
@@ -68,18 +69,31 @@ export class FeedAlertDetailPage {
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly activeLanguage = toSignal(
+    this.translate.onLangChange.pipe(
+      map(event => event.lang),
+      startWith(this.translate.currentLang || this.translate.getDefaultLang() || 'en')
+    ),
+    {
+      initialValue: this.translate.currentLang || this.translate.getDefaultLang() || 'en',
+    }
+  );
 
   private readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
     initialValue: this.route.snapshot.paramMap.get('itemId'),
   });
+  private readonly reloadVersion = signal(0);
 
   private readonly detailItem = signal<FeedItem | null>(null);
   private readonly detailLoading = signal(false);
   private readonly detailError = signal<string | null>(null);
+  private readonly detailErrorKind = signal<'notFound' | 'unavailable' | null>(null);
   private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());
-  protected readonly error = computed(() => this.detailError() ?? this.feed.error());
+  protected readonly loading = computed(() => this.detailLoading());
+  protected readonly error = computed(() => this.detailError());
+  protected readonly notFound = computed(() => this.detailErrorKind() === 'notFound');
+  protected readonly retryAvailable = computed(() => this.detailErrorKind() === 'unavailable');
 
   protected readonly headerCompact = signal(false);
   protected readonly reportDrawerOpen = signal(false);
@@ -88,11 +102,19 @@ export class FeedAlertDetailPage {
   protected readonly reportSubmitError = signal<string | null>(null);
 
   protected readonly provinces = this.store.selectSignal(selectProvinces);
+  protected readonly sectors = this.store.selectSignal(selectSectors);
 
   protected readonly provinceNameMap = computed(() => {
     const map = new Map<string, string>();
     for (const province of this.provinces()) {
       map.set(province.id, province.name);
+    }
+    return map;
+  });
+  protected readonly sectorNameMap = computed(() => {
+    const map = new Map<string, string>();
+    for (const sector of this.sectors()) {
+      map.set(sector.id, sector.name);
     }
     return map;
   });
@@ -110,6 +132,7 @@ export class FeedAlertDetailPage {
   });
 
   protected readonly detailVm = computed(() => {
+    this.activeLanguage();
     const item = this.selectedItem();
     if (!item || item.type !== 'ALERT') {
       return null;
@@ -118,6 +141,7 @@ export class FeedAlertDetailPage {
   });
 
   protected readonly lastUpdatedLabel = computed(() => {
+    this.activeLanguage();
     const detail = this.detailVm();
     if (!detail) {
       return this.translate.instant('feed.alert.detail.justNow');
@@ -150,11 +174,14 @@ export class FeedAlertDetailPage {
   constructor() {
     effect(onCleanup => {
       const itemId = this.itemId();
+      this.reloadVersion();
       this.detailItem.set(null);
       this.detailError.set(null);
+      this.detailErrorKind.set(null);
 
       if (!itemId) {
         this.detailLoading.set(false);
+        this.detailErrorKind.set('notFound');
         return;
       }
 
@@ -167,12 +194,17 @@ export class FeedAlertDetailPage {
           if (cancelled) {
             return;
           }
+          if (!item || item.type !== 'ALERT') {
+            this.detailErrorKind.set('notFound');
+            return;
+          }
           this.detailItem.set(item);
         })
         .catch(error => {
           if (cancelled) {
             return;
           }
+          this.detailErrorKind.set(this.resolveErrorKind(error));
           this.detailError.set(this.resolveLoadError(error));
         })
         .finally(() => {
@@ -254,31 +286,59 @@ export class FeedAlertDetailPage {
     }
 
     const result = await this.userAlerts.create(this.buildSubscriptionAlertPayload(detail));
+    if (result.status === 'unauthenticated') {
+      this.redirectToLogin();
+      return;
+    }
+
+    const metadata = {
+      action: 'subscribe-alert',
+      itemId: detail.item.id,
+      subscriptionAlertId: result.entry?.id ?? null,
+      result: result.status,
+    };
+
     if (result.status === 'created') {
       this.notifications.success(
         this.translate.instant('feed.alert.detail.subscription.status.success'),
         {
           source: 'feed',
-          metadata: {
-            action: 'subscribe-alert',
-            itemId: detail.item.id,
-            subscriptionAlertId: result.entry?.id ?? null,
-          },
+          metadata,
         }
       );
       return;
     }
 
-    if (result.status === 'error') {
-      const message = this.translate.instant('feed.alert.detail.subscription.status.errorGeneric');
-      this.notifications.error(message, {
-        source: 'feed',
-        metadata: {
-          action: 'subscribe-alert',
-          itemId: detail.item.id,
-        },
-      });
+    if (result.status === 'duplicate') {
+      this.notifications.info(
+        this.translate.instant('feed.alert.detail.subscription.status.duplicate'),
+        {
+          source: 'feed',
+          metadata,
+        }
+      );
+      return;
     }
+
+    if (result.status === 'pending') {
+      this.notifications.info(
+        this.translate.instant('feed.alert.detail.subscription.status.pending'),
+        {
+          source: 'feed',
+          metadata,
+        }
+      );
+      return;
+    }
+
+    const message =
+      result.status === 'invalid'
+        ? this.translate.instant('feed.alert.detail.subscription.status.invalid')
+        : this.translate.instant('feed.alert.detail.subscription.status.errorGeneric');
+    this.notifications.error(message, {
+      source: 'feed',
+      metadata,
+    });
   }
 
   protected closeReportDrawer(): void {
@@ -305,10 +365,47 @@ export class FeedAlertDetailPage {
       }
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
+        this.notifications.success(this.translate.instant('feed.alert.detail.shareCopied'), {
+          source: 'feed',
+          metadata: {
+            action: 'share-alert',
+            itemId: detail.item.id,
+            method: 'clipboard',
+          },
+        });
+        return;
       }
-    } catch {
-      // Best effort only.
+
+      this.notifications.error(this.translate.instant('feed.alert.detail.shareUnavailable'), {
+        source: 'feed',
+        metadata: {
+          action: 'share-alert',
+          itemId: detail.item.id,
+          method: 'unsupported',
+        },
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+      this.notifications.error(this.translate.instant('feed.alert.detail.shareUnavailable'), {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'share-alert',
+          itemId: detail.item.id,
+          method: 'failed',
+        },
+      });
     }
+  }
+
+  protected retry(): void {
+    if (!this.retryAvailable()) {
+      return;
+    }
+    this.feed.reload();
+    this.reloadVersion.update(version => version + 1);
   }
 
   protected reportUpdate(): void {
@@ -325,11 +422,16 @@ export class FeedAlertDetailPage {
 
   protected handleReportSubmitted(payload: AlertUpdatePayload): void {
     const detail = this.detailVm();
-    if (!detail) {
+    if (
+      !detail ||
+      this.reportSubmitState() === 'submitting' ||
+      this.reportSubmitState() === 'success'
+    ) {
       return;
     }
 
     try {
+      this.reportSubmitState.set('submitting');
       const record = this.alertUpdateQueue.queueUpdate({
         alertId: detail.item.id,
         alertTitle: detail.title,
@@ -368,50 +470,83 @@ export class FeedAlertDetailPage {
     if (!detail) {
       return;
     }
-    const inferredMode =
-      detail.item.fromProvinceId &&
-      detail.item.toProvinceId &&
-      detail.item.fromProvinceId !== detail.item.toProvinceId
-        ? 'IMPORT'
-        : 'BOTH';
-    const fallbackToProvinceId = detail.item.toProvinceId ?? detail.item.fromProvinceId ?? null;
-    const draftTitlePrefix = this.translate.instant('feed.alert.detail.cta.createOpportunityTitlePrefix');
-    const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
-    const draftSummary = detail.summaryHeadline.slice(0, 5000);
-    const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
-    const draftConnectionMatchId = await this.connectionMatcher.resolveDraftConnectionMatchId({
-      type: 'REQUEST',
-      title: draftTitle,
-      summary: draftSummary,
-      sectorId: detail.item.sectorId ?? null,
-      fromProvinceId: detail.item.fromProvinceId ?? null,
-      toProvinceId: fallbackToProvinceId,
-      mode: inferredMode,
-    });
-
-    await this.router.navigate(['/feed'], {
-      queryParams: {
+    try {
+      const inferredMode =
+        detail.item.fromProvinceId &&
+        detail.item.toProvinceId &&
+        detail.item.fromProvinceId !== detail.item.toProvinceId
+          ? 'IMPORT'
+          : 'BOTH';
+      const fallbackToProvinceId = detail.item.toProvinceId ?? detail.item.fromProvinceId ?? null;
+      const draftTitlePrefix = this.translate.instant('feed.alert.detail.cta.createOpportunityTitlePrefix');
+      const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
+      const draftSummary = detail.summaryHeadline.slice(0, 5000);
+      const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
+      const draftConnectionMatchId = await this.connectionMatcher.resolveDraftConnectionMatchId({
         type: 'REQUEST',
+        title: draftTitle,
+        summary: draftSummary,
+        sectorId: detail.item.sectorId ?? null,
+        fromProvinceId: detail.item.fromProvinceId ?? null,
+        toProvinceId: fallbackToProvinceId,
         mode: inferredMode,
-        sector: detail.item.sectorId ?? null,
-        fromProvince: detail.item.fromProvinceId ?? null,
-        toProvince: fallbackToProvinceId,
-        q: detail.title,
-        draftSource: 'alert',
-        draftAlertId: detail.item.id,
-        draftOriginType: 'alert',
-        draftOriginId: detail.item.id,
-        draftType: 'REQUEST',
-        draftMode: inferredMode,
-        draftSectorId: detail.item.sectorId ?? null,
-        draftFromProvinceId: detail.item.fromProvinceId ?? null,
-        draftToProvinceId: fallbackToProvinceId,
-        draftTitle,
-        draftSummary,
-        draftTags: draftTags || null,
-        draftConnectionMatchId: draftConnectionMatchId ?? null,
-      },
-    });
+      });
+
+      const navigated = await this.router.navigate(['/feed'], {
+        queryParams: {
+          type: 'REQUEST',
+          mode: inferredMode,
+          sector: detail.item.sectorId ?? null,
+          fromProvince: detail.item.fromProvinceId ?? null,
+          toProvince: fallbackToProvinceId,
+          q: detail.title,
+          ...buildFeedDraftPrefillQueryParams({
+            draftSource: 'alert',
+            draftAlertId: detail.item.id,
+            draftOriginType: 'alert',
+            draftOriginId: detail.item.id,
+            draftType: 'REQUEST',
+            draftMode: inferredMode,
+            draftSectorId: detail.item.sectorId ?? null,
+            draftFromProvinceId: detail.item.fromProvinceId ?? null,
+            draftToProvinceId: fallbackToProvinceId,
+            draftTitle,
+            draftSummary,
+            draftTags: draftTags || null,
+            draftConnectionMatchId: draftConnectionMatchId ?? null,
+          }),
+        },
+      });
+
+      if (!navigated) {
+        this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
+          source: 'feed',
+          metadata: {
+            action: 'create-linked-opportunity',
+            itemId: detail.item.id,
+          },
+        });
+        return;
+      }
+
+      this.notifications.success(this.translate.instant('feed.alert.detail.opportunity.status.success'), {
+        source: 'feed',
+        metadata: {
+          action: 'create-linked-opportunity',
+          itemId: detail.item.id,
+          draftConnectionMatchId: draftConnectionMatchId ?? null,
+        },
+      });
+    } catch (error) {
+      this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'create-linked-opportunity',
+          itemId: detail.item.id,
+        },
+      });
+    }
   }
 
   protected openRelatedAlert(alertId: string | null): void {
@@ -437,11 +572,16 @@ export class FeedAlertDetailPage {
   }
 
   private buildAlertDetailVm(item: FeedItem): AlertDetailVm {
+    this.activeLanguage();
     const provinceLabel =
       this.resolveProvinceLabel(item.toProvinceId) ??
       this.resolveProvinceLabel(item.fromProvinceId) ??
       this.translate.instant('feed.alert.detail.ontario');
-
+    const sectorLabel =
+      this.resolveSectorLabel(item.sectorId) ??
+      this.translate.instant('feed.alert.detail.unknownSector');
+    const sourceLabel = item.source.label?.trim() || this.translate.instant('feed.sourceUnknown');
+    const routeLabel = this.composeRouteLabel(item);
     const severityLabel = this.resolveSeverity(item.urgency ?? null);
     const confidenceLabel = this.resolveConfidence(item.credibility ?? null);
     const windowLabel = this.resolveWindow(item.urgency ?? null);
@@ -449,122 +589,224 @@ export class FeedAlertDetailPage {
     return {
       item,
       title: item.title,
-      subtitle: `${provinceLabel} · ${this.translate.instant('feed.alert.detail.weather')} · ${this.translate.instant('feed.alert.detail.gridNetwork')}`,
+      subtitle: [provinceLabel, sectorLabel, sourceLabel].filter(Boolean).join(' | '),
       severityLabel,
       confidenceLabel,
       windowLabel,
       summaryHeadline: item.summary,
-      summaryPoints: [
-        this.translate.instant('feed.alert.detail.demo.summaryPoint1'),
-        this.translate.instant('feed.alert.detail.demo.summaryPoint2'),
-      ],
-      impactPoints: [
-        this.translate.instant('feed.alert.detail.demo.impactPoint1'),
-        this.translate.instant('feed.alert.detail.demo.impactPoint2'),
-        this.translate.instant('feed.alert.detail.demo.impactPoint3'),
-      ],
-      zones: [
-        this.translate.instant('feed.alert.detail.demo.zone1'),
-        this.translate.instant('feed.alert.detail.demo.zone2'),
-        this.translate.instant('feed.alert.detail.demo.zone3'),
-      ],
-      infrastructures: [
-        this.translate.instant('feed.alert.detail.demo.infrastructure1'),
-        this.translate.instant('feed.alert.detail.demo.infrastructure2'),
-        this.translate.instant('feed.alert.detail.demo.infrastructure3'),
-      ],
-      timeline: [
-        {
-          id: `${item.id}-timeline-start`,
-          label: this.translate.instant('feed.alert.detail.timeline.start'),
-          value: this.translate.instant('feed.alert.detail.demo.timelineStart'),
-        },
-        {
-          id: `${item.id}-timeline-peak`,
-          label: this.translate.instant('feed.alert.detail.timeline.peak'),
-          value: this.translate.instant('feed.alert.detail.demo.timelinePeak'),
-        },
-        {
-          id: `${item.id}-timeline-recovery`,
-          label: this.translate.instant('feed.alert.detail.timeline.recovery'),
-          value: this.translate.instant('feed.alert.detail.demo.timelineRecovery'),
-        },
-      ],
-      updates: [
-        {
-          id: `${item.id}-update-1`,
-          title: this.translate.instant('feed.alert.detail.demo.update1'),
-          when: this.relativeTime(item.updatedAt ?? item.createdAt),
-        },
-        {
-          id: `${item.id}-update-2`,
-          title: this.translate.instant('feed.alert.detail.demo.update2'),
-          when: this.translate.instant('feed.alert.detail.demo.update2When'),
-        },
-        {
-          id: `${item.id}-update-3`,
-          title: this.translate.instant('feed.alert.detail.demo.update3'),
-          when: this.translate.instant('feed.alert.detail.demo.update3When'),
-        },
-      ],
-      recommendations: [
-        this.translate.instant('feed.alert.detail.demo.reco1'),
-        this.translate.instant('feed.alert.detail.demo.reco2'),
-        this.translate.instant('feed.alert.detail.demo.reco3'),
-      ],
-      sources: [
-        {
-          id: 'source-environment-canada',
-          label: this.translate.instant('feed.alert.detail.demo.sourceEnvironmentCanada'),
-          href: 'https://weather.gc.ca',
-          confidence: this.translate.instant('feed.alert.detail.confidence.high'),
-        },
-        {
-          id: 'source-hydro-one',
-          label: this.translate.instant('feed.alert.detail.demo.sourceHydroOne'),
-          href: 'https://www.hydroone.com',
-          confidence: this.translate.instant('feed.alert.detail.confidence.probable'),
-        },
-        {
-          id: 'source-ieso',
-          label: this.translate.instant('feed.alert.detail.demo.sourceIeso'),
-          href: 'https://www.ieso.ca',
-          confidence: this.translate.instant('feed.alert.detail.confidence.probable'),
-        },
-      ],
-      indicators: [
-        {
-          id: `${item.id}-indicator-1`,
-          label: this.translate.instant('feed.alert.detail.demo.indicatorSpotPrice'),
-          context: provinceLabel,
-          value: '+12%',
-          trend: 'up',
-        },
-        {
-          id: `${item.id}-indicator-2`,
-          label: this.translate.instant('feed.alert.detail.demo.indicatorReserveMargin'),
-          context: provinceLabel,
-          value: '6%',
-          trend: 'steady',
-        },
-        {
-          id: `${item.id}-indicator-3`,
-          label: this.translate.instant('feed.alert.detail.demo.indicatorOutages'),
-          context: provinceLabel,
-          value: this.translate.instant('feed.alert.detail.demo.outageValue'),
-          trend: 'down',
-        },
-      ],
+      summaryPoints: this.buildSummaryPoints(item, routeLabel, sourceLabel),
+      impactPoints: this.buildImpactPoints(severityLabel, confidenceLabel, windowLabel),
+      zones: this.buildZones(item, provinceLabel, routeLabel),
+      infrastructures: this.buildInfrastructurePoints(sourceLabel, sectorLabel),
+      timeline: this.buildTimeline(item, windowLabel),
+      updates: this.buildUpdates(item, sourceLabel),
+      recommendations: this.buildRecommendations(routeLabel, sourceLabel),
+      sources: this.buildSources(item, sourceLabel, confidenceLabel),
+      indicators: this.buildIndicators(item, provinceLabel, sectorLabel, sourceLabel),
       relatedAlerts: this.buildRelatedAlerts(item, provinceLabel),
       relatedOpportunities: this.buildRelatedOpportunities(item),
       updatedAtIso: item.updatedAt ?? item.createdAt,
     };
   }
 
+  private buildSummaryPoints(
+    item: FeedItem,
+    routeLabel: string,
+    sourceLabel: string
+  ): readonly string[] {
+    const points = this.toSentenceArray(item.accessibilitySummary).slice(0, 2);
+    points.push(
+      this.translate.instant('feed.alert.detail.summaryPointSource', {
+        source: sourceLabel,
+      })
+    );
+
+    if (item.fromProvinceId || item.toProvinceId) {
+      points.push(
+        this.translate.instant('feed.alert.detail.summaryPointRoute', {
+          route: routeLabel,
+        })
+      );
+    }
+
+    const tagList = this.formatTagList(item.tags);
+    if (tagList) {
+      points.push(
+        this.translate.instant('feed.alert.detail.summaryPointTags', {
+          tags: tagList,
+        })
+      );
+    }
+
+    return this.uniqueStrings(points).slice(0, 3);
+  }
+
+  private buildImpactPoints(
+    severityLabel: string,
+    confidenceLabel: string,
+    windowLabel: string
+  ): readonly string[] {
+    return [
+      this.translate.instant('feed.alert.detail.impactSeverity', {
+        severity: severityLabel,
+      }),
+      this.translate.instant('feed.alert.detail.impactConfidence', {
+        confidence: confidenceLabel,
+      }),
+      this.translate.instant('feed.alert.detail.impactWindow', {
+        window: windowLabel,
+      }),
+    ];
+  }
+
+  private buildZones(
+    item: FeedItem,
+    provinceLabel: string,
+    routeLabel: string
+  ): readonly string[] {
+    const zones = new Set<string>();
+    const from = this.resolveProvinceLabel(item.fromProvinceId);
+    const to = this.resolveProvinceLabel(item.toProvinceId);
+
+    if (from && to) {
+      zones.add(routeLabel);
+    }
+    if (to) {
+      zones.add(to);
+    }
+    if (from) {
+      zones.add(from);
+    }
+    zones.add(provinceLabel);
+
+    return Array.from(zones).slice(0, 3);
+  }
+
+  private buildInfrastructurePoints(sourceLabel: string, sectorLabel: string): readonly string[] {
+    return [
+      this.translate.instant('feed.alert.detail.infrastructureSector', {
+        sector: sectorLabel,
+      }),
+      this.translate.instant('feed.alert.detail.infrastructureSource', {
+        source: sourceLabel,
+      }),
+    ];
+  }
+
+  private buildTimeline(item: FeedItem, windowLabel: string): AlertDetailVm['timeline'] {
+    return [
+      {
+        id: `${item.id}-timeline-reported`,
+        label: this.translate.instant('feed.alert.detail.timeline.reported'),
+        value: this.formatDateTime(item.createdAt),
+      },
+      {
+        id: `${item.id}-timeline-confirmed`,
+        label: this.translate.instant('feed.alert.detail.timeline.confirmed'),
+        value: this.formatDateTime(item.updatedAt ?? item.createdAt),
+      },
+      {
+        id: `${item.id}-timeline-monitoring`,
+        label: this.translate.instant('feed.alert.detail.timeline.monitoring'),
+        value: this.translate.instant('feed.alert.detail.timeline.monitoringValue', {
+          window: windowLabel,
+        }),
+      },
+    ];
+  }
+
+  private buildUpdates(item: FeedItem, sourceLabel: string): AlertDetailVm['updates'] {
+    const updates = [
+      {
+        id: `${item.id}-update-latest`,
+        title: item.summary,
+        when: this.relativeTime(item.updatedAt ?? item.createdAt),
+      },
+    ];
+
+    const accessibility = this.toSentenceArray(item.accessibilitySummary)[0];
+    if (accessibility) {
+      updates.push({
+        id: `${item.id}-update-accessibility`,
+        title: accessibility,
+        when: this.relativeTime(item.createdAt),
+      });
+    } else {
+      updates.push({
+        id: `${item.id}-update-source`,
+        title: this.translate.instant('feed.alert.detail.updateReportedBy', {
+          source: sourceLabel,
+        }),
+        when: this.relativeTime(item.createdAt),
+      });
+    }
+
+    return updates;
+  }
+
+  private buildRecommendations(routeLabel: string, sourceLabel: string): readonly string[] {
+    return [
+      this.translate.instant('feed.alert.detail.recoVerifySource', {
+        source: sourceLabel,
+      }),
+      this.translate.instant('feed.alert.detail.recoTrackUpdates'),
+      this.translate.instant('feed.alert.detail.recoAssessRoute', {
+        route: routeLabel,
+      }),
+    ];
+  }
+
+  private buildSources(
+    item: FeedItem,
+    sourceLabel: string,
+    confidenceLabel: string
+  ): AlertDetailVm['sources'] {
+    return [
+      {
+        id: `${item.id}-source-primary`,
+        label: sourceLabel,
+        href: item.source.url?.trim() || null,
+        confidence: confidenceLabel,
+      },
+    ];
+  }
+
+  private buildIndicators(
+    item: FeedItem,
+    provinceLabel: string,
+    sectorLabel: string,
+    sourceLabel: string
+  ): AlertDetailVm['indicators'] {
+    return [
+      {
+        id: `${item.id}-indicator-severity`,
+        label: this.translate.instant('feed.alert.detail.indicatorSeverity'),
+        context: provinceLabel,
+        value: this.resolveSeverity(item.urgency ?? null),
+        trend: this.resolveTrend(item.urgency ?? null),
+      },
+      {
+        id: `${item.id}-indicator-confidence`,
+        label: this.translate.instant('feed.alert.detail.indicatorConfidence'),
+        context: sectorLabel,
+        value: this.resolveConfidence(item.credibility ?? null),
+        trend: this.resolveTrend(item.credibility ?? null),
+      },
+      {
+        id: `${item.id}-indicator-recency`,
+        label: this.translate.instant('feed.alert.detail.indicatorRecency'),
+        context: sourceLabel,
+        value: this.relativeTime(item.updatedAt ?? item.createdAt),
+        trend: 'steady',
+      },
+    ];
+  }
+
   private buildRelatedAlerts(item: FeedItem, provinceLabel: string): readonly AlertRelatedAlertEntry[] {
-    const related = this.feed
-      .items()
-      .filter(entry => entry.type === 'ALERT' && entry.id !== item.id)
+    return this.rankRelatedEntries(
+      item,
+      this.feed.items().filter(entry => entry.type === 'ALERT' && entry.id !== item.id)
+    )
       .slice(0, 2)
       .map(entry => ({
         id: entry.id,
@@ -575,31 +817,12 @@ export class FeedAlertDetailPage {
           provinceLabel,
         severity: this.resolveSeverity(entry.urgency ?? null),
       }));
-
-    if (related.length) {
-      return related;
-    }
-
-    return [
-      {
-        id: null,
-        title: this.translate.instant('feed.alert.detail.demo.relatedAlert1'),
-        region: provinceLabel,
-        severity: this.translate.instant('feed.alert.detail.severity.medium'),
-      },
-      {
-        id: null,
-        title: this.translate.instant('feed.alert.detail.demo.relatedAlert2'),
-        region: this.translate.instant('feed.alert.detail.quebec'),
-        severity: this.translate.instant('feed.alert.detail.severity.high'),
-      },
-    ];
   }
 
   private buildRelatedOpportunities(item: FeedItem): readonly AlertRelatedOpportunityEntry[] {
-    const related = this.feed
-      .items()
-      .filter(
+    return this.rankRelatedEntries(
+      item,
+      this.feed.items().filter(
         entry =>
           entry.id !== item.id &&
           (entry.type === 'REQUEST' ||
@@ -607,36 +830,93 @@ export class FeedAlertDetailPage {
             entry.type === 'CAPACITY' ||
             entry.type === 'TENDER')
       )
+    )
       .slice(0, 2)
       .map(entry => ({
         id: entry.id,
         title: entry.title,
         routeLabel: this.composeRouteLabel(entry),
       }));
+  }
 
-    if (related.length) {
-      return related;
+  private rankRelatedEntries(source: FeedItem, candidates: readonly FeedItem[]): readonly FeedItem[] {
+    return candidates
+      .map(candidate => ({
+        candidate,
+        score: this.computeRelatedScore(source, candidate),
+      }))
+      .filter(entry => entry.score >= 5)
+      .sort((left, right) => {
+        if (right.score !== left.score) {
+          return right.score - left.score;
+        }
+        const rightTimestamp = this.getComparableTimestamp(right.candidate);
+        const leftTimestamp = this.getComparableTimestamp(left.candidate);
+        if (rightTimestamp !== leftTimestamp) {
+          return rightTimestamp - leftTimestamp;
+        }
+        return left.candidate.title.localeCompare(right.candidate.title);
+      })
+      .map(entry => entry.candidate);
+  }
+
+  private computeRelatedScore(source: FeedItem, candidate: FeedItem): number {
+    let score = 0;
+
+    if (candidate.originType === 'alert' && candidate.originId === source.id) {
+      score += 40;
     }
 
-    return [
-      {
-        id: 'request-001',
-        title: this.translate.instant('feed.alert.detail.demo.relatedOpportunity1'),
-        routeLabel: this.translate.instant('feed.alert.detail.demo.relatedOpportunityRoute1'),
-      },
-      {
-        id: 'offer-001',
-        title: this.translate.instant('feed.alert.detail.demo.relatedOpportunity2'),
-        routeLabel: this.translate.instant('feed.alert.detail.demo.relatedOpportunityRoute2'),
-      },
-    ];
+    if (source.sectorId && candidate.sectorId && source.sectorId === candidate.sectorId) {
+      score += 10;
+    }
+
+    const sourceProvinceIds = this.collectComparableIds(source.fromProvinceId, source.toProvinceId);
+    const candidateProvinceIds = this.collectComparableIds(
+      candidate.fromProvinceId,
+      candidate.toProvinceId
+    );
+    const sharedProvinceCount = Array.from(sourceProvinceIds).filter(provinceId =>
+      candidateProvinceIds.has(provinceId)
+    ).length;
+    score += sharedProvinceCount * 5;
+
+    if (
+      source.fromProvinceId &&
+      source.toProvinceId &&
+      candidate.fromProvinceId === source.fromProvinceId &&
+      candidate.toProvinceId === source.toProvinceId
+    ) {
+      score += 6;
+    } else if (
+      source.fromProvinceId &&
+      source.toProvinceId &&
+      candidate.fromProvinceId === source.toProvinceId &&
+      candidate.toProvinceId === source.fromProvinceId
+    ) {
+      score += 5;
+    }
+
+    if (candidate.source.kind === source.source.kind) {
+      score += 2;
+    }
+
+    const sourceLabel = this.normalizeComparableString(source.source.label);
+    const candidateLabel = this.normalizeComparableString(candidate.source.label);
+    if (sourceLabel && candidateLabel && sourceLabel === candidateLabel) {
+      score += 5;
+    }
+
+    score += Math.min(this.countSharedTags(source.tags, candidate.tags), 3) * 2;
+
+    return score;
   }
 
   private composeRouteLabel(item: FeedItem): string {
     const from = this.resolveProvinceLabel(item.fromProvinceId);
     const to = this.resolveProvinceLabel(item.toProvinceId);
     if (from && to) {
-    return `${from} -> ${to}`;
+      return `${from} -> ${to}`;
     }
     if (to) {
       return to;
@@ -661,10 +941,55 @@ export class FeedAlertDetailPage {
   private toKebabTag(value: string): string | null {
     const normalized = value
       .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
     return normalized.length ? normalized : null;
+  }
+
+  private collectComparableIds(...values: readonly (string | null | undefined)[]): Set<string> {
+    const ids = new Set<string>();
+    for (const value of values) {
+      const normalized = this.normalizeComparableString(value);
+      if (normalized) {
+        ids.add(normalized);
+      }
+    }
+    return ids;
+  }
+
+  private countSharedTags(
+    left: readonly string[] | null | undefined,
+    right: readonly string[] | null | undefined
+  ): number {
+    const leftTags = new Set((left ?? []).map(tag => this.toKebabTag(tag)).filter(Boolean));
+    const rightTags = new Set((right ?? []).map(tag => this.toKebabTag(tag)).filter(Boolean));
+    let shared = 0;
+    for (const tag of leftTags) {
+      if (rightTags.has(tag)) {
+        shared += 1;
+      }
+    }
+    return shared;
+  }
+
+  private normalizeComparableString(value: string | null | undefined): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const normalized = value
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+    return normalized.length ? normalized : null;
+  }
+
+  private getComparableTimestamp(item: FeedItem): number {
+    const timestamp = Date.parse(item.updatedAt ?? item.createdAt);
+    return Number.isFinite(timestamp) ? timestamp : 0;
   }
 
   private resolveProvinceLabel(id: string | null | undefined): string | null {
@@ -672,6 +997,18 @@ export class FeedAlertDetailPage {
       return null;
     }
     return this.provinceNameMap().get(id) ?? id;
+  }
+
+  private resolveSectorLabel(id: string | null | undefined): string | null {
+    if (!id) {
+      return null;
+    }
+    const mapped = this.sectorNameMap().get(id);
+    if (mapped) {
+      return mapped;
+    }
+    const translated = this.translate.instant(`sectors.${id}`);
+    return translated !== `sectors.${id}` ? translated : id;
   }
 
   private resolveSeverity(level: 1 | 2 | 3 | null): string {
@@ -704,7 +1041,18 @@ export class FeedAlertDetailPage {
     return this.translate.instant('feed.alert.detail.windows.long');
   }
 
+  private resolveTrend(level: 1 | 2 | 3 | null): 'up' | 'down' | 'steady' {
+    if (level === 3) {
+      return 'up';
+    }
+    if (level === 1) {
+      return 'down';
+    }
+    return 'steady';
+  }
+
   private relativeTime(value: string): string {
+    this.activeLanguage();
     const timestamp = new Date(value).getTime();
     if (!Number.isFinite(timestamp)) {
       return this.translate.instant('feed.alert.detail.justNow');
@@ -722,6 +1070,47 @@ export class FeedAlertDetailPage {
 
     const hours = Math.round(minutes / 60);
     return this.translate.instant('feed.alert.detail.hoursAgo', { count: hours });
+  }
+
+  private formatDateTime(value: string): string {
+    this.activeLanguage();
+    const timestamp = new Date(value).getTime();
+    if (!Number.isFinite(timestamp)) {
+      return this.translate.instant('feed.alert.detail.justNow');
+    }
+
+    const locale = this.activeLanguage().toLowerCase().startsWith('fr') ? 'fr-CA' : 'en-CA';
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(timestamp);
+  }
+
+  private toSentenceArray(value: string | null | undefined): string[] {
+    if (typeof value !== 'string') {
+      return [];
+    }
+
+    return value
+      .split(/[.!?]\s+/)
+      .map(entry => entry.trim().replace(/[.!?]+$/g, ''))
+      .filter(Boolean);
+  }
+
+  private formatTagList(tags: readonly string[] | null | undefined): string | null {
+    const normalized = (tags ?? [])
+      .map(tag => tag.trim().replace(/[-_]+/g, ' '))
+      .filter(Boolean);
+
+    if (!normalized.length) {
+      return null;
+    }
+
+    return normalized.slice(0, 3).join(', ');
+  }
+
+  private uniqueStrings(values: readonly string[]): string[] {
+    return Array.from(new Set(values.filter(value => value.trim().length > 0)));
   }
 
   private currentUrl(): string {
@@ -809,5 +1198,12 @@ export class FeedAlertDetailPage {
       return error.message;
     }
     return this.translate.instant('feed.error.generic');
+  }
+
+  private resolveErrorKind(error: unknown): 'notFound' | 'unavailable' {
+    if (error instanceof HttpErrorResponse && error.status === 404) {
+      return 'notFound';
+    }
+    return 'unavailable';
   }
 }
