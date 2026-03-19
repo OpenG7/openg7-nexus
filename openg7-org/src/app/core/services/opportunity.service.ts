@@ -6,6 +6,7 @@ import { Observable, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { API_URL } from '../config/environment.tokens';
+import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
 import {
   CompanySummary,
   Mode,
@@ -15,7 +16,6 @@ import {
   isSectorType,
 } from '../models/opportunity';
 import { injectNotificationStore } from '../observability/notification.store';
-import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
 
 interface StrapiRelation<T> {
   readonly data: StrapiEntity<T> | null;

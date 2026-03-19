@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { API_URL } from '@app/core/config/environment.tokens';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
@@ -44,7 +45,7 @@ import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
-import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
+import { queryFeedItems, toFeedItemsQuery } from '../feed-item-query';
 import {
   FeedComposerDraft,
   FeedComposerValidationResult,
@@ -839,72 +840,7 @@ export class FeedRealtimeService {
   }
 
   private filterMockItems(items: readonly FeedItem[], filters: FeedFilterState): FeedItem[] {
-    const search = filters.search.trim().toLowerCase();
-
-    return items
-      .filter(item => {
-        if (filters.type && item.type !== filters.type) {
-          return false;
-        }
-        if (filters.mode !== 'BOTH' && item.mode !== filters.mode) {
-          return false;
-        }
-        if (filters.sectorId && item.sectorId !== filters.sectorId) {
-          return false;
-        }
-        if (filters.fromProvinceId && item.fromProvinceId !== filters.fromProvinceId) {
-          return false;
-        }
-        if (filters.toProvinceId && item.toProvinceId !== filters.toProvinceId) {
-          return false;
-        }
-        if (!search) {
-          return true;
-        }
-
-        const haystack = [
-          item.title,
-          item.summary,
-          item.source?.label ?? '',
-          item.sectorId ?? '',
-          item.fromProvinceId ?? '',
-          item.toProvinceId ?? '',
-          ...(item.tags ?? []),
-        ]
-          .join(' ')
-          .toLowerCase();
-
-        return haystack.includes(search);
-      })
-      .sort((left, right) => this.compareMockItems(left, right, filters.sort));
-  }
-
-  private compareMockItems(left: FeedItem, right: FeedItem, sort: FeedFilterState['sort']): number {
-    if (sort !== 'NEWEST') {
-      const scoreDiff = this.mockSortScore(right, sort) - this.mockSortScore(left, sort);
-      if (scoreDiff !== 0) {
-        return scoreDiff;
-      }
-    }
-
-    const createdAtDiff = (right.createdAt ?? '').localeCompare(left.createdAt ?? '');
-    if (createdAtDiff !== 0) {
-      return createdAtDiff;
-    }
-    return (right.id ?? '').localeCompare(left.id ?? '');
-  }
-
-  private mockSortScore(item: FeedItem, sort: FeedFilterState['sort']): number {
-    if (sort === 'URGENCY') {
-      return item.urgency ?? 0;
-    }
-    if (sort === 'VOLUME') {
-      return item.volumeScore ?? item.quantity?.value ?? 0;
-    }
-    if (sort === 'CREDIBILITY') {
-      return item.credibility ?? 0;
-    }
-    return 0;
+    return queryFeedItems(items, toFeedItemsQuery(filters));
   }
 
   private parseMockCursor(value: string | null): number {

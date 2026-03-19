@@ -1,17 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   HostListener,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
@@ -19,10 +16,7 @@ import {
   OpportunityOfferRecord,
   OpportunityOffersService,
 } from '@app/core/opportunity-offers.service';
-import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { Store } from '@ngrx/store';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { OpportunityContextAsideComponent } from '../components/opportunity-context-aside.component';
 import { OpportunityDetailBodyComponent } from '../components/opportunity-detail-body.component';
@@ -41,16 +35,18 @@ import {
 } from '../components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
-import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
+import { isFeedOpportunityType } from '../feed-item.helpers';
 import {
   buildOpportunityOfferDraft,
   buildOpportunityOfferRecordPayload,
   resolveOpportunityOfferSubmitErrorMessage,
 } from '../feed-offer-submission.helpers';
 import { FeedItem } from '../models/feed.models';
-import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
+import { OpportunityEngagementService } from '../services/opportunity-engagement.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
+
+import { FeedDetailPageBase } from './feed-detail-page.base';
 
 @Component({
   selector: 'og7-feed-opportunity-detail-page',
@@ -69,28 +65,16 @@ import { OpportunityReportQueueService } from '../services/opportunity-report-qu
   styleUrl: './feed-opportunity-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedOpportunityDetailPage {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
   private readonly notifications = injectNotificationStore();
   private readonly opportunityOffers = inject(OpportunityOffersService);
-  private readonly feed = inject(FeedRealtimeService);
+  private readonly opportunityEngagement = inject(OpportunityEngagementService);
   private readonly conversationDrafts = inject(OpportunityConversationDraftsService);
   private readonly reportQueue = inject(OpportunityReportQueueService);
-  private readonly store = inject(Store);
-  private readonly translate = inject(TranslateService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  private readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
-    initialValue: this.route.snapshot.paramMap.get('itemId'),
-  });
 
   private readonly syncTimers: ReturnType<typeof setTimeout>[] = [];
-  private readonly detailItem = signal<FeedItem | null>(null);
-  private readonly detailLoading = signal(false);
-  private readonly detailError = signal<string | null>(null);
   private pendingOfferPayload: OpportunityOfferPayload | null = null;
   private offerStatusTimer: ReturnType<typeof setTimeout> | null = null;
   private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
@@ -98,7 +82,6 @@ export class FeedOpportunityDetailPage {
   protected readonly loading = computed(() => this.detailLoading() || this.feed.loading());
   protected readonly error = computed(() => this.detailError() ?? this.feed.error());
 
-  protected readonly headerCompact = signal(false);
   protected readonly offerDrawerOpen = signal(false);
   protected readonly reportDrawerOpen = signal(false);
   protected readonly reportDrawerMode = signal<OpportunityReportDrawerMode>('compose');
@@ -108,37 +91,6 @@ export class FeedOpportunityDetailPage {
   protected readonly reportSubmitError = signal<string | null>(null);
   protected readonly qnaTab = signal<OpportunityQnaTab>('questions');
   protected readonly syncState = signal<OpportunitySyncState>('synced');
-
-  protected readonly provinces = this.store.selectSignal(selectProvinces);
-  protected readonly sectors = this.store.selectSignal(selectSectors);
-
-  protected readonly provinceNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const province of this.provinces()) {
-      map.set(province.id, province.name);
-    }
-    return map;
-  });
-
-  protected readonly sectorNameMap = computed(() => {
-    const map = new Map<string, string>();
-    for (const sector of this.sectors()) {
-      map.set(sector.id, sector.name);
-    }
-    return map;
-  });
-
-  protected readonly selectedItem = computed(() => {
-    const id = this.itemId();
-    if (!id) {
-      return null;
-    }
-    const resolved = this.detailItem();
-    if (resolved?.id === id) {
-      return resolved;
-    }
-    return this.feed.items().find(item => item.id === id) ?? null;
-  });
 
   protected readonly favoriteKey = computed(() => {
     const item = this.selectedItem();
@@ -213,43 +165,7 @@ export class FeedOpportunityDetailPage {
   protected readonly ownerMode = computed(() => this.detailVm()?.item.source.kind === 'USER');
 
   constructor() {
-    effect(onCleanup => {
-      const itemId = this.itemId();
-      this.detailItem.set(null);
-      this.detailError.set(null);
-
-      if (!itemId) {
-        this.detailLoading.set(false);
-        return;
-      }
-
-      let cancelled = false;
-      this.detailLoading.set(true);
-
-      void this.feed
-        .findItemById(itemId)
-        .then(item => {
-          if (cancelled) {
-            return;
-          }
-          this.detailItem.set(item);
-        })
-        .catch(error => {
-          if (cancelled) {
-            return;
-          }
-          this.detailError.set(this.resolveLoadError(error));
-        })
-        .finally(() => {
-          if (!cancelled) {
-            this.detailLoading.set(false);
-          }
-        });
-
-      onCleanup(() => {
-        cancelled = true;
-      });
-    });
+    super();
 
     effect(() => {
       if (this.auth.isAuthenticated()) {
@@ -286,10 +202,7 @@ export class FeedOpportunityDetailPage {
 
   @HostListener('window:scroll')
   protected onScroll(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    this.headerCompact.set(window.scrollY > 56);
+    this.updateHeaderCompactFromScroll();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -321,20 +234,29 @@ export class FeedOpportunityDetailPage {
   }
 
   protected openOfferDrawer(): void {
-    if (!this.auth.isAuthenticated()) {
-      this.redirectToLogin();
+    const item = this.selectedItem();
+    if (!item) {
       return;
     }
 
     const existingOffer = this.existingSubmittedOffer();
-    if (existingOffer) {
-      this.openExistingOffer(existingOffer);
+    const decision = this.opportunityEngagement.plan({
+      item,
+      source: 'feed',
+      fallback: 'drawer',
+      currentUrl: this.currentInternalUrl(`/feed/opportunities/${this.itemId() ?? item.id}`),
+      requiresAuthentication: true,
+      isAuthenticated: this.auth.isAuthenticated(),
+      existingOfferId: existingOffer?.id ?? null,
+    });
+
+    if (decision.kind === 'redirect-login' || decision.kind === 'open-linkup') {
+      void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
       return;
     }
 
-    const connectionMatchId = resolveFeedConnectionMatchId(this.detailVm()?.item);
-    if (connectionMatchId) {
-      void this.openLinkup(connectionMatchId);
+    if (decision.kind === 'open-existing-offer' && existingOffer) {
+      this.openExistingOffer(existingOffer, decision.navigation);
       return;
     }
 
@@ -527,7 +449,10 @@ export class FeedOpportunityDetailPage {
     this.qnaTab.set(tab);
   }
 
-  private openExistingOffer(offer: OpportunityOfferRecord): void {
+  private openExistingOffer(
+    offer: OpportunityOfferRecord,
+    navigation = this.opportunityEngagement.buildExistingOfferNavigation(offer.id)
+  ): void {
     this.notifications.info(
       this.translate.instant('feed.opportunity.detail.offer.status.existingOfferRedirect', {
         reference: offer.reference,
@@ -542,22 +467,7 @@ export class FeedOpportunityDetailPage {
         },
       }
     );
-    void this.router.navigate(['/alerts'], {
-      queryParams: {
-        section: 'offers',
-        offerId: offer.id,
-      },
-    });
-  }
-
-  private openLinkup(matchId: number): Promise<boolean> {
-    const itemId = this.detailVm()?.item.id ?? this.itemId();
-    return this.router.navigate(['/linkup', matchId], {
-      queryParams: {
-        source: 'feed',
-        ...(itemId ? { feedItemId: itemId } : {}),
-      },
-    });
+    void this.router.navigate(navigation.commands, navigation.extras);
   }
 
   private async submitOfferPayload(payload: OpportunityOfferPayload): Promise<void> {
@@ -972,36 +882,21 @@ export class FeedOpportunityDetailPage {
   }
 
   private redirectToLogin(): void {
-    void this.router.navigate(['/login'], {
-      queryParams: { redirect: this.currentInternalUrl() },
-    });
+    const navigation = this.opportunityEngagement.buildLoginNavigation(
+      this.currentInternalUrl(`/feed/opportunities/${this.itemId() ?? 'unknown'}`),
+      `/feed/opportunities/${this.itemId() ?? 'unknown'}`
+    );
+    void this.router.navigate(navigation.commands, navigation.extras);
   }
 
-  private currentInternalUrl(): string {
+  private currentInternalUrl(fallback = `/feed/opportunities/${this.itemId() ?? 'unknown'}`): string {
     const navigation = this.router.getCurrentNavigation();
     const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
-    if (typeof url === 'string' && url.trim().length > 0) {
-      return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
-    }
-    const id = this.itemId() ?? 'unknown';
-    return `/feed/opportunities/${id}`;
+    return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
   }
 
-  private resolveLoadError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (typeof error.error === 'string' && error.error.trim().length) {
-        return error.error;
-      }
-      if (typeof error.error?.message === 'string' && error.error.message.length) {
-        return error.error.message;
-      }
-      if (typeof error.message === 'string' && error.message.length) {
-        return error.message;
-      }
-    }
-    if (error instanceof Error && error.message.length) {
-      return error.message;
-    }
-    return this.translate.instant('feed.error.generic');
+  protected override isExpectedItem(item: FeedItem | null): item is FeedItem {
+    return isFeedOpportunityType(item?.type ?? null);
   }
+
 }

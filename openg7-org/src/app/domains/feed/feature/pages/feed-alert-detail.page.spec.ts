@@ -888,7 +888,7 @@ describe('FeedAlertDetailPage', () => {
   });
 
   it('marks a missing detail as not found when the lookup resolves null', async () => {
-    feed.items.set([]);
+    feed.items.set([createAlertItem('alert-missing', { title: 'Stale alert in collection' })]);
     feed.findItemById.and.resolveTo(null);
     routeParamMap$.next(convertToParamMap({ itemId: 'alert-missing' }));
 
@@ -910,7 +910,7 @@ describe('FeedAlertDetailPage', () => {
 
   it('allows retry after a transient detail load failure', async () => {
     const item = createAlertItem('alert-retry');
-    feed.items.set([]);
+    feed.items.set([createAlertItem('alert-retry', { title: 'Stale alert in collection' })]);
     feed.findItemById.and.returnValues(
       Promise.reject(new HttpErrorResponse({ status: 503, statusText: 'Service Unavailable' })),
       Promise.resolve(item)

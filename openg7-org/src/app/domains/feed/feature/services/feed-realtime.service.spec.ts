@@ -1,9 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { PLATFORM_ID, TransferState, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslateService } from '@ngx-translate/core';
-import { Store } from '@ngrx/store';
-
 import { API_URL, FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { NotificationStore } from '@app/core/observability/notification.store';
@@ -21,6 +18,8 @@ import {
   selectFeedState,
   selectFeedUnreadCount,
 } from '@app/store/feed/feed.selectors';
+import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
 
 import { FeedFilterState } from '../models/feed.models';
 

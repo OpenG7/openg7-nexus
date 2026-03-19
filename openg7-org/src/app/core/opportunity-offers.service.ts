@@ -1,7 +1,7 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, inject } from '@angular/core';
 
 import { AuthService } from './auth/auth.service';
+import { createUserScopedPersistentState } from './storage/user-scoped-persistent-state';
 
 const STORAGE_KEY_PREFIX = 'og7.opportunity-offers.v1';
 
@@ -59,31 +59,19 @@ export interface CreateOpportunityOfferPayload {
 @Injectable({ providedIn: 'root' })
 export class OpportunityOffersService {
   private readonly auth = inject(AuthService);
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly browser = isPlatformBrowser(this.platformId);
-  private readonly entriesSig = signal<OpportunityOfferRecord[]>([]);
+  private readonly state = createUserScopedPersistentState<OpportunityOfferRecord[]>({
+    auth: this.auth,
+    platformId: inject(PLATFORM_ID),
+    storageKeyPrefix: STORAGE_KEY_PREFIX,
+    createEmptyValue: () => [],
+    deserialize: (value) => this.deserializeEntries(value),
+  });
 
-  readonly entries = this.entriesSig.asReadonly();
-  readonly hasEntries = computed(() => this.entriesSig().length > 0);
-
-  constructor() {
-    effect(() => {
-      const userId = this.currentUserId();
-      if (!userId) {
-        this.entriesSig.set([]);
-        return;
-      }
-      this.entriesSig.set(this.restore(userId));
-    });
-  }
+  readonly entries = this.state.value;
+  readonly hasEntries = computed(() => this.entries().length > 0);
 
   refresh(): void {
-    const userId = this.currentUserId();
-    if (!userId) {
-      this.entriesSig.set([]);
-      return;
-    }
-    this.entriesSig.set(this.restore(userId));
+    this.state.refresh();
   }
 
   entriesForOpportunity(opportunityId: string | null | undefined): readonly OpportunityOfferRecord[] {
@@ -91,7 +79,7 @@ export class OpportunityOffersService {
     if (!normalizedId) {
       return [];
     }
-    return this.entriesSig().filter((entry) => entry.opportunityId === normalizedId);
+    return this.entries().filter((entry) => entry.opportunityId === normalizedId);
   }
 
   create(payload: CreateOpportunityOfferPayload): OpportunityOfferRecord {
@@ -122,14 +110,15 @@ export class OpportunityOffersService {
       activities: this.createInitialActivities(now),
     });
 
-    const nextEntries = this.sortEntries([record, ...this.entriesSig()]);
-    this.entriesSig.set(nextEntries);
-    this.persist(user.id, nextEntries);
+    const nextEntries = this.sortEntries([record, ...this.entries()]);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Opportunity offers require an authenticated session.'
+    );
     return record;
   }
 
   withdraw(id: string): OpportunityOfferRecord | null {
-    const userId = this.currentUserIdOrThrow();
     const normalizedId = this.normalizeId(id);
     if (!normalizedId) {
       return null;
@@ -138,7 +127,7 @@ export class OpportunityOffersService {
     let updatedRecord: OpportunityOfferRecord | null = null;
     const now = new Date().toISOString();
     const nextEntries = this.sortEntries(
-      this.entriesSig().map((entry) => {
+      this.entries().map((entry) => {
         if (entry.id !== normalizedId || entry.status === 'withdrawn') {
           return entry;
         }
@@ -160,28 +149,17 @@ export class OpportunityOffersService {
       })
     );
 
-    this.entriesSig.set(nextEntries);
-    this.persist(userId, nextEntries);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Opportunity offers require an authenticated session.'
+    );
     return updatedRecord;
   }
 
-  private currentUserId(): string | null {
-    if (!this.browser || !this.auth.isAuthenticated()) {
-      return null;
-    }
-    return this.normalizeId(this.auth.user()?.id ?? null);
-  }
-
-  private currentUserIdOrThrow(): string {
-    const userId = this.currentUserId();
-    if (userId) {
-      return userId;
-    }
-    throw new Error('Opportunity offers require an authenticated session.');
-  }
-
   private currentUserOrThrow(): { id: string; email: string; label: string } {
-    const userId = this.currentUserIdOrThrow();
+    const userId = this.state.requireCurrentUserId(
+      'Opportunity offers require an authenticated session.'
+    );
     const profile = this.auth.user();
     const email = this.normalizeText(profile?.email, 'unknown@openg7.local');
     const firstName = this.normalizeText(profile?.firstName, '');
@@ -194,46 +172,12 @@ export class OpportunityOffersService {
     };
   }
 
-  private storageKey(userId: string): string {
-    return `${STORAGE_KEY_PREFIX}.${userId}`;
-  }
-
-  private restore(userId: string): OpportunityOfferRecord[] {
-    const storage = this.getStorage();
-    if (!storage) {
-      return [];
+  private deserializeEntries(value: unknown): OpportunityOfferRecord[] | null {
+    if (!Array.isArray(value)) {
+      return null;
     }
 
-    const key = this.storageKey(userId);
-    const raw = storage.getItem(key);
-    if (!raw) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        storage.removeItem(key);
-        return [];
-      }
-      return this.sortEntries(parsed.map((entry) => this.normalizeRecord(entry)));
-    } catch {
-      storage.removeItem(key);
-      return [];
-    }
-  }
-
-  private persist(userId: string, entries: readonly OpportunityOfferRecord[]): void {
-    const storage = this.getStorage();
-    if (!storage) {
-      return;
-    }
-
-    try {
-      storage.setItem(this.storageKey(userId), JSON.stringify(entries));
-    } catch {
-      // Keep the in-memory state when storage is unavailable.
-    }
+    return this.sortEntries(value.map((entry) => this.normalizeRecord(entry)));
   }
 
   private normalizeRecord(candidate: unknown): OpportunityOfferRecord {
@@ -511,26 +455,5 @@ export class OpportunityOffersService {
       return uuid;
     }
     return `opportunity-offer-${Date.now()}-${Math.round(Math.random() * 1_000_000)}`;
-  }
-
-  private getStorage(): Storage | null {
-    if (!this.browser) {
-      return null;
-    }
-
-    const storage =
-      typeof window !== 'undefined'
-        ? window.localStorage
-        : (globalThis as { localStorage?: Storage }).localStorage;
-
-    if (!storage) {
-      return null;
-    }
-
-    try {
-      return storage;
-    } catch {
-      return null;
-    }
   }
 }
