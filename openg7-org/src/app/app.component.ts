@@ -6,8 +6,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
 import { NotificationToastTrayComponent } from '@app/shared/components/layout/notification-toast-tray/notification-toast-tray.component';
+import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
 import { SiteHeaderComponent } from '@app/shared/components/layout/site-header/site-header.component';
 import { UnderConstructionBannerComponent } from '@app/shared/components/layout/under-construction-banner/under-construction-banner.component';
 import { CtrlKDirective } from '@app/shared/directives/ctrl-k.directive';
@@ -53,9 +53,8 @@ export class AppComponent {
   private readonly featureFlags = inject(FEATURE_FLAGS);
   private readonly router = inject(Router);
 
-   readonly starrySkyColor = 'transparent';
+  readonly starrySkyColor = 'transparent';
   readonly starsBackgroundConfig = {
-
     starDensity: 0.0002,
     maxStars: 2000,
     twinkleProbability: 0.15,
@@ -65,7 +64,7 @@ export class AppComponent {
     milkyWayAngle: -8,
     nebulaIntensity: 0.55,
     colorVariance: 0.35,
-    twinkleStrength: 0.25,    
+    twinkleStrength: 0.25,
   };
   readonly shootingStarsConfig = {
     minSpeed: 15,

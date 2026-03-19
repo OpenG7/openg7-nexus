@@ -41,12 +41,12 @@ import {
 } from '../components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
+import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
 import {
   buildOpportunityOfferDraft,
   buildOpportunityOfferRecordPayload,
   resolveOpportunityOfferSubmitErrorMessage,
 } from '../feed-offer-submission.helpers';
-import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
 import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';

@@ -43,8 +43,7 @@ export class LanguageSwitchComponent {
         const initial = stored && available.includes(stored) ? stored : available[0];
         this.lang.set(initial);
         this.translate.use(initial);
-      },
-      { allowSignalWrites: true },
+      }
     );
   }
 

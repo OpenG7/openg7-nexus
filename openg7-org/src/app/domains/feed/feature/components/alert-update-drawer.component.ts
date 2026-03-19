@@ -175,8 +175,12 @@ export class AlertUpdateDrawerComponent {
   }
 
   @HostListener('document:keydown.tab', ['$event'])
-  protected onTabKeydown(event: KeyboardEvent): void {
+  protected onTabKeydown(event: Event): void {
     if (!this.open()) {
+      return;
+    }
+
+    if (!(event instanceof KeyboardEvent)) {
       return;
     }
 

@@ -142,8 +142,7 @@ export class FeedRealtimeService {
         () => {
           const snapshot = toFeedSnapshot(this.stateSig());
           this.transferState.set(TRANSFER_STATE_KEY, snapshot);
-        },
-        { allowSignalWrites: true }
+        }
       );
     }
 
@@ -157,8 +156,7 @@ export class FeedRealtimeService {
         this.updateSignalIfChanged(feedModeSig, filters.mode);
         this.updateSignalIfChanged(feedSearchSig, filters.search);
         this.updateSignalIfChanged(feedSortSig, filters.sort);
-      },
-      { allowSignalWrites: true }
+      }
     );
 
     effect(
@@ -176,8 +174,7 @@ export class FeedRealtimeService {
         if (!this.equalFilters(current, filters)) {
           this.store.dispatch(FeedActions.applyFilters({ filters }));
         }
-      },
-      { allowSignalWrites: true }
+      }
     );
 
     effect(() => {
@@ -200,8 +197,7 @@ export class FeedRealtimeService {
         if (focusItemIdSig() !== itemId) {
           focusItemIdSig.set(itemId);
         }
-      },
-      { allowSignalWrites: true }
+      }
     );
 
     if (this.browser) {
