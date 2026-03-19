@@ -54,6 +54,7 @@ export class FeedPublishSectionComponent {
   protected readonly isAuthenticated = this.auth.isAuthenticated;
   protected readonly redirectTarget = computed(() => this.redirectTargetSig());
   protected readonly drawerOpen = signal(false);
+  protected readonly hasDraftPrefill = computed(() => Boolean(this.buildDraftKey()));
 
   constructor() {
     effect(() => {

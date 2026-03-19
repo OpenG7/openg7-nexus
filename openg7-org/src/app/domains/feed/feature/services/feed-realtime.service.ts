@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import {
   DestroyRef,
   Injectable,
@@ -44,6 +44,7 @@ import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import {
   FeedComposerDraft,
   FeedComposerValidationResult,
@@ -258,9 +259,10 @@ export class FeedRealtimeService {
 
     const encodedId = encodeURIComponent(normalizedId);
     const url = this.composeUrl(`${COLLECTION_ENDPOINT}/${encodedId}`);
+    const context = this.createSilentHttpContext();
 
     try {
-      const response = await firstValueFrom(this.http.get<ItemResponse | FeedItem>(url));
+      const response = await firstValueFrom(this.http.get<ItemResponse | FeedItem>(url, { context }));
       return this.normalizeItemResponse(response);
     } catch (error) {
       const status = error instanceof HttpErrorResponse ? error.status : null;
@@ -361,7 +363,11 @@ export class FeedRealtimeService {
     }
     const url = this.composeUrl(COLLECTION_ENDPOINT);
     const headers = new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
-    this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, { headers }).subscribe({
+    const requestContext = this.createSilentHttpContext();
+    this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, {
+      headers,
+      context: requestContext,
+    }).subscribe({
       next: response => {
         const item = this.normalizeItemResponse(response);
         this.handlePublishSuccess({
@@ -416,10 +422,14 @@ export class FeedRealtimeService {
 
     const url = this.composeUrl(COLLECTION_ENDPOINT);
     const headers = new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
+    const requestContext = this.createSilentHttpContext();
 
     try {
       const response = await firstValueFrom(
-        this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, { headers })
+        this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, {
+          headers,
+          context: requestContext,
+        })
       );
       const item = this.normalizeItemResponse(response);
       this.handlePublishSuccess({
@@ -538,8 +548,9 @@ export class FeedRealtimeService {
       return;
     }
     const url = this.composeUrl(COLLECTION_ENDPOINT);
+    const context = this.createSilentHttpContext();
     this.http
-      .get<ItemResponse>(url, { params })
+      .get<ItemResponse>(url, { params, context })
       .subscribe({
         next: response => {
           const items = this.normalizeArrayResponse(response?.data);
@@ -558,6 +569,10 @@ export class FeedRealtimeService {
           });
         },
       });
+  }
+
+  private createSilentHttpContext(): HttpContext {
+    return new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
   }
 
   private async resolveAndDispatchMockPage(options: {

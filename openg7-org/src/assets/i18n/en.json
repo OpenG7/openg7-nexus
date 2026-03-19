@@ -753,7 +753,8 @@
       "description": "Open the publishing panel without leaving the feed.",
       "cta": "Publish an exchange",
       "shortcut": "Shortcut",
-      "prefill": "Active filters are used as the starting point."
+      "prefill": "Active filters are used as the starting point.",
+      "draftReady": "A prefilled draft is open."
     },
     "composer": {
       "title": "Publish an exchange",
@@ -780,6 +781,16 @@
         "title": "Sign in to publish",
         "description": "You can browse the feed anonymously, but publishing an offer or a request requires an authenticated account.",
         "cta": "Log in to publish"
+      },
+      "draft": {
+        "badge": "Draft",
+        "fromAlert": "This publication is prefilled from a feed alert.",
+        "fromIndicator": "This publication is prefilled from a feed indicator.",
+        "fromOpportunity": "This publication is prefilled from a feed opportunity.",
+        "fromContext": "This publication is prefilled from the current context.",
+        "description": "Not published yet. Add or edit information before publishing.",
+        "prefilledTitle": "Suggested title: {{ title }}",
+        "clear": "Discard draft"
       },
       "submit": "Publish",
       "submitting": "Publishing...",
@@ -3357,7 +3368,9 @@
   },
   "errors": {
     "generic": "An unexpected error occurred",
-    "404": "Resource not found"
+    "404": "Resource not found",
+    "404WithResource": "Resource not found for {{ resource }}.",
+    "statusTitle": "HTTP error {{ status }}"
   },
   "metrics": {
     "tradeValue": "Trade value",

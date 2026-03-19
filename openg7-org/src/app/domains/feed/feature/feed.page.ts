@@ -97,7 +97,7 @@ export class FeedPage {
 
   constructor() {
     effect(() => {
-      if (!this.feed.hasHydrated()) {
+      if (!this.feed.hasHydrated() && !this.loading() && !this.error()) {
         this.feed.loadInitial();
       }
     });

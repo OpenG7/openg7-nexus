@@ -715,17 +715,7 @@ describe('FeedAlertDetailPage', () => {
         draftConnectionMatchId: '73',
       })
     );
-    expect(notifications.success).toHaveBeenCalledWith(
-      jasmine.any(String),
-      jasmine.objectContaining({
-        source: 'feed',
-        metadata: jasmine.objectContaining({
-          action: 'create-linked-opportunity',
-          itemId: 'alert-001',
-          draftConnectionMatchId: 73,
-        }),
-      })
-    );
+    expect(notifications.success).not.toHaveBeenCalled();
   });
 
   it('normalizes accented tags when creating a linked opportunity draft', async () => {

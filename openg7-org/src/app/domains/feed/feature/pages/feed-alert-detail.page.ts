@@ -528,15 +528,6 @@ export class FeedAlertDetailPage {
         });
         return;
       }
-
-      this.notifications.success(this.translate.instant('feed.alert.detail.opportunity.status.success'), {
-        source: 'feed',
-        metadata: {
-          action: 'create-linked-opportunity',
-          itemId: detail.item.id,
-          draftConnectionMatchId: draftConnectionMatchId ?? null,
-        },
-      });
     } catch (error) {
       this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
         source: 'feed',

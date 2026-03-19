@@ -69,7 +69,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         const generic = translate.instant('errors.generic');
         message = generic === 'errors.generic' ? err.statusText || err.message : generic;
       }
+      const requestTarget = resolveRequestTarget(err.url ?? req.url);
+      const detailed404Key = 'errors.404WithResource';
+      const statusTitleKey = 'errors.statusTitle';
+      const titleCandidate =
+        err.status != null ? translate.instant(statusTitleKey, { status: err.status }) : null;
+      const title = titleCandidate && titleCandidate !== statusTitleKey ? titleCandidate : null;
+      if (err.status === 404 && requestTarget) {
+        const detailedMessage = translate.instant(detailed404Key, { resource: requestTarget });
+        message =
+          detailedMessage !== detailed404Key ? detailedMessage : `${message} (${requestTarget})`;
+      }
       notifications.error(message, {
+        title,
         source: 'http',
         context: { status: err.status, url: err.url },
         metadata: { status: err.status },
@@ -91,4 +103,34 @@ function resolveCurrentUrl(router: Router): string | null {
 
 function isLoginUrl(url: string | null): boolean {
   return typeof url === 'string' && /^\/login(?:[/?#]|$)/.test(url);
+}
+
+function resolveRequestTarget(url: string | null | undefined): string | null {
+  if (typeof url !== 'string') {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(url, 'http://localhost');
+    const segments = parsed.pathname
+      .split('/')
+      .map(segment => segment.trim())
+      .filter(Boolean)
+      .filter(segment => segment.toLowerCase() !== 'api')
+      .map(segment => normalizeRequestSegment(segment));
+
+    return segments.length > 0 ? segments.join('/') : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeRequestSegment(segment: string): string {
+  if (/^\d+$/.test(segment)) {
+    return ':id';
+  }
+  if (/^[a-f0-9-]{8,}$/i.test(segment)) {
+    return ':id';
+  }
+  return segment;
 }

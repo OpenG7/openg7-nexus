@@ -1,6 +1,8 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES, strapiFavoriteById } from '@app/core/api/strapi.routes';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { Observable } from 'rxjs';
 
 export interface UserFavoriteRecord {
@@ -34,7 +36,9 @@ export class UserFavoritesApiService {
    * @returns Observable avec la liste des favoris serveur.
    */
   listMine(): Observable<UserFavoriteRecord[]> {
-    return this.http.get<UserFavoriteRecord[]>(STRAPI_ROUTES.users.meFavorites);
+    return this.http.get<UserFavoriteRecord[]>(STRAPI_ROUTES.users.meFavorites, {
+      context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+    });
   }
 
   /**
