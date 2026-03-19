@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 
 import { API_URL } from '../config/environment.tokens';
+import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
 import { OpportunityMatch } from '../models/opportunity';
 import { NotificationStore, NotificationStoreApi } from '../observability/notification.store';
 
@@ -313,6 +314,7 @@ describe('OpportunityService', () => {
         req.params.get('province') === 'QC' &&
         req.params.get('q') === 'hydrogen'
     );
+    expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     request.flush('downstream failure', { status: 500, statusText: 'Server Error' });
 
     const result = await pending;
@@ -326,6 +328,7 @@ describe('OpportunityService', () => {
     const request = httpMock.expectOne(
       (req) => req.url === 'https://cms.local/api/opportunity-matches/91' && req.params.get('populate') === 'buyer,seller'
     );
+    expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
 
     request.flush({
       data: {
