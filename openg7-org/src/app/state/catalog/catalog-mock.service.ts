@@ -1,7 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,7 @@ export class CatalogMockService {
   private readonly api = inject(HttpClientService);
   private readonly store = inject(Store);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly silentCatalogContext = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
   private loaded = false;
 
   async load(): Promise<void> {
@@ -49,9 +51,9 @@ export class CatalogMockService {
   private async tryLoadCatalogFromApi(): Promise<boolean> {
     try {
       const [sectorsPayload, provincesPayload, companiesPayload] = await Promise.all([
-        firstValueFrom(this.api.get<unknown>('/api/sectors')),
-        firstValueFrom(this.api.get<unknown>('/api/provinces')),
-        firstValueFrom(this.api.get<unknown>('/api/companies')),
+        firstValueFrom(this.api.get<unknown>('/api/sectors', { context: this.silentCatalogContext })),
+        firstValueFrom(this.api.get<unknown>('/api/provinces', { context: this.silentCatalogContext })),
+        firstValueFrom(this.api.get<unknown>('/api/companies', { context: this.silentCatalogContext })),
       ]);
 
       const sectors = this.mapNamedCollection<Sector>(sectorsPayload);
@@ -72,9 +74,23 @@ export class CatalogMockService {
       );
       return true;
     } catch (error) {
-      console.warn('[catalog] Failed to load remote catalog data, falling back to mocks.', error);
+      if (!this.isMissingCatalogEndpoint(error)) {
+        console.warn('[catalog] Failed to load remote catalog data, falling back to mocks.', error);
+      }
       return false;
     }
+  }
+
+  private isMissingCatalogEndpoint(error: unknown): boolean {
+    if (!(error instanceof HttpErrorResponse)) {
+      return false;
+    }
+
+    if (error.status !== 404) {
+      return false;
+    }
+
+    return /\/api\/(sectors|provinces|companies)(?:$|[/?#])/i.test(error.url ?? '');
   }
 
   private mapNamedCollection<T extends { id: string; name: string }>(payload: unknown): T[] {

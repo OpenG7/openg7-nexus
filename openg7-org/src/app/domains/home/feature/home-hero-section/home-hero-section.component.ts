@@ -1,6 +1,7 @@
 import { NgComponentOutlet, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, PLATFORM_ID, Type, inject, input, output, signal } from '@angular/core';
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
+import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeCorridorsRealtimeComponent } from '@app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component';
 import { HomeCtaRowComponent } from '@app/domains/home/feature/home-cta-row/home-cta-row.component';
 import { HomeFeedPanelsComponent } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
@@ -51,6 +52,9 @@ export class HomeHeroSectionComponent {
   readonly alertItems = input.required<ReadonlyArray<FeedItem>>();
   readonly opportunityItems = input.required<ReadonlyArray<FeedItem>>();
   readonly indicatorItems = input.required<ReadonlyArray<FeedItem>>();
+  readonly alertPanelLimit = input.required<number>();
+  readonly opportunityPanelLimit = input.required<number>();
+  readonly indicatorPanelLimit = input.required<number>();
   readonly subtitleForItem = input.required<(item: FeedItem) => string>();
 
   @Output() readonly scopeChanged = new EventEmitter<HomeFeedScope>();
@@ -58,6 +62,7 @@ export class HomeHeroSectionComponent {
   @Output() readonly searchChanged = new EventEmitter<string>();
   readonly panelItemOpened = output<FeedItem>();
   readonly panelConnectRequested = output<FeedItem>();
+  readonly panelViewAllRequested = output<HomeFeedPanelKind>();
   readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly backdropComponent = signal<Type<unknown> | null>(null);
 

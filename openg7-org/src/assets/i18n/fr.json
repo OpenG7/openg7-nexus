@@ -3213,7 +3213,10 @@
       "panels": {
         "alerts": "Alertes",
         "opportunities": "Opportunités",
-        "indicators": "Indicateurs"
+        "indicators": "Indicateurs",
+        "viewAllAlerts": "Voir toutes les alertes",
+        "viewAllOpportunities": "Voir toutes les opportunités",
+        "viewAllIndicators": "Voir tous les indicateurs"
       },
       "kicker": "Feed"
     },

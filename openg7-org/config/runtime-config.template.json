@@ -4,6 +4,11 @@
   "API_TOKEN": null,
   "HOMEPAGE_PREVIEW_TOKEN": null,
   "I18N_PREFIX": "/assets/i18n/",
+  "HOME_FEED_PANEL_LIMITS": {
+    "alerts": 4,
+    "opportunities": 4,
+    "indicators": 4
+  },
   "FEATURE_FLAGS": {
     "componentLab": false,
     "mapGlobe": true,

@@ -17,6 +17,7 @@ import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
+  feedCategorySig,
   feedModeSig,
   feedSearchSig,
   feedSortSig,
@@ -154,6 +155,7 @@ export class FeedRealtimeService {
         this.updateSignalIfChanged(fromProvinceIdSig, filters.fromProvinceId);
         this.updateSignalIfChanged(toProvinceIdSig, filters.toProvinceId);
         this.updateSignalIfChanged(sectorIdSig, filters.sectorId);
+        this.updateSignalIfChanged(feedCategorySig, filters.category);
         this.updateSignalIfChanged(feedTypeSig, filters.type);
         this.updateSignalIfChanged(feedModeSig, filters.mode);
         this.updateSignalIfChanged(feedSearchSig, filters.search);
@@ -167,6 +169,7 @@ export class FeedRealtimeService {
           fromProvinceId: fromProvinceIdSig(),
           toProvinceId: toProvinceIdSig(),
           sectorId: sectorIdSig(),
+          category: feedCategorySig(),
           type: feedTypeSig(),
           mode: feedModeSig(),
           sort: feedSortSig(),
@@ -788,6 +791,9 @@ export class FeedRealtimeService {
     if (filters.sectorId) {
       params = params.set('sector', filters.sectorId);
     }
+    if (filters.category) {
+      params = params.set('category', filters.category);
+    }
     if (filters.type) {
       params = params.set('type', filters.type);
     }
@@ -1005,6 +1011,7 @@ export class FeedRealtimeService {
       a.fromProvinceId === b.fromProvinceId &&
       a.toProvinceId === b.toProvinceId &&
       a.sectorId === b.sectorId &&
+      a.category === b.category &&
       a.type === b.type &&
       a.mode === b.mode &&
       a.sort === b.sort &&

@@ -1,11 +1,12 @@
 import { ParamMap } from '@angular/router';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
 
-import { FeedFilterState, FeedItemType, FeedSort, FlowMode } from './models/feed.models';
+import { FeedFilterState, FeedItemCategory, FeedItemType, FeedSort, FlowMode } from './models/feed.models';
 
 type MaybeString = string | null | undefined;
 
 const SORT_OPTIONS = new Set<FeedSort>(['NEWEST', 'URGENCY', 'VOLUME', 'CREDIBILITY']);
+const CATEGORY_OPTIONS = new Set<FeedItemCategory>(['OPPORTUNITY', 'ALERT', 'INDICATOR']);
 const TYPE_OPTIONS = new Set<FeedItemType>([
   'OFFER',
   'REQUEST',
@@ -19,6 +20,10 @@ const MODE_OPTIONS = new Set<FlowMode>(['EXPORT', 'IMPORT', 'BOTH']);
 export function parseFeedFilters(query: Pick<ParamMap, 'get'>): FeedFilterState {
   const sortParam = normalizeString(query.get('sort'))?.toUpperCase();
   const sort = SORT_OPTIONS.has(sortParam as FeedSort) ? (sortParam as FeedSort) : 'NEWEST';
+  const categoryParam = normalizeString(query.get('category'))?.toUpperCase();
+  const category = CATEGORY_OPTIONS.has(categoryParam as FeedItemCategory)
+    ? (categoryParam as FeedItemCategory)
+    : null;
   const typeParam = normalizeString(query.get('type'))?.toUpperCase();
   const type = TYPE_OPTIONS.has(typeParam as FeedItemType) ? (typeParam as FeedItemType) : null;
   const modeParam = normalizeString(query.get('mode'))?.toUpperCase();
@@ -44,6 +49,7 @@ export function parseFeedFilters(query: Pick<ParamMap, 'get'>): FeedFilterState 
     fromProvinceId,
     toProvinceId,
     sectorId,
+    category,
     type,
     mode,
     sort,

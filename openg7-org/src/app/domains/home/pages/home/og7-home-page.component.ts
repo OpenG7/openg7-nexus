@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { RuntimeConfigService } from '@app/core/config/runtime-config.service';
 import { FiltersService } from '@app/core/filters.service';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { MapStatsService } from '@app/core/services/map-stats.service';
 import { FeedItem, FeedItemType } from '@app/domains/feed/feature/models/feed.models';
 import { OpportunityEngagementService } from '@app/domains/feed/feature/services/opportunity-engagement.service';
+import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
 import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
 import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
@@ -16,6 +18,12 @@ import { computeMapKpiSnapshot } from '@app/state/map/map.selectors';
 import { selectFeedConnectionState } from '@app/store/feed/feed.selectors';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+
+const DEFAULT_HOME_FEED_PANEL_LIMITS = {
+  alerts: 4,
+  opportunities: 4,
+  indicators: 4,
+} as const;
 
 @Component({
   standalone: true,
@@ -36,6 +44,7 @@ export class Og7HomePageComponent {
   private readonly router = inject(Router);
   private readonly analytics = inject(AnalyticsService);
   private readonly store = inject(Store<AppState>);
+  private readonly runtimeConfig = inject(RuntimeConfigService);
   private readonly filters = inject(FiltersService);
   private readonly mapStats = inject(MapStatsService);
   private readonly homeFeed = inject(HomeFeedService);
@@ -139,6 +148,8 @@ export class Og7HomePageComponent {
     return 'bg-emerald-400';
   });
 
+  protected readonly panelLimits = this.runtimeConfig.homeFeedPanelLimits() ?? DEFAULT_HOME_FEED_PANEL_LIMITS;
+
   protected readonly provinceLabelMap = computed(() => {
     const map = new Map<string, string>();
     for (const province of this.catalogProvinces()) {
@@ -156,15 +167,19 @@ export class Og7HomePageComponent {
   });
 
   protected readonly alertItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], 2)
+    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], this.panelLimits.alerts)
   );
 
   protected readonly opportunityItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['OFFER', 'REQUEST', 'CAPACITY', 'TENDER'], 2)
+    this.buildPanelItems(
+      this.homeFeedItems(),
+      ['OFFER', 'REQUEST', 'CAPACITY', 'TENDER'],
+      this.panelLimits.opportunities
+    )
   );
 
   protected readonly indicatorItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], 2)
+    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], this.panelLimits.indicators)
   );
 
   protected readonly feedSubtitleForItem = (item: FeedItem): string => {
@@ -208,6 +223,16 @@ export class Og7HomePageComponent {
       { priority: true }
     );
     void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
+  }
+
+  protected onFeedPanelViewAllRequested(panel: HomeFeedPanelKind): void {
+    const queryParams = this.buildFeedPanelQueryParams(panel);
+    this.analytics.emit(
+      'home_feed_panel_view_all_requested',
+      { panel, ...queryParams },
+      { priority: true }
+    );
+    void this.router.navigate(['/feed'], { queryParams });
   }
 
   protected resolveProvinceLabel(id?: string | null): string | null {
@@ -269,6 +294,21 @@ export class Og7HomePageComponent {
 
   private countFeedType(items: FeedItem[], type: FeedItemType): number {
     return items.filter((item) => item.type === type).length;
+  }
+
+  private buildFeedPanelQueryParams(panel: HomeFeedPanelKind): Record<string, string> {
+    const base = { source: 'home-feed-panels' };
+
+    switch (panel) {
+      case 'alerts':
+        return { ...base, category: 'ALERT' };
+      case 'indicators':
+        return { ...base, category: 'INDICATOR' };
+      case 'opportunities':
+        return { ...base, category: 'OPPORTUNITY' };
+      default:
+        return base;
+    }
   }
 
   private setupHomeFeed(): void {

@@ -32,6 +32,7 @@ describe('feed-item-query', () => {
       fromProvinceId: 'qc',
       toProvinceId: 'on',
       sectorId: 'energy',
+      category: null,
       type: 'REQUEST',
       mode: 'IMPORT',
       sort: 'URGENCY',
@@ -42,6 +43,7 @@ describe('feed-item-query', () => {
       fromProvinceId: 'qc',
       toProvinceId: 'on',
       sectorId: 'energy',
+      category: null,
       type: 'REQUEST',
       mode: 'IMPORT',
       sort: 'URGENCY',
@@ -76,6 +78,7 @@ describe('feed-item-query', () => {
         fromProvinceId: 'qc',
         toProvinceId: 'on',
         sectorId: 'energy',
+        category: null,
         type: 'REQUEST',
         mode: 'IMPORT',
         sort: 'URGENCY',
@@ -116,6 +119,28 @@ describe('feed-item-query', () => {
     ).toEqual(['company-item']);
 
     expect(matchesFeedItemQuery(partnerItem, { tagSet: FEED_TRANSPORT_TAGS })).toBeTrue();
+  });
+
+  it('supports grouped opportunity categories across multiple feed types', () => {
+    const items = [
+      createFeedItem('offer-item', { type: 'OFFER' }),
+      createFeedItem('request-item', { type: 'REQUEST' }),
+      createFeedItem('capacity-item', { type: 'CAPACITY' }),
+      createFeedItem('tender-item', { type: 'TENDER' }),
+      createFeedItem('alert-item', { type: 'ALERT' }),
+    ];
+
+    const filtered = queryFeedItems(items, {
+      category: 'OPPORTUNITY',
+      sort: 'NEWEST',
+    });
+
+    expect(filtered.map((item) => item.id)).toEqual([
+      'tender-item',
+      'request-item',
+      'offer-item',
+      'capacity-item',
+    ]);
   });
 
   it('shares the same sort fallback rules across consumers', () => {

@@ -8,6 +8,8 @@ export type FeedItemType =
   | 'CAPACITY'
   | 'INDICATOR';
 
+export type FeedItemCategory = 'OPPORTUNITY' | 'ALERT' | 'INDICATOR';
+
 export type FeedOriginType = 'alert' | 'opportunity' | 'indicator';
 
 export type FlowMode = 'EXPORT' | 'IMPORT' | 'BOTH';
@@ -67,6 +69,7 @@ export interface FeedFilterState {
   readonly fromProvinceId: string | null;
   readonly toProvinceId: string | null;
   readonly sectorId: string | null;
+  readonly category: FeedItemCategory | null;
   readonly type: FeedItemType | null;
   readonly mode: FlowMode;
   readonly sort: FeedSort;

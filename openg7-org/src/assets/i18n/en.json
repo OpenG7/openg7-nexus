@@ -3333,7 +3333,10 @@
       "panels": {
         "alerts": "Alerts",
         "opportunities": "Opportunities",
-        "indicators": "Indicators"
+        "indicators": "Indicators",
+        "viewAllAlerts": "View all alerts",
+        "viewAllOpportunities": "View all opportunities",
+        "viewAllIndicators": "View all indicators"
       },
       "kicker": "Feed"
     },

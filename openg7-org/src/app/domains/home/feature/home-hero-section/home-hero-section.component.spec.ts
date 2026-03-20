@@ -47,6 +47,9 @@ describe('HomeHeroSectionComponent', () => {
     fixture.componentRef.setInput('alertItems', emptyItems);
     fixture.componentRef.setInput('opportunityItems', emptyItems);
     fixture.componentRef.setInput('indicatorItems', emptyItems);
+    fixture.componentRef.setInput('alertPanelLimit', 4);
+    fixture.componentRef.setInput('opportunityPanelLimit', 4);
+    fixture.componentRef.setInput('indicatorPanelLimit', 4);
     fixture.componentRef.setInput('subtitleForItem', () => '');
   }
 

@@ -19,11 +19,15 @@
     [alertItems]="alertItems()"
     [opportunityItems]="opportunityItems()"
     [indicatorItems]="indicatorItems()"
+    [alertPanelLimit]="panelLimits.alerts"
+    [opportunityPanelLimit]="panelLimits.opportunities"
+    [indicatorPanelLimit]="panelLimits.indicators"
     [subtitleForItem]="feedSubtitleForItem"
     (scopeChanged)="setFeedScope($event)"
     (filterChanged)="setFeedFilter($event)"
     (searchChanged)="onSearchInput($event)"
     (panelItemOpened)="onFeedPanelItemOpened($event)"
     (panelConnectRequested)="onFeedPanelConnectRequested($event)"
+    (panelViewAllRequested)="onFeedPanelViewAllRequested($event)"
   ></og7-home-hero-section>
 </div>

@@ -1,7 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
-import { EnvironmentConfig, ContentSecurityPolicyConfig } from '../../../environments/environment';
+import {
+  EnvironmentConfig,
+  ContentSecurityPolicyConfig,
+  HomeFeedPanelLimitsConfig,
+} from '../../../environments/environment';
 import {
   createRuntimeConfigSnapshot,
   normalizeRuntimeSource,
@@ -83,6 +87,10 @@ export class RuntimeConfigService {
     return this.read('I18N_PREFIX');
   }
 
+  homeFeedPanelLimits(): HomeFeedPanelLimitsConfig {
+    return this.read('HOME_FEED_PANEL_LIMITS');
+  }
+
   /**
    * Contexte : Consulted by feature toggles that must know which capabilities are active.
    * Raison d’être : Serves the feature flag dictionary captured at bootstrap for reactive consumers.
@@ -137,6 +145,7 @@ export class RuntimeConfigService {
     return {
       ...this.configSnapshot,
       FEATURE_FLAGS: { ...this.configSnapshot.FEATURE_FLAGS },
+      HOME_FEED_PANEL_LIMITS: { ...this.configSnapshot.HOME_FEED_PANEL_LIMITS },
       CONTENT_SECURITY_POLICY: {
         scriptSrc: [...this.configSnapshot.CONTENT_SECURITY_POLICY.scriptSrc],
         styleSrc: [...this.configSnapshot.CONTENT_SECURITY_POLICY.styleSrc],

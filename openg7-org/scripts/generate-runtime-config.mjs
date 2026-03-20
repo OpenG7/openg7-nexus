@@ -23,6 +23,7 @@ const AUTH_MODE_MAP = new Map([
 ]);
 
 const CSP_DIRECTIVE_KEYS = ['scriptSrc', 'styleSrc', 'imgSrc', 'fontSrc', 'connectSrc'];
+const HOME_FEED_PANEL_LIMIT_KEYS = ['alerts', 'opportunities', 'indicators'];
 
 function coerceString(key, fallback, { required = false } = {}) {
   const raw = process.env[key];
@@ -105,6 +106,44 @@ function coerceFeatureFlags(key, fallback) {
   }
 
   return result;
+}
+
+function coercePositiveInteger(value, fallback) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const normalized = Math.trunc(value);
+    return normalized > 0 ? normalized : fallback;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(normalized) && normalized > 0) {
+      return normalized;
+    }
+  }
+
+  return fallback;
+}
+
+function coerceHomeFeedPanelLimits(key, fallback) {
+  const raw = process.env[key];
+  if (raw === undefined) {
+    return fallback;
+  }
+
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+
+  const parsed = parseJson(trimmed);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`${key} must be a JSON object with numeric alerts/opportunities/indicators values.`);
+  }
+
+  return HOME_FEED_PANEL_LIMIT_KEYS.reduce((acc, panelKey) => {
+    acc[panelKey] = coercePositiveInteger(parsed[panelKey], fallback[panelKey]);
+    return acc;
+  }, { ...fallback });
 }
 
 function coerceBoolean(key, fallback) {
@@ -271,6 +310,10 @@ async function buildRuntimeConfig() {
   config.API_TOKEN = coerceNullableString('API_TOKEN', template.API_TOKEN);
   config.HOMEPAGE_PREVIEW_TOKEN = coerceNullableString('HOMEPAGE_PREVIEW_TOKEN', template.HOMEPAGE_PREVIEW_TOKEN);
   config.I18N_PREFIX = coerceString('I18N_PREFIX', template.I18N_PREFIX);
+  config.HOME_FEED_PANEL_LIMITS = coerceHomeFeedPanelLimits(
+    'HOME_FEED_PANEL_LIMITS',
+    template.HOME_FEED_PANEL_LIMITS
+  );
   config.API_WITH_CREDENTIALS = coerceBoolean('API_WITH_CREDENTIALS', template.API_WITH_CREDENTIALS);
   config.FEATURE_FLAGS = coerceFeatureFlags('FEATURE_FLAGS', template.FEATURE_FLAGS);
   config.AUTH_MODE = coerceAuthMode('AUTH_MODE', template.AUTH_MODE);

@@ -1,4 +1,9 @@
-import { environment, EnvironmentConfig, ContentSecurityPolicyConfig } from '../environments/environment';
+import {
+  environment,
+  EnvironmentConfig,
+  ContentSecurityPolicyConfig,
+  HomeFeedPanelLimitsConfig,
+} from '../environments/environment';
 
 type AuthMode = EnvironmentConfig['AUTH_MODE'];
 type FeatureFlags = EnvironmentConfig['FEATURE_FLAGS'];
@@ -56,6 +61,12 @@ const DEFAULT_CSP_CONFIG: ContentSecurityPolicyConfig = {
   scriptSrc: [],
   styleSrc: [],
 };
+
+const HOME_FEED_PANEL_LIMIT_KEYS: (keyof HomeFeedPanelLimitsConfig)[] = [
+  'alerts',
+  'opportunities',
+  'indicators',
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -180,6 +191,50 @@ function parseFeatureFlags(value: unknown, fallback: FeatureFlags): FeatureFlags
   }
 
   return fallback;
+}
+
+function parsePositiveIntegerValue(value: unknown, fallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const normalized = Math.trunc(value);
+    return normalized > 0 ? normalized : fallback;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(normalized) && normalized > 0) {
+      return normalized;
+    }
+  }
+
+  return fallback;
+}
+
+function parseHomeFeedPanelLimits(
+  value: unknown,
+  fallback: HomeFeedPanelLimitsConfig,
+): HomeFeedPanelLimitsConfig {
+  let source: Record<string, unknown> | null = null;
+
+  if (isRecord(value)) {
+    source = value;
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed) {
+      const parsed = parseJson(trimmed);
+      if (isRecord(parsed)) {
+        source = parsed;
+      }
+    }
+  }
+
+  if (!source) {
+    return { ...fallback };
+  }
+
+  return HOME_FEED_PANEL_LIMIT_KEYS.reduce<HomeFeedPanelLimitsConfig>((acc, key) => {
+    acc[key] = parsePositiveIntegerValue(source[key], fallback[key]);
+    return acc;
+  }, { ...fallback });
 }
 
 function parseAuthMode(value: unknown, fallback: AuthMode): AuthMode {
@@ -330,6 +385,7 @@ const RUNTIME_CONFIG_PARSERS: RuntimeConfigParsers = {
   API_TOKEN: ({ value, fallback }) => parseNullableStringValue(value, fallback),
   HOMEPAGE_PREVIEW_TOKEN: ({ value, fallback }) => parseNullableStringValue(value, fallback),
   I18N_PREFIX: ({ value, fallback }) => parseStringValue(value, fallback),
+  HOME_FEED_PANEL_LIMITS: ({ value, fallback }) => parseHomeFeedPanelLimits(value, fallback),
   FEATURE_FLAGS: ({ value, fallback }) => parseFeatureFlags(value, fallback),
   AUTH_MODE: ({ value, fallback }) => parseAuthMode(value, fallback),
   NOTIFICATION_WEBHOOK_URL: ({ value, fallback }) => parseNullableStringValue(value, fallback),
