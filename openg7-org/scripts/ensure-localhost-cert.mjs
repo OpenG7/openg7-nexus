@@ -45,10 +45,6 @@ function hasFile(path) {
   }
 }
 
-function mkcertAvailable() {
-  return Boolean(resolveMkcertCommand());
-}
-
 function createTrustedCertificateWithMkcert() {
   console.log('[https] mkcert detected, generating a trusted localhost certificate');
   runMkcert(['-install']);
