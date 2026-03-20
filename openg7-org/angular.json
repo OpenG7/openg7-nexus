@@ -74,6 +74,13 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
+            "https-local": {
+              "buildTarget": "openg7-org:build:development",
+              "ssl": true,
+              "sslCert": ".cert/localhost.pem",
+              "sslKey": ".cert/localhost-key.pem",
+              "host": "localhost"
+            },
             "production": {
               "buildTarget": "openg7-org:build:production"
             },

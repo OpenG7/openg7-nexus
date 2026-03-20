@@ -1,5 +1,11 @@
 import { AuthMode, FeatureFlags } from '../app/core/config/environment.tokens';
 
+export interface HomeFeedPanelLimitsConfig {
+  alerts: number;
+  opportunities: number;
+  indicators: number;
+}
+
 export interface ContentSecurityPolicyConfig {
   scriptSrc: string[];
   styleSrc: string[];
@@ -14,6 +20,7 @@ export interface EnvironmentConfig {
   API_TOKEN: string | null;
   HOMEPAGE_PREVIEW_TOKEN: string | null;
   I18N_PREFIX: string;
+  HOME_FEED_PANEL_LIMITS: HomeFeedPanelLimitsConfig;
   FEATURE_FLAGS: FeatureFlags;
   AUTH_MODE: AuthMode;
   NOTIFICATION_WEBHOOK_URL: string | null;
@@ -27,6 +34,11 @@ export const environment: EnvironmentConfig = {
   API_TOKEN: null,
   HOMEPAGE_PREVIEW_TOKEN: null,
   I18N_PREFIX: '/assets/i18n/',
+  HOME_FEED_PANEL_LIMITS: {
+    alerts: 4,
+    opportunities: 4,
+    indicators: 4,
+  },
   FEATURE_FLAGS: {
     componentLab: false,
     mapGlobe: true,

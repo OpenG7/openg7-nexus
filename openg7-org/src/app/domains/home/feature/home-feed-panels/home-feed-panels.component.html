@@ -9,6 +9,17 @@
         <h3 class="text-base font-semibold tracking-tight">{{ 'home.feed.panels.alerts' | translate }}</h3>
         <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400">{{ 'home.feed.kicker' | translate }}</span>
       </header>
+      <div class="mb-3 flex justify-end">
+        <button
+          type="button"
+          class="text-xs font-medium uppercase tracking-[0.24em] text-amber-200 transition hover:text-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+          data-og7="action"
+          data-og7-id="home-feed-view-all-alerts"
+          (click)="viewAll('alerts')"
+        >
+          {{ 'home.feed.panels.viewAllAlerts' | translate }}
+        </button>
+      </div>
       <ul class="space-y-3">
         <li *ngFor="let item of alertItems(); trackBy: trackFeedItem">
           <button
@@ -46,6 +57,17 @@
         <h3 class="text-base font-semibold tracking-tight">{{ 'home.feed.panels.opportunities' | translate }}</h3>
         <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400">{{ 'home.feed.kicker' | translate }}</span>
       </header>
+      <div class="mb-3 flex justify-end">
+        <button
+          type="button"
+          class="text-xs font-medium uppercase tracking-[0.24em] text-emerald-200 transition hover:text-emerald-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          data-og7="action"
+          data-og7-id="home-feed-view-all-opportunities"
+          (click)="viewAll('opportunities')"
+        >
+          {{ 'home.feed.panels.viewAllOpportunities' | translate }}
+        </button>
+      </div>
       <ul class="space-y-3">
         <li *ngFor="let item of opportunityItems(); trackBy: trackFeedItem">
           <button
@@ -83,6 +105,17 @@
         <h3 class="text-base font-semibold tracking-tight">{{ 'home.feed.panels.indicators' | translate }}</h3>
         <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400">{{ 'home.feed.kicker' | translate }}</span>
       </header>
+      <div class="mb-3 flex justify-end">
+        <button
+          type="button"
+          class="text-xs font-medium uppercase tracking-[0.24em] text-cyan-200 transition hover:text-cyan-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+          data-og7="action"
+          data-og7-id="home-feed-view-all-indicators"
+          (click)="viewAll('indicators')"
+        >
+          {{ 'home.feed.panels.viewAllIndicators' | translate }}
+        </button>
+      </div>
       <ul class="space-y-3">
         <li *ngFor="let item of indicatorItems(); trackBy: trackFeedItem">
           <button

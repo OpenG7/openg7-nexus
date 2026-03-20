@@ -7,8 +7,7 @@
       <og7-intro-stepper [partnerPanelOpen]="partnerPanelOpen()" [messageTemplate]="messageStepTemplate"
         [complianceTemplate]="complianceTemplateRef" [schedulerTemplate]="schedulerTemplateRef"
         [logisticsTemplate]="logisticsTemplateRef" [pipelineTemplate]="pipelineTemplateRef"
-        [financingTemplate]="financingTemplateRef" [pipelineSteps]="pipelineSteps()" [financingData]="financingBanner()"
-        (messageChange)="onIntroChange($event)"></og7-intro-stepper>
+        [financingTemplate]="financingTemplateRef" [pipelineSteps]="pipelineSteps()" [financingData]="financingBanner()"></og7-intro-stepper>
       <ng-template #messageStepTemplate>
         <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
           <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
@@ -104,7 +103,7 @@
           </p>
         </div>
         <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
           (click)="handleClose()">
           {{ 'introBillboard.backToHome' | translate }}
         </button>
@@ -120,7 +119,7 @@
           </p>
         </div>
         <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
           (click)="handleClose()">
           {{ 'introBillboard.backToHome' | translate }}
         </button>
@@ -136,16 +135,12 @@
           </p>
         </div>
         <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
           (click)="handleClose()">
           {{ 'introBillboard.backToHome' | translate }}
         </button>
       </div>
       }
     </section>
-
-    <!-- <aside class="space-y-6 lg:sticky lg:top-16">
-        <og7-notification-panel></og7-notification-panel>
-      </aside> -->
   </div>
 </div>

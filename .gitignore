@@ -33,6 +33,7 @@ Thumbs.db
 # --- Angular app ------------------------------------------------------------
 # /openG7/openg7-org/ (src/app/...)
 openg7-org/.angular/
+openg7-org/.cert/
 openg7-org/dist/
 openg7-org/coverage/
 openg7-org/test-results/

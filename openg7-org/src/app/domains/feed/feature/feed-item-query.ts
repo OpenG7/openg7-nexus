@@ -1,8 +1,9 @@
-import { FeedFilterState, FeedItem, FeedSort, FeedItemType, FlowMode } from './models/feed.models';
+import { FeedFilterState, FeedItem, FeedItemCategory, FeedSort, FeedItemType, FlowMode } from './models/feed.models';
 
 export type FeedItemSourceKind = FeedItem['source']['kind'];
 
 export interface FeedItemsQuery {
+  readonly category?: FeedItemCategory | null;
   readonly type?: FeedItemType | null;
   readonly mode?: FlowMode | null;
   readonly sectorId?: string | null;
@@ -39,6 +40,7 @@ export const FEED_TRANSPORT_TAGS: ReadonlySet<string> = new Set([
 
 export function toFeedItemsQuery(filters: FeedFilterState): FeedItemsQuery {
   return {
+    category: filters.category,
     type: filters.type,
     mode: filters.mode,
     sectorId: filters.sectorId,
@@ -63,6 +65,10 @@ export function queryFeedItems(items: readonly FeedItem[], query: FeedItemsQuery
 }
 
 export function matchesFeedItemQuery(item: FeedItem, query: FeedItemsQuery): boolean {
+  if (query.category && !matchesFeedItemCategory(item, query.category)) {
+    return false;
+  }
+
   if (query.type && item.type !== query.type) {
     return false;
   }
@@ -136,6 +142,19 @@ export function buildFeedSearchHaystack(item: FeedItem): string {
 
 export function matchesFeedItemTags(item: FeedItem, tags: ReadonlySet<string>): boolean {
   return (item.tags ?? []).some((tag) => tags.has(tag.toLowerCase()));
+}
+
+export function matchesFeedItemCategory(item: FeedItem, category: FeedItemCategory): boolean {
+  switch (category) {
+    case 'ALERT':
+      return item.type === 'ALERT';
+    case 'INDICATOR':
+      return item.type === 'INDICATOR';
+    case 'OPPORTUNITY':
+      return item.type === 'OFFER' || item.type === 'REQUEST' || item.type === 'CAPACITY' || item.type === 'TENDER';
+    default:
+      return false;
+  }
 }
 
 function resolveFeedSortScore(item: FeedItem, sort: FeedSort): number {

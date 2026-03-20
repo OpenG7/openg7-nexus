@@ -1,19 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { RuntimeConfigService } from '@app/core/config/runtime-config.service';
 import { FiltersService } from '@app/core/filters.service';
-import { DEMO_OPPORTUNITY_MATCHES, findDemoFinancingBanner } from '@app/core/fixtures/opportunity-demo';
-import { OpportunityMatch } from '@app/core/models/opportunity';
-import { FinancingBanner } from '@app/core/models/partner-profile';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { MapStatsService } from '@app/core/services/map-stats.service';
-import { OpportunityAiPrefillService } from '@app/core/services/opportunity-ai-prefill.service';
-import { OpportunityService } from '@app/core/services/opportunity.service';
 import { FeedItem, FeedItemType } from '@app/domains/feed/feature/models/feed.models';
 import { OpportunityEngagementService } from '@app/domains/feed/feature/services/opportunity-engagement.service';
+import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
 import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
-import { IntroductionRequestContext } from '@app/domains/matchmaking/sections/og7-intro-billboard.section';
 import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
 import { selectFilteredFlows, selectMapKpis } from '@app/state';
 import { AppState } from '@app/state/app.state';
@@ -23,6 +19,12 @@ import { selectFeedConnectionState } from '@app/store/feed/feed.selectors';
 import { Store } from '@ngrx/store';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
+const DEFAULT_HOME_FEED_PANEL_LIMITS = {
+  alerts: 4,
+  opportunities: 4,
+  indicators: 4,
+} as const;
+
 @Component({
   standalone: true,
   selector: 'og7-home-page',
@@ -30,7 +32,6 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
     HomeHeroSectionComponent,
   ],
   templateUrl: './og7-home-page.component.html',
-  styleUrls: ['./og7-home-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 /**
@@ -40,18 +41,14 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
  * @returns Og7HomePageComponent gérée par le framework.
  */
 export class Og7HomePageComponent {
-  private readonly opportunities = inject(OpportunityService);
-  private readonly aiPrefill = inject(OpportunityAiPrefillService);
   private readonly router = inject(Router);
   private readonly analytics = inject(AnalyticsService);
   private readonly store = inject(Store<AppState>);
+  private readonly runtimeConfig = inject(RuntimeConfigService);
   private readonly filters = inject(FiltersService);
   private readonly mapStats = inject(MapStatsService);
   private readonly homeFeed = inject(HomeFeedService);
   private readonly opportunityEngagement = inject(OpportunityEngagementService);
-
-  private readonly selectedMatchId = signal<number | null>(null);
-  private readonly financingBanner = signal<FinancingBanner | null>(null);
 
   private readonly flows = this.store.selectSignal(selectFilteredFlows);
   private readonly kpis = this.store.selectSignal(selectMapKpis);
@@ -87,7 +84,6 @@ export class Og7HomePageComponent {
 
   private readonly homeFeedItems = signal<FeedItem[]>([]);
   protected readonly homeFeedLoading = signal(false);
-  protected readonly homeFeedError = signal<string | null>(null);
   private readonly homeFeedRequest = computed(() => ({
     scope: this.activeFeedScope(),
     filter: this.activeFeedFilter(),
@@ -102,16 +98,9 @@ export class Og7HomePageComponent {
     maximumFractionDigits: 0,
   });
 
-  protected readonly matches = this.opportunities.items();
-  protected readonly loading = this.opportunities.loading();
-  protected readonly error = this.opportunities.error();
-
   protected readonly keyMetrics = computed<StatMetric[]>(() =>
     this.mapStats.buildMetrics(this.flows(), this.kpis(), this.filters.tradePartner())
   );
-
-  protected readonly activeMatch = computed(() => this.resolveMatch(this.selectedMatchId()));
-  protected readonly activeFinancingBanner = computed(() => this.financingBanner());
 
   protected readonly intrantsValue = computed(() => {
     const snapshot = computeMapKpiSnapshot(this.flows(), this.kpis().default);
@@ -159,6 +148,8 @@ export class Og7HomePageComponent {
     return 'bg-emerald-400';
   });
 
+  protected readonly panelLimits = this.runtimeConfig.homeFeedPanelLimits() ?? DEFAULT_HOME_FEED_PANEL_LIMITS;
+
   protected readonly provinceLabelMap = computed(() => {
     const map = new Map<string, string>();
     for (const province of this.catalogProvinces()) {
@@ -176,15 +167,19 @@ export class Og7HomePageComponent {
   });
 
   protected readonly alertItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], 2)
+    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], this.panelLimits.alerts)
   );
 
   protected readonly opportunityItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['OFFER', 'REQUEST', 'CAPACITY', 'TENDER'], 2)
+    this.buildPanelItems(
+      this.homeFeedItems(),
+      ['OFFER', 'REQUEST', 'CAPACITY', 'TENDER'],
+      this.panelLimits.opportunities
+    )
   );
 
   protected readonly indicatorItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], 2)
+    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], this.panelLimits.indicators)
   );
 
   protected readonly feedSubtitleForItem = (item: FeedItem): string => {
@@ -192,25 +187,7 @@ export class Og7HomePageComponent {
   };
 
   constructor() {
-    this.aiPrefill.prefillFromPreferences();
-
-    if (!this.matches().length) {
-      this.opportunities.hydrateWithDemo(DEMO_OPPORTUNITY_MATCHES);
-    }
-
-    effect(() => {
-      const list = this.matches();
-      if (!this.selectedMatchId() && list.length) {
-        this.applySelection(list[0].id);
-      }
-    });
-
     this.setupHomeFeed();
-  }
-
-  protected onConnectRequested(matchId: number): void {
-    this.logOpportunityConnect(matchId);
-    void this.router.navigate(['/linkup', matchId]);
   }
 
   protected onFeedPanelItemOpened(item: FeedItem): void {
@@ -248,55 +225,14 @@ export class Og7HomePageComponent {
     void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
   }
 
-  protected onRetryRequested(): void {
-    this.opportunities.reload();
-  }
-
-  protected onIntroductionRequested(context: IntroductionRequestContext): void {
-    const match = context.match ?? this.activeMatch();
-    if (!match) {
-      return;
-    }
-    void this.router.navigate(['/linkup', match.id]);
-  }
-
-  protected onMatchSelected(matchId: number | null): void {
-    if (matchId == null) {
-      this.selectedMatchId.set(null);
-      this.financingBanner.set(null);
-      return;
-    }
-
-    this.applySelection(matchId);
-  }
-
-  private logOpportunityConnect(matchId: number): void {
+  protected onFeedPanelViewAllRequested(panel: HomeFeedPanelKind): void {
+    const queryParams = this.buildFeedPanelQueryParams(panel);
     this.analytics.emit(
-      'opportunity_connect_clicked',
-      { matchId, source: 'home_page' },
+      'home_feed_panel_view_all_requested',
+      { panel, ...queryParams },
       { priority: true }
     );
-  }
-
-  private applySelection(matchId: number): void {
-    this.selectedMatchId.set(matchId);
-    const match = this.resolveMatch(matchId);
-    if (!match) {
-      this.financingBanner.set(null);
-      return;
-    }
-    this.financingBanner.set(this.resolveFinancing(match));
-  }
-
-  private resolveMatch(matchId: number | null): OpportunityMatch | null {
-    if (matchId == null) {
-      return null;
-    }
-    return this.matches().find((item) => item.id === matchId) ?? null;
-  }
-
-  private resolveFinancing(match: OpportunityMatch): FinancingBanner | null {
-    return findDemoFinancingBanner(match);
+    void this.router.navigate(['/feed'], { queryParams });
   }
 
   protected resolveProvinceLabel(id?: string | null): string | null {
@@ -360,21 +296,33 @@ export class Og7HomePageComponent {
     return items.filter((item) => item.type === type).length;
   }
 
+  private buildFeedPanelQueryParams(panel: HomeFeedPanelKind): Record<string, string> {
+    const base = { source: 'home-feed-panels' };
+
+    switch (panel) {
+      case 'alerts':
+        return { ...base, category: 'ALERT' };
+      case 'indicators':
+        return { ...base, category: 'INDICATOR' };
+      case 'opportunities':
+        return { ...base, category: 'OPPORTUNITY' };
+      default:
+        return base;
+    }
+  }
+
   private setupHomeFeed(): void {
     effect((onCleanup) => {
       const request = this.homeFeedRequest();
       this.homeFeedLoading.set(true);
-      this.homeFeedError.set(null);
 
       const sub = this.homeFeed.loadHighlights(request).subscribe({
         next: (items) => {
           this.homeFeedItems.set(items);
           this.homeFeedLoading.set(false);
         },
-        error: (error) => {
-          const message = error instanceof Error ? error.message : 'home.feed.error';
+        error: () => {
           this.homeFeedItems.set([]);
-          this.homeFeedError.set(message);
           this.homeFeedLoading.set(false);
         },
       });

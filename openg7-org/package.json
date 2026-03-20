@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:https": "node ./scripts/ensure-localhost-cert.mjs && ng serve --configuration https-local",
     "start:verbose": "ng serve --verbose",
+    "cert:localhost": "node ./scripts/ensure-localhost-cert.mjs",
     "build": "ng build",
     "build:verbose": "ng build --verbose",
     "generate:runtime-config": "node ./scripts/generate-runtime-config.mjs",
@@ -81,6 +83,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "postcss": "^8.5.6",
+    "selfsigned": "^2.4.1",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.0"
   }

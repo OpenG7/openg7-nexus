@@ -4,7 +4,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEMO_OPPORTUNITY_MATCHES, findDemoFinancingBanner } from '@app/core/fixtures/opportunity-demo';
 import { OpportunityMatch } from '@app/core/models/opportunity';
-import { createPartnerSelection } from '@app/core/models/partner-selection';
 import { OpportunityService } from '@app/core/services/opportunity.service';
 import { Og7IntroStepperComponent } from '@app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component';
 import { Og7SparksBackgroundDirective } from '@app/shared/directives/og7-sparks-background.directive';
@@ -48,7 +47,6 @@ export class Og7LinkupPageComponent {
   private readonly pendingMatchRequests = new Set<number>();
   private readonly partnerIdentifierCache = new Set<number>();
   private readonly pipelineStepsSignal = signal<readonly PipelineStepStatus[]>([]);
-  private readonly introMessageSignal = signal('');
 
   private readonly routeMatchParam = toSignal(
     this.route.paramMap.pipe(
@@ -138,14 +136,6 @@ export class Og7LinkupPageComponent {
     return match ? findDemoFinancingBanner(match) : null;
   });
 
-  protected readonly selectedPartnerId = computed(() => {
-    const match = this.activeMatch();
-    if (!match) {
-      return null;
-    }
-    return createPartnerSelection('supplier', match.seller.id);
-  });
-
   protected readonly partnerPanelOpen = computed(() => Boolean(this.activeMatch()));
 
   protected readonly pipelineSteps = computed(() => this.pipelineStepsSignal());
@@ -159,10 +149,6 @@ export class Og7LinkupPageComponent {
 
   protected handleClose(): void {
     void this.router.navigate(['/']);
-  }
-
-  protected onIntroChange(value: string): void {
-    this.introMessageSignal.set(value);
   }
 
   private parseMatchId(raw: string | null): number | null {

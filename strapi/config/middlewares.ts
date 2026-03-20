@@ -1,4 +1,9 @@
-const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:4200', 'http://127.0.0.1:4200'];
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:4200',
+  'https://localhost:4200',
+  'http://127.0.0.1:4200',
+  'https://127.0.0.1:4200',
+];
 const DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 function parsePositiveInteger(value: unknown, fallback: number): number {

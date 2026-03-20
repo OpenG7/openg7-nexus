@@ -19,27 +19,15 @@
     [alertItems]="alertItems()"
     [opportunityItems]="opportunityItems()"
     [indicatorItems]="indicatorItems()"
+    [alertPanelLimit]="panelLimits.alerts"
+    [opportunityPanelLimit]="panelLimits.opportunities"
+    [indicatorPanelLimit]="panelLimits.indicators"
     [subtitleForItem]="feedSubtitleForItem"
     (scopeChanged)="setFeedScope($event)"
     (filterChanged)="setFeedFilter($event)"
     (searchChanged)="onSearchInput($event)"
     (panelItemOpened)="onFeedPanelItemOpened($event)"
     (panelConnectRequested)="onFeedPanelConnectRequested($event)"
+    (panelViewAllRequested)="onFeedPanelViewAllRequested($event)"
   ></og7-home-hero-section>
-
-  <!-- 
-  <og7-home-inputs-section class="mx-auto block w-full max-w-6xl px-6 sm:px-10"></og7-home-inputs-section>
-  <og7-home-map-section></og7-home-map-section>
-  <og7-home-filters-section></og7-home-filters-section>
-
-  <og7-opportunity-matches-section
-    #matchesSection
-    class="block"
-    [matches]="matches()"
-    [loading]="loading()"
-    [error]="error()"
-    (connectRequested)="onConnectRequested($event)"
-    (retryRequested)="onRetryRequested()"
-    (matchSelected)="onMatchSelected($event)"
-  ></og7-opportunity-matches-section> -->
 </div>

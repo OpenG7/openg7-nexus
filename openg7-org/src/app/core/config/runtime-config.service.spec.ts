@@ -33,6 +33,11 @@ describe('RuntimeConfigService', () => {
     browserWindow.__OG7_CONFIG__ = {
       API_URL: 'https://browser.example/api',
       I18N_PREFIX: '/browser/i18n/',
+      HOME_FEED_PANEL_LIMITS: {
+        alerts: 5,
+        opportunities: 6,
+        indicators: 7,
+      },
       FEATURE_FLAGS: {
         experimentalMap: true,
       },
@@ -46,6 +51,11 @@ describe('RuntimeConfigService', () => {
 
     expect(service.apiUrl()).toBe('https://browser.example/api');
     expect(service.i18nPrefix()).toBe('/browser/i18n/');
+    expect(service.homeFeedPanelLimits()).toEqual({
+      alerts: 5,
+      opportunities: 6,
+      indicators: 7,
+    });
     expect(service.featureFlags()).toEqual(
       jasmine.objectContaining({
         experimentalMap: true,
@@ -66,6 +76,7 @@ describe('RuntimeConfigService', () => {
       ...(originalEnv ?? {}),
       API_URL: 'https://ssr.example/api',
       I18N_PREFIX: '/ssr/i18n/',
+      HOME_FEED_PANEL_LIMITS: '{"alerts":8,"opportunities":9,"indicators":10}',
       FEATURE_FLAGS: '{"ssrOnly":true}',
     };
 
@@ -77,6 +88,11 @@ describe('RuntimeConfigService', () => {
 
     expect(service.apiUrl()).toBe('https://ssr.example/api');
     expect(service.i18nPrefix()).toBe('/ssr/i18n/');
+    expect(service.homeFeedPanelLimits()).toEqual({
+      alerts: 8,
+      opportunities: 9,
+      indicators: 10,
+    });
     expect(service.featureFlags()).toEqual(
       jasmine.objectContaining({
         ssrOnly: true,

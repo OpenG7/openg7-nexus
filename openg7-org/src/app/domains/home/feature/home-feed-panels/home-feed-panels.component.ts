@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
 import { TranslateModule } from '@ngx-translate/core';
 
+export type HomeFeedPanelKind = 'alerts' | 'opportunities' | 'indicators';
+
 @Component({
   selector: 'og7-home-feed-panels',
   standalone: true,
@@ -17,6 +19,7 @@ export class HomeFeedPanelsComponent {
   readonly subtitleForItem = input.required<(item: FeedItem) => string>();
   readonly itemOpened = output<FeedItem>();
   readonly connectRequested = output<FeedItem>();
+  readonly viewAllRequested = output<HomeFeedPanelKind>();
 
   protected trackFeedItem(index: number, item: FeedItem): string {
     return item.id ?? `feed-${index}`;
@@ -32,5 +35,9 @@ export class HomeFeedPanelsComponent {
 
   protected requestConnection(item: FeedItem): void {
     this.connectRequested.emit(item);
+  }
+
+  protected viewAll(panel: HomeFeedPanelKind): void {
+    this.viewAllRequested.emit(panel);
   }
 }

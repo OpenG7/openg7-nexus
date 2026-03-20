@@ -31,6 +31,7 @@ class StoreMock {
     fromProvinceId: null,
     toProvinceId: null,
     sectorId: null,
+    category: null,
     type: null,
     mode: 'BOTH',
     sort: 'NEWEST',

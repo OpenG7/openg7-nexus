@@ -15,6 +15,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
+  feedCategorySig,
   feedModeSig,
   feedSearchSig,
   feedSortSig,
@@ -79,6 +80,7 @@ export class Og7FeedStreamComponent {
   protected readonly fromProvinceId = fromProvinceIdSig;
   protected readonly toProvinceId = toProvinceIdSig;
   protected readonly sectorId = sectorIdSig;
+  protected readonly selectedCategory = feedCategorySig;
   protected readonly selectedType = feedTypeSig;
   protected readonly selectedMode = feedModeSig;
   protected readonly searchTerm = feedSearchSig;
@@ -119,6 +121,18 @@ export class Og7FeedStreamComponent {
   protected readonly showConnectionRetry = computed(() => {
     const state = this.connectionState();
     return !state.connected() || Boolean(state.error());
+  });
+  protected readonly categoryLabelKey = computed(() => {
+    switch (this.selectedCategory()) {
+      case 'ALERT':
+        return 'home.feed.panels.alerts';
+      case 'INDICATOR':
+        return 'home.feed.panels.indicators';
+      case 'OPPORTUNITY':
+        return 'home.feed.panels.opportunities';
+      default:
+        return null;
+    }
   });
 
   protected readonly selectedItem = computed(() => {
@@ -217,6 +231,7 @@ export class Og7FeedStreamComponent {
     fromProvinceIdSig.set(null);
     toProvinceIdSig.set(null);
     sectorIdSig.set(null);
+    feedCategorySig.set(null);
     feedTypeSig.set(null);
     feedModeSig.set('BOTH');
     feedSearchSig.set('');
@@ -231,6 +246,7 @@ export class Og7FeedStreamComponent {
   }
 
   protected updateType(value: string): void {
+    feedCategorySig.set(null);
     feedTypeSig.set(value ? (value as FeedItemType) : null);
   }
 

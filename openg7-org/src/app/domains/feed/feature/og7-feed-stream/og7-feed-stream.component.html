@@ -105,6 +105,9 @@
       <li *ngIf="sectorId()">
         {{ 'feed.filters.sector' | translate }}: {{ resolveSectorLabel(sectorId()) }}
       </li>
+      <li *ngIf="categoryLabelKey()">
+        {{ 'feed.filters.type' | translate }}: {{ categoryLabelKey()! | translate }}
+      </li>
       <li *ngIf="selectedType()">
         {{ 'feed.filters.type' | translate }}: {{ ('feed.type.' + selectedType()) | translate }}
       </li>
