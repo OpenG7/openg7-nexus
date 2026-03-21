@@ -1,5 +1,5 @@
-const DEFAULT_URL = 'http://localhost:4200';
-const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:4200';
+const DEFAULT_TIMEOUT_MS = 300_000;
 const DEFAULT_INTERVAL_MS = 500;
 
 async function waitForServer(url = DEFAULT_URL, timeoutMs = DEFAULT_TIMEOUT_MS, intervalMs = DEFAULT_INTERVAL_MS) {

@@ -394,3 +394,35 @@ export function createMockImportationWatchlist(payload: {
     filters: clone(payload.filters),
   };
 }
+
+export function updateMockImportationWatchlist(
+  id: string,
+  payload: {
+    readonly name?: string;
+    readonly filters?: ImportationFilters;
+  }
+) {
+  const existing = importationWatchlists.watchlists.find((watchlist) => watchlist.id === id);
+  const fallback = existing ?? {
+    id,
+    name: 'Updated watchlist',
+    owner: 'Local workspace',
+    updatedAt: '2026-03-20T12:00:00Z',
+    filters: {
+      periodGranularity: 'month',
+      periodValue: null,
+      originScope: 'global',
+      originCodes: [],
+      hsSections: [],
+      compareMode: false,
+      compareWith: null,
+    } satisfies ImportationFilters,
+  };
+
+  return {
+    ...clone(fallback),
+    ...(payload.name !== undefined ? { name: payload.name } : {}),
+    ...(payload.filters !== undefined ? { filters: clone(payload.filters) } : {}),
+    updatedAt: '2026-03-21T00:00:00Z',
+  };
+}

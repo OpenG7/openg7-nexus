@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import en from '../../../../assets/i18n/en.json';
@@ -17,6 +18,7 @@ describe('Static informational pages', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot(), TermsPage, PrivacyPage, LegalPage, FaqPage, CreditsPage, GovernancePage],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     translate = TestBed.inject(TranslateService);
@@ -120,18 +122,28 @@ describe('Static informational pages', () => {
     expect(container).toBeTruthy();
 
     const heroTitle = element.querySelector('#creditsTitle');
-    expect(heroTitle?.textContent?.trim()).toBe('An ecosystem built together');
+    expect(heroTitle?.textContent?.trim()).toBe('OpenG7 starts with one builder');
 
     const contributorCards = element.querySelectorAll('[data-og7="credits-contributor-card"]');
-    expect(contributorCards.length).withContext('Expected four contributor cards by default').toBe(4);
+    expect(contributorCards.length).withContext('Expected one founder card by default').toBe(1);
+    expect(contributorCards[0]?.textContent).toContain('Samantha Létourneau');
+
+    const founderNote = element.querySelector('[data-og7="credits-founder-note"]');
+    expect(founderNote?.textContent).toContain('Why OpenG7 begins as a founder-led build');
 
     const filterButtons = Array.from(element.querySelectorAll('[data-og7="credits-filter"]')).map(btn =>
       btn.textContent?.trim()
     );
     expect(filterButtons).toContain('Reset');
 
+    const charterCta = element.querySelector('[data-og7="credits-hero-cta"][data-og7-id="charter"]');
+    expect(charterCta?.getAttribute('href')).toBe('/governance');
+
     const communityCta = element.querySelector('[data-og7="credits-community-cta"]');
-    expect(communityCta?.getAttribute('href')).toBe('/register');
+    expect(communityCta?.getAttribute('href')).toBe('https://www.linkedin.com/in/letourneausamantha/');
+
+    const founderNoteCta = element.querySelector('[data-og7="credits-founder-note-cta"]');
+    expect(founderNoteCta?.getAttribute('href')).toBe('https://www.linkedin.com/in/letourneausamantha/');
   });
 
   it('presents the Governance page with commitments and board members', () => {
@@ -147,10 +159,16 @@ describe('Static informational pages', () => {
     const navLabels = Array.from(
       element.querySelectorAll('[data-og7-governance-nav] a')
     ).map(link => link.textContent?.trim());
-    expect(navLabels).toContain('Board & stewardship');
+    expect(navLabels.some(label => label?.includes('Board & stewardship'))).toBeTrue();
 
     const boardMembers = element.querySelectorAll('[data-og7-board-member]');
     expect(boardMembers.length).withContext('Expected at least one board member card').toBeGreaterThan(0);
+
+    const governanceCtas = Array.from(element.querySelectorAll('[data-og7="governance-cta"]'));
+    expect(governanceCtas.length).toBe(2);
+    governanceCtas.forEach((cta) => {
+      expect(cta.getAttribute('href')).toBe('https://www.linkedin.com/in/letourneausamantha/');
+    });
   });
 
   it('filters contributors by province when the signal changes', () => {
@@ -161,7 +179,7 @@ describe('Static informational pages', () => {
     fixture.detectChanges();
 
     const filteredCards = fixture.nativeElement.querySelectorAll('[data-og7="credits-contributor-card"]');
-    expect(filteredCards.length).toBe(2);
+    expect(filteredCards.length).toBe(1);
 
     component.search.set('does-not-exist');
     fixture.detectChanges();

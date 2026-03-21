@@ -1,6 +1,7 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, DestroyRef, Input, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { combineLatest } from 'rxjs';
 
@@ -62,7 +63,7 @@ export class ChipComponent {
 @Component({
   selector: 'og7-credits-page',
   standalone: true,
-  imports: [NgFor, NgIf, NgClass, TranslateModule, ChipComponent],
+  imports: [NgFor, NgIf, NgClass, RouterLink, TranslateModule, ChipComponent],
   templateUrl: './credits.page.html',
   styles: [
     `
@@ -349,6 +350,20 @@ export class ChipComponent {
         transform: translateY(-3px);
       }
 
+      .credits-contributors-grid.is-single {
+        max-width: 58rem;
+      }
+
+      .credits-contributor-card.is-featured {
+        display: grid;
+        gap: 0.25rem;
+        min-height: auto;
+      }
+
+      .contributors-identity--featured {
+        align-items: stretch;
+      }
+
       .contributors-avatar {
         background:
           linear-gradient(
@@ -359,6 +374,17 @@ export class ChipComponent {
         border: 1px solid color-mix(in srgb, var(--og7-color-primary) 10%, var(--og7-color-border));
         border-radius: 0.85rem;
         overflow: hidden;
+      }
+
+      .contributors-avatar.is-featured {
+        border-radius: 1.25rem;
+        box-shadow: 0 24px 40px -34px color-mix(in srgb, var(--og7-color-primary) 58%, transparent);
+        height: 7.5rem;
+        width: 7.5rem;
+      }
+
+      .contributors-copy--featured {
+        align-self: center;
       }
 
       .contributors-initials {
@@ -375,6 +401,63 @@ export class ChipComponent {
         letter-spacing: 0.08em;
         padding: 0.22rem 0.58rem;
         text-transform: uppercase;
+      }
+
+      .contributors-meta-list {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .contributors-founder-quote {
+        background: color-mix(in srgb, var(--og7-color-primary-soft) 44%, var(--og7-color-surface));
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 18%, var(--og7-color-border));
+        border-radius: 1.15rem;
+        padding: 1rem 1.1rem;
+      }
+
+      .contributors-founder-quote__label {
+        color: var(--og7-color-subtle);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        margin: 0 0 0.4rem;
+        text-transform: uppercase;
+      }
+
+      .contributors-founder-quote__body {
+        color: var(--og7-color-title);
+        font-size: 1rem;
+        line-height: 1.65;
+        margin: 0;
+      }
+
+      .contributors-meta-item {
+        border-top: 1px solid color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
+        display: grid;
+        gap: 0.18rem;
+        padding-top: 0.75rem;
+      }
+
+      .contributors-meta-label {
+        color: var(--og7-color-subtle);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .contributors-meta-value {
+        color: var(--og7-color-body);
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .contributors-profile-link {
+        align-items: center;
+        display: inline-flex;
+        font-size: 0.84rem;
+        font-weight: 700;
+        gap: 0.4rem;
       }
 
       .credits-pillar-section {
@@ -396,10 +479,62 @@ export class ChipComponent {
         position: relative;
       }
 
+      .credits-founder-note {
+        border-color: color-mix(in srgb, var(--og7-color-primary) 14%, var(--og7-color-border));
+      }
+
+      .credits-founder-note--main {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface-muted) 70%, transparent) 100%
+          );
+      }
+
+      .credits-founder-note--side {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--og7-color-primary-soft) 34%, transparent) 0%,
+            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
+          );
+      }
+
+      .credits-founder-note__quote {
+        background: color-mix(in srgb, var(--og7-color-primary-soft) 42%, var(--og7-color-surface));
+        border-left: 4px solid color-mix(in srgb, var(--og7-color-primary) 62%, var(--og7-color-border));
+        border-radius: 1rem;
+        color: var(--og7-color-title);
+        margin: 0;
+        padding: 1rem 1.1rem;
+      }
+
+      .credits-founder-note__quote p {
+        font-size: 1rem;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .credits-founder-note__highlights {
+        color: var(--og7-color-body);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .credits-founder-note__highlights li {
+        background: color-mix(in srgb, var(--og7-color-surface) 74%, transparent);
+        border: 1px solid color-mix(in srgb, var(--og7-color-primary) 10%, var(--og7-color-border));
+        border-radius: 1rem;
+        padding: 0.85rem 0.95rem;
+      }
+
       .credits-shell .og7-static-hero,
       .credits-directory,
       .credits-toolbar,
       .credits-pillar-section,
+      .credits-founder-note,
       .credits-community-panel,
       .credits-sidebar-section,
       .credits-hero-summary,
@@ -466,6 +601,11 @@ export class ChipComponent {
         .credits-contributor-card {
           min-height: auto;
         }
+
+        .contributors-avatar.is-featured {
+          height: 5rem;
+          width: 5rem;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -509,6 +649,8 @@ export class CreditsPage {
       return matchesProvince && matchesText;
     });
   });
+
+  readonly hasSingleContributorView = computed(() => this.filteredContributors().length === 1);
 
   constructor() {
     combineLatest({
@@ -587,6 +729,11 @@ export interface Contributor {
   province: string;
   impact: string;
   skills: string[];
+  status?: string;
+  location?: string;
+  focus?: string;
+  contribution?: string;
+  profileHref?: string;
   avatarUrl?: string;
 }
 

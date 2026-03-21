@@ -1177,9 +1177,9 @@
     }
   },  "pages": {
     "credits": {
-      "kicker": "IMPACT COLLECTIF",
-      "title": "Un écosystème construit ensemble",
-      "subtitle": "OpenG7 prospère grâce à la collaboration entre innovateurs, décideurs et catalyseurs communautaires à travers le pays.",
+      "kicker": "CRÉDITS FONDATEURS",
+      "title": "OpenG7 commence avec une seule bâtisseuse",
+      "subtitle": "OpenG7 est actuellement porté par sa fondatrice Samantha Létourneau, avec la volonté d’accueillir de futures contributions en produit, données, politiques publiques et partenariats.",
       "kpis": {
         "contributors": "Contributeurs",
         "provinces": "Provinces",
@@ -1208,6 +1208,10 @@
           "tailwind": {
             "name": "Tailwind CSS",
             "caption": "Style avec Tailwind CSS"
+          },
+          "codex": {
+            "name": "Codex",
+            "caption": "Accéléré avec Codex"
           }
         }
       },
@@ -1239,61 +1243,61 @@
       },
       "contributors": {
         "title": "Contributeurs",
-        "caption": "Une équipe pluridisciplinaire réunissant produit, données, design et accompagnement.",
+        "caption": "La bâtisseuse fondatrice qui façonne actuellement le produit, la plateforme et le modèle de collaboration.",
         "count": "{{visible}} sur {{total}} affichés",
         "emptyTitle": "Aucun contributeur ne correspond à vos filtres",
         "emptyDescription": "Essayez une autre recherche ou réinitialisez les filtres pour revoir toute l’équipe.",
+        "meta": {
+          "contribution": "Contribution",
+          "focus": "Focus actuel",
+          "profile": "Voir le profil LinkedIn"
+        },
         "items": [
           {
-            "id": "amina",
-            "name": "Amina Lefèvre",
-            "role": "Design & Produit",
+            "id": "samantha-letourneau",
+            "name": "Samantha Létourneau",
+            "role": "Fondatrice · Développeuse full-stack · Stratège produit",
             "province": "QC",
-            "skills": [
-              "Design system",
-              "UX"
-            ],
-            "impact": "A défini l’ADN visuel et la grille modulaire."
-          },
-          {
-            "id": "noah",
-            "name": "Noah Tremblay",
-            "role": "Données",
-            "province": "BC",
-            "skills": [
-              "ETL",
-              "API"
-            ],
-            "impact": "Pipelines StatCan → OpenG7."
-          },
-          {
-            "id": "sofia",
-            "name": "Sofia Caron",
-            "role": "Partenariats",
-            "province": "ON",
-            "skills": [
-              "Alliances",
-              "Gouv"
-            ],
-            "impact": "Relais interprovincial et G7."
-          },
-          {
-            "id": "elliot",
-            "name": "Elliot Bouchard",
-            "role": "Ingénierie",
-            "province": "QC",
+            "status": "Fondatrice",
+            "location": "Thetford Mines, Québec",
             "skills": [
               "Angular",
-              "NgRx"
+              "TypeScript",
+              "Stratégie produit",
+              "Design d’écosystème"
             ],
-            "impact": "Architecture signal-first et perfs."
+            "impact": "Pose les bases numériques, stratégiques et humaines d’OpenG7 comme initiative d’intérêt public portée par sa fondatrice.",
+            "contribution": "Définit la direction produit, la livraison full-stack et le premier modèle opératoire de la plateforme.",
+            "focus": "Construire la première version, structurer les partenariats et transformer un mot de la fondatrice en écosystème opérationnel.",
+            "profileHref": "https://www.linkedin.com/in/letourneausamantha/",
+            "avatarUrl": "assets/world-ambassadrice.png"
           }
         ]
       },
+      "founderNote": {
+        "kicker": "Mot de la fondatrice",
+        "title": "Pourquoi OpenG7 démarre comme une construction portée par sa fondatrice",
+        "intro": "OpenG7 ne se présente pas encore comme une institution achevée. Le projet est dans une phase disciplinée où une fondatrice transforme une intuition civique en plateforme opérationnelle, en modèle crédible et en coalition capable de grandir autour d’elle.",
+        "quoteLabel": "Perspective fondatrice",
+        "quote": "Le futur est déjà là, et nous avons le pouvoir de le façonner ensemble.",
+        "paragraphs": {
+          "origin": "Samantha Létourneau aborde OpenG7 comme une bâtisseuse full-stack façonnée par la livraison produit, les environnements complexes et la conviction que les outils numériques doivent mieux aider les sociétés à se coordonner.",
+          "vision": "Son mot de la fondatrice présente le projet comme une réponse concrète aux frictions géopolitiques, aux systèmes commerciaux fragmentés et au besoin d’une couche de collaboration plus ouverte, souveraine et praticable entre gouvernements, entreprises et citoyens.",
+          "invite": "À ce stade, le travail est concret : livrer une première version, prouver l’utilité et attirer les bons contributeurs, partenaires et soutiens autour d’une mission transparente d’intérêt public."
+        },
+        "highlightsTitle": "Ce que cette phase rend explicite",
+        "highlightsIntro": "La page reflète désormais l’état réel de l’initiative au lieu de projeter une équipe plus vaste que celle qui existe aujourd’hui.",
+        "highlights": {
+          "build": "Une fondatrice identifiée porte la direction produit, la livraison et les premiers arbitrages de gouvernance.",
+          "systems": "La première version est construite pour démontrer une valeur opérationnelle avant d’élargir la base de contributions.",
+          "invitation": "La prochaine étape utile est la conversation et l’alignement, d’où LinkedIn comme principal point de contact public."
+        },
+        "cta": "Échanger avec Samantha sur LinkedIn"
+      },
       "community": {
-        "title": "Tu veux bâtir le Canada économique 2.0 ?",
-        "copy": "Ajoute ton nom aux bâtisseurs et bâtisseuses d’une économie interprovinciale plus agile.",
-        "btn": "Je m’inscris"
+        "title": "Tu veux faire partie des premières contributions ?",
+        "copy": "Soutiens l’initiative, apporte une expertise complémentaire ou aide à porter la vision au-delà de sa phase fondatrice.",
+        "btn": "Échanger sur LinkedIn"
       },
       "governance": {
         "title": "Gouvernance",
@@ -1350,7 +1354,7 @@
       "hero": {
         "kicker": "GOUVERNANCE DE CONFIANCE",
         "title": "Une gouvernance qui mérite la confiance",
-        "subtitle": "OpenG7 est piloté comme une infrastructure numérique d’intérêt public où transparence, imputabilité et leadership partagé guident chaque livraison.",
+        "subtitle": "OpenG7 se structure actuellement comme une infrastructure numérique d’intérêt public portée à l’origine par sa fondatrice, où transparence, imputabilité et leadership partagé sont pensés dès chaque livraison.",
         "navLabel": "Sections de gouvernance"
       },
       "commitments": [
@@ -1453,8 +1457,8 @@
           }
         ],
         "inviteTitle": "Ajoute ta voix",
-        "inviteCopy": "Nous accueillons des contributrices et contributeurs de tout le pays pour renforcer une gouvernance inclusive.",
-        "inviteCta": "Manifester mon intérêt"
+        "inviteCopy": "Pendant la phase fondatrice, nous invitons des contributrices et contributeurs de tout le pays à aider à façonner une gouvernance inclusive.",
+        "inviteCta": "Manifester mon intérêt sur LinkedIn"
       },
       "process": {
         "title": "Des décisions au grand jour",
@@ -1524,12 +1528,12 @@
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "intro": "Cette politique décrit la manière dont nous traitons les données personnelles et organisationnelles collectées via OpenG7.",
+      "intro": "Cette politique décrit la manière dont nous traitons les données personnelles et organisationnelles collectées via OpenG7 à mesure que l’initiative passe de sa phase fondatrice à une participation élargie.",
       "kicker": "Engagements en matière de données",
       "hero": {
         "badge": "Transparence d'abord",
         "updated": "Dernière mise à jour : septembre 2024",
-        "supporting": "Nous appliquons les directives fédérales en matière de protection des renseignements personnels afin de sécuriser et d'utiliser les données du marché à bon escient.",
+        "supporting": "Nous appliquons ces principes dès la phase fondatrice afin que la plateforme grandisse sur des pratiques de données fiables.",
         "ctaLabel": "Contacter l'équipe confidentialité",
         "ctaDescription": "Des spécialistes dédiés vous répondent sous deux jours ouvrables."
       },
@@ -2640,7 +2644,7 @@
       "kicker": "CADRE JURIDIQUE",
       "title": "Conditions d'utilisation",
       "updated": "Dernière mise à jour : mars 2025",
-      "intro": "Ces conditions régissent votre utilisation de la plateforme OpenG7 et décrivent les responsabilités partagées entre partenaires.",
+      "intro": "Ces conditions régissent votre utilisation de la plateforme OpenG7 et décrivent les responsabilités qui encadreront la participation à mesure que l’initiative dépasse sa phase fondatrice.",
       "highlights": [
         {
           "title": "Pour qui ?",
@@ -2855,7 +2859,7 @@
     "legal": {
       "kicker": "GOUVERNANCE & CONFORMITÉ",
       "title": "Mentions légales",
-      "intro": "Informations officielles concernant l’organisme exploitant OpenG7.",
+      "intro": "Informations juridiques et administratives actuelles concernant l’initiative qui opère OpenG7.",
       "meta": {
         "title": "Références rapides",
         "downloadLabel": "Télécharger la version PDF",
@@ -2975,7 +2979,7 @@
     "faq": {
       "kicker": "SOUTIEN & CONFIANCE",
       "title": "Foire aux questions",
-      "intro": "Retrouvez les réponses aux questions les plus fréquentes des organisations rejoignant OpenG7.",
+      "intro": "Retrouvez les réponses aux questions les plus fréquentes des organisations qui évaluent OpenG7 pendant sa phase fondatrice.",
       "topQuestions": {
         "title": "Top 5 des questions",
         "description": "Commencez par les sujets les plus consultés par les nouvelles organisations.",

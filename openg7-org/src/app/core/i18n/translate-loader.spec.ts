@@ -1,6 +1,6 @@
 import { HttpBackend } from '@angular/common/http';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TransferState, PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -20,12 +20,13 @@ describe('AppTranslateLoader', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         TranslateModule.forRoot({
           loader: { provide: TranslateLoader, useClass: AppTranslateLoader, deps: [HttpBackend, TransferState, PLATFORM_ID] },
         }),
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: HTTP_INTERCEPTORS, useValue: errorInterceptor, multi: true },
         {
           provide: Router,

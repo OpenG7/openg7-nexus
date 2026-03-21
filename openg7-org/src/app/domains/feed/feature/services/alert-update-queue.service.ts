@@ -66,10 +66,8 @@ export class AlertUpdateQueueService {
       return null;
     }
 
-    return (
-      this.queueStore.records().find(
-        record => record.alertId === normalizedAlertId && record.status === 'pending'
-      ) ?? null
+    return this.queueStore.latestMatching(
+      record => record.alertId === normalizedAlertId && record.status === 'pending'
     );
   }
 }

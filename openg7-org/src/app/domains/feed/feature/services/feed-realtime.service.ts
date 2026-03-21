@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import {
   DestroyRef,
   Injectable,
@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { API_URL } from '@app/core/config/environment.tokens';
-import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
+import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
@@ -78,6 +78,11 @@ interface PublishContext {
   readonly normalizedDraft: FeedComposerDraft;
   readonly idempotencyKey: string;
   readonly optimisticItem: FeedItem;
+}
+
+interface PublishStartResult {
+  readonly validation: FeedComposerValidationResult;
+  readonly context?: PublishContext;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -263,7 +268,7 @@ export class FeedRealtimeService {
 
     const encodedId = encodeURIComponent(normalizedId);
     const url = this.composeUrl(`${COLLECTION_ENDPOINT}/${encodedId}`);
-    const context = this.createSilentHttpContext();
+    const context = createSilentHttpContext();
 
     try {
       const response = await firstValueFrom(this.http.get<ItemResponse | FeedItem>(url, { context }));
@@ -343,103 +348,34 @@ export class FeedRealtimeService {
   }
 
   publish(draft: FeedComposerDraft): FeedComposerValidationResult {
-    const validation = this.validateDraft(draft);
-    if (!validation.valid) {
+    const { validation, context } = this.startPublish(draft);
+    if (!context) {
       return validation;
     }
-    const context = this.createPublishContext(draft);
-    this.store.dispatch(
-      FeedActions.optimisticPublish({
-        draft: context.normalizedDraft,
-        item: context.optimisticItem,
-        idempotencyKey: context.idempotencyKey,
-      })
-    );
-    if (this.useMockFeed) {
-      const confirmedItem = this.buildMockConfirmedItem(context.optimisticItem);
-      this.cacheMockItem(confirmedItem);
-      this.handlePublishSuccess({
+
+    void this.commitPublish(context).catch(error => {
+      const message = this.extractError(error);
+      this.handlePublishFailure({
         tempId: context.optimisticItem.id,
-        item: confirmedItem,
-        source: 'mock',
+        error: message,
+        context: error,
       });
-      return validation;
-    }
-    const url = this.composeUrl(COLLECTION_ENDPOINT);
-    const headers = new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
-    const requestContext = this.createSilentHttpContext();
-    this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, {
-      headers,
-      context: requestContext,
-    }).subscribe({
-      next: response => {
-        const item = this.normalizeItemResponse(response);
-        this.handlePublishSuccess({
-          tempId: context.optimisticItem.id,
-          item,
-        });
-      },
-      error: error => {
-        const message = this.extractError(error);
-        this.handlePublishFailure({
-          tempId: context.optimisticItem.id,
-          error: message,
-          context: error,
-        });
-      },
     });
+
     return validation;
   }
 
   async publishDraft(draft: FeedComposerDraft): Promise<FeedPublishOutcome> {
-    const validation = this.validateDraft(draft);
-    if (!validation.valid) {
+    const { validation, context } = this.startPublish(draft);
+    if (!context) {
       return {
         status: 'validation-error',
         validation,
       };
     }
 
-    const context = this.createPublishContext(draft);
-    this.store.dispatch(
-      FeedActions.optimisticPublish({
-        draft: context.normalizedDraft,
-        item: context.optimisticItem,
-        idempotencyKey: context.idempotencyKey,
-      })
-    );
-
-    if (this.useMockFeed) {
-      const confirmedItem = this.buildMockConfirmedItem(context.optimisticItem);
-      this.cacheMockItem(confirmedItem);
-      this.handlePublishSuccess({
-        tempId: context.optimisticItem.id,
-        item: confirmedItem,
-        source: 'mock',
-      });
-      return {
-        status: 'success',
-        validation,
-        item: confirmedItem,
-      };
-    }
-
-    const url = this.composeUrl(COLLECTION_ENDPOINT);
-    const headers = new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
-    const requestContext = this.createSilentHttpContext();
-
     try {
-      const response = await firstValueFrom(
-        this.http.post<ItemResponse | FeedItem>(url, context.normalizedDraft, {
-          headers,
-          context: requestContext,
-        })
-      );
-      const item = this.normalizeItemResponse(response);
-      this.handlePublishSuccess({
-        tempId: context.optimisticItem.id,
-        item,
-      });
+      const item = await this.commitPublish(context);
       return {
         status: 'success',
         validation,
@@ -477,6 +413,57 @@ export class FeedRealtimeService {
       idempotencyKey,
       optimisticItem,
     };
+  }
+
+  private startPublish(draft: FeedComposerDraft): PublishStartResult {
+    const validation = this.validateDraft(draft);
+    if (!validation.valid) {
+      return { validation };
+    }
+
+    const context = this.createPublishContext(draft);
+    this.store.dispatch(
+      FeedActions.optimisticPublish({
+        draft: context.normalizedDraft,
+        item: context.optimisticItem,
+        idempotencyKey: context.idempotencyKey,
+      })
+    );
+
+    return {
+      validation,
+      context,
+    };
+  }
+
+  private async commitPublish(context: PublishContext): Promise<FeedItem> {
+    if (this.useMockFeed) {
+      const confirmedItem = this.buildMockConfirmedItem(context.optimisticItem);
+      this.cacheMockItem(confirmedItem);
+      this.handlePublishSuccess({
+        tempId: context.optimisticItem.id,
+        item: confirmedItem,
+        source: 'mock',
+      });
+      return confirmedItem;
+    }
+
+    const response = await firstValueFrom(
+      this.http.post<ItemResponse | FeedItem>(this.composeUrl(COLLECTION_ENDPOINT), context.normalizedDraft, {
+        headers: this.createPublishHeaders(context),
+        context: createSilentHttpContext(),
+      })
+    );
+    const item = this.normalizeItemResponse(response);
+    this.handlePublishSuccess({
+      tempId: context.optimisticItem.id,
+      item,
+    });
+    return item;
+  }
+
+  private createPublishHeaders(context: PublishContext): HttpHeaders {
+    return new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
   }
 
   private buildMockConfirmedItem(item: FeedItem): FeedItem {
@@ -552,7 +539,7 @@ export class FeedRealtimeService {
       return;
     }
     const url = this.composeUrl(COLLECTION_ENDPOINT);
-    const context = this.createSilentHttpContext();
+    const context = createSilentHttpContext();
     this.http
       .get<ItemResponse>(url, { params, context })
       .subscribe({
@@ -573,10 +560,6 @@ export class FeedRealtimeService {
           });
         },
       });
-  }
-
-  private createSilentHttpContext(): HttpContext {
-    return new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
   }
 
   private async resolveAndDispatchMockPage(options: {

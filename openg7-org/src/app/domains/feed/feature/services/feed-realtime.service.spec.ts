@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { PLATFORM_ID, TransferState, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_URL, FEATURE_FLAGS } from '@app/core/config/environment.tokens';
@@ -21,7 +22,7 @@ import {
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 
-import { FeedFilterState } from '../models/feed.models';
+import { FeedComposerDraft, FeedFilterState } from '../models/feed.models';
 
 import { FeedRealtimeService } from './feed-realtime.service';
 
@@ -115,6 +116,18 @@ describe('FeedRealtimeService', () => {
   let service: FeedRealtimeService;
   let httpMock: HttpTestingController;
 
+  const validDraft: FeedComposerDraft = {
+    type: 'REQUEST',
+    title: 'Hydro support request',
+    summary: 'Seeking short-term hydro capacity support for regional balancing.',
+    sectorId: 'energy',
+    fromProvinceId: 'qc',
+    toProvinceId: 'on',
+    mode: 'IMPORT',
+    quantity: { value: 300, unit: 'MW' },
+    tags: ['hydro'],
+  };
+
   beforeEach(() => {
     const translate = jasmine.createSpyObj<TranslateService>('TranslateService', ['instant']);
     translate.instant.and.callFake((key: string) => key);
@@ -122,8 +135,9 @@ describe('FeedRealtimeService', () => {
     const notifications = jasmine.createSpyObj('NotificationStore', ['success', 'error', 'info']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         FeedRealtimeService,
         TransferState,
         { provide: Store, useClass: StoreMock },
@@ -152,5 +166,36 @@ describe('FeedRealtimeService', () => {
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
 
     request.flush({ data: [], cursor: null });
+  });
+
+  it('suppresses the global error toast for feed publication requests', () => {
+    const validation = service.publish(validDraft);
+
+    expect(validation.valid).toBeTrue();
+
+    const request = httpMock.expectOne(req => req.method === 'POST' && req.url === 'https://cms.local/api/feed');
+    expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
+    expect(request.request.headers.has('Idempotency-Key')).toBeTrue();
+
+    request.flush({
+      data: {
+        id: 'feed-1',
+        createdAt: '2026-03-20T10:00:00.000Z',
+        updatedAt: '2026-03-20T10:00:00.000Z',
+        type: 'REQUEST',
+        sectorId: 'energy',
+        title: 'Hydro support request',
+        summary: 'Seeking short-term hydro capacity support for regional balancing.',
+        fromProvinceId: 'qc',
+        toProvinceId: 'on',
+        mode: 'IMPORT',
+        quantity: { value: 300, unit: 'MW' },
+        tags: ['hydro'],
+        source: {
+          kind: 'USER',
+          label: 'Operator',
+        },
+      },
+    });
   });
 });

@@ -6,9 +6,10 @@ export default defineConfig({
     baseURL: 'http://localhost:4200',
   },
   webServer: {
-    command: 'npm start',
+    command: 'yarn start',
     port: 4200,
-    reuseExistingServer: !process.env.CI,
+    // Avoid reusing a stale local https dev server on the same port.
+    reuseExistingServer: false,
     timeout: 300 * 1000,
   },
 });

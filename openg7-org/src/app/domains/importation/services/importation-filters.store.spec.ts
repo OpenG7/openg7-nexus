@@ -178,5 +178,31 @@ describe('ImportationFiltersStore', () => {
     expect(store.knowledgeVm().articles).toEqual([]);
     expect(store.knowledgeVm().cta).toBeNull();
   });
+
+  it('keeps collaboration state consistent when a non-404 collaboration request fails', () => {
+    api.getAnnotations.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error', error: { message: 'boom' } }))
+    );
+    api.getWatchlists.and.returnValue(of({ watchlists: [{
+      id: 'watch-1',
+      name: 'Safe',
+      owner: 'Local workspace',
+      updatedAt: '2024-01-01',
+      filters: {
+        periodGranularity: 'month',
+        periodValue: null,
+        originScope: 'global',
+        originCodes: [],
+        hsSections: [],
+        compareMode: false,
+        compareWith: null,
+      },
+    }] }));
+
+    initializeStore();
+
+    expect(store.collaborationVm().loading).toBeFalse();
+    expect(store.collaborationVm().error).toBe('Http failure response for (unknown url): 500 Server Error');
+  });
 });
 

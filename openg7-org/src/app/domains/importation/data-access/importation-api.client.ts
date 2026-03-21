@@ -21,6 +21,7 @@ import {
   getMockImportationRiskFlags,
   getMockImportationSuppliers,
   getMockImportationWatchlists,
+  updateMockImportationWatchlist,
 } from './importation-api.mocks';
 
 export interface ImportationFlowPointDto {
@@ -233,6 +234,9 @@ export class ImportationApiClient {
   }
 
   updateWatchlist(id: string, payload: ImportationWatchlistUpdatePayload): Observable<ImportationWatchlistDto> {
+    if (this.useMocks) {
+      return of(updateMockImportationWatchlist(id, payload));
+    }
     return this.http.put<ImportationWatchlistDto>(`/api/import-watchlists/${encodeURIComponent(id)}`, payload);
   }
 
