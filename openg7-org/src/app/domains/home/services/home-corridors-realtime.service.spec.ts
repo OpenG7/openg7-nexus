@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_URL, FEATURE_FLAGS } from '@app/core/config/environment.tokens';
@@ -14,8 +15,9 @@ describe('HomeCorridorsRealtimeService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         HomeCorridorsRealtimeService,
         HttpClientService,
         { provide: API_URL, useValue: 'https://cms.local' },

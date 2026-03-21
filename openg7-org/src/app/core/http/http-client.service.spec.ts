@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 
@@ -13,8 +14,9 @@ describe('HttpClientService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         HttpClientService,
         { provide: API_URL, useValue: '/api' },
         { provide: API_WITH_CREDENTIALS, useValue: true },
@@ -57,8 +59,9 @@ describe('HttpClientService', () => {
   it('falls back to runtime config when injection token is missing', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         HttpClientService,
         { provide: API_URL, useValue: '/api' },
         {

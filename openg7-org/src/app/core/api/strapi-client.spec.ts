@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import type { StrapiList, Sector, BillingPlan, StatisticsResponse } from '@openg7/contracts';
 
@@ -24,8 +25,9 @@ describe('StrapiClient', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         StrapiClient,
         HttpClientService,
         { provide: API_URL, useValue: 'https://cms.test' },

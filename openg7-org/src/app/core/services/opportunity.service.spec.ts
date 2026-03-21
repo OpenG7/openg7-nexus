@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { PLATFORM_ID, TransferState } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
@@ -23,8 +24,9 @@ describe('OpportunityService', () => {
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStore', ['info', 'error', 'success']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         OpportunityService,
         TransferState,
         { provide: API_URL, useValue: 'https://cms.local' },

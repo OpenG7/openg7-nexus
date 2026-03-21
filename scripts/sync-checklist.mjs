@@ -142,7 +142,16 @@ async function computeChecklistState() {
     ts.forEachChild(node, visit);
   });
 
-  const expectedStoreKeys = ['auth', 'user', 'catalog', 'map'];
+  const expectedStoreKeys = [
+    'auth',
+    'user',
+    'catalog',
+    'map',
+    'companyImportBulk',
+    'connections',
+    'feed',
+    'statistics',
+  ];
   const ngrxOk =
     storeKeys.length === expectedStoreKeys.length &&
     expectedStoreKeys.every(key => storeKeys.includes(key));
@@ -185,7 +194,7 @@ async function computeChecklistState() {
     ],
     ['Implémenter les signals locaux & formulaires typés dans chaque composant.', signalsOk],
     [
-      'Brancher NgRx uniquement pour `auth`, `user`, `catalog`, `map` (selectors section 2).',
+      'Brancher NgRx pour les slices globales et workflows documentés : `auth`, `user`, `catalog`, `map`, `companyImportBulk`, `connections`, `feed`, `statistics`.',
       ngrxOk,
     ],
     ['Configurer i18n (loader HTTP, fichiers `fr.json` / `en.json`).', i18nOk],

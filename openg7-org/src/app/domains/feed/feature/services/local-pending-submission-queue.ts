@@ -4,6 +4,7 @@ import { Signal, signal } from '@angular/core';
 export interface LocalPendingSubmissionQueueStore<TRecord> {
   readonly records: Signal<readonly TRecord[]>;
   append(record: TRecord): void;
+  latestMatching(predicate: (record: TRecord) => boolean): TRecord | null;
 }
 
 interface CreateLocalPendingSubmissionQueueStoreOptions<TRecord> {
@@ -56,6 +57,9 @@ export function createLocalPendingSubmissionQueueStore<TRecord>(
       const next = [record, ...recordsSig()].slice(0, options.maxEntries);
       recordsSig.set(next);
       persist(next);
+    },
+    latestMatching(predicate: (record: TRecord) => boolean): TRecord | null {
+      return recordsSig().find(predicate) ?? null;
     },
   };
 }

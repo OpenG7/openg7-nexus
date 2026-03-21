@@ -608,7 +608,7 @@ Standardiser lâ€™ordre dâ€™exÃ©cution (arbo sÃ©curitÃ© â†’ 
 1. **CrÃ©er** lâ€™arborescence dâ€™accÃ¨s & sÃ©curitÃ© (section 3) sous `openg7-org/src/app/...`.
 2. **GÃ©nÃ©rer** les composants listÃ©s en 1) avec leurs **selectors HTML** respectifs.
 3. **ImplÃ©menter** les **signals** locaux & formulaires typÃ©s dans chaque composant.
-4. **Brancher** NgRx uniquement pour `auth`, `user`, `catalog`, `map` (selectors section 2).
+4. **Brancher** NgRx pour les slices globales et workflows documentes : `auth`, `user`, `catalog`, `map`, `companyImportBulk`, `connections`, `feed`, `statistics`.
 5. **Configurer** i18n (loader HTTP, fichiers `fr.json` / `en.json`).
 6. **Activer** les interceptors `auth`, `csrf`, `error`.
 7. **ProtÃ©ger** les routes (`canMatch` + RBAC UI).

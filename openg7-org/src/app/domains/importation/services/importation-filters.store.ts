@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { ImportationApiClient, toGranularity, toOriginScope } from '../data-access/importation-api.client';
@@ -618,61 +618,46 @@ export class ImportationFiltersStore {
       return;
     }
     this.stateSig.update((state) => ({ ...state, collaborationLoading: true, collaborationError: null }));
-    this.api
-      .getAnnotations()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        catchError((error) => {
-          if (this.isMissingOptionalResource(error)) {
-            return this.optionalResourceFallback({ annotations: [] } satisfies { annotations: readonly ImportationAnnotationDto[] });
-          }
-          this.stateSig.update((state) => ({
-            ...state,
-            collaborationError: this.getErrorMessage(error),
-          }));
-          return of(null);
-        })
-      )
-      .subscribe((annotations) => {
-        this.stateSig.update((state) => ({
-          ...state,
-          annotations: annotations?.annotations ?? [],
-        }));
-      });
-
-    if (this.permissions.canManageWatchlists()) {
-      this.api
-        .getWatchlists()
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          catchError((error) => {
-            if (this.isMissingOptionalResource(error)) {
-              return this.optionalResourceFallback({ watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] });
-            }
-            this.stateSig.update((state) => ({
-              ...state,
-              collaborationLoading: false,
-              collaborationError: this.getErrorMessage(error),
-            }));
-            return of(null);
-          })
+    const annotations$ = this.api.getAnnotations().pipe(
+      catchError((error) =>
+        this.optionalResourceFallbackOrError(
+          error,
+          { annotations: [] } satisfies { annotations: readonly ImportationAnnotationDto[] }
         )
-        .subscribe((watchlists) => {
+      )
+    );
+
+    const watchlists$ = this.permissions.canManageWatchlists()
+      ? this.api.getWatchlists().pipe(
+          catchError((error) =>
+            this.optionalResourceFallbackOrError(
+              error,
+              { watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] }
+            )
+          )
+        )
+      : of({ watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] });
+
+    forkJoin({ annotations: annotations$, watchlists: watchlists$ })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ annotations, watchlists }) => {
           this.stateSig.update((state) => ({
             ...state,
-            watchlists: watchlists?.watchlists ?? [],
+            annotations: annotations.annotations,
+            watchlists: watchlists.watchlists,
             collaborationLoading: false,
             collaborationError: null,
           }));
-        });
-    } else {
-      this.stateSig.update((state) => ({
-        ...state,
-        watchlists: [],
-        collaborationLoading: false,
-        collaborationError: null,
-      }));
-    }
+        },
+        error: (error) => {
+          this.stateSig.update((state) => ({
+            ...state,
+            collaborationLoading: false,
+            collaborationError: this.getErrorMessage(error),
+          }));
+        },
+      });
   }
 
   private fetchKnowledge(): void {
@@ -714,6 +699,13 @@ export class ImportationFiltersStore {
 
   private optionalResourceFallback<T>(fallback: T): Observable<T> {
     return of(fallback);
+  }
+
+  private optionalResourceFallbackOrError<T>(error: unknown, fallback: T): Observable<T> {
+    if (this.isMissingOptionalResource(error)) {
+      return this.optionalResourceFallback(fallback);
+    }
+    return throwError(() => error);
   }
 
   private getErrorMessage(error: unknown): string {

@@ -75,10 +75,8 @@ export class OpportunityReportQueueService {
       return null;
     }
 
-    return (
-      this.queueStore.records().find(
-        record => record.itemId === normalizedItemId && record.status === 'pending'
-      ) ?? null
+    return this.queueStore.latestMatching(
+      record => record.itemId === normalizedItemId && record.status === 'pending'
     );
   }
 }

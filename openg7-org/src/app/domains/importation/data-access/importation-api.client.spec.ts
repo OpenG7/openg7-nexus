@@ -1,4 +1,5 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { API_URL, FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
@@ -11,8 +12,9 @@ describe('ImportationApiClient HTTP mode', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         ImportationApiClient,
         { provide: API_URL, useValue: 'https://cms.local' },
         { provide: FEATURE_FLAGS, useValue: {} },
@@ -78,8 +80,9 @@ describe('ImportationApiClient mock mode', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         ImportationApiClient,
         { provide: API_URL, useValue: 'https://cms.local' },
         { provide: FEATURE_FLAGS, useValue: { importationMocks: true } },
@@ -150,6 +153,25 @@ describe('ImportationApiClient mock mode', () => {
       jasmine.objectContaining({
         articles: jasmine.any(Array),
         cta: jasmine.objectContaining({ id: 'cta-fr' }),
+      })
+    );
+  });
+
+  it('updates watchlists from local mocks without issuing HTTP requests', () => {
+    let watchlistValue: unknown;
+
+    service.updateWatchlist('watch-pharma-g7', {
+      name: 'Intrants pharma G7 plus',
+    }).subscribe((value) => {
+      watchlistValue = value;
+    });
+
+    httpMock.expectNone('https://cms.local/api/import-watchlists/watch-pharma-g7');
+
+    expect(watchlistValue).toEqual(
+      jasmine.objectContaining({
+        id: 'watch-pharma-g7',
+        name: 'Intrants pharma G7 plus',
       })
     );
   });
