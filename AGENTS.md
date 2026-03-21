@@ -518,7 +518,13 @@ strapi/
 â”‚  â”‚  â”œâ”€ 05-companies.ts          # entreprises de dÃ©mo (liens secteurs/provinces)
 â”‚  â”‚  â”œâ”€ 06-exchanges.ts        # Ã©changes interprovinciaux (graph)
 â”‚  â”‚  â”œâ”€ 07-feature-flags.ts      # flags UI (pro-mode etc.)
-â”‚  â”‚  â””â”€ 08-api-tokens.ts         # tokens lecture seule (front)
+â”‚  â”‚  â”œâ”€ 08-api-tokens.ts         # tokens lecture seule (front)
+â”‚  â”‚  â”œâ”€ 09-national-projects.ts  # projets nationaux de dÃ©mo
+â”‚  â”‚  â”œâ”€ 10-company-permissions.ts # droits entreprise / import
+â”‚  â”‚  â”œâ”€ 11-statistic-insights.ts # statistiques et insights
+â”‚  â”‚  â”œâ”€ 12-company-countries.ts  # normalisation pays entreprise
+â”‚  â”‚  â”œâ”€ 13-auth-settings.ts      # paramÃ¨tres users-permissions
+â”‚  â”‚  â””â”€ 14-importation.ts        # watchlists, annotations, report schedules importation
 â”‚  â””â”€ utils/seed-helpers.ts       # helpers: upsert, ensureRole, ensureLocale, etc.
 â”œâ”€ config/
 â”‚  â”œâ”€ plugins.ts                  # i18n, users-permissions, graphql (optionnel)
@@ -717,6 +723,14 @@ Le contrat OpenAPI est versionnÃ© dans `packages/contracts/spec/openapi.json`.
 | Entreprises      | `/api/companies`               | `?filters[sector][id][$in]=...`   | filtrage cÃ´tÃ© Strapi                 |
 | Ã‰changes       | `/api/exchanges`             | `?filters[sourceProvince][id]=...`| graph dâ€™Ã©changes                     |
 | Homepage         | `/api/homepage`                | `?populate=deep`                  | *SingleType*                         |
+| Import flows     | `/api/import-flows`            | `?period=month&originScope=usmca&originCodes=US&hsSections=85` | agrÃ©gats de flux importation |
+| Import commodities | `/api/import-commodities`    | `?period=month&originScope=g7&hsSections=85` | top, Ã©mergents et lignes Ã  risque |
+| Import risk flags | `/api/import-risk-flags`      | `?originScope=g7&hsSections=85`   | flags produits calculÃ©s Ã  partir des commoditÃ©s |
+| Import suppliers | `/api/import-suppliers`        | `?originScope=indo_pacific`       | fournisseurs filtrÃ©s par scope/origine |
+| Import knowledge | `/api/import-knowledge`        | `?lang=fr`                        | contenus knowledge / playbooks importation |
+| Import annotations | `/api/import-annotations`    | â€”                                | annotations collaboratives persistÃ©es |
+| Import watchlists | `/api/import-watchlists`      | GET / POST / PUT JSON             | watchlists importation persistÃ©es |
+| Import report schedule | `/api/import-reports/schedule` | POST JSON (`period`, `recipients`, `format`, `frequency`, `notes`) | planification de rapports importation |
 
 **Shape de rÃ©ponse (par dÃ©faut Strapi v4/v5)** :  
 ```json
@@ -767,7 +781,7 @@ import fetch from 'node-fetch';
 const base = process.env.OG7_API_URL || 'http://localhost:1337';
 const token = process.env.OG7_API_TOKEN || '';
 const headers = token ? { Authorization: `Bearer ${token}` } : {};
-const endpoints = ['/api/sectors','/api/provinces','/api/companies','/api/exchanges','/api/homepage'];
+const endpoints = ['/api/sectors','/api/provinces','/api/companies','/api/exchanges','/api/homepage','/api/import-flows','/api/import-commodities','/api/import-risk-flags','/api/import-suppliers','/api/import-knowledge','/api/import-annotations','/api/import-watchlists'];
 const errs = [];
 for (const e of endpoints) { const r = await fetch(base+e, { headers }); if (!r.ok) errs.push(`${e} -> HTTP ${r.status}`); }
 if (errs.length) { console.error('API KO:\n'+errs.join('\n')); process.exit(1); }
@@ -1461,7 +1475,7 @@ it('exchanges shape minimal', async () => {
 
 | RÃ´le (UI) | Permissions Strapi (API) | VisibilitÃ© UI (exemples) |
 |---|---|---|
-| **Visiteur** | Public: GET `/api/sectors`, `/api/provinces`, `/api/companies`, `/api/exchanges`, `/api/homepage` | Voir la carte, filtres, table (read-only) |
+| **Visiteur** | Public: GET `/api/sectors`, `/api/provinces`, `/api/companies`, `/api/exchanges`, `/api/homepage`, `/api/import-flows`, `/api/import-commodities`, `/api/import-risk-flags`, `/api/import-suppliers`, `/api/import-knowledge`, `/api/import-annotations`, `/api/import-watchlists` ; POST `/api/import-watchlists`, `/api/import-reports/schedule` | Voir la carte, filtres, table et hub importation (read-only + collaboration locale/persistÃ©e) |
 | **Ã‰diteur** | Authenticated: POST/PUT/PATCH sur `company`, `homepage` | Boutons â€œÃ‰diterâ€ visibles ; gardÃ©s par `canMatchRole('editor')` |
 | **Admin** | Tous droits + settings | AccÃ¨s admin-only (flags, seeds manuels) |
 

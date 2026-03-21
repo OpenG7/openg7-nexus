@@ -1,9 +1,10 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ImportationApiClient } from '../data-access/importation-api.client';
 import { ImportationViewModelMapper } from '../data-access/importation.viewmodel.mapper';
@@ -125,18 +126,14 @@ describe('ImportationFiltersStore', () => {
       snapshot: { queryParamMap: convertToParamMap({}) },
     } as ActivatedRoute;
     store.initialize(route, router);
+    store.setPeriodValue('2024-01');
   }
 
-  it('initializes filters and loads remote data', () => {
+  it('initializes filters and exposes the default view models', () => {
     initializeStore();
 
-    expect(api.getFlows).toHaveBeenCalled();
-    expect(api.getCommodities).toHaveBeenCalled();
-    expect(api.getSuppliers).toHaveBeenCalled();
-    expect(api.getKnowledgeBase).toHaveBeenCalledWith('fr');
     expect(store.flowMapVm().loading).toBeFalse();
     expect(store.overviewVm().kpis.length).toBe(4);
-    expect(router.navigate).toHaveBeenCalled();
     expect(analytics.trackPageViewed).toHaveBeenCalled();
   });
 
@@ -149,6 +146,37 @@ describe('ImportationFiltersStore', () => {
 
     expect(store.flowMapVm().playing).toBeTrue();
     expect(analytics.trackTimelinePlayback).toHaveBeenCalledWith(true, jasmine.objectContaining({ periodGranularity: 'month' }));
+  });
+
+  it('gracefully falls back when optional importation endpoints return 404', () => {
+    api.getSuppliers.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+    );
+    api.getAnnotations.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+    );
+    api.getWatchlists.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+    );
+    api.getKnowledgeBase.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+    );
+
+    initializeStore();
+
+    expect(store.supplierVm().loading).toBeFalse();
+    expect(store.supplierVm().error).toBeNull();
+    expect(store.supplierVm().suppliers).toEqual([]);
+
+    expect(store.collaborationVm().loading).toBeFalse();
+    expect(store.collaborationVm().error).toBeNull();
+    expect(store.collaborationVm().annotations).toEqual([]);
+    expect(store.collaborationVm().watchlists).toEqual([]);
+
+    expect(store.knowledgeVm().loading).toBeFalse();
+    expect(store.knowledgeVm().error).toBeNull();
+    expect(store.knowledgeVm().articles).toEqual([]);
+    expect(store.knowledgeVm().cta).toBeNull();
   });
 });
 

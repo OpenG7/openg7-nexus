@@ -683,6 +683,111 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiImportAnnotationImportAnnotation extends Struct.CollectionTypeSchema {
+  collectionName: 'import_annotations';
+  info: {
+    displayName: 'Import Annotation';
+    pluralName: 'import-annotations';
+    singularName: 'import-annotation';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    author: Schema.Attribute.String & Schema.Attribute.Required;
+    authorAvatarUrl: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    excerpt: Schema.Attribute.Text & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::import-annotation.import-annotation'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    relatedCommodityId: Schema.Attribute.String;
+    relatedOriginCode: Schema.Attribute.String;
+    source: Schema.Attribute.Enumeration<['seed', 'user']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'seed'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
+export interface ApiImportReportScheduleImportReportSchedule extends Struct.CollectionTypeSchema {
+  collectionName: 'import_report_schedules';
+  info: {
+    displayName: 'Import Report Schedule';
+    pluralName: 'import-report-schedules';
+    singularName: 'import-report-schedule';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    format: Schema.Attribute.Enumeration<['csv', 'json', 'look']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'csv'>;
+    frequency: Schema.Attribute.Enumeration<['weekly', 'monthly', 'quarterly']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'monthly'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::import-report-schedule.import-report-schedule'
+    > &
+      Schema.Attribute.Private;
+    notes: Schema.Attribute.Text;
+    period: Schema.Attribute.Enumeration<['month', 'quarter', 'year']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'month'>;
+    publishedAt: Schema.Attribute.DateTime;
+    recipients: Schema.Attribute.JSON & Schema.Attribute.Required;
+    status: Schema.Attribute.Enumeration<['scheduled']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'scheduled'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
+export interface ApiImportWatchlistImportWatchlist extends Struct.CollectionTypeSchema {
+  collectionName: 'import_watchlists';
+  info: {
+    displayName: 'Import Watchlist';
+    pluralName: 'import-watchlists';
+    singularName: 'import-watchlist';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    filters: Schema.Attribute.JSON & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::import-watchlist.import-watchlist'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    owner: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'Local workspace'>;
+    publishedAt: Schema.Attribute.DateTime;
+    source: Schema.Attribute.Enumeration<['seed', 'user']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'user'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
 export interface ApiNationalProjectNationalProject extends Struct.CollectionTypeSchema {
   collectionName: 'national_projects';
   info: {
@@ -1379,6 +1484,9 @@ declare module '@strapi/strapi' {
       'api::exchange.exchange': ApiExchangeExchange;
       'api::feed.feed': ApiFeedFeed;
       'api::homepage.homepage': ApiHomepageHomepage;
+      'api::import-annotation.import-annotation': ApiImportAnnotationImportAnnotation;
+      'api::import-report-schedule.import-report-schedule': ApiImportReportScheduleImportReportSchedule;
+      'api::import-watchlist.import-watchlist': ApiImportWatchlistImportWatchlist;
       'api::national-project.national-project': ApiNationalProjectNationalProject;
       'api::province.province': ApiProvinceProvince;
       'api::saved-search.saved-search': ApiSavedSearchSavedSearch;

@@ -14,7 +14,8 @@
     "mapGlobe": true,
     "mapNight": false,
     "homeFeedMocks": true,
-    "homeCorridorsRealtimeMocks": true
+    "homeCorridorsRealtimeMocks": true,
+    "importationMocks": false
   },
   "AUTH_MODE": "hybrid",
   "NOTIFICATION_WEBHOOK_URL": null,

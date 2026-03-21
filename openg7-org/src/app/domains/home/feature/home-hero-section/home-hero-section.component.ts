@@ -1,9 +1,9 @@
 import { NgComponentOutlet, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Output, PLATFORM_ID, Type, inject, input, output, signal } from '@angular/core';
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
-import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeCorridorsRealtimeComponent } from '@app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component';
 import { HomeCtaRowComponent } from '@app/domains/home/feature/home-cta-row/home-cta-row.component';
+import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeFeedPanelsComponent } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeFeedSectionComponent } from '@app/domains/home/feature/home-feed-section/home-feed-section.component';
 import { HomeMetricsStripComponent } from '@app/domains/home/feature/home-metrics-strip/home-metrics-strip.component';

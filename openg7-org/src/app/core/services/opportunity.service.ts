@@ -1,12 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, Signal, TransferState, inject, makeStateKey, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { API_URL } from '../config/environment.tokens';
-import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
+import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import {
   CompanySummary,
   Mode,
@@ -225,11 +225,7 @@ export class OpportunityService {
         if (!match) {
           return;
         }
-        const current = this.itemsSignal();
-        if (current.some((item) => item.id === match.id)) {
-          return;
-        }
-        this.itemsSignal.set([...current, match]);
+        this.cacheMatch(match);
       }),
       catchError((error) => {
         this.notifications.error(this.translate.instant('opportunities.error'), {
@@ -254,15 +250,17 @@ export class OpportunityService {
   async searchMatches(query?: OpportunityMatchQuery): Promise<readonly OpportunityMatch[]> {
     const url = this.composeUrl();
     const params = this.buildHttpParams(query);
-    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
 
     try {
       const response = await firstValueFrom(
-        this.http.get<OpportunityMatchesResponse>(url, { params, context })
+        this.http.get<OpportunityMatchesResponse>(url, {
+          params,
+          context: createSilentHttpContext(),
+        })
       );
       return this.filterMatches(this.mapMatches(response), query);
     } catch {
-      return this.filterMatches(this.itemsSignal(), query);
+      return this.cachedMatches(query);
     }
   }
 
@@ -286,24 +284,35 @@ export class OpportunityService {
 
     const url = `${this.composeUrl()}/${id}`;
     const params = this.buildHttpParams();
-    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
 
     try {
       const response = await firstValueFrom(
-        this.http.get<OpportunityMatchResponse>(url, { params, context })
+        this.http.get<OpportunityMatchResponse>(url, {
+          params,
+          context: createSilentHttpContext(),
+        })
       );
       const match = response?.data ? this.mapMatch(response.data) : null;
       if (!match) {
         return null;
       }
-      const current = this.itemsSignal();
-      if (!current.some((item) => item.id === match.id)) {
-        this.itemsSignal.set([...current, match]);
-      }
+      this.cacheMatch(match);
       return match;
     } catch {
       return null;
     }
+  }
+
+  private cachedMatches(query?: OpportunityMatchQuery): readonly OpportunityMatch[] {
+    return this.filterMatches(this.itemsSignal(), query);
+  }
+
+  private cacheMatch(match: OpportunityMatch): void {
+    const current = this.itemsSignal();
+    if (current.some((item) => item.id === match.id)) {
+      return;
+    }
+    this.itemsSignal.set([...current, match]);
   }
 
   private buildHttpParams(query?: OpportunityMatchQuery): HttpParams {

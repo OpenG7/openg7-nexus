@@ -1,8 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
@@ -23,7 +23,7 @@ export class CatalogMockService {
   private readonly api = inject(HttpClientService);
   private readonly store = inject(Store);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly silentCatalogContext = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
+  private readonly silentCatalogContext = createSilentHttpContext();
   private loaded = false;
 
   async load(): Promise<void> {

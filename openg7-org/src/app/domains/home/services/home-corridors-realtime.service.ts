@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
+import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -51,21 +52,23 @@ export class HomeCorridorsRealtimeService {
   loadSnapshot(): Observable<CorridorsRealtimeSnapshot> {
     if (this.useMocks) {
       if (!isPlatformBrowser(this.platformId)) {
-        return of(this.emptySnapshot());
+        return this.snapshotFallback();
       }
       return this.assetHttp
         .get<CorridorsRealtimeSnapshot>('assets/mocks/corridors-realtime.mock.json')
         .pipe(
           map((payload) => this.normalizeSnapshot(payload)),
-          catchError(() => of(this.emptySnapshot()))
+          catchError(() => this.snapshotFallback())
         );
     }
 
     return this.http
-      .get<CorridorsRealtimeSnapshot>('/api/corridors/realtime')
+      .get<CorridorsRealtimeSnapshot>('/api/corridors/realtime', {
+        context: createSilentHttpContext(),
+      })
       .pipe(
         map((payload) => this.normalizeSnapshot(payload)),
-        catchError(() => of(this.emptySnapshot()))
+        catchError(() => this.snapshotFallback())
       );
   }
 
@@ -76,6 +79,10 @@ export class HomeCorridorsRealtimeService {
       items: Array.isArray(base.items) ? base.items : [],
       status: base.status ?? { level: 'info' },
     };
+  }
+
+  private snapshotFallback(): Observable<CorridorsRealtimeSnapshot> {
+    return of(this.emptySnapshot());
   }
 
   private emptySnapshot(): CorridorsRealtimeSnapshot {

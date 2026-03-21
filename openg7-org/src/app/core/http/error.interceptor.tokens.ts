@@ -1,4 +1,4 @@
-import { HttpContextToken } from '@angular/common/http';
+import { HttpContext, HttpContextToken } from '@angular/common/http';
 
 /**
  * Marks requests for which the global error interceptor should not trigger
@@ -7,3 +7,7 @@ import { HttpContextToken } from '@angular/common/http';
  * by returning demo data).
  */
 export const SUPPRESS_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
+
+export function createSilentHttpContext(): HttpContext {
+	return new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
+}
