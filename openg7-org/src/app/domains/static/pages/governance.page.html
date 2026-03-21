@@ -7,18 +7,50 @@
 
   <div class="relative z-10 og7-static-shell og7-static-flow">
     <section data-og7-page="governance" class="og7-static-flow">
-      <header class="og7-static-hero p-6 md:p-10">
-        <p class="og7-static-kicker text-xs font-semibold tracking-[0.32em]">
-          {{ 'pages.governance.hero.kicker' | translate }}
-        </p>
-        <h1
-          class="og7-static-title mt-3 text-balance text-4xl font-extrabold tracking-tight md:text-6xl"
-        >
-          {{ 'pages.governance.hero.title' | translate }}
-        </h1>
-        <p class="og7-static-intro mt-4 max-w-3xl text-pretty text-lg md:text-xl">
-          {{ 'pages.governance.hero.subtitle' | translate }}
-        </p>
+      <header class="og7-static-hero grid gap-8 p-6 md:p-10 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div>
+          <p class="og7-static-kicker text-xs font-semibold tracking-[0.32em]">
+            {{ 'pages.governance.hero.kicker' | translate }}
+          </p>
+          <h1
+            class="og7-static-title mt-3 text-balance text-4xl font-extrabold tracking-tight md:text-6xl"
+          >
+            {{ 'pages.governance.hero.title' | translate }}
+          </h1>
+          <p class="og7-static-intro mt-4 max-w-3xl text-pretty text-lg md:text-xl">
+            {{ 'pages.governance.hero.subtitle' | translate }}
+          </p>
+        </div>
+
+        <aside class="og7-static-card og7-static-card--muted space-y-5 rounded-3xl p-6">
+          <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
+              {{ 'pages.governance.hero.navLabel' | translate }}
+            </p>
+            <p class="text-sm text-body">
+              {{ 'pages.governance.advisory.inviteCopy' | translate }}
+            </p>
+          </div>
+
+          <nav
+            class="space-y-2 text-sm text-subtle"
+            [attr.aria-label]="'pages.governance.hero.navLabel' | translate"
+            data-og7-governance-nav
+          >
+            <a
+              *ngFor="let anchor of anchors()"
+              class="og7-static-nav-link flex items-center justify-between gap-3 rounded-2xl border border-transparent px-3 py-2 text-left transition hover:border-primary hover:bg-(--og7-color-primary-soft) hover:text-title"
+              [attr.href]="'#' + anchor.id"
+            >
+              <span>{{ anchor.label }}</span>
+              <span aria-hidden="true" class="text-xs text-subtle">-></span>
+            </a>
+          </nav>
+
+          <a class="og7-static-action-primary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm" href="https://www.linkedin.com/in/letourneausamantha/" target="_blank" rel="noopener noreferrer" data-og7="governance-cta" data-og7-id="hero-linkedin">
+            {{ 'pages.governance.advisory.inviteCta' | translate }}
+          </a>
+        </aside>
       </header>
 
       <div class="grid gap-4 md:grid-cols-2">
@@ -32,15 +64,6 @@
         </article>
       </div>
 
-      <nav
-        class="flex flex-wrap items-center gap-3 text-sm text-subtle"
-        [attr.aria-label]="'pages.governance.hero.navLabel' | translate"
-        data-og7-governance-nav
-      >
-        <a *ngFor="let anchor of anchors()" class="og7-static-chip" [attr.href]="'#' + anchor.id">
-          {{ anchor.label }}
-        </a>
-      </nav>
     </section>
 
     <section id="board" class="og7-static-card space-y-8 p-6 md:p-8">
@@ -63,7 +86,7 @@
           data-og7-board-member
         >
           <div
-            class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/65 via-tertiary/70 to-success/65 opacity-0 transition group-hover:opacity-100"
+            class="absolute inset-x-0 bottom-0 h-1 bg-linear-to-r from-primary/65 via-tertiary/70 to-success/65 opacity-0 transition group-hover:opacity-100"
           ></div>
           <h3 class="text-lg font-semibold text-title">{{ member.name }}</h3>
           <p class="mt-1 text-sm font-medium text-primary">{{ member.role }}</p>
@@ -128,7 +151,7 @@
           {{ 'pages.governance.advisory.inviteTitle' | translate }}
         </h3>
         <p class="text-sm text-body">{{ 'pages.governance.advisory.inviteCopy' | translate }}</p>
-        <a class="og7-static-action-primary" href="mailto:governance@openg7.org">
+        <a class="og7-static-action-primary" href="https://www.linkedin.com/in/letourneausamantha/" target="_blank" rel="noopener noreferrer" data-og7="governance-cta" data-og7-id="advisory-linkedin">
           {{ 'pages.governance.advisory.inviteCta' | translate }}
         </a>
       </aside>

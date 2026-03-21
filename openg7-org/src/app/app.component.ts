@@ -113,7 +113,12 @@ const IMMERSIVE_MAIN_CONTENT_PATHS = new Set([
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/terms',
+  '/privacy',
+  '/legal',
+  '/faq',
   '/credits',
+  '/governance',
   '/auth/callback',
 ]);
 

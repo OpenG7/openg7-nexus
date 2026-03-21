@@ -42,15 +42,19 @@
             </p>
           </div>
 
-          <div class="credits-coverage mt-4 space-y-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-subtle">
-              {{ 'pages.credits.filters.provincesLabel' | translate }}
-            </p>
-            <div class="credits-coverage__pills flex flex-wrap gap-2">
-              <span *ngFor="let p of provincesUnique()" class="credits-coverage__pill">
-                {{ p }}
-              </span>
-            </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-3" data-og7="credits-hero-proof">
+            <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="contributors-proof">
+              <p class="credits-kpi-value">{{ contributors().length }}</p>
+              <p class="credits-kpi-label">{{ 'pages.credits.kpis.contributors' | translate }}</p>
+            </article>
+            <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="provinces-proof">
+              <p class="credits-kpi-value">{{ provincesUnique().length }}</p>
+              <p class="credits-kpi-label">{{ 'pages.credits.kpis.provinces' | translate }}</p>
+            </article>
+            <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="pillars-proof">
+              <p class="credits-kpi-value">{{ pillars().length }}</p>
+              <p class="credits-kpi-label">{{ 'pages.credits.kpis.pillars' | translate }}</p>
+            </article>
           </div>
         </div>
 
@@ -65,7 +69,7 @@
           </a>
           <a
             class="og7-static-action-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm"
-            href="#governance"
+            routerLink="/governance"
             data-og7="credits-hero-cta"
             data-og7-id="charter"
           >
@@ -74,45 +78,41 @@
         </div>
       </div>
 
-      <aside class="credits-hero-rail og7-static-card space-y-5 rounded-2xl p-5">
+      <aside class="credits-hero-rail og7-static-card space-y-5 rounded-2xl p-5" data-og7="credits-trust-rail">
         <div class="space-y-2">
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
-            {{ 'pages.credits.kpis.since' | translate }} {{ currentYear }}
+            {{ 'pages.credits.governance.title' | translate }}
           </p>
           <h2 class="text-xl font-semibold text-title">
-            {{ 'pages.credits.methodology.title' | translate }}
+            {{ 'pages.credits.title' | translate }}
           </h2>
           <p class="text-sm text-body">
-            {{ 'pages.credits.methodology.copy' | translate }}
+            {{ 'pages.credits.governance.copy' | translate }}
           </p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3" data-og7="credits-kpis">
-          <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="contributors">
-            <p class="credits-kpi-value">{{ contributors().length }}</p>
-            <p class="credits-kpi-label">{{ 'pages.credits.kpis.contributors' | translate }}</p>
-          </article>
-          <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="provinces">
-            <p class="credits-kpi-value">{{ provincesUnique().length }}</p>
-            <p class="credits-kpi-label">{{ 'pages.credits.kpis.provinces' | translate }}</p>
-          </article>
-          <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="pillars">
-            <p class="credits-kpi-value">{{ pillars().length }}</p>
-            <p class="credits-kpi-label">{{ 'pages.credits.kpis.pillars' | translate }}</p>
-          </article>
-          <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="since">
-            <p class="credits-kpi-value">{{ currentYear }}</p>
-            <p class="credits-kpi-label">{{ 'pages.credits.kpis.since' | translate }}</p>
-          </article>
+        <ul class="governance-list og7-static-border-list list-disc pl-5 text-sm" data-og7="credits-governance-preview">
+          <li *ngFor="let p of governancePoints()">{{ p }}</li>
+        </ul>
+
+        <div class="credits-coverage space-y-3">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-subtle">
+            {{ 'pages.credits.filters.provincesLabel' | translate }}
+          </p>
+          <div class="credits-coverage__pills flex flex-wrap gap-2">
+            <span *ngFor="let p of provincesUnique()" class="credits-coverage__pill">
+              {{ p }}
+            </span>
+          </div>
         </div>
 
         <div class="credits-hero-rail__footer rounded-2xl p-4">
           <a
-            href="#governance"
+            href="#credits-directory"
             class="og7-static-action-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm"
             data-og7="credits-methodology-cta"
           >
-            {{ 'pages.credits.methodology.cta' | translate }}
+            {{ 'pages.credits.contributors.title' | translate }}
           </a>
         </div>
       </aside>
@@ -120,7 +120,7 @@
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
       <article class="credits-main-column space-y-6">
-        <section class="credits-directory og7-static-section space-y-6">
+        <section id="credits-directory" class="credits-directory og7-static-section space-y-6">
           <header class="credits-directory__header flex flex-wrap items-end justify-between gap-3">
             <div class="space-y-1">
               <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
@@ -206,19 +206,27 @@
           <section data-og7="credits-contributors" class="space-y-5">
             <ng-container *ngIf="filteredContributors().length; else noContributors">
               <div
-                class="credits-contributors-grid grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+                class="credits-contributors-grid grid grid-cols-1 gap-4"
+                [ngClass]="{
+                  'is-single': hasSingleContributorView(),
+                  'sm:grid-cols-2 xl:grid-cols-3': !hasSingleContributorView()
+                }"
               >
                 <article
                   *ngFor="let c of filteredContributors(); let i = index"
                   class="credits-contributor-card og7-static-card og7-static-card--muted og7-static-fade-in relative overflow-hidden rounded-2xl p-5"
+                  [ngClass]="{ 'is-featured': hasSingleContributorView() }"
                   [style.--og7-reveal-order]="i + 1"
                   data-og7="credits-contributor-card"
                   [attr.data-og7-id]="c.id"
                 >
-                  <div class="contributors-badge absolute right-4 top-4">{{ c.province }}</div>
+                  <div class="absolute right-4 top-4 flex flex-wrap justify-end gap-2">
+                    <div *ngIf="c.status" class="contributors-badge">{{ c.status }}</div>
+                    <div class="contributors-badge">{{ c.province }}</div>
+                  </div>
 
-                  <div class="flex items-center gap-3">
-                    <div class="contributors-avatar size-12 shrink-0">
+                  <div class="flex items-center gap-3" [ngClass]="{ 'contributors-identity--featured': hasSingleContributorView() }">
+                    <div class="contributors-avatar size-12 shrink-0" [ngClass]="{ 'is-featured': hasSingleContributorView() }">
                       <img
                         *ngIf="c.avatarUrl"
                         [src]="c.avatarUrl"
@@ -232,13 +240,54 @@
                         {{ initials(c.name) }}
                       </div>
                     </div>
-                    <div class="pr-16">
+                    <div class="pr-16" [ngClass]="{ 'contributors-copy--featured': hasSingleContributorView() }">
                       <h3 class="text-base font-semibold text-title">{{ c.name }}</h3>
                       <p class="text-sm text-subtle">{{ c.role }}</p>
+                      <p *ngIf="c.location" class="text-xs uppercase tracking-[0.18em] text-tertiary">
+                        {{ c.location }}
+                      </p>
                     </div>
                   </div>
 
                   <p class="mt-3 text-sm leading-relaxed text-body">{{ c.impact }}</p>
+
+                  <div *ngIf="hasSingleContributorView()" class="contributors-founder-quote mt-4" data-og7="credits-founder-quote">
+                    <p class="contributors-founder-quote__label">
+                      {{ 'pages.credits.founderNote.quoteLabel' | translate }}
+                    </p>
+                    <p class="contributors-founder-quote__body">
+                      {{ 'pages.credits.founderNote.quote' | translate }}
+                    </p>
+                  </div>
+
+                  <div *ngIf="c.contribution || c.focus || c.profileHref" class="contributors-meta-list mt-4">
+                    <div *ngIf="c.contribution" class="contributors-meta-item">
+                      <p class="contributors-meta-label">
+                        {{ 'pages.credits.contributors.meta.contribution' | translate }}
+                      </p>
+                      <p class="contributors-meta-value">{{ c.contribution }}</p>
+                    </div>
+
+                    <div *ngIf="c.focus" class="contributors-meta-item">
+                      <p class="contributors-meta-label">
+                        {{ 'pages.credits.contributors.meta.focus' | translate }}
+                      </p>
+                      <p class="contributors-meta-value">{{ c.focus }}</p>
+                    </div>
+
+                    <div *ngIf="c.profileHref" class="contributors-meta-item">
+                      <a
+                        class="contributors-profile-link text-primary transition hover:opacity-80"
+                        [href]="c.profileHref"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span>{{ 'pages.credits.contributors.meta.profile' | translate }}</span>
+                        <span aria-hidden="true">-></span>
+                      </a>
+                    </div>
+                  </div>
+
                   <div class="mt-4 flex flex-wrap gap-2">
                     <og7-chip *ngFor="let s of c.skills" [label]="s"></og7-chip>
                   </div>
@@ -270,6 +319,85 @@
           </section>
         </section>
 
+        <section data-og7="credits-founder-note" class="credits-pillar-section og7-static-section space-y-5">
+          <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <article class="credits-founder-note credits-founder-note--main og7-static-card og7-static-card--muted space-y-4 rounded-3xl p-6">
+              <div class="space-y-2">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
+                  {{ 'pages.credits.founderNote.kicker' | translate }}
+                </p>
+                <h2 class="text-2xl font-semibold text-title md:text-3xl">
+                  {{ 'pages.credits.founderNote.title' | translate }}
+                </h2>
+                <p class="text-sm text-body">
+                  {{ 'pages.credits.founderNote.intro' | translate }}
+                </p>
+              </div>
+
+              <blockquote class="credits-founder-note__quote">
+                <p>{{ 'pages.credits.founderNote.quote' | translate }}</p>
+              </blockquote>
+
+              <div class="space-y-3 text-sm leading-relaxed text-body">
+                <p>{{ 'pages.credits.founderNote.paragraphs.origin' | translate }}</p>
+                <p>{{ 'pages.credits.founderNote.paragraphs.vision' | translate }}</p>
+                <p>{{ 'pages.credits.founderNote.paragraphs.invite' | translate }}</p>
+              </div>
+            </article>
+
+            <aside class="credits-founder-note credits-founder-note--side og7-static-card space-y-4 rounded-3xl p-6">
+              <div class="space-y-2">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
+                  {{ 'pages.credits.founderNote.highlightsTitle' | translate }}
+                </p>
+                <p class="text-sm text-body">
+                  {{ 'pages.credits.founderNote.highlightsIntro' | translate }}
+                </p>
+              </div>
+
+              <ul class="credits-founder-note__highlights space-y-3" data-og7="credits-founder-note-highlights">
+                <li>{{ 'pages.credits.founderNote.highlights.build' | translate }}</li>
+                <li>{{ 'pages.credits.founderNote.highlights.systems' | translate }}</li>
+                <li>{{ 'pages.credits.founderNote.highlights.invitation' | translate }}</li>
+              </ul>
+
+              <a
+                class="og7-static-action-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm"
+                href="https://www.linkedin.com/in/letourneausamantha/"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-og7="credits-founder-note-cta"
+              >
+                {{ 'pages.credits.founderNote.cta' | translate }}
+              </a>
+            </aside>
+          </div>
+        </section>
+
+        <section
+          id="governance"
+          data-og7="credits-governance"
+          class="credits-pillar-section og7-static-section space-y-5"
+        >
+          <div class="space-y-1">
+            <h2 class="text-2xl font-semibold text-title md:text-3xl">
+              {{ 'pages.credits.governance.title' | translate }}
+            </h2>
+            <p class="text-sm text-body">{{ 'pages.credits.governance.copy' | translate }}</p>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <article
+              *ngFor="let p of governancePoints(); let i = index"
+              class="og7-static-card og7-static-card--muted og7-static-fade-in rounded-2xl p-4"
+              [style.--og7-reveal-order]="i + 1"
+              data-og7="credits-governance-point"
+            >
+              <p class="text-sm font-semibold text-title">{{ p }}</p>
+            </article>
+          </div>
+        </section>
+
         <section data-og7="credits-pillars" class="credits-pillar-section og7-static-section space-y-5">
           <div class="space-y-1">
             <h2 class="text-2xl font-semibold text-title">
@@ -289,11 +417,39 @@
               <p class="text-sm text-body">{{ pillar.summary }}</p>
               <div class="flex flex-wrap gap-2">
                 <og7-chip *ngFor="let t of pillar.tags">
-                  <span class="size-1.5 rounded-full bg-[color:var(--og7-color-border)]"></span>
+                  <span class="size-1.5 rounded-full bg-(--og7-color-border)"></span>
                   <span class="sr-only">bullet</span>
                   {{ t }}
                 </og7-chip>
               </div>
+            </article>
+          </div>
+        </section>
+
+        <section data-og7="credits-methodology" class="credits-pillar-section og7-static-section space-y-5">
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
+              {{ 'pages.credits.methodology.kicker' | translate }}
+            </p>
+            <h2 class="text-2xl font-semibold text-title">
+              {{ 'pages.credits.methodology.title' | translate }}
+            </h2>
+            <p class="text-sm text-body">
+              {{ 'pages.credits.methodology.copy' | translate }}
+            </p>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3" data-og7="credits-methodology-steps">
+            <article
+              *ngFor="let step of methodologySteps(); let i = index"
+              class="og7-static-card og7-static-card--muted og7-static-fade-in rounded-2xl p-4"
+              [style.--og7-reveal-order]="i + 1"
+              data-og7="credits-methodology-step"
+              [attr.data-og7-id]="i + 1"
+            >
+              <p class="method-step-index">0{{ i + 1 }}</p>
+              <h3 class="mt-1 text-base font-semibold text-title">{{ step.title }}</h3>
+              <p class="mt-2 text-sm text-body">{{ step.copy }}</p>
             </article>
           </div>
         </section>
@@ -312,7 +468,9 @@
             </div>
             <a
               class="og7-static-action-primary inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm"
-              href="/register"
+              href="https://www.linkedin.com/in/letourneausamantha/"
+              target="_blank"
+              rel="noopener noreferrer"
               data-og7="credits-community-cta"
             >
               {{ 'pages.credits.community.btn' | translate }}
@@ -322,37 +480,33 @@
       </article>
 
       <aside class="credits-sidebar space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <section data-og7="credits-methodology" class="credits-sidebar-section og7-static-card space-y-5 rounded-3xl p-6">
+        <section data-og7="credits-sidebar-summary" class="credits-sidebar-section og7-static-card space-y-5 rounded-3xl p-6">
           <div class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
-              {{ 'pages.credits.methodology.kicker' | translate }}
+              {{ 'pages.credits.kicker' | translate }}
             </p>
             <h2 class="text-2xl font-semibold text-title">
-              {{ 'pages.credits.methodology.title' | translate }}
+              {{ 'pages.credits.contributors.title' | translate }}
             </h2>
             <p class="text-sm text-body">
-              {{ 'pages.credits.methodology.copy' | translate }}
+              {{ 'pages.credits.contributors.caption' | translate }}
             </p>
-            <a
-              href="#governance"
-              class="og7-static-action-secondary inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm"
-              data-og7="credits-methodology-cta"
-            >
-              {{ 'pages.credits.methodology.cta' | translate }}
-            </a>
           </div>
 
-          <div class="space-y-3" data-og7="credits-methodology-steps">
+          <div class="space-y-3" data-og7="credits-sidebar-kpis">
             <article
-              *ngFor="let step of methodologySteps(); let i = index"
+              *ngFor="let label of [
+                ('pages.credits.kpis.contributors' | translate),
+                ('pages.credits.kpis.provinces' | translate),
+                ('pages.credits.kpis.pillars' | translate)
+              ]; let i = index"
               class="og7-static-card og7-static-card--muted og7-static-fade-in rounded-2xl p-4"
               [style.--og7-reveal-order]="i + 1"
-              data-og7="credits-methodology-step"
+              data-og7="credits-sidebar-kpi"
               [attr.data-og7-id]="i + 1"
             >
-              <p class="method-step-index">0{{ i + 1 }}</p>
-              <h3 class="mt-1 text-base font-semibold text-title">{{ step.title }}</h3>
-              <p class="mt-2 text-sm text-body">{{ step.copy }}</p>
+              <p class="credits-kpi-value">{{ [contributors().length, provincesUnique().length, pillars().length][i] }}</p>
+              <p class="credits-kpi-label">{{ label }}</p>
             </article>
           </div>
         </section>
@@ -418,22 +572,23 @@
                 {{ 'pages.credits.stack.items.tailwind.caption' | translate }}
               </p>
             </article>
+
+            <article
+              class="og7-static-card og7-static-card--muted rounded-2xl p-4"
+              data-og7="credits-stack-item"
+              data-og7-id="codex"
+            >
+              <span class="stack-marker">CX</span>
+              <p class="mt-2 text-sm font-semibold text-title">
+                {{ 'pages.credits.stack.items.codex.name' | translate }}
+              </p>
+              <p class="text-xs text-subtle">
+                {{ 'pages.credits.stack.items.codex.caption' | translate }}
+              </p>
+            </article>
           </div>
         </section>
 
-        <section
-          id="governance"
-          data-og7="credits-governance"
-          class="credits-sidebar-section og7-static-card og7-static-card--muted space-y-4 rounded-3xl p-6"
-        >
-          <h2 class="text-xl font-semibold text-title">
-            {{ 'pages.credits.governance.title' | translate }}
-          </h2>
-          <p class="text-sm text-body">{{ 'pages.credits.governance.copy' | translate }}</p>
-          <ul class="governance-list og7-static-border-list list-disc pl-5 text-sm">
-            <li *ngFor="let p of governancePoints()">{{ p }}</li>
-          </ul>
-        </section>
       </aside>
     </div>
   </div>
