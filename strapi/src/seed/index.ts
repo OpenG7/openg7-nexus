@@ -22,6 +22,7 @@ const seeds: SeedDefinition[] = [
   { name: '11-statistic-insights', run: require('./11-statistic-insights').default },
   { name: '12-company-countries', run: require('./12-company-countries').default },
   { name: '13-auth-settings', run: require('./13-auth-settings').default },
+  { name: '14-importation', run: require('./14-importation').default },
 ];
 
 export default async function runSeeds() {

@@ -46,6 +46,7 @@ export const environment: EnvironmentConfig = {
     feedMocks: true,
     homeFeedMocks: true,
     homeCorridorsRealtimeMocks: true,
+    importationMocks: false,
   },
   AUTH_MODE: 'hybrid',
   NOTIFICATION_WEBHOOK_URL: null,

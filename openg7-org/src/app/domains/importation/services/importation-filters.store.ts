@@ -1,4 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   DestroyRef,
   Injectable,
@@ -13,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { ImportationApiClient, toGranularity, toOriginScope } from '../data-access/importation-api.client';
@@ -580,10 +581,13 @@ export class ImportationFiltersStore {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
+          if (this.isMissingOptionalResource(error)) {
+            return this.optionalResourceFallback({ suppliers: [] } satisfies { suppliers: readonly ImportationSupplierDto[] });
+          }
           this.stateSig.update((state) => ({
             ...state,
             suppliersLoading: false,
-            suppliersError: (error?.message as string) ?? 'unknown',
+            suppliersError: this.getErrorMessage(error),
             suppliers: null,
           }));
           return of(null);
@@ -619,9 +623,12 @@ export class ImportationFiltersStore {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
+          if (this.isMissingOptionalResource(error)) {
+            return this.optionalResourceFallback({ annotations: [] } satisfies { annotations: readonly ImportationAnnotationDto[] });
+          }
           this.stateSig.update((state) => ({
             ...state,
-            collaborationError: (error?.message as string) ?? 'unknown',
+            collaborationError: this.getErrorMessage(error),
           }));
           return of(null);
         })
@@ -639,10 +646,13 @@ export class ImportationFiltersStore {
         .pipe(
           takeUntilDestroyed(this.destroyRef),
           catchError((error) => {
+            if (this.isMissingOptionalResource(error)) {
+              return this.optionalResourceFallback({ watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] });
+            }
             this.stateSig.update((state) => ({
               ...state,
               collaborationLoading: false,
-              collaborationError: (error?.message as string) ?? 'unknown',
+              collaborationError: this.getErrorMessage(error),
             }));
             return of(null);
           })
@@ -673,10 +683,13 @@ export class ImportationFiltersStore {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
+          if (this.isMissingOptionalResource(error)) {
+            return this.optionalResourceFallback({ articles: [], cta: null } satisfies ImportationKnowledgeResponseDto);
+          }
           this.stateSig.update((state) => ({
             ...state,
             knowledgeLoading: false,
-            knowledgeError: (error?.message as string) ?? 'unknown',
+            knowledgeError: this.getErrorMessage(error),
             knowledge: null,
           }));
           return of(null);
@@ -693,5 +706,17 @@ export class ImportationFiltersStore {
           knowledgeError: null,
         }));
       });
+  }
+
+  private isMissingOptionalResource(error: unknown): boolean {
+    return error instanceof HttpErrorResponse && error.status === 404;
+  }
+
+  private optionalResourceFallback<T>(fallback: T): Observable<T> {
+    return of(fallback);
+  }
+
+  private getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'unknown';
   }
 }

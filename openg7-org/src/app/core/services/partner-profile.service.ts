@@ -1,9 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpContext } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 
-import { SUPPRESS_ERROR_TOAST } from '../http/error.interceptor.tokens';
+import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import { HttpClientService } from '../http/http-client.service';
 import { PartnerProfile } from '../models/partner-profile';
 
@@ -65,7 +64,7 @@ export class PartnerProfileService {
         }
         return profile;
       }),
-      catchError(() => of(this.demoFallback(key, role)))
+      catchError(() => this.profileFallback(key, role))
     );
   }
 
@@ -83,10 +82,9 @@ export class PartnerProfileService {
     }
 
     const params = role ? { role } : undefined;
-    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
     return this.http.get(`/api/partner-profiles/${key}/download`, {
       params,
-      context,
+      context: createSilentHttpContext(),
       responseType: 'blob',
     });
   }
@@ -96,10 +94,16 @@ export class PartnerProfileService {
       return of(null);
     }
     const params = { populate: 'deep' } as const;
-    const context = new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
     return this.http
-      .get<StrapiPartnerProfileResponse>(`/api/partner-profiles/${id}`, { params, context })
+      .get<StrapiPartnerProfileResponse>(`/api/partner-profiles/${id}`, {
+        params,
+        context: createSilentHttpContext(),
+      })
       .pipe(map((response) => this.mapResponse(response)));
+  }
+
+  private profileFallback(id: string, role?: PartnerProfile['role']): Observable<PartnerProfile | null> {
+    return of(this.demoFallback(id, role));
   }
 
   private mapResponse(response: StrapiPartnerProfileResponse | null): PartnerProfile | null {

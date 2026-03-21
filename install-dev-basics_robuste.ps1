@@ -662,6 +662,60 @@ function Normalize-PathValue {
     }
 }
 
+function Resolve-MkcertExecutable {
+    $candidates = @()
+
+    $command = Get-Command mkcert -ErrorAction SilentlyContinue
+    if ($null -ne $command -and -not [string]::IsNullOrWhiteSpace($command.Source)) {
+        $candidates += $command.Source
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+        $candidates += (Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\WinGet\Links\mkcert.exe')
+        $candidates += (Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\WindowsApps\mkcert.exe')
+        $candidates += (Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\WinGet\Packages\FiloSottile.mkcert_Microsoft.Winget.Source_8wekyb3d8bbwe\mkcert.exe')
+    }
+
+    foreach ($candidate in ($candidates | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)) {
+        if (Test-Path -LiteralPath $candidate) {
+            return $candidate
+        }
+    }
+
+    return $null
+}
+
+function Add-DirectoryToSessionPath {
+    param(
+        [Parameter(Mandatory = $true)][string]$DirectoryPath
+    )
+
+    $normalizedDirectory = Normalize-PathValue -PathValue $DirectoryPath
+    if ([string]::IsNullOrWhiteSpace($normalizedDirectory)) {
+        return $false
+    }
+
+    $currentEntries = @()
+    if (-not [string]::IsNullOrWhiteSpace($env:Path)) {
+        $currentEntries = $env:Path -split ';'
+    }
+
+    foreach ($entry in $currentEntries) {
+        if ((Normalize-PathValue -PathValue $entry) -eq $normalizedDirectory) {
+            return $false
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($env:Path)) {
+        $env:Path = $normalizedDirectory
+    }
+    else {
+        $env:Path = $normalizedDirectory + ';' + $env:Path.TrimStart(';')
+    }
+
+    return $true
+}
+
 function Ensure-NpmGlobalBinInEnv {
     param(
         [switch]$OnlyIfAngularCliPresent
@@ -883,6 +937,55 @@ Invoke-CriticalStep -Description "Installation ou mise à niveau de Yarn" -Actio
     }
 }
 
+Invoke-CriticalStep -Description "Installation ou mise à niveau de mkcert" -Action {
+    $detailMessages = @()
+    $status = 'Déjà installé'
+    $mkcertExecutable = Resolve-MkcertExecutable
+
+    if ([string]::IsNullOrWhiteSpace($mkcertExecutable)) {
+        Write-Host "Installation de mkcert via winget..."
+        winget install --exact --id FiloSottile.mkcert --silent --accept-source-agreements --accept-package-agreements
+        $status = 'Installé'
+        $detailMessages += "mkcert n'était pas disponible ; installation via winget."
+        $mkcertExecutable = Resolve-MkcertExecutable
+
+        if ([string]::IsNullOrWhiteSpace($mkcertExecutable)) {
+            throw "mkcert a été installé via winget, mais l'exécutable reste introuvable dans cette session."
+        }
+    }
+    else {
+        $detailMessages += "mkcert est déjà disponible sur cette machine."
+    }
+
+    $mkcertDirectory = Split-Path -Parent $mkcertExecutable
+    if (-not [string]::IsNullOrWhiteSpace($mkcertDirectory)) {
+        $pathUpdated = Add-DirectoryToSessionPath -DirectoryPath $mkcertDirectory
+        if ($pathUpdated) {
+            $detailMessages += "Le dossier de mkcert a été ajouté au PATH de la session courante."
+            if ($status -eq 'Déjà installé') {
+                $status = 'Mis à jour'
+            }
+        }
+    }
+
+    $mkcertVersion = & $mkcertExecutable '--version'
+    if ($mkcertVersion) {
+        $mkcertVersion = ([string]$mkcertVersion).Trim()
+        Write-Host "mkcert détecté : $mkcertVersion"
+        $detailMessages += "La commande mkcert répond avec la version $mkcertVersion."
+    }
+
+    $detailsText = ($detailMessages | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ' '
+    if ([string]::IsNullOrWhiteSpace($detailsText)) {
+        $detailsText = $null
+    }
+
+    return [PSCustomObject]@{
+        Status  = $status
+        Details = $detailsText
+    }
+}
+
 Invoke-CriticalStep -Description "Installation de l'Angular CLI" -Action {
     $detailMessages = @()
     $angularCli = Get-Command ng -ErrorAction SilentlyContinue
@@ -956,6 +1059,35 @@ Invoke-CriticalStep -Description "Installation des dépendances JavaScript du pr
     return [PSCustomObject]@{
         Status  = 'Installé'
         Details = "Les dépendances Yarn ont été installées via 'yarn install --frozen-lockfile'."
+    }
+}
+
+Invoke-CriticalStep -Description "Génération du certificat HTTPS local pour Angular" -Action {
+    $detailMessages = @()
+    $angularProjectPath = Join-Path -Path $scriptDirectory -ChildPath 'openg7-org'
+    $certScriptPath = Join-Path -Path $angularProjectPath -ChildPath 'scripts\ensure-localhost-cert.mjs'
+    $certPath = Join-Path -Path $angularProjectPath -ChildPath '.cert\localhost.pem'
+    $keyPath = Join-Path -Path $angularProjectPath -ChildPath '.cert\localhost-key.pem'
+
+    if (-not (Test-Path -Path $certScriptPath)) {
+        throw "Le script de génération du certificat est introuvable : $certScriptPath"
+    }
+
+    & node $certScriptPath
+    $certExitCode = $LASTEXITCODE
+    if ($certExitCode -ne 0) {
+        throw "La génération du certificat a échoué avec le code $certExitCode."
+    }
+
+    if (-not (Test-Path -Path $certPath) -or -not (Test-Path -Path $keyPath)) {
+        throw "Le certificat HTTPS n'a pas été généré correctement dans $angularProjectPath\.cert."
+    }
+
+    $detailMessages += "Le certificat HTTPS local a été généré dans $angularProjectPath\.cert pour la configuration Angular https-local."
+
+    return [PSCustomObject]@{
+        Status  = 'Installé'
+        Details = (($detailMessages | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ' ')
     }
 }
 

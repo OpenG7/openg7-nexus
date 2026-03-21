@@ -1,6 +1,9 @@
 {
   "name": "openg7",
   "license": "MIT",
+  "engines": {
+    "node": "22.x"
+  },
   "workspaces": [
     "openg7-org",
     "strapi",

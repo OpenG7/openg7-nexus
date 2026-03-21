@@ -1,7 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Signal, signal, inject, PLATFORM_ID } from '@angular/core';
-import { TransferState, makeStateKey } from '@angular/platform-browser';
+import { Injectable, Signal, signal, inject, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
+
+import { createSilentHttpContext } from '../../http/error.interceptor.tokens';
 
 export interface Og7HeaderPayload {
   announcement: {
@@ -47,7 +48,9 @@ export class HeaderService {
     }
 
     this.http
-      .get<Og7HeaderPayload>(`/api/header?populate=deep&locale=${locale}`)
+      .get<Og7HeaderPayload>(`/api/header?populate=deep&locale=${locale}`, {
+        context: createSilentHttpContext(),
+      })
       .subscribe({
         next: (payload) => {
           if (!this.isBrowser) {
@@ -66,7 +69,6 @@ export class HeaderService {
 
     return headerSig;
   }
-
   private fallbackPayload(): Og7HeaderPayload {
     return {
       announcement: { enabled: false },

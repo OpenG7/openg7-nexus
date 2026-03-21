@@ -69,11 +69,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": [
-                "interprovincial",
-                "international",
-                "all"
-              ]
+              "enum": ["interprovincial", "international", "all"]
             }
           },
           {
@@ -81,13 +77,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": [
-                "all",
-                "energy",
-                "agriculture",
-                "manufacturing",
-                "services"
-              ]
+              "enum": ["all", "energy", "agriculture", "manufacturing", "services"]
             }
           },
           {
@@ -143,14 +133,276 @@
                           "type": "integer"
                         }
                       },
-                      "required": [
-                        "count"
-                      ]
+                      "required": ["count"]
                     }
                   },
-                  "required": [
-                    "data"
-                  ]
+                  "required": ["data"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-flows": {
+      "get": {
+        "summary": "Fetch importation flows",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["month", "quarter", "year"]
+            }
+          },
+          {
+            "name": "periodValue",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "originScope",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["global", "g7", "usmca", "european_union", "indo_pacific", "custom"]
+            }
+          },
+          {
+            "name": "originCodes",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          },
+          {
+            "name": "hsSections",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportFlowsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-commodities": {
+      "get": {
+        "summary": "Fetch importation commodities",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCommodityCollections"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-risk-flags": {
+      "get": {
+        "summary": "Fetch importation risk flags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImportRiskFlag"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-suppliers": {
+      "get": {
+        "summary": "Fetch importation suppliers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSuppliersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-knowledge": {
+      "get": {
+        "summary": "Fetch importation knowledge",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["fr", "en"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportKnowledgeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-annotations": {
+      "get": {
+        "summary": "Fetch importation annotations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportAnnotationsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-watchlists": {
+      "get": {
+        "summary": "Fetch importation watchlists",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportWatchlistsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create importation watchlist",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportWatchlistCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportWatchlist"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-watchlists/{id}": {
+      "put": {
+        "summary": "Update importation watchlist",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportWatchlistUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportWatchlist"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-reports/schedule": {
+      "post": {
+        "summary": "Schedule importation report",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportReportScheduleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReportScheduleResponse"
                 }
               }
             }
@@ -164,369 +416,158 @@
       "Province": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          }
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        "required": ["id", "name"]
       },
       "Sector": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          }
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        "required": ["id", "name"]
       },
       "CompanyCapacity": {
         "type": "object",
         "properties": {
-          "label": {
-            "type": "string"
-          },
-          "value": {
-            "type": "number",
-            "nullable": true
-          },
-          "unit": {
-            "type": "string",
-            "nullable": true
-          }
+          "label": { "type": "string" },
+          "value": { "type": "number", "nullable": true },
+          "unit": { "type": "string", "nullable": true }
         },
-        "required": [
-          "label"
-        ]
+        "required": ["label"]
       },
       "Company": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "website": {
-            "type": "string",
-            "nullable": true
-          },
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "website": { "type": "string", "nullable": true },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "approved",
-              "suspended"
-            ]
+            "enum": ["pending", "approved", "suspended"]
           },
-          "logoUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondaryLogoUrl": {
-            "type": "string",
-            "nullable": true
-          },
+          "logoUrl": { "type": "string", "nullable": true },
+          "secondaryLogoUrl": { "type": "string", "nullable": true },
           "capacities": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CompanyCapacity"
-            }
+            "items": { "$ref": "#/components/schemas/CompanyCapacity" }
           },
-          "sector": {
-            "$ref": "#/components/schemas/Sector",
-            "nullable": true
-          },
-          "province": {
-            "$ref": "#/components/schemas/Province",
-            "nullable": true
-          }
+          "sector": { "$ref": "#/components/schemas/Sector", "nullable": true },
+          "province": { "$ref": "#/components/schemas/Province", "nullable": true }
         },
-        "required": [
-          "id",
-          "name",
-          "status"
-        ]
+        "required": ["id", "name", "status"]
       },
       "Exchange": {
         "type": "object",
         "properties": {
-          "slug": {
-            "type": "string"
-          },
+          "slug": { "type": "string" },
           "title": {
             "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
+            "additionalProperties": { "type": "string" }
           },
-          "value": {
-            "type": "number"
-          },
-          "unit": {
-            "type": "string"
-          },
-          "sourceProvince": {
-            "type": "integer"
-          },
-          "targetProvince": {
-            "type": "integer"
-          }
+          "value": { "type": "number" },
+          "unit": { "type": "string" },
+          "sourceProvince": { "type": "integer" },
+          "targetProvince": { "type": "integer" }
         },
-        "required": [
-          "slug",
-          "title",
-          "value",
-          "unit",
-          "sourceProvince",
-          "targetProvince"
-        ]
+        "required": ["slug", "title", "value", "unit", "sourceProvince", "targetProvince"]
       },
       "BillingPlanPrice": {
         "type": "object",
         "properties": {
-          "amount": {
-            "type": "integer"
-          },
-          "currency": {
-            "type": "string"
-          },
+          "amount": { "type": "integer" },
+          "currency": { "type": "string" },
           "interval": {
             "type": "string",
-            "enum": [
-              "month",
-              "year"
-            ]
+            "enum": ["month", "year"]
           }
         },
-        "required": [
-          "amount",
-          "currency",
-          "interval"
-        ]
+        "required": ["amount", "currency", "interval"]
       },
       "BillingPlanCapabilities": {
         "type": "object",
         "properties": {
-          "premiumVisibility": {
-            "type": "boolean"
-          },
-          "priorityAnalytics": {
-            "type": "boolean"
-          }
+          "premiumVisibility": { "type": "boolean" },
+          "priorityAnalytics": { "type": "boolean" }
         },
-        "required": [
-          "premiumVisibility",
-          "priorityAnalytics"
-        ]
+        "required": ["premiumVisibility", "priorityAnalytics"]
       },
       "BillingPlan": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
+          "id": { "type": "string" },
           "tier": {
             "type": "string",
-            "enum": [
-              "free",
-              "premium"
-            ]
+            "enum": ["free", "premium"]
           },
           "provider": {
             "type": "string",
-            "enum": [
-              "internal",
-              "stripe"
-            ]
+            "enum": ["internal", "stripe"]
           },
-          "price": {
-            "$ref": "#/components/schemas/BillingPlanPrice"
-          },
-          "features": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "capabilities": {
-            "$ref": "#/components/schemas/BillingPlanCapabilities"
-          },
-          "i18nKey": {
-            "type": "string"
-          },
-          "highlight": {
-            "type": "boolean"
-          },
-          "available": {
-            "type": "boolean"
-          }
+          "price": { "$ref": "#/components/schemas/BillingPlanPrice" },
+          "features": { "type": "array", "items": { "type": "string" } },
+          "capabilities": { "$ref": "#/components/schemas/BillingPlanCapabilities" },
+          "i18nKey": { "type": "string" },
+          "highlight": { "type": "boolean" },
+          "available": { "type": "boolean" }
         },
-        "required": [
-          "id",
-          "tier",
-          "provider",
-          "price",
-          "features",
-          "capabilities",
-          "i18nKey",
-          "highlight",
-          "available"
-        ]
+        "required": ["id", "tier", "provider", "price", "features", "capabilities", "i18nKey", "highlight", "available"]
       },
       "StatisticsSummary": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "slug": {
-            "type": "string",
-            "nullable": true
-          },
+          "id": { "type": "integer" },
+          "slug": { "type": "string", "nullable": true },
           "scope": {
             "type": "string",
-            "enum": [
-              "interprovincial",
-              "international",
-              "all"
-            ]
+            "enum": ["interprovincial", "international", "all"]
           },
           "intrant": {
             "type": "string",
-            "enum": [
-              "all",
-              "energy",
-              "agriculture",
-              "manufacturing",
-              "services"
-            ]
+            "enum": ["all", "energy", "agriculture", "manufacturing", "services"]
           },
-          "value": {
-            "type": "number",
-            "nullable": true
-          },
-          "change": {
-            "type": "number",
-            "nullable": true
-          },
-          "unitKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "titleKey": {
-            "type": "string"
-          },
-          "descriptionKey": {
-            "type": "string"
-          },
-          "period": {
-            "type": "string",
-            "nullable": true
-          },
-          "province": {
-            "type": "string",
-            "nullable": true
-          }
+          "value": { "type": "number", "nullable": true },
+          "change": { "type": "number", "nullable": true },
+          "unitKey": { "type": "string", "nullable": true },
+          "titleKey": { "type": "string" },
+          "descriptionKey": { "type": "string" },
+          "period": { "type": "string", "nullable": true },
+          "province": { "type": "string", "nullable": true }
         },
-        "required": [
-          "id",
-          "scope",
-          "intrant",
-          "titleKey",
-          "descriptionKey"
-        ]
+        "required": ["id", "scope", "intrant", "titleKey", "descriptionKey"]
       },
       "StatisticsInsight": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "slug": {
-            "type": "string",
-            "nullable": true
-          },
+          "id": { "type": "integer" },
+          "slug": { "type": "string", "nullable": true },
           "scope": {
             "type": "string",
-            "enum": [
-              "interprovincial",
-              "international",
-              "all"
-            ]
+            "enum": ["interprovincial", "international", "all"]
           },
           "intrant": {
             "type": "string",
-            "enum": [
-              "all",
-              "energy",
-              "agriculture",
-              "manufacturing",
-              "services"
-            ]
+            "enum": ["all", "energy", "agriculture", "manufacturing", "services"]
           },
-          "titleKey": {
-            "type": "string"
-          },
-          "descriptionKey": {
-            "type": "string"
-          },
-          "period": {
-            "type": "string",
-            "nullable": true
-          },
-          "province": {
-            "type": "string",
-            "nullable": true
-          }
+          "titleKey": { "type": "string" },
+          "descriptionKey": { "type": "string" },
+          "period": { "type": "string", "nullable": true },
+          "province": { "type": "string", "nullable": true }
         },
-        "required": [
-          "id",
-          "scope",
-          "intrant",
-          "titleKey",
-          "descriptionKey"
-        ]
+        "required": ["id", "scope", "intrant", "titleKey", "descriptionKey"]
       },
       "StatisticsSnapshot": {
         "type": "object",
         "properties": {
-          "totalFlows": {
-            "type": "number",
-            "nullable": true
-          },
-          "totalFlowsUnitKey": {
-            "type": "string",
-            "nullable": true
-          },
-          "activeCorridors": {
-            "type": "integer"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
+          "totalFlows": { "type": "number", "nullable": true },
+          "totalFlowsUnitKey": { "type": "string", "nullable": true },
+          "activeCorridors": { "type": "integer" },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
         },
-        "required": [
-          "activeCorridors"
-        ]
+        "required": ["activeCorridors"]
       },
       "StatisticsResponse": {
         "type": "object",
@@ -536,39 +577,17 @@
             "properties": {
               "summaries": {
                 "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/StatisticsSummary"
-                }
+                "items": { "$ref": "#/components/schemas/StatisticsSummary" }
               },
               "insights": {
                 "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/StatisticsInsight"
-                }
+                "items": { "$ref": "#/components/schemas/StatisticsInsight" }
               },
-              "snapshot": {
-                "$ref": "#/components/schemas/StatisticsSnapshot",
-                "nullable": true
-              },
-              "availablePeriods": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "availableProvinces": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
+              "snapshot": { "$ref": "#/components/schemas/StatisticsSnapshot", "nullable": true },
+              "availablePeriods": { "type": "array", "items": { "type": "string" } },
+              "availableProvinces": { "type": "array", "items": { "type": "string" } }
             },
-            "required": [
-              "summaries",
-              "insights",
-              "availablePeriods",
-              "availableProvinces"
-            ]
+            "required": ["summaries", "insights", "availablePeriods", "availableProvinces"]
           },
           "meta": {
             "type": "object",
@@ -576,30 +595,267 @@
               "filters": {
                 "type": "object",
                 "properties": {
-                  "scope": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "intrant": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "period": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "province": {
-                    "type": "string",
-                    "nullable": true
-                  }
+                  "scope": { "type": "string", "nullable": true },
+                  "intrant": { "type": "string", "nullable": true },
+                  "period": { "type": "string", "nullable": true },
+                  "province": { "type": "string", "nullable": true }
                 }
               }
             }
           }
         },
-        "required": [
-          "data"
-        ]
+        "required": ["data"]
+      },
+      "ImportFlowCorridor": {
+        "type": "object",
+        "properties": {
+          "target": { "type": "string" },
+          "value": { "type": "number" },
+          "delta": { "type": "number", "nullable": true }
+        },
+        "required": ["target", "value"]
+      },
+      "ImportFlow": {
+        "type": "object",
+        "properties": {
+          "originCode": { "type": "string" },
+          "originName": { "type": "string" },
+          "value": { "type": "number" },
+          "yoyDelta": { "type": "number", "nullable": true },
+          "share": { "type": "number", "nullable": true },
+          "coordinate": {
+            "type": "array",
+            "items": { "type": "number" },
+            "minItems": 2,
+            "maxItems": 2,
+            "nullable": true
+          },
+          "corridors": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportFlowCorridor" }
+          }
+        },
+        "required": ["originCode", "originName", "value", "corridors"]
+      },
+      "ImportTimelinePoint": {
+        "type": "object",
+        "properties": {
+          "period": { "type": "string" },
+          "label": { "type": "string" },
+          "totalValue": { "type": "number" },
+          "yoyDelta": { "type": "number", "nullable": true },
+          "isProjected": { "type": "boolean" }
+        },
+        "required": ["period", "label", "totalValue"]
+      },
+      "ImportFlowsResponse": {
+        "type": "object",
+        "properties": {
+          "timeline": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportTimelinePoint" }
+          },
+          "flows": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportFlow" }
+          },
+          "coverage": { "type": "number", "nullable": true },
+          "lastUpdated": { "type": "string", "format": "date-time", "nullable": true },
+          "dataProvider": { "type": "string", "nullable": true }
+        },
+        "required": ["timeline", "flows"]
+      },
+      "ImportCommodity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "hsCode": { "type": "string" },
+          "hsSection": { "type": "string" },
+          "label": { "type": "string" },
+          "originCode": { "type": "string" },
+          "value": { "type": "number" },
+          "yoyDelta": { "type": "number", "nullable": true },
+          "riskScore": { "type": "number", "nullable": true },
+          "sparkline": { "type": "array", "items": { "type": "number" } },
+          "flags": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "hsCode", "hsSection", "label", "originCode", "value", "sparkline", "flags"]
+      },
+      "ImportCommodityCollections": {
+        "type": "object",
+        "properties": {
+          "top": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } },
+          "emerging": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } },
+          "risk": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } }
+        },
+        "required": ["top", "emerging", "risk"]
+      },
+      "ImportRiskFlag": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "recommendedAction": { "type": "string", "nullable": true },
+          "relatedCommodityId": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "severity", "title", "description"]
+      },
+      "ImportSupplier": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "dependencyScore": { "type": "number", "nullable": true },
+          "diversificationScore": { "type": "number", "nullable": true },
+          "reliability": { "type": "number", "nullable": true },
+          "country": { "type": "string" },
+          "originCode": { "type": "string" },
+          "lastReviewed": { "type": "string", "nullable": true },
+          "recommendation": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "name", "country", "originCode"]
+      },
+      "ImportSuppliersResponse": {
+        "type": "object",
+        "properties": {
+          "suppliers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportSupplier" }
+          }
+        },
+        "required": ["suppliers"]
+      },
+      "ImportKnowledgeArticle": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "publishedAt": { "type": "string" },
+          "link": { "type": "string" },
+          "tag": { "type": "string" },
+          "thumbnailUrl": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "title", "summary", "publishedAt", "link", "tag"]
+      },
+      "ImportKnowledgeCta": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "actionLabel": { "type": "string" },
+          "actionLink": { "type": "string" }
+        },
+        "required": ["id", "title", "subtitle", "actionLabel", "actionLink"]
+      },
+      "ImportKnowledgeResponse": {
+        "type": "object",
+        "properties": {
+          "articles": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportKnowledgeArticle" }
+          },
+          "cta": { "$ref": "#/components/schemas/ImportKnowledgeCta", "nullable": true }
+        },
+        "required": ["articles"]
+      },
+      "ImportAnnotation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "author": { "type": "string" },
+          "authorAvatarUrl": { "type": "string", "nullable": true },
+          "excerpt": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "relatedCommodityId": { "type": "string", "nullable": true },
+          "relatedOriginCode": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "author", "excerpt", "createdAt"]
+      },
+      "ImportAnnotationsResponse": {
+        "type": "object",
+        "properties": {
+          "annotations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportAnnotation" }
+          }
+        },
+        "required": ["annotations"]
+      },
+      "ImportFilters": {
+        "type": "object",
+        "properties": {
+          "periodGranularity": { "type": "string", "enum": ["month", "quarter", "year"] },
+          "periodValue": { "type": "string", "nullable": true },
+          "originScope": {
+            "type": "string",
+            "enum": ["global", "g7", "usmca", "european_union", "indo_pacific", "custom"]
+          },
+          "originCodes": { "type": "array", "items": { "type": "string" } },
+          "hsSections": { "type": "array", "items": { "type": "string" } },
+          "compareMode": { "type": "boolean" },
+          "compareWith": { "type": "string", "nullable": true }
+        },
+        "required": ["periodGranularity", "originScope", "originCodes", "hsSections", "compareMode"]
+      },
+      "ImportWatchlist": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "owner": { "type": "string" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "filters": { "$ref": "#/components/schemas/ImportFilters" }
+        },
+        "required": ["id", "name", "owner", "updatedAt", "filters"]
+      },
+      "ImportWatchlistsResponse": {
+        "type": "object",
+        "properties": {
+          "watchlists": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportWatchlist" }
+          }
+        },
+        "required": ["watchlists"]
+      },
+      "ImportWatchlistCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "filters": { "$ref": "#/components/schemas/ImportFilters" }
+        },
+        "required": ["name", "filters"]
+      },
+      "ImportWatchlistUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "filters": { "$ref": "#/components/schemas/ImportFilters" }
+        }
+      },
+      "ImportReportScheduleRequest": {
+        "type": "object",
+        "properties": {
+          "period": { "type": "string", "enum": ["month", "quarter", "year"] },
+          "recipients": { "type": "array", "items": { "type": "string" } },
+          "format": { "type": "string", "enum": ["csv", "json", "look"] },
+          "frequency": { "type": "string", "enum": ["weekly", "monthly", "quarterly"] },
+          "notes": { "type": "string", "nullable": true }
+        },
+        "required": ["period", "recipients", "format", "frequency"]
+      },
+      "ImportReportScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "scheduled": { "type": "boolean" },
+          "reportId": { "type": "string" },
+          "scheduledAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["scheduled", "reportId", "scheduledAt"]
       }
     },
     "securitySchemes": {

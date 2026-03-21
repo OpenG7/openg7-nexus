@@ -10,6 +10,7 @@ import {
 import { Observable, catchError, map, of, shareReplay, tap } from 'rxjs';
 
 import { API_URL } from '../config/environment.tokens';
+import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import { CountryCode, G7_COUNTRY_CODES, isCountryCode } from '../models/country';
 import {
   StatisticsFilters,
@@ -403,7 +404,7 @@ export class StatisticsService {
     const url = this.composeUrl('/api/statistics');
 
     const request$ = this.http
-      .get<StatisticsApiResponse>(url, { params })
+      .get<StatisticsApiResponse>(url, { params, context: createSilentHttpContext() })
       .pipe(
         map((response) => this.mapResponse(response, resolvedFilters)),
         catchError(() => of(this.fallbackPayload(resolvedFilters))),
@@ -423,7 +424,6 @@ export class StatisticsService {
     const base = this.apiUrl.replace(/\/$/, '');
     return `${base}${path}`;
   }
-
   private composeParams(filters: StatisticsFilters): HttpParams {
     let params = new HttpParams();
     if (filters.scope && filters.scope !== 'all') {

@@ -35,6 +35,7 @@
       *ngFor="let item of notifications(); trackBy: trackById"
       class="notification-panel__item"
       [class.notification-panel__item--unread]="!item.read"
+      [ngClass]="'notification-panel__item--' + item.type"
     >
       <div class="notification-panel__item-icon" [ngClass]="'notification-panel__item-icon--' + item.type">
         <mat-icon fontSet="material-symbols-outlined" [fontIcon]="iconFor(item.type)"></mat-icon>

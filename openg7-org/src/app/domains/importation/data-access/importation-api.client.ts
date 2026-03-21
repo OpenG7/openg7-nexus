@@ -1,7 +1,9 @@
 import { HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
+import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import {
   ImportationFilters,
@@ -9,6 +11,17 @@ import {
   ImportationPeriodGranularity,
   ImportationRiskFlag,
 } from '../models/importation.models';
+
+import {
+  createMockImportationWatchlist,
+  getMockImportationAnnotations,
+  getMockImportationCommodityCollections,
+  getMockImportationFlows,
+  getMockImportationKnowledge,
+  getMockImportationRiskFlags,
+  getMockImportationSuppliers,
+  getMockImportationWatchlists,
+} from './importation-api.mocks';
 
 export interface ImportationFlowPointDto {
   readonly period: string;
@@ -151,57 +164,93 @@ export interface ImportationReportSchedulePayload {
  * @returns ImportationApiClient géré par le framework.
  */
 export class ImportationApiClient {
+  private readonly featureFlags = inject(FEATURE_FLAGS, { optional: true });
+  private readonly useMocks = this.featureFlags?.['importationMocks'] ?? false;
+
   constructor(private readonly http: HttpClientService) {}
 
   getFlows(filters: ImportationFilters): Observable<ImportationFlowsResponseDto> {
+    if (this.useMocks) {
+      return of(getMockImportationFlows());
+    }
     const params = this.buildParams(filters);
     return this.http.get<ImportationFlowsResponseDto>('/api/import-flows', { params });
   }
 
   getCommodities(filters: ImportationFilters): Observable<ImportationCommodityCollectionsDto> {
+    if (this.useMocks) {
+      return of(getMockImportationCommodityCollections());
+    }
     const params = this.buildParams(filters);
     return this.http.get<ImportationCommodityCollectionsDto>('/api/import-commodities', { params });
   }
 
   getRiskFlags(filters: ImportationFilters): Observable<readonly ImportationRiskFlagDto[]> {
+    if (this.useMocks) {
+      return of(getMockImportationRiskFlags());
+    }
     const params = this.buildParams(filters);
-    return this.http.get<readonly ImportationRiskFlagDto[]>('/api/import-risk-flags', { params });
+    return this.http.get<readonly ImportationRiskFlagDto[]>('/api/import-risk-flags', {
+      params,
+      context: createSilentHttpContext(),
+    });
   }
 
   getSuppliers(filters: ImportationFilters): Observable<ImportationSuppliersResponseDto> {
+    if (this.useMocks) {
+      return of(getMockImportationSuppliers());
+    }
     const params = this.buildParams(filters);
-    return this.http.get<ImportationSuppliersResponseDto>('/api/import-suppliers', { params });
+    return this.http.get<ImportationSuppliersResponseDto>('/api/import-suppliers', {
+      params,
+      context: createSilentHttpContext(),
+    });
   }
 
   getAnnotations(): Observable<ImportationAnnotationsResponseDto> {
-    return this.http.get<ImportationAnnotationsResponseDto>('/api/annotations', {
-      params: new HttpParams().set('context', 'importation'),
+    if (this.useMocks) {
+      return of(getMockImportationAnnotations());
+    }
+    return this.http.get<ImportationAnnotationsResponseDto>('/api/import-annotations', {
+      context: createSilentHttpContext(),
     });
   }
 
   getWatchlists(): Observable<ImportationWatchlistsResponseDto> {
-    return this.http.get<ImportationWatchlistsResponseDto>('/api/watchlists', {
-      params: new HttpParams().set('context', 'importation'),
+    if (this.useMocks) {
+      return of(getMockImportationWatchlists());
+    }
+    return this.http.get<ImportationWatchlistsResponseDto>('/api/import-watchlists', {
+      context: createSilentHttpContext(),
     });
   }
 
   createWatchlist(payload: ImportationWatchlistPayload): Observable<ImportationWatchlistDto> {
-    return this.http.post<ImportationWatchlistDto>('/api/watchlists', {
-      ...payload,
-      context: 'importation',
-    });
+    if (this.useMocks) {
+      return of(createMockImportationWatchlist(payload));
+    }
+    return this.http.post<ImportationWatchlistDto>('/api/import-watchlists', payload);
   }
 
   updateWatchlist(id: string, payload: ImportationWatchlistUpdatePayload): Observable<ImportationWatchlistDto> {
-    return this.http.put<ImportationWatchlistDto>(`/api/watchlists/${encodeURIComponent(id)}`, payload);
+    return this.http.put<ImportationWatchlistDto>(`/api/import-watchlists/${encodeURIComponent(id)}`, payload);
   }
 
   getKnowledgeBase(lang: string): Observable<ImportationKnowledgeResponseDto> {
+    if (this.useMocks) {
+      return of(getMockImportationKnowledge(lang));
+    }
     const params = new HttpParams().set('lang', lang).set('tag', 'importation-insights');
-    return this.http.get<ImportationKnowledgeResponseDto>('/api/import-knowledge', { params });
+    return this.http.get<ImportationKnowledgeResponseDto>('/api/import-knowledge', {
+      params,
+      context: createSilentHttpContext(),
+    });
   }
 
   scheduleReport(payload: ImportationReportSchedulePayload): Observable<void> {
+    if (this.useMocks) {
+      return of(void 0);
+    }
     return this.http.post<void>('/api/import-reports/schedule', payload);
   }
 
