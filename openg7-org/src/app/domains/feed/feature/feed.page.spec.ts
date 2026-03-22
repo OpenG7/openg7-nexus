@@ -28,6 +28,7 @@ import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './componen
 import { parseFeedFilters } from './feed-route-filters';
 import { FeedPage } from './feed.page';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
+import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 @Component({

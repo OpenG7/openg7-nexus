@@ -18,14 +18,17 @@ import { finalize } from 'rxjs/operators';
 import { RuntimeConfigService } from '../config/runtime-config.service';
 import { HttpClientService, JsonRequestOptions } from '../http/http-client.service';
 
-interface StatisticsRequestParams {
+type QueryParamValue = string | number | boolean | ReadonlyArray<string | number | boolean> | null | undefined;
+type QueryParamsInput = Record<string, QueryParamValue>;
+
+interface StatisticsRequestParams extends QueryParamsInput {
   scope?: 'interprovincial' | 'international' | 'all';
   intrant?: 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
   period?: string | null;
   province?: string | null;
 }
 
-interface HydrocarbonSignalsRequestParams {
+interface HydrocarbonSignalsRequestParams extends QueryParamsInput {
   publicationType?: string | null;
   storagePressureLevel?: string | null;
   originProvinceId?: string | null;
@@ -167,12 +170,12 @@ export class StrapiClient {
     return { ...existing, Authorization: authorization };
   }
 
-  private normalizeParams<T extends object>(params?: T) {
+  private normalizeParams(params?: QueryParamsInput): JsonRequestOptions['params'] {
     if (!params) {
       return undefined;
     }
 
-    const entries = Object.entries(params as Record<string, unknown>).reduce<Record<string, string>>((acc, [key, value]) => {
+    const entries = Object.entries(params).reduce<Record<string, string>>((acc, [key, value]) => {
       if (value === undefined || value === null) {
         return acc;
       }
