@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output, signal } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, input, output, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -7,12 +7,29 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
+import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { BehaviorSubject } from 'rxjs';
 
+import {
+  feedCategorySig,
+  feedFormKeySig,
+  feedModeSig,
+  feedSearchSig,
+  feedSortSig,
+  feedTypeSig,
+  fromProvinceIdSig,
+  sectorIdSig,
+  toProvinceIdSig,
+} from '@app/state/shared-feed-signals';
+
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
+import { parseFeedFilters } from './feed-route-filters';
 import { FeedPage } from './feed.page';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
+import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 @Component({
@@ -74,6 +91,7 @@ class FeedRealtimeServiceMock {
   readonly items = signal<readonly FeedItem[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly onboardingSeen = signal(true).asReadonly();
   readonly connectionState = {
     connected: signal(true).asReadonly(),
     reconnecting: signal(false).asReadonly(),
@@ -92,6 +110,29 @@ class FeedRealtimeServiceMock {
     status: 'success',
     validation: { valid: true, errors: [], warnings: [] },
   });
+}
+
+class StoreMock {
+  private readonly provincesSig = signal<{ id: string; name: string }[]>([]);
+  private readonly sectorsSig = signal<{ id: string; name: string }[]>([]);
+
+  readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake((selector: unknown) => {
+    if (selector === selectProvinces) {
+      return this.provincesSig.asReadonly();
+    }
+    if (selector === selectSectors) {
+      return this.sectorsSig.asReadonly();
+    }
+    throw new Error(`Unexpected selector in StoreMock: ${String(selector)}`);
+  });
+
+  setProvinces(provinces: { id: string; name: string }[]): void {
+    this.provincesSig.set(provinces);
+  }
+
+  setSectors(sectors: { id: string; name: string }[]): void {
+    this.sectorsSig.set(sectors);
+  }
 }
 
 class FavoritesServiceMock {
@@ -158,6 +199,31 @@ function createOfferPayload(): OpportunityOfferPayload {
   };
 }
 
+function resetSharedFeedFilters(): void {
+  fromProvinceIdSig.set(null);
+  toProvinceIdSig.set(null);
+  sectorIdSig.set(null);
+  feedFormKeySig.set(null);
+  feedCategorySig.set(null);
+  feedTypeSig.set(null);
+  feedModeSig.set('BOTH');
+  feedSortSig.set('NEWEST');
+  feedSearchSig.set('');
+}
+
+function applySharedFeedFiltersFromQuery(query: ReturnType<typeof convertToParamMap>): void {
+  const filters = parseFeedFilters(query);
+  fromProvinceIdSig.set(filters.fromProvinceId);
+  toProvinceIdSig.set(filters.toProvinceId);
+  sectorIdSig.set(filters.sectorId);
+  feedFormKeySig.set(filters.formKey);
+  feedCategorySig.set(filters.category);
+  feedTypeSig.set(filters.type);
+  feedModeSig.set(filters.mode);
+  feedSortSig.set(filters.sort);
+  feedSearchSig.set(filters.search);
+}
+
 describe('FeedPage', () => {
   let feed: FeedRealtimeServiceMock;
   let favorites: FavoritesServiceMock;
@@ -169,6 +235,7 @@ describe('FeedPage', () => {
   let currentUrl: string;
 
   beforeEach(async () => {
+    resetSharedFeedFilters();
     feed = new FeedRealtimeServiceMock();
     favorites = new FavoritesServiceMock();
     opportunityOffers = new OpportunityOffersServiceMock();
@@ -250,6 +317,10 @@ describe('FeedPage', () => {
     translate.use('en');
   });
 
+  afterEach(() => {
+    resetSharedFeedFilters();
+  });
+
   it('loads initial feed stream when page opens and state is not hydrated', () => {
     feed.hasHydrated.and.returnValue(false);
 
@@ -314,6 +385,78 @@ describe('FeedPage', () => {
     expect(context.textContent).toContain('Focused corridor:');
     expect(context.textContent).toContain('Essential services');
     expect(context.textContent).toContain('QC -> ON');
+  });
+
+  it('mirrors active feed filters into URL query params', () => {
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+    router.navigate.calls.reset();
+
+    fromProvinceIdSig.set('qc');
+    toProvinceIdSig.set('on');
+    sectorIdSig.set('energy');
+    feedFormKeySig.set('energy-surplus-offer');
+    feedTypeSig.set('OFFER');
+    feedModeSig.set('IMPORT');
+    feedSortSig.set('URGENCY');
+    feedSearchSig.set('winter peak');
+    fixture.detectChanges();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams: {
+        fromProvince: 'qc',
+        toProvince: 'on',
+        sector: 'energy',
+        sectorId: null,
+        formKey: 'energy-surplus-offer',
+        category: null,
+        type: 'OFFER',
+        mode: 'IMPORT',
+        sort: 'URGENCY',
+        q: 'winter peak',
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  });
+
+  it('clears URL filter params when shared feed filters return to defaults', () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'home-feed-panels',
+        feedItemId: 'opportunity-300mw',
+        fromProvince: 'qc',
+        toProvince: 'on',
+        sector: 'energy',
+        formKey: 'energy-surplus-offer',
+        type: 'OFFER',
+        mode: 'IMPORT',
+        sort: 'URGENCY',
+        q: 'winter peak',
+      })
+    );
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams: {
+        fromProvince: null,
+        toProvince: null,
+        sector: null,
+        sectorId: null,
+        formKey: null,
+        category: null,
+        type: null,
+        mode: null,
+        sort: null,
+        q: null,
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   });
 
   it('routes indicator items to /feed/indicators/:id', () => {
@@ -531,5 +674,176 @@ describe('FeedPage', () => {
 
     expect(feed.markOnboardingSeen).toHaveBeenCalledTimes(1);
     expect(publishSection.focusPrimaryAction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('FeedPage shared-link hydration', () => {
+  let feed: FeedRealtimeServiceMock;
+  let router: jasmine.SpyObj<Router>;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+
+  beforeEach(async () => {
+    resetSharedFeedFilters();
+    feed = new FeedRealtimeServiceMock();
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
+    router.navigate.and.resolveTo(true);
+    router.getCurrentNavigation.and.returnValue(null);
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => '/feed?formKey=energy-surplus-offer&fromProvince=qc',
+    });
+
+    queryParamMap$ = new BehaviorSubject(
+      convertToParamMap({
+        formKey: 'energy-surplus-offer',
+        fromProvince: 'qc',
+      })
+    );
+    applySharedFeedFiltersFromQuery(queryParamMap$.value);
+
+    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'snapshot'> = {
+      queryParamMap: queryParamMap$.asObservable(),
+      get snapshot() {
+        return { queryParamMap: queryParamMap$.value } as ActivatedRoute['snapshot'];
+      },
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [FeedPage, TranslateModule.forRoot()],
+      providers: [
+        { provide: FeedRealtimeService, useValue: feed },
+        { provide: FavoritesService, useValue: new FavoritesServiceMock() },
+        { provide: OpportunityOffersService, useValue: new OpportunityOffersServiceMock() },
+        { provide: NotificationStore, useValue: { success: jasmine.createSpy(), info: jasmine.createSpy(), error: jasmine.createSpy() } },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: routeStub },
+        { provide: Store, useClass: StoreMock },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: signal(true).asReadonly(),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
+      ],
+    })
+      .overrideComponent(Og7FeedStreamComponent, {
+        set: {
+          imports: [CommonModule, FormsModule, TranslateModule],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .overrideComponent(FeedPage, {
+        set: {
+          imports: [
+            CommonModule,
+            TranslateModule,
+            FeedPublishSectionStubComponent,
+            Og7FeedStreamComponent,
+            OpportunityOfferDrawerStubComponent,
+          ],
+        },
+      })
+      .compileComponents();
+
+    const store = TestBed.inject(Store) as unknown as StoreMock;
+    store.setProvinces([{ id: 'qc', name: 'Quebec' }]);
+    store.setSectors([{ id: 'energy', name: 'Energy' }]);
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(
+      'fr',
+      {
+        feed: {
+          title: 'Flux',
+          subtitle: 'Sous-titre',
+          shortcuts: {
+            title: 'Raccourcis',
+            description: 'Description',
+            publish: 'Publier',
+            refresh: 'Actualiser',
+            loadMore: 'Charger plus',
+            closeDrawer: 'Fermer',
+          },
+          filters: {
+            search: 'Recherche',
+            searchPlaceholder: 'Chercher',
+            type: 'Type',
+            allTypes: 'Tous les types',
+            sector: 'Secteur',
+            allSectors: 'Tous les secteurs',
+            template: 'Gabarit',
+            allTemplates: 'Tous les gabarits',
+            fromProvince: 'Origine',
+            toProvince: 'Destination',
+            allProvinces: 'Toutes les provinces',
+            mode: 'Mode',
+            clear: 'Effacer',
+            unknownTemplate: 'Gabarit personnalise',
+            sort: {
+              label: 'Tri',
+              newest: 'Plus recent',
+              urgency: 'Urgence',
+              volume: 'Volume',
+              credibility: 'Credibilite',
+            },
+          },
+          stream: {
+            refresh: 'Reessayer',
+            filters: 'Filtres actifs',
+            loading: 'Chargement',
+          },
+          status: {
+            online: 'En ligne',
+            degraded: 'Degrade',
+            offline: 'Hors ligne',
+            reconnecting: 'Reconnexion',
+          },
+          mode: {
+            both: 'Import et export',
+            export: 'Export',
+            import: 'Import',
+          },
+          publishBar: {
+            templates: {
+              energySurplusOffer: {},
+              industrialLoadFlexRequest: {},
+              coldChainCapacityOffer: {},
+            },
+          },
+        },
+        forms: {
+          energySurplus: {
+            title: 'Surplus d energie',
+          },
+          industrialLoadFlex: {
+            title: 'Flexibilite industrielle',
+          },
+          coldChainCapacity: {
+            title: 'Capacite chaine du froid',
+          },
+        },
+      },
+      true
+    );
+    translate.use('fr');
+  });
+
+  afterEach(() => {
+    resetSharedFeedFilters();
+  });
+
+  it('rehydrates the template filter selection from a shared link without rewriting the URL', async () => {
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const templateSelect = host.querySelector('#feed-form-key') as HTMLSelectElement;
+    const fromSelect = host.querySelector('#feed-from') as HTMLSelectElement;
+
+    expect(templateSelect.selectedOptions[0]?.textContent?.trim()).toBe('Surplus d energie');
+    expect(fromSelect.selectedOptions[0]?.textContent?.trim()).toBe('Quebec');
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

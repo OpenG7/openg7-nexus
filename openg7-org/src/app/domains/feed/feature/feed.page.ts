@@ -16,9 +16,21 @@ import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
+import {
+  feedCategorySig,
+  feedFormKeySig,
+  feedModeSig,
+  feedSearchSig,
+  feedSortSig,
+  feedTypeSig,
+  fromProvinceIdSig,
+  sectorIdSig,
+  toProvinceIdSig,
+} from '@app/state/shared-feed-signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
+import { parseFeedFilters } from './feed-route-filters';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
@@ -27,7 +39,7 @@ import {
   resolveOpportunityOfferSubmitErrorMessage,
 } from './feed-offer-submission.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
-import { FeedItem } from './models/feed.models';
+import { FeedFilterState, FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 import { OpportunityEngagementService } from './services/opportunity-engagement.service';
@@ -84,6 +96,17 @@ export class FeedPage {
   readonly highlightedItemId = computed(() =>
     this.sourceContext() === 'home-feed-panels' ? this.normalizeQueryParam(this.queryParamMap().get('feedItemId')) : null
   );
+  private readonly liveFilters = computed<FeedFilterState>(() => ({
+    fromProvinceId: fromProvinceIdSig(),
+    toProvinceId: toProvinceIdSig(),
+    sectorId: sectorIdSig(),
+    formKey: feedFormKeySig(),
+    category: feedCategorySig(),
+    type: feedTypeSig(),
+    mode: feedModeSig(),
+    sort: feedSortSig(),
+    search: feedSearchSig(),
+  }));
   protected readonly shortcutsHeadingId = 'feed-shortcuts-heading';
   protected readonly contactItem = signal<FeedItem | null>(null);
   protected readonly contactDrawerOpen = signal(false);
@@ -108,6 +131,22 @@ export class FeedPage {
       if (this.auth.isAuthenticated()) {
         this.favorites.refresh();
       }
+    });
+
+    effect(() => {
+      const liveFilters = normalizeFeedFilters(this.liveFilters());
+      const routeFilters = normalizeFeedFilters(parseFeedFilters(this.queryParamMap()));
+
+      if (feedFiltersEqual(liveFilters, routeFilters)) {
+        return;
+      }
+
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: buildFeedFilterQueryParams(liveFilters),
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     });
   }
 
@@ -346,4 +385,58 @@ export class FeedPage {
     const normalized = value.trim();
     return normalized.length ? normalized : null;
   }
+}
+
+function normalizeFeedFilters(filters: FeedFilterState): FeedFilterState {
+  const search = filters.search.trim();
+
+  return {
+    fromProvinceId: normalizeFilterValue(filters.fromProvinceId),
+    toProvinceId: normalizeFilterValue(filters.toProvinceId),
+    sectorId: normalizeFilterValue(filters.sectorId),
+    formKey: normalizeFilterValue(filters.formKey),
+    category: filters.category,
+    type: filters.type,
+    mode: filters.mode,
+    sort: filters.sort,
+    search,
+  };
+}
+
+function buildFeedFilterQueryParams(filters: FeedFilterState): Record<string, string | null> {
+  return {
+    fromProvince: filters.fromProvinceId,
+    toProvince: filters.toProvinceId,
+    sector: filters.sectorId,
+    sectorId: null,
+    formKey: filters.formKey,
+    category: filters.category,
+    type: filters.type,
+    mode: filters.mode === 'BOTH' ? null : filters.mode,
+    sort: filters.sort === 'NEWEST' ? null : filters.sort,
+    q: filters.search.length ? filters.search : null,
+  };
+}
+
+function feedFiltersEqual(left: FeedFilterState, right: FeedFilterState): boolean {
+  return (
+    left.fromProvinceId === right.fromProvinceId &&
+    left.toProvinceId === right.toProvinceId &&
+    left.sectorId === right.sectorId &&
+    left.formKey === right.formKey &&
+    left.category === right.category &&
+    left.type === right.type &&
+    left.mode === right.mode &&
+    left.sort === right.sort &&
+    left.search === right.search
+  );
+}
+
+function normalizeFilterValue(value: string | null): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length ? normalized : null;
 }

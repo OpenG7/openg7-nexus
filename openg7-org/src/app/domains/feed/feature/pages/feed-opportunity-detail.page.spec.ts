@@ -16,6 +16,10 @@ import { FeedComposerDraft, FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
+import { OpportunityContextAsideComponent } from '../components/opportunity-context-aside.component';
+import { OpportunityDetailHeaderComponent } from '../components/opportunity-detail-header.component';
+import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
+import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 
 import { FeedOpportunityDetailPage } from './feed-opportunity-detail.page';
 
@@ -835,6 +839,134 @@ describe('FeedOpportunityDetailPage', () => {
 
     expect(feed.findItemById).toHaveBeenCalledWith('opportunity-wrong-type');
     expect(component.detailVm()).toBeNull();
+  });
+});
+
+describe('FeedOpportunityDetailPage real template', () => {
+  let feed: FeedRealtimeServiceMock;
+  let store: StoreMock;
+  let favorites: FavoritesServiceMock;
+  let reportQueue: OpportunityReportQueueServiceMock;
+  let conversationDrafts: OpportunityConversationDraftsServiceMock;
+  let opportunityOffers: OpportunityOffersServiceMock;
+  let notifications: { success: jasmine.Spy; info: jasmine.Spy; error: jasmine.Spy };
+  let router: jasmine.SpyObj<Router>;
+  let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let authState: ReturnType<typeof signal<boolean>>;
+
+  beforeEach(async () => {
+    feed = new FeedRealtimeServiceMock();
+    store = new StoreMock();
+    favorites = new FavoritesServiceMock();
+    reportQueue = new OpportunityReportQueueServiceMock();
+    conversationDrafts = new OpportunityConversationDraftsServiceMock();
+    opportunityOffers = new OpportunityOffersServiceMock();
+    notifications = {
+      success: jasmine.createSpy('success'),
+      info: jasmine.createSpy('info'),
+      error: jasmine.createSpy('error'),
+    };
+    authState = signal(true);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation']);
+    router.navigate.and.resolveTo(true);
+    router.getCurrentNavigation.and.returnValue(null);
+    Object.defineProperty(router, 'url', {
+      configurable: true,
+      get: () => '/feed/opportunities/opportunity-300mw',
+    });
+
+    routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'opportunity-300mw' }));
+    queryParamMap$ = new BehaviorSubject(convertToParamMap({ source: 'feed' }));
+    const routeStub: Pick<ActivatedRoute, 'paramMap' | 'queryParamMap' | 'snapshot'> = {
+      paramMap: routeParamMap$.asObservable(),
+      queryParamMap: queryParamMap$.asObservable(),
+      get snapshot() {
+        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>((params, key) => {
+          const value = queryParamMap$.value.get(key);
+          if (typeof value === 'string') {
+            params[key] = value;
+          }
+          return params;
+        }, {});
+        return {
+          paramMap: routeParamMap$.value,
+          queryParamMap: queryParamMap$.value,
+          queryParams,
+        } as ActivatedRoute['snapshot'];
+      },
+    };
+
+    const item = createOpportunityItem('opportunity-300mw', {
+      metadata: {
+        publicationForm: {
+          formKey: 'energy-surplus-offer',
+          schemaVersion: 1,
+        },
+        extensions: {
+          energyType: 'hydroelectric',
+          urgencyLevel: 'high',
+        },
+      },
+    });
+    feed.findItemById.and.resolveTo(item);
+    feed.items.set([item]);
+
+    await TestBed.configureTestingModule({
+      imports: [FeedOpportunityDetailPage, TranslateModule.forRoot()],
+      providers: [
+        { provide: FeedRealtimeService, useValue: feed },
+        { provide: Store, useValue: store },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: routeStub },
+        { provide: FavoritesService, useValue: favorites },
+        { provide: OpportunityReportQueueService, useValue: reportQueue },
+        { provide: OpportunityConversationDraftsService, useValue: conversationDrafts },
+        { provide: OpportunityOffersService, useValue: opportunityOffers },
+        { provide: NotificationStore, useValue: notifications },
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: authState.asReadonly(),
+          } as Pick<AuthService, 'isAuthenticated'>,
+        },
+      ],
+    })
+      .overrideComponent(OpportunityDetailHeaderComponent, {
+        set: {
+          template: '<div data-og7="stub-opportunity-header"></div>',
+        },
+      })
+      .overrideComponent(OpportunityContextAsideComponent, {
+        set: {
+          template: '<div data-og7="stub-opportunity-aside"></div>',
+        },
+      })
+      .overrideComponent(OpportunityOfferDrawerComponent, {
+        set: {
+          template: '<div data-og7="stub-opportunity-offer-drawer"></div>',
+        },
+      })
+      .overrideComponent(OpportunityReportDrawerComponent, {
+        set: {
+          template: '<div data-og7="stub-opportunity-report-drawer"></div>',
+        },
+      })
+      .compileComponents();
+  });
+
+  it('renders publication metadata through the real page template chain', async () => {
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const content = fixture.nativeElement.textContent;
+    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-detail-page"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]')).toBeTruthy();
+    expect(content).toContain('feed.publicationMetadata.title');
+    expect(content).toContain('forms.energySurplus.title');
+    expect(content).toContain('hydroelectric');
   });
 });
 

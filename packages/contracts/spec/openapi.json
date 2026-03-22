@@ -144,6 +144,118 @@
         }
       }
     },
+    "/api/feed": {
+      "get": {
+        "summary": "List feed items",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["NEWEST", "URGENCY", "VOLUME", "CREDIBILITY"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["OFFER", "REQUEST", "ALERT", "TENDER", "CAPACITY", "INDICATOR"]
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["EXPORT", "IMPORT", "BOTH"]
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromProvince",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toProvince",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "formKey",
+            "in": "query",
+            "description": "Exact publication template key stored with feed metadata.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Free-text search across title, summary, source label and publication metadata search text.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a feed item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/import-flows": {
       "get": {
         "summary": "Fetch importation flows",
@@ -474,6 +586,123 @@
           "targetProvince": { "type": "integer" }
         },
         "required": ["slug", "title", "value", "unit", "sourceProvince", "targetProvince"]
+      },
+      "FeedPublicationFormMetadata": {
+        "type": "object",
+        "properties": {
+          "formKey": { "type": "string" },
+          "schemaVersion": { "type": "integer" }
+        },
+        "required": ["formKey", "schemaVersion"]
+      },
+      "FeedPublicationMetadata": {
+        "type": "object",
+        "properties": {
+          "publicationForm": {
+            "$ref": "#/components/schemas/FeedPublicationFormMetadata"
+          },
+          "extensions": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          }
+        }
+      },
+      "FeedQuantity": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "number" },
+          "unit": {
+            "type": "string",
+            "enum": ["MW", "MWh", "bbl_d", "ton", "kg", "hours", "cad", "usd"]
+          }
+        },
+        "required": ["value", "unit"]
+      },
+      "FeedSource": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["GOV", "COMPANY", "PARTNER", "USER"]
+          },
+          "label": { "type": "string" },
+          "url": { "type": "string", "nullable": true }
+        },
+        "required": ["kind", "label"]
+      },
+      "FeedItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "type": {
+            "type": "string",
+            "enum": ["OFFER", "REQUEST", "ALERT", "TENDER", "CAPACITY", "INDICATOR"]
+          },
+          "sectorId": { "type": "string", "nullable": true },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "fromProvinceId": { "type": "string", "nullable": true },
+          "toProvinceId": { "type": "string", "nullable": true },
+          "mode": {
+            "type": "string",
+            "enum": ["EXPORT", "IMPORT", "BOTH"]
+          },
+          "quantity": { "$ref": "#/components/schemas/FeedQuantity", "nullable": true },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "metadata": { "$ref": "#/components/schemas/FeedPublicationMetadata", "nullable": true },
+          "source": { "$ref": "#/components/schemas/FeedSource" }
+        },
+        "required": ["id", "createdAt", "type", "title", "summary", "mode", "source"]
+      },
+      "FeedItemResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/FeedItem" }
+        },
+        "required": ["data"]
+      },
+      "FeedCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FeedItem" }
+          },
+          "cursor": { "type": "string", "nullable": true }
+        },
+        "required": ["data"]
+      },
+      "FeedCreateRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["OFFER", "REQUEST", "ALERT", "TENDER", "CAPACITY", "INDICATOR"]
+          },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "sectorId": { "type": "string", "nullable": true },
+          "fromProvinceId": { "type": "string", "nullable": true },
+          "toProvinceId": { "type": "string", "nullable": true },
+          "mode": {
+            "type": "string",
+            "enum": ["EXPORT", "IMPORT", "BOTH"]
+          },
+          "quantity": { "$ref": "#/components/schemas/FeedQuantity", "nullable": true },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "originType": {
+            "type": "string",
+            "enum": ["alert", "opportunity", "indicator"],
+            "nullable": true
+          },
+          "originId": { "type": "string", "nullable": true },
+          "connectionMatchId": { "type": "integer", "nullable": true },
+          "metadata": { "$ref": "#/components/schemas/FeedPublicationMetadata", "nullable": true }
+        },
+        "required": ["type", "title", "summary", "mode"]
       },
       "BillingPlanPrice": {
         "type": "object",

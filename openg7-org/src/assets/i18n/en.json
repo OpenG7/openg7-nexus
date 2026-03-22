@@ -694,6 +694,9 @@
       "allTypes": "All types",
       "sector": "Sector",
       "allSectors": "All sectors",
+      "template": "Template",
+      "allTemplates": "All templates",
+      "unknownTemplate": "Custom template",
       "fromProvince": "From",
       "toProvince": "To",
       "allProvinces": "All provinces",
@@ -754,7 +757,18 @@
       "cta": "Publish an exchange",
       "shortcut": "Shortcut",
       "prefill": "Active filters are used as the starting point.",
-      "draftReady": "A prefilled draft is open."
+      "draftReady": "A prefilled draft is open.",
+      "templates": {
+        "title": "Publishing mode",
+        "generic": "Generic composer",
+        "template": "Template",
+        "genericDescription": "Use the existing feed composer for a generic offer, request, or alert.",
+        "templateDescription": "Choose a config-driven publication template tailored to a real operating scenario."
+      }
+    },
+    "publicationMetadata": {
+      "title": "Publication context",
+      "schemaVersion": "Schema v{{ value }}"
     },
     "composer": {
       "title": "Publish an exchange",
@@ -2596,6 +2610,289 @@
             "withdrawn": {
               "title": "Offer withdrawn",
               "body": "You removed this offer from local tracking."
+            }
+          }
+        },
+        "forms": {
+          "common": {
+            "selectPlaceholder": "Select an option",
+            "boolean": {
+              "true": "Yes",
+              "false": "No"
+            },
+            "validation": {
+              "required": "This field is required."
+            }
+          },
+          "energySurplus": {
+            "title": "Publish an electricity surplus",
+            "description": "Describe a temporary or planned surplus so qualified partners can evaluate it quickly.",
+            "sections": {
+              "opportunity": {
+                "title": "Opportunity summary",
+                "description": "Frame the surplus clearly for decision-makers and counterparties."
+              },
+              "capacity": {
+                "title": "Capacity and commercial terms",
+                "description": "Capture available volume and how pricing is approached."
+              },
+              "availability": {
+                "title": "Availability window",
+                "description": "State when the surplus starts and when it ends."
+              },
+              "routing": {
+                "title": "Routing and delivery constraints",
+                "description": "Clarify origin, target geography, and operational limits."
+              },
+              "contact": {
+                "title": "Operational contact"
+              }
+            },
+            "fields": {
+              "title": {
+                "label": "Opportunity title",
+                "placeholder": "Example: Short-term hydroelectric surplus available for Ontario peak support"
+              },
+              "summary": {
+                "label": "Summary",
+                "placeholder": "Describe the surplus, expected timing, strategic purpose, and any key limits.",
+                "help": "Focus on what a buyer or public partner needs to understand in less than a minute."
+              },
+              "energyType": {
+                "label": "Electricity type",
+                "options": {
+                  "hydroelectric": "Hydroelectric",
+                  "mixedGrid": "Mixed grid"
+                }
+              },
+              "urgencyLevel": {
+                "label": "Urgency level",
+                "options": {
+                  "low": "Low",
+                  "medium": "Medium",
+                  "high": "High"
+                }
+              },
+              "capacityMw": {
+                "label": "Available capacity (MW)"
+              },
+              "pricingMode": {
+                "label": "Pricing mode",
+                "options": {
+                  "fixed": "Fixed",
+                  "indexed": "Indexed",
+                  "negotiable": "Negotiable"
+                }
+              },
+              "availabilityStart": {
+                "label": "Availability start"
+              },
+              "availabilityEnd": {
+                "label": "Availability end"
+              },
+              "fromProvinceId": {
+                "label": "Origin province"
+              },
+              "toProvinceId": {
+                "label": "Target province",
+                "help": "Optional for broad availability, useful when the surplus is intended for a specific market."
+              },
+              "deliveryConstraints": {
+                "label": "Delivery constraints",
+                "help": "Summarize dispatch conditions, transmission limitations, and practical delivery constraints."
+              },
+              "interconnectionConstraints": {
+                "label": "Interconnection constraints",
+                "help": "Add any corridor, balancing, or intertie limitations known at publication time."
+              },
+              "contactChannel": {
+                "label": "Operational contact",
+                "placeholder": "Example: Energy trading desk or named coordination channel"
+              },
+              "tags": {
+                "label": "Tags",
+                "placeholder": "Example: winter-peak, hydro, reserve"
+              }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Use at least three characters for the title.",
+                "maxLength": "Keep the title under 160 characters."
+              },
+              "summary": {
+                "minLength": "Provide at least ten characters in the summary.",
+                "maxLength": "Keep the summary under 5,000 characters."
+              },
+              "capacityMw": {
+                "min": "Capacity must be greater than zero."
+              },
+              "availabilityEnd": {
+                "dateOrder": "The end date must be on or after the start date."
+              }
+            }
+          },
+          "industrialLoadFlex": {
+            "title": "Request industrial load flexibility",
+            "description": "Structure a manufacturing-side request for short-term power support or demand-response capacity.",
+            "sections": {
+              "request": {
+                "title": "Request summary",
+                "description": "Describe the operational need and why flexibility is required."
+              },
+              "capacity": {
+                "title": "Capacity and timing",
+                "description": "Capture the requested volume and the flexibility window."
+              },
+              "routing": {
+                "title": "Routing and coordination",
+                "description": "Clarify origin, target province, pricing preference, and operating notes."
+              }
+            },
+            "fields": {
+              "title": {
+                "label": "Request title",
+                "placeholder": "Example: Flexible hydro support needed for planned maintenance week"
+              },
+              "summary": {
+                "label": "Summary",
+                "placeholder": "Describe the site context, required support, and why this request matters now."
+              },
+              "requestReason": {
+                "label": "Request reason",
+                "options": {
+                  "peakShaving": "Peak shaving",
+                  "backupCapacity": "Backup capacity",
+                  "plannedMaintenance": "Planned maintenance"
+                }
+              },
+              "urgencyLevel": {
+                "label": "Urgency level",
+                "options": {
+                  "low": "Low",
+                  "medium": "Medium",
+                  "high": "High"
+                }
+              },
+              "requiredCapacityMw": {
+                "label": "Requested capacity (MW)"
+              },
+              "flexibilityWindow": {
+                "label": "Flexibility window",
+                "options": {
+                  "2h": "2 hours",
+                  "8h": "8 hours",
+                  "24h": "24 hours"
+                }
+              },
+              "availabilityStart": {
+                "label": "Support start"
+              },
+              "availabilityEnd": {
+                "label": "Support end"
+              },
+              "fromProvinceId": {
+                "label": "Requesting province"
+              },
+              "toProvinceId": {
+                "label": "Supplying province"
+              },
+              "preferredPricingMode": {
+                "label": "Preferred pricing mode",
+                "options": {
+                  "fixed": "Fixed",
+                  "indexed": "Indexed",
+                  "negotiable": "Negotiable"
+                }
+              },
+              "contactChannel": {
+                "label": "Coordination contact",
+                "placeholder": "Example: Plant energy desk or operations hotline"
+              },
+              "operationalNotes": {
+                "label": "Operational notes",
+                "help": "Add plant constraints, ramp-up limits, or dispatch conditions if they matter for the response."
+              },
+              "tags": {
+                "label": "Tags",
+                "placeholder": "Example: maintenance, demand-response, critical-load"
+              }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Use at least three characters for the title.",
+                "maxLength": "Keep the title under 160 characters."
+              },
+              "summary": {
+                "minLength": "Provide at least ten characters in the summary."
+              },
+              "requiredCapacityMw": {
+                "min": "Requested capacity must be greater than zero."
+              },
+              "availabilityEnd": {
+                "dateOrder": "The end date must be on or after the start date."
+              }
+            }
+          },
+          "coldChainCapacity": {
+            "title": "Offer cold-chain capacity",
+            "description": "Publish temporary refrigerated logistics or storage capacity available to counterparties.",
+            "sections": {
+              "offer": {
+                "title": "Offer summary",
+                "description": "Describe the available capacity and where it can help immediately."
+              },
+              "capacity": {
+                "title": "Capacity profile",
+                "description": "Capture pallet volume, temperature range, and operating certifications."
+              },
+              "availability": {
+                "title": "Availability window",
+                "description": "Specify when this logistics capacity becomes available and when it ends."
+              },
+              "routing": {
+                "title": "Routing and handling",
+                "description": "Clarify origin, destination, contact, and handling constraints."
+              }
+            },
+            "fields": {
+              "title": { "label": "Offer title", "placeholder": "Example: Spare chilled storage capacity available near Montreal hub" },
+              "summary": { "label": "Summary", "placeholder": "Describe the spare capacity, target products, and service level expectations." },
+              "availablePallets": { "label": "Available pallet positions" },
+              "temperatureRange": {
+                "label": "Temperature range",
+                "options": {
+                  "frozen": "Frozen",
+                  "chilled": "Chilled",
+                  "ambientMonitored": "Ambient monitored"
+                }
+              },
+              "certifications": {
+                "label": "Certifications",
+                "options": {
+                  "haccp": "HACCP",
+                  "cfia": "CFIA",
+                  "gfsi": "GFSI"
+                }
+              },
+              "crossDockAvailable": { "label": "Cross-dock available" },
+              "availableFrom": { "label": "Available from" },
+              "availableUntil": { "label": "Available until" },
+              "fromProvinceId": { "label": "Origin province" },
+              "toProvinceId": { "label": "Target province" },
+              "contactChannel": { "label": "Operations contact", "placeholder": "Example: Cold-chain coordination desk" },
+              "minimumCommitmentDays": { "label": "Minimum commitment (days)" },
+              "handlingNotes": { "label": "Handling notes", "help": "Add packaging, loading, or temperature-control instructions relevant to the offer." },
+              "tags": { "label": "Tags", "placeholder": "Example: frozen, overflow, certified" }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Use at least three characters for the title.",
+                "maxLength": "Keep the title under 160 characters."
+              },
+              "summary": { "minLength": "Provide at least ten characters in the summary." },
+              "availablePallets": { "min": "Available pallet positions must be greater than zero." },
+              "availableUntil": { "dateOrder": "The end date must be on or after the start date." },
+              "minimumCommitmentDays": { "min": "Minimum commitment must be at least one day." }
             }
           }
         }

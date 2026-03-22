@@ -29,6 +29,14 @@ export interface FeedItemSource {
   readonly url?: string;
 }
 
+export interface FeedPublicationMetadata {
+  readonly publicationForm?: {
+    readonly formKey: string;
+    readonly schemaVersion: number;
+  } | null;
+  readonly extensions?: Readonly<Record<string, unknown>> | null;
+}
+
 export interface FeedItem {
   readonly id: string;
   readonly createdAt: string;
@@ -52,6 +60,7 @@ export interface FeedItem {
   readonly status?: 'confirmed' | 'pending' | 'failed';
   readonly optimisticIdempotencyKey?: string;
   readonly accessibilitySummary?: string | null;
+  readonly metadata?: FeedPublicationMetadata | null;
   readonly geo?: {
     readonly from?: { lat: number; lng: number };
     readonly to?: { lat: number; lng: number };
@@ -69,6 +78,7 @@ export interface FeedFilterState {
   readonly fromProvinceId: string | null;
   readonly toProvinceId: string | null;
   readonly sectorId: string | null;
+  readonly formKey: string | null;
   readonly category: FeedItemCategory | null;
   readonly type: FeedItemType | null;
   readonly mode: FlowMode;
@@ -111,6 +121,10 @@ export interface FeedPublishOutcome {
   readonly validation: FeedComposerValidationResult;
   readonly item?: FeedItem;
   readonly error?: string;
+}
+
+export interface FeedPublishOptions {
+  readonly metadata?: FeedPublicationMetadata | null;
 }
 
 export interface FeedRealtimeConnectionState {

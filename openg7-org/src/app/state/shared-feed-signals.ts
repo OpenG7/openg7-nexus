@@ -4,6 +4,7 @@ import { FeedItemCategory, FeedItemType, FeedSort, FlowMode } from '@app/domains
 export const fromProvinceIdSig = signal<string | null>(null);
 export const toProvinceIdSig = signal<string | null>(null);
 export const sectorIdSig = signal<string | null>(null);
+export const feedFormKeySig = signal<string | null>(null);
 export const feedCategorySig = signal<FeedItemCategory | null>(null);
 export const feedTypeSig = signal<FeedItemType | null>(null);
 export const feedModeSig = signal<FlowMode>('BOTH');
@@ -16,6 +17,7 @@ export const hasActiveFiltersSig = computed(
     Boolean(fromProvinceIdSig()) ||
     Boolean(toProvinceIdSig()) ||
     Boolean(sectorIdSig()) ||
+    Boolean(feedFormKeySig()) ||
     Boolean(feedCategorySig()) ||
     Boolean(feedTypeSig()) ||
     feedModeSig() !== 'BOTH' ||

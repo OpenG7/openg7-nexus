@@ -1,0 +1,188 @@
+{
+  "formKey": "cold-chain-capacity-offer",
+  "schemaVersion": 1,
+  "titleKey": "forms.coldChainCapacity.title",
+  "descriptionKey": "forms.coldChainCapacity.description",
+  "actorTypes": ["logistics", "distributor", "port"],
+  "sectorId": "agriculture",
+  "tags": ["cold-chain", "logistics", "storage"],
+  "sections": [
+    {
+      "id": "offer",
+      "titleKey": "forms.coldChainCapacity.sections.offer.title",
+      "descriptionKey": "forms.coldChainCapacity.sections.offer.description",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "labelKey": "forms.coldChainCapacity.fields.title.label",
+          "placeholderKey": "forms.coldChainCapacity.fields.title.placeholder",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 3, "errorKey": "forms.coldChainCapacity.validation.title.minLength" },
+            { "type": "maxLength", "value": 160, "errorKey": "forms.coldChainCapacity.validation.title.maxLength" }
+          ]
+        },
+        {
+          "key": "summary",
+          "type": "textarea",
+          "labelKey": "forms.coldChainCapacity.fields.summary.label",
+          "placeholderKey": "forms.coldChainCapacity.fields.summary.placeholder",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 10, "errorKey": "forms.coldChainCapacity.validation.summary.minLength" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capacity",
+      "titleKey": "forms.coldChainCapacity.sections.capacity.title",
+      "descriptionKey": "forms.coldChainCapacity.sections.capacity.description",
+      "fields": [
+        {
+          "key": "availablePallets",
+          "type": "number",
+          "labelKey": "forms.coldChainCapacity.fields.availablePallets.label",
+          "required": true,
+          "validators": [
+            { "type": "min", "value": 1, "errorKey": "forms.coldChainCapacity.validation.availablePallets.min" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "temperatureRange",
+          "type": "select",
+          "labelKey": "forms.coldChainCapacity.fields.temperatureRange.label",
+          "required": true,
+          "options": [
+            { "value": "frozen", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.frozen" },
+            { "value": "chilled", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.chilled" },
+            { "value": "ambient-monitored", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.ambientMonitored" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "certifications",
+          "type": "multiselect",
+          "labelKey": "forms.coldChainCapacity.fields.certifications.label",
+          "options": [
+            { "value": "haccp", "labelKey": "forms.coldChainCapacity.fields.certifications.options.haccp" },
+            { "value": "cfia", "labelKey": "forms.coldChainCapacity.fields.certifications.options.cfia" },
+            { "value": "gfsi", "labelKey": "forms.coldChainCapacity.fields.certifications.options.gfsi" }
+          ]
+        },
+        {
+          "key": "crossDockAvailable",
+          "type": "checkbox",
+          "labelKey": "forms.coldChainCapacity.fields.crossDockAvailable.label"
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "titleKey": "forms.coldChainCapacity.sections.availability.title",
+      "descriptionKey": "forms.coldChainCapacity.sections.availability.description",
+      "fields": [
+        {
+          "key": "availableFrom",
+          "type": "datetime",
+          "labelKey": "forms.coldChainCapacity.fields.availableFrom.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "availableUntil",
+          "type": "datetime",
+          "labelKey": "forms.coldChainCapacity.fields.availableUntil.label",
+          "required": true,
+          "validators": [
+            { "type": "dateOrder", "compareWithField": "availableFrom", "errorKey": "forms.coldChainCapacity.validation.availableUntil.dateOrder" }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "titleKey": "forms.coldChainCapacity.sections.routing.title",
+      "descriptionKey": "forms.coldChainCapacity.sections.routing.description",
+      "fields": [
+        {
+          "key": "fromProvinceId",
+          "type": "select",
+          "labelKey": "forms.coldChainCapacity.fields.fromProvinceId.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "toProvinceId",
+          "type": "select",
+          "labelKey": "forms.coldChainCapacity.fields.toProvinceId.label",
+          "width": "half"
+        },
+        {
+          "key": "contactChannel",
+          "type": "text",
+          "labelKey": "forms.coldChainCapacity.fields.contactChannel.label",
+          "placeholderKey": "forms.coldChainCapacity.fields.contactChannel.placeholder",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "minimumCommitmentDays",
+          "type": "number",
+          "labelKey": "forms.coldChainCapacity.fields.minimumCommitmentDays.label",
+          "validators": [
+            { "type": "min", "value": 1, "errorKey": "forms.coldChainCapacity.validation.minimumCommitmentDays.min" }
+          ],
+          "visibleWhen": [
+            { "field": "crossDockAvailable", "operator": "truthy" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "handlingNotes",
+          "type": "textarea",
+          "labelKey": "forms.coldChainCapacity.fields.handlingNotes.label",
+          "helpKey": "forms.coldChainCapacity.fields.handlingNotes.help",
+          "visibleWhen": [
+            { "field": "temperatureRange", "operator": "in", "value": ["frozen", "ambient-monitored"] }
+          ]
+        },
+        {
+          "key": "tags",
+          "type": "text",
+          "labelKey": "forms.coldChainCapacity.fields.tags.label",
+          "placeholderKey": "forms.coldChainCapacity.fields.tags.placeholder"
+        }
+      ]
+    }
+  ],
+  "draftMapping": {
+    "defaults": {
+      "type": "OFFER",
+      "sectorId": "agriculture",
+      "mode": "EXPORT"
+    },
+    "bindings": {
+      "title": { "kind": "field", "field": "title" },
+      "summary": { "kind": "field", "field": "summary" },
+      "fromProvinceId": { "kind": "field", "field": "fromProvinceId" },
+      "toProvinceId": { "kind": "field", "field": "toProvinceId" },
+      "quantity.value": { "kind": "field", "field": "availablePallets" },
+      "quantity.unit": { "kind": "constant", "value": "kg" },
+      "tags": { "kind": "array", "fields": ["tags", "certifications"] }
+    },
+    "extensions": {
+      "temperatureRange": { "kind": "field", "field": "temperatureRange" },
+      "certifications": { "kind": "field", "field": "certifications" },
+      "crossDockAvailable": { "kind": "field", "field": "crossDockAvailable" },
+      "availableFrom": { "kind": "field", "field": "availableFrom" },
+      "availableUntil": { "kind": "field", "field": "availableUntil" },
+      "contactChannel": { "kind": "field", "field": "contactChannel" },
+      "minimumCommitmentDays": { "kind": "field", "field": "minimumCommitmentDays" },
+      "handlingNotes": { "kind": "field", "field": "handlingNotes" }
+    }
+  }
+}

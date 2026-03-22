@@ -4,8 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
+import { FeedRealtimeService } from '../services/feed-realtime.service';
 import { FeedPublishSectionComponent } from './feed-publish-section.component';
 
 @Component({
@@ -44,11 +47,28 @@ describe('FeedPublishSectionComponent', () => {
             isAuthenticated: authState.asReadonly(),
           } as Pick<AuthService, 'isAuthenticated'>,
         },
+        {
+          provide: Store,
+          useValue: {
+            selectSignal: () => signal([]),
+          } as Pick<Store, 'selectSignal'>,
+        },
+        {
+          provide: FeedRealtimeService,
+          useValue: {
+            connectionState: {
+              connected: signal(true),
+              reconnecting: signal(false),
+              error: signal(null),
+            },
+            publishDraft: jasmine.createSpy('publishDraft'),
+          } as Pick<FeedRealtimeService, 'connectionState' | 'publishDraft'>,
+        },
       ],
     })
       .overrideComponent(FeedPublishSectionComponent, {
         set: {
-          imports: [CommonModule, RouterLink, TranslateModule, FeedComposerStubComponent],
+          imports: [CommonModule, RouterLink, TranslateModule, FeedComposerStubComponent, Og7DynamicPublicationFormComponent],
         },
       })
       .compileComponents();

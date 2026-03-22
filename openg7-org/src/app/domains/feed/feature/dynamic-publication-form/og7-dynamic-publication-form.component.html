@@ -1,0 +1,100 @@
+<form class="dynamic-publication-form" [formGroup]="form()" (ngSubmit)="handleSubmit()" role="form">
+  <section *ngFor="let section of config().sections" class="dynamic-publication-form__section">
+    <header class="dynamic-publication-form__section-header">
+      <h3>{{ section.titleKey | translate }}</h3>
+      <p *ngIf="section.descriptionKey">{{ section.descriptionKey | translate }}</p>
+    </header>
+
+    <div class="dynamic-publication-form__grid">
+      <ng-container *ngFor="let field of section.fields; let fieldIndex = index">
+        <div
+          *ngIf="showField(field)"
+          class="dynamic-publication-form__field"
+          [class.dynamic-publication-form__field--full]="field.width !== 'half'"
+        >
+          <label [attr.for]="field.key">{{ field.labelKey | translate }}</label>
+
+          <ng-container [ngSwitch]="field.type">
+            <textarea
+              *ngSwitchCase="'textarea'"
+              #primaryField
+              [id]="field.key"
+              [rows]="4"
+              [attr.data-primary]="isPrimaryField(fieldIndex) ? 'true' : null"
+              [attr.placeholder]="field.placeholderKey ? (field.placeholderKey | translate) : null"
+              [formControlName]="field.key"
+            ></textarea>
+
+            <select
+              *ngSwitchCase="'select'"
+              #primaryField
+              [id]="field.key"
+              [formControlName]="field.key"
+            >
+              <option value="">{{ 'forms.common.selectPlaceholder' | translate }}</option>
+              <option *ngFor="let option of optionsFor(field)" [value]="option.value">
+                {{ option.labelKey | translate }}
+              </option>
+            </select>
+
+            <select
+              *ngSwitchCase="'multiselect'"
+              #primaryField
+              [id]="field.key"
+              multiple
+              [value]="controlFor(field.key)?.value ?? []"
+              (change)="onMultiSelectChange(field.key, $event)"
+            >
+              <option *ngFor="let option of optionsFor(field)" [value]="option.value">
+                {{ option.labelKey | translate }}
+              </option>
+            </select>
+
+            <div *ngSwitchCase="'radio'" class="dynamic-publication-form__radio-group">
+              <label *ngFor="let option of optionsFor(field)" class="dynamic-publication-form__radio-option">
+                <input type="radio" [formControlName]="field.key" [value]="option.value" />
+                <span>{{ option.labelKey | translate }}</span>
+              </label>
+            </div>
+
+            <label *ngSwitchCase="'checkbox'" class="dynamic-publication-form__checkbox-option">
+              <input type="checkbox" [id]="field.key" [formControlName]="field.key" />
+              <span>{{ field.labelKey | translate }}</span>
+            </label>
+
+            <input
+              *ngSwitchDefault
+              #primaryField
+              [id]="field.key"
+              [type]="field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'"
+              [attr.placeholder]="field.placeholderKey ? (field.placeholderKey | translate) : null"
+              [formControlName]="field.key"
+            />
+          </ng-container>
+
+          <p *ngIf="field.helpKey" class="dynamic-publication-form__help">{{ field.helpKey | translate }}</p>
+
+          <ul *ngIf="hasVisibleErrors(field)" class="dynamic-publication-form__errors" role="alert">
+            <li *ngFor="let errorKey of fieldErrorKeys(field)">{{ errorKey | translate }}</li>
+          </ul>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <p *ngIf="submitError()" class="dynamic-publication-form__status dynamic-publication-form__status--error" role="alert">
+    {{ submitError() | translate }}
+  </p>
+  <ul *ngIf="errors().length" class="dynamic-publication-form__errors" role="alert">
+    <li *ngFor="let error of errors()">{{ error | translate }}</li>
+  </ul>
+  <ul *ngIf="warnings().length" class="dynamic-publication-form__warnings" role="status">
+    <li *ngFor="let warning of warnings()">{{ warning | translate }}</li>
+  </ul>
+
+  <footer class="dynamic-publication-form__footer">
+    <button type="submit" class="dynamic-publication-form__submit" [disabled]="submitting()">
+      {{ submitting() ? ('feed.composer.submitting' | translate) : ('feed.composer.submit' | translate) }}
+    </button>
+  </footer>
+</form>

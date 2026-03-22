@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
   feedCategorySig,
+  feedFormKeySig,
   feedModeSig,
   feedSearchSig,
   feedSortSig,
@@ -30,6 +31,7 @@ import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { buildFeedFavoriteKey } from '../feed-item.helpers';
+import { PublicationFormConfigService } from '../form-config/publication-form-config.service';
 import { FeedItem, FeedItemType, FeedRealtimeConnectionState, FeedSort, FlowMode } from '../models/feed.models';
 import { Og7FeedCardComponent } from '../og7-feed-card/og7-feed-card.component';
 import { Og7FeedPostDrawerComponent } from '../og7-feed-post-drawer/og7-feed-post-drawer.component';
@@ -55,6 +57,7 @@ export class Og7FeedStreamComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly feed = inject(FeedRealtimeService);
   private readonly store = inject(Store);
+  private readonly formConfigService = inject(PublicationFormConfigService);
 
   readonly items = input<readonly FeedItem[]>([]);
   readonly loading = input(false);
@@ -80,6 +83,7 @@ export class Og7FeedStreamComponent {
   protected readonly fromProvinceId = fromProvinceIdSig;
   protected readonly toProvinceId = toProvinceIdSig;
   protected readonly sectorId = sectorIdSig;
+  protected readonly selectedFormKey = feedFormKeySig;
   protected readonly selectedCategory = feedCategorySig;
   protected readonly selectedType = feedTypeSig;
   protected readonly selectedMode = feedModeSig;
@@ -89,6 +93,7 @@ export class Og7FeedStreamComponent {
 
   protected readonly provinces = this.store.selectSignal(selectProvinces);
   protected readonly sectors = this.store.selectSignal(selectSectors);
+  protected readonly availableTemplates = this.formConfigService.list();
 
   protected readonly provinceLabelMap = computed(() => {
     const map = new Map<string, string>();
@@ -231,6 +236,7 @@ export class Og7FeedStreamComponent {
     fromProvinceIdSig.set(null);
     toProvinceIdSig.set(null);
     sectorIdSig.set(null);
+    feedFormKeySig.set(null);
     feedCategorySig.set(null);
     feedTypeSig.set(null);
     feedModeSig.set('BOTH');
@@ -252,6 +258,10 @@ export class Og7FeedStreamComponent {
 
   protected updateSector(value: string): void {
     sectorIdSig.set(value || null);
+  }
+
+  protected updateFormKey(value: string): void {
+    feedFormKeySig.set(value || null);
   }
 
   protected updateFromProvince(value: string): void {
@@ -282,6 +292,10 @@ export class Og7FeedStreamComponent {
       return null;
     }
     return this.sectorLabelMap().get(id) ?? id;
+  }
+
+  protected resolveTemplateTitleKey(formKey: string | null | undefined): string {
+    return this.formConfigService.get(formKey)?.titleKey ?? (formKey || 'feed.filters.unknownTemplate');
   }
 
   protected isSaved(item: FeedItem): boolean {

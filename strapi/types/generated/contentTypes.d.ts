@@ -600,16 +600,19 @@ export interface ApiFeedFeed extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::feed.feed'> &
       Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
     mode: Schema.Attribute.Enumeration<['EXPORT', 'IMPORT', 'BOTH']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'BOTH'>;
     originId: Schema.Attribute.String;
     originType: Schema.Attribute.Enumeration<['alert', 'opportunity', 'indicator']>;
+    publicationFormKey: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     quantityUnit: Schema.Attribute.Enumeration<
       ['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']
     >;
     quantityValue: Schema.Attribute.Decimal;
+    searchText: Schema.Attribute.Text;
     sectorId: Schema.Attribute.String;
     sourceKind: Schema.Attribute.Enumeration<['GOV', 'COMPANY', 'PARTNER', 'USER']> &
       Schema.Attribute.Required &

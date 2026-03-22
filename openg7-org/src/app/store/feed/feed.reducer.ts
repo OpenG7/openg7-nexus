@@ -31,6 +31,7 @@ const INITIAL_FILTERS: FeedFilterState = {
   fromProvinceId: null,
   toProvinceId: null,
   sectorId: null,
+  formKey: null,
   category: null,
   type: null,
   mode: 'BOTH',

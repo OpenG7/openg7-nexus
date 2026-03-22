@@ -2,12 +2,14 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { FeedPublicationMetadata } from '../models/feed.models';
 import { AlertSourceEntry, AlertTimelineEntry, AlertUpdateEntry } from './alert-detail.models';
+import { Og7PublicationMetadataCardComponent } from './publication-metadata-card.component';
 
 @Component({
   selector: 'og7-alert-detail-body',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, Og7PublicationMetadataCardComponent],
   templateUrl: './alert-detail-body.component.html',
   styleUrl: './alert-detail-body.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +24,7 @@ export class AlertDetailBodyComponent {
   readonly updates = input<readonly AlertUpdateEntry[]>([]);
   readonly recommendations = input<readonly string[]>([]);
   readonly sources = input<readonly AlertSourceEntry[]>([]);
+  readonly publicationMetadata = input<FeedPublicationMetadata | null>(null);
 
   protected trackByValue(_index: number, value: string): string {
     return value;

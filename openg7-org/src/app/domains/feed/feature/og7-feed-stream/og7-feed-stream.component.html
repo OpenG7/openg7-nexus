@@ -49,6 +49,16 @@
     </div>
 
     <div class="feed-stream__filter">
+      <label for="feed-form-key">{{ 'feed.filters.template' | translate }}</label>
+      <select id="feed-form-key" [ngModel]="selectedFormKey()" (ngModelChange)="updateFormKey($event ?? '')">
+        <option [ngValue]="null">{{ 'feed.filters.allTemplates' | translate }}</option>
+        <option *ngFor="let template of availableTemplates" [ngValue]="template.formKey">
+          {{ template.titleKey | translate }}
+        </option>
+      </select>
+    </div>
+
+    <div class="feed-stream__filter">
       <label for="feed-from">{{ 'feed.filters.fromProvince' | translate }}</label>
       <select id="feed-from" [ngModel]="fromProvinceId()" (ngModelChange)="updateFromProvince($event ?? '')">
         <option [ngValue]="null">{{ 'feed.filters.allProvinces' | translate }}</option>
@@ -104,6 +114,9 @@
       </li>
       <li *ngIf="sectorId()">
         {{ 'feed.filters.sector' | translate }}: {{ resolveSectorLabel(sectorId()) }}
+      </li>
+      <li *ngIf="selectedFormKey()">
+        {{ 'feed.filters.template' | translate }}: {{ resolveTemplateTitleKey(selectedFormKey()) | translate }}
       </li>
       <li *ngIf="categoryLabelKey()">
         {{ 'feed.filters.type' | translate }}: {{ categoryLabelKey()! | translate }}

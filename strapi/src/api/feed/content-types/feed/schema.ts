@@ -109,6 +109,15 @@ const schema = {
     accessibilitySummary: {
       type: 'text',
     },
+    metadata: {
+      type: 'json',
+    },
+    publicationFormKey: {
+      type: 'string',
+    },
+    searchText: {
+      type: 'text',
+    },
     geo: {
       type: 'json',
     },

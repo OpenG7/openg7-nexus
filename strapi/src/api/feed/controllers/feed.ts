@@ -104,6 +104,7 @@ interface FeedResponseItem {
   };
   readonly status: FeedStatus;
   readonly accessibilitySummary: string | null;
+  readonly metadata?: Record<string, unknown> | null;
   readonly geo?: FeedGeo;
 }
 
@@ -123,7 +124,13 @@ interface FeedCreatePayload {
   readonly originId: string | null;
   readonly connectionMatchId: number | null;
   readonly accessibilitySummary: string | null;
+  readonly metadata?: Record<string, unknown> | null;
   readonly geo?: FeedGeo;
+}
+
+interface FeedPublicationFormMetadata {
+  readonly formKey?: string | null;
+  readonly schemaVersion?: number | null;
 }
 
 interface FeedCursor {
@@ -335,6 +342,111 @@ function normalizeFeedGeo(value: unknown): FeedGeo | undefined {
   };
 }
 
+function sanitizeMetadataValue(value: unknown, depth = 0): unknown {
+  if (value == null || depth > 4) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+    return normalized ? normalized.slice(0, 2000) : undefined;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const normalized = value
+      .slice(0, 50)
+      .map(entry => sanitizeMetadataValue(entry, depth + 1))
+      .filter(entry => entry !== undefined);
+    return normalized.length ? normalized : undefined;
+  }
+  if (typeof value !== 'object') {
+    return undefined;
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .slice(0, 50)
+    .flatMap(([key, entry]) => {
+      const normalizedKey = key.trim();
+      if (!normalizedKey) {
+        return [];
+      }
+      const normalizedValue = sanitizeMetadataValue(entry, depth + 1);
+      return normalizedValue === undefined ? [] : [[normalizedKey, normalizedValue] as const];
+    });
+
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
+function sanitizeMetadata(value: unknown): Record<string, unknown> | null {
+  const normalized = sanitizeMetadataValue(value, 0);
+  if (!normalized || typeof normalized !== 'object' || Array.isArray(normalized)) {
+    return null;
+  }
+  return normalized as Record<string, unknown>;
+}
+
+function readPublicationFormKey(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  const metadata = value as { publicationForm?: FeedPublicationFormMetadata | null };
+  return normalizeString(metadata.publicationForm?.formKey, 160);
+}
+
+function humanizeSearchToken(value: string): string {
+  return value
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[-_]+/g, ' ')
+    .trim();
+}
+
+function collectMetadataSearchTokens(value: unknown, tokens: string[] = [], depth = 0): string[] {
+  if (value == null || depth > 4) {
+    return tokens;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = humanizeSearchToken(value);
+    if (normalized) {
+      tokens.push(normalized);
+    }
+    return tokens;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    tokens.push(String(value));
+    return tokens;
+  }
+
+  if (Array.isArray(value)) {
+    for (const entry of value.slice(0, 50)) {
+      collectMetadataSearchTokens(entry, tokens, depth + 1);
+    }
+    return tokens;
+  }
+
+  if (typeof value !== 'object') {
+    return tokens;
+  }
+
+  for (const [key, entry] of Object.entries(value as Record<string, unknown>).slice(0, 50)) {
+    const normalizedKey = humanizeSearchToken(key);
+    if (normalizedKey) {
+      tokens.push(normalizedKey);
+    }
+    collectMetadataSearchTokens(entry, tokens, depth + 1);
+  }
+
+  return tokens;
+}
+
+function buildMetadataSearchText(value: unknown): string | null {
+  const tokens = Array.from(new Set(collectMetadataSearchTokens(value).map(token => token.trim()).filter(Boolean)));
+  return tokens.length ? tokens.join(' ').slice(0, 5000) : null;
+}
+
 function normalizeUrgencyOrCredibility(value: unknown, fallback: 1 | 2 | 3): 1 | 2 | 3 {
   const parsed = normalizeInteger(value);
   if (parsed === 1 || parsed === 2 || parsed === 3) {
@@ -484,6 +596,7 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
     },
     status: normalizeStatus(entity.status),
     accessibilitySummary: normalizeString(entity.accessibilitySummary, 5000),
+    ...(sanitizeMetadata(entity.metadata) ? { metadata: sanitizeMetadata(entity.metadata) } : {}),
     ...(normalizeFeedGeo(entity.geo) ? { geo: normalizeFeedGeo(entity.geo) } : {}),
   };
 
@@ -548,6 +661,7 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     throw new Error('connectionMatchId must be a positive integer when provided.');
   }
   const accessibilitySummary = normalizeString(source.accessibilitySummary, 5000);
+  const metadata = sanitizeMetadata(source.metadata);
   const geo = normalizeFeedGeo(source.geo);
 
   return {
@@ -566,6 +680,7 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     originId,
     connectionMatchId,
     accessibilitySummary,
+    ...(metadata ? { metadata } : {}),
     ...(geo ? { geo } : {}),
   };
 }
@@ -590,6 +705,7 @@ function parseRequestFilters(query: Record<string, unknown>): {
   readonly type: FeedType | null;
   readonly mode: FeedMode | null;
   readonly sectorId: string | null;
+  readonly formKey: string | null;
   readonly fromProvinceId: string | null;
   readonly toProvinceId: string | null;
   readonly search: string | null;
@@ -600,6 +716,7 @@ function parseRequestFilters(query: Record<string, unknown>): {
   const type = normalizeFeedType(query.type);
   const mode = normalizeFeedMode(query.mode);
   const sectorId = normalizeString(query.sector ?? query.sectorId, 80);
+  const formKey = normalizeString(query.formKey, 160);
   const fromProvinceId = normalizeString(query.fromProvince ?? query.fromProvinceId, 20);
   const toProvinceId = normalizeString(query.toProvince ?? query.toProvinceId, 20);
   const search = normalizeString(query.q, 120);
@@ -611,6 +728,7 @@ function parseRequestFilters(query: Record<string, unknown>): {
     type,
     mode,
     sectorId,
+    formKey,
     fromProvinceId,
     toProvinceId,
     search,
@@ -733,6 +851,9 @@ function createFilters(parsed: ReturnType<typeof parseRequestFilters>): Record<s
   if (parsed.sectorId) {
     conditions.push({ sectorId: parsed.sectorId });
   }
+  if (parsed.formKey) {
+    conditions.push({ publicationFormKey: parsed.formKey });
+  }
   if (parsed.fromProvinceId) {
     conditions.push({ fromProvinceId: parsed.fromProvinceId });
   }
@@ -755,6 +876,11 @@ function createFilters(parsed: ReturnType<typeof parseRequestFilters>): Record<s
         },
         {
           sourceLabel: {
+            $containsi: parsed.search,
+          },
+        },
+        {
+          searchText: {
             $containsi: parsed.search,
           },
         },
@@ -873,6 +999,7 @@ function matchesHighlightsSearch(item: FeedResponseItem, search: string | null):
     item.sectorId ?? '',
     item.fromProvinceId ?? '',
     item.toProvinceId ?? '',
+    buildMetadataSearchText(item.metadata) ?? '',
     ...item.tags,
   ]
     .join(' ')
@@ -1163,6 +1290,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         sourceUrl: null,
         status: 'confirmed',
         accessibilitySummary: payload.accessibilitySummary,
+        metadata: payload.metadata ?? null,
+        publicationFormKey: readPublicationFormKey(payload.metadata),
+        searchText: buildMetadataSearchText(payload.metadata),
         geo: payload.geo ?? null,
         idempotencyKey: idempotencyKey ?? null,
       } as any,
