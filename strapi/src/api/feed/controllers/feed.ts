@@ -360,7 +360,7 @@ function sanitizeMetadataValue(value: unknown, depth = 0): unknown {
       .filter(entry => entry !== undefined);
     return normalized.length ? normalized : undefined;
   }
-  if (!value || typeof value !== 'object') {
+  if (typeof value !== 'object') {
     return undefined;
   }
 
