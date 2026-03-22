@@ -198,4 +198,75 @@ describe('FeedRealtimeService', () => {
       },
     });
   });
+
+  it('posts publication metadata when a config-driven form is submitted', async () => {
+    const publishPromise = service.publishDraft(validDraft, {
+      metadata: {
+        publicationForm: {
+          formKey: 'energy-surplus-offer',
+          schemaVersion: 1,
+        },
+        extensions: {
+          energyType: 'hydroelectric',
+          urgencyLevel: 'high',
+        },
+      },
+    });
+
+    const request = httpMock.expectOne(req => req.method === 'POST' && req.url === 'https://cms.local/api/feed');
+    expect(request.request.body.metadata).toEqual({
+      publicationForm: {
+        formKey: 'energy-surplus-offer',
+        schemaVersion: 1,
+      },
+      extensions: {
+        energyType: 'hydroelectric',
+        urgencyLevel: 'high',
+      },
+    });
+
+    request.flush({
+      data: {
+        id: 'feed-2',
+        createdAt: '2026-03-20T10:00:00.000Z',
+        updatedAt: '2026-03-20T10:00:00.000Z',
+        type: 'REQUEST',
+        sectorId: 'energy',
+        title: 'Hydro support request',
+        summary: 'Seeking short-term hydro capacity support for regional balancing.',
+        fromProvinceId: 'qc',
+        toProvinceId: 'on',
+        mode: 'IMPORT',
+        quantity: { value: 300, unit: 'MW' },
+        tags: ['hydro'],
+        metadata: {
+          publicationForm: {
+            formKey: 'energy-surplus-offer',
+            schemaVersion: 1,
+          },
+          extensions: {
+            energyType: 'hydroelectric',
+            urgencyLevel: 'high',
+          },
+        },
+        source: {
+          kind: 'USER',
+          label: 'Operator',
+        },
+      },
+    });
+
+    const outcome = await publishPromise;
+    expect(outcome.status).toBe('success');
+    expect(outcome.item?.metadata).toEqual({
+      publicationForm: {
+        formKey: 'energy-surplus-offer',
+        schemaVersion: 1,
+      },
+      extensions: {
+        energyType: 'hydroelectric',
+        urgencyLevel: 'high',
+      },
+    });
+  });
 });

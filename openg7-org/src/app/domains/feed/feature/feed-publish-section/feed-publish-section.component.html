@@ -51,12 +51,70 @@
       </header>
 
       <ng-container *ngIf="isAuthenticated(); else authGate">
+        <section class="feed-publish__mode-picker" data-og7="feed-publish-mode-picker">
+          <p class="feed-publish__mode-picker-label">{{ 'feed.publishBar.templates.title' | translate }}</p>
+          <div class="feed-publish__mode-picker-actions">
+            <button
+              type="button"
+              class="feed-publish__mode-button"
+              [class.is-active]="publishMode() === 'generic'"
+              (click)="setPublishMode('generic')"
+              data-og7="action"
+              data-og7-id="feed-publish-mode-generic"
+            >
+              {{ 'feed.publishBar.templates.generic' | translate }}
+            </button>
+            <button
+              type="button"
+              class="feed-publish__mode-button"
+              [class.is-active]="publishMode() === 'template'"
+              (click)="setPublishMode('template')"
+              data-og7="action"
+              data-og7-id="feed-publish-mode-template"
+            >
+              {{ 'feed.publishBar.templates.template' | translate }}
+            </button>
+          </div>
+          <p class="feed-publish__mode-picker-description">
+            {{ (publishMode() === 'template' ? 'feed.publishBar.templates.templateDescription' : 'feed.publishBar.templates.genericDescription') | translate }}
+          </p>
+
+          <div *ngIf="publishMode() === 'template'" class="feed-publish__template-list" data-og7="feed-publish-template-list">
+            <button
+              *ngFor="let template of availableTemplates"
+              type="button"
+              class="feed-publish__template-card"
+              [class.is-active]="selectedTemplateKey() === template.formKey"
+              (click)="selectTemplate(template.formKey)"
+              data-og7="action"
+              [attr.data-og7-id]="'feed-template-' + template.formKey"
+            >
+              <strong>{{ template.titleKey | translate }}</strong>
+              <span *ngIf="template.descriptionKey">{{ template.descriptionKey | translate }}</span>
+            </button>
+          </div>
+        </section>
+
         <og7-feed-composer
+          *ngIf="publishMode() === 'generic'"
           #composer
           [showHeader]="false"
           data-og7="feed-composer"
           (published)="handlePublished()"
         ></og7-feed-composer>
+
+        <og7-dynamic-publication-form
+          *ngIf="publishMode() === 'template' && activeTemplateConfig() as templateConfig"
+          #templateForm
+          [config]="templateConfig"
+          [fieldOptions]="templateFieldOptions()"
+          [submitState]="templateSubmitState()"
+          [submitError]="templateSubmitError()"
+          [errors]="templateErrors()"
+          [warnings]="templateWarnings()"
+          data-og7="dynamic-publication-form"
+          (submitted)="handleTemplateSubmitted($event)"
+        ></og7-dynamic-publication-form>
       </ng-container>
 
       <ng-template #authGate>

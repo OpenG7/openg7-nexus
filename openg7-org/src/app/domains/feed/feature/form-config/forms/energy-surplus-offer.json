@@ -1,0 +1,287 @@
+{
+  "formKey": "energy-surplus-offer",
+  "schemaVersion": 1,
+  "titleKey": "forms.energySurplus.title",
+  "descriptionKey": "forms.energySurplus.description",
+  "actorTypes": ["utility"],
+  "sectorId": "energy",
+  "tags": ["energy", "surplus", "electricity"],
+  "sections": [
+    {
+      "id": "opportunity",
+      "titleKey": "forms.energySurplus.sections.opportunity.title",
+      "descriptionKey": "forms.energySurplus.sections.opportunity.description",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "labelKey": "forms.energySurplus.fields.title.label",
+          "placeholderKey": "forms.energySurplus.fields.title.placeholder",
+          "required": true,
+          "validators": [
+            {
+              "type": "minLength",
+              "value": 3,
+              "errorKey": "forms.energySurplus.validation.title.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 160,
+              "errorKey": "forms.energySurplus.validation.title.maxLength"
+            }
+          ]
+        },
+        {
+          "key": "summary",
+          "type": "textarea",
+          "labelKey": "forms.energySurplus.fields.summary.label",
+          "placeholderKey": "forms.energySurplus.fields.summary.placeholder",
+          "helpKey": "forms.energySurplus.fields.summary.help",
+          "required": true,
+          "validators": [
+            {
+              "type": "minLength",
+              "value": 10,
+              "errorKey": "forms.energySurplus.validation.summary.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 5000,
+              "errorKey": "forms.energySurplus.validation.summary.maxLength"
+            }
+          ]
+        },
+        {
+          "key": "energyType",
+          "type": "select",
+          "labelKey": "forms.energySurplus.fields.energyType.label",
+          "required": true,
+          "options": [
+            {
+              "value": "hydroelectric",
+              "labelKey": "forms.energySurplus.fields.energyType.options.hydroelectric"
+            },
+            {
+              "value": "mixed-grid",
+              "labelKey": "forms.energySurplus.fields.energyType.options.mixedGrid"
+            }
+          ]
+        },
+        {
+          "key": "urgencyLevel",
+          "type": "radio",
+          "labelKey": "forms.energySurplus.fields.urgencyLevel.label",
+          "defaultValue": "medium",
+          "options": [
+            {
+              "value": "low",
+              "labelKey": "forms.energySurplus.fields.urgencyLevel.options.low"
+            },
+            {
+              "value": "medium",
+              "labelKey": "forms.energySurplus.fields.urgencyLevel.options.medium"
+            },
+            {
+              "value": "high",
+              "labelKey": "forms.energySurplus.fields.urgencyLevel.options.high"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "capacity",
+      "titleKey": "forms.energySurplus.sections.capacity.title",
+      "descriptionKey": "forms.energySurplus.sections.capacity.description",
+      "fields": [
+        {
+          "key": "capacityMw",
+          "type": "number",
+          "labelKey": "forms.energySurplus.fields.capacityMw.label",
+          "required": true,
+          "validators": [
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.energySurplus.validation.capacityMw.min"
+            }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "pricingMode",
+          "type": "select",
+          "labelKey": "forms.energySurplus.fields.pricingMode.label",
+          "required": true,
+          "options": [
+            {
+              "value": "fixed",
+              "labelKey": "forms.energySurplus.fields.pricingMode.options.fixed"
+            },
+            {
+              "value": "indexed",
+              "labelKey": "forms.energySurplus.fields.pricingMode.options.indexed"
+            },
+            {
+              "value": "negotiable",
+              "labelKey": "forms.energySurplus.fields.pricingMode.options.negotiable"
+            }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "titleKey": "forms.energySurplus.sections.availability.title",
+      "descriptionKey": "forms.energySurplus.sections.availability.description",
+      "fields": [
+        {
+          "key": "availabilityStart",
+          "type": "date",
+          "labelKey": "forms.energySurplus.fields.availabilityStart.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "availabilityEnd",
+          "type": "date",
+          "labelKey": "forms.energySurplus.fields.availabilityEnd.label",
+          "required": true,
+          "validators": [
+            {
+              "type": "dateOrder",
+              "compareWithField": "availabilityStart",
+              "errorKey": "forms.energySurplus.validation.availabilityEnd.dateOrder"
+            }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "titleKey": "forms.energySurplus.sections.routing.title",
+      "descriptionKey": "forms.energySurplus.sections.routing.description",
+      "fields": [
+        {
+          "key": "fromProvinceId",
+          "type": "select",
+          "labelKey": "forms.energySurplus.fields.fromProvinceId.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "toProvinceId",
+          "type": "select",
+          "labelKey": "forms.energySurplus.fields.toProvinceId.label",
+          "helpKey": "forms.energySurplus.fields.toProvinceId.help",
+          "width": "half"
+        },
+        {
+          "key": "deliveryConstraints",
+          "type": "textarea",
+          "labelKey": "forms.energySurplus.fields.deliveryConstraints.label",
+          "required": true,
+          "helpKey": "forms.energySurplus.fields.deliveryConstraints.help"
+        },
+        {
+          "key": "interconnectionConstraints",
+          "type": "textarea",
+          "labelKey": "forms.energySurplus.fields.interconnectionConstraints.label",
+          "helpKey": "forms.energySurplus.fields.interconnectionConstraints.help"
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "titleKey": "forms.energySurplus.sections.contact.title",
+      "fields": [
+        {
+          "key": "contactChannel",
+          "type": "text",
+          "labelKey": "forms.energySurplus.fields.contactChannel.label",
+          "placeholderKey": "forms.energySurplus.fields.contactChannel.placeholder",
+          "required": true
+        },
+        {
+          "key": "tags",
+          "type": "text",
+          "labelKey": "forms.energySurplus.fields.tags.label",
+          "placeholderKey": "forms.energySurplus.fields.tags.placeholder"
+        }
+      ]
+    }
+  ],
+  "draftMapping": {
+    "defaults": {
+      "type": "CAPACITY",
+      "sectorId": "energy",
+      "mode": "EXPORT"
+    },
+    "bindings": {
+      "title": {
+        "kind": "field",
+        "field": "title"
+      },
+      "summary": {
+        "kind": "field",
+        "field": "summary"
+      },
+      "fromProvinceId": {
+        "kind": "field",
+        "field": "fromProvinceId"
+      },
+      "toProvinceId": {
+        "kind": "field",
+        "field": "toProvinceId"
+      },
+      "quantity.value": {
+        "kind": "field",
+        "field": "capacityMw"
+      },
+      "quantity.unit": {
+        "kind": "constant",
+        "value": "MW"
+      },
+      "tags": {
+        "kind": "array",
+        "fields": ["tags"]
+      }
+    },
+    "extensions": {
+      "energyType": {
+        "kind": "field",
+        "field": "energyType"
+      },
+      "urgencyLevel": {
+        "kind": "field",
+        "field": "urgencyLevel"
+      },
+      "availabilityStart": {
+        "kind": "field",
+        "field": "availabilityStart"
+      },
+      "availabilityEnd": {
+        "kind": "field",
+        "field": "availabilityEnd"
+      },
+      "pricingMode": {
+        "kind": "field",
+        "field": "pricingMode"
+      },
+      "deliveryConstraints": {
+        "kind": "field",
+        "field": "deliveryConstraints"
+      },
+      "interconnectionConstraints": {
+        "kind": "field",
+        "field": "interconnectionConstraints"
+      },
+      "contactChannel": {
+        "kind": "field",
+        "field": "contactChannel"
+      }
+    }
+  }
+}

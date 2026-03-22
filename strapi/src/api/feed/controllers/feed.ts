@@ -104,6 +104,7 @@ interface FeedResponseItem {
   };
   readonly status: FeedStatus;
   readonly accessibilitySummary: string | null;
+  readonly metadata?: Record<string, unknown> | null;
   readonly geo?: FeedGeo;
 }
 
@@ -123,6 +124,7 @@ interface FeedCreatePayload {
   readonly originId: string | null;
   readonly connectionMatchId: number | null;
   readonly accessibilitySummary: string | null;
+  readonly metadata?: Record<string, unknown> | null;
   readonly geo?: FeedGeo;
 }
 
@@ -335,6 +337,50 @@ function normalizeFeedGeo(value: unknown): FeedGeo | undefined {
   };
 }
 
+function sanitizeMetadataValue(value: unknown, depth = 0): unknown {
+  if (value == null || depth > 4) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.trim();
+    return normalized ? normalized.slice(0, 2000) : undefined;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const normalized = value
+      .slice(0, 50)
+      .map(entry => sanitizeMetadataValue(entry, depth + 1))
+      .filter(entry => entry !== undefined);
+    return normalized.length ? normalized : undefined;
+  }
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .slice(0, 50)
+    .flatMap(([key, entry]) => {
+      const normalizedKey = key.trim();
+      if (!normalizedKey) {
+        return [];
+      }
+      const normalizedValue = sanitizeMetadataValue(entry, depth + 1);
+      return normalizedValue === undefined ? [] : [[normalizedKey, normalizedValue] as const];
+    });
+
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
+function sanitizeMetadata(value: unknown): Record<string, unknown> | null {
+  const normalized = sanitizeMetadataValue(value, 0);
+  if (!normalized || typeof normalized !== 'object' || Array.isArray(normalized)) {
+    return null;
+  }
+  return normalized as Record<string, unknown>;
+}
+
 function normalizeUrgencyOrCredibility(value: unknown, fallback: 1 | 2 | 3): 1 | 2 | 3 {
   const parsed = normalizeInteger(value);
   if (parsed === 1 || parsed === 2 || parsed === 3) {
@@ -484,6 +530,7 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
     },
     status: normalizeStatus(entity.status),
     accessibilitySummary: normalizeString(entity.accessibilitySummary, 5000),
+    ...(sanitizeMetadata(entity.metadata) ? { metadata: sanitizeMetadata(entity.metadata) } : {}),
     ...(normalizeFeedGeo(entity.geo) ? { geo: normalizeFeedGeo(entity.geo) } : {}),
   };
 
@@ -548,6 +595,7 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     throw new Error('connectionMatchId must be a positive integer when provided.');
   }
   const accessibilitySummary = normalizeString(source.accessibilitySummary, 5000);
+  const metadata = sanitizeMetadata(source.metadata);
   const geo = normalizeFeedGeo(source.geo);
 
   return {
@@ -566,6 +614,7 @@ function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
     originId,
     connectionMatchId,
     accessibilitySummary,
+    ...(metadata ? { metadata } : {}),
     ...(geo ? { geo } : {}),
   };
 }
@@ -1163,6 +1212,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         sourceUrl: null,
         status: 'confirmed',
         accessibilitySummary: payload.accessibilitySummary,
+        metadata: payload.metadata ?? null,
         geo: payload.geo ?? null,
         idempotencyKey: idempotencyKey ?? null,
       } as any,

@@ -34,6 +34,7 @@ import {
 } from '../components/indicator-detail.models';
 import { IndicatorHeroComponent } from '../components/indicator-hero.component';
 import { IndicatorKeyDataComponent } from '../components/indicator-key-data.component';
+import { Og7PublicationMetadataCardComponent } from '../components/publication-metadata-card.component';
 import { IndicatorRelatedListComponent } from '../components/indicator-related-list.component';
 import { IndicatorStatsAsideComponent } from '../components/indicator-stats-aside.component';
 import { FeedItem } from '../models/feed.models';
@@ -52,6 +53,7 @@ import { FeedDetailPageBase } from './feed-detail-page.base';
     IndicatorChartComponent,
     IndicatorStatsAsideComponent,
     IndicatorKeyDataComponent,
+    Og7PublicationMetadataCardComponent,
     IndicatorRelatedListComponent,
     IndicatorAlertDrawerComponent,
   ],

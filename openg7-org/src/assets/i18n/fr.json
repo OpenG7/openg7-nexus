@@ -643,7 +643,18 @@
       "cta": "Publier un echange",
       "shortcut": "Raccourci",
       "prefill": "Les filtres actifs servent de point de depart.",
-      "draftReady": "Un brouillon pre-rempli est ouvert."
+      "draftReady": "Un brouillon pre-rempli est ouvert.",
+      "templates": {
+        "title": "Mode de publication",
+        "generic": "Composeur generique",
+        "template": "Gabarit",
+        "genericDescription": "Utilisez le composeur existant pour une offre, une demande ou une alerte generique.",
+        "templateDescription": "Choisissez un gabarit de publication pilote par configuration, adapte a un scenario operationnel reel."
+      }
+    },
+    "publicationMetadata": {
+      "title": "Contexte de publication",
+      "schemaVersion": "Schema v{{ value }}"
     },
     "composer": {
       "title": "Publier un echange",
@@ -2485,6 +2496,285 @@
             "withdrawn": {
               "title": "Offre retiree",
               "body": "Vous avez retire cette offre du suivi local."
+            }
+          }
+        },
+        "forms": {
+          "common": {
+            "selectPlaceholder": "Choisir une option",
+            "validation": {
+              "required": "Ce champ est obligatoire."
+            }
+          },
+          "energySurplus": {
+            "title": "Publier un surplus d'electricite",
+            "description": "Decrivez un surplus temporaire ou planifie afin que des partenaires qualifies puissent l'evaluer rapidement.",
+            "sections": {
+              "opportunity": {
+                "title": "Resume de l'opportunite",
+                "description": "Cadrez clairement le surplus pour les decideurs et les contreparties."
+              },
+              "capacity": {
+                "title": "Capacite et modalites commerciales",
+                "description": "Capturez le volume disponible et l'approche tarifaire."
+              },
+              "availability": {
+                "title": "Fenetre de disponibilite",
+                "description": "Indiquez le debut et la fin de disponibilite du surplus."
+              },
+              "routing": {
+                "title": "Routage et contraintes de livraison",
+                "description": "Precisez l'origine, la geographie cible et les limites operationnelles."
+              },
+              "contact": {
+                "title": "Contact operationnel"
+              }
+            },
+            "fields": {
+              "title": {
+                "label": "Titre de l'opportunite",
+                "placeholder": "Exemple : Surplus hydro-electrique court terme disponible pour soutenir la pointe ontarienne"
+              },
+              "summary": {
+                "label": "Resume",
+                "placeholder": "Decrivez le surplus, le calendrier prevu, l'objectif strategique et les limites importantes.",
+                "help": "Concentrez-vous sur ce qu'un acheteur ou un partenaire public doit comprendre en moins d'une minute."
+              },
+              "energyType": {
+                "label": "Type d'electricite",
+                "options": {
+                  "hydroelectric": "Hydro-electrique",
+                  "mixedGrid": "Reseau mixte"
+                }
+              },
+              "urgencyLevel": {
+                "label": "Niveau d'urgence",
+                "options": {
+                  "low": "Faible",
+                  "medium": "Moyen",
+                  "high": "Eleve"
+                }
+              },
+              "capacityMw": {
+                "label": "Capacite disponible (MW)"
+              },
+              "pricingMode": {
+                "label": "Mode de tarification",
+                "options": {
+                  "fixed": "Fixe",
+                  "indexed": "Indexe",
+                  "negotiable": "Negociable"
+                }
+              },
+              "availabilityStart": {
+                "label": "Debut de disponibilite"
+              },
+              "availabilityEnd": {
+                "label": "Fin de disponibilite"
+              },
+              "fromProvinceId": {
+                "label": "Province d'origine"
+              },
+              "toProvinceId": {
+                "label": "Province cible",
+                "help": "Optionnel pour une disponibilite large; utile si le surplus vise un marche precis."
+              },
+              "deliveryConstraints": {
+                "label": "Contraintes de livraison",
+                "help": "Resumez les conditions de repartition, limites de transport et contraintes pratiques de livraison."
+              },
+              "interconnectionConstraints": {
+                "label": "Contraintes d'interconnexion",
+                "help": "Ajoutez toute limitation de corridor, d'equilibrage ou d'intertie connue au moment de la publication."
+              },
+              "contactChannel": {
+                "label": "Contact operationnel",
+                "placeholder": "Exemple : desk de negociation energie ou canal de coordination identifie"
+              },
+              "tags": {
+                "label": "Etiquettes",
+                "placeholder": "Exemple : pointe-hiver, hydro, reserve"
+              }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Utilisez au moins trois caracteres pour le titre.",
+                "maxLength": "Limitez le titre a 160 caracteres."
+              },
+              "summary": {
+                "minLength": "Fournissez au moins dix caracteres dans le resume.",
+                "maxLength": "Limitez le resume a 5 000 caracteres."
+              },
+              "capacityMw": {
+                "min": "La capacite doit etre superieure a zero."
+              },
+              "availabilityEnd": {
+                "dateOrder": "La date de fin doit etre posterieure ou egale a la date de debut."
+              }
+            }
+          },
+          "industrialLoadFlex": {
+            "title": "Demander de la flexibilite de charge industrielle",
+            "description": "Structurez une demande manufacturiere de soutien energetique court terme ou de capacite d'effacement.",
+            "sections": {
+              "request": {
+                "title": "Resume de la demande",
+                "description": "Decrivez le besoin operationnel et pourquoi la flexibilite est necessaire."
+              },
+              "capacity": {
+                "title": "Capacite et fenetre temporelle",
+                "description": "Capturez le volume demande et la fenetre de flexibilite attendue."
+              },
+              "routing": {
+                "title": "Routage et coordination",
+                "description": "Precisez l'origine, la province cible, la preference tarifaire et les notes operationnelles."
+              }
+            },
+            "fields": {
+              "title": {
+                "label": "Titre de la demande",
+                "placeholder": "Exemple : Soutien hydro flexible requis pendant une semaine de maintenance planifiee"
+              },
+              "summary": {
+                "label": "Resume",
+                "placeholder": "Decrivez le contexte du site, le soutien requis et pourquoi cette demande est critique maintenant."
+              },
+              "requestReason": {
+                "label": "Motif de la demande",
+                "options": {
+                  "peakShaving": "Effacement de pointe",
+                  "backupCapacity": "Capacite de secours",
+                  "plannedMaintenance": "Maintenance planifiee"
+                }
+              },
+              "urgencyLevel": {
+                "label": "Niveau d'urgence",
+                "options": {
+                  "low": "Faible",
+                  "medium": "Moyen",
+                  "high": "Eleve"
+                }
+              },
+              "requiredCapacityMw": {
+                "label": "Capacite demandee (MW)"
+              },
+              "flexibilityWindow": {
+                "label": "Fenetre de flexibilite",
+                "options": {
+                  "2h": "2 heures",
+                  "8h": "8 heures",
+                  "24h": "24 heures"
+                }
+              },
+              "availabilityStart": {
+                "label": "Debut du soutien"
+              },
+              "availabilityEnd": {
+                "label": "Fin du soutien"
+              },
+              "fromProvinceId": {
+                "label": "Province demandeuse"
+              },
+              "toProvinceId": {
+                "label": "Province fournisseur"
+              },
+              "preferredPricingMode": {
+                "label": "Mode tarifaire prefere",
+                "options": {
+                  "fixed": "Fixe",
+                  "indexed": "Indexe",
+                  "negotiable": "Negociable"
+                }
+              },
+              "contactChannel": {
+                "label": "Contact de coordination",
+                "placeholder": "Exemple : desk energie de l'usine ou ligne operationnelle"
+              },
+              "operationalNotes": {
+                "label": "Notes operationnelles",
+                "help": "Ajoutez les contraintes du site, les limites de montee en charge ou les conditions de repartition si elles comptent pour la reponse."
+              },
+              "tags": {
+                "label": "Etiquettes",
+                "placeholder": "Exemple : maintenance, effacement, charge-critique"
+              }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Utilisez au moins trois caracteres pour le titre.",
+                "maxLength": "Limitez le titre a 160 caracteres."
+              },
+              "summary": {
+                "minLength": "Fournissez au moins dix caracteres dans le resume."
+              },
+              "requiredCapacityMw": {
+                "min": "La capacite demandee doit etre superieure a zero."
+              },
+              "availabilityEnd": {
+                "dateOrder": "La date de fin doit etre posterieure ou egale a la date de debut."
+              }
+            }
+          },
+          "coldChainCapacity": {
+            "title": "Offrir une capacite de chaine du froid",
+            "description": "Publiez une capacite logistique ou de stockage refrigeree temporairement disponible pour des contreparties.",
+            "sections": {
+              "offer": {
+                "title": "Resume de l'offre",
+                "description": "Decrivez la capacite disponible et la ou elle peut aider immediatement."
+              },
+              "capacity": {
+                "title": "Profil de capacite",
+                "description": "Capturez le volume palettes, la plage thermique et les certifications d'exploitation."
+              },
+              "availability": {
+                "title": "Fenetre de disponibilite",
+                "description": "Precisez quand cette capacite logistique devient disponible et quand elle se termine."
+              },
+              "routing": {
+                "title": "Routage et manutention",
+                "description": "Precisez l'origine, la destination, le contact et les contraintes de manutention."
+              }
+            },
+            "fields": {
+              "title": { "label": "Titre de l'offre", "placeholder": "Exemple : Capacite de stockage refrigere disponible pres du hub de Montreal" },
+              "summary": { "label": "Resume", "placeholder": "Decrivez la capacite disponible, les produits cibles et le niveau de service attendu." },
+              "availablePallets": { "label": "Positions palettes disponibles" },
+              "temperatureRange": {
+                "label": "Plage thermique",
+                "options": {
+                  "frozen": "Congele",
+                  "chilled": "Refrigere",
+                  "ambientMonitored": "Ambiant monitore"
+                }
+              },
+              "certifications": {
+                "label": "Certifications",
+                "options": {
+                  "haccp": "HACCP",
+                  "cfia": "ACIA",
+                  "gfsi": "GFSI"
+                }
+              },
+              "crossDockAvailable": { "label": "Cross-dock disponible" },
+              "availableFrom": { "label": "Disponible a partir du" },
+              "availableUntil": { "label": "Disponible jusqu'au" },
+              "fromProvinceId": { "label": "Province d'origine" },
+              "toProvinceId": { "label": "Province cible" },
+              "contactChannel": { "label": "Contact operations", "placeholder": "Exemple : cellule de coordination chaine du froid" },
+              "minimumCommitmentDays": { "label": "Engagement minimal (jours)" },
+              "handlingNotes": { "label": "Notes de manutention", "help": "Ajoutez les consignes d'emballage, de chargement ou de controle thermique utiles a l'offre." },
+              "tags": { "label": "Etiquettes", "placeholder": "Exemple : congele, debordement, certifie" }
+            },
+            "validation": {
+              "title": {
+                "minLength": "Utilisez au moins trois caracteres pour le titre.",
+                "maxLength": "Limitez le titre a 160 caracteres."
+              },
+              "summary": { "minLength": "Fournissez au moins dix caracteres dans le resume." },
+              "availablePallets": { "min": "Le nombre de positions palettes doit etre superieur a zero." },
+              "availableUntil": { "dateOrder": "La date de fin doit etre posterieure ou egale a la date de debut." },
+              "minimumCommitmentDays": { "min": "L'engagement minimal doit etre d'au moins un jour." }
             }
           }
         }

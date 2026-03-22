@@ -53,6 +53,8 @@ import {
   FeedFilterState,
   FeedItem,
   FeedOriginType,
+  FeedPublicationMetadata,
+  FeedPublishOptions,
   FeedPublishOutcome,
   FeedRealtimeEnvelope,
   FeedSnapshot,
@@ -76,6 +78,7 @@ interface CatalogMockResponse {
 
 interface PublishContext {
   readonly normalizedDraft: FeedComposerDraft;
+  readonly metadata: FeedPublicationMetadata | null;
   readonly idempotencyKey: string;
   readonly optimisticItem: FeedItem;
 }
@@ -347,8 +350,8 @@ export class FeedRealtimeService {
     };
   }
 
-  publish(draft: FeedComposerDraft): FeedComposerValidationResult {
-    const { validation, context } = this.startPublish(draft);
+  publish(draft: FeedComposerDraft, options?: FeedPublishOptions): FeedComposerValidationResult {
+    const { validation, context } = this.startPublish(draft, options);
     if (!context) {
       return validation;
     }
@@ -365,8 +368,8 @@ export class FeedRealtimeService {
     return validation;
   }
 
-  async publishDraft(draft: FeedComposerDraft): Promise<FeedPublishOutcome> {
-    const { validation, context } = this.startPublish(draft);
+  async publishDraft(draft: FeedComposerDraft, options?: FeedPublishOptions): Promise<FeedPublishOutcome> {
+    const { validation, context } = this.startPublish(draft, options);
     if (!context) {
       return {
         status: 'validation-error',
@@ -403,25 +406,27 @@ export class FeedRealtimeService {
     this.scheduleReconnect(0);
   }
 
-  private createPublishContext(draft: FeedComposerDraft): PublishContext {
+  private createPublishContext(draft: FeedComposerDraft, options?: FeedPublishOptions): PublishContext {
     this.markOnboardingSeen();
     const normalizedDraft = this.normalizeDraft(draft);
+    const metadata = this.normalizePublicationMetadata(options?.metadata);
     const idempotencyKey = this.generateIdempotencyKey();
-    const optimisticItem = this.buildOptimisticItem(normalizedDraft, idempotencyKey);
+    const optimisticItem = this.buildOptimisticItem(normalizedDraft, idempotencyKey, metadata);
     return {
       normalizedDraft,
+      metadata,
       idempotencyKey,
       optimisticItem,
     };
   }
 
-  private startPublish(draft: FeedComposerDraft): PublishStartResult {
+  private startPublish(draft: FeedComposerDraft, options?: FeedPublishOptions): PublishStartResult {
     const validation = this.validateDraft(draft);
     if (!validation.valid) {
       return { validation };
     }
 
-    const context = this.createPublishContext(draft);
+    const context = this.createPublishContext(draft, options);
     this.store.dispatch(
       FeedActions.optimisticPublish({
         draft: context.normalizedDraft,
@@ -449,7 +454,7 @@ export class FeedRealtimeService {
     }
 
     const response = await firstValueFrom(
-      this.http.post<ItemResponse | FeedItem>(this.composeUrl(COLLECTION_ENDPOINT), context.normalizedDraft, {
+      this.http.post<ItemResponse | FeedItem>(this.composeUrl(COLLECTION_ENDPOINT), this.createPublishRequestBody(context), {
         headers: this.createPublishHeaders(context),
         context: createSilentHttpContext(),
       })
@@ -464,6 +469,15 @@ export class FeedRealtimeService {
 
   private createPublishHeaders(context: PublishContext): HttpHeaders {
     return new HttpHeaders({ 'Idempotency-Key': context.idempotencyKey });
+  }
+
+  private createPublishRequestBody(
+    context: PublishContext
+  ): FeedComposerDraft & { metadata?: FeedPublicationMetadata | null } {
+    return {
+      ...context.normalizedDraft,
+      ...(context.metadata ? { metadata: context.metadata } : {}),
+    };
   }
 
   private buildMockConfirmedItem(item: FeedItem): FeedItem {
@@ -889,7 +903,11 @@ export class FeedRealtimeService {
     };
   }
 
-  private buildOptimisticItem(draft: FeedComposerDraft, key: string): FeedItem {
+  private buildOptimisticItem(
+    draft: FeedComposerDraft,
+    key: string,
+    metadata: FeedPublicationMetadata | null
+  ): FeedItem {
     const now = new Date().toISOString();
     return {
       id: `optimistic-${key}`,
@@ -913,6 +931,7 @@ export class FeedRealtimeService {
         label: this.translate.instant('feed.sourceYou'),
       },
       status: 'pending' as const,
+      ...(metadata ? { metadata } : {}),
     };
   }
 
@@ -931,6 +950,75 @@ export class FeedRealtimeService {
       originId: this.normalizeOriginId(draft.originId),
       connectionMatchId: this.normalizeConnectionMatchId(draft.connectionMatchId),
     };
+  }
+
+  private normalizePublicationMetadata(value: FeedPublicationMetadata | null | undefined): FeedPublicationMetadata | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const formKey = value.publicationForm?.formKey?.trim();
+    const publicationForm = formKey
+      ? {
+          formKey,
+          schemaVersion: Number.isFinite(value.publicationForm?.schemaVersion)
+            ? Math.trunc(value.publicationForm!.schemaVersion)
+            : 1,
+        }
+      : null;
+    const extensions = this.sanitizeMetadataObject(value.extensions);
+
+    if (!publicationForm && !extensions) {
+      return null;
+    }
+
+    return {
+      ...(publicationForm ? { publicationForm } : {}),
+      ...(extensions ? { extensions } : {}),
+    };
+  }
+
+  private sanitizeMetadataObject(value: unknown, depth = 0): Record<string, unknown> | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || depth > 4) {
+      return null;
+    }
+
+    const entries = Object.entries(value as Record<string, unknown>)
+      .slice(0, 50)
+      .flatMap(([key, entry]) => {
+        const normalizedKey = key.trim();
+        if (!normalizedKey) {
+          return [];
+        }
+        const normalizedValue = this.sanitizeMetadataValue(entry, depth + 1);
+        return normalizedValue === undefined ? [] : [[normalizedKey, normalizedValue] as const];
+      });
+
+    return entries.length ? Object.fromEntries(entries) : null;
+  }
+
+  private sanitizeMetadataValue(value: unknown, depth: number): unknown {
+    if (value == null) {
+      return undefined;
+    }
+    if (typeof value === 'string') {
+      const normalized = value.trim();
+      return normalized ? normalized.slice(0, 2000) : undefined;
+    }
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      const normalized = value
+        .slice(0, 50)
+        .map(entry => this.sanitizeMetadataValue(entry, depth + 1))
+        .filter(entry => entry !== undefined);
+      return normalized.length ? normalized : undefined;
+    }
+    if (typeof value === 'object') {
+      return this.sanitizeMetadataObject(value, depth + 1) ?? undefined;
+    }
+    return undefined;
   }
 
   private normalizeOriginType(value: FeedOriginType | string | null | undefined): FeedOriginType | null {

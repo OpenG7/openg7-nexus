@@ -1,0 +1,188 @@
+{
+  "formKey": "industrial-load-flex-request",
+  "schemaVersion": 1,
+  "titleKey": "forms.industrialLoadFlex.title",
+  "descriptionKey": "forms.industrialLoadFlex.description",
+  "actorTypes": ["manufacturer"],
+  "sectorId": "energy",
+  "tags": ["energy", "flexibility", "demand-response"],
+  "sections": [
+    {
+      "id": "request",
+      "titleKey": "forms.industrialLoadFlex.sections.request.title",
+      "descriptionKey": "forms.industrialLoadFlex.sections.request.description",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "labelKey": "forms.industrialLoadFlex.fields.title.label",
+          "placeholderKey": "forms.industrialLoadFlex.fields.title.placeholder",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 3, "errorKey": "forms.industrialLoadFlex.validation.title.minLength" },
+            { "type": "maxLength", "value": 160, "errorKey": "forms.industrialLoadFlex.validation.title.maxLength" }
+          ]
+        },
+        {
+          "key": "summary",
+          "type": "textarea",
+          "labelKey": "forms.industrialLoadFlex.fields.summary.label",
+          "placeholderKey": "forms.industrialLoadFlex.fields.summary.placeholder",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 10, "errorKey": "forms.industrialLoadFlex.validation.summary.minLength" }
+          ]
+        },
+        {
+          "key": "requestReason",
+          "type": "select",
+          "labelKey": "forms.industrialLoadFlex.fields.requestReason.label",
+          "required": true,
+          "options": [
+            { "value": "peak-shaving", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.peakShaving" },
+            { "value": "backup-capacity", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.backupCapacity" },
+            { "value": "planned-maintenance", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.plannedMaintenance" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "urgencyLevel",
+          "type": "radio",
+          "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.label",
+          "defaultValue": "medium",
+          "options": [
+            { "value": "low", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.low" },
+            { "value": "medium", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.medium" },
+            { "value": "high", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.high" }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "capacity",
+      "titleKey": "forms.industrialLoadFlex.sections.capacity.title",
+      "descriptionKey": "forms.industrialLoadFlex.sections.capacity.description",
+      "fields": [
+        {
+          "key": "requiredCapacityMw",
+          "type": "number",
+          "labelKey": "forms.industrialLoadFlex.fields.requiredCapacityMw.label",
+          "required": true,
+          "validators": [
+            { "type": "min", "value": 1, "errorKey": "forms.industrialLoadFlex.validation.requiredCapacityMw.min" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "flexibilityWindow",
+          "type": "select",
+          "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.label",
+          "required": true,
+          "options": [
+            { "value": "2h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.2h" },
+            { "value": "8h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.8h" },
+            { "value": "24h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.24h" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "availabilityStart",
+          "type": "date",
+          "labelKey": "forms.industrialLoadFlex.fields.availabilityStart.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "availabilityEnd",
+          "type": "date",
+          "labelKey": "forms.industrialLoadFlex.fields.availabilityEnd.label",
+          "required": true,
+          "validators": [
+            { "type": "dateOrder", "compareWithField": "availabilityStart", "errorKey": "forms.industrialLoadFlex.validation.availabilityEnd.dateOrder" }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "titleKey": "forms.industrialLoadFlex.sections.routing.title",
+      "descriptionKey": "forms.industrialLoadFlex.sections.routing.description",
+      "fields": [
+        {
+          "key": "fromProvinceId",
+          "type": "select",
+          "labelKey": "forms.industrialLoadFlex.fields.fromProvinceId.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "toProvinceId",
+          "type": "select",
+          "labelKey": "forms.industrialLoadFlex.fields.toProvinceId.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "preferredPricingMode",
+          "type": "select",
+          "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.label",
+          "required": true,
+          "options": [
+            { "value": "fixed", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.fixed" },
+            { "value": "indexed", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.indexed" },
+            { "value": "negotiable", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.negotiable" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "contactChannel",
+          "type": "text",
+          "labelKey": "forms.industrialLoadFlex.fields.contactChannel.label",
+          "placeholderKey": "forms.industrialLoadFlex.fields.contactChannel.placeholder",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "operationalNotes",
+          "type": "textarea",
+          "labelKey": "forms.industrialLoadFlex.fields.operationalNotes.label",
+          "helpKey": "forms.industrialLoadFlex.fields.operationalNotes.help"
+        },
+        {
+          "key": "tags",
+          "type": "text",
+          "labelKey": "forms.industrialLoadFlex.fields.tags.label",
+          "placeholderKey": "forms.industrialLoadFlex.fields.tags.placeholder"
+        }
+      ]
+    }
+  ],
+  "draftMapping": {
+    "defaults": {
+      "type": "REQUEST",
+      "sectorId": "energy",
+      "mode": "IMPORT"
+    },
+    "bindings": {
+      "title": { "kind": "field", "field": "title" },
+      "summary": { "kind": "field", "field": "summary" },
+      "fromProvinceId": { "kind": "field", "field": "fromProvinceId" },
+      "toProvinceId": { "kind": "field", "field": "toProvinceId" },
+      "quantity.value": { "kind": "field", "field": "requiredCapacityMw" },
+      "quantity.unit": { "kind": "constant", "value": "MW" },
+      "tags": { "kind": "array", "fields": ["tags"] }
+    },
+    "extensions": {
+      "requestReason": { "kind": "field", "field": "requestReason" },
+      "urgencyLevel": { "kind": "field", "field": "urgencyLevel" },
+      "flexibilityWindow": { "kind": "field", "field": "flexibilityWindow" },
+      "availabilityStart": { "kind": "field", "field": "availabilityStart" },
+      "availabilityEnd": { "kind": "field", "field": "availabilityEnd" },
+      "preferredPricingMode": { "kind": "field", "field": "preferredPricingMode" },
+      "contactChannel": { "kind": "field", "field": "contactChannel" },
+      "operationalNotes": { "kind": "field", "field": "operationalNotes" }
+    }
+  }
+}
