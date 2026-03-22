@@ -17,6 +17,7 @@
     "test:integration:company-import": "node scripts/test-company-import-api-integration.js",
     "test:integration:corridors": "node scripts/test-corridors-api-integration.js",
     "test:integration:feed": "node scripts/test-feed-api-integration.js",
+    "test:integration:hydrocarbon-signals": "node scripts/test-hydrocarbon-signals-api-integration.js",
     "test:integration:importation": "node scripts/test-importation-api-integration.js",
     "start:trace": "node --trace-deprecation ../node_modules/.bin/ng serve"
   },

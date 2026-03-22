@@ -17,13 +17,13 @@ describe('Og7PublicationMetadataCardComponent', () => {
   it('renders publication metadata rows from a known form config', () => {
     fixture.componentRef.setInput('metadata', {
       publicationForm: {
-        formKey: 'energy-surplus-offer',
+        formKey: 'hydrocarbon-surplus-offer',
         schemaVersion: 1,
       },
       extensions: {
-        energyType: 'hydroelectric',
-        urgencyLevel: 'high',
-        certifications: ['haccp', 'gfsi'],
+        publicationType: 'slowdown',
+        productType: 'crude-oil',
+        logisticsMode: ['rail', 'storage-transfer'],
       },
     });
     fixture.detectChanges();
@@ -31,9 +31,10 @@ describe('Og7PublicationMetadataCardComponent', () => {
     const content = fixture.nativeElement.textContent;
     expect(fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]')).toBeTruthy();
     expect(content).toContain('feed.publicationMetadata.title');
-    expect(content).toContain('forms.energySurplus.title');
-    expect(content).toContain('forms.energySurplus.fields.energyType.label');
-    expect(content).toContain('hydroelectric');
-    expect(content).toContain('haccp, gfsi');
+    expect(content).toContain('forms.hydrocarbonSurplus.title');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.label');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.options.slowdown');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.logisticsMode.options.rail');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer');
   });
 });

@@ -1,7 +1,10 @@
 <section class="og7-feed" aria-labelledby="feed-heading" data-og7="feed-page">
   <header class="og7-feed__header">
-    <h1 id="feed-heading">{{ 'feed.title' | translate }}</h1>
-    <p class="og7-feed__subtitle">{{ 'feed.subtitle' | translate }}</p>
+    <h1 id="feed-heading">{{ pageTitleKey() | translate }}</h1>
+    <p class="og7-feed__subtitle">{{ pageSubtitleKey() | translate }}</p>
+    <p *ngIf="pageContextKey() as pageContextKey" class="og7-feed__source-context" data-og7="feed-view-context">
+      {{ pageContextKey | translate }}
+    </p>
     <p *ngIf="corridorContext() as corridorContext" class="og7-feed__source-context" data-og7="feed-source-context">
       {{ 'feed.context.corridorFocus' | translate }}
       <strong>{{ corridorContext.labelKey | translate }}</strong>
@@ -42,6 +45,13 @@
       role="region"
       [attr.aria-labelledby]="shortcutsHeadingId"
     >
+      <og7-hydrocarbon-signals-panel
+        *ngIf="hydrocarbonSignalsPanel()"
+        [limit]="hydrocarbonSignalsPanelLimit()"
+        [originProvinceId]="selectedFromProvinceId()"
+        [targetProvinceId]="selectedToProvinceId()"
+      ></og7-hydrocarbon-signals-panel>
+
       <h2 class="og7-feed__aside-title" [attr.id]="shortcutsHeadingId">
         {{ 'feed.shortcuts.title' | translate }}
       </h2>

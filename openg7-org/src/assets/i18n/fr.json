@@ -505,6 +505,7 @@
     "more": {
       "registration": "Inscription",
       "importation": "Importation",
+      "hydrocarbons": "Flux hydrocarbures",
       "bulkImport": "Import en masse",
       "stats": "Statistiques",
       "pricing": "Abonnements",
@@ -724,6 +725,25 @@
       "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil.",
       "corridorFocus": "Corridor suivi :"
     },
+    "views": {
+      "hydrocarbons": {
+        "title": "Signaux hydrocarbures",
+        "subtitle": "Surplus, ralentissements de barils et fenetres d'absorption Alberta -> debouches.",
+        "context": "Vue filtree sur les publications `hydrocarbon-surplus-offer` emises depuis l'Alberta.",
+        "panel": {
+          "title": "Signaux structures",
+          "kicker": "AB feed",
+          "description": "Ce panneau consomme l'endpoint specialise pour afficher les dernieres fenetres de surplus et de ralentissement pertinentes.",
+          "loading": "Chargement des signaux hydrocarbures...",
+          "empty": "Aucun signal hydrocarbure structure pour les filtres actifs.",
+          "error": "Impossible de charger les signaux hydrocarbures pour le moment.",
+          "publicationType": {
+            "surplus": "Surplus",
+            "slowdown": "Ralentissement"
+          }
+        }
+      }
+    },
     "error": {
       "generic": "Un probleme est survenu. Veuillez reessayer.",
       "offline": "Vous etes hors connexion. Reconnectez-vous pour actualiser le fil.",
@@ -758,6 +778,11 @@
         "period": "Periode",
         "deliveryPoint": "Point de livraison",
         "pricingType": "Type de prix",
+        "hydrocarbon": {
+          "title": "Signal hydrocarbures",
+          "subtitle": "Lecture operationnelle dediee aux surplus, ralentissements et contraintes logistiques de barils.",
+          "window": "Fenetre d'activation"
+        },
         "overviewTitle": "Apercu",
         "connected": "Connecte",
         "offline": "Hors ligne",
@@ -1189,7 +1214,197 @@
       "itemReceived": "Element recu en temps reel",
       "drawerOpened": "Consultation du detail d'un element"
     }
-  },  "pages": {
+  },
+  "forms": {
+    "common": {
+      "selectPlaceholder": "Choisir une option",
+      "boolean": {
+        "true": "Oui",
+        "false": "Non"
+      },
+      "validation": {
+        "required": "Ce champ est obligatoire."
+      }
+    },
+    "hydrocarbonSurplus": {
+      "title": "Publier un surplus ou un ralentissement de barils",
+      "description": "Structurez un signal petrolier Alberta -> debouches afin d'activer rapidement acheteurs, stockeurs ou transporteurs.",
+      "sections": {
+        "signal": {
+          "title": "Resume du signal",
+          "description": "Cadrez le signal de marche, le produit et la cause avant qu'une contrepartie ouvre le detail."
+        },
+        "volume": {
+          "title": "Volume et fenetre temporelle",
+          "description": "Precisez les barils disponibles, le calendrier et la pression de stockage pour rendre l'urgence lisible."
+        },
+        "routing": {
+          "title": "Origine, routage et debouches",
+          "description": "Precisez ou se trouvent les barils, comment ils peuvent circuler et quels marches sont vises."
+        },
+        "commercial": {
+          "title": "Cadrage commercial",
+          "description": "Partagez le repere de prix et la fenetre de reponse sans imposer un contrat complet."
+        },
+        "contact": {
+          "title": "Contact operationnel",
+          "description": "Orientez la contrepartie vers le desk ou le role capable de confirmer la suite."
+        }
+      },
+      "fields": {
+        "title": {
+          "label": "Titre du signal",
+          "placeholder": "Exemple : 48 000 barils disponibles suite a un ralentissement de corridor en Alberta"
+        },
+        "summary": {
+          "label": "Resume",
+          "placeholder": "Decrivez le surplus ou le ralentissement, le contexte operationnel et le type de reponse attendu.",
+          "help": "Un acheteur ou un partenaire logistique doit comprendre l'opportunite en moins d'une minute."
+        },
+        "companyName": {
+          "label": "Nom de l'entreprise",
+          "placeholder": "Exemple : Northern Prairie Energy"
+        },
+        "publicationType": {
+          "label": "Type de signal",
+          "options": {
+            "surplus": "Surplus de stock",
+            "slowdown": "Ralentissement de barils"
+          }
+        },
+        "productType": {
+          "label": "Type de produit",
+          "options": {
+            "crudeOil": "Petrole brut",
+            "bitumen": "Bitume",
+            "syntheticCrude": "Brut synthetique",
+            "diesel": "Diesel",
+            "other": "Autre produit"
+          }
+        },
+        "businessReason": {
+          "label": "Cause metier",
+          "options": {
+            "surplusStock": "Surplus de stock",
+            "demandSlowdown": "Ralentissement de la demande",
+            "transportDisruption": "Perturbation transport",
+            "buyerOutage": "Arret acheteur",
+            "priceWindow": "Fenetre de prix"
+          }
+        },
+        "volumeBarrels": {
+          "label": "Barils disponibles"
+        },
+        "minimumLotBarrels": {
+          "label": "Lot minimal (barils)"
+        },
+        "availableFrom": {
+          "label": "Disponible a partir du"
+        },
+        "availableUntil": {
+          "label": "Disponible jusqu'au"
+        },
+        "estimatedDelayDays": {
+          "label": "Ralentissement estime (jours)",
+          "help": "A utiliser seulement si le signal vient d'une baisse de sortie ou d'un retard logistique."
+        },
+        "storagePressureLevel": {
+          "label": "Pression de stockage",
+          "options": {
+            "low": "Faible",
+            "medium": "Moyenne",
+            "high": "Elevee",
+            "critical": "Critique"
+          }
+        },
+        "fromProvinceId": {
+          "label": "Province d'origine"
+        },
+        "toProvinceId": {
+          "label": "Province cible prioritaire",
+          "help": "Optionnel si le signal est large, utile si un marche est privilegie."
+        },
+        "originSite": {
+          "label": "Site d'origine",
+          "placeholder": "Exemple : cluster terminal d'Edmonton"
+        },
+        "qualityGrade": {
+          "label": "Grade / qualite",
+          "options": {
+            "wcs": "WCS",
+            "wtiLinked": "Indexe WTI",
+            "syntheticBlend": "Melange synthetique",
+            "other": "Autre grade"
+          }
+        },
+        "logisticsMode": {
+          "label": "Mode logistique",
+          "options": {
+            "pipeline": "Pipeline",
+            "rail": "Rail",
+            "truck": "Camion",
+            "storageTransfer": "Transfert stockage",
+            "mixed": "Mixte"
+          }
+        },
+        "targetScope": {
+          "label": "Debouches cibles",
+          "help": "Selectionnez les provinces ou reseaux capables d'absorber, raffiner ou rediriger le volume.",
+          "options": {
+            "bc": "Colombie-Britannique",
+            "sk": "Saskatchewan",
+            "mb": "Manitoba",
+            "on": "Ontario",
+            "qc": "Quebec",
+            "refiningNetwork": "Reseau de raffinage",
+            "storageNetwork": "Reseau de stockage"
+          }
+        },
+        "priceReference": {
+          "label": "Repere de prix",
+          "placeholder": "Exemple : WCS moins differentiel transport"
+        },
+        "responseDeadline": {
+          "label": "Date limite de reponse"
+        },
+        "notes": {
+          "label": "Notes operationnelles",
+          "help": "Ajoutez le contexte sur les limites de repartition, l'urgence, la pression de stockage ou les contreparties deja sollicitees."
+        },
+        "contactChannel": {
+          "label": "Canal de contact",
+          "placeholder": "Exemple : desk brut ou ligne de coordination logistique"
+        },
+        "tags": {
+          "label": "Etiquettes",
+          "placeholder": "Exemple : alberta, fenetre-surplus, pression-stockage"
+        }
+      },
+      "validation": {
+        "title": {
+          "minLength": "Utilisez au moins trois caracteres pour le titre.",
+          "maxLength": "Limitez le titre a 160 caracteres."
+        },
+        "summary": {
+          "minLength": "Fournissez au moins dix caracteres dans le resume.",
+          "maxLength": "Limitez le resume a 5 000 caracteres."
+        },
+        "volumeBarrels": {
+          "min": "Le nombre de barils disponibles doit etre superieur a zero."
+        },
+        "minimumLotBarrels": {
+          "min": "Le lot minimal doit etre superieur a zero."
+        },
+        "estimatedDelayDays": {
+          "min": "Le ralentissement estime ne peut pas etre negatif."
+        },
+        "availableUntil": {
+          "dateOrder": "La date de fin doit etre posterieure ou egale a la date de debut."
+        }
+      }
+    }
+  },
+  "pages": {
     "credits": {
       "kicker": "CRÉDITS FONDATEURS",
       "title": "OpenG7 commence avec une seule bâtisseuse",

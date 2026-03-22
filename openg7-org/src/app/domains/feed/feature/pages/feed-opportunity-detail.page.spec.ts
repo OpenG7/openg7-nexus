@@ -968,6 +968,56 @@ describe('FeedOpportunityDetailPage real template', () => {
     expect(content).toContain('forms.energySurplus.title');
     expect(content).toContain('hydroelectric');
   });
+
+  it('renders the hydrocarbon detail card when the publication form matches the Alberta oil template', async () => {
+    routeParamMap$.next(convertToParamMap({ itemId: 'hydrocarbon-opportunity-001' }));
+    const item = createOpportunityItem('hydrocarbon-opportunity-001', {
+      title: '48 000 barils disponibles apres ralentissement de corridor',
+      summary: 'Northern Prairie Energy cherche des acheteurs ou stockeurs pour absorber un surplus temporaire.',
+      fromProvinceId: 'ab',
+      toProvinceId: 'bc',
+      mode: 'EXPORT',
+      quantity: {
+        value: 48000,
+        unit: 'bbl',
+      },
+      metadata: {
+        publicationForm: {
+          formKey: 'hydrocarbon-surplus-offer',
+          schemaVersion: 1,
+        },
+        extensions: {
+          companyName: 'Northern Prairie Energy',
+          publicationType: 'slowdown',
+          productType: 'crudeOil',
+          volumeBarrels: 48000,
+          minimumLotBarrels: 12000,
+          availableFrom: '2026-03-25',
+          availableUntil: '2026-04-04',
+          qualityGrade: 'wcs',
+          logisticsMode: ['rail', 'storageTransfer'],
+          targetScope: ['bc', 'refiningNetwork'],
+          storagePressureLevel: 'critical',
+        },
+      },
+    });
+    feed.findItemById.and.resolveTo(item);
+    feed.items.set([item]);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const content = fixture.nativeElement.textContent;
+    expect(content).toContain('feed.opportunity.detail.hydrocarbon.title');
+    expect(fixture.nativeElement.querySelector('[data-og7="hydrocarbon-detail-card"]')).toBeTruthy();
+    expect(content).toContain('feed.opportunity.detail.hydrocarbon.window');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.options.slowdown');
+    expect(content).toContain('forms.hydrocarbonSurplus.fields.qualityGrade.options.wcs');
+    expect(content).toContain('Northern Prairie Energy');
+    expect(content).toContain('48,000 bbl');
+  });
 });
 
 function createOfferPayload() {

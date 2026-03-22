@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { feedFormKeySig, fromProvinceIdSig, sectorIdSig } from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -33,6 +34,9 @@ describe('FeedPublishSectionComponent', () => {
 
   beforeEach(async () => {
     authState.set(false);
+    feedFormKeySig.set(null);
+    fromProvinceIdSig.set(null);
+    sectorIdSig.set(null);
 
     await TestBed.configureTestingModule({
       imports: [FeedPublishSectionComponent, TranslateModule.forRoot()],
@@ -225,5 +229,24 @@ describe('FeedPublishSectionComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-og7="feed-publish-drawer"]')).toBeNull();
     expect(router.url).toBe('/feed');
+  });
+
+  it('prefers the hydrocarbon template in Alberta energy context', () => {
+    authState.set(true);
+    sectorIdSig.set('energy');
+    fromProvinceIdSig.set('ab');
+
+    const fixture = TestBed.createComponent(FeedPublishSectionComponent);
+    fixture.detectChanges();
+
+    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    openButton.click();
+    fixture.detectChanges();
+
+    const templateButton = fixture.nativeElement.querySelector('[data-og7-id="feed-publish-mode-template"]') as HTMLButtonElement;
+    const selectedTemplate = fixture.nativeElement.querySelector('.feed-publish__template-card.is-active strong') as HTMLElement;
+
+    expect(templateButton.classList.contains('is-active')).toBeTrue();
+    expect(selectedTemplate.textContent).toContain('forms.hydrocarbonSurplus.title');
   });
 });

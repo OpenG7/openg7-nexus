@@ -360,5 +360,17 @@ describe('SiteHeaderComponent', () => {
 
     expect(registerLinksForAuthenticatedUsers.length).toBe(0);
   });
+
+  it('exposes the hydrocarbon feed navigation link in desktop and mobile menus', () => {
+    component.isMoreOpen.set(true);
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+
+    const hydrocarbonLinks = fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/feed/hydrocarbons');
+
+    expect(hydrocarbonLinks.length).toBe(2);
+  });
 });
 

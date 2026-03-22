@@ -6,6 +6,7 @@ const baseReadPermissions: PermissionMap = {
   'api::company.company': { find: true, findOne: true },
   'api::exchange.exchange': { find: true, findOne: true },
   'api::feed.feed': { highlights: true },
+  'api::hydrocarbon-signal.hydrocarbon-signal': { find: true, findOne: true },
   'api::homepage.homepage': { find: true },
   'api::national-project.national-project': { find: true, findOne: true },
   'api::province.province': { find: true, findOne: true },

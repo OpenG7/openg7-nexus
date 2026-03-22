@@ -63,7 +63,7 @@ describe('feed.routes setup resolver', () => {
         sort: 'URGENCY',
         q: 'winter peak',
       }),
-    } as ActivatedRouteSnapshot;
+    } as unknown as ActivatedRouteSnapshot;
 
     const result = await TestBed.runInInjectionContext(() => setupResolver(route));
 
@@ -92,7 +92,7 @@ describe('feed.routes setup resolver', () => {
 
     const route = {
       queryParamMap: convertToParamMap({ formKey: 'energy-surplus-offer' }),
-    } as ActivatedRouteSnapshot;
+    } as unknown as ActivatedRouteSnapshot;
 
     const result = await TestBed.runInInjectionContext(() => setupResolver(route));
 
@@ -113,5 +113,38 @@ describe('feed.routes setup resolver', () => {
       })
     );
     expect(feed.loadInitial).not.toHaveBeenCalled();
+  });
+
+  it('applies default hydrocarbon filters from route data for the dedicated view', async () => {
+    store.hydrated$.next(true);
+    feed.hasHydrated.and.returnValue(true);
+
+    const route = {
+      queryParamMap: convertToParamMap({}),
+      data: {
+        feedFilters: {
+          fromProvinceId: 'ab',
+          sectorId: 'energy',
+          formKey: 'hydrocarbon-surplus-offer',
+          type: 'OFFER',
+          mode: 'EXPORT',
+        },
+      },
+    } as unknown as ActivatedRouteSnapshot;
+
+    const result = await TestBed.runInInjectionContext(() => setupResolver(route));
+
+    expect(result).toBeTrue();
+    expect(store.dispatch).toHaveBeenCalledWith(
+      FeedActions.applyFilters({
+        filters: jasmine.objectContaining({
+          fromProvinceId: 'ab',
+          sectorId: 'energy',
+          formKey: 'hydrocarbon-surplus-offer',
+          type: 'OFFER',
+          mode: 'EXPORT',
+        }) as never,
+      })
+    );
   });
 });

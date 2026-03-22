@@ -8,6 +8,7 @@ import {
   OpportunityQnaMessage,
   OpportunityQnaTab,
 } from './opportunity-detail.models';
+import { Og7OpportunityHydrocarbonDetailComponent } from './opportunity-hydrocarbon-detail.component';
 import { Og7PublicationMetadataCardComponent } from './publication-metadata-card.component';
 import { OpportunityQnaComponent } from './opportunity-qna.component';
 import { FeedPublicationMetadata } from '../models/feed.models';
@@ -15,7 +16,13 @@ import { FeedPublicationMetadata } from '../models/feed.models';
 @Component({
   selector: 'og7-opportunity-detail-body',
   standalone: true,
-  imports: [CommonModule, TranslateModule, OpportunityQnaComponent, Og7PublicationMetadataCardComponent],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    OpportunityQnaComponent,
+    Og7PublicationMetadataCardComponent,
+    Og7OpportunityHydrocarbonDetailComponent,
+  ],
   templateUrl: './opportunity-detail-body.component.html',
   styleUrl: './opportunity-detail-body.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

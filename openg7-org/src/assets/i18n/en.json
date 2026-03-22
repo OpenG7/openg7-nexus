@@ -505,6 +505,7 @@
     "more": {
       "registration": "Registration",
       "importation": "Import",
+      "hydrocarbons": "Hydrocarbon feed",
       "bulkImport": "Bulk import",
       "stats": "Statistics",
       "pricing": "Pricing",
@@ -835,6 +836,25 @@
       "homeFeedPanels": "Context preserved from the home feed panels.",
       "corridorFocus": "Focused corridor:"
     },
+    "views": {
+      "hydrocarbons": {
+        "title": "Hydrocarbon signals",
+        "subtitle": "Barrel surpluses, slowdowns, and Alberta-to-market absorption windows.",
+        "context": "Filtered view focused on `hydrocarbon-surplus-offer` publications originating from Alberta.",
+        "panel": {
+          "title": "Structured signals",
+          "kicker": "AB feed",
+          "description": "This panel consumes the specialized endpoint to surface the latest surplus and slowdown windows relevant to the current filters.",
+          "loading": "Loading hydrocarbon signals...",
+          "empty": "No structured hydrocarbon signals match the current filters.",
+          "error": "Hydrocarbon signals are temporarily unavailable.",
+          "publicationType": {
+            "surplus": "Surplus",
+            "slowdown": "Slowdown"
+          }
+        }
+      }
+    },
     "error": {
       "generic": "Something went wrong. Please try again.",
       "offline": "You are offline. Reconnect to refresh the feed.",
@@ -869,6 +889,11 @@
         "period": "Period",
         "deliveryPoint": "Delivery point",
         "pricingType": "Pricing type",
+        "hydrocarbon": {
+          "title": "Hydrocarbon signal",
+          "subtitle": "Operational readout focused on barrel surpluses, slowdowns, and logistics constraints.",
+          "window": "Activation window"
+        },
         "overviewTitle": "Overview",
         "connected": "Connected",
         "offline": "Offline",
@@ -1300,7 +1325,197 @@
       "itemReceived": "Feed item received",
       "drawerOpened": "Feed item opened"
     }
-  },  "pages": {
+  },
+  "forms": {
+    "common": {
+      "selectPlaceholder": "Select an option",
+      "boolean": {
+        "true": "Yes",
+        "false": "No"
+      },
+      "validation": {
+        "required": "This field is required."
+      }
+    },
+    "hydrocarbonSurplus": {
+      "title": "Publish an oil surplus or barrel slowdown",
+      "description": "Structure an Alberta oil signal so buyers, storage operators, or logistics partners can react quickly.",
+      "sections": {
+        "signal": {
+          "title": "Signal summary",
+          "description": "Frame the market signal, product, and reason before partners open the detail page."
+        },
+        "volume": {
+          "title": "Volume and timing",
+          "description": "Capture available barrels, timing, and storage pressure so urgency is clear."
+        },
+        "routing": {
+          "title": "Origin, routing, and market scope",
+          "description": "Clarify where the barrels sit, how they can move, and which markets are targeted."
+        },
+        "commercial": {
+          "title": "Commercial framing",
+          "description": "Share the pricing reference and response window without forcing a full contract."
+        },
+        "contact": {
+          "title": "Operational contact",
+          "description": "Point counterparties to the desk or role that can validate next steps."
+        }
+      },
+      "fields": {
+        "title": {
+          "label": "Signal title",
+          "placeholder": "Example: 48,000 barrels available after an Alberta corridor slowdown"
+        },
+        "summary": {
+          "label": "Summary",
+          "placeholder": "Describe the surplus or slowdown, the operational context, and what kind of response is expected.",
+          "help": "A buyer or logistics partner should understand the opportunity in under a minute."
+        },
+        "companyName": {
+          "label": "Company name",
+          "placeholder": "Example: Northern Prairie Energy"
+        },
+        "publicationType": {
+          "label": "Signal type",
+          "options": {
+            "surplus": "Inventory surplus",
+            "slowdown": "Barrel slowdown"
+          }
+        },
+        "productType": {
+          "label": "Product type",
+          "options": {
+            "crudeOil": "Crude oil",
+            "bitumen": "Bitumen",
+            "syntheticCrude": "Synthetic crude",
+            "diesel": "Diesel",
+            "other": "Other product"
+          }
+        },
+        "businessReason": {
+          "label": "Business reason",
+          "options": {
+            "surplusStock": "Surplus stock",
+            "demandSlowdown": "Demand slowdown",
+            "transportDisruption": "Transport disruption",
+            "buyerOutage": "Buyer outage",
+            "priceWindow": "Price window"
+          }
+        },
+        "volumeBarrels": {
+          "label": "Available barrels"
+        },
+        "minimumLotBarrels": {
+          "label": "Minimum lot size (barrels)"
+        },
+        "availableFrom": {
+          "label": "Available from"
+        },
+        "availableUntil": {
+          "label": "Available until"
+        },
+        "estimatedDelayDays": {
+          "label": "Estimated slowdown (days)",
+          "help": "Only use this when the signal is driven by reduced outflow or a transport delay."
+        },
+        "storagePressureLevel": {
+          "label": "Storage pressure",
+          "options": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High",
+            "critical": "Critical"
+          }
+        },
+        "fromProvinceId": {
+          "label": "Origin province"
+        },
+        "toProvinceId": {
+          "label": "Primary target province",
+          "help": "Optional if the signal is broad, useful when one market is being prioritized."
+        },
+        "originSite": {
+          "label": "Origin site",
+          "placeholder": "Example: Edmonton terminal cluster"
+        },
+        "qualityGrade": {
+          "label": "Quality grade",
+          "options": {
+            "wcs": "WCS",
+            "wtiLinked": "WTI-linked",
+            "syntheticBlend": "Synthetic blend",
+            "other": "Other grade"
+          }
+        },
+        "logisticsMode": {
+          "label": "Logistics mode",
+          "options": {
+            "pipeline": "Pipeline",
+            "rail": "Rail",
+            "truck": "Truck",
+            "storageTransfer": "Storage transfer",
+            "mixed": "Mixed"
+          }
+        },
+        "targetScope": {
+          "label": "Target scope",
+          "help": "Select the provinces or market networks that can absorb or reroute the barrels.",
+          "options": {
+            "bc": "British Columbia",
+            "sk": "Saskatchewan",
+            "mb": "Manitoba",
+            "on": "Ontario",
+            "qc": "Quebec",
+            "refiningNetwork": "Refining network",
+            "storageNetwork": "Storage network"
+          }
+        },
+        "priceReference": {
+          "label": "Price reference",
+          "placeholder": "Example: WCS less transport differential"
+        },
+        "responseDeadline": {
+          "label": "Response deadline"
+        },
+        "notes": {
+          "label": "Operational notes",
+          "help": "Add context on dispatch limits, urgency, storage pressure, or counterparties already contacted."
+        },
+        "contactChannel": {
+          "label": "Contact channel",
+          "placeholder": "Example: Crude desk or logistics coordination line"
+        },
+        "tags": {
+          "label": "Tags",
+          "placeholder": "Example: alberta, surplus-window, storage-pressure"
+        }
+      },
+      "validation": {
+        "title": {
+          "minLength": "Use at least three characters for the title.",
+          "maxLength": "Keep the title under 160 characters."
+        },
+        "summary": {
+          "minLength": "Provide at least ten characters in the summary.",
+          "maxLength": "Keep the summary under 5,000 characters."
+        },
+        "volumeBarrels": {
+          "min": "Available barrels must be greater than zero."
+        },
+        "minimumLotBarrels": {
+          "min": "Minimum lot size must be greater than zero."
+        },
+        "estimatedDelayDays": {
+          "min": "Estimated slowdown cannot be negative."
+        },
+        "availableUntil": {
+          "dateOrder": "The end date must be on or after the start date."
+        }
+      }
+    }
+  },
+  "pages": {
     "credits": {
       "kicker": "FOUNDING CREDITS",
       "title": "OpenG7 starts with one builder",

@@ -256,6 +256,165 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List feed items */
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    sort?: "NEWEST" | "URGENCY" | "VOLUME" | "CREDIBILITY";
+                    type?: "OFFER" | "REQUEST" | "ALERT" | "TENDER" | "CAPACITY" | "INDICATOR";
+                    mode?: "EXPORT" | "IMPORT" | "BOTH";
+                    sector?: string;
+                    fromProvince?: string;
+                    toProvince?: string;
+                    /** @description Exact publication template key stored with feed metadata. */
+                    formKey?: string;
+                    /** @description Free-text search across title, summary, source label and publication metadata search text. */
+                    q?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedCollectionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Publish a feed item */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FeedCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedItemResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hydrocarbon-signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List hydrocarbon publication projections */
+        get: {
+            parameters: {
+                query?: {
+                    publicationType?: "surplus" | "slowdown";
+                    storagePressureLevel?: "low" | "medium" | "high" | "critical";
+                    originProvinceId?: string;
+                    targetProvinceId?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HydrocarbonSignalCollectionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hydrocarbon-signals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fetch a hydrocarbon signal projection */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HydrocarbonSignalResponse"];
+                    };
+                };
+                /** @description Not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-flows": {
         parameters: {
             query?: never;
@@ -661,6 +820,124 @@ export interface components {
             unit: string;
             sourceProvince: number;
             targetProvince: number;
+        };
+        FeedPublicationFormMetadata: {
+            formKey: string;
+            schemaVersion: number;
+        };
+        FeedPublicationMetadata: {
+            publicationForm?: components["schemas"]["FeedPublicationFormMetadata"];
+            extensions?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        FeedQuantity: {
+            value: number;
+            /** @enum {string} */
+            unit: "MW" | "MWh" | "bbl" | "bbl_d" | "ton" | "kg" | "hours" | "cad" | "usd";
+        };
+        HydrocarbonSignal: {
+            id: string;
+            feedItemId: string;
+            title: string;
+            summary: string;
+            companyName: string;
+            /** @enum {string} */
+            publicationType: "surplus" | "slowdown";
+            /** @enum {string} */
+            productType: "crudeOil" | "bitumen" | "syntheticCrude" | "diesel" | "other";
+            /** @enum {string} */
+            businessReason: "surplusStock" | "demandSlowdown" | "transportDisruption" | "buyerOutage" | "priceWindow";
+            volumeBarrels: number;
+            /** @enum {string} */
+            quantityUnit: "bbl" | "bbl_d";
+            minimumLotBarrels?: number | null;
+            /** Format: date */
+            availableFrom?: string | null;
+            /** Format: date */
+            availableUntil?: string | null;
+            estimatedDelayDays?: number | null;
+            originProvinceId?: string | null;
+            targetProvinceId?: string | null;
+            originSite: string;
+            /** @enum {string} */
+            qualityGrade: "wcs" | "wtiLinked" | "syntheticBlend" | "other";
+            logisticsMode: string[];
+            targetScope: string[];
+            /** @enum {string} */
+            storagePressureLevel: "low" | "medium" | "high" | "critical";
+            priceReference?: string | null;
+            /** Format: date */
+            responseDeadline?: string | null;
+            contactChannel: string;
+            notes?: string | null;
+            tags: string[];
+            /** @enum {string} */
+            sourceKind: "GOV" | "COMPANY" | "PARTNER" | "USER";
+            sourceLabel: string;
+            /** @enum {string} */
+            status: "active" | "expired" | "closed";
+        };
+        HydrocarbonSignalResponse: {
+            data: components["schemas"]["HydrocarbonSignal"];
+        };
+        HydrocarbonSignalCollectionResponse: {
+            data: components["schemas"]["HydrocarbonSignal"][];
+            meta: {
+                count: number;
+                limit: number;
+            };
+        };
+        FeedSource: {
+            /** @enum {string} */
+            kind: "GOV" | "COMPANY" | "PARTNER" | "USER";
+            label: string;
+            url?: string | null;
+        };
+        FeedItem: {
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt?: string | null;
+            /** @enum {string} */
+            type: "OFFER" | "REQUEST" | "ALERT" | "TENDER" | "CAPACITY" | "INDICATOR";
+            sectorId?: string | null;
+            title: string;
+            summary: string;
+            fromProvinceId?: string | null;
+            toProvinceId?: string | null;
+            /** @enum {string} */
+            mode: "EXPORT" | "IMPORT" | "BOTH";
+            quantity?: components["schemas"]["FeedQuantity"];
+            tags?: string[];
+            metadata?: components["schemas"]["FeedPublicationMetadata"];
+            source: components["schemas"]["FeedSource"];
+        };
+        FeedItemResponse: {
+            data: components["schemas"]["FeedItem"];
+        };
+        FeedCollectionResponse: {
+            data: components["schemas"]["FeedItem"][];
+            cursor?: string | null;
+        };
+        FeedCreateRequest: {
+            /** @enum {string} */
+            type: "OFFER" | "REQUEST" | "ALERT" | "TENDER" | "CAPACITY" | "INDICATOR";
+            title: string;
+            summary: string;
+            sectorId?: string | null;
+            fromProvinceId?: string | null;
+            toProvinceId?: string | null;
+            /** @enum {string} */
+            mode: "EXPORT" | "IMPORT" | "BOTH";
+            quantity?: components["schemas"]["FeedQuantity"];
+            tags?: string[];
+            /** @enum {string|null} */
+            originType?: "alert" | "opportunity" | "indicator" | null;
+            originId?: string | null;
+            connectionMatchId?: number | null;
+            metadata?: components["schemas"]["FeedPublicationMetadata"];
         };
         BillingPlanPrice: {
             amount: number;

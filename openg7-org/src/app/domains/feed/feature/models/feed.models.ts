@@ -16,7 +16,7 @@ export type FlowMode = 'EXPORT' | 'IMPORT' | 'BOTH';
 
 export type FeedSort = 'NEWEST' | 'URGENCY' | 'VOLUME' | 'CREDIBILITY';
 
-export type QuantityUnit = 'MW' | 'MWh' | 'bbl_d' | 'ton' | 'kg' | 'hours' | 'cad' | 'usd';
+export type QuantityUnit = 'MW' | 'MWh' | 'bbl' | 'bbl_d' | 'ton' | 'kg' | 'hours' | 'cad' | 'usd';
 
 export interface Quantity {
   readonly value: number;

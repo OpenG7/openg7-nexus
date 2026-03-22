@@ -1,0 +1,49 @@
+<section
+  class="og7-feed__hydrocarbon-panel"
+  data-og7="hydrocarbon-signals-panel"
+  aria-labelledby="hydrocarbon-signals-heading"
+>
+  <div class="og7-feed__hydrocarbon-panel-header">
+    <h3 id="hydrocarbon-signals-heading" class="og7-feed__hydrocarbon-panel-title">
+      {{ 'feed.views.hydrocarbons.panel.title' | translate }}
+    </h3>
+    <span class="og7-feed__hydrocarbon-panel-kicker">
+      {{ 'feed.views.hydrocarbons.panel.kicker' | translate }}
+    </span>
+  </div>
+  <p class="og7-feed__hydrocarbon-panel-copy">
+    {{ 'feed.views.hydrocarbons.panel.description' | translate }}
+  </p>
+  <p *ngIf="loading()" class="og7-feed__hydrocarbon-panel-state" data-og7="hydrocarbon-signals-loading">
+    {{ 'feed.views.hydrocarbons.panel.loading' | translate }}
+  </p>
+  <p
+    *ngIf="!loading() && error() as loadError"
+    class="og7-feed__hydrocarbon-panel-state og7-feed__hydrocarbon-panel-state--error"
+    data-og7="hydrocarbon-signals-error"
+  >
+    {{ loadError | translate }}
+  </p>
+  <p
+    *ngIf="!loading() && !error() && !signals().length"
+    class="og7-feed__hydrocarbon-panel-state"
+    data-og7="hydrocarbon-signals-empty"
+  >
+    {{ 'feed.views.hydrocarbons.panel.empty' | translate }}
+  </p>
+  <ul *ngIf="!loading() && signals().length" class="og7-feed__hydrocarbon-list">
+    <li *ngFor="let signal of signals()" class="og7-feed__hydrocarbon-item" data-og7="hydrocarbon-signal-item">
+      <div class="og7-feed__hydrocarbon-item-header">
+        <p class="og7-feed__hydrocarbon-item-title">{{ signal.title }}</p>
+        <span class="og7-feed__hydrocarbon-badge" [class.og7-feed__hydrocarbon-badge--warning]="signal.publicationType === 'slowdown'">
+          {{ ('feed.views.hydrocarbons.panel.publicationType.' + signal.publicationType) | translate }}
+        </span>
+      </div>
+      <p class="og7-feed__hydrocarbon-item-meta">
+        {{ signal.companyName }} · {{ signal.volumeBarrels }} {{ signal.quantityUnit }} · {{ signal.originProvinceId | uppercase }}
+        <ng-container *ngIf="signal.targetProvinceId">-> {{ signal.targetProvinceId | uppercase }}</ng-container>
+      </p>
+      <p class="og7-feed__hydrocarbon-item-summary">{{ signal.summary }}</p>
+    </li>
+  </ul>
+</section>
