@@ -145,6 +145,91 @@
       }
     },
     "/api/feed": {
+      "get": {
+        "summary": "List feed items",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["NEWEST", "URGENCY", "VOLUME", "CREDIBILITY"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["OFFER", "REQUEST", "ALERT", "TENDER", "CAPACITY", "INDICATOR"]
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["EXPORT", "IMPORT", "BOTH"]
+            }
+          },
+          {
+            "name": "sector",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromProvince",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toProvince",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "formKey",
+            "in": "query",
+            "description": "Exact publication template key stored with feed metadata.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Free-text search across title, summary, source label and publication metadata search text.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Publish a feed item",
         "requestBody": {
@@ -576,6 +661,17 @@
         "type": "object",
         "properties": {
           "data": { "$ref": "#/components/schemas/FeedItem" }
+        },
+        "required": ["data"]
+      },
+      "FeedCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FeedItem" }
+          },
+          "cursor": { "type": "string", "nullable": true }
         },
         "required": ["data"]
       },

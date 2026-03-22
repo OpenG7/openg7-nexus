@@ -14,10 +14,12 @@ import {
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { API_URL } from '@app/core/config/environment.tokens';
 import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
+import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
   feedCategorySig,
+  feedFormKeySig,
   feedModeSig,
   feedSearchSig,
   feedSortSig,
@@ -101,6 +103,7 @@ export class FeedRealtimeService {
   private readonly browser = isPlatformBrowser(this.platformId);
   private readonly notifications = injectNotificationStore();
   private readonly translate = inject(TranslateService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly useMockFeed = Boolean(
     this.featureFlags?.['feedMocks'] ?? this.featureFlags?.['homeFeedMocks']
   );
@@ -163,6 +166,7 @@ export class FeedRealtimeService {
         this.updateSignalIfChanged(fromProvinceIdSig, filters.fromProvinceId);
         this.updateSignalIfChanged(toProvinceIdSig, filters.toProvinceId);
         this.updateSignalIfChanged(sectorIdSig, filters.sectorId);
+        this.updateSignalIfChanged(feedFormKeySig, filters.formKey);
         this.updateSignalIfChanged(feedCategorySig, filters.category);
         this.updateSignalIfChanged(feedTypeSig, filters.type);
         this.updateSignalIfChanged(feedModeSig, filters.mode);
@@ -177,6 +181,7 @@ export class FeedRealtimeService {
           fromProvinceId: fromProvinceIdSig(),
           toProvinceId: toProvinceIdSig(),
           sectorId: sectorIdSig(),
+          formKey: feedFormKeySig(),
           category: feedCategorySig(),
           type: feedTypeSig(),
           mode: feedModeSig(),
@@ -390,6 +395,7 @@ export class FeedRealtimeService {
         tempId: context.optimisticItem.id,
         error: message,
         context: error,
+        publishContext: context,
       });
       return {
         status: 'request-error',
@@ -434,6 +440,7 @@ export class FeedRealtimeService {
         idempotencyKey: context.idempotencyKey,
       })
     );
+    this.emitAnalytics('feed.item.publish.started', this.buildPublishAnalyticsPayload(context));
 
     return {
       validation,
@@ -503,6 +510,7 @@ export class FeedRealtimeService {
     const { tempId, item, source = 'api' } = options;
     this.store.dispatch(FeedActions.publishSuccess({ tempId, item }));
     this.emitAnalytics('feed.item.publish', {
+      ...this.buildPublishAnalyticsPayload(item),
       itemId: item.id,
       type: item.type,
       ...(source === 'mock' ? { source: 'mock' } : {}),
@@ -521,10 +529,14 @@ export class FeedRealtimeService {
     tempId: string;
     error: string;
     context: unknown;
+    publishContext?: PublishContext;
   }): void {
-    const { tempId, error, context } = options;
+    const { tempId, error, context, publishContext } = options;
     this.store.dispatch(FeedActions.publishFailure({ tempId, error }));
-    this.emitAnalytics('feed.item.publish.failed', { reason: error });
+    this.emitAnalytics('feed.item.publish.failed', {
+      ...this.buildPublishAnalyticsPayload(publishContext),
+      reason: error,
+    });
     this.notifications.error(this.translate.instant('feed.notifications.publishFailure', { reason: error }), {
       source: 'feed',
       context,
@@ -787,6 +799,9 @@ export class FeedRealtimeService {
     }
     if (filters.sectorId) {
       params = params.set('sector', filters.sectorId);
+    }
+    if (filters.formKey) {
+      params = params.set('formKey', filters.formKey);
     }
     if (filters.category) {
       params = params.set('category', filters.category);
@@ -1082,6 +1097,7 @@ export class FeedRealtimeService {
       a.fromProvinceId === b.fromProvinceId &&
       a.toProvinceId === b.toProvinceId &&
       a.sectorId === b.sectorId &&
+      a.formKey === b.formKey &&
       a.category === b.category &&
       a.type === b.type &&
       a.mode === b.mode &&
@@ -1109,19 +1125,17 @@ export class FeedRealtimeService {
 
 
   private emitAnalytics(event: string, payload: Record<string, unknown>): void {
-    if (!this.browser) {
-      return;
-    }
-    const dataLayer = (globalThis as { dataLayer?: unknown[] }).dataLayer;
-    if (Array.isArray(dataLayer)) {
-      dataLayer.push({ event, ...payload });
-      return;
-    }
-    const globalRef = globalThis as { dispatchEvent?: (event: Event) => boolean };
-    if (typeof globalRef.dispatchEvent === 'function') {
-      const customEvent = new CustomEvent('og7-analytics', { detail: { event, payload } });
-      globalRef.dispatchEvent(customEvent);
-    }
+    this.analytics.emit(event, payload);
+  }
+
+  private buildPublishAnalyticsPayload(source: PublishContext | FeedItem | null | undefined): Record<string, unknown> {
+    const metadata = source?.metadata ?? null;
+    const formKey = metadata?.publicationForm?.formKey ?? null;
+
+    return {
+      publicationMode: formKey ? 'template' : 'generic',
+      ...(formKey ? { formKey } : {}),
+    };
   }
 
   private buildPlaceholderItem(): FeedItem {

@@ -33,6 +33,7 @@ export function parseFeedFilters(query: Pick<ParamMap, 'get'>): FeedFilterState 
     normalizeString(query.get('sector')) ??
     normalizeString(query.get('sectorId')) ??
     null;
+  const formKey = normalizeString(query.get('formKey')) ?? null;
   const fromProvinceId =
     normalizeString(query.get('fromProvince')) ??
     normalizeString(query.get('fromProvinceId')) ??
@@ -49,6 +50,7 @@ export function parseFeedFilters(query: Pick<ParamMap, 'get'>): FeedFilterState 
     fromProvinceId,
     toProvinceId,
     sectorId,
+    formKey,
     category,
     type,
     mode,

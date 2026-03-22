@@ -32,6 +32,7 @@ describe('feed-item-query', () => {
       fromProvinceId: 'qc',
       toProvinceId: 'on',
       sectorId: 'energy',
+      formKey: 'energy-surplus-offer',
       category: null,
       type: 'REQUEST',
       mode: 'IMPORT',
@@ -43,6 +44,7 @@ describe('feed-item-query', () => {
       fromProvinceId: 'qc',
       toProvinceId: 'on',
       sectorId: 'energy',
+      formKey: 'energy-surplus-offer',
       category: null,
       type: 'REQUEST',
       mode: 'IMPORT',
@@ -58,18 +60,36 @@ describe('feed-item-query', () => {
         fromProvinceId: 'qc',
         toProvinceId: 'on',
         urgency: 3,
+        metadata: {
+          publicationForm: {
+            formKey: 'energy-surplus-offer',
+            schemaVersion: 1,
+          },
+        },
       }),
       createFeedItem('request-bc', {
         summary: 'Hydrogen corridor',
         fromProvinceId: 'bc',
         toProvinceId: 'ab',
         urgency: 1,
+        metadata: {
+          publicationForm: {
+            formKey: 'industrial-load-flex-request',
+            schemaVersion: 1,
+          },
+        },
       }),
       createFeedItem('offer-on', {
         type: 'OFFER',
         summary: 'Hydrogen corridor',
         fromProvinceId: 'qc',
         toProvinceId: 'on',
+        metadata: {
+          publicationForm: {
+            formKey: 'energy-surplus-offer',
+            schemaVersion: 1,
+          },
+        },
       }),
     ];
 
@@ -78,6 +98,7 @@ describe('feed-item-query', () => {
         fromProvinceId: 'qc',
         toProvinceId: 'on',
         sectorId: 'energy',
+        formKey: 'energy-surplus-offer',
         category: null,
         type: 'REQUEST',
         mode: 'IMPORT',
@@ -141,6 +162,26 @@ describe('feed-item-query', () => {
       'offer-item',
       'capacity-item',
     ]);
+  });
+
+  it('matches explicit publication template filters', () => {
+    const templateItem = createFeedItem('template-item', {
+      metadata: {
+        publicationForm: {
+          formKey: 'energy-surplus-offer',
+          schemaVersion: 1,
+        },
+      },
+    });
+    const genericItem = createFeedItem('generic-item');
+
+    const filtered = queryFeedItems([genericItem, templateItem], {
+      formKey: 'energy-surplus-offer',
+      sort: 'NEWEST',
+    });
+
+    expect(filtered.map((item) => item.id)).toEqual(['template-item']);
+    expect(matchesFeedItemQuery(templateItem, { search: 'energy-surplus-offer' })).toBeTrue();
   });
 
   it('shares the same sort fallback rules across consumers', () => {

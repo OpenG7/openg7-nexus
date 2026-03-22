@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
+  feedFormKeySig,
   feedModeSig,
   feedSearchSig,
   feedSortSig,
@@ -63,6 +64,7 @@ function resetFeedFilters(): void {
   fromProvinceIdSig.set(null);
   toProvinceIdSig.set(null);
   sectorIdSig.set(null);
+  feedFormKeySig.set(null);
   feedTypeSig.set(null);
   feedModeSig.set('BOTH');
   feedSearchSig.set('');
@@ -95,7 +97,10 @@ describe('Og7FeedStreamComponent', () => {
         feed: {
           filters: {
             allProvinces: 'Toutes les provinces',
+            allTemplates: 'Tous les gabarits',
             allTypes: 'Tous les types',
+            template: 'Gabarit',
+            unknownTemplate: 'Gabarit personnalise',
           },
           status: {
             online: 'Mises a jour en direct actives',
@@ -108,6 +113,24 @@ describe('Og7FeedStreamComponent', () => {
           },
           type: {
             ALERT: 'Alerte',
+          },
+          publishBar: {
+            templates: {
+              energySurplusOffer: {},
+              industrialLoadFlexRequest: {},
+              coldChainCapacityOffer: {},
+            },
+          },
+        },
+        forms: {
+          energySurplus: {
+            title: 'Surplus d energie',
+          },
+          industrialLoadFlex: {
+            title: 'Flexibilite industrielle',
+          },
+          coldChainCapacity: {
+            title: 'Capacite chaine du froid',
           },
         },
       },
@@ -184,6 +207,21 @@ describe('Og7FeedStreamComponent', () => {
     expect(selectedOptionLabel(typeSelect)).toBe('Alerte');
     expect(selectedOptionLabel(fromSelect)).toBe('Quebec');
     expect(selectedOptionLabel(toSelect)).toBe('Ontario');
+  });
+
+  it('renders publication template filters and keeps the selection in sync', async () => {
+    const fixture = TestBed.createComponent(Og7FeedStreamComponent);
+
+    fixture.componentRef.setInput('connectionState', createConnectionState({ connected: true }));
+    feedFormKeySig.set('energy-surplus-offer');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const templateSelect = host.querySelector('#feed-form-key') as HTMLSelectElement;
+
+    expect(selectedOptionLabel(templateSelect)).toBe('Surplus d energie');
+    expect(host.textContent).toContain('Gabarit');
   });
 });
 

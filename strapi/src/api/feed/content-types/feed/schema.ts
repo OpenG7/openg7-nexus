@@ -112,6 +112,12 @@ const schema = {
     metadata: {
       type: 'json',
     },
+    publicationFormKey: {
+      type: 'string',
+    },
+    searchText: {
+      type: 'text',
+    },
     geo: {
       type: 'json',
     },

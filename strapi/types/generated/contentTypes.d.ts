@@ -606,11 +606,13 @@ export interface ApiFeedFeed extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'BOTH'>;
     originId: Schema.Attribute.String;
     originType: Schema.Attribute.Enumeration<['alert', 'opportunity', 'indicator']>;
+    publicationFormKey: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     quantityUnit: Schema.Attribute.Enumeration<
       ['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']
     >;
     quantityValue: Schema.Attribute.Decimal;
+    searchText: Schema.Attribute.Text;
     sectorId: Schema.Attribute.String;
     sourceKind: Schema.Attribute.Enumeration<['GOV', 'COMPANY', 'PARTNER', 'USER']> &
       Schema.Attribute.Required &

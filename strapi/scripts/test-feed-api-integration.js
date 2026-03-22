@@ -416,6 +416,54 @@ async function run() {
     assert.equal(modeFilter.body?.data?.length, 1, 'Expected one IMPORT item for run marker.');
     assert.equal(modeFilter.body.data[0].id, offerB.id, 'Expected IMPORT filter to match offerB.');
 
+    const templateOffer = await createFeedItem(
+      baseUrl,
+      jwt,
+      buildFeedPayload(runId, 'FORM-ENERGY', {
+        metadata: {
+          publicationForm: {
+            formKey: 'energy-surplus-offer',
+            version: '1.0.0',
+            title: 'Energy surplus offer',
+          },
+        },
+      }),
+      `feed-it-${runId}-form-energy`
+    );
+    await createFeedItem(
+      baseUrl,
+      jwt,
+      buildFeedPayload(runId, 'FORM-COLD', {
+        metadata: {
+          publicationForm: {
+            formKey: 'cold-chain-capacity-offer',
+            version: '1.0.0',
+            title: 'Cold chain capacity offer',
+          },
+        },
+      }),
+      `feed-it-${runId}-form-cold`
+    );
+
+    const formKeyFilter = await requestJson(
+      `${baseUrl}/api/feed?type=OFFER&q=${encodeURIComponent(runId)}&formKey=energy-surplus-offer&limit=10`,
+      { headers: { Authorization: `Bearer ${jwt}` } }
+    );
+    assert.equal(formKeyFilter.status, 200, 'Expected formKey filter read to succeed.');
+    assert.ok(Array.isArray(formKeyFilter.body?.data), 'Expected formKey filter payload list.');
+    assert.ok(formKeyFilter.body.data.length >= 1, 'Expected at least one formKey-filtered item.');
+    assert.ok(
+      formKeyFilter.body.data.some((item) => item.id === templateOffer.id),
+      'Expected formKey filter to include the matching template publication.'
+    );
+    for (const item of formKeyFilter.body.data) {
+      assert.equal(
+        item.metadata?.publicationForm?.formKey,
+        'energy-surplus-offer',
+        'Expected formKey filter to only return matching template publications.'
+      );
+    }
+
     const highlightsPublic = await requestJson(
       `${baseUrl}/api/feed/highlights?scope=canada&filter=all&q=${encodeURIComponent(runId)}&limit=6`
     );

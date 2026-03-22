@@ -78,6 +78,7 @@ export interface FeedFilterState {
   readonly fromProvinceId: string | null;
   readonly toProvinceId: string | null;
   readonly sectorId: string | null;
+  readonly formKey: string | null;
   readonly category: FeedItemCategory | null;
   readonly type: FeedItemType | null;
   readonly mode: FlowMode;

@@ -136,13 +136,19 @@
           "validators": [
             { "type": "min", "value": 1, "errorKey": "forms.coldChainCapacity.validation.minimumCommitmentDays.min" }
           ],
+          "visibleWhen": [
+            { "field": "crossDockAvailable", "operator": "truthy" }
+          ],
           "width": "half"
         },
         {
           "key": "handlingNotes",
           "type": "textarea",
           "labelKey": "forms.coldChainCapacity.fields.handlingNotes.label",
-          "helpKey": "forms.coldChainCapacity.fields.handlingNotes.help"
+          "helpKey": "forms.coldChainCapacity.fields.handlingNotes.help",
+          "visibleWhen": [
+            { "field": "temperatureRange", "operator": "in", "value": ["frozen", "ambient-monitored"] }
+          ]
         },
         {
           "key": "tags",

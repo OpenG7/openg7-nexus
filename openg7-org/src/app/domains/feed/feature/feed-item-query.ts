@@ -7,6 +7,7 @@ export interface FeedItemsQuery {
   readonly type?: FeedItemType | null;
   readonly mode?: FlowMode | null;
   readonly sectorId?: string | null;
+  readonly formKey?: string | null;
   readonly fromProvinceId?: string | null;
   readonly toProvinceId?: string | null;
   readonly search?: string | null;
@@ -44,6 +45,7 @@ export function toFeedItemsQuery(filters: FeedFilterState): FeedItemsQuery {
     type: filters.type,
     mode: filters.mode,
     sectorId: filters.sectorId,
+    formKey: filters.formKey,
     fromProvinceId: filters.fromProvinceId,
     toProvinceId: filters.toProvinceId,
     search: filters.search,
@@ -78,6 +80,10 @@ export function matchesFeedItemQuery(item: FeedItem, query: FeedItemsQuery): boo
   }
 
   if (query.sectorId && item.sectorId !== query.sectorId) {
+    return false;
+  }
+
+  if (query.formKey && item.metadata?.publicationForm?.formKey !== query.formKey) {
     return false;
   }
 
@@ -132,6 +138,7 @@ export function buildFeedSearchHaystack(item: FeedItem): string {
     item.summary,
     item.source?.label ?? '',
     item.sectorId ?? '',
+    item.metadata?.publicationForm?.formKey ?? '',
     item.fromProvinceId ?? '',
     item.toProvinceId ?? '',
     ...(item.tags ?? []),

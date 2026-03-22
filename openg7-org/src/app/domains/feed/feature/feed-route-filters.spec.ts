@@ -24,4 +24,10 @@ describe('parseFeedFilters', () => {
     expect(filters.fromProvinceId).toBe('MB');
     expect(filters.toProvinceId).toBe('ON');
   });
+
+  it('parses an explicit publication form filter from the route', () => {
+    const filters = parseFeedFilters(convertToParamMap({ formKey: 'energy-surplus-offer' }));
+
+    expect(filters.formKey).toBe('energy-surplus-offer');
+  });
 });

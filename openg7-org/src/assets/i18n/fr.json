@@ -583,6 +583,9 @@
       "allTypes": "Tous les types",
       "sector": "Secteur",
       "allSectors": "Tous les secteurs",
+      "template": "Gabarit",
+      "allTemplates": "Tous les gabarits",
+      "unknownTemplate": "Gabarit personnalise",
       "fromProvince": "De",
       "toProvince": "Vers",
       "allProvinces": "Toutes les provinces",
@@ -2502,6 +2505,10 @@
         "forms": {
           "common": {
             "selectPlaceholder": "Choisir une option",
+            "boolean": {
+              "true": "Oui",
+              "false": "Non"
+            },
             "validation": {
               "required": "Ce champ est obligatoire."
             }

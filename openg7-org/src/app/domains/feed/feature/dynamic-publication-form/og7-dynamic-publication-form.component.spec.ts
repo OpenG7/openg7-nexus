@@ -113,4 +113,25 @@ describe('Og7DynamicPublicationFormComponent', () => {
     expect(fixture.nativeElement.querySelector('input[type="checkbox"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('input[type="datetime-local"]')).toBeTruthy();
   });
+
+  it('applies visibleWhen conditions for scenario-specific fields', () => {
+    fixture.componentRef.setInput('config', coldChainCapacityOfferConfigJson as PublicationFormConfig);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      form: () => { patchValue: (value: Record<string, unknown>) => void };
+    };
+
+    expect(fixture.nativeElement.querySelector('#minimumCommitmentDays')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('#handlingNotes')).toBeFalsy();
+
+    component.form().patchValue({
+      crossDockAvailable: true,
+      temperatureRange: 'frozen',
+    });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#minimumCommitmentDays')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('#handlingNotes')).toBeTruthy();
+  });
 });

@@ -148,7 +148,10 @@
           "key": "operationalNotes",
           "type": "textarea",
           "labelKey": "forms.industrialLoadFlex.fields.operationalNotes.label",
-          "helpKey": "forms.industrialLoadFlex.fields.operationalNotes.help"
+          "helpKey": "forms.industrialLoadFlex.fields.operationalNotes.help",
+          "visibleWhen": [
+            { "field": "urgencyLevel", "operator": "equals", "value": "high" }
+          ]
         },
         {
           "key": "tags",

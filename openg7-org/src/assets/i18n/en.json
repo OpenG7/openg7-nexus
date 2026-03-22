@@ -694,6 +694,9 @@
       "allTypes": "All types",
       "sector": "Sector",
       "allSectors": "All sectors",
+      "template": "Template",
+      "allTemplates": "All templates",
+      "unknownTemplate": "Custom template",
       "fromProvince": "From",
       "toProvince": "To",
       "allProvinces": "All provinces",
@@ -2613,6 +2616,10 @@
         "forms": {
           "common": {
             "selectPlaceholder": "Select an option",
+            "boolean": {
+              "true": "Yes",
+              "false": "No"
+            },
             "validation": {
               "required": "This field is required."
             }

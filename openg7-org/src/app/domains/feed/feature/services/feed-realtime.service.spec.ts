@@ -4,6 +4,7 @@ import { PLATFORM_ID, TransferState, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_URL, FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
+import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
@@ -32,6 +33,7 @@ class StoreMock {
     fromProvinceId: null,
     toProvinceId: null,
     sectorId: null,
+    formKey: null,
     category: null,
     type: null,
     mode: 'BOTH',
@@ -110,11 +112,20 @@ class StoreMock {
     }
     throw new Error(`Unexpected selector in StoreMock: ${String(selector)}`);
   });
+
+  setFilters(filters: FeedFilterState): void {
+    this.filtersSig.set(filters);
+    this.stateSig.update((state) => ({
+      ...state,
+      filters,
+    }));
+  }
 }
 
 describe('FeedRealtimeService', () => {
   let service: FeedRealtimeService;
   let httpMock: HttpTestingController;
+  let analytics: jasmine.SpyObj<AnalyticsService>;
 
   const validDraft: FeedComposerDraft = {
     type: 'REQUEST',
@@ -133,6 +144,7 @@ describe('FeedRealtimeService', () => {
     translate.instant.and.callFake((key: string) => key);
 
     const notifications = jasmine.createSpyObj('NotificationStore', ['success', 'error', 'info']);
+    analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['emit']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -146,6 +158,7 @@ describe('FeedRealtimeService', () => {
         { provide: PLATFORM_ID, useValue: 'server' },
         { provide: TranslateService, useValue: translate },
         { provide: NotificationStore, useValue: notifications },
+        { provide: AnalyticsService, useValue: analytics },
       ],
     });
 
@@ -164,6 +177,30 @@ describe('FeedRealtimeService', () => {
       req.url === 'https://cms.local/api/feed' && req.params.get('sort') === 'NEWEST'
     );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
+
+    request.flush({ data: [], cursor: null });
+  });
+
+  it('serializes an explicit publication form filter in feed collection requests', () => {
+    const store = TestBed.inject(Store) as unknown as StoreMock;
+    store.setFilters({
+      fromProvinceId: null,
+      toProvinceId: null,
+      sectorId: null,
+      formKey: 'energy-surplus-offer',
+      category: null,
+      type: null,
+      mode: 'BOTH',
+      sort: 'NEWEST',
+      search: '',
+    });
+
+    service.loadInitial();
+
+    const request = httpMock.expectOne(req =>
+      req.url === 'https://cms.local/api/feed' && req.params.get('formKey') === 'energy-surplus-offer'
+    );
+    expect(request.request.params.get('formKey')).toBe('energy-surplus-offer');
 
     request.flush({ data: [], cursor: null });
   });
@@ -268,5 +305,17 @@ describe('FeedRealtimeService', () => {
         urgencyLevel: 'high',
       },
     });
+    expect(analytics.emit).toHaveBeenCalledWith('feed.item.publish.started', {
+      publicationMode: 'template',
+      formKey: 'energy-surplus-offer',
+    });
+    expect(analytics.emit).toHaveBeenCalledWith(
+      'feed.item.publish',
+      jasmine.objectContaining({
+        publicationMode: 'template',
+        formKey: 'energy-surplus-offer',
+        itemId: 'feed-2',
+      })
+    );
   });
 });
