@@ -13,17 +13,17 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
-import { feedFormKeySig, fromProvinceIdSig, sectorIdSig } from '@app/state/shared-feed-signals';
 import { selectProvinces } from '@app/state/catalog/catalog.selectors';
+import { feedFormKeySig, fromProvinceIdSig, sectorIdSig } from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs/operators';
 
+import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
 import {
   buildFeedDraftPrefillClearQueryParams,
   buildFeedDraftPrefillKey,
 } from '../feed-draft-prefill.helpers';
-import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
 import { PublicationFieldOption } from '../form-config/publication-form-config.models';
 import { PublicationFormConfigService } from '../form-config/publication-form-config.service';
 import { PublicationFormMapperService } from '../form-config/publication-form-mapper.service';

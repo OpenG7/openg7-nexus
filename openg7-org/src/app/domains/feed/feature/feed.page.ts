@@ -29,8 +29,8 @@ import {
 } from '@app/state/shared-feed-signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { HydrocarbonSignalsPanelComponent } from './components/hydrocarbon-signals-panel.component';
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
-import { parseFeedFilters } from './feed-route-filters';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
@@ -38,8 +38,8 @@ import {
   buildOpportunityOfferRecordPayload,
   resolveOpportunityOfferSubmitErrorMessage,
 } from './feed-offer-submission.helpers';
-import { HydrocarbonSignalsPanelComponent } from './components/hydrocarbon-signals-panel.component';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
+import { parseFeedFilters } from './feed-route-filters';
 import { FeedFilterState, FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';

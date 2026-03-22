@@ -2,6 +2,8 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { FeedPublicationMetadata } from '../models/feed.models';
+
 import {
   OpportunityDetailSectionItem,
   OpportunityDocumentLink,
@@ -9,9 +11,8 @@ import {
   OpportunityQnaTab,
 } from './opportunity-detail.models';
 import { Og7OpportunityHydrocarbonDetailComponent } from './opportunity-hydrocarbon-detail.component';
-import { Og7PublicationMetadataCardComponent } from './publication-metadata-card.component';
 import { OpportunityQnaComponent } from './opportunity-qna.component';
-import { FeedPublicationMetadata } from '../models/feed.models';
+import { Og7PublicationMetadataCardComponent } from './publication-metadata-card.component';
 
 @Component({
   selector: 'og7-opportunity-detail-body',

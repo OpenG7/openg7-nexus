@@ -12,14 +12,14 @@ import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { FeedComposerDraft, FeedItem } from '../models/feed.models';
-import { FeedRealtimeService } from '../services/feed-realtime.service';
-import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
-import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 import { OpportunityContextAsideComponent } from '../components/opportunity-context-aside.component';
 import { OpportunityDetailHeaderComponent } from '../components/opportunity-detail-header.component';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
+import { FeedComposerDraft, FeedItem } from '../models/feed.models';
+import { FeedRealtimeService } from '../services/feed-realtime.service';
+import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
+import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 import { FeedOpportunityDetailPage } from './feed-opportunity-detail.page';
 

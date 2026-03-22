@@ -1,5 +1,5 @@
-import { hasContentType, upsertByUID } from '../utils/seed-helpers';
 import { syncHydrocarbonSignalProjection } from '../api/hydrocarbon-signal/services/hydrocarbon-signal-projection';
+import { hasContentType, upsertByUID } from '../utils/seed-helpers';
 
 const FEED_UID = 'api::feed.feed';
 

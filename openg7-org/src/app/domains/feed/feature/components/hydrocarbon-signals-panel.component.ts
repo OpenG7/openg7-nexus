@@ -8,8 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { StrapiClient } from '@app/core/api/strapi-client';
-import type { HydrocarbonSignal } from '@openg7/contracts';
 import { TranslateModule } from '@ngx-translate/core';
+import type { HydrocarbonSignal } from '@openg7/contracts';
 
 @Component({
   selector: 'og7-hydrocarbon-signals-panel',

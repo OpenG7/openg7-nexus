@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+
 import { FeedPublishSectionComponent } from './feed-publish-section.component';
 
 @Component({

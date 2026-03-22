@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
 import { StrapiClient } from '@app/core/api/strapi-client';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 

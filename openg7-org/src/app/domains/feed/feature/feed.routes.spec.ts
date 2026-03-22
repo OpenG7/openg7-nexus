@@ -5,8 +5,8 @@ import { selectFeedError, selectFeedHydrated } from '@app/store/feed/feed.select
 import { Store } from '@ngrx/store';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { FeedRealtimeService } from './services/feed-realtime.service';
 import { routes } from './feed.routes';
+import { FeedRealtimeService } from './services/feed-realtime.service';
 
 class StoreMock {
   readonly dispatch = jasmine.createSpy('dispatch');

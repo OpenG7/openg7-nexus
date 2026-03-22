@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import energySurplusOfferConfigJson from './forms/energy-surplus-offer.json';
 import coldChainCapacityOfferConfigJson from './forms/cold-chain-capacity-offer.json';
+import energySurplusOfferConfigJson from './forms/energy-surplus-offer.json';
 import hydrocarbonSurplusOfferConfigJson from './forms/hydrocarbon-surplus-offer.json';
 import industrialLoadFlexRequestConfigJson from './forms/industrial-load-flex-request.json';
 import { PublicationFormConfig } from './publication-form-config.models';

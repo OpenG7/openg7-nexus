@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, input, output, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -8,11 +9,6 @@ import { FavoritesService } from '@app/core/favorites.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { BehaviorSubject } from 'rxjs';
-
 import {
   feedCategorySig,
   feedFormKeySig,
@@ -24,13 +20,14 @@ import {
   sectorIdSig,
   toProvinceIdSig,
 } from '@app/state/shared-feed-signals';
+import { Store } from '@ngrx/store';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
-import { HydrocarbonSignalsPanelComponent } from './components/hydrocarbon-signals-panel.component';
 import { parseFeedFilters } from './feed-route-filters';
 import { FeedPage } from './feed.page';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
-import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 
 @Component({
