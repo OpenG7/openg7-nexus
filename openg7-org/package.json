@@ -19,6 +19,8 @@
     "test": "ng test",
     "serve:ssr:openg7-org": "node dist/openg7-org/server/server.mjs",
     "e2e": "playwright test",
+    "e2e:db-report": "node ./scripts/generate-e2e-db-report.mjs",
+    "e2e:db-snapshot": "node ./scripts/generate-e2e-db-report.mjs --mode snapshot",
     "e2e:smoke": "playwright test e2e/app-complete-smoke.spec.ts",
     "e2e:regression": "playwright test e2e/app-complete-regression.spec.ts",
     "start:trace": "node --trace-deprecation ../node_modules/.bin/ng serve"
