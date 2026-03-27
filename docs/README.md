@@ -8,6 +8,7 @@ Ce dossier regroupe les guides fonctionnels et techniques du projet, organisés 
 
 ## Guides transverses
 
+- [`cas-d-usage-en-langage-courant.md`](./cas-d-usage-en-langage-courant.md) — point de départ simple pour décrire un besoin métier avant de le décliner en specs produit ou techniques.
 - [`getting-started.md`](./getting-started.md) — parcours d'installation rapide du monorepo et liens vers les workspaces.
 
 ## Ajouter un nouveau guide

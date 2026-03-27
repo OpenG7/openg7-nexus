@@ -242,7 +242,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
       legalName: 'Prairie Electrolyzers Inc.',
       sector: 'manufacturing',
       province: 'AB',
-      logoUrl: 'assets/header-horizontal-logo.png',
+      logoUrl: 'assets/logo-openg7-souverainete-en-action.png',
       registrationIds: [{ type: 'BN', value: '76421-5543' }],
       address: {
         line1: '4800 99 Ave NW',
