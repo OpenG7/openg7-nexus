@@ -126,6 +126,37 @@ Si l'objectif est de piloter la chaine de valeur de bout en bout, alors `le bout
 
 Hydro-Quebec ne voit pas seulement qu'un acheteur a clique sur un bouton. Elle voit si la marque d'interet est devenue une conversation utile, si cette conversation a produit un accord exploitable, quelle quantite a ete reellement engagee, et ce qu'il reste a redistribuer. De son cote, l'acheteur sait a tout moment si sa demande est en attente, en discussion, acceptee, refusee ou redirigee.
 
+### Mini workflow produit propose
+
+Statuts metier recommandes :
+
+- `submitted` : l'acheteur a formule une demande exploitable ;
+- `inDiscussion` : le surplus et la demande sont juges compatibles, la relation est en cours de qualification concrete ;
+- `partiallyServed` : une partie du volume a ete reservee ou attribuee, mais le surplus n'est pas entierement absorbe ;
+- `withdrawn` : l'acheteur a retire sa demande avant conclusion.
+
+Actions cote acheteur :
+
+- soumettre une demande sur une quantite cible ;
+- consulter le fil de suivi ;
+- retirer la demande tant qu'aucun engagement final n'est fige.
+
+Actions cote systeme ou vendeur :
+
+- qualifier la demande ;
+- faire passer la relation en discussion ;
+- marquer une attribution partielle avec quantite reservee et reliquat visible ;
+- clore explicitement le dossier.
+
+Evenements a tracer :
+
+- offre soumise ;
+- demande qualifiee ;
+- discussion ouverte ;
+- volume partiellement attribue ;
+- offre retiree ;
+- dossier clos avec issue.
+
 ### Ce que la plateforme doit permettre
 
 - creer un profil organisation verifie ;
@@ -211,7 +242,7 @@ Quand ce test change, cette section doit changer dans le meme mouvement.
 
 ### Situation
 
-Une personne arrive sur OpenG7 parce qu'elle veut comprendre rapidement ou se trouve une situation utile ou urgente, puis agir sans perdre de temps. Elle commence par explorer le feed pour reperer un sujet concret, essaie de repondre a une opportunite, revient sur ses actions pour les suivre, traite ensuite une alerte qui peut avoir des consequences plus larges, puis termine en verifiant qu'elle garde la maitrise de ses propres donnees.
+Une personne arrive sur OpenG7 parce qu'elle veut comprendre rapidement ou se trouve une situation utile ou urgente, puis agir sans perdre de temps. Elle commence par explorer le feed pour reperer un sujet concret, essaie de repondre a une opportunite, suit l'evolution de cette relation jusqu'a une attribution partielle du volume, traite ensuite une alerte qui peut avoir des consequences plus larges, puis termine en verifiant qu'elle garde la maitrise de ses propres donnees.
 
 ### Ce que cela veut dire en langage parle
 
@@ -222,7 +253,7 @@ Une personne arrive sur OpenG7 parce qu'elle veut comprendre rapidement ou se tr
 - si la connexion est demandee, elle accepte cette etape parce qu'elle comprend que son action doit etre attribuee et suivie ;
 - une fois revenue sur l'opportunite, elle renseigne les details utiles pour etre prise au serieux par le destinataire ;
 - ensuite, elle verifie le suivi de son offre parce qu'une action sans trace n'a pas de valeur operationnelle ;
-- si le contexte change, elle veut pouvoir retirer proprement son offre plutot que laisser une promesse obsolete ;
+- si la relation progresse, elle veut savoir si sa demande est qualifiee, en discussion ou deja partiellement servie ;
 - elle passe ensuite a une alerte parce qu'une situation critique peut exiger plus qu'une simple reaction individuelle ;
 - elle signale une mise a jour parce qu'elle veut enrichir la situation commune, pas seulement la consulter ;
 - elle cree une opportunite liee parce qu'une alerte utile doit parfois deboucher sur une action coordonnee ;
@@ -241,20 +272,21 @@ Une personne arrive sur OpenG7 parce qu'elle veut comprendre rapidement ou se tr
 8. Elle envoie l'offre et le drawer se ferme ; pour elle, l'enjeu est maintenant de verifier que son geste existe vraiment dans le systeme.
 9. La plateforme affiche immediatement un recapitulatif exploitable dans la zone Q/R avec un identifiant d'offre, la capacite, le mode de prix et la piece jointe ; elle peut donc constater que sa proposition n'est pas partie dans le vide.
 10. Le bouton principal de l'opportunite n'est plus dans l'etat initial : il mene maintenant vers le suivi des offres ; la personne comprend alors que l'etape suivante n'est plus de proposer, mais de suivre.
-11. Elle ouvre la vue `alerts?section=offers`, voit son offre en etat `submitted`, deplie le fil de suivi puis rouvre l'opportunite d'origine, parce qu'elle veut verifier a la fois la trace de son action et son contexte.
-12. Depuis le menu profil, elle ouvre ses alertes et retire l'offre ; l'offre passe alors a l'etat `withdrawn` et le fil de suivi montre explicitement ce retrait, ce qui lui permet de corriger sa position quand la situation change.
-13. Elle retourne au feed et ouvre l'alerte `Ice storm risk on Ontario transmission lines` parce qu'apres avoir gere son action personnelle, elle veut comprendre une situation plus large susceptible d'affecter d'autres decisions.
-14. Elle s'abonne a cette alerte, puis ouvre le formulaire `Signaler une mise a jour`, parce qu'elle veut rester informee mais aussi contribuer a une vision plus a jour.
-15. Elle renseigne un resume et une URL source, envoie le signalement, voit l'etat de succes, puis consulte son propre rapport avant de fermer la vue, parce qu'elle veut s'assurer que sa contribution est bien enregistree et consultable.
-16. Depuis cette meme alerte, elle choisit `Creer une opportunite liee` parce qu'elle voit qu'une alerte ne suffit pas toujours : il faut parfois ouvrir un nouvel espace d'action.
-17. OpenG7 ouvre directement un brouillon de publication dans le feed, deja rattache a l'alerte source, ce qui lui evite de repartir de zero.
-18. Elle saisit le titre `Linked resilience corridor from storm alert` et un resume de coordination temporaire, puis publie, parce qu'elle veut convertir un probleme observe en proposition utile pour d'autres acteurs.
-19. De retour sur le feed, la nouvelle opportunite apparait dans la liste ; elle peut verifier que l'information est devenue visible pour les autres.
-20. Elle ouvre ensuite l'indicateur `Spot electricity price up 12 percent` parce qu'elle cherche maintenant a anticiper, et pas seulement a reagir.
-21. Elle change la fenetre en `24h`, la granularite en `hour`, puis clique sur l'action d'abonnement, parce qu'elle veut lire le signal a la bonne echelle avant de definir son niveau de vigilance.
-22. Un drawer d'alerte s'ouvre ; elle fixe un seuil numerique a `15`, ajoute une note operationnelle, puis valide, parce qu'elle veut etre avertie des que le signal franchira un niveau qu'elle juge critique.
-23. Le drawer se ferme et l'action principale devient `View my alert` ou `Voir mon alerte` ; elle sait alors que sa surveillance est active.
-24. Pour finir, elle ouvre son profil puis exporte ses donnees personnelles, parce qu'un usage responsable de la plateforme suppose aussi de pouvoir recuperer ce qui la concerne.
+11. Elle ouvre la vue `alerts?section=offers`, voit son offre en etat `submitted` et deplie le fil de suivi, parce qu'elle veut verifier a la fois la trace de son action et son contexte.
+12. Le systeme fait passer la relation en `inDiscussion` ; la personne voit alors que sa demande a ete qualifiee et qu'une vraie discussion commerciale est ouverte avec le destinataire.
+13. Le suivi evolue ensuite vers `partiallyServed` ; elle comprend qu'une partie du volume a ete reservee pour elle et qu'un reliquat reste encore disponible sur l'opportunite.
+14. Elle retourne au feed et ouvre l'alerte `Ice storm risk on Ontario transmission lines` parce qu'apres avoir suivi une relation d'affaires jusqu'a un resultat concret, elle veut comprendre une situation plus large susceptible d'affecter d'autres decisions.
+15. Elle s'abonne a cette alerte, puis ouvre le formulaire `Signaler une mise a jour`, parce qu'elle veut rester informee mais aussi contribuer a une vision plus a jour.
+16. Elle renseigne un resume et une URL source, envoie le signalement, voit l'etat de succes, puis consulte son propre rapport avant de fermer la vue, parce qu'elle veut s'assurer que sa contribution est bien enregistree et consultable.
+17. Depuis cette meme alerte, elle choisit `Creer une opportunite liee` parce qu'elle voit qu'une alerte ne suffit pas toujours : il faut parfois ouvrir un nouvel espace d'action.
+18. OpenG7 ouvre directement un brouillon de publication dans le feed, deja rattache a l'alerte source, ce qui lui evite de repartir de zero.
+19. Elle saisit le titre `Linked resilience corridor from storm alert` et un resume de coordination temporaire, puis publie, parce qu'elle veut convertir un probleme observe en proposition utile pour d'autres acteurs.
+20. De retour sur le feed, la nouvelle opportunite apparait dans la liste ; elle peut verifier que l'information est devenue visible pour les autres.
+21. Elle ouvre ensuite l'indicateur `Spot electricity price up 12 percent` parce qu'elle cherche maintenant a anticiper, et pas seulement a reagir.
+22. Elle change la fenetre en `24h`, la granularite en `hour`, puis clique sur l'action d'abonnement, parce qu'elle veut lire le signal a la bonne echelle avant de definir son niveau de vigilance.
+23. Un drawer d'alerte s'ouvre ; elle fixe un seuil numerique a `15`, ajoute une note operationnelle, puis valide, parce qu'elle veut etre avertie des que le signal franchira un niveau qu'elle juge critique.
+24. Le drawer se ferme et l'action principale devient `View my alert` ou `Voir mon alerte` ; elle sait alors que sa surveillance est active.
+25. Pour finir, elle ouvre son profil puis exporte ses donnees personnelles, parce qu'un usage responsable de la plateforme suppose aussi de pouvoir recuperer ce qui la concerne.
 
 ### Ce que la plateforme doit permettre
 

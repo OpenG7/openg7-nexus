@@ -337,16 +337,25 @@ test.describe('Full human journey', () => {
     await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
       /Tracking active|Suivi active/
     );
-    await offerItem.locator('[data-og7-id="opportunity-offer-open"]').click();
-    await expect(page).toHaveURL(/\/feed\/opportunities\/request-001$/);
 
-    await openAlertsFromProfileMenu(page);
-    const withdrawnOfferItem = page.locator('[data-og7="opportunity-offer-item"]').first();
-    await withdrawnOfferItem.locator('[data-og7-id="opportunity-offer-withdraw"]').click();
-    await expect(withdrawnOfferItem).toHaveAttribute('data-og7-state', 'withdrawn');
-    await withdrawnOfferItem.locator('[data-og7-id="opportunity-offer-toggle-thread"]').click();
-    await expect(withdrawnOfferItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
-      /Offer withdrawn|Offre retiree/
+    await offerItem.locator('[data-og7-id="opportunity-offer-progress-discussion"]').click();
+    await expect(offerItem).toHaveAttribute('data-og7-state', 'inDiscussion');
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(
+      /Discussion opened|Discussion ouverte/
+    );
+    await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
+      /Request qualified|Demande qualifiee/
+    );
+
+    await offerItem.locator('[data-og7-id="opportunity-offer-progress-partial"]').click();
+    await expect(offerItem).toHaveAttribute('data-og7-state', 'partiallyServed');
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(
+      /Partial allocation|Attribution partielle/
+    );
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText('200 MW');
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText('100 MW');
+    await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
+      /200 MW/
     );
 
     await page.goto('/feed');

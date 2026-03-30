@@ -186,6 +186,8 @@ class OpportunityOffersServiceMock {
       comment: payload.comment,
       attachmentName: payload.attachmentName ?? null,
       status: 'submitted',
+      allocatedCapacityMw: null,
+      remainingOpportunityCapacityMw: null,
       createdAt: '2026-01-15T10:06:00.000Z',
       updatedAt: '2026-01-15T10:06:00.000Z',
       submittedAt: '2026-01-15T10:06:00.000Z',

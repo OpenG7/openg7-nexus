@@ -2673,16 +2673,19 @@
       },
       "offers": {
         "title": "Offres d'opportunite",
-        "subtitle": "Suivez vos offres dans une boite d'envoi locale avec historique d'activite.",
+        "subtitle": "Suivez vos offres jusqu'a la qualification, la discussion ou l'attribution partielle dans une boite d'envoi locale.",
         "count": "{{ count }} offres",
         "empty": "Aucune offre soumise pour le moment.",
         "attachment": "Piece jointe",
+        "allocationSummary": "{{ allocatedCapacityMw }} MW reserves | {{ remainingOpportunityCapacityMw }} MW encore disponibles sur l'opportunite.",
         "lastActivity": "Derniere activite",
         "activityCount": "{{ count }} activites",
         "threadTitle": "Historique de suivi",
         "referenceLabel": "Reference {{ reference }}",
         "states": {
           "submitted": "Soumise",
+          "inDiscussion": "En discussion",
+          "partiallyServed": "Partiellement servie",
           "withdrawn": "Retiree"
         },
         "recipientKinds": {
@@ -2693,6 +2696,8 @@
         },
         "actions": {
           "open": "Ouvrir l'opportunite",
+          "progressDiscussion": "Passer en discussion",
+          "markPartiallyServed": "Marquer partiellement servie",
           "withdraw": "Retirer l'offre",
           "showDetails": "Voir le suivi",
           "hideDetails": "Masquer le suivi"
@@ -2710,6 +2715,18 @@
             "tracked": {
               "title": "Suivi active",
               "body": "La reference {{ reference }} est maintenant visible dans votre boite d'envoi."
+            },
+            "qualified": {
+              "title": "Demande qualifiee",
+              "body": "Le systeme a confirme que la demande est compatible avec les principaux criteres de l'opportunite."
+            },
+            "inDiscussion": {
+              "title": "Discussion ouverte",
+              "body": "La relation d'affaires progresse : le volume demande, les contraintes et les conditions sont en cours d'alignement avec {{ recipient }}."
+            },
+            "partiallyServed": {
+              "title": "Attribution partielle",
+              "body": "{{ allocatedCapacityMw }} MW ont ete reserves pour cette relation. Il reste {{ remainingOpportunityCapacityMw }} MW a redistribuer sur l'opportunite."
             },
             "withdrawn": {
               "title": "Offre retiree",

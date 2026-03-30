@@ -62,6 +62,8 @@ class OpportunityOffersServiceMock {
 
   readonly refresh = jasmine.createSpy('refresh');
   readonly create = jasmine.createSpy('create');
+  readonly markInDiscussion = jasmine.createSpy('markInDiscussion');
+  readonly markPartiallyServed = jasmine.createSpy('markPartiallyServed');
   readonly withdraw = jasmine.createSpy('withdraw');
 
   setEntries(entries: OpportunityOfferRecord[]): void {
@@ -136,6 +138,8 @@ describe('AlertsPage', () => {
         comment: 'Firm import block for winter peak support.',
         attachmentName: 'term-sheet.pdf',
         status: 'submitted',
+        allocatedCapacityMw: null,
+        remainingOpportunityCapacityMw: null,
         createdAt: '2026-02-01T10:10:00.000Z',
         updatedAt: '2026-02-01T10:10:00.000Z',
         submittedAt: '2026-02-01T10:10:00.000Z',
@@ -219,6 +223,23 @@ describe('AlertsPage', () => {
 
     expect(thread).not.toBeNull();
     expect(activities.length).toBe(2);
+  });
+
+  it('exposes workflow actions for progressing an offer in the business relationship', () => {
+    const fixture = TestBed.createComponent(AlertsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const discussionButton = root.querySelector(
+      '[data-og7-id="opportunity-offer-progress-discussion"]'
+    ) as HTMLButtonElement;
+
+    expect(discussionButton).not.toBeNull();
+
+    discussionButton.click();
+    fixture.detectChanges();
+
+    expect(opportunityOffers.markInDiscussion).toHaveBeenCalledWith('offer-record-1');
   });
 
   it('auto-expands and highlights an offer targeted from the opportunity detail page', () => {

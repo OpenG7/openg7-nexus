@@ -2784,16 +2784,19 @@
       },
       "offers": {
         "title": "Opportunity offers",
-        "subtitle": "Track your offers in a local outbox with activity history.",
+        "subtitle": "Track your offers through qualification, discussion, or partial allocation in a local outbox.",
         "count": "{{ count }} offers",
         "empty": "No submitted offers yet.",
         "attachment": "Attachment",
+        "allocationSummary": "{{ allocatedCapacityMw }} MW reserved | {{ remainingOpportunityCapacityMw }} MW still available on the opportunity.",
         "lastActivity": "Last activity",
         "activityCount": "{{ count }} activities",
         "threadTitle": "Tracking history",
         "referenceLabel": "Reference {{ reference }}",
         "states": {
           "submitted": "Submitted",
+          "inDiscussion": "In discussion",
+          "partiallyServed": "Partially served",
           "withdrawn": "Withdrawn"
         },
         "recipientKinds": {
@@ -2804,6 +2807,8 @@
         },
         "actions": {
           "open": "Open opportunity",
+          "progressDiscussion": "Move to discussion",
+          "markPartiallyServed": "Mark partially served",
           "withdraw": "Withdraw offer",
           "showDetails": "View tracking",
           "hideDetails": "Hide tracking"
@@ -2821,6 +2826,18 @@
             "tracked": {
               "title": "Tracking active",
               "body": "Reference {{ reference }} is now visible in your outbox."
+            },
+            "qualified": {
+              "title": "Request qualified",
+              "body": "The system confirmed the request matches the main opportunity constraints."
+            },
+            "inDiscussion": {
+              "title": "Discussion opened",
+              "body": "The business relationship is moving forward: requested volume, constraints, and terms are being aligned with {{ recipient }}."
+            },
+            "partiallyServed": {
+              "title": "Partial allocation",
+              "body": "{{ allocatedCapacityMw }} MW have been reserved for this relationship. {{ remainingOpportunityCapacityMw }} MW remain available on the opportunity."
             },
             "withdrawn": {
               "title": "Offer withdrawn",
