@@ -5,7 +5,7 @@
 >
   <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-3 sm:px-4">
     <a routerLink="/" class="flex shrink-0 items-center gap-2 w-[12%]" aria-label="OpenG7">
-      <img src="/assets/logo-v2.png" alt="OpenG7" class="" />
+      <img src="/assets/logo-openg7-souverainete-en-action.png" alt="OpenG7" class="" />
     </a>
     <div class="mx-auto hidden max-w-xl flex-1 sm:flex">
       <div class="relative w-full">
@@ -140,6 +140,13 @@
             class="block rounded-lg px-3 py-2 text-sm text-slate-100 hover:bg-white/10 hover:text-white"
           >
             {{ 'header.more.importation' | translate }}
+          </a>
+          <a
+            routerLink="/feed/hydrocarbons"
+            (click)="toggleMore()"
+            class="block rounded-lg px-3 py-2 text-sm text-slate-100 hover:bg-white/10 hover:text-white"
+          >
+            {{ 'header.more.hydrocarbons' | translate }}
           </a>
           <a
             routerLink="/bulk-import"
@@ -344,6 +351,13 @@
         class="rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 hover:text-white"
       >
         {{ 'header.more.importation' | translate }}
+      </a>
+      <a
+        routerLink="/feed/hydrocarbons"
+        (click)="closeMobileMenu()"
+        class="rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 hover:text-white"
+      >
+        {{ 'header.more.hydrocarbons' | translate }}
       </a>
       <a
         routerLink="/bulk-import"

@@ -17,7 +17,13 @@
   <ul *ngIf="rows().length" class="publication-metadata__list">
     <li *ngFor="let row of rows()">
       <span>{{ row.label | translate }}</span>
-      <strong>{{ row.value | translate }}</strong>
+      <strong>
+        <ng-container *ngFor="let value of row.values; let last = last">
+          <ng-container *ngIf="value.translate; else rawValue">{{ value.value | translate }}</ng-container>
+          <ng-template #rawValue>{{ value.value }}</ng-template>
+          <ng-container *ngIf="!last">, </ng-container>
+        </ng-container>
+      </strong>
     </li>
   </ul>
 </article>

@@ -49,9 +49,11 @@ describe('MapStatsService', () => {
     const exchangeQty = metrics.find((metric) => metric.id === 'exchangeQty');
     expect(exchangeQty?.value).toBe(10);
     expect(exchangeQty?.suffixKey).toBe('map.badges.units.shipments');
+    expect(exchangeQty?.series).toEqual([8, 2]);
 
     const sectors = metrics.find((metric) => metric.id === 'sectors');
-    expect(sectors?.value).toBe(3);
+    expect(sectors?.value).toBe(4);
+    expect(sectors?.series).toEqual([1, 3, 4]);
   });
 
   it('filters flows by trade partner when provided', () => {

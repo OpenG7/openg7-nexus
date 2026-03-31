@@ -256,6 +256,94 @@
         }
       }
     },
+    "/api/hydrocarbon-signals": {
+      "get": {
+        "summary": "List hydrocarbon publication projections",
+        "parameters": [
+          {
+            "name": "publicationType",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["surplus", "slowdown"]
+            }
+          },
+          {
+            "name": "storagePressureLevel",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"]
+            }
+          },
+          {
+            "name": "originProvinceId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "targetProvinceId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HydrocarbonSignalCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/hydrocarbon-signals/{id}": {
+      "get": {
+        "summary": "Fetch a hydrocarbon signal projection",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HydrocarbonSignalResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
     "/api/import-flows": {
       "get": {
         "summary": "Fetch importation flows",
@@ -614,10 +702,115 @@
           "value": { "type": "number" },
           "unit": {
             "type": "string",
-            "enum": ["MW", "MWh", "bbl_d", "ton", "kg", "hours", "cad", "usd"]
+            "enum": ["MW", "MWh", "bbl", "bbl_d", "ton", "kg", "hours", "cad", "usd"]
           }
         },
         "required": ["value", "unit"]
+      },
+      "HydrocarbonSignal": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "feedItemId": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "companyName": { "type": "string" },
+          "publicationType": {
+            "type": "string",
+            "enum": ["surplus", "slowdown"]
+          },
+          "productType": {
+            "type": "string",
+            "enum": ["crudeOil", "bitumen", "syntheticCrude", "diesel", "other"]
+          },
+          "businessReason": {
+            "type": "string",
+            "enum": ["surplusStock", "demandSlowdown", "transportDisruption", "buyerOutage", "priceWindow"]
+          },
+          "volumeBarrels": { "type": "number" },
+          "quantityUnit": {
+            "type": "string",
+            "enum": ["bbl", "bbl_d"]
+          },
+          "minimumLotBarrels": { "type": "number", "nullable": true },
+          "availableFrom": { "type": "string", "format": "date", "nullable": true },
+          "availableUntil": { "type": "string", "format": "date", "nullable": true },
+          "estimatedDelayDays": { "type": "integer", "nullable": true },
+          "originProvinceId": { "type": "string", "nullable": true },
+          "targetProvinceId": { "type": "string", "nullable": true },
+          "originSite": { "type": "string" },
+          "qualityGrade": {
+            "type": "string",
+            "enum": ["wcs", "wtiLinked", "syntheticBlend", "other"]
+          },
+          "logisticsMode": { "type": "array", "items": { "type": "string" } },
+          "targetScope": { "type": "array", "items": { "type": "string" } },
+          "storagePressureLevel": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "priceReference": { "type": "string", "nullable": true },
+          "responseDeadline": { "type": "string", "format": "date", "nullable": true },
+          "contactChannel": { "type": "string" },
+          "notes": { "type": "string", "nullable": true },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "sourceKind": {
+            "type": "string",
+            "enum": ["GOV", "COMPANY", "PARTNER", "USER"]
+          },
+          "sourceLabel": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["active", "expired", "closed"]
+          }
+        },
+        "required": [
+          "id",
+          "feedItemId",
+          "title",
+          "summary",
+          "companyName",
+          "publicationType",
+          "productType",
+          "businessReason",
+          "volumeBarrels",
+          "quantityUnit",
+          "originSite",
+          "qualityGrade",
+          "logisticsMode",
+          "targetScope",
+          "storagePressureLevel",
+          "contactChannel",
+          "tags",
+          "sourceKind",
+          "sourceLabel",
+          "status"
+        ]
+      },
+      "HydrocarbonSignalResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/HydrocarbonSignal" }
+        },
+        "required": ["data"]
+      },
+      "HydrocarbonSignalCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/HydrocarbonSignal" }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "count": { "type": "integer" },
+              "limit": { "type": "integer" }
+            },
+            "required": ["count", "limit"]
+          }
+        },
+        "required": ["data", "meta"]
       },
       "FeedSource": {
         "type": "object",

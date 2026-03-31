@@ -113,6 +113,24 @@ export class AlertsPage {
     this.opportunityOffers.withdraw(id);
   }
 
+  protected onMarkOpportunityOfferInDiscussion(id: string): void {
+    this.opportunityOffers.markInDiscussion(id);
+  }
+
+  protected onMarkOpportunityOfferPartiallyServed(entry: OpportunityOfferRecord): void {
+    const allocatedCapacityMw = Math.min(entry.capacityMw, 200);
+    const opportunityCapacityMw = this.extractOpportunityCapacityMw(entry.opportunityTitle);
+    const remainingOpportunityCapacityMw =
+      opportunityCapacityMw === null
+        ? Math.max(0, entry.capacityMw - allocatedCapacityMw)
+        : Math.max(0, opportunityCapacityMw - allocatedCapacityMw);
+
+    this.opportunityOffers.markPartiallyServed(entry.id, {
+      allocatedCapacityMw,
+      remainingOpportunityCapacityMw,
+    });
+  }
+
   protected toggleOpportunityOfferDetails(id: string): void {
     this.expandedOpportunityOfferIds.update((current) => {
       if (current.includes(id)) {
@@ -180,7 +198,7 @@ export class AlertsPage {
     );
   }
 
-  protected opportunityOfferState(entry: OpportunityOfferRecord): 'submitted' | 'withdrawn' {
+  protected opportunityOfferState(entry: OpportunityOfferRecord): OpportunityOfferRecord['status'] {
     return entry.status;
   }
 
@@ -213,7 +231,31 @@ export class AlertsPage {
     return this.translate.instant(`pages.alerts.offers.activity.types.${activity.type}.body`, {
       reference: offer.reference,
       recipient: offer.recipientLabel,
+      requestedCapacityMw: offer.capacityMw,
+      allocatedCapacityMw: offer.allocatedCapacityMw,
+      remainingOpportunityCapacityMw: offer.remainingOpportunityCapacityMw,
     });
+  }
+
+  protected opportunityOfferAllocationSummary(entry: OpportunityOfferRecord): string | null {
+    if (entry.status !== 'partiallyServed' || entry.allocatedCapacityMw === null) {
+      return null;
+    }
+
+    return this.translate.instant('pages.alerts.offers.allocationSummary', {
+      allocatedCapacityMw: entry.allocatedCapacityMw,
+      remainingOpportunityCapacityMw: entry.remainingOpportunityCapacityMw ?? 0,
+    });
+  }
+
+  private extractOpportunityCapacityMw(title: string): number | null {
+    const match = title.match(/(\d+)\s*MW/i);
+    if (!match) {
+      return null;
+    }
+
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value : null;
   }
 
   protected trackById = (_: number, entry: UserAlertRecord) => entry.id;

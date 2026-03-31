@@ -33,6 +33,8 @@
     "dev:trace": "concurrently \"yarn dev:web:trace\" \"yarn dev:cms:trace\"",
     "codegen": "yarn --cwd packages/contracts run codegen",
     "test": "yarn --cwd packages/contracts test",
+    "test:web": "yarn --cwd openg7-org test",
+    "test:coverage:web": "yarn --cwd openg7-org test:coverage:ci",
     "test:e2e": "yarn --cwd openg7-org e2e",
     "test:e2e:smoke": "yarn --cwd openg7-org e2e:smoke",
     "test:e2e:regression": "yarn --cwd openg7-org e2e:regression",

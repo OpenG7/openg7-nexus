@@ -15,11 +15,15 @@
             type="number"
             min="1"
             formControlName="capacityMw"
+            [attr.aria-invalid]="form.controls.capacityMw.invalid && (form.controls.capacityMw.touched || submitAttempted()) ? 'true' : null"
             data-og7="opportunity-offer-field"
             data-og7-id="capacity"
           />
           <small>MW</small>
         </div>
+        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.capacityMw.invalid && (form.controls.capacityMw.touched || submitAttempted())">
+          {{ 'validation.required' | translate }}
+        </p>
       </label>
 
       <div class="opportunity-offer-drawer__grid">
@@ -28,24 +32,37 @@
           <input
             type="date"
             formControlName="startDate"
+            [attr.aria-invalid]="form.controls.startDate.invalid && (form.controls.startDate.touched || submitAttempted()) ? 'true' : null"
             data-og7="opportunity-offer-field"
             data-og7-id="start-date"
           />
+          <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.startDate.invalid && (form.controls.startDate.touched || submitAttempted())">
+            {{ 'validation.required' | translate }}
+          </p>
         </label>
         <label>
           <span>{{ 'feed.opportunity.detail.offer.end' | translate }}</span>
           <input
             type="date"
             formControlName="endDate"
+            [attr.aria-invalid]="form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted()) ? 'true' : null"
             data-og7="opportunity-offer-field"
             data-og7-id="end-date"
           />
+          <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted())">
+            {{ 'validation.required' | translate }}
+          </p>
         </label>
       </div>
 
       <label>
         <span>{{ 'feed.opportunity.detail.offer.pricing' | translate }}</span>
-        <select formControlName="pricingModel" data-og7="opportunity-offer-field" data-og7-id="pricing-model">
+        <select
+          formControlName="pricingModel"
+          [attr.aria-invalid]="form.controls.pricingModel.invalid && (form.controls.pricingModel.touched || submitAttempted()) ? 'true' : null"
+          data-og7="opportunity-offer-field"
+          data-og7-id="pricing-model"
+        >
           <option value="spot">{{ 'feed.opportunity.detail.pricing.spot' | translate }}</option>
           <option value="indexed">{{ 'feed.opportunity.detail.pricing.indexed' | translate }}</option>
           <option value="fixed">{{ 'feed.opportunity.detail.pricing.fixed' | translate }}</option>
@@ -54,7 +71,19 @@
 
       <label>
         <span>{{ 'feed.opportunity.detail.offer.comment' | translate }}</span>
-        <textarea formControlName="comment" rows="4" data-og7="opportunity-offer-field" data-og7-id="comment"></textarea>
+        <textarea
+          formControlName="comment"
+          rows="4"
+          [attr.aria-invalid]="form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted()) ? 'true' : null"
+          data-og7="opportunity-offer-field"
+          data-og7-id="comment"
+        ></textarea>
+        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.comment.hasError('required') && (form.controls.comment.touched || submitAttempted())">
+          {{ 'validation.required' | translate }}
+        </p>
+        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.comment.hasError('minlength') && (form.controls.comment.touched || submitAttempted())">
+          {{ 'validation.minLength' | translate : { min: minCommentLength } }}
+        </p>
       </label>
 
       <label>
@@ -69,6 +98,15 @@
 
       <p class="opportunity-offer-drawer__attachment" *ngIf="form.controls.attachmentName.value">
         {{ form.controls.attachmentName.value }}
+      </p>
+
+      <p
+        class="opportunity-offer-drawer__validation-summary"
+        *ngIf="submitAttempted() && form.invalid"
+        data-og7="opportunity-offer-validation"
+        data-og7-id="summary"
+      >
+        {{ 'validation.required' | translate }}
       </p>
 
       <p

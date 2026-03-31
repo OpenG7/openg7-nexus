@@ -1,0 +1,108 @@
+.og7-feed__hydrocarbon-panel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 32%),
+    linear-gradient(180deg, rgba(47, 24, 7, 0.7), rgba(18, 11, 7, 0.82));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.og7-feed__hydrocarbon-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.og7-feed__hydrocarbon-panel-title {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff7ed;
+}
+
+.og7-feed__hydrocarbon-panel-kicker {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.16);
+  color: #fde68a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.og7-feed__hydrocarbon-panel-copy,
+.og7-feed__hydrocarbon-panel-state {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #fdedd3;
+}
+
+.og7-feed__hydrocarbon-panel-state--error {
+  color: #fecaca;
+}
+
+.og7-feed__hydrocarbon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.og7-feed__hydrocarbon-item {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(253, 230, 138, 0.12);
+}
+
+.og7-feed__hydrocarbon-item-header {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.og7-feed__hydrocarbon-item-title,
+.og7-feed__hydrocarbon-item-meta,
+.og7-feed__hydrocarbon-item-summary {
+  margin: 0;
+}
+
+.og7-feed__hydrocarbon-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff7ed;
+}
+
+.og7-feed__hydrocarbon-item-meta {
+  font-size: 0.78rem;
+  color: #fde68a;
+}
+
+.og7-feed__hydrocarbon-item-summary {
+  font-size: 0.82rem;
+  color: #fed7aa;
+}
+
+.og7-feed__hydrocarbon-badge {
+  flex: 0 0 auto;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.og7-feed__hydrocarbon-badge--warning {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fecaca;
+}

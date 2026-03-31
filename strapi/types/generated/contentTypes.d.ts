@@ -609,7 +609,7 @@ export interface ApiFeedFeed extends Struct.CollectionTypeSchema {
     publicationFormKey: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     quantityUnit: Schema.Attribute.Enumeration<
-      ['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']
+      ['MW', 'MWh', 'bbl', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']
     >;
     quantityValue: Schema.Attribute.Decimal;
     searchText: Schema.Attribute.Text;
@@ -683,6 +683,101 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     seo: Schema.Attribute.Component<'seo.seo', false>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
+export interface ApiHydrocarbonSignalHydrocarbonSignal extends Struct.CollectionTypeSchema {
+  collectionName: 'hydrocarbon_signals';
+  info: {
+    displayName: 'Hydrocarbon Signal';
+    pluralName: 'hydrocarbon-signals';
+    singularName: 'hydrocarbon-signal';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    availableFrom: Schema.Attribute.Date;
+    availableUntil: Schema.Attribute.Date;
+    businessReason: Schema.Attribute.Enumeration<
+      ['surplusStock', 'demandSlowdown', 'transportDisruption', 'buyerOutage', 'priceWindow']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'surplusStock'>;
+    companyName: Schema.Attribute.String & Schema.Attribute.Required;
+    contactChannel: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    estimatedDelayDays: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    feedItem: Schema.Attribute.Relation<'oneToOne', 'api::feed.feed'>;
+    feedItemId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Unique;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::hydrocarbon-signal.hydrocarbon-signal'
+    > &
+      Schema.Attribute.Private;
+    logisticsMode: Schema.Attribute.JSON;
+    minimumLotBarrels: Schema.Attribute.Decimal &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    notes: Schema.Attribute.Text;
+    originProvinceId: Schema.Attribute.String;
+    originSite: Schema.Attribute.String & Schema.Attribute.Required;
+    owner: Schema.Attribute.Relation<'manyToOne', 'plugin::users-permissions.user'>;
+    priceReference: Schema.Attribute.String;
+    productType: Schema.Attribute.Enumeration<
+      ['crudeOil', 'bitumen', 'syntheticCrude', 'diesel', 'other']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'other'>;
+    publicationType: Schema.Attribute.Enumeration<['surplus', 'slowdown']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'surplus'>;
+    publishedAt: Schema.Attribute.DateTime;
+    qualityGrade: Schema.Attribute.Enumeration<['wcs', 'wtiLinked', 'syntheticBlend', 'other']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'other'>;
+    quantityUnit: Schema.Attribute.Enumeration<['bbl', 'bbl_d']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'bbl'>;
+    responseDeadline: Schema.Attribute.Date;
+    sourceIdempotencyKey: Schema.Attribute.String;
+    sourceKind: Schema.Attribute.Enumeration<['GOV', 'COMPANY', 'PARTNER', 'USER']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'USER'>;
+    sourceLabel: Schema.Attribute.String & Schema.Attribute.Required;
+    status: Schema.Attribute.Enumeration<['active', 'expired', 'closed']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'active'>;
+    storagePressureLevel: Schema.Attribute.Enumeration<['low', 'medium', 'high', 'critical']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'medium'>;
+    summary: Schema.Attribute.Text & Schema.Attribute.Required;
+    tags: Schema.Attribute.JSON;
+    targetProvinceId: Schema.Attribute.String;
+    targetScope: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    volumeBarrels: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
   };
 }
 
@@ -1487,6 +1582,7 @@ declare module '@strapi/strapi' {
       'api::exchange.exchange': ApiExchangeExchange;
       'api::feed.feed': ApiFeedFeed;
       'api::homepage.homepage': ApiHomepageHomepage;
+      'api::hydrocarbon-signal.hydrocarbon-signal': ApiHydrocarbonSignalHydrocarbonSignal;
       'api::import-annotation.import-annotation': ApiImportAnnotationImportAnnotation;
       'api::import-report-schedule.import-report-schedule': ApiImportReportScheduleImportReportSchedule;
       'api::import-watchlist.import-watchlist': ApiImportWatchlistImportWatchlist;

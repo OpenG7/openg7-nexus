@@ -24,11 +24,13 @@ interface FeedApiItem {
   status: 'confirmed';
 }
 
+const e2eOrigin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4300';
+
 test.describe('Feed publish panel', () => {
   test('publishes a prefilled exchange, clears the draft URL, and persists after reload', async ({ page }) => {
     const publishedItems: FeedApiItem[] = [];
     const corsHeaders = {
-      'access-control-allow-origin': 'http://localhost:4200',
+      'access-control-allow-origin': e2eOrigin,
       'access-control-allow-credentials': 'true',
       'access-control-allow-methods': 'GET,POST,OPTIONS',
       'access-control-allow-headers': 'Content-Type, Idempotency-Key, Authorization',

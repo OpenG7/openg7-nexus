@@ -2,6 +2,7 @@ import type { Core } from '@strapi/strapi';
 
 import type { SessionTokenClaims } from '../../../utils/auth-sessions';
 import { validateSessionForToken } from '../../../utils/auth-sessions';
+import { syncHydrocarbonSignalProjection } from '../../hydrocarbon-signal/services/hydrocarbon-signal-projection';
 import {
   broadcastFeedEnvelope,
   registerFeedStreamClient,
@@ -18,7 +19,7 @@ const FEED_ORIGIN_TYPES = new Set(['alert', 'opportunity', 'indicator']);
 const FEED_SOURCES = new Set(['GOV', 'COMPANY', 'PARTNER', 'USER']);
 const FEED_STATUSES = new Set(['confirmed', 'pending', 'failed']);
 const FEED_SORTS = new Set(['NEWEST', 'URGENCY', 'VOLUME', 'CREDIBILITY']);
-const QUANTITY_UNITS = new Set(['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']);
+const QUANTITY_UNITS = new Set(['MW', 'MWh', 'bbl', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd']);
 const HOME_FEED_SCOPES = new Set(['canada', 'g7', 'world']);
 const HOME_FEED_FILTERS = new Set(['all', 'offer', 'request', 'labor', 'transport']);
 const HOME_FEED_LABOR_TAGS = new Set([
@@ -50,7 +51,7 @@ type FeedType = 'OFFER' | 'REQUEST' | 'ALERT' | 'TENDER' | 'CAPACITY' | 'INDICAT
 type FeedOriginType = 'alert' | 'opportunity' | 'indicator';
 type FeedSourceKind = 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
 type FeedStatus = 'confirmed' | 'pending' | 'failed';
-type FeedQuantityUnit = 'MW' | 'MWh' | 'bbl_d' | 'ton' | 'kg' | 'hours' | 'cad' | 'usd';
+type FeedQuantityUnit = 'MW' | 'MWh' | 'bbl' | 'bbl_d' | 'ton' | 'kg' | 'hours' | 'cad' | 'usd';
 type HomeFeedScope = 'canada' | 'g7' | 'world';
 type HomeFeedFilter = 'all' | 'offer' | 'request' | 'labor' | 'transport';
 
@@ -1299,6 +1300,25 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     })) as Record<string, unknown>;
 
     const item = mapFeedEntity(created);
+    await syncHydrocarbonSignalProjection({
+      feedItemId: item.id,
+      ownerId: currentUser.id,
+      sourceIdempotencyKey: idempotencyKey ?? null,
+      title: item.title,
+      summary: item.summary,
+      fromProvinceId: item.fromProvinceId,
+      toProvinceId: item.toProvinceId,
+      quantity: item.quantity
+        ? {
+            value: item.quantity.value,
+            unit: item.quantity.unit,
+          }
+        : null,
+      tags: item.tags,
+      sourceKind: item.source.kind,
+      sourceLabel: item.source.label,
+      metadata: (item.metadata as Record<string, unknown> | null | undefined) ?? null,
+    });
     const envelopeEventId = generateEventId(item.id);
     broadcastFeedEnvelope({
       eventId: envelopeEventId,

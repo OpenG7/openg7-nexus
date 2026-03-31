@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { FeedComposerDraft } from '../models/feed.models';
+
 import {
   PublicationBinding,
   PublicationFormConfig,

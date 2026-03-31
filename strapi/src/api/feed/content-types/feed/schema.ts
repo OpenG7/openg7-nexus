@@ -55,7 +55,7 @@ const schema = {
     },
     quantityUnit: {
       type: 'enumeration',
-      enum: ['MW', 'MWh', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd'],
+      enum: ['MW', 'MWh', 'bbl', 'bbl_d', 'ton', 'kg', 'hours', 'cad', 'usd'],
     },
     urgency: {
       type: 'integer',

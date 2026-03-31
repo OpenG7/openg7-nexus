@@ -1,0 +1,312 @@
+{
+  "formKey": "hydrocarbon-surplus-offer",
+  "schemaVersion": 1,
+  "titleKey": "forms.hydrocarbonSurplus.title",
+  "descriptionKey": "forms.hydrocarbonSurplus.description",
+  "actorTypes": ["other", "distributor", "logistics"],
+  "sectorId": "energy",
+  "tags": ["energy", "hydrocarbons", "oil"],
+  "sections": [
+    {
+      "id": "signal",
+      "titleKey": "forms.hydrocarbonSurplus.sections.signal.title",
+      "descriptionKey": "forms.hydrocarbonSurplus.sections.signal.description",
+      "fields": [
+        {
+          "key": "title",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.title.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.title.placeholder",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 3, "errorKey": "forms.hydrocarbonSurplus.validation.title.minLength" },
+            { "type": "maxLength", "value": 160, "errorKey": "forms.hydrocarbonSurplus.validation.title.maxLength" }
+          ]
+        },
+        {
+          "key": "summary",
+          "type": "textarea",
+          "labelKey": "forms.hydrocarbonSurplus.fields.summary.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.summary.placeholder",
+          "helpKey": "forms.hydrocarbonSurplus.fields.summary.help",
+          "required": true,
+          "validators": [
+            { "type": "minLength", "value": 10, "errorKey": "forms.hydrocarbonSurplus.validation.summary.minLength" },
+            { "type": "maxLength", "value": 5000, "errorKey": "forms.hydrocarbonSurplus.validation.summary.maxLength" }
+          ]
+        },
+        {
+          "key": "companyName",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.companyName.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.companyName.placeholder",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "publicationType",
+          "type": "radio",
+          "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.label",
+          "defaultValue": "surplus",
+          "required": true,
+          "options": [
+            { "value": "surplus", "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.surplus" },
+            { "value": "slowdown", "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.slowdown" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "productType",
+          "type": "select",
+          "labelKey": "forms.hydrocarbonSurplus.fields.productType.label",
+          "required": true,
+          "options": [
+            { "value": "crude-oil", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.crudeOil" },
+            { "value": "bitumen", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.bitumen" },
+            { "value": "synthetic-crude", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.syntheticCrude" },
+            { "value": "diesel", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.diesel" },
+            { "value": "other", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.other" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "businessReason",
+          "type": "select",
+          "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.label",
+          "required": true,
+          "options": [
+            { "value": "surplus-stock", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.surplusStock" },
+            { "value": "demand-slowdown", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.demandSlowdown" },
+            { "value": "transport-disruption", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.transportDisruption" },
+            { "value": "buyer-outage", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.buyerOutage" },
+            { "value": "price-window", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.priceWindow" }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "volume",
+      "titleKey": "forms.hydrocarbonSurplus.sections.volume.title",
+      "descriptionKey": "forms.hydrocarbonSurplus.sections.volume.description",
+      "fields": [
+        {
+          "key": "volumeBarrels",
+          "type": "number",
+          "labelKey": "forms.hydrocarbonSurplus.fields.volumeBarrels.label",
+          "required": true,
+          "validators": [
+            { "type": "min", "value": 1, "errorKey": "forms.hydrocarbonSurplus.validation.volumeBarrels.min" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "minimumLotBarrels",
+          "type": "number",
+          "labelKey": "forms.hydrocarbonSurplus.fields.minimumLotBarrels.label",
+          "validators": [
+            { "type": "min", "value": 1, "errorKey": "forms.hydrocarbonSurplus.validation.minimumLotBarrels.min" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "availableFrom",
+          "type": "date",
+          "labelKey": "forms.hydrocarbonSurplus.fields.availableFrom.label",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "availableUntil",
+          "type": "date",
+          "labelKey": "forms.hydrocarbonSurplus.fields.availableUntil.label",
+          "required": true,
+          "validators": [
+            { "type": "dateOrder", "compareWithField": "availableFrom", "errorKey": "forms.hydrocarbonSurplus.validation.availableUntil.dateOrder" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "estimatedDelayDays",
+          "type": "number",
+          "labelKey": "forms.hydrocarbonSurplus.fields.estimatedDelayDays.label",
+          "helpKey": "forms.hydrocarbonSurplus.fields.estimatedDelayDays.help",
+          "validators": [
+            { "type": "min", "value": 0, "errorKey": "forms.hydrocarbonSurplus.validation.estimatedDelayDays.min" }
+          ],
+          "visibleWhen": [
+            { "field": "publicationType", "operator": "equals", "value": "slowdown" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "storagePressureLevel",
+          "type": "radio",
+          "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.label",
+          "defaultValue": "medium",
+          "options": [
+            { "value": "low", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.low" },
+            { "value": "medium", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.medium" },
+            { "value": "high", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.high" },
+            { "value": "critical", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.critical" }
+          ],
+          "width": "half"
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "titleKey": "forms.hydrocarbonSurplus.sections.routing.title",
+      "descriptionKey": "forms.hydrocarbonSurplus.sections.routing.description",
+      "fields": [
+        {
+          "key": "fromProvinceId",
+          "type": "select",
+          "labelKey": "forms.hydrocarbonSurplus.fields.fromProvinceId.label",
+          "defaultValue": "ab",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "toProvinceId",
+          "type": "select",
+          "labelKey": "forms.hydrocarbonSurplus.fields.toProvinceId.label",
+          "helpKey": "forms.hydrocarbonSurplus.fields.toProvinceId.help",
+          "width": "half"
+        },
+        {
+          "key": "originSite",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.originSite.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.originSite.placeholder",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "qualityGrade",
+          "type": "select",
+          "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.label",
+          "required": true,
+          "options": [
+            { "value": "wcs", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wcs" },
+            { "value": "wti-linked", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wtiLinked" },
+            { "value": "synthetic-blend", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.syntheticBlend" },
+            { "value": "other", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.other" }
+          ],
+          "width": "half"
+        },
+        {
+          "key": "logisticsMode",
+          "type": "multiselect",
+          "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.label",
+          "required": true,
+          "options": [
+            { "value": "pipeline", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.pipeline" },
+            { "value": "rail", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.rail" },
+            { "value": "truck", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.truck" },
+            { "value": "storage-transfer", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer" },
+            { "value": "mixed", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.mixed" }
+          ]
+        },
+        {
+          "key": "targetScope",
+          "type": "multiselect",
+          "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.label",
+          "helpKey": "forms.hydrocarbonSurplus.fields.targetScope.help",
+          "options": [
+            { "value": "bc", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.bc" },
+            { "value": "sk", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.sk" },
+            { "value": "mb", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.mb" },
+            { "value": "on", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.on" },
+            { "value": "qc", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.qc" },
+            { "value": "refining-network", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.refiningNetwork" },
+            { "value": "storage-network", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.storageNetwork" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "commercial",
+      "titleKey": "forms.hydrocarbonSurplus.sections.commercial.title",
+      "descriptionKey": "forms.hydrocarbonSurplus.sections.commercial.description",
+      "fields": [
+        {
+          "key": "priceReference",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.priceReference.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.priceReference.placeholder",
+          "width": "half"
+        },
+        {
+          "key": "responseDeadline",
+          "type": "date",
+          "labelKey": "forms.hydrocarbonSurplus.fields.responseDeadline.label",
+          "width": "half"
+        },
+        {
+          "key": "notes",
+          "type": "textarea",
+          "labelKey": "forms.hydrocarbonSurplus.fields.notes.label",
+          "helpKey": "forms.hydrocarbonSurplus.fields.notes.help"
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "titleKey": "forms.hydrocarbonSurplus.sections.contact.title",
+      "descriptionKey": "forms.hydrocarbonSurplus.sections.contact.description",
+      "fields": [
+        {
+          "key": "contactChannel",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.contactChannel.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.contactChannel.placeholder",
+          "required": true,
+          "width": "half"
+        },
+        {
+          "key": "tags",
+          "type": "text",
+          "labelKey": "forms.hydrocarbonSurplus.fields.tags.label",
+          "placeholderKey": "forms.hydrocarbonSurplus.fields.tags.placeholder",
+          "width": "half"
+        }
+      ]
+    }
+  ],
+  "draftMapping": {
+    "defaults": {
+      "type": "OFFER",
+      "sectorId": "energy",
+      "mode": "EXPORT"
+    },
+    "bindings": {
+      "title": { "kind": "field", "field": "title" },
+      "summary": { "kind": "field", "field": "summary" },
+      "fromProvinceId": { "kind": "field", "field": "fromProvinceId" },
+      "toProvinceId": { "kind": "field", "field": "toProvinceId" },
+      "quantity.value": { "kind": "field", "field": "volumeBarrels" },
+      "quantity.unit": { "kind": "constant", "value": "bbl" },
+      "tags": { "kind": "array", "fields": ["tags", "publicationType", "productType"] }
+    },
+    "extensions": {
+      "companyName": { "kind": "field", "field": "companyName" },
+      "publicationType": { "kind": "field", "field": "publicationType" },
+      "productType": { "kind": "field", "field": "productType" },
+      "businessReason": { "kind": "field", "field": "businessReason" },
+      "originSite": { "kind": "field", "field": "originSite" },
+      "qualityGrade": { "kind": "field", "field": "qualityGrade" },
+      "logisticsMode": { "kind": "field", "field": "logisticsMode" },
+      "targetScope": { "kind": "field", "field": "targetScope" },
+      "availableFrom": { "kind": "field", "field": "availableFrom" },
+      "availableUntil": { "kind": "field", "field": "availableUntil" },
+      "minimumLotBarrels": { "kind": "field", "field": "minimumLotBarrels" },
+      "estimatedDelayDays": { "kind": "field", "field": "estimatedDelayDays" },
+      "storagePressureLevel": { "kind": "field", "field": "storagePressureLevel" },
+      "priceReference": { "kind": "field", "field": "priceReference" },
+      "responseDeadline": { "kind": "field", "field": "responseDeadline" },
+      "contactChannel": { "kind": "field", "field": "contactChannel" },
+      "notes": { "kind": "field", "field": "notes" }
+    }
+  }
+}

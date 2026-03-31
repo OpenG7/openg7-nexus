@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import coldChainCapacityOfferConfigJson from './forms/cold-chain-capacity-offer.json';
 import energySurplusOfferConfigJson from './forms/energy-surplus-offer.json';
+import hydrocarbonSurplusOfferConfigJson from './forms/hydrocarbon-surplus-offer.json';
 import industrialLoadFlexRequestConfigJson from './forms/industrial-load-flex-request.json';
 import { PublicationFormConfig } from './publication-form-config.models';
 import { PublicationFormMapperService } from './publication-form-mapper.service';
@@ -121,6 +122,61 @@ describe('PublicationFormMapperService', () => {
         crossDockAvailable: true,
         availableFrom: '2026-03-21T08:00',
         availableUntil: '2026-03-28T18:00',
+      })
+    );
+  });
+
+  it('maps the hydrocarbon surplus template into an offer draft with barrel quantities and market extensions', () => {
+    const config = hydrocarbonSurplusOfferConfigJson as PublicationFormConfig;
+
+    const result = service.map(config, {
+      title: 'Alberta crude surplus following corridor slowdown',
+      summary: '48,000 barrels are temporarily available after a slowdown on the primary outbound corridor.',
+      companyName: 'Northern Prairie Energy',
+      publicationType: 'slowdown',
+      productType: 'crude-oil',
+      businessReason: 'transport-disruption',
+      volumeBarrels: 48000,
+      minimumLotBarrels: 12000,
+      availableFrom: '2026-03-25',
+      availableUntil: '2026-04-04',
+      estimatedDelayDays: 10,
+      storagePressureLevel: 'high',
+      fromProvinceId: 'ab',
+      toProvinceId: 'on',
+      originSite: 'Edmonton terminal cluster',
+      qualityGrade: 'wcs',
+      logisticsMode: ['rail', 'storage-transfer'],
+      targetScope: ['sk', 'mb', 'refining-network'],
+      priceReference: 'WCS less transport differential',
+      responseDeadline: '2026-03-30',
+      contactChannel: 'Crude desk',
+      tags: 'alberta, surplus-window',
+      notes: 'Priority routing required before storage reaches critical threshold.',
+    });
+
+    expect(result.draft).toEqual(
+      jasmine.objectContaining({
+        type: 'OFFER',
+        sectorId: 'energy',
+        mode: 'EXPORT',
+        fromProvinceId: 'ab',
+        toProvinceId: 'on',
+        title: 'Alberta crude surplus following corridor slowdown',
+        quantity: { value: 48000, unit: 'bbl' },
+        tags: ['alberta', 'surplus-window', 'slowdown', 'crude-oil'],
+      })
+    );
+    expect(result.extensions).toEqual(
+      jasmine.objectContaining({
+        companyName: 'Northern Prairie Energy',
+        publicationType: 'slowdown',
+        productType: 'crude-oil',
+        businessReason: 'transport-disruption',
+        logisticsMode: ['rail', 'storage-transfer'],
+        targetScope: ['sk', 'mb', 'refining-network'],
+        estimatedDelayDays: 10,
+        storagePressureLevel: 'high',
       })
     );
   });

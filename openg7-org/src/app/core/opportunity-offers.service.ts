@@ -6,8 +6,14 @@ import { createUserScopedPersistentState } from './storage/user-scoped-persisten
 const STORAGE_KEY_PREFIX = 'og7.opportunity-offers.v1';
 
 export type OpportunityOfferRecipientKind = 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
-export type OpportunityOfferStatus = 'submitted' | 'withdrawn';
-export type OpportunityOfferActivityType = 'submitted' | 'tracked' | 'withdrawn';
+export type OpportunityOfferStatus = 'submitted' | 'inDiscussion' | 'partiallyServed' | 'withdrawn';
+export type OpportunityOfferActivityType =
+  | 'submitted'
+  | 'tracked'
+  | 'qualified'
+  | 'inDiscussion'
+  | 'partiallyServed'
+  | 'withdrawn';
 export type OpportunityOfferActivityActor = 'sender' | 'system';
 
 export interface OpportunityOfferActivityRecord {
@@ -35,6 +41,8 @@ export interface OpportunityOfferRecord {
   comment: string;
   attachmentName: string | null;
   status: OpportunityOfferStatus;
+  allocatedCapacityMw: number | null;
+  remainingOpportunityCapacityMw: number | null;
   createdAt: string;
   updatedAt: string;
   submittedAt: string;
@@ -103,6 +111,8 @@ export class OpportunityOffersService {
       comment: payload.comment,
       attachmentName: payload.attachmentName ?? null,
       status: 'submitted',
+      allocatedCapacityMw: null,
+      remainingOpportunityCapacityMw: null,
       createdAt: now,
       updatedAt: now,
       submittedAt: now,
@@ -116,6 +126,128 @@ export class OpportunityOffersService {
       'Opportunity offers require an authenticated session.'
     );
     return record;
+  }
+
+  markInDiscussion(id: string): OpportunityOfferRecord | null {
+    const normalizedId = this.normalizeId(id);
+    if (!normalizedId) {
+      return null;
+    }
+
+    let updatedRecord: OpportunityOfferRecord | null = null;
+    const now = new Date().toISOString();
+    const nextEntries = this.sortEntries(
+      this.entries().map((entry) => {
+        if (
+          entry.id !== normalizedId ||
+          entry.status === 'withdrawn' ||
+          entry.status === 'inDiscussion' ||
+          entry.status === 'partiallyServed'
+        ) {
+          return entry;
+        }
+
+        const newActivities: OpportunityOfferActivityRecord[] = [];
+        if (!entry.activities.some((activity) => activity.type === 'qualified')) {
+          newActivities.push(
+            this.createActivity({
+              type: 'qualified',
+              actor: 'system',
+              createdAt: now,
+            })
+          );
+        }
+        newActivities.push(
+          this.createActivity({
+            type: 'inDiscussion',
+            actor: 'system',
+            createdAt: now,
+          })
+        );
+
+        updatedRecord = {
+          ...entry,
+          status: 'inDiscussion',
+          updatedAt: now,
+          activities: this.sortActivities([...newActivities, ...entry.activities]),
+        };
+        return updatedRecord;
+      })
+    );
+
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Opportunity offers require an authenticated session.'
+    );
+    return updatedRecord;
+  }
+
+  markPartiallyServed(
+    id: string,
+    allocation: { allocatedCapacityMw: number; remainingOpportunityCapacityMw: number | null }
+  ): OpportunityOfferRecord | null {
+    const normalizedId = this.normalizeId(id);
+    if (!normalizedId) {
+      return null;
+    }
+
+    const allocatedCapacityMw = this.normalizeNumber(allocation.allocatedCapacityMw);
+    const remainingOpportunityCapacityMw = this.normalizeNullableNumber(
+      allocation.remainingOpportunityCapacityMw
+    );
+
+    let updatedRecord: OpportunityOfferRecord | null = null;
+    const now = new Date().toISOString();
+    const nextEntries = this.sortEntries(
+      this.entries().map((entry) => {
+        if (entry.id !== normalizedId || entry.status === 'withdrawn' || entry.status === 'partiallyServed') {
+          return entry;
+        }
+
+        const newActivities: OpportunityOfferActivityRecord[] = [];
+        if (!entry.activities.some((activity) => activity.type === 'qualified')) {
+          newActivities.push(
+            this.createActivity({
+              type: 'qualified',
+              actor: 'system',
+              createdAt: now,
+            })
+          );
+        }
+        if (!entry.activities.some((activity) => activity.type === 'inDiscussion')) {
+          newActivities.push(
+            this.createActivity({
+              type: 'inDiscussion',
+              actor: 'system',
+              createdAt: now,
+            })
+          );
+        }
+        newActivities.push(
+          this.createActivity({
+            type: 'partiallyServed',
+            actor: 'system',
+            createdAt: now,
+          })
+        );
+
+        updatedRecord = {
+          ...entry,
+          status: 'partiallyServed',
+          allocatedCapacityMw,
+          remainingOpportunityCapacityMw,
+          updatedAt: now,
+          activities: this.sortActivities([...newActivities, ...entry.activities]),
+        };
+        return updatedRecord;
+      })
+    );
+
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Opportunity offers require an authenticated session.'
+    );
+    return updatedRecord;
   }
 
   withdraw(id: string): OpportunityOfferRecord | null {
@@ -190,7 +322,7 @@ export class OpportunityOffersService {
     const updatedAt = this.normalizeIsoTimestamp(record['updatedAt']) ?? createdAt;
     const submittedAt = this.normalizeIsoTimestamp(record['submittedAt']) ?? createdAt;
     const withdrawnAt = this.normalizeIsoTimestamp(record['withdrawnAt']);
-    const status = record['status'] === 'withdrawn' ? 'withdrawn' : 'submitted';
+    const status = this.normalizeStatus(record['status']);
     const reference = this.normalizeText(record['reference'], this.generateReference(createdAt));
     const activities = this.normalizeActivities(record['activities'], {
       createdAt: updatedAt,
@@ -217,6 +349,8 @@ export class OpportunityOffersService {
       comment: this.normalizeText(record['comment'], ''),
       attachmentName: this.normalizeNullableText(record['attachmentName']),
       status,
+      allocatedCapacityMw: this.normalizeNullableNumber(record['allocatedCapacityMw']),
+      remainingOpportunityCapacityMw: this.normalizeNullableNumber(record['remainingOpportunityCapacityMw']),
       createdAt,
       updatedAt: this.maxTimestamp(updatedAt, activities[0]?.createdAt ?? null),
       submittedAt,
@@ -236,7 +370,16 @@ export class OpportunityOffersService {
   }
 
   private statusPriority(status: OpportunityOfferStatus): number {
-    return status === 'submitted' ? 0 : 1;
+    switch (status) {
+      case 'inDiscussion':
+        return 0;
+      case 'submitted':
+        return 1;
+      case 'partiallyServed':
+        return 2;
+      default:
+        return 3;
+    }
   }
 
   private normalizeActivities(
@@ -271,6 +414,31 @@ export class OpportunityOffersService {
         createdAt: fallback.submittedAt,
       }),
     ];
+
+    if (fallback.status === 'inDiscussion' || fallback.status === 'partiallyServed') {
+      activities.unshift(
+        this.createActivity({
+          type: 'qualified',
+          actor: 'system',
+          createdAt: fallback.createdAt,
+        }),
+        this.createActivity({
+          type: 'inDiscussion',
+          actor: 'system',
+          createdAt: fallback.createdAt,
+        })
+      );
+    }
+
+    if (fallback.status === 'partiallyServed') {
+      activities.unshift(
+        this.createActivity({
+          type: 'partiallyServed',
+          actor: 'system',
+          createdAt: fallback.createdAt,
+        })
+      );
+    }
 
     if (fallback.status === 'withdrawn' && fallback.withdrawnAt) {
       activities.unshift(
@@ -346,17 +514,30 @@ export class OpportunityOffersService {
 
   private activityPriority(type: OpportunityOfferActivityType): number {
     switch (type) {
-      case 'withdrawn':
+      case 'partiallyServed':
         return 0;
-      case 'tracked':
+      case 'withdrawn':
         return 1;
-      default:
+      case 'inDiscussion':
         return 2;
+      case 'qualified':
+        return 3;
+      case 'tracked':
+        return 4;
+      default:
+        return 5;
     }
   }
 
   private normalizeActivityType(value: unknown): OpportunityOfferActivityType {
-    if (value === 'submitted' || value === 'tracked' || value === 'withdrawn') {
+    if (
+      value === 'submitted' ||
+      value === 'tracked' ||
+      value === 'qualified' ||
+      value === 'inDiscussion' ||
+      value === 'partiallyServed' ||
+      value === 'withdrawn'
+    ) {
       return value;
     }
     return 'tracked';
@@ -406,6 +587,26 @@ export class OpportunityOffersService {
   private normalizeNumber(value: unknown): number {
     const numeric = typeof value === 'number' ? value : Number(value);
     return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  private normalizeNullableNumber(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const numeric = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
+  }
+
+  private normalizeStatus(value: unknown): OpportunityOfferStatus {
+    if (
+      value === 'submitted' ||
+      value === 'inDiscussion' ||
+      value === 'partiallyServed' ||
+      value === 'withdrawn'
+    ) {
+      return value;
+    }
+    return 'submitted';
   }
 
   private normalizeId(value: unknown): string | null {

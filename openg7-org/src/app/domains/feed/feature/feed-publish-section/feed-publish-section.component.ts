@@ -14,15 +14,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { selectProvinces } from '@app/state/catalog/catalog.selectors';
+import { feedFormKeySig, fromProvinceIdSig, sectorIdSig } from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs/operators';
 
+import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
 import {
   buildFeedDraftPrefillClearQueryParams,
   buildFeedDraftPrefillKey,
 } from '../feed-draft-prefill.helpers';
-import { Og7DynamicPublicationFormComponent } from '../dynamic-publication-form/og7-dynamic-publication-form.component';
 import { PublicationFieldOption } from '../form-config/publication-form-config.models';
 import { PublicationFormConfigService } from '../form-config/publication-form-config.service';
 import { PublicationFormMapperService } from '../form-config/publication-form-mapper.service';
@@ -69,12 +70,34 @@ export class FeedPublishSectionComponent {
   protected readonly hasDraftPrefill = computed(() => Boolean(this.buildDraftKey()));
   protected readonly publishMode = signal<'generic' | 'template'>('generic');
   protected readonly selectedTemplateKey = signal('energy-surplus-offer');
+  private readonly publishModeTouched = signal(false);
+  private readonly templateTouched = signal(false);
   protected readonly templateSubmitState = signal<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle');
   protected readonly templateSubmitError = signal<string | null>(null);
   protected readonly templateErrors = signal<readonly string[]>([]);
   protected readonly templateWarnings = signal<readonly string[]>([]);
   protected readonly availableTemplates = this.formConfigService.list();
   protected readonly activeTemplateConfig = computed(() => this.formConfigService.get(this.selectedTemplateKey()));
+  private readonly recommendedTemplateKey = computed(() => {
+    const explicitFormKey = feedFormKeySig();
+    if (explicitFormKey && this.formConfigService.get(explicitFormKey)) {
+      return explicitFormKey;
+    }
+
+    if (sectorIdSig() === 'energy' && fromProvinceIdSig() === 'ab') {
+      return 'hydrocarbon-surplus-offer';
+    }
+
+    return 'energy-surplus-offer';
+  });
+  private readonly recommendedPublishMode = computed<'generic' | 'template'>(() => {
+    const explicitFormKey = feedFormKeySig();
+    if (explicitFormKey && this.formConfigService.get(explicitFormKey)) {
+      return 'template';
+    }
+
+    return this.recommendedTemplateKey() === 'hydrocarbon-surplus-offer' ? 'template' : 'generic';
+  });
   private readonly provinces = this.store.selectSignal(selectProvinces);
   protected readonly templateFieldOptions = computed<Record<string, readonly PublicationFieldOption[]>>(() => {
     const provinces = this.provinces().map((province) => ({
@@ -88,6 +111,20 @@ export class FeedPublishSectionComponent {
   });
 
   constructor() {
+    effect(() => {
+      const recommended = this.recommendedTemplateKey();
+      if (!this.templateTouched() && this.selectedTemplateKey() !== recommended) {
+        this.selectedTemplateKey.set(recommended);
+      }
+    });
+
+    effect(() => {
+      const recommended = this.recommendedPublishMode();
+      if (!this.publishModeTouched() && this.publishMode() !== recommended) {
+        this.publishMode.set(recommended);
+      }
+    });
+
     effect(() => {
       if (!this.drawerOpen() || !this.pendingAutoFocus()) {
         return;
@@ -144,6 +181,8 @@ export class FeedPublishSectionComponent {
   }
 
   protected openDrawer(): void {
+    this.publishModeTouched.set(false);
+    this.templateTouched.set(false);
     this.drawerOpen.set(true);
     this.pendingAutoFocus.set(true);
   }
@@ -152,6 +191,7 @@ export class FeedPublishSectionComponent {
     if (this.publishMode() === mode) {
       return;
     }
+    this.publishModeTouched.set(true);
     this.publishMode.set(mode);
     this.resetTemplateSubmitState();
     this.pendingAutoFocus.set(true);
@@ -161,6 +201,7 @@ export class FeedPublishSectionComponent {
     if (this.selectedTemplateKey() === formKey) {
       return;
     }
+    this.templateTouched.set(true);
     this.selectedTemplateKey.set(formKey);
     this.resetTemplateSubmitState();
     this.pendingAutoFocus.set(true);

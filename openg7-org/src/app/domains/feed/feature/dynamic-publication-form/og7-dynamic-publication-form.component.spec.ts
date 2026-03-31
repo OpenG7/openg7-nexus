@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import coldChainCapacityOfferConfigJson from '../form-config/forms/cold-chain-capacity-offer.json';
 import energySurplusOfferConfigJson from '../form-config/forms/energy-surplus-offer.json';
 import { PublicationFormConfig } from '../form-config/publication-form-config.models';
+
 import { Og7DynamicPublicationFormComponent } from './og7-dynamic-publication-form.component';
 
 describe('Og7DynamicPublicationFormComponent', () => {

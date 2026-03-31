@@ -3,6 +3,8 @@
 Ce dossier centralise les guides et analyses pour l'application Angular :
 
 - `angular-domain-structure.md` — organisation du code `src/app` (layout domain-first, alias TypeScript).
+- `hydrocarbures-surplus-baril-use-case.md` — cas d'usage métier pour la publication d'un surplus ou d'un ralentissement de barils par une entreprise albertaine.
+- `hydrocarbon-surplus-angular-composer.md` — contenu UI détaillé du drawer Angular pour le template `hydrocarbon-surplus-offer`.
 - `homepage-preview.md` — flux de prévisualisation depuis Strapi.
 - `pricing-page.md` — blueprint fonctionnel et contenu pour la page marketing `/pricing`.
 - `importation-page.md` — UX blueprint pour l'espace applicatif `/importation` (analystes importations).

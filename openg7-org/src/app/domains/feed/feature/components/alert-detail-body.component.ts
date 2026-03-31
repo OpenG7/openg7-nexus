@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { FeedPublicationMetadata } from '../models/feed.models';
+
 import { AlertSourceEntry, AlertTimelineEntry, AlertUpdateEntry } from './alert-detail.models';
 import { Og7PublicationMetadataCardComponent } from './publication-metadata-card.component';
 

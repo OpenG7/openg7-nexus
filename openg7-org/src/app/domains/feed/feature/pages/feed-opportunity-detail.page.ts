@@ -130,7 +130,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     const itemId = detail?.item.id ?? this.itemId();
     return this.opportunityOffers
       .entriesForOpportunity(itemId)
-      .find((entry) => entry.status === 'submitted') ?? null;
+      .find((entry) => entry.status !== 'withdrawn') ?? null;
   });
   protected readonly hasExistingSubmittedOffer = computed(() => this.existingSubmittedOffer() !== null);
   protected readonly pendingReport = computed(() => {

@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AuthRedirectService } from '@app/core/auth/auth-redirect.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { LoginResponse } from '@app/core/auth/auth.types';
 import { AUTH_MODE } from '@app/core/config/environment.tokens';
@@ -24,6 +25,7 @@ describe('LoginPage', () => {
   let router: Router;
   let navigateByUrlSpy: jasmine.Spy;
   let notifications: MockNotificationStore;
+  let authRedirect: jasmine.SpyObj<AuthRedirectService>;
   let activatedRouteMock: { snapshot: { queryParamMap: ReturnType<typeof convertToParamMap> } };
   const translateStub = {
     instant: (key: string) => key,
@@ -39,6 +41,13 @@ describe('LoginPage', () => {
 
   beforeEach(async () => {
     auth = jasmine.createSpyObj<AuthService>('AuthService', ['login', 'sendEmailConfirmation']);
+    authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', [
+      'captureRedirectParam',
+      'peekRedirectUrl',
+      'consumeRedirectUrl',
+    ]);
+    authRedirect.peekRedirectUrl.and.returnValue('/profile');
+    authRedirect.consumeRedirectUrl.and.returnValue('/profile');
     activatedRouteMock = {
       snapshot: {
         queryParamMap: convertToParamMap({}),
@@ -49,6 +58,7 @@ describe('LoginPage', () => {
       imports: [LoginPage, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: auth },
+        { provide: AuthRedirectService, useValue: authRedirect },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: AUTH_MODE, useValue: 'hybrid' },
         { provide: NotificationStore, useClass: MockNotificationStore },
@@ -79,6 +89,28 @@ describe('LoginPage', () => {
     expect(notice?.textContent ?? '').toContain('auth.sessionExpired');
   });
 
+  it('captures the redirect query parameter and navigates back to it after login', () => {
+    const redirectTarget = '/feed/opportunities/request-001';
+    activatedRouteMock.snapshot.queryParamMap = convertToParamMap({ redirect: redirectTarget });
+    authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
+    authRedirect.consumeRedirectUrl.and.returnValue(redirectTarget);
+    auth.login.and.returnValue(
+      of({ jwt: 'token', user: { id: '1', email: 'user@example.com', roles: [] } })
+    );
+
+    const redirectFixture = TestBed.createComponent(LoginPage);
+    redirectFixture.detectChanges();
+    const redirectComponent = redirectFixture.componentInstance as any;
+    const form = redirectComponent.form;
+    form.setValue({ email: 'user@example.com', password: 'secret' });
+
+    redirectComponent.onSubmit();
+
+    expect(authRedirect.captureRedirectParam).toHaveBeenCalledWith(redirectTarget);
+    expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');
+    expect(navigateByUrlSpy).toHaveBeenCalledWith(redirectTarget);
+  });
+
   it('submits valid credentials via AuthService then navigates to profile', () => {
     const credentials = { email: 'user@example.com', password: 'secret' };
     auth.login.and.returnValue(
@@ -91,6 +123,7 @@ describe('LoginPage', () => {
     (component as any).onSubmit();
 
     expect(auth.login).toHaveBeenCalledWith(credentials);
+    expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');
     expect(navigateByUrlSpy).toHaveBeenCalledWith('/profile');
   });
 
@@ -205,6 +238,82 @@ describe('LoginPage', () => {
     expect((component as any).apiError()).toBe('auth.errors.api');
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.errors.api',
+      jasmine.objectContaining({ source: 'auth' })
+    );
+  });
+
+  it('maps email-not-confirmed errors and enables the activation email CTA', () => {
+    auth.login.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            statusText: 'Forbidden',
+            error: {
+              error: {
+                message: 'Email is not confirmed',
+              },
+            },
+          })
+      )
+    );
+
+    const form = (component as any).form;
+    form.setValue({ email: 'pending@example.com', password: 'secret' });
+
+    (component as any).onSubmit();
+    fixture.detectChanges();
+
+    expect((component as any).apiError()).toBe('auth.errors.emailNotConfirmed');
+    expect((component as any).canSendActivationEmail()).toBeTrue();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]')
+    ).not.toBeNull();
+  });
+
+  it('maps disabled-account errors without enabling the activation email CTA', () => {
+    auth.login.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            statusText: 'Forbidden',
+            error: {
+              error: {
+                message: 'This account is disabled',
+              },
+            },
+          })
+      )
+    );
+
+    const form = (component as any).form;
+    form.setValue({ email: 'disabled@example.com', password: 'secret' });
+
+    (component as any).onSubmit();
+    fixture.detectChanges();
+
+    expect((component as any).apiError()).toBe('auth.errors.accountDisabled');
+    expect((component as any).canSendActivationEmail()).toBeFalse();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]')
+    ).toBeNull();
+  });
+
+  it('maps activation email errors to a dedicated already-confirmed message', () => {
+    const email = 'confirmed@example.com';
+    auth.sendEmailConfirmation.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'already confirmed' } }))
+    );
+
+    const form = (component as any).form;
+    form.setValue({ email, password: 'secret' });
+    (component as any).apiError.set('auth.errors.emailNotConfirmed');
+
+    (component as any).onSendActivationEmail();
+
+    expect(notifications.error).toHaveBeenCalledWith(
+      'auth.login.activationAlreadyConfirmed',
       jasmine.objectContaining({ source: 'auth' })
     );
   });

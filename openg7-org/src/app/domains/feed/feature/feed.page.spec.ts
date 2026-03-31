@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, input, output, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -8,11 +9,6 @@ import { FavoritesService } from '@app/core/favorites.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { Store } from '@ngrx/store';
-import { BehaviorSubject } from 'rxjs';
-
 import {
   feedCategorySig,
   feedFormKeySig,
@@ -24,6 +20,9 @@ import {
   sectorIdSig,
   toProvinceIdSig,
 } from '@app/state/shared-feed-signals';
+import { Store } from '@ngrx/store';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
 import { parseFeedFilters } from './feed-route-filters';
@@ -85,6 +84,17 @@ class OpportunityOfferDrawerStubComponent {
   readonly closed = output<void>();
   readonly submitted = output<OpportunityOfferPayload>();
   readonly retryRequested = output<void>();
+}
+
+@Component({
+  selector: 'og7-hydrocarbon-signals-panel',
+  standalone: true,
+  template: '',
+})
+class HydrocarbonSignalsPanelStubComponent {
+  readonly limit = input(3);
+  readonly originProvinceId = input<string | null>(null);
+  readonly targetProvinceId = input<string | null>(null);
 }
 
 class FeedRealtimeServiceMock {
@@ -231,6 +241,7 @@ describe('FeedPage', () => {
   let notifications: { success: jasmine.Spy; info: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let routeData$: BehaviorSubject<Record<string, unknown>>;
   let authState: ReturnType<typeof signal<boolean>>;
   let currentUrl: string;
 
@@ -254,12 +265,14 @@ describe('FeedPage', () => {
     });
 
     queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
+    routeData$ = new BehaviorSubject<Record<string, unknown>>({});
     authState = signal(true);
 
-    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'snapshot'> = {
+    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'data' | 'snapshot'> = {
       queryParamMap: queryParamMap$.asObservable(),
+      data: routeData$.asObservable(),
       get snapshot() {
-        return { queryParamMap: queryParamMap$.value } as ActivatedRoute['snapshot'];
+        return { queryParamMap: queryParamMap$.value, data: routeData$.value } as ActivatedRoute['snapshot'];
       },
     };
 
@@ -288,6 +301,7 @@ describe('FeedPage', () => {
             FeedPublishSectionStubComponent,
             FeedStreamStubComponent,
             OpportunityOfferDrawerStubComponent,
+            HydrocarbonSignalsPanelStubComponent,
           ],
         },
       })
@@ -457,6 +471,48 @@ describe('FeedPage', () => {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
+  });
+
+  it('renders dedicated hydrocarbon feed copy when route data provides a specialized view', () => {
+    routeData$.next({
+      feedView: {
+        titleKey: 'feed.views.hydrocarbons.title',
+        subtitleKey: 'feed.views.hydrocarbons.subtitle',
+        contextKey: 'feed.views.hydrocarbons.context',
+      },
+    });
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const content = fixture.nativeElement.textContent;
+    expect(content).toContain('feed.views.hydrocarbons.title');
+    expect(content).toContain('feed.views.hydrocarbons.subtitle');
+    expect(content).toContain('feed.views.hydrocarbons.context');
+    expect(fixture.nativeElement.querySelector('[data-og7="feed-view-context"]')).toBeTruthy();
+  });
+
+  it('renders the reusable hydrocarbon signals panel when route data enables it', async () => {
+    routeData$.next({
+      hydrocarbonSignalsPanel: { limit: 3 },
+      feedView: {
+        titleKey: 'feed.views.hydrocarbons.title',
+        subtitleKey: 'feed.views.hydrocarbons.subtitle',
+        contextKey: 'feed.views.hydrocarbons.context',
+      },
+    });
+    fromProvinceIdSig.set('ab');
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.directive(HydrocarbonSignalsPanelStubComponent));
+    expect(panel).toBeTruthy();
+    expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).limit()).toBe(3);
+    expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).originProvinceId()).toBe('ab');
+    expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).targetProvinceId()).toBeNull();
   });
 
   it('routes indicator items to /feed/indicators/:id', () => {
@@ -681,6 +737,7 @@ describe('FeedPage shared-link hydration', () => {
   let feed: FeedRealtimeServiceMock;
   let router: jasmine.SpyObj<Router>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let routeData$: BehaviorSubject<Record<string, unknown>>;
 
   beforeEach(async () => {
     resetSharedFeedFilters();
@@ -699,12 +756,14 @@ describe('FeedPage shared-link hydration', () => {
         fromProvince: 'qc',
       })
     );
+    routeData$ = new BehaviorSubject<Record<string, unknown>>({});
     applySharedFeedFiltersFromQuery(queryParamMap$.value);
 
-    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'snapshot'> = {
+    const routeStub: Pick<ActivatedRoute, 'queryParamMap' | 'data' | 'snapshot'> = {
       queryParamMap: queryParamMap$.asObservable(),
+      data: routeData$.asObservable(),
       get snapshot() {
-        return { queryParamMap: queryParamMap$.value } as ActivatedRoute['snapshot'];
+        return { queryParamMap: queryParamMap$.value, data: routeData$.value } as ActivatedRoute['snapshot'];
       },
     };
 
@@ -740,6 +799,7 @@ describe('FeedPage shared-link hydration', () => {
             FeedPublishSectionStubComponent,
             Og7FeedStreamComponent,
             OpportunityOfferDrawerStubComponent,
+            HydrocarbonSignalsPanelStubComponent,
           ],
         },
       })

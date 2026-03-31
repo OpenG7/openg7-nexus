@@ -370,6 +370,45 @@ describe('ProfilePage', () => {
     );
   });
 
+  it('renders the pending activation state with a resend CTA', () => {
+    (component as any).profile.set({
+      ...profile,
+      confirmed: false,
+      accountStatus: 'emailNotConfirmed',
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('auth.profile.security.status.emailNotConfirmed');
+    expect(compiled.querySelector('[data-og7="user-profile-resend-activation"]')).not.toBeNull();
+  });
+
+  it('renders the disabled state without a resend activation CTA', () => {
+    (component as any).profile.set({
+      ...profile,
+      blocked: true,
+      accountStatus: 'disabled',
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('auth.profile.security.status.disabled');
+    expect(compiled.textContent).toContain('auth.errors.accountDisabled');
+    expect(compiled.querySelector('[data-og7="user-profile-resend-activation"]')).toBeNull();
+  });
+
+  it('does not resend the activation email when the account is disabled', () => {
+    (component as any).profile.set({
+      ...profile,
+      blocked: true,
+      accountStatus: 'disabled',
+    });
+
+    (component as any).onSendActivationEmail();
+
+    expect(auth.sendEmailConfirmation).not.toHaveBeenCalled();
+  });
+
   it('uploads a profile picture file and updates avatarUrl', () => {
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' });
     const dataTransfer = new DataTransfer();

@@ -7,6 +7,7 @@ import globals from 'globals';
 
 const ignores = [
   '**/node_modules/**',
+  '**/coverage/**',
   '**/dist/**',
   '**/build/**',
   '**/public/**',
@@ -15,6 +16,7 @@ const ignores = [
   '.strapi/**',
   'coverage/**',
   '.coverage/**',
+  '**/.coverage/**',
   '.tmp/**',
   '.tmp-build/**',
   // TypeScript artifacts occasionally generated into the Angular source tree.

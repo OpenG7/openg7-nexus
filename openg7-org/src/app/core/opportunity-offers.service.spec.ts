@@ -125,6 +125,33 @@ describe('OpportunityOffersService', () => {
     expect(withdrawn?.activities[0]?.type).toBe('withdrawn');
     expect(service.entries()[0]?.status).toBe('withdrawn');
   });
+
+  it('progresses an offer into discussion and partial fulfilment', () => {
+    authState.set(true);
+    userState.set({
+      id: 'user-1',
+      email: 'user-1@openg7.test',
+      firstName: 'Open',
+      lastName: 'G7',
+    });
+
+    const service = createService();
+    const created = service.create(createPayload());
+
+    const discussed = service.markInDiscussion(created.id);
+    expect(discussed?.status).toBe('inDiscussion');
+    expect(discussed?.activities.some((activity) => activity.type === 'qualified')).toBeTrue();
+    expect(discussed?.activities.some((activity) => activity.type === 'inDiscussion')).toBeTrue();
+
+    const partiallyServed = service.markPartiallyServed(created.id, {
+      allocatedCapacityMw: 200,
+      remainingOpportunityCapacityMw: 100,
+    });
+    expect(partiallyServed?.status).toBe('partiallyServed');
+    expect(partiallyServed?.allocatedCapacityMw).toBe(200);
+    expect(partiallyServed?.remainingOpportunityCapacityMw).toBe(100);
+    expect(partiallyServed?.activities[0]?.type).toBe('partiallyServed');
+  });
 });
 
 function createPayload(

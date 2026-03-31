@@ -9,6 +9,7 @@ import type {
   Exchange,
   BillingPlan,
   StatisticsResponse,
+  HydrocarbonSignal,
 } from '@openg7/contracts';
 import { endpoints } from '@openg7/contracts';
 import { firstValueFrom } from 'rxjs';
@@ -17,11 +18,22 @@ import { finalize } from 'rxjs/operators';
 import { RuntimeConfigService } from '../config/runtime-config.service';
 import { HttpClientService, JsonRequestOptions } from '../http/http-client.service';
 
-interface StatisticsRequestParams {
+type QueryParamValue = string | number | boolean | ReadonlyArray<string | number | boolean> | null | undefined;
+type QueryParamsInput = Record<string, QueryParamValue>;
+
+interface StatisticsRequestParams extends QueryParamsInput {
   scope?: 'interprovincial' | 'international' | 'all';
   intrant?: 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
   period?: string | null;
   province?: string | null;
+}
+
+interface HydrocarbonSignalsRequestParams extends QueryParamsInput {
+  publicationType?: string | null;
+  storagePressureLevel?: string | null;
+  originProvinceId?: string | null;
+  targetProvinceId?: string | null;
+  limit?: number | string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -121,6 +133,18 @@ export class StrapiClient {
     return this.get<StrapiList<BillingPlan>>(endpoints.billingPlans);
   }
 
+  /**
+   * Contexte : Used by specialized hydrocarbon experiences to fetch barrel surplus and slowdown signals.
+   * Raison d’être : Exposes the dedicated `hydrocarbon-signals` endpoint through the shared typed client.
+   * @param params Optional query filters for publication type, pressure level, provinces, and result cap.
+   * @returns Promise resolving with the hydrocarbon signal collection payload.
+   */
+  hydrocarbonSignals(params?: HydrocarbonSignalsRequestParams) {
+    return this.get<StrapiList<HydrocarbonSignal>>(endpoints.hydrocarbonSignals, {
+      params: this.normalizeParams(params),
+    });
+  }
+
   private single<T>(path: string, options?: JsonRequestOptions) {
     return this.get<StrapiSingle<T>>(path, options);
   }
@@ -146,7 +170,7 @@ export class StrapiClient {
     return { ...existing, Authorization: authorization };
   }
 
-  private normalizeParams(params?: StatisticsRequestParams) {
+  private normalizeParams(params?: QueryParamsInput): JsonRequestOptions['params'] {
     if (!params) {
       return undefined;
     }

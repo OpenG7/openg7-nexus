@@ -13,6 +13,9 @@ export type StatisticsSummary = components['schemas']['StatisticsSummary'];
 export type StatisticsInsight = components['schemas']['StatisticsInsight'];
 export type StatisticsSnapshot = components['schemas']['StatisticsSnapshot'];
 export type StatisticsResponse = components['schemas']['StatisticsResponse'];
+export type HydrocarbonSignal = components['schemas']['HydrocarbonSignal'];
+export type HydrocarbonSignalResponse = components['schemas']['HydrocarbonSignalResponse'];
+export type HydrocarbonSignalCollectionResponse = components['schemas']['HydrocarbonSignalCollectionResponse'];
 
 // Réponses Strapi usuelles
 export interface StrapiList<T> { data: T[]; meta: { pagination?: unknown } }
@@ -26,5 +29,6 @@ export const endpoints = {
   exchanges: '/api/exchanges',
   homepage:  '/api/homepage',
   statistics: '/api/statistics',
-  billingPlans: '/billing/plans'
+  billingPlans: '/billing/plans',
+  hydrocarbonSignals: '/api/hydrocarbon-signals'
 } as const;

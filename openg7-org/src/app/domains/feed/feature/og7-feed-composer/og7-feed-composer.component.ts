@@ -117,6 +117,7 @@ export class Og7FeedComposerComponent {
   protected readonly unitOptions: QuantityUnit[] = [
     'MW',
     'MWh',
+    'bbl',
     'bbl_d',
     'ton',
     'kg',

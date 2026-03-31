@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import {
+  ActivatedRouteSnapshot,
   ResolveFn,
   Routes,
   UrlMatchResult,
@@ -15,11 +16,19 @@ import { parseFeedFilters } from './feed-route-filters';
 import { FeedRealtimeService } from './services/feed-realtime.service';
 const LEGACY_ALERT_PREFIXES = ['alert-', 'alerte-'] as const;
 const LEGACY_INDICATOR_PREFIXES = ['indicator-', 'indicateur-'] as const;
+const HYDROCARBON_FEED_FILTERS = {
+  sectorId: 'energy',
+  formKey: 'hydrocarbon-surplus-offer',
+  fromProvinceId: 'ab',
+  type: 'OFFER',
+  mode: 'EXPORT',
+} as const;
 
 const setupFeedResolver: ResolveFn<boolean> = async route => {
   const store = inject(Store);
   const feed = inject(FeedRealtimeService);
-  const filters = parseFeedFilters(route.queryParamMap);
+  const defaults = (route.data?.['feedFilters'] ?? {}) as Partial<ReturnType<typeof parseFeedFilters>>;
+  const filters = applyFeedFilterDefaults(route.queryParamMap, defaults);
   store.dispatch(FeedActions.applyFilters({ filters }));
   if (!feed.hasHydrated()) {
     feed.loadInitial();
@@ -53,6 +62,23 @@ export const routes: Routes = [
         path: '',
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         resolve: { setup: setupFeedResolver },
+        loadComponent: () => import('./feed.page').then(m => m.FeedPage),
+      },
+      {
+        path: 'hydrocarbons',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+        resolve: { setup: setupFeedResolver },
+        data: {
+          feedFilters: HYDROCARBON_FEED_FILTERS,
+          feedView: {
+            titleKey: 'feed.views.hydrocarbons.title',
+            subtitleKey: 'feed.views.hydrocarbons.subtitle',
+            contextKey: 'feed.views.hydrocarbons.context',
+          },
+          hydrocarbonSignalsPanel: {
+            limit: 3,
+          },
+        },
         loadComponent: () => import('./feed.page').then(m => m.FeedPage),
       },
       {
@@ -100,6 +126,34 @@ export const routes: Routes = [
 ];
 
 export default routes;
+
+function applyFeedFilterDefaults(
+  queryParamMap: ActivatedRouteSnapshot['queryParamMap'],
+  defaults: Partial<ReturnType<typeof parseFeedFilters>>
+) {
+  const parsed = parseFeedFilters(queryParamMap);
+  const hasFromProvince = Boolean(queryParamMap.get('fromProvince') ?? queryParamMap.get('fromProvinceId'));
+  const hasToProvince = Boolean(queryParamMap.get('toProvince') ?? queryParamMap.get('toProvinceId'));
+  const hasSector = Boolean(queryParamMap.get('sector') ?? queryParamMap.get('sectorId'));
+  const hasFormKey = Boolean(queryParamMap.get('formKey'));
+  const hasCategory = Boolean(queryParamMap.get('category'));
+  const hasType = Boolean(queryParamMap.get('type'));
+  const hasMode = Boolean(queryParamMap.get('mode'));
+  const hasSort = Boolean(queryParamMap.get('sort'));
+  const hasSearch = Boolean(queryParamMap.get('q'));
+
+  return {
+    fromProvinceId: hasFromProvince ? parsed.fromProvinceId : (defaults.fromProvinceId ?? parsed.fromProvinceId),
+    toProvinceId: hasToProvince ? parsed.toProvinceId : (defaults.toProvinceId ?? parsed.toProvinceId),
+    sectorId: hasSector ? parsed.sectorId : (defaults.sectorId ?? parsed.sectorId),
+    formKey: hasFormKey ? parsed.formKey : (defaults.formKey ?? parsed.formKey),
+    category: hasCategory ? parsed.category : (defaults.category ?? parsed.category),
+    type: hasType ? parsed.type : (defaults.type ?? parsed.type),
+    mode: hasMode ? parsed.mode : (defaults.mode ?? parsed.mode),
+    sort: hasSort ? parsed.sort : (defaults.sort ?? parsed.sort),
+    search: hasSearch ? parsed.search : (defaults.search ?? parsed.search),
+  };
+}
 
 function createLegacyPrefixedItemMatcher(prefixes: readonly string[]) {
   return (segments: UrlSegment[]): UrlMatchResult | null => {

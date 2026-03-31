@@ -29,8 +29,8 @@ import {
 } from '@app/state/shared-feed-signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { HydrocarbonSignalsPanelComponent } from './components/hydrocarbon-signals-panel.component';
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
-import { parseFeedFilters } from './feed-route-filters';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
@@ -39,6 +39,7 @@ import {
   resolveOpportunityOfferSubmitErrorMessage,
 } from './feed-offer-submission.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
+import { parseFeedFilters } from './feed-route-filters';
 import { FeedFilterState, FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
@@ -53,6 +54,7 @@ import { OpportunityEngagementService } from './services/opportunity-engagement.
     FeedPublishSectionComponent,
     Og7FeedStreamComponent,
     OpportunityOfferDrawerComponent,
+    HydrocarbonSignalsPanelComponent,
   ],
   templateUrl: './feed.page.html',
   styleUrls: ['./feed.page.scss'],
@@ -71,6 +73,9 @@ export class FeedPage {
   private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>('publishSection');
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
+  });
+  private readonly routeData = toSignal(this.route.data, {
+    initialValue: this.route.snapshot.data,
   });
   private pendingContactPayload: OpportunityOfferPayload | null = null;
   private contactStatusTimer: ReturnType<typeof setTimeout> | null = null;
@@ -96,6 +101,22 @@ export class FeedPage {
   readonly highlightedItemId = computed(() =>
     this.sourceContext() === 'home-feed-panels' ? this.normalizeQueryParam(this.queryParamMap().get('feedItemId')) : null
   );
+  readonly pageView = computed(() => {
+    const view = this.routeData()?.['feedView'];
+    return view && typeof view === 'object'
+      ? (view as { titleKey?: string; subtitleKey?: string; contextKey?: string })
+      : null;
+  });
+  readonly pageTitleKey = computed(() => this.pageView()?.titleKey ?? 'feed.title');
+  readonly pageSubtitleKey = computed(() => this.pageView()?.subtitleKey ?? 'feed.subtitle');
+  readonly pageContextKey = computed(() => this.pageView()?.contextKey ?? null);
+  readonly hydrocarbonSignalsPanel = computed(() => {
+    const panel = this.routeData()?.['hydrocarbonSignalsPanel'];
+    return panel && typeof panel === 'object' ? (panel as { limit?: number }) : null;
+  });
+  readonly hydrocarbonSignalsPanelLimit = computed(() => this.hydrocarbonSignalsPanel()?.limit ?? 3);
+  readonly selectedFromProvinceId = computed(() => this.liveFilters().fromProvinceId);
+  readonly selectedToProvinceId = computed(() => this.liveFilters().toProvinceId);
   private readonly liveFilters = computed<FeedFilterState>(() => ({
     fromProvinceId: fromProvinceIdSig(),
     toProvinceId: toProvinceIdSig(),
@@ -148,6 +169,7 @@ export class FeedPage {
         replaceUrl: true,
       });
     });
+
   }
 
   @HostListener('window:focus')
@@ -347,6 +369,7 @@ export class FeedPage {
       this.contactSubmitState.set('idle');
     }, 750);
   }
+
 
   private resetContactSubmitState(): void {
     this.clearContactStatusTimer();
