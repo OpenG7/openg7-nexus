@@ -53,6 +53,7 @@ This starts `dist/openg7-org/server/server.mjs`.
 ## Testing
 
 - `yarn test`: Karma unit tests
+- `yarn test:coverage`: Karma unit tests with HTML + LCOV coverage output
 - `yarn e2e`: full Playwright suite
 - `yarn e2e:smoke`: critical smoke journey
 - `yarn e2e:regression`: broader regression journey

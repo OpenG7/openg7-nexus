@@ -202,7 +202,9 @@ describe('ImportationFiltersStore', () => {
     initializeStore();
 
     expect(store.collaborationVm().loading).toBeFalse();
-    expect(store.collaborationVm().error).toBe('Http failure response for (unknown url): 500 Server Error');
+    expect(store.collaborationVm().error).toBeNull();
+    expect(store.collaborationVm().watchlists).toEqual([]);
+    expect(store.collaborationVm().annotations).toEqual([]);
   });
 });
 

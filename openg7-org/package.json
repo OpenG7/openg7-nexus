@@ -17,6 +17,8 @@
     "validate:preprod-config": "node ./scripts/validate-preprod-config.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage",
+    "test:coverage:ci": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage --progress=false",
     "serve:ssr:openg7-org": "node dist/openg7-org/server/server.mjs",
     "e2e": "playwright test",
     "e2e:db-report": "node ./scripts/generate-e2e-db-report.mjs",

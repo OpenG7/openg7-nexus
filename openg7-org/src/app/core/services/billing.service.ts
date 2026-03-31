@@ -196,7 +196,7 @@ export class BillingService {
     if (!this.stripe) {
       let promise = this.stripePromises.get(publishableKey) ?? null;
       if (!promise) {
-        promise = loadStripe(publishableKey);
+        promise = this.loadStripeClient(publishableKey);
         this.stripePromises.set(publishableKey, promise);
       }
       this.stripe = promise;
@@ -208,6 +208,10 @@ export class BillingService {
       throw new Error('stripe.not_available');
     }
     return stripe;
+  }
+
+  private loadStripeClient(publishableKey: string): Promise<Stripe | null> {
+    return loadStripe(publishableKey);
   }
 
   private toCheckoutError(error: unknown): Error {

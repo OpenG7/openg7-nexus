@@ -74,4 +74,38 @@ describe('authGuard', () => {
     expect(isAllowedSig()).toBeFalse();
     expect(reasonSig()).toBe('auth.required');
   });
+
+  it('falls back to extractedUrl when finalUrl is not available', async () => {
+    const tree = {} as UrlTree;
+    router.getCurrentNavigation.and.returnValue({
+      extractedUrl: { toString: () => '/feed/opportunities/request-001' } as any,
+    } as any);
+    router.createUrlTree.and.returnValue(tree);
+
+    const result = await TestBed.runInInjectionContext(() =>
+      authGuard({} as Route, segments)
+    );
+
+    expect(redirect.setRedirectUrl).toHaveBeenCalledWith('/feed/opportunities/request-001');
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/feed/opportunities/request-001' },
+    });
+    expect(result).toBe(tree);
+  });
+
+  it('uses the attempted segments when the router navigation has no URL metadata', async () => {
+    const tree = {} as UrlTree;
+    router.getCurrentNavigation.and.returnValue(null);
+    router.createUrlTree.and.returnValue(tree);
+
+    const result = await TestBed.runInInjectionContext(() =>
+      authGuard({} as Route, [new UrlSegment('admin', {}), new UrlSegment('ops', {})])
+    );
+
+    expect(redirect.setRedirectUrl).toHaveBeenCalledWith('/admin/ops');
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/login'], {
+      queryParams: { redirect: '/admin/ops' },
+    });
+    expect(result).toBe(tree);
+  });
 });

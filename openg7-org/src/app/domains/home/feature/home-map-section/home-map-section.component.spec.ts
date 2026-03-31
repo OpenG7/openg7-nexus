@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FiltersService } from '@app/core/filters.service';
 import { MapGeojsonService, MapFlowFeatureCollection, MapHubFeatureCollection, MapProvinceFeatureCollection } from '@app/core/services/map-geojson.service';
 import { selectFilteredFlows, selectMapKpis, selectMapReady } from '@app/state';
+import { selectUserProfile } from '@app/state/user/user.selectors';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -23,9 +24,16 @@ describe('HomeMapSectionComponent', () => {
         FiltersService,
         { provide: MapGeojsonService, useClass: MapGeojsonServiceStub },
         provideMockStore({
+          initialState: {
+            user: {
+              profile: null,
+              permissions: [],
+            },
+          },
           selectors: [
             { selector: selectMapReady, value: true },
             { selector: selectFilteredFlows, value: [] },
+            { selector: selectUserProfile, value: null },
             {
               selector: selectMapKpis,
               value: { default: { tradeValue: 0, tradeValueCurrency: 'CAD', tradeVolume: 0, tradeVolumeUnit: null, sectorCount: 0 } },

@@ -1,7 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import * as stripeJs from '@stripe/stripe-js';
 import { firstValueFrom } from 'rxjs';
 
 import { StrapiClient } from '../api/strapi-client';
@@ -14,6 +13,10 @@ import { BillingService } from './billing.service';
 class RuntimeConfigStub {
   apiUrl(): string {
     return '';
+  }
+
+  apiWithCredentials(): boolean {
+    return false;
   }
 
   apiToken(): string | null {
@@ -51,6 +54,7 @@ describe('BillingService', () => {
 
     const req = http.expectOne('/billing/plans');
     expect(req.request.method).toBe('GET');
+    expect(req.request.withCredentials).toBeFalse();
 
     const plan = {
       id: 'free',
@@ -76,6 +80,7 @@ describe('BillingService', () => {
     const promise = service.startCheckout('premium');
     const req = http.expectOne('/billing/checkout');
     expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBeFalse();
     expect(req.request.body.planId).toBe('premium');
     req.flush({ provider: 'stripe', sessionId: 'sess_123', publishableKey: 'pk_test_123' });
 
@@ -101,12 +106,12 @@ describe('BillingService', () => {
     const firstRedirect = jasmine.createSpy('firstRedirect').and.resolveTo({ error: null });
     const secondRedirect = jasmine.createSpy('secondRedirect').and.resolveTo({ error: null });
 
-    const loadStripeSpy = spyOn(stripeJs, 'loadStripe').and.callFake((key: string) => {
+    const loadStripeSpy = spyOn<any>(service, 'loadStripeClient').and.callFake((key: string) => {
       if (key === 'pk_first') {
-        return Promise.resolve({ redirectToCheckout: firstRedirect } as unknown as stripeJs.Stripe);
+        return Promise.resolve({ redirectToCheckout: firstRedirect });
       }
       if (key === 'pk_second') {
-        return Promise.resolve({ redirectToCheckout: secondRedirect } as unknown as stripeJs.Stripe);
+        return Promise.resolve({ redirectToCheckout: secondRedirect });
       }
       return Promise.resolve(null);
     });
@@ -128,6 +133,27 @@ describe('BillingService', () => {
     expect(secondRedirect).toHaveBeenCalledWith({ sessionId: 'sess_second' });
     expect(firstRedirect.calls.count()).toBe(1);
     expect(secondRedirect.calls.count()).toBe(1);
+  });
+
+  it('reuses the same Stripe client when the publishable key stays the same', async () => {
+    const stripeRedirect = jasmine.createSpy('redirectToCheckout').and.resolveTo({ error: null });
+    const loadStripeSpy = spyOn<any>(service, 'loadStripeClient').and.resolveTo({
+      redirectToCheckout: stripeRedirect,
+    });
+
+    const firstCheckout = service.startCheckout('premium');
+    const firstReq = http.expectOne('/billing/checkout');
+    firstReq.flush({ provider: 'stripe', sessionId: 'sess_first', publishableKey: 'pk_shared' });
+    await firstCheckout;
+
+    const secondCheckout = service.startCheckout('enterprise');
+    const secondReq = http.expectOne('/billing/checkout');
+    secondReq.flush({ provider: 'stripe', sessionId: 'sess_second', publishableKey: 'pk_shared' });
+    await secondCheckout;
+
+    expect(loadStripeSpy).toHaveBeenCalledTimes(1);
+    expect(stripeRedirect).toHaveBeenCalledWith({ sessionId: 'sess_first' });
+    expect(stripeRedirect).toHaveBeenCalledWith({ sessionId: 'sess_second' });
   });
 });
 
