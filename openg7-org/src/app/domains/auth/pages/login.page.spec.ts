@@ -40,7 +40,16 @@ describe('LoginPage', () => {
   };
 
   beforeEach(async () => {
-    auth = jasmine.createSpyObj<AuthService>('AuthService', ['login', 'sendEmailConfirmation']);
+    auth = jasmine.createSpyObj<AuthService>('AuthService', [
+      'login',
+      'sendEmailConfirmation',
+      'ensureSessionPersisted',
+      'ensureSessionRestored',
+      'isAuthenticated',
+    ]);
+    auth.ensureSessionPersisted.and.resolveTo();
+    auth.ensureSessionRestored.and.resolveTo();
+    auth.isAuthenticated.and.returnValue(false);
     authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', [
       'captureRedirectParam',
       'peekRedirectUrl',
@@ -75,6 +84,23 @@ describe('LoginPage', () => {
     fixture.detectChanges();
   });
 
+  it('redirects authenticated users away from the login page after session restoration', async () => {
+    const redirectTarget = '/admin/trust';
+    activatedRouteMock.snapshot.queryParamMap = convertToParamMap({ redirect: redirectTarget });
+    auth.isAuthenticated.and.returnValue(true);
+    authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
+    authRedirect.consumeRedirectUrl.and.returnValue(redirectTarget);
+
+    const redirectFixture = TestBed.createComponent(LoginPage);
+    redirectFixture.detectChanges();
+    await redirectFixture.whenStable();
+
+    expect(auth.ensureSessionRestored).toHaveBeenCalled();
+    expect(authRedirect.captureRedirectParam).toHaveBeenCalledWith(redirectTarget);
+    expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith(redirectTarget);
+    expect(navigateByUrlSpy).toHaveBeenCalledWith(redirectTarget, { replaceUrl: true });
+  });
+
   it('shows an inline message when redirected after session expiration', () => {
     activatedRouteMock.snapshot.queryParamMap = convertToParamMap({ reason: 'session-expired' });
 
@@ -89,7 +115,7 @@ describe('LoginPage', () => {
     expect(notice?.textContent ?? '').toContain('auth.sessionExpired');
   });
 
-  it('captures the redirect query parameter and navigates back to it after login', () => {
+  it('captures the redirect query parameter and navigates back to it after login', async () => {
     const redirectTarget = '/feed/opportunities/request-001';
     activatedRouteMock.snapshot.queryParamMap = convertToParamMap({ redirect: redirectTarget });
     authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
@@ -105,13 +131,14 @@ describe('LoginPage', () => {
     form.setValue({ email: 'user@example.com', password: 'secret' });
 
     redirectComponent.onSubmit();
+    await redirectFixture.whenStable();
 
     expect(authRedirect.captureRedirectParam).toHaveBeenCalledWith(redirectTarget);
     expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');
     expect(navigateByUrlSpy).toHaveBeenCalledWith(redirectTarget);
   });
 
-  it('submits valid credentials via AuthService then navigates to profile', () => {
+  it('submits valid credentials via AuthService then navigates to profile', async () => {
     const credentials = { email: 'user@example.com', password: 'secret' };
     auth.login.and.returnValue(
       of({ jwt: 'token', user: { id: '1', email: credentials.email, roles: [] } })
@@ -121,6 +148,7 @@ describe('LoginPage', () => {
     form.setValue(credentials);
 
     (component as any).onSubmit();
+    await fixture.whenStable();
 
     expect(auth.login).toHaveBeenCalledWith(credentials);
     expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');

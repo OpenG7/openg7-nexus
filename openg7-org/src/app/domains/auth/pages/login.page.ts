@@ -90,6 +90,7 @@ export class LoginPage implements AfterViewInit, OnInit {
     }
 
     this.redirectTarget.set(this.authRedirect.peekRedirectUrl('/profile'));
+    void this.redirectAuthenticatedUserAfterRestore();
   }
 
   ngAfterViewInit(): void {
@@ -132,12 +133,7 @@ export class LoginPage implements AfterViewInit, OnInit {
       )
       .subscribe({
         next: () => {
-          this.notifications.success(this.translate.instant('auth.login.success'), {
-            source: 'auth',
-            metadata: { action: 'login' },
-          });
-          const destination = this.authRedirect.consumeRedirectUrl('/profile');
-          void this.router.navigateByUrl(destination);
+          void this.completeSuccessfulLogin();
         },
         error: (error) => {
           const { message, code, status } = this.resolveErrorMessage(error);
@@ -149,6 +145,26 @@ export class LoginPage implements AfterViewInit, OnInit {
           });
         },
       });
+  }
+
+  private async completeSuccessfulLogin(): Promise<void> {
+    await this.auth.ensureSessionPersisted();
+    this.notifications.success(this.translate.instant('auth.login.success'), {
+      source: 'auth',
+      metadata: { action: 'login' },
+    });
+    const destination = this.authRedirect.consumeRedirectUrl('/profile');
+    await this.router.navigateByUrl(destination);
+  }
+
+  private async redirectAuthenticatedUserAfterRestore(): Promise<void> {
+    await this.auth.ensureSessionRestored();
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
+
+    const destination = this.authRedirect.consumeRedirectUrl(this.redirectTarget());
+    await this.router.navigateByUrl(destination, { replaceUrl: true });
   }
 
   protected onSendActivationEmail(): void {

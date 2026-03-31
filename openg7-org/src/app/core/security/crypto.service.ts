@@ -184,10 +184,28 @@ export class CryptoService {
   }
 
   private toBase64(data: Uint8Array): string {
+    if (typeof btoa === 'function') {
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let index = 0; index < data.length; index += chunkSize) {
+        binary += String.fromCharCode(...data.slice(index, index + chunkSize));
+      }
+      return btoa(binary);
+    }
+
     return Buffer.from(data).toString('base64');
   }
 
   private fromBase64(value: string): Uint8Array {
+    if (typeof atob === 'function') {
+      const binary = atob(value);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+      return bytes;
+    }
+
     return new Uint8Array(Buffer.from(value, 'base64'));
   }
 

@@ -332,10 +332,19 @@ export async function loginAsAuthenticatedE2eUser(
 
   await page.waitForFunction(() => {
     try {
-      return Boolean(
+      const hasCachedUser = Boolean(
         window.localStorage.getItem('auth_user_cache_v1') ||
-        window.sessionStorage.getItem('auth_user_cache_v1')
+          window.sessionStorage.getItem('auth_user_cache_v1')
       );
+      const hasPersistedToken = Boolean(
+        window.localStorage.getItem('auth_token') ||
+          window.sessionStorage.getItem('auth_token')
+      );
+      const hasCryptoKey = Boolean(
+        window.localStorage.getItem('auth_crypto_key') ||
+          window.sessionStorage.getItem('auth_crypto_key')
+      );
+      return hasCachedUser && hasPersistedToken && hasCryptoKey;
     } catch {
       return false;
     }
