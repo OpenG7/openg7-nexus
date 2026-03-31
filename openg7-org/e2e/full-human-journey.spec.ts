@@ -92,6 +92,8 @@ const indicatorItem: FeedApiItem = {
   },
 };
 
+const e2eOrigin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4300';
+
 async function mockRuntimeConfig(page: Page): Promise<void> {
   await page.route('**/runtime-config.js', async route => {
     await route.fulfill({
@@ -146,7 +148,7 @@ async function mockCatalogApis(page: Page): Promise<void> {
 async function mockFeedApis(page: Page): Promise<void> {
   const publishedItems: FeedApiItem[] = [];
   const corsHeaders = {
-    'access-control-allow-origin': 'http://localhost:4200',
+    'access-control-allow-origin': e2eOrigin,
     'access-control-allow-credentials': 'true',
     'access-control-allow-methods': 'GET,POST,OPTIONS',
     'access-control-allow-headers': 'Content-Type, Idempotency-Key, Authorization',
@@ -263,12 +265,6 @@ async function openFeedFromHome(page: Page): Promise<void> {
   ]);
 
   await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
-}
-
-async function openAlertsFromProfileMenu(page: Page): Promise<void> {
-  await page.locator('[data-og7="profile"] > button').click();
-  await page.locator('[data-og7-id="alerts"]').first().click();
-  await expect(page).toHaveURL(/\/alerts/);
 }
 
 test.describe('Full human journey', () => {
