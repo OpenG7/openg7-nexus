@@ -309,6 +309,12 @@ export async function loginAsAuthenticatedE2eUser(
   page: Page,
   redirect = '/profile'
 ): Promise<void> {
+  if (await hasPersistedAuthenticatedSession(page)) {
+    await page.goto(redirect);
+    await expect(page).not.toHaveURL(/\/login(?:[/?#]|$)/, { timeout: 15000 });
+    return;
+  }
+
   await page.goto(`/login?redirect=${encodeURIComponent(redirect)}`);
   const loginForm = page.locator('form[data-og7="auth-login"]');
   await expect(loginForm).toBeVisible();
@@ -332,10 +338,19 @@ export async function loginAsAuthenticatedE2eUser(
 
   await page.waitForFunction(() => {
     try {
-      return Boolean(
+      const hasCachedUser = Boolean(
         window.localStorage.getItem('auth_user_cache_v1') ||
-        window.sessionStorage.getItem('auth_user_cache_v1')
+          window.sessionStorage.getItem('auth_user_cache_v1')
       );
+      const hasPersistedToken = Boolean(
+        window.localStorage.getItem('auth_token') ||
+          window.sessionStorage.getItem('auth_token')
+      );
+      const hasCryptoKey = Boolean(
+        window.localStorage.getItem('auth_crypto_key') ||
+          window.sessionStorage.getItem('auth_crypto_key')
+      );
+      return hasCachedUser && hasPersistedToken && hasCryptoKey;
     } catch {
       return false;
     }
@@ -347,6 +362,21 @@ export async function loginAsAuthenticatedE2eUser(
     await page.goto(redirect);
     await expect(page).not.toHaveURL(/\/login(?:[/?#]|$)/, { timeout: 15000 });
   }
+}
+
+async function hasPersistedAuthenticatedSession(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    try {
+      const storages = [window.localStorage, window.sessionStorage];
+      const hasToken = storages.some((storage) =>
+        Boolean(storage.getItem('auth_token') || storage.getItem('auth_token_session_fallback'))
+      );
+      const hasUser = storages.some((storage) => Boolean(storage.getItem('auth_user_cache_v1')));
+      return hasToken && hasUser;
+    } catch {
+      return false;
+    }
+  });
 }
 
 async function fillInputStable(locator: Locator, value: string): Promise<void> {

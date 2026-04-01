@@ -27,7 +27,7 @@
   <form class="space-y-6" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     @switch (currentStep()) {
       @case ('general') {
-        <section class="space-y-4" data-og7="company-register-step-general">
+        <section class="space-y-4" data-og7="company-register-step-general" formGroupName="general">
           <div>
             <label class="mb-1 block text-sm font-medium text-slate-700" for="company-name">Company name</label>
             <input
@@ -124,9 +124,9 @@
             Provide key production capacities or expertise metrics. These fields are optional but help match you with partners.
           </p>
 
-          <div class="space-y-4">
+          <div class="space-y-4" formArrayName="capacities">
             @for (group of capacityControls().controls; track $index; let i = $index) {
-              <div class="rounded-lg border border-slate-200 p-4">
+              <div class="rounded-lg border border-slate-200 p-4" [formGroupName]="i">
                 <div class="grid gap-3 md:grid-cols-3">
                   <div class="md:col-span-1">
                     <label class="mb-1 block text-sm font-medium text-slate-700" [for]="'capacity-label-' + i">Label</label>
@@ -180,7 +180,7 @@
         </section>
       }
       @case ('logos') {
-        <section class="space-y-4" data-og7="company-register-step-logos">
+        <section class="space-y-4" data-og7="company-register-step-logos" formGroupName="logos">
           <p class="text-sm text-slate-600">
             Provide public URLs for your brand assets. You can update these later from the admin interface.
           </p>

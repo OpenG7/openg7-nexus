@@ -1,5 +1,5 @@
 import { inject, signal } from '@angular/core';
-import { CanMatchFn, Route, UrlSegment } from '@angular/router';
+import { CanMatchFn, Route, Router, UrlSegment } from '@angular/router';
 
 import { RbacFacadeService } from '../security/rbac.facade';
 
@@ -22,7 +22,7 @@ export const reasonSig = signal<string | null>(null);
  * Raison d’être : Validates requested permissions against the RBAC facade and blocks navigation otherwise.
  * @param route Route definition invoking the guard.
  * @param segments Attempted URL segments (unused but part of signature).
- * @returns True when navigation may continue, otherwise false to cancel routing.
+ * @returns True when navigation may continue, otherwise a UrlTree to the access denied page.
  */
 export const permissionsGuard: CanMatchFn = (
   route: Route,
@@ -38,5 +38,8 @@ export const permissionsGuard: CanMatchFn = (
   const allowed = required.every((p) => policy.hasPermission(p));
   isAllowedSig.set(allowed);
   reasonSig.set(allowed ? null : 'permission.forbidden');
-  return allowed;
+  if (allowed) {
+    return true;
+  }
+  return inject(Router).createUrlTree(['/access-denied']);
 };

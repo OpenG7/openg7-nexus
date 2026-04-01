@@ -301,6 +301,7 @@
       type="button"
       (click)="toggleMobileMenu()"
       class="ml-auto inline-flex items-center rounded-lg p-2 text-white/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 sm:hidden"
+      data-og7-id="mobile-menu-toggle"
       [attr.aria-expanded]="isMobileMenuOpen()"
       [attr.aria-label]="'header.mobile.menuLabel' | translate"
     >
@@ -319,7 +320,11 @@
     </button>
   </div>
 
-  <div *ngIf="isMobileMenuOpen()" class="border-t border-white/10 bg-slate-950/95 px-3 py-3 backdrop-blur sm:hidden">
+  <div
+    *ngIf="isMobileMenuOpen()"
+    class="border-t border-white/10 bg-slate-950/95 px-3 py-3 backdrop-blur sm:hidden"
+    data-og7="mobile-menu"
+  >
     <span id="mobile-search-label" class="sr-only">{{ 'header.search.aria' | translate }}</span>
     <button
       id="mobile-search"

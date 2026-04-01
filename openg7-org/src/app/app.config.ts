@@ -17,6 +17,7 @@ import { provideTranslateLoader, provideTranslateService } from '@ngx-translate/
 
 import { appConfigProvider } from './app.config.provider';
 import { routes } from './app.routes';
+import { AuthService } from './core/auth/auth.service';
 import { authInterceptor } from './core/http/auth.interceptor';
 import { csrfInterceptor } from './core/http/csrf.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
@@ -61,6 +62,14 @@ export const appConfig: ApplicationConfig = {
       feed: feedReducer,
       statistics: statisticsReducer,
     }),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => {
+        const auth = inject(AuthService);
+        return () => auth.ensureSessionRestored();
+      },
+    },
     {
       provide: APP_INITIALIZER,
       multi: true,

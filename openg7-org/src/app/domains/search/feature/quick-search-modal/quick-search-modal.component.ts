@@ -98,6 +98,7 @@ export class QuickSearchModalComponent implements AfterViewInit {
   readonly sections = signal<SearchSection[]>([]);
   readonly activeIndex = signal(0);
   private lastTyped = this.query();
+  private latestSearchRequestId = 0;
   private readonly composing = signal(false);
 
   private readonly langSig = signal(this.translate.currentLang || this.translate.defaultLang || 'en');
@@ -500,12 +501,23 @@ export class QuickSearchModalComponent implements AfterViewInit {
     this.loading.set(true);
     this.errored.set(false);
     const startedAt = this.now();
+    const requestId = ++this.latestSearchRequestId;
     this.searchService
       .search$(query, context)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (result) => this.onResult(result, startedAt),
-        error: () => this.onError(),
+        next: (result) => {
+          if (requestId !== this.latestSearchRequestId) {
+            return;
+          }
+          this.onResult(result, startedAt);
+        },
+        error: () => {
+          if (requestId !== this.latestSearchRequestId) {
+            return;
+          }
+          this.onError();
+        },
       });
   }
 

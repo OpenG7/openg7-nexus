@@ -16,11 +16,12 @@
     <button type="button" (click)="handleComposeRequested()">{{ 'feed.stream.onboardingAction' | translate }}</button>
   </div>
 
-  <div class="feed-stream__filters">
+  <div class="feed-stream__filters" data-og7="feed-filters">
     <div class="feed-stream__filter">
       <label for="feed-search">{{ 'feed.filters.search' | translate }}</label>
       <input
         id="feed-search"
+        data-og7-id="feed-search"
         type="search"
         [value]="searchTerm()"
         (input)="updateSearch($any($event.target).value || '')"
@@ -30,7 +31,7 @@
 
     <div class="feed-stream__filter">
       <label for="feed-type">{{ 'feed.filters.type' | translate }}</label>
-      <select id="feed-type" [ngModel]="selectedType()" (ngModelChange)="updateType($event ?? '')">
+      <select id="feed-type" data-og7-id="feed-type" [ngModel]="selectedType()" (ngModelChange)="updateType($event ?? '')">
         <option [ngValue]="null">{{ 'feed.filters.allTypes' | translate }}</option>
         <option *ngFor="let type of typeOptions" [ngValue]="type">
           {{ ('feed.type.' + type) | translate }}
@@ -40,7 +41,7 @@
 
     <div class="feed-stream__filter">
       <label for="feed-sector">{{ 'feed.filters.sector' | translate }}</label>
-      <select id="feed-sector" [ngModel]="sectorId()" (ngModelChange)="updateSector($event ?? '')">
+      <select id="feed-sector" data-og7-id="feed-sector" [ngModel]="sectorId()" (ngModelChange)="updateSector($event ?? '')">
         <option [ngValue]="null">{{ 'feed.filters.allSectors' | translate }}</option>
         <option *ngFor="let sector of sectors()" [ngValue]="sector.id">
           {{ sector.name }}
@@ -50,7 +51,12 @@
 
     <div class="feed-stream__filter">
       <label for="feed-form-key">{{ 'feed.filters.template' | translate }}</label>
-      <select id="feed-form-key" [ngModel]="selectedFormKey()" (ngModelChange)="updateFormKey($event ?? '')">
+      <select
+        id="feed-form-key"
+        data-og7-id="feed-form-key"
+        [ngModel]="selectedFormKey()"
+        (ngModelChange)="updateFormKey($event ?? '')"
+      >
         <option [ngValue]="null">{{ 'feed.filters.allTemplates' | translate }}</option>
         <option *ngFor="let template of availableTemplates" [ngValue]="template.formKey">
           {{ template.titleKey | translate }}
@@ -60,7 +66,12 @@
 
     <div class="feed-stream__filter">
       <label for="feed-from">{{ 'feed.filters.fromProvince' | translate }}</label>
-      <select id="feed-from" [ngModel]="fromProvinceId()" (ngModelChange)="updateFromProvince($event ?? '')">
+      <select
+        id="feed-from"
+        data-og7-id="feed-from"
+        [ngModel]="fromProvinceId()"
+        (ngModelChange)="updateFromProvince($event ?? '')"
+      >
         <option [ngValue]="null">{{ 'feed.filters.allProvinces' | translate }}</option>
         <option *ngFor="let province of provinces()" [ngValue]="province.id">
           {{ province.name }}
@@ -70,7 +81,7 @@
 
     <div class="feed-stream__filter">
       <label for="feed-to">{{ 'feed.filters.toProvince' | translate }}</label>
-      <select id="feed-to" [ngModel]="toProvinceId()" (ngModelChange)="updateToProvince($event ?? '')">
+      <select id="feed-to" data-og7-id="feed-to" [ngModel]="toProvinceId()" (ngModelChange)="updateToProvince($event ?? '')">
         <option [ngValue]="null">{{ 'feed.filters.allProvinces' | translate }}</option>
         <option *ngFor="let province of provinces()" [ngValue]="province.id">
           {{ province.name }}
@@ -80,7 +91,7 @@
 
     <div class="feed-stream__filter">
       <label for="feed-mode">{{ 'feed.filters.mode' | translate }}</label>
-      <select id="feed-mode" [ngModel]="selectedMode()" (ngModelChange)="updateMode($event ?? 'BOTH')">
+      <select id="feed-mode" data-og7-id="feed-mode" [ngModel]="selectedMode()" (ngModelChange)="updateMode($event ?? 'BOTH')">
         <option *ngFor="let mode of modeOptions" [ngValue]="mode">
           {{ ('feed.mode.' + (mode | lowercase)) | translate }}
         </option>
@@ -89,7 +100,7 @@
 
     <div class="feed-stream__filter">
       <label for="feed-sort">{{ 'feed.filters.sort.label' | translate }}</label>
-      <select id="feed-sort" [ngModel]="sortOrder()" (ngModelChange)="updateSort($event ?? 'NEWEST')">
+      <select id="feed-sort" data-og7-id="feed-sort" [ngModel]="sortOrder()" (ngModelChange)="updateSort($event ?? 'NEWEST')">
         <option *ngFor="let sort of sortOptions" [ngValue]="sort">
           {{ ('feed.filters.sort.' + (sort | lowercase)) | translate }}
         </option>
@@ -97,37 +108,37 @@
     </div>
 
     <div class="feed-stream__filter feed-stream__filter--actions">
-      <button type="button" class="feed-stream__filters-clear" (click)="clearFilters()">
+      <button type="button" class="feed-stream__filters-clear" data-og7-id="feed-clear-filters" (click)="clearFilters()">
         {{ 'feed.filters.clear' | translate }}
       </button>
     </div>
   </div>
 
-  <div class="feed-stream__filters feed-stream__filters--active" *ngIf="hasFilters()">
+  <div class="feed-stream__filters feed-stream__filters--active" *ngIf="hasFilters()" data-og7="feed-active-filters">
     <span class="feed-stream__filters-label">{{ 'feed.stream.filters' | translate }}</span>
     <ul class="feed-stream__chips">
-      <li *ngIf="fromProvinceId()">
+      <li *ngIf="fromProvinceId()" data-og7="feed-filter-chip" data-og7-id="fromProvince">
         {{ 'feed.filters.fromProvince' | translate }}: {{ resolveProvinceLabel(fromProvinceId()) }}
       </li>
-      <li *ngIf="toProvinceId()">
+      <li *ngIf="toProvinceId()" data-og7="feed-filter-chip" data-og7-id="toProvince">
         {{ 'feed.filters.toProvince' | translate }}: {{ resolveProvinceLabel(toProvinceId()) }}
       </li>
-      <li *ngIf="sectorId()">
+      <li *ngIf="sectorId()" data-og7="feed-filter-chip" data-og7-id="sector">
         {{ 'feed.filters.sector' | translate }}: {{ resolveSectorLabel(sectorId()) }}
       </li>
-      <li *ngIf="selectedFormKey()">
+      <li *ngIf="selectedFormKey()" data-og7="feed-filter-chip" data-og7-id="formKey">
         {{ 'feed.filters.template' | translate }}: {{ resolveTemplateTitleKey(selectedFormKey()) | translate }}
       </li>
-      <li *ngIf="categoryLabelKey()">
+      <li *ngIf="categoryLabelKey()" data-og7="feed-filter-chip" data-og7-id="category">
         {{ 'feed.filters.type' | translate }}: {{ categoryLabelKey()! | translate }}
       </li>
-      <li *ngIf="selectedType()">
+      <li *ngIf="selectedType()" data-og7="feed-filter-chip" data-og7-id="type">
         {{ 'feed.filters.type' | translate }}: {{ ('feed.type.' + selectedType()) | translate }}
       </li>
-      <li *ngIf="selectedMode() !== 'BOTH'">
+      <li *ngIf="selectedMode() !== 'BOTH'" data-og7="feed-filter-chip" data-og7-id="mode">
         {{ 'feed.filters.mode' | translate }}: {{ ('feed.mode.' + (selectedMode() | lowercase)) | translate }}
       </li>
-      <li *ngIf="searchTerm()">
+      <li *ngIf="searchTerm()" data-og7="feed-filter-chip" data-og7-id="search">
         {{ 'feed.filters.search' | translate }}: "{{ searchTerm() }}"
       </li>
     </ul>
@@ -135,7 +146,7 @@
 
   <p *ngIf="error()" class="feed-stream__error" role="alert">{{ error() }}</p>
 
-  <ul class="feed-stream__list">
+  <ul class="feed-stream__list" data-og7="feed-items">
     <li *ngFor="let item of items(); trackBy: trackItem">
       <og7-feed-card
         [attr.data-feed-item-id]="item.id"

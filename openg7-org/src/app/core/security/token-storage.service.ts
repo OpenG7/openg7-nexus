@@ -31,11 +31,13 @@ interface StorageResolution {
  */
 export class TokenStorageService {
   private readonly storageKey = 'auth_token';
+  private readonly sessionFallbackStorageKey = 'auth_token_session_fallback';
   private readonly defaultTtlMs = 1000 * 60 * 60 * 12;
   private memoryToken: string | null = null;
   private memoryExpiresAt: number | null = null;
   private readonly storage: Storage | null;
   private readonly legacyStorage: Storage | null;
+  private readonly sessionFallbackStorage: Storage | null;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: object,
@@ -44,6 +46,9 @@ export class TokenStorageService {
     const resolution = this.resolveStorage(platformId);
     this.storage = resolution.primary;
     this.legacyStorage = resolution.legacy;
+    this.sessionFallbackStorage = isPlatformBrowser(platformId)
+      ? this.tryGetStorage('sessionStorage')
+      : null;
   }
 
   /**
@@ -53,7 +58,15 @@ export class TokenStorageService {
    */
   async getToken(): Promise<string | null> {
     if (this.canUsePersistentStorage()) {
-      return this.readPersistentToken();
+      const persisted = await this.readPersistentToken();
+      if (persisted) {
+        return persisted;
+      }
+    }
+
+    const sessionFallback = this.readSessionFallbackToken();
+    if (sessionFallback) {
+      return sessionFallback;
     }
 
     if (this.isExpired(this.memoryExpiresAt)) {
@@ -84,6 +97,7 @@ export class TokenStorageService {
         };
         this.storage!.setItem(this.storageKey, JSON.stringify(payload));
         this.legacyStorage?.removeItem(this.storageKey);
+        this.sessionFallbackStorage?.setItem(this.sessionFallbackStorageKey, token);
         this.memoryToken = null;
         this.memoryExpiresAt = null;
         return;
@@ -96,6 +110,7 @@ export class TokenStorageService {
 
     this.memoryToken = token;
     this.memoryExpiresAt = expiresAt;
+    this.sessionFallbackStorage?.setItem(this.sessionFallbackStorageKey, token);
   }
 
   /**
@@ -106,6 +121,7 @@ export class TokenStorageService {
   async clear(): Promise<void> {
     this.storage?.removeItem(this.storageKey);
     this.legacyStorage?.removeItem(this.storageKey);
+    this.sessionFallbackStorage?.removeItem(this.sessionFallbackStorageKey);
     this.crypto.clearSessionKey();
     this.memoryToken = null;
     this.memoryExpiresAt = null;
@@ -214,6 +230,26 @@ export class TokenStorageService {
 
   private isExpired(expiresAt: number | null): boolean {
     return typeof expiresAt === 'number' && Number.isFinite(expiresAt) && Date.now() >= expiresAt;
+  }
+
+  private readSessionFallbackToken(): string | null {
+    const storage = this.sessionFallbackStorage;
+    if (!storage) {
+      return null;
+    }
+
+    const token = storage.getItem(this.sessionFallbackStorageKey);
+    if (!token) {
+      return null;
+    }
+
+    const expiresAt = this.resolveExpiry(token);
+    if (this.isExpired(expiresAt)) {
+      storage.removeItem(this.sessionFallbackStorageKey);
+      return null;
+    }
+
+    return token;
   }
 
   private resolveStorage(platformId: object): StorageResolution {

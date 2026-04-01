@@ -113,6 +113,61 @@ interface SeedSession {
   ipAddress: string | null;
 }
 
+interface SeedConnection {
+  id: string;
+  matchId: number;
+  buyerProfileId: number;
+  supplierProfileId: number;
+  buyerOrganization: string;
+  supplierOrganization: string;
+  introMessage: string;
+  locale: 'fr' | 'en';
+  attachments: string[];
+  logisticsPlan: {
+    incoterm?: string | null;
+    transports?: string[] | null;
+  } | null;
+  meetingProposal: string[];
+  stage: 'intro' | 'reply' | 'meeting' | 'review' | 'deal';
+  status: 'pending' | 'inDiscussion' | 'completed' | 'closed';
+  stageHistory: Array<{
+    stage?: string | null;
+    timestamp?: string | null;
+    source?: string | null;
+  }>;
+  statusHistory: Array<{
+    status?: string | null;
+    timestamp?: string | null;
+    note?: string | null;
+  }>;
+  lastStatusAt: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+interface SeedOpportunityMatch {
+  id: number;
+  commodity: string;
+  mode: 'import' | 'export' | 'all';
+  confidence: number;
+  distanceKm: number | null;
+  co2Estimate: number | null;
+  buyer: {
+    id: number;
+    name: string;
+    province: string;
+    sector: string;
+    capability: 'import' | 'export' | 'all';
+  };
+  seller: {
+    id: number;
+    name: string;
+    province: string;
+    sector: string;
+    capability: 'import' | 'export' | 'all';
+  };
+}
+
 const DEFAULT_SECTORS: SeedSector[] = [
   { id: 1, name: 'Energy' },
   { id: 2, name: 'Advanced manufacturing' },
@@ -281,6 +336,79 @@ const DEFAULT_SESSIONS: SeedSession[] = [
   },
 ];
 
+const DEFAULT_CONNECTIONS: SeedConnection[] = [
+  {
+    id: 'lkp-001',
+    matchId: 73,
+    buyerProfileId: 201,
+    supplierProfileId: 301,
+    buyerOrganization: 'Hydro Quebec Transition',
+    supplierOrganization: 'Prairie Electrolyzers Inc.',
+    introMessage: 'Discussion ouverte pour un corridor hydrogene Quebec-Alberta.',
+    locale: 'fr',
+    attachments: ['nda'],
+    logisticsPlan: {
+      incoterm: 'FCA',
+      transports: ['rail', 'road'],
+    },
+    meetingProposal: ['2026-03-20T14:00:00.000Z'],
+    stage: 'reply',
+    status: 'inDiscussion',
+    stageHistory: [
+      {
+        stage: 'intro',
+        timestamp: '2026-03-12T09:00:00.000Z',
+        source: 'submitted',
+      },
+      {
+        stage: 'reply',
+        timestamp: '2026-03-13T11:30:00.000Z',
+        source: 'platform',
+      },
+    ],
+    statusHistory: [
+      {
+        status: 'pending',
+        timestamp: '2026-03-12T09:00:00.000Z',
+        note: 'Introduction initiale envoyee.',
+      },
+      {
+        status: 'inDiscussion',
+        timestamp: '2026-03-13T11:30:00.000Z',
+        note: 'Les deux parties ont accepte un premier appel.',
+      },
+    ],
+    lastStatusAt: '2026-03-13T11:30:00.000Z',
+    createdAt: '2026-03-12T09:00:00.000Z',
+    updatedAt: '2026-03-13T11:30:00.000Z',
+  },
+];
+
+const DEFAULT_OPPORTUNITY_MATCHES: SeedOpportunityMatch[] = [
+  {
+    id: 73,
+    commodity: 'Hydrogen electrolyzers',
+    mode: 'export',
+    confidence: 0.94,
+    distanceKm: 2850,
+    co2Estimate: 14,
+    buyer: {
+      id: 201,
+      name: 'Hydro Quebec Transition',
+      province: 'QC',
+      sector: 'energy',
+      capability: 'import',
+    },
+    seller: {
+      id: 301,
+      name: 'Prairie Electrolyzers Inc.',
+      province: 'AB',
+      sector: 'manufacturing',
+      capability: 'export',
+    },
+  },
+];
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -333,6 +461,66 @@ function mapCompanyToStrapi(company: SeedCompany) {
             },
           }
         : { data: null },
+    },
+  };
+}
+
+function mapConnectionToStrapi(connection: SeedConnection) {
+  return {
+    id: connection.id,
+    attributes: {
+      match: connection.matchId,
+      buyer_profile: connection.buyerProfileId,
+      supplier_profile: connection.supplierProfileId,
+      buyer_organization: connection.buyerOrganization,
+      supplier_organization: connection.supplierOrganization,
+      intro_message: connection.introMessage,
+      locale: connection.locale,
+      attachments: connection.attachments,
+      logistics_plan: connection.logisticsPlan,
+      meeting_proposal: connection.meetingProposal,
+      stage: connection.stage,
+      status: connection.status,
+      stageHistory: connection.stageHistory,
+      statusHistory: connection.statusHistory,
+      lastStatusAt: connection.lastStatusAt,
+      createdAt: connection.createdAt,
+      updatedAt: connection.updatedAt,
+    },
+  };
+}
+
+function mapOpportunityMatchToStrapi(match: SeedOpportunityMatch) {
+  return {
+    id: match.id,
+    attributes: {
+      commodity: match.commodity,
+      mode: match.mode,
+      confidence: match.confidence,
+      distanceKm: match.distanceKm,
+      co2Estimate: match.co2Estimate,
+      buyer: {
+        data: {
+          id: match.buyer.id,
+          attributes: {
+            name: match.buyer.name,
+            province: match.buyer.province,
+            sector: match.buyer.sector,
+            capability: match.buyer.capability,
+          },
+        },
+      },
+      seller: {
+        data: {
+          id: match.seller.id,
+          attributes: {
+            name: match.seller.name,
+            province: match.seller.province,
+            sector: match.seller.sector,
+            capability: match.seller.capability,
+          },
+        },
+      },
     },
   };
 }
@@ -709,6 +897,80 @@ export async function mockCompanyApis(
   });
 }
 
+export async function mockConnectionsApis(
+  page: Page,
+  connectionSeed: readonly SeedConnection[] = DEFAULT_CONNECTIONS,
+  opportunitySeed: readonly SeedOpportunityMatch[] = DEFAULT_OPPORTUNITY_MATCHES
+): Promise<void> {
+  const connections = clone(connectionSeed);
+  const opportunityMatches = clone(opportunitySeed);
+
+  await page.route('**/api/connections**', async (route) => {
+    const request = route.request();
+    const method = request.method().toUpperCase();
+    const url = new URL(request.url());
+    const connectionIdMatch = url.pathname.match(/\/api\/connections\/([^/]+)\/?$/i);
+    const connectionId = connectionIdMatch ? decodeURIComponent(connectionIdMatch[1]) : null;
+
+    if (method !== 'GET') {
+      await route.fulfill({ status: 404, body: 'Unhandled connections route' });
+      return;
+    }
+
+    if (connectionId) {
+      const connection = connections.find((entry) => entry.id === connectionId);
+      if (!connection) {
+        await route.fulfill({ status: 404, body: 'Connection not found' });
+        return;
+      }
+
+      await route.fulfill(json({ data: mapConnectionToStrapi(connection) }));
+      return;
+    }
+
+    await route.fulfill(
+      json({
+        data: connections.map(mapConnectionToStrapi),
+        meta: {
+          count: connections.length,
+          limit: connections.length,
+          offset: 0,
+          hasMore: false,
+        },
+      })
+    );
+  });
+
+  await page.route('**/api/opportunity-matches**', async (route) => {
+    const request = route.request();
+    const method = request.method().toUpperCase();
+    const url = new URL(request.url());
+    const matchIdMatch = url.pathname.match(/\/api\/opportunity-matches\/(\d+)\/?$/i);
+    const matchId = matchIdMatch ? Number(matchIdMatch[1]) : null;
+
+    if (method !== 'GET') {
+      await route.fulfill({ status: 404, body: 'Unhandled opportunity matches route' });
+      return;
+    }
+
+    if (matchId != null) {
+      const match = opportunityMatches.find((entry) => entry.id === matchId);
+      await route.fulfill(
+        json({
+          data: match ? mapOpportunityMatchToStrapi(match) : null,
+        })
+      );
+      return;
+    }
+
+    await route.fulfill(
+      json({
+        data: opportunityMatches.map(mapOpportunityMatchToStrapi),
+      })
+    );
+  });
+}
+
 export async function mockImportApis(page: Page): Promise<void> {
   await page.route('**/api/import/companies', async (route) => {
     const request = route.request();
@@ -947,7 +1209,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
     );
   });
 
-  await page.route('**/api/annotations**', async (route) => {
+  await page.route('**/api/import-annotations**', async (route) => {
     await route.fulfill(
       json({
         annotations: [
@@ -963,16 +1225,19 @@ export async function mockImportationApis(page: Page): Promise<void> {
     );
   });
 
-  await page.route('**/api/watchlists**', async (route) => {
+  await page.route('**/api/import-watchlists**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
+    const url = new URL(request.url());
+    const watchlistIdMatch = url.pathname.match(/\/api\/import-watchlists\/([^/]+)\/?$/i);
+    const watchlistId = watchlistIdMatch ? decodeURIComponent(watchlistIdMatch[1]) : null;
 
-    if (method === 'GET') {
+    if (method === 'GET' && !watchlistId) {
       await route.fulfill(json({ watchlists }));
       return;
     }
 
-    if (method === 'POST') {
+    if (method === 'POST' && !watchlistId) {
       const payload = (request.postDataJSON?.() ?? {}) as { name?: string; filters?: Record<string, unknown> };
       const created = {
         id: `watch-${watchlists.length + 1}`,
@@ -987,6 +1252,25 @@ export async function mockImportationApis(page: Page): Promise<void> {
         contentType: 'application/json',
         body: JSON.stringify(created),
       });
+      return;
+    }
+
+    if (method === 'PUT' && watchlistId) {
+      const payload = (request.postDataJSON?.() ?? {}) as { name?: string; filters?: Record<string, unknown> };
+      const index = watchlists.findIndex((entry) => entry.id === watchlistId);
+      if (index < 0) {
+        await route.fulfill({ status: 404, body: 'Watchlist not found' });
+        return;
+      }
+
+      const updated = {
+        ...watchlists[index],
+        name: payload.name ?? watchlists[index].name,
+        filters: payload.filters ?? watchlists[index].filters,
+        updatedAt: '2026-03-14',
+      };
+      watchlists[index] = updated;
+      await route.fulfill(json(updated));
       return;
     }
 

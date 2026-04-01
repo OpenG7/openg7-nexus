@@ -43,6 +43,7 @@ import { OidcProvider, OidcService } from './oidc.service';
  */
 export class AuthService {
   private readonly restoreSessionPromise: Promise<void>;
+  private sessionPersistencePromise: Promise<void> = Promise.resolve();
   private readonly userCacheKey = 'auth_user_cache_v1';
   private unauthorizedSessionHandlingInFlight = false;
   private tokenSig = signal<string | null>(null);
@@ -104,6 +105,15 @@ export class AuthService {
    */
   async ensureSessionRestored(): Promise<void> {
     await this.restoreSessionPromise;
+  }
+
+  /**
+   * Contexte : Used by auth flows that should not navigate away before the session token is durably stored.
+   * Raison d’être : Avoids race conditions between post-login navigation and async token persistence.
+   * @returns Promise resolved once the latest token write attempt has completed.
+   */
+  async ensureSessionPersisted(): Promise<void> {
+    await this.sessionPersistencePromise;
   }
 
   /**
@@ -348,10 +358,11 @@ export class AuthService {
   private persistAuth(res: AuthResponse): void {
     const token = typeof res.jwt === 'string' ? res.jwt.trim() : '';
     if (!token) {
+      this.sessionPersistencePromise = Promise.resolve();
       return;
     }
 
-    void this.tokenStorage.setToken(token);
+    this.sessionPersistencePromise = this.tokenStorage.setToken(token).catch(() => undefined);
     this.tokenSig.set(token);
     const user = this.normalizeUser(res.user);
     this.userSig.set(user);

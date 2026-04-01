@@ -199,7 +199,7 @@
               }
             </div>
 
-            <form class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newSourceForm" (ngSubmit)="addSource()">
+            <div class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newSourceForm" data-og7="admin-trust-new-source">
               <h4 class="text-sm font-semibold text-slate-800">Add verification source</h4>
               <div class="grid gap-3 md:grid-cols-2">
                 <label class="flex flex-col gap-1 text-xs">
@@ -249,14 +249,15 @@
               </div>
               <div class="flex justify-end">
                 <button
-                  type="submit"
+                  type="button"
                   class="rounded-lg border border-emerald-400 bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
                   [disabled]="newSourceForm.invalid"
+                  (click)="addSource()"
                 >
                   Add source
                 </button>
               </div>
-            </form>
+            </div>
           </section>
 
           <section class="space-y-4">
@@ -358,7 +359,7 @@
               }
             </div>
 
-            <form class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newHistoryForm" (ngSubmit)="addHistoryEntry()">
+            <div class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newHistoryForm" data-og7="admin-trust-new-history">
               <h4 class="text-sm font-semibold text-slate-800">Add history entry</h4>
               <div class="grid gap-3 md:grid-cols-2">
                 <label class="flex flex-col gap-1 text-xs md:col-span-2">
@@ -400,21 +401,24 @@
               </div>
               <div class="flex justify-end">
                 <button
-                  type="submit"
+                  type="button"
                   class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
                   [disabled]="newHistoryForm.invalid"
+                  (click)="addHistoryEntry()"
                 >
                   Add entry
                 </button>
               </div>
-            </form>
+            </div>
           </section>
 
           <div class="flex justify-end gap-3">
             <button
-              type="submit"
+              type="button"
               class="rounded-lg border border-emerald-400 bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
               [disabled]="saving()"
+              data-og7-id="admin-trust-save"
+              (click)="save()"
             >
               @if (saving()) { Saving… } @else { Save changes }
             </button>

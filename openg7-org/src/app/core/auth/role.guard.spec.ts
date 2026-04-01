@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { Route, UrlSegment } from '@angular/router';
+import { Route, Router, UrlSegment, UrlTree } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { RbacFacadeService } from '../security/rbac.facade';
 
@@ -19,6 +20,7 @@ describe('roleGuard', () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [RouterTestingModule.withRoutes([{ path: 'access-denied', children: [] }])],
       providers: [{ provide: RbacFacadeService, useValue: rbac as unknown as RbacFacadeService }],
     });
 
@@ -47,13 +49,15 @@ describe('roleGuard', () => {
     expect(reasonSig()).toBeNull();
   });
 
-  it('blocks navigation when current role is not expected', () => {
+  it('redirects to /access-denied when current role is not expected', () => {
+    const router = TestBed.inject(Router);
     rbac.currentRole.and.returnValue('visitor');
     const route = { data: { roles: ['editor', 'admin'] } } as Route;
 
     const allowed = TestBed.runInInjectionContext(() => roleGuard(route, segments));
 
-    expect(allowed).toBeFalse();
+    expect(allowed instanceof UrlTree).toBeTrue();
+    expect(router.serializeUrl(allowed as UrlTree)).toBe('/access-denied');
     expect(rbac.currentRole).toHaveBeenCalled();
     expect(isAllowedSig()).toBeFalse();
     expect(reasonSig()).toBe('role.forbidden');

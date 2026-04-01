@@ -193,6 +193,12 @@ export class ProfilePage {
   protected readonly alertSeveritySelectionError = signal(false);
   protected readonly alertSourceSelectionError = signal(false);
   protected readonly quietHoursConfigurationError = signal(false);
+  protected readonly formDirty = signal(false);
+  protected readonly formValid = signal(true);
+  protected readonly passwordFormDirty = signal(false);
+  protected readonly passwordFormValid = signal(false);
+  protected readonly emailChangeFormDirty = signal(false);
+  protected readonly emailChangeFormValid = signal(false);
   protected readonly profile = signal<AuthUser | null>(null);
   protected readonly sessions = signal<ActiveSessionRecord[]>([]);
   protected readonly hasOtherActiveSessions = computed(() =>
@@ -212,6 +218,16 @@ export class ProfilePage {
         return 'auth.profile.security.status.active';
     }
   });
+  protected readonly accountStatusSelector = computed(() => {
+    switch (this.accountStatus()) {
+      case 'disabled':
+        return 'account-status-disabled';
+      case 'emailNotConfirmed':
+        return 'account-status-email-not-confirmed';
+      default:
+        return 'account-status-active';
+    }
+  });
   protected readonly canResendActivation = computed(() => {
     const current = this.profile();
     return (
@@ -222,26 +238,27 @@ export class ProfilePage {
     );
   });
   protected readonly canSave = computed(() => {
-    return !this.loading() && !this.saving() && this.form.dirty && this.form.valid;
+    return !this.loading() && !this.saving() && this.formDirty() && this.formValid();
   });
   protected readonly canChangePassword = computed(() => {
     return (
       !this.loading() &&
       !this.changingPassword() &&
-      this.passwordForm.dirty &&
-      this.passwordForm.valid
+      this.passwordFormDirty() &&
+      this.passwordFormValid()
     );
   });
   protected readonly canRequestEmailChange = computed(() => {
     return (
       !this.loading() &&
       !this.requestingEmailChange() &&
-      this.emailChangeForm.dirty &&
-      this.emailChangeForm.valid
+      this.emailChangeFormDirty() &&
+      this.emailChangeFormValid()
     );
   });
   protected readonly hasUnsavedChanges = computed(() => {
-    const hasDirtyForm = this.form.dirty || this.passwordForm.dirty || this.emailChangeForm.dirty;
+    const hasDirtyForm =
+      this.formDirty() || this.passwordFormDirty() || this.emailChangeFormDirty();
     const isBusy =
       this.saving() || this.changingPassword() || this.requestingEmailChange() || this.loading();
     return hasDirtyForm && !isBusy;
@@ -294,10 +311,32 @@ export class ProfilePage {
   constructor() {
     this.syncWebhookAvailability(this.form.controls.webhookNotifications.value, false);
     this.syncQuietHoursAvailability(this.form.controls.quietHoursEnabled.value, false);
+    this.syncAllFormStateSignals();
 
     this.form.controls.avatarUrl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.avatarPreview.set(this.normalizeString(value)));
+
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncPrimaryFormStateSignals());
+    this.form.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncPrimaryFormStateSignals());
+
+    this.passwordForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncPasswordFormStateSignals());
+    this.passwordForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncPasswordFormStateSignals());
+
+    this.emailChangeForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncEmailChangeFormStateSignals());
+    this.emailChangeForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncEmailChangeFormStateSignals());
 
     this.form.controls.webhookNotifications.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -871,7 +910,29 @@ export class ProfilePage {
     this.syncQuietHoursAvailability(preferences.quietHours.enabled, true);
     this.form.markAsPristine();
     this.form.markAsUntouched();
+    this.syncPrimaryFormStateSignals();
     this.notifications.updatePreferences(this.buildNotificationPreferences(profile));
+  }
+
+  private syncAllFormStateSignals(): void {
+    this.syncPrimaryFormStateSignals();
+    this.syncPasswordFormStateSignals();
+    this.syncEmailChangeFormStateSignals();
+  }
+
+  private syncPrimaryFormStateSignals(): void {
+    this.formDirty.set(this.form.dirty);
+    this.formValid.set(this.form.valid);
+  }
+
+  private syncPasswordFormStateSignals(): void {
+    this.passwordFormDirty.set(this.passwordForm.dirty);
+    this.passwordFormValid.set(this.passwordForm.valid);
+  }
+
+  private syncEmailChangeFormStateSignals(): void {
+    this.emailChangeFormDirty.set(this.emailChangeForm.dirty);
+    this.emailChangeFormValid.set(this.emailChangeForm.valid);
   }
 
   private syncWebhookAvailability(enabled: boolean, clearWhenDisabled: boolean): void {
@@ -1076,6 +1137,7 @@ export class ProfilePage {
     });
     this.passwordForm.markAsPristine();
     this.passwordForm.markAsUntouched();
+    this.syncPasswordFormStateSignals();
   }
 
   private resetEmailChangeForm(): void {
@@ -1085,6 +1147,7 @@ export class ProfilePage {
     });
     this.emailChangeForm.markAsPristine();
     this.emailChangeForm.markAsUntouched();
+    this.syncEmailChangeFormStateSignals();
   }
 
   private resolveActivationEmailError(error: unknown): string {
