@@ -7,6 +7,7 @@ import {
   mockAdminOpsApis,
   mockBillingApis,
   mockCompanyApis,
+  mockConnectionsApis,
   mockImportApis,
   mockImportationApis,
   mockProfileAndFavoritesApis,
@@ -229,6 +230,7 @@ test.describe('Use-case audit', () => {
 
     await mockProfileAndFavoritesApis(page, adminProfile);
     await mockCompanyApis(page);
+    await mockConnectionsApis(page);
     await mockAdminOpsApis(page);
 
     await loginAsAuthenticatedE2eUser(page, '/linkups');

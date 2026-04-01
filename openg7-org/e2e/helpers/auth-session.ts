@@ -309,6 +309,12 @@ export async function loginAsAuthenticatedE2eUser(
   page: Page,
   redirect = '/profile'
 ): Promise<void> {
+  if (await hasPersistedAuthenticatedSession(page)) {
+    await page.goto(redirect);
+    await expect(page).not.toHaveURL(/\/login(?:[/?#]|$)/, { timeout: 15000 });
+    return;
+  }
+
   await page.goto(`/login?redirect=${encodeURIComponent(redirect)}`);
   const loginForm = page.locator('form[data-og7="auth-login"]');
   await expect(loginForm).toBeVisible();
@@ -356,6 +362,21 @@ export async function loginAsAuthenticatedE2eUser(
     await page.goto(redirect);
     await expect(page).not.toHaveURL(/\/login(?:[/?#]|$)/, { timeout: 15000 });
   }
+}
+
+async function hasPersistedAuthenticatedSession(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    try {
+      const storages = [window.localStorage, window.sessionStorage];
+      const hasToken = storages.some((storage) =>
+        Boolean(storage.getItem('auth_token') || storage.getItem('auth_token_session_fallback'))
+      );
+      const hasUser = storages.some((storage) => Boolean(storage.getItem('auth_user_cache_v1')));
+      return hasToken && hasUser;
+    } catch {
+      return false;
+    }
+  });
 }
 
 async function fillInputStable(locator: Locator, value: string): Promise<void> {
