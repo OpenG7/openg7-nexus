@@ -549,6 +549,7 @@
 
             <div
               class="inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold"
+              [attr.data-og7-id]="accountStatusSelector()"
               [class.bg-emerald-50]="accountStatus() === 'active'"
               [class.border-emerald-200]="accountStatus() === 'active'"
               [class.text-emerald-700]="accountStatus() === 'active'"

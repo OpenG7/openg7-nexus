@@ -1,5 +1,5 @@
 import { inject, signal } from '@angular/core';
-import { CanMatchFn, Route, UrlSegment } from '@angular/router';
+import { CanMatchFn, Route, Router, UrlSegment } from '@angular/router';
 
 import { RbacFacadeService } from '../security/rbac.facade';
 
@@ -22,7 +22,7 @@ export const reasonSig = signal<string | null>(null);
  * Raison d’être : Validates the visitor’s role through the RBAC facade before allowing navigation.
  * @param route Route definition invoking the guard.
  * @param segments Attempted URL segments (unused but part of signature).
- * @returns True when the role is authorised, otherwise false to cancel navigation.
+ * @returns True when the role is authorised, otherwise a UrlTree to the access denied page.
  */
 export const roleGuard: CanMatchFn = (
   route: Route,
@@ -38,5 +38,8 @@ export const roleGuard: CanMatchFn = (
   const allowed = expected.includes(policy.currentRole());
   isAllowedSig.set(allowed);
   reasonSig.set(allowed ? null : 'role.forbidden');
-  return allowed;
+  if (allowed) {
+    return true;
+  }
+  return inject(Router).createUrlTree(['/access-denied']);
 };

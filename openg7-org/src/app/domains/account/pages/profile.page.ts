@@ -218,6 +218,16 @@ export class ProfilePage {
         return 'auth.profile.security.status.active';
     }
   });
+  protected readonly accountStatusSelector = computed(() => {
+    switch (this.accountStatus()) {
+      case 'disabled':
+        return 'account-status-disabled';
+      case 'emailNotConfirmed':
+        return 'account-status-email-not-confirmed';
+      default:
+        return 'account-status-active';
+    }
+  });
   protected readonly canResendActivation = computed(() => {
     const current = this.profile();
     return (

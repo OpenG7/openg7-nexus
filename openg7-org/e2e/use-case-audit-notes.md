@@ -2,6 +2,25 @@
 
 This note complements `e2e/use-case-audit.spec.ts`.
 
+## Scope
+
+This note is intentionally narrower than a full functional map of OpenG7 Nexus.
+
+It tracks the needs explicitly proved by the audit pair:
+
+- `e2e/use-case-audit.spec.ts`
+- `e2e/use-case-audit-gap-coverage.spec.ts`
+
+As of `2026-03-31`, this audit pair is green: `9 passed`.
+
+Additional targeted E2E specs exist outside this pair. The broader separation between:
+
+- complete business needs
+- currently implemented needs
+- E2E-proved needs
+
+is now tracked in `e2e/use-case-needs-gap-analysis.md`.
+
 ## Covered by the audit spec
 
 - Public discovery surfaces: `features`, `sectors`, `pricing`, `statistics`

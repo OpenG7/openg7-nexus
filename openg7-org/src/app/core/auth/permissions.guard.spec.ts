@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { Route, UrlSegment } from '@angular/router';
+import { Route, Router, UrlSegment, UrlTree } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { RbacFacadeService } from '../security/rbac.facade';
 
@@ -19,6 +20,7 @@ describe('permissionsGuard', () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [RouterTestingModule.withRoutes([{ path: 'access-denied', children: [] }])],
       providers: [{ provide: RbacFacadeService, useValue: rbac as unknown as RbacFacadeService }],
     });
 
@@ -50,13 +52,15 @@ describe('permissionsGuard', () => {
     expect(reasonSig()).toBeNull();
   });
 
-  it('blocks navigation when at least one permission is missing', () => {
+  it('redirects to /access-denied when at least one permission is missing', () => {
+    const router = TestBed.inject(Router);
     rbac.hasPermission.and.callFake((permission: string) => permission !== 'write');
     const route = { data: { permissions: ['read', 'write'] } } as Route;
 
     const allowed = TestBed.runInInjectionContext(() => permissionsGuard(route, segments));
 
-    expect(allowed).toBeFalse();
+    expect(allowed instanceof UrlTree).toBeTrue();
+    expect(router.serializeUrl(allowed as UrlTree)).toBe('/access-denied');
     expect(rbac.hasPermission).toHaveBeenCalledWith('read');
     expect(rbac.hasPermission).toHaveBeenCalledWith('write');
     expect(isAllowedSig()).toBeFalse();
