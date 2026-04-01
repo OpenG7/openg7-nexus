@@ -18,17 +18,17 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 
 ## Ordre recommande
 
-1. `E2E-MAP-01`
-2. `E2E-QUALITY-01`
-3. `E2E-IMPORT-01`
-4. `E2E-LINKUP-01`
-5. `E2E-VALUE-01`
-6. `E2E-OBS-01`
+1. `E2E-QUALITY-01`
+2. `E2E-IMPORT-01`
+3. `E2E-LINKUP-01`
+4. `E2E-VALUE-01`
+5. `E2E-OBS-01`
 
 ## Execution update
 
 - `2026-03-31`: `E2E-RBAC-01` est termine via `e2e/rbac-access.spec.ts`, avec verification ciblee verte (`6 passed`).
 - `2026-03-31`: `E2E-SEARCH-01` est termine via `e2e/search.spec.ts`, avec verification ciblee verte (`2 passed`) et controle croise de `e2e/saved-searches.spec.ts`.
+- `2026-03-31`: `E2E-MAP-01` est termine via `e2e/corridors-realtime.spec.ts`, avec verification ciblee verte (`1 passed`) et controle croise du socle carte `e2e/map.spec.ts` (`1 skipped`, section non montee dans la composition home courante).
 
 ## Backlog
 
@@ -36,7 +36,7 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 | --- | --- | --- | --- | --- | --- | --- |
 | `E2E-RBAC-01` | `P0` | Matrice d'acces par role, permission et etat de compte | Verifier qu'un `visitor` est redirige vers `/login` sur `/pro` et `/admin`; qu'un `editor` non admin est refuse sur `/admin`; qu'un `admin` passe; qu'un compte `emailNotConfirmed` ou `disabled` ne recupere pas le meme parcours qu'un compte `active` | Nouveau `e2e/rbac-access.spec.ts` | `src/app/app.routes.ts`, `src/app/core/auth/role.guard.ts`, `src/app/core/auth/permissions.guard.ts`, `e2e/helpers/auth-session.ts`, `e2e/helpers/domain-mocks.ts` | Termine le `2026-03-31`. Verification ciblee verte; plus de blocage ouvert sur ce ticket |
 | `E2E-SEARCH-01` | `P0` | Recherche metier utile, pas seulement ouverture du modal | Ouvrir `Ctrl+K`, taper une requete, naviguer au clavier, selectionner un resultat, confirmer la navigation, sauvegarder la recherche, puis verifier la presence dans `/saved-searches` | Etendre `e2e/search.spec.ts`; eventuellement factoriser avec `e2e/saved-searches.spec.ts` | `src/app/domains/search/feature/quick-search-modal/quick-search-modal.component.ts`, `src/app/domains/search/feature/search.service.ts`, `src/app/domains/account/pages/saved-searches.page.ts` | Termine le `2026-03-31`. La preuve couvre la palette, la selection clavier, la navigation et la persistance dans `/saved-searches` |
-| `E2E-MAP-01` | `P0` | Navigation geospatiale et lecture corridor-orientee | Depuis `home-corridors-realtime`, cliquer un corridor, verifier l'arrivee sur `/feed` avec `corridorId`, la copie contextuelle, puis la presence de filtres derives; completer avec une verification de filtrage visible sur la carte ou le feed | Nouveau `e2e/corridors-realtime.spec.ts`; etendre `e2e/map.spec.ts` | `src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts`, `src/app/domains/feed/feature/feed.page.ts`, `src/app/domains/feed/feature/feed-route-filters.ts`, `src/app/shared/components/map/trade-map.component.ts` | Aucun blocage fonctionnel evident. Le deep-link `corridorId` existe deja |
+| `E2E-MAP-01` | `P0` | Navigation geospatiale et lecture corridor-orientee | Depuis `home-corridors-realtime`, cliquer un corridor, verifier l'arrivee sur `/feed` avec `corridorId`, la copie contextuelle, puis la presence de filtres derives; completer avec une verification de filtrage visible sur la carte ou le feed | Nouveau `e2e/corridors-realtime.spec.ts`; etendre `e2e/map.spec.ts` | `src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts`, `src/app/domains/feed/feature/feed.page.ts`, `src/app/domains/feed/feature/feed-route-filters.ts`, `src/app/shared/components/map/trade-map.component.ts` | Termine le `2026-03-31`. La preuve couvre `widget corridor -> /feed?source=corridors-realtime&corridorId=essential-services -> contexte corridor -> filtres derives QC/ON -> feed filtre sur 2 items attendus` |
 | `E2E-QUALITY-01` | `P0` | Robustesse critique: erreurs, session expiree, offline, etats vides | Forcer des `401` et verifier le comportement du `error.interceptor`; tester une erreur reseau sur une page protegee; verifier au moins un empty state critique et un parcours mobile critique | Nouveau `e2e/resilience.spec.ts`; etendre `e2e/feed-notifications.spec.ts` et `e2e/auth.spec.ts` | `src/app/core/http/error.interceptor.ts`, `src/app/shared/components/layout/site-header/site-header.component.html`, `src/app/shared/components/layout/notification-panel/notification-panel.component.html` | Aucun blocage. Le socle toast + session expiry existe deja |
 | `E2E-IMPORT-01` | `P0` | Importation analytique plus profonde | Prouver le `compare mode`, la selection d'un point de comparaison, l'affichage du flow compare, la presence des annotations et la persistance d'un geste de collaboration utile en plus des watchlists et rapports deja couverts | Nouveau `e2e/importation-analytics.spec.ts` ou extension de `e2e/use-case-audit.spec.ts` | `src/app/domains/importation/pages/importation.page.ts`, `src/app/domains/importation/components/overview-header/importation-overview-header.component.html`, `src/app/domains/importation/components/flow-map-panel/importation-flow-map-panel.component.html`, `src/app/domains/importation/components/collaboration-hub/importation-collaboration-hub.component.html`, `e2e/helpers/domain-mocks.ts` | Aucun blocage majeur. Les endpoints mockes et la compare UI existent |
 | `E2E-LINKUP-01` | `P1` | Workflow complet de mise en relation | Depuis une opportunite avec `connectionMatchId`, ouvrir `/linkup/:id`, completer le stepper, soumettre la connexion, puis retrouver la trace dans `/linkups` et `/linkups/:id` | Nouveau `e2e/linkup-creation.spec.ts` | `src/app/domains/matchmaking/pages/linkup/og7-linkup-page.component.ts`, `src/app/domains/matchmaking/sections/og7-intro-billboard-content.component.ts`, `src/app/core/services/connections.service.ts`, `e2e/helpers/domain-mocks.ts` | Decision produit a confirmer: ce parcours est-il bien dans le scope MVP a prouver de bout en bout, ou seulement l'historique/detail ? |
@@ -47,7 +47,6 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 
 ## Tickets prets a lancer sans nouvelle decision produit
 
-- `E2E-MAP-01`
 - `E2E-QUALITY-01`
 - `E2E-IMPORT-01`
 

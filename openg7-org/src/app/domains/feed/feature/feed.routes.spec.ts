@@ -147,4 +147,35 @@ describe('feed.routes setup resolver', () => {
       })
     );
   });
+
+  it('hydrates derived province filters from a corridor deep link', async () => {
+    store.hydrated$.next(true);
+    feed.hasHydrated.and.returnValue(true);
+
+    const route = {
+      queryParamMap: convertToParamMap({
+        source: 'corridors-realtime',
+        corridorId: 'essential-services',
+      }),
+    } as unknown as ActivatedRouteSnapshot;
+
+    const result = await TestBed.runInInjectionContext(() => setupResolver(route));
+
+    expect(result).toBeTrue();
+    expect(store.dispatch).toHaveBeenCalledWith(
+      FeedActions.applyFilters({
+        filters: {
+          fromProvinceId: 'QC',
+          toProvinceId: 'ON',
+          sectorId: null,
+          formKey: null,
+          category: null,
+          type: null,
+          mode: 'BOTH',
+          sort: 'NEWEST',
+          search: '',
+        },
+      })
+    );
+  });
 });
