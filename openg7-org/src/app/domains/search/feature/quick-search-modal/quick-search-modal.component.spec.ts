@@ -220,6 +220,38 @@ describe('QuickSearchModalComponent', () => {
     expect(searchService.searchCalls.length).toBe(2);
   });
 
+  it('ignores stale search responses when a newer query has already started', () => {
+    const initialRequest = searchService.searchCalls[0];
+
+    component.queryControl.setValue('battery');
+    fixture.detectChanges();
+
+    expect(searchService.searchCalls.length).toBe(2);
+    const latestRequest = searchService.searchCalls[1];
+    const latestSections: SearchSection[] = [
+      {
+        id: 'actions',
+        title: 'Actions',
+        items: [{ id: 'latest-item', title: 'Battery result' }],
+      },
+    ];
+    const staleSections: SearchSection[] = [
+      {
+        id: 'companies',
+        title: 'Companies',
+        items: [{ id: 'stale-item', title: 'Enbridge stale result' }],
+      },
+    ];
+
+    latestRequest.subject.next({ query: 'battery', sections: latestSections });
+    initialRequest.subject.next({ query: 'enbridge', sections: staleSections });
+
+    expect(component.sections()).toEqual(latestSections);
+    expect(component.sections()).not.toEqual(staleSections);
+    expect(component.loading()).toBeFalse();
+    expect(component.errored()).toBeFalse();
+  });
+
   it('saveCurrentQuery stores the active query when authenticated', () => {
     auth.setAuthenticated(true);
     analytics.emit.calls.reset();

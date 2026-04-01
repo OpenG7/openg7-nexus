@@ -4,6 +4,7 @@
   cdkTrapFocusAutoCapture
   class="quick-search flex max-h-[80vh] flex-col gap-6"
   role="dialog"
+  data-og7="quick-search-modal"
   [attr.aria-label]="'search.quick.title' | translate"
 >
   <header class="flex items-start justify-between gap-4">
@@ -34,6 +35,7 @@
         id="quick-search-input"
         type="search"
         [formControl]="queryControl"
+        data-og7-id="quick-search-input"
         class="w-full bg-transparent text-base text-title outline-none placeholder:text-subtle"
         autocomplete="on"
         [attr.aria-activedescendant]="flatResults().length ? optionId(activeIndex()) : null"
@@ -110,11 +112,15 @@
           id="quick-search-results"
           class="flex flex-col gap-4"
           role="listbox"
+          data-og7="quick-search-results"
           [attr.aria-label]="'search.quick.results.ariaLabel' | translate"
           [attr.aria-activedescendant]="flatResults().length ? optionId(activeIndex()) : null"
         >
           <ng-container *ngIf="emptyStateVisible(); else sectionsTpl">
-            <div class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-subtle">
+            <div
+              class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-subtle"
+              data-og7-id="quick-search-empty"
+            >
               <p class="text-base font-semibold text-title">{{ 'search.quick.empty.title' | translate }}</p>
               <p>{{ 'search.quick.empty.subtitle' | translate:{ query: query() } }}</p>
             </div>
@@ -123,7 +129,11 @@
       </ng-template>
       <ng-template #sectionsTpl>
         <ng-container *ngFor="let section of visibleSections(); trackBy: trackSection">
-          <div class="space-y-3">
+          <div
+            class="space-y-3"
+            data-og7="quick-search-section"
+            [attr.data-og7-id]="'quick-search-section-' + section.id"
+          >
             <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">{{ section.title }}</h3>
             <div class="space-y-2">
               <button
@@ -131,6 +141,8 @@
                 class="block w-full text-left"
                 *ngFor="let option of section.items; let optionIndex = index; trackBy: trackItem"
                 [attr.id]="optionId(resultIndex(option))"
+                data-og7="quick-search-result"
+                [attr.data-og7-id]="'quick-search-result-' + option.id"
                 (click)="select({ section, item: option })"
               >
                 <og7-quick-search-result-item

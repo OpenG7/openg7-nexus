@@ -29,7 +29,7 @@ It also absorbs the review feedback on the earlier E2E-only summary, which was v
 | Domaine | Besoin | Dans la synthese E2E transmise | Metier | Impl | E2E | Manque observe | Priorite |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Decouverte publique | Comprendre la proposition de valeur, les secteurs, le pricing et les statistiques | oui | oui | oui | oui | Pas de manque critique dans le perimetre actuel de decouverte | basse |
-| Recherche et decouverte profonde | Rechercher, filtrer, trier, naviguer par province, secteur, intrant ou corridor, puis comparer | non | oui | partiel | partiel | La recherche rapide est testee, mais pas les filtres avances, le tri, la comparaison ni une navigation geospatiale metier de bout en bout | haute |
+| Recherche et decouverte profonde | Rechercher, filtrer, trier, naviguer par province, secteur, intrant ou corridor, puis comparer | non | oui | partiel | partiel | La recherche rapide prouve maintenant un vrai parcours `requete -> selection clavier -> navigation -> sauvegarde -> /saved-searches`, mais pas encore les filtres avances, le tri, la comparaison ni une navigation geospatiale metier de bout en bout | haute |
 | Cartes et geopatial | Explorer la carte, les corridors, les couches, les drilldowns et les vues geospatiales utiles a la decision | non | oui | oui | partiel | Les E2E prouvent surtout le rendu des composants carte, pas un parcours decisionnel complet sur la carte | haute |
 | Onboarding entreprise et imports | S'inscrire, soumettre l'entreprise, lancer des imports manuels et bulk | oui | oui | oui | oui | Couverture solide dans l'audit courant | moyenne |
 | Importation analytique et collaboration | Lire les KPIs, la map importation, les commodites, les fournisseurs, les watchlists et la planification de rapports | oui | oui | oui | partiel | Watchlists et rapports sont prouves, mais pas tout le volet annotations, assignations et enrichissement analytique avance | moyenne |
@@ -52,7 +52,7 @@ It also absorbs the review feedback on the earlier E2E-only summary, which was v
 
 ## Immediate priorities
 
-1. Extend E2E around `search` and `map` from render/opening checks to real decision paths with filters, sorting, drilldowns, and corridor-oriented navigation.
+1. Extend E2E around `map` and advanced discovery from render/opening checks to real decision paths with corridor-oriented navigation, derived filters, sorting, and drilldowns.
 2. Decide whether linkup creation, accept/reject, messaging, and attachments are intended for the current MVP or should stay marked `hors MVP`, then align docs and E2E accordingly.
 3. Add a dedicated quality/resilience pass for empty states, offline/network failure, session expiry, accessibility-critical flows, and responsive-critical flows.
 4. Add explicit proof for observability and provenance only if these behaviors are meant to be user-visible or operationally auditable in the frontend product surface.
