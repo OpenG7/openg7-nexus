@@ -287,8 +287,7 @@ export class FeedPage {
         : item?.type === 'INDICATOR'
           ? 'indicators'
           : 'opportunities';
-    void this.router.navigate([routeSegment, itemId], {
-      relativeTo: this.route,
+    void this.router.navigate(['/feed', routeSegment, itemId], {
       queryParamsHandling: 'preserve',
     });
   }
