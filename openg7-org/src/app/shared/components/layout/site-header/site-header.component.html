@@ -52,6 +52,7 @@
       <button
         type="button"
         data-og7="notif"
+        data-og7-id="notification-trigger"
         (click)="toggleNotif()"
         class="relative rounded-lg p-2 text-white/70 transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
         [ngClass]="{ 'ring-1 ring-cyan-400/30 bg-white/5 text-white': hasUnread() }"
@@ -66,6 +67,7 @@
         <span
           *ngIf="hasUnread()"
           class="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-cyan-400 px-1 text-[10px] font-bold text-slate-950"
+          data-og7-id="notification-unread-count"
         >
           {{ unreadCount() }}
         </span>
@@ -507,6 +509,7 @@
     *ngIf="isNotifOpen()"
     class="absolute right-4 top-16 hidden w-80 overflow-hidden rounded-xl border border-white/10 bg-slate-800/95 p-3 shadow-2xl backdrop-blur sm:block"
     data-og7="notif"
+    data-og7-id="header-alerts-panel"
   >
     <p class="mb-2 text-sm font-semibold text-white/90">{{ 'header.notifications.title' | translate }}</p>
     <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
