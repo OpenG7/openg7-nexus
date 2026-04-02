@@ -18,10 +18,11 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 
 ## Ordre recommande
 
-1. `E2E-OBS-01`
+1. Aucun ticket restant dans le backlog executable courant sans nouveau scope produit.
 
 ## Execution update
 
+- `2026-04-01`: `E2E-OBS-01` est termine via `e2e/admin-ops-observability.spec.ts`, avec verification ciblee verte (`2 passed`) couvrant `admin -> /admin/ops -> snapshot visible -> refresh visible -> erreur explicite sans perdre le dernier snapshot valide`.
 - `2026-04-01`: `E2E-VALUE-01` est termine via `e2e/hydrocarbon-business-journey.spec.ts`, avec controle croise de `e2e/hydrocarbon-feed-navigation.spec.ts` et verification ciblee verte (`2 passed`) couvrant `vue /feed/hydrocarbons -> signal structure -> feed filtre -> ouverture detail -> carte hydrocarbon detail`.
 - `2026-04-01`: `E2E-TRUST-01` est termine via `e2e/admin-trust-visibility.spec.ts`, avec verification ciblee verte (`1 passed`) couvrant `decision admin/trust -> sauvegarde -> page partenaire /partners/:id -> badge visible -> source visible -> historique visible`.
 - `2026-04-01`: `E2E-NOTIF-01` est termine via `e2e/notification-panel.spec.ts`, avec verification ciblee verte (`1 passed`) couvrant `cloche header -> marquer lu -> compteur unread -> navigation inbox /alerts -> mark all read -> clear read`.
@@ -44,7 +45,7 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 | `E2E-NOTIF-01` | `P1` | Centre de notifications et suivi in-app | Ouvrir la cloche du header, marquer un item comme lu, verifier le compteur unread, naviguer vers l'inbox `/alerts`, puis vider ou nettoyer l'historique utile | Nouveau `e2e/notification-panel.spec.ts`; completer `e2e/alerts.spec.ts` | `src/app/shared/components/layout/site-header/site-header.component.html`, `src/app/shared/components/layout/notification-panel/notification-panel.component.html`, `src/app/core/observability/notification.store.ts` | Termine le `2026-04-01`. La preuve couvre `header unread -> mark read -> inbox /alerts -> mark all read -> clear read`; les preferences email/webhook restent hors surface UI visible |
 | `E2E-VALUE-01` | `P1` | Valeur OpenG7 specifique sur corridors, hydrocarbures et signaux sectoriels | Ouvrir la vue `/feed/hydrocarbons`, verifier les signaux structures, naviguer ensuite vers une opportunite pertinente ou un contexte corridor, et prouver une lecture croisee metier plutot qu'une simple navigation de menu | `e2e/hydrocarbon-business-journey.spec.ts`; `e2e/hydrocarbon-feed-navigation.spec.ts` | `src/app/domains/feed/feature/feed.routes.ts`, `src/app/domains/feed/feature/feed.page.ts`, `src/app/domains/feed/feature/components/hydrocarbon-signals-panel.component.ts`, `docs/frontend/hydrocarbures-surplus-baril-use-case.md` | Termine le `2026-04-01`. La preuve couvre `vue hydrocarbures -> signal structure lie a feedItemId -> carte feed filtree -> detail hydrocarbon`, et a aussi ferme un bug reel de navigation depuis la route enfant `/feed/hydrocarbons` |
 | `E2E-TRUST-01` | `P1` | Validation et decision trust plus formelles | Completer `admin/trust` avec au moins un cycle `ajout -> sauvegarde -> relecture`, puis si la surface existe, couvrir un rejet ou une demande de correction | `e2e/admin-trust-visibility.spec.ts` et `e2e/use-case-audit-gap-coverage.spec.ts` | `src/app/domains/admin/pages/admin-trust.page.html`, `src/app/shared/components/partner/partner-details-panel.component.html`, `e2e/helpers/domain-mocks.ts` | Termine le `2026-04-01`. La preuve couvre `admin/trust -> save -> visibilite sur /partners/:id`; il ne reste pas de rejet/correction formel a prouver tant que la UI ne l'expose pas |
-| `E2E-OBS-01` | `P2` | Observabilite, provenance et audit trail visibles | Ne lancer cet item que si une surface utilisateur ou operateur doit rendre visibles logs, provenance ou preuves de diffusion; sinon rester sur integration/unit tests | A decider apres cadrage | `src/app/core/observability`, `docs/strapi/realtime-apis.md`, `docs/strapi/hydrocarbon-signal-api-contract.md` | Blocage de fond: pas de surface frontend clairement testable en E2E aujourd'hui |
+| `E2E-OBS-01` | `P2` | Observabilite, provenance et audit trail visibles | Prouver la surface operateur visible `/admin/ops`: snapshot coherent, refresh explicite, erreur visible et conservation du dernier etat valide | `e2e/admin-ops-observability.spec.ts` | `src/app/domains/admin/pages/admin-ops.page.ts`, `src/app/domains/admin/pages/admin-ops.page.html`, `src/app/domains/admin/data-access/admin-ops.service.ts`, `e2e/helpers/domain-mocks.ts` | Termine le `2026-04-01`. La preuve couvre la surface frontend visible `/admin/ops`; la provenance metier detaillee et les audit trails d'actions sensibles restent hors UI actuelle |
 
 ## Tickets prets a lancer sans nouvelle decision produit
 
@@ -53,7 +54,6 @@ Chaque item ci-dessous vise l'un des trois cas suivants :
 ## Tickets qui demandent un arbitrage produit avant implementation
 
 - `E2E-LINKUP-01`: la creation directe est documentee hors MVP; ne reouvrir ce ticket que si le scope produit change.
-- `E2E-OBS-01`: ne pas transformer un besoin d'observabilite interne en faux besoin E2E si aucune surface visible n'existe.
 
 ## Definition of done minimale
 

@@ -6,13 +6,14 @@
         Monitor platform health, backups, import throughput and security indicators in one place.
       </p>
       @if (lastUpdated(); as timestamp) {
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-slate-500" data-og7-id="admin-ops-last-updated">
           Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
         </p>
       }
     </div>
     <button
       type="button"
+      data-og7-id="admin-ops-refresh"
       class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
       (click)="refresh()"
       [disabled]="loading() || refreshing()"
@@ -26,20 +27,26 @@
   </header>
 
   @if (error(); as message) {
-    <p class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+    <p
+      class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+      data-og7-id="admin-ops-error"
+    >
       {{ message }}
     </p>
   }
 
   @if (loading()) {
-    <p class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+    <p
+      class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
+      data-og7-id="admin-ops-loading"
+    >
       Loading operations data...
     </p>
   }
 
   @if (snapshot(); as vm) {
     <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-health">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">API health</p>
         <p class="mt-2 text-lg font-semibold" [class.text-emerald-600]="vm.health.status === 'ok'" [class.text-amber-600]="vm.health.status !== 'ok'">
           {{ vm.health.status === 'ok' ? 'Operational' : 'Degraded' }}
@@ -48,7 +55,7 @@
         <p class="text-xs text-slate-500">Node {{ vm.health.runtime.nodeVersion }}</p>
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-backups">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Backups</p>
         <p class="mt-2 text-lg font-semibold" [class.text-emerald-600]="vm.backups.status === 'ok'" [class.text-amber-600]="vm.backups.status === 'warning'" [class.text-slate-500]="vm.backups.status === 'disabled'">
           {{ vm.backups.status | titlecase }}
@@ -59,14 +66,14 @@
         <p class="text-xs text-slate-500">{{ vm.backups.totalFiles }} files, {{ formatBytes(vm.backups.totalSizeBytes) }}</p>
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-imports">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Imports</p>
         <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.imports.importedCompanies }}</p>
         <p class="mt-2 text-sm text-slate-600">Imported companies in scan</p>
         <p class="text-xs text-slate-500">{{ vm.imports.importsLast24h }} in last 24h</p>
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-security">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Security</p>
         <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.security.users.total }}</p>
         <p class="mt-2 text-sm text-slate-600">Registered users</p>
@@ -77,7 +84,7 @@
     </section>
 
     <section class="grid gap-4 xl:grid-cols-2">
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-backup-files">
         <div class="mb-3 flex items-center justify-between">
           <h2 class="text-base font-semibold text-slate-900">Backup files</h2>
           <span class="text-xs text-slate-500">Retention: {{ vm.backups.retentionDays }} days</span>
@@ -108,7 +115,7 @@
         }
       </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-import-activity">
         <div class="mb-3 flex items-center justify-between">
           <h2 class="text-base font-semibold text-slate-900">Recent import activity</h2>
           <span class="text-xs text-slate-500">
@@ -136,7 +143,7 @@
       </article>
     </section>
 
-    <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-security-controls">
       <h2 class="mb-3 text-base font-semibold text-slate-900">Security controls</h2>
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -176,7 +183,7 @@
       </div>
 
       @if (vm.imports.sources.length) {
-        <div class="mt-4">
+        <div class="mt-4" data-og7="admin-ops-import-sources">
           <h3 class="mb-2 text-sm font-semibold text-slate-800">Import sources (scan)</h3>
           <ul class="flex flex-wrap gap-2">
             @for (source of vm.imports.sources; track trackSource($index, source)) {
@@ -190,4 +197,3 @@
     </article>
   }
 </section>
-
