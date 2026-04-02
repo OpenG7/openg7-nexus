@@ -39,6 +39,8 @@
               [class.bg-emerald-50]="selectedCompany()?.id === company.id"
               [class.border-slate-200]="selectedCompany()?.id !== company.id"
               [class.bg-white]="selectedCompany()?.id !== company.id"
+              data-og7="admin-trust-company-item"
+              [attr.data-og7-id]="'admin-trust-company-' + company.id"
               (click)="selectCompany(company)"
             >
               <div class="flex items-center justify-between gap-3">
@@ -72,6 +74,7 @@
               <select
                 class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 [formControl]="statusControl"
+                data-og7-id="admin-trust-status"
               >
                 @for (status of verificationStatuses; track status) {
                   <option [value]="status">{{ statusLabel(status) }}</option>
