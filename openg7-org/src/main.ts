@@ -34,5 +34,12 @@ registerLocaleData(localeFr);
 
 ensureRuntimeConfigLoaded();
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+async function bootstrap(): Promise<void> {
+  try {
+    await bootstrapApplication(AppComponent, appConfig);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+void bootstrap();
