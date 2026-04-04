@@ -32,7 +32,15 @@
     {{ 'feed.views.hydrocarbons.panel.empty' | translate }}
   </p>
   <ul *ngIf="!loading() && signals().length" class="og7-feed__hydrocarbon-list">
-    <li *ngFor="let signal of signals()" class="og7-feed__hydrocarbon-item" data-og7="hydrocarbon-signal-item">
+    <li
+      *ngFor="let signal of signals()"
+      class="og7-feed__hydrocarbon-item"
+      data-og7="hydrocarbon-signal-item"
+      [attr.data-og7-signal-id]="signal.id"
+      [attr.data-og7-feed-item-id]="signal.feedItemId"
+      [attr.data-og7-state]="signal.status"
+      [attr.data-og7-publication-type]="signal.publicationType"
+    >
       <div class="og7-feed__hydrocarbon-item-header">
         <p class="og7-feed__hydrocarbon-item-title">{{ signal.title }}</p>
         <span class="og7-feed__hydrocarbon-badge" [class.og7-feed__hydrocarbon-badge--warning]="signal.publicationType === 'slowdown'">

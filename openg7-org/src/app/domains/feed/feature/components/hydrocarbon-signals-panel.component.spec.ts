@@ -100,5 +100,11 @@ describe('HydrocarbonSignalsPanelComponent', () => {
     });
     expect(fixture.nativeElement.querySelector('[data-og7="hydrocarbon-signals-panel"]')).toBeTruthy();
     expect(fixture.nativeElement.textContent).toContain('48,000 barrels available after Edmonton storage build-up');
+
+    const signalItem = fixture.nativeElement.querySelector('[data-og7="hydrocarbon-signal-item"]');
+    expect(signalItem?.getAttribute('data-og7-signal-id')).toBe('signal-1');
+    expect(signalItem?.getAttribute('data-og7-feed-item-id')).toBe('feed-1');
+    expect(signalItem?.getAttribute('data-og7-state')).toBe('active');
+    expect(signalItem?.getAttribute('data-og7-publication-type')).toBe('surplus');
   });
 });

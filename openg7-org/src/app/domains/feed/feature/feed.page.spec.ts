@@ -522,8 +522,7 @@ describe('FeedPage', () => {
 
     component.openItem('indicator-spot-ontario');
 
-    expect(router.navigate).toHaveBeenCalledWith(['indicators', 'indicator-spot-ontario'], {
-      relativeTo: TestBed.inject(ActivatedRoute),
+    expect(router.navigate).toHaveBeenCalledWith(['/feed', 'indicators', 'indicator-spot-ontario'], {
       queryParamsHandling: 'preserve',
     });
   });
@@ -535,8 +534,7 @@ describe('FeedPage', () => {
 
     component.openItem('alert-ice-storm');
 
-    expect(router.navigate).toHaveBeenCalledWith(['alerts', 'alert-ice-storm'], {
-      relativeTo: TestBed.inject(ActivatedRoute),
+    expect(router.navigate).toHaveBeenCalledWith(['/feed', 'alerts', 'alert-ice-storm'], {
       queryParamsHandling: 'preserve',
     });
   });
@@ -548,8 +546,7 @@ describe('FeedPage', () => {
 
     component.openItem('opportunity-300mw');
 
-    expect(router.navigate).toHaveBeenCalledWith(['opportunities', 'opportunity-300mw'], {
-      relativeTo: TestBed.inject(ActivatedRoute),
+    expect(router.navigate).toHaveBeenCalledWith(['/feed', 'opportunities', 'opportunity-300mw'], {
       queryParamsHandling: 'preserve',
     });
   });
