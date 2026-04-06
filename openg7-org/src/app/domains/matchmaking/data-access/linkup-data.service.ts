@@ -10,6 +10,7 @@ import {
   LinkupNoteEntry,
   LinkupParticipant,
   LinkupRecord,
+  LinkupStatus,
   LinkupTimelineEntry,
   LinkupTradeMode,
 } from './linkup.models';
@@ -34,17 +35,33 @@ export class LinkupDataService {
   async loadById(id: string | number): Promise<LinkupRecord | null> {
     try {
       const connection = await firstValueFrom(this.connections.getConnectionById(id));
-      if (!connection) {
-        return null;
-      }
-      const match = connection.matchId ? await this.opportunities.findMatchById(connection.matchId) : null;
-      return mapConnectionToLinkupRecord(connection, match);
+      return this.mapConnection(connection);
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {
         return null;
       }
       throw error;
     }
+  }
+
+  async updateStatus(id: string | number, status: LinkupStatus): Promise<LinkupRecord | null> {
+    const connection = await firstValueFrom(this.connections.updateConnectionStatus(id, status));
+    return this.mapConnection(connection);
+  }
+
+  async saveNote(
+    id: string | number,
+    currentStatus: LinkupStatus,
+    note: string,
+  ): Promise<LinkupRecord | null> {
+    const trimmed = note.trim();
+    if (!trimmed) {
+      return this.loadById(id);
+    }
+    const connection = await firstValueFrom(
+      this.connections.updateConnectionStatus(id, currentStatus, trimmed)
+    );
+    return this.mapConnection(connection);
   }
 
   private async loadAllConnections(): Promise<readonly ConnectionDetails[]> {
@@ -86,6 +103,18 @@ export class LinkupDataService {
     return new Map(
       entries.filter((entry): entry is readonly [number, OpportunityMatch] => entry[1] !== null)
     );
+  }
+
+  private async mapConnection(connection: ConnectionDetails | null): Promise<LinkupRecord | null> {
+    if (!connection) {
+      return null;
+    }
+    const match = await this.resolveMatch(connection);
+    return mapConnectionToLinkupRecord(connection, match);
+  }
+
+  private async resolveMatch(connection: ConnectionDetails): Promise<OpportunityMatch | null> {
+    return connection.matchId ? await this.opportunities.findMatchById(connection.matchId) : null;
   }
 }
 

@@ -181,7 +181,13 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerAddress = computed<PartnerAddress | null>(() => this.selectedPartner()?.address ?? null);
   protected readonly partnerVerificationStatus = computed<PartnerVerificationStatus>(() => {
     const status = this.selectedPartner()?.verificationStatus;
-    return status === 'verified' || status === 'pending' || status === 'suspended' ? status : 'unverified';
+    return status === 'verified' ||
+      status === 'pending' ||
+      status === 'correctionRequested' ||
+      status === 'rejected' ||
+      status === 'suspended'
+      ? status
+      : 'unverified';
   });
   protected readonly partnerVerificationStatusKey = computed(
     () => `partner.panel.verification.status.${this.partnerVerificationStatus()}`
@@ -220,6 +226,16 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerTrustHistoryPreview = computed(() => this.partnerTrustHistory().slice(0, 3));
   protected readonly partnerTrustHistoryHasMore = computed(
     () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length
+  );
+  protected readonly partnerLatestReviewEntry = computed(
+    () => {
+      const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+      return (
+        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
+        reviewTrail.find((record) => record.type === 'evaluation') ??
+        null
+      );
+    }
   );
   protected readonly partnerMission = computed(() => {
     const mission = this.selectedPartner()?.mission;
@@ -468,6 +484,10 @@ export class PartnerDetailsPanelComponent {
         return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
       case 'pending':
         return 'bg-amber-500/15 text-amber-700 border border-amber-200';
+      case 'correctionRequested':
+        return 'bg-orange-500/15 text-orange-700 border border-orange-200';
+      case 'rejected':
+        return 'bg-rose-500/15 text-rose-700 border border-rose-200';
       case 'suspended':
         return 'bg-rose-500/15 text-rose-700 border border-rose-200';
       default:

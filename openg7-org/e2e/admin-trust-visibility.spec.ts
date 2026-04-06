@@ -4,7 +4,13 @@ import { expect, test } from '@playwright/test';
 import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
 import { DEFAULT_PROFILE, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
 
-type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+type VerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'correctionRequested'
+  | 'rejected'
+  | 'suspended';
 type VerificationSourceStatus = 'pending' | 'validated' | 'revoked';
 type VerificationSourceType = 'registry' | 'chamber' | 'audit' | 'other';
 type TrustRecordType = 'transaction' | 'evaluation';
@@ -131,6 +137,12 @@ function mapPartnerProfile(company: MutableTrustCompany) {
 
 function recomputeTrustScore(status: VerificationStatus, history: readonly TrustRecord[]): number {
   const latestScore = history.find((entry) => typeof entry.score === 'number')?.score ?? null;
+  if (status === 'rejected') {
+    return latestScore != null ? Math.min(45, Math.round(latestScore)) : 38;
+  }
+  if (status === 'correctionRequested') {
+    return latestScore != null ? Math.min(76, Math.round(latestScore)) : 72;
+  }
   if (status === 'suspended') {
     return 61;
   }
@@ -306,11 +318,144 @@ test.describe('Admin trust visibility', () => {
     await expect(page.locator('og7-partner-details-panel')).toBeVisible();
 
     const trustPanel = page.locator('[data-og7="partner-trust"]');
+    const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
     await expect(trustPanel).toBeVisible();
-    await expect(trustPanel).toContainText('Suspended');
+    await expect(statusBadge).toHaveAttribute('data-og7-state', 'suspended');
     await expect(trustPanel).toContainText('61%');
     await expect(trustPanel).toContainText('Independent Audit Desk');
     await expect(trustPanel).toContainText('Revoked');
     await expect(trustPanel).toContainText('Corrective action review');
+  });
+
+  test('supports correction-request and rejection decisions with public review visibility', async ({
+    page,
+  }) => {
+    const company: MutableTrustCompany = {
+      id: 1001,
+      name: 'Northern Grid Systems',
+      description: 'Provincial grid operator and energy resilience partner.',
+      website: 'https://northern-grid.example.test',
+      status: 'pending',
+      country: 'CA',
+      sector: { id: 1, name: 'Energy' },
+      province: { id: 10, name: 'Ontario', code: 'ON' },
+      verificationStatus: 'pending',
+      trustScore: 78,
+      verificationSources: [
+        {
+          id: 1,
+          name: 'Ontario registry',
+          type: 'registry',
+          status: 'pending',
+          referenceId: 'ON-REG-01',
+          url: 'https://registry.example.test/on',
+        },
+      ],
+      trustHistory: [
+        {
+          id: 1,
+          label: 'Initial diligence review',
+          type: 'evaluation',
+          direction: 'inbound',
+          occurredAt: '2026-01-05',
+          score: 78,
+        },
+      ],
+    };
+
+    await mockProfileAndFavoritesApis(page, {
+      ...DEFAULT_PROFILE,
+      roles: ['admin'],
+    });
+    await mockAdminTrustVisibilityApis(page, company);
+
+    await loginAsAuthenticatedE2eUser(page, '/admin/trust');
+    await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
+
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await page.locator('[data-og7-id="admin-trust-quick-correction"]').click();
+    await page
+      .locator('[data-og7-id="admin-trust-review-note"]')
+      .fill('Provide renewed chamber certificate and insurance evidence.');
+
+    const [correctionRequest, correctionResponse] = await Promise.all([
+      page.waitForRequest((request) =>
+        request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      ),
+      page.waitForResponse((response) =>
+        response.request().method().toUpperCase() === 'PUT' &&
+        response.url().includes('/api/companies/1001')
+      ),
+      page.locator('[data-og7-id="admin-trust-save"]').click(),
+    ]);
+
+    const correctionPayload = correctionRequest.postDataJSON() as {
+      data?: {
+        verificationStatus?: VerificationStatus;
+        trustHistory?: Array<{ label?: string; notes?: string; occurredAt?: string }>;
+      };
+    };
+
+    expect(correctionResponse.status()).toBe(200);
+    expect(correctionPayload.data?.verificationStatus).toBe('correctionRequested');
+    expect(correctionPayload.data?.trustHistory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Corrections requested',
+          notes: 'Provide renewed chamber certificate and insurance evidence.',
+        }),
+      ])
+    );
+
+    await page.goto('/partners/1001?role=supplier');
+    const trustPanel = page.locator('[data-og7="partner-trust"]');
+    const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
+    const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
+    await expect(statusBadge).toHaveAttribute('data-og7-state', 'correctionRequested');
+    await expect(reviewDecision).toContainText('Corrections requested');
+    await expect(reviewDecision).toContainText('Provide renewed chamber certificate and insurance evidence.');
+
+    await page.goto('/admin/trust');
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await page.locator('[data-og7-id="admin-trust-quick-reject"]').click();
+    await page
+      .locator('[data-og7-id="admin-trust-review-note"]')
+      .fill('Submission rejected because incorporation documents remain expired.');
+
+    const [rejectionRequest, rejectionResponse] = await Promise.all([
+      page.waitForRequest((request) =>
+        request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      ),
+      page.waitForResponse((response) =>
+        response.request().method().toUpperCase() === 'PUT' &&
+        response.url().includes('/api/companies/1001')
+      ),
+      page.locator('[data-og7-id="admin-trust-save"]').click(),
+    ]);
+
+    const rejectionPayload = rejectionRequest.postDataJSON() as {
+      data?: {
+        verificationStatus?: VerificationStatus;
+        trustHistory?: Array<{ label?: string; notes?: string; occurredAt?: string }>;
+      };
+    };
+
+    expect(rejectionResponse.status()).toBe(200);
+    expect(rejectionPayload.data?.verificationStatus).toBe('rejected');
+    expect(rejectionPayload.data?.trustHistory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Verification rejected',
+          notes: 'Submission rejected because incorporation documents remain expired.',
+        }),
+      ])
+    );
+
+    await page.goto('/partners/1001?role=supplier');
+    await expect(statusBadge).toHaveAttribute('data-og7-state', 'rejected');
+    await expect(reviewDecision).toContainText('Verification rejected');
+    await expect(reviewDecision).toContainText(
+      'Submission rejected because incorporation documents remain expired.'
+    );
   });
 });

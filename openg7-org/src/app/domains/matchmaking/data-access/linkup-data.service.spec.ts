@@ -77,6 +77,7 @@ describe('LinkupDataService', () => {
     connections = jasmine.createSpyObj<ConnectionsService>('ConnectionsService', [
       'getConnectionHistoryPage',
       'getConnectionById',
+      'updateConnectionStatus',
     ]);
     opportunities = jasmine.createSpyObj<OpportunityService>('OpportunityService', ['findMatchById']);
 
@@ -138,5 +139,79 @@ describe('LinkupDataService', () => {
     const result = await service.loadById('41');
 
     expect(result).toBeNull();
+  });
+
+  it('updates a linkup status and remaps the refreshed connection', async () => {
+    connections.updateConnectionStatus.and.returnValue(
+      of(
+        buildConnection({
+          status: 'completed',
+          updatedAt: '2030-01-03T00:00:00.000Z',
+          statusHistory: [
+            {
+              status: 'pending',
+              timestamp: '2030-01-01T00:00:00.000Z',
+              note: 'Connection created',
+            },
+            {
+              status: 'completed',
+              timestamp: '2030-01-03T00:00:00.000Z',
+            },
+          ],
+        })
+      )
+    );
+    opportunities.findMatchById.and.resolveTo(buildMatch());
+
+    const result = await service.updateStatus('41', 'completed');
+
+    expect(connections.updateConnectionStatus).toHaveBeenCalledWith('41', 'completed');
+    expect(result).toEqual(
+      jasmine.objectContaining({
+        id: '41',
+        status: 'completed',
+        updatedAt: '2030-01-03T00:00:00.000Z',
+      })
+    );
+  });
+
+  it('saves an internal note via the status endpoint using the current status', async () => {
+    connections.updateConnectionStatus.and.returnValue(
+      of(
+        buildConnection({
+          statusHistory: [
+            {
+              status: 'pending',
+              timestamp: '2030-01-01T00:00:00.000Z',
+              note: 'Connection created',
+            },
+            {
+              status: 'inDiscussion',
+              timestamp: '2030-01-03T00:00:00.000Z',
+              note: 'Partner requested a follow-up briefing.',
+            },
+          ],
+          updatedAt: '2030-01-03T00:00:00.000Z',
+        })
+      )
+    );
+    opportunities.findMatchById.and.resolveTo(buildMatch());
+
+    const result = await service.saveNote(
+      '41',
+      'inDiscussion',
+      '  Partner requested a follow-up briefing.  '
+    );
+
+    expect(connections.updateConnectionStatus).toHaveBeenCalledWith(
+      '41',
+      'inDiscussion',
+      'Partner requested a follow-up briefing.'
+    );
+    expect(result?.notes[0]).toEqual(
+      jasmine.objectContaining({
+        content: 'Partner requested a follow-up briefing.',
+      })
+    );
   });
 });

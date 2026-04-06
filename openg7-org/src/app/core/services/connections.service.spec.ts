@@ -224,4 +224,68 @@ describe('ConnectionsService', () => {
       })
     );
   });
+
+  it('patches the status endpoint and forwards the optional note', () => {
+    let connection: unknown;
+
+    service.updateConnectionStatus('lkp-001', 'completed', 'Ready for partner handoff').subscribe((response) => {
+      connection = response;
+    });
+
+    const request = httpMock.expectOne('https://cms.local/api/connections/lkp-001/status');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({
+      data: {
+        status: 'completed',
+        note: 'Ready for partner handoff',
+      },
+    });
+
+    request.flush({
+      data: {
+        id: 12,
+        attributes: {
+          match: 73,
+          buyer_profile: 201,
+          supplier_profile: 301,
+          buyer_organization: 'Hydro Quebec Transition',
+          supplier_organization: 'Prairie Electrolyzers Inc.',
+          intro_message: 'We should schedule a formal introduction for this corridor next week.',
+          locale: 'fr',
+          attachments: ['nda'],
+          logistics_plan: {
+            incoterm: 'DAP',
+            transports: ['ROAD', 'RAIL'],
+          },
+          meeting_proposal: ['2030-01-15T13:30:00.000Z'],
+          stage: 'review',
+          status: 'completed',
+          stageHistory: [{ stage: 'review', timestamp: '2030-01-02T00:00:00.000Z' }],
+          statusHistory: [
+            {
+              status: 'completed',
+              timestamp: '2030-01-02T00:00:00.000Z',
+              note: 'Ready for partner handoff',
+            },
+          ],
+          lastStatusAt: '2030-01-02T00:00:00.000Z',
+          createdAt: '2030-01-01T00:00:00.000Z',
+          updatedAt: '2030-01-02T00:00:00.000Z',
+        },
+      },
+    });
+
+    expect(connection).toEqual(
+      jasmine.objectContaining({
+        id: 12,
+        status: 'completed',
+        statusHistory: [
+          jasmine.objectContaining({
+            status: 'completed',
+            note: 'Ready for partner handoff',
+          }),
+        ],
+      })
+    );
+  });
 });

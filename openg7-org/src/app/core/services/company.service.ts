@@ -9,7 +9,13 @@ import type { CountryCode } from '../models/country';
 
 export type CompanyStatus = 'pending' | 'approved' | 'suspended';
 
-export type CompanyVerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+export type CompanyVerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'correctionRequested'
+  | 'rejected'
+  | 'suspended';
 
 export type CompanyVerificationSourceStatus = 'pending' | 'validated' | 'revoked';
 
@@ -418,7 +424,13 @@ export class CompanyService {
   }
 
   private normalizeVerificationStatus(value: CompanyAttributes['verificationStatus']): CompanyVerificationStatus {
-    if (value === 'pending' || value === 'verified' || value === 'suspended') {
+    if (
+      value === 'pending' ||
+      value === 'verified' ||
+      value === 'correctionRequested' ||
+      value === 'rejected' ||
+      value === 'suspended'
+    ) {
       return value;
     }
     return 'unverified';

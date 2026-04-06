@@ -127,6 +127,20 @@
             }
           </div>
           <div class="mt-4 space-y-3 text-sm text-slate-100">
+            @if (recentReviewEntry(); as reviewEntry) {
+              <div class="rounded-xl border border-slate-700/80 bg-slate-950/60 p-3">
+                <p class="text-[0.65rem] uppercase tracking-[0.3em] text-emerald-200">
+                  {{ 'partner.panel.verification.reviewDecisionTitle' | translate }}
+                </p>
+                <p class="mt-2 text-sm font-semibold text-slate-100">{{ reviewEntry.label }}</p>
+                <p class="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-slate-300">
+                  {{ 'partner.panel.verification.reviewDecisionDate' | translate:{ value: formatHistoryDate(reviewEntry.occurredAt) } }}
+                </p>
+                @if (reviewEntry.notes) {
+                  <p class="mt-2 text-xs leading-relaxed text-slate-200">{{ reviewEntry.notes }}</p>
+                }
+              </div>
+            }
             @if (recentTrustHistory().length) {
               <ul class="space-y-3">
                 @for (record of recentTrustHistory(); track record.id ?? record.label) {

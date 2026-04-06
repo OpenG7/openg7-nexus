@@ -43,7 +43,13 @@ export interface LeadershipContact {
   readonly phone?: string;
 }
 
-export type PartnerVerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+export type PartnerVerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'correctionRequested'
+  | 'rejected'
+  | 'suspended';
 
 export type PartnerVerificationSourceType = 'registry' | 'chamber' | 'audit' | 'other';
 

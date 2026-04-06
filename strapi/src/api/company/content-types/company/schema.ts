@@ -93,7 +93,7 @@ const schema = {
     },
     verificationStatus: {
       type: 'enumeration',
-      enum: ['unverified', 'pending', 'verified', 'suspended'],
+      enum: ['unverified', 'pending', 'verified', 'correctionRequested', 'rejected', 'suspended'],
       default: 'unverified',
       required: true,
       pluginOptions: {

@@ -1,4 +1,4 @@
-<section class="og7-linkup-detail">
+<section class="og7-linkup-detail" data-og7="linkup-detail-page">
   <a class="og7-linkup-detail__back" routerLink="/linkups">
     {{ 'pages.linkups.detail.backToList' | translate }}
   </a>
@@ -31,6 +31,40 @@
         <span class="og7-linkup-detail__mode">
           {{ tradeModeLabel(linkup.tradeMode) | translate }}
         </span>
+        <div class="og7-linkup-detail__status-editor">
+          <label class="og7-linkup-detail__field-label" for="linkup-status-select">
+            {{ 'pages.linkups.detail.statusEditor.label' | translate }}
+          </label>
+          <div class="og7-linkup-detail__field-row">
+            <select
+              id="linkup-status-select"
+              class="og7-linkup-detail__select"
+              [ngModel]="statusDraft()"
+              (ngModelChange)="onStatusDraftChanged($event)"
+              data-og7-id="linkup-status-select"
+            >
+              <option *ngFor="let option of availableStatuses()" [ngValue]="option.id">
+                {{ option.labelKey | translate }}
+              </option>
+            </select>
+            <button
+              type="button"
+              class="og7-linkup-detail__button"
+              (click)="onSaveStatus()"
+              [disabled]="!canSaveStatus()"
+              data-og7-id="linkup-status-save"
+            >
+              @if (savingStatus()) {
+                {{ 'pages.linkups.detail.statusEditor.saving' | translate }}
+              } @else {
+                {{ 'pages.linkups.detail.statusEditor.save' | translate }}
+              }
+            </button>
+          </div>
+          <p *ngIf="statusSaveErrorKey()" class="og7-linkup-detail__error" data-og7-id="linkup-status-error">
+            {{ statusSaveErrorKey()! | translate }}
+          </p>
+        </div>
         <dl class="og7-linkup-detail__meta">
           <div>
             <dt>{{ 'pages.linkups.detail.reference' | translate }}</dt>
@@ -139,6 +173,41 @@
       <ng-template #emptyNotes>
         <p class="og7-linkup-detail__notes-empty">{{ 'pages.linkups.detail.notes.empty' | translate }}</p>
       </ng-template>
+      <div class="og7-linkup-detail__note-editor">
+        <label class="og7-linkup-detail__field-label" for="linkup-note-input">
+          {{ 'pages.linkups.detail.notes.inputLabel' | translate }}
+        </label>
+        <textarea
+          id="linkup-note-input"
+          class="og7-linkup-detail__textarea"
+          rows="5"
+          maxlength="5000"
+          [ngModel]="noteDraft()"
+          (ngModelChange)="onNoteDraftChanged($event)"
+          data-og7-id="linkup-note-input"
+        ></textarea>
+        <div class="og7-linkup-detail__note-editor-footer">
+          <span class="og7-linkup-detail__character-count" data-og7-id="linkup-note-count">
+            {{ noteCharacterCount() }}/{{ noteMaxLength }}
+          </span>
+          <button
+            type="button"
+            class="og7-linkup-detail__button"
+            (click)="onSaveNote()"
+            [disabled]="!canSaveNote()"
+            data-og7-id="linkup-note-save"
+          >
+            @if (savingNote()) {
+              {{ 'pages.linkups.detail.notes.saving' | translate }}
+            } @else {
+              {{ 'pages.linkups.detail.notes.save' | translate }}
+            }
+          </button>
+        </div>
+        <p *ngIf="noteSaveErrorKey()" class="og7-linkup-detail__error" data-og7-id="linkup-note-error">
+          {{ noteSaveErrorKey()! | translate }}
+        </p>
+      </div>
     </section>
     </ng-container>
   </ng-container>

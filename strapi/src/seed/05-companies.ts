@@ -14,7 +14,13 @@ interface CompanySeed {
   provinceSlug: string;
   sectorSlug: string;
   status: 'pending' | 'approved' | 'suspended';
-  verificationStatus: 'unverified' | 'pending' | 'verified' | 'suspended';
+  verificationStatus:
+    | 'unverified'
+    | 'pending'
+    | 'verified'
+    | 'correctionRequested'
+    | 'rejected'
+    | 'suspended';
   capacities: Record<string, any>;
   trustScore: number;
   verificationSources: Record<string, any>[];

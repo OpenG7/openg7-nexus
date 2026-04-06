@@ -471,7 +471,7 @@ export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
         };
       }>;
     verificationStatus: Schema.Attribute.Enumeration<
-      ['unverified', 'pending', 'verified', 'suspended']
+      ['unverified', 'pending', 'verified', 'correctionRequested', 'rejected', 'suspended']
     > &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

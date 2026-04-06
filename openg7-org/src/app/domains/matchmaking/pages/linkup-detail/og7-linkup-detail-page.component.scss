@@ -73,6 +73,68 @@
   color: var(--og7-color-subtle);
 }
 
+.og7-linkup-detail__status-editor {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.og7-linkup-detail__field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--og7-color-subtle);
+}
+
+.og7-linkup-detail__field-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.og7-linkup-detail__select,
+.og7-linkup-detail__textarea {
+  width: 100%;
+  border: 1px solid var(--og7-color-border);
+  border-radius: 0.85rem;
+  background: var(--og7-color-surface);
+  color: var(--og7-color-title);
+  font: inherit;
+}
+
+.og7-linkup-detail__select {
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+}
+
+.og7-linkup-detail__textarea {
+  resize: vertical;
+  min-height: 7.5rem;
+  padding: 0.9rem 1rem;
+  line-height: 1.5;
+}
+
+.og7-linkup-detail__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 0.85rem;
+  background: var(--og7-color-primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.og7-linkup-detail__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .og7-linkup-detail__meta {
   margin: 0;
   display: grid;
@@ -246,6 +308,30 @@
   font-style: italic;
 }
 
+.og7-linkup-detail__note-editor {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.og7-linkup-detail__note-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.og7-linkup-detail__character-count {
+  font-size: 0.85rem;
+  color: var(--og7-color-subtle);
+}
+
+.og7-linkup-detail__error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--og7-color-error);
+}
+
 .og7-linkup-detail__not-found {
   border: 1px dashed var(--og7-color-border);
   border-radius: 1rem;
@@ -321,5 +407,11 @@
 @media (max-width: 720px) {
   .og7-linkup-detail {
     padding: 2rem 1rem 3rem;
+  }
+
+  .og7-linkup-detail__field-row,
+  .og7-linkup-detail__note-editor-footer {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

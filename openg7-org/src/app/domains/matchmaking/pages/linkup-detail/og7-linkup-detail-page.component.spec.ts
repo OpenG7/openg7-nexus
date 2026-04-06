@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 
 import { Og7LinkupDetailPageComponent } from './og7-linkup-detail-page.component';
 
-function buildLinkup(): LinkupRecord {
+function buildLinkup(overrides: Partial<LinkupRecord> = {}): LinkupRecord {
   return {
     id: '41',
     reference: 'OG7-LINKUP-000041',
@@ -41,6 +41,7 @@ function buildLinkup(): LinkupRecord {
       },
     ],
     notes: [],
+    ...overrides,
   };
 }
 
@@ -48,7 +49,11 @@ describe('Og7LinkupDetailPageComponent', () => {
   let linkups: jasmine.SpyObj<LinkupDataService>;
 
   beforeEach(async () => {
-    linkups = jasmine.createSpyObj<LinkupDataService>('LinkupDataService', ['loadById']);
+    linkups = jasmine.createSpyObj<LinkupDataService>('LinkupDataService', [
+      'loadById',
+      'updateStatus',
+      'saveNote',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [Og7LinkupDetailPageComponent, TranslateModule.forRoot()],
@@ -92,5 +97,71 @@ describe('Og7LinkupDetailPageComponent', () => {
 
     const content = fixture.nativeElement.textContent as string;
     expect(content).toContain('pages.linkups.detail.notFound.title');
+  });
+
+  it('updates the current status from the detail page', async () => {
+    linkups.loadById.and.resolveTo(buildLinkup());
+    linkups.updateStatus.and.resolveTo(
+      buildLinkup({
+        status: 'completed',
+        updatedAt: '2030-01-03T00:00:00.000Z',
+      })
+    );
+
+    const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      onStatusDraftChanged(status: LinkupRecord['status']): void;
+      onSaveStatus(): Promise<void>;
+    };
+
+    component.onStatusDraftChanged('completed');
+    await component.onSaveStatus();
+    fixture.detectChanges();
+
+    expect(linkups.updateStatus).toHaveBeenCalledWith('41', 'completed');
+    expect((fixture.nativeElement.textContent as string)).toContain('pages.linkups.status.completed');
+  });
+
+  it('saves a new internal note from the detail page', async () => {
+    linkups.loadById.and.resolveTo(buildLinkup());
+    linkups.saveNote.and.resolveTo(
+      buildLinkup({
+        notes: [
+          {
+            id: 'note-2',
+            date: '2030-01-03T00:00:00.000Z',
+            author: 'pages.linkups.detail.systemAuthor',
+            content: 'Partner confirmed the revised meeting slot.',
+          },
+        ],
+      })
+    );
+
+    const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      onNoteDraftChanged(note: string): void;
+      onSaveNote(): Promise<void>;
+    };
+
+    component.onNoteDraftChanged('Partner confirmed the revised meeting slot.');
+    await component.onSaveNote();
+    fixture.detectChanges();
+
+    expect(linkups.saveNote).toHaveBeenCalledWith(
+      '41',
+      'inDiscussion',
+      'Partner confirmed the revised meeting slot.'
+    );
+    expect((fixture.nativeElement.textContent as string)).toContain(
+      'Partner confirmed the revised meeting slot.'
+    );
   });
 });
