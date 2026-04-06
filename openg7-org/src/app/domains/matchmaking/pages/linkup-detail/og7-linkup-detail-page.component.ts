@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LinkupDataService } from '@app/domains/matchmaking/data-access/linkup-data.service';
 import {
@@ -12,7 +13,6 @@ import {
   LinkupTimelineEntry,
   LinkupTradeMode,
 } from '@app/domains/matchmaking/data-access/linkup.models';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs';
 

@@ -408,7 +408,6 @@ test.describe('Admin trust visibility', () => {
     );
 
     await page.goto('/partners/1001?role=supplier');
-    const trustPanel = page.locator('[data-og7="partner-trust"]');
     const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
     const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
     await expect(statusBadge).toHaveAttribute('data-og7-state', 'correctionRequested');
