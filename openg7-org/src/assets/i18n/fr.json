@@ -4480,6 +4480,23 @@
       "downloadCsv": "Télécharger les erreurs CSV",
       "downloadJson": "Télécharger les erreurs JSON"
     }
+  },
+  "partner": {
+    "panel": {
+      "verification": {
+        "status": {
+          "unverified": "Non vérifié",
+          "pending": "En revue",
+          "verified": "Vérifié",
+          "correctionRequested": "Correction demandée",
+          "rejected": "Refusé",
+          "suspended": "Suspendu"
+        },
+        "statusHelp": "Les badges validés par des institutions de confiance peuvent être approuvés, tandis que les décisions de correction ou de rejet restent visibles pour les partenaires.",
+        "reviewDecisionTitle": "Dernière décision de revue",
+        "reviewDecisionDate": "Revu le {{ value }}"
+      }
+    }
   }
 }
 

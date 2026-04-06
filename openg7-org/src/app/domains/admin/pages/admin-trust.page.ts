@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
@@ -18,6 +18,8 @@ const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   unverified: 'Unverified',
   pending: 'Pending review',
   verified: 'Verified',
+  correctionRequested: 'Correction requested',
+  rejected: 'Rejected',
   suspended: 'Suspended',
 };
 
@@ -70,16 +72,55 @@ export class AdminTrustPage implements OnInit {
   protected readonly sources = signal<CompanyVerificationSource[]>([]);
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
+  protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
   });
 
-  protected readonly verificationStatuses = ['unverified', 'pending', 'verified', 'suspended'] as const;
+  protected readonly verificationStatuses = [
+    'unverified',
+    'pending',
+    'verified',
+    'correctionRequested',
+    'rejected',
+    'suspended',
+  ] as const;
   protected readonly sourceTypes = ['registry', 'chamber', 'audit', 'other'] as const;
   protected readonly sourceStatuses = ['pending', 'validated', 'revoked'] as const;
   protected readonly historyTypes = ['transaction', 'evaluation'] as const;
   protected readonly historyDirections = ['inbound', 'outbound'] as const;
+  protected readonly reviewCompanies = computed(() =>
+    [...this.companies()].sort((left, right) => {
+      const delta = this.reviewPriority(left) - this.reviewPriority(right);
+      return delta !== 0 ? delta : left.name.localeCompare(right.name);
+    })
+  );
+  protected readonly reviewQueueStats = computed(() => {
+    const companies = this.companies();
+    const awaiting = companies.filter(
+      (company) => company.verificationStatus === 'pending' || company.verificationStatus === 'unverified'
+    ).length;
+    const correctionLoop = companies.filter(
+      (company) => company.verificationStatus === 'correctionRequested'
+    ).length;
+    const blocked = companies.filter(
+      (company) => company.verificationStatus === 'rejected' || company.verificationStatus === 'suspended'
+    ).length;
+    const readyToVerify = companies.filter(
+      (company) =>
+        this.hasValidatedSource(company.verificationSources) &&
+        company.verificationStatus !== 'verified' &&
+        company.verificationStatus !== 'rejected'
+    ).length;
+
+    return [
+      { id: 'awaiting', label: 'Awaiting review', value: awaiting, tone: 'amber' },
+      { id: 'correction', label: 'Correction loop', value: correctionLoop, tone: 'orange' },
+      { id: 'ready', label: 'Ready to verify', value: readyToVerify, tone: 'emerald' },
+      { id: 'blocked', label: 'Blocked decisions', value: blocked, tone: 'rose' },
+    ] as const;
+  });
 
   protected readonly newSourceForm = this.fb.group({
     name: ['', Validators.required],
@@ -116,10 +157,24 @@ export class AdminTrustPage implements OnInit {
     this.statusControl.setValue(company.verificationStatus);
     this.sources.set(company.verificationSources.slice());
     this.history.set(company.trustHistory.slice());
+    this.reviewNoteControl.setValue('');
   }
 
   statusLabel(status: CompanyVerificationStatus): string {
     return VERIFICATION_STATUS_LABELS[status] ?? status;
+  }
+
+  reviewToneClass(tone: 'amber' | 'orange' | 'emerald' | 'rose'): string {
+    switch (tone) {
+      case 'emerald':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'orange':
+        return 'border-orange-200 bg-orange-50 text-orange-700';
+      case 'rose':
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+      default:
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+    }
   }
 
   sourceStatusLabel(status: CompanyVerificationSourceStatus): string {
@@ -136,6 +191,68 @@ export class AdminTrustPage implements OnInit {
 
   historyDirectionLabel(direction: CompanyTrustDirection): string {
     return HISTORY_DIRECTION_LABELS[direction] ?? direction;
+  }
+
+  reviewSummary(company: CompanyRecord): string {
+    switch (company.verificationStatus) {
+      case 'verified':
+        return 'Verified and synced publicly.';
+      case 'correctionRequested':
+        return 'Waiting on partner corrections before approval.';
+      case 'rejected':
+        return 'Rejected until a new proof package is submitted.';
+      case 'suspended':
+        return 'Badge visibility is suspended pending follow-up.';
+      case 'pending':
+        return this.hasValidatedSource(company.verificationSources)
+          ? 'Validated evidence is ready for a decision.'
+          : 'Awaiting initial verification review.';
+      default:
+        return 'No formal proof package is attached yet.';
+    }
+  }
+
+  selectedReviewReasons(): string[] {
+    const company = this.selectedCompany();
+    if (!company) {
+      return [];
+    }
+
+    const nextStatus = this.statusControl.value;
+    const sources = this.sources();
+    const history = this.history();
+    const reasons: string[] = [];
+
+    if (!this.hasValidatedSource(sources)) {
+      reasons.push('No validated evidence source is attached yet.');
+    }
+    if (sources.some((source) => source.status === 'revoked')) {
+      reasons.push('At least one badge source is revoked and needs follow-up.');
+    }
+    if (!history.some((record) => record.type === 'evaluation')) {
+      reasons.push('No formal evaluation has been logged for this company.');
+    }
+    if (company.verificationStatus !== nextStatus) {
+      reasons.push(`Pending decision: ${this.statusLabel(nextStatus)}.`);
+    }
+    if (nextStatus === 'correctionRequested') {
+      reasons.push('The partner must submit corrected evidence before verification resumes.');
+    }
+    if (nextStatus === 'rejected') {
+      reasons.push('The current proof package is blocked until a new submission is created.');
+    }
+    if (!reasons.length) {
+      reasons.push('Current verification package is internally consistent.');
+    }
+
+    return reasons;
+  }
+
+  applyQuickDecision(status: CompanyVerificationStatus): void {
+    this.statusControl.setValue(status);
+    if (!this.reviewNoteControl.value.trim()) {
+      this.reviewNoteControl.setValue(this.defaultReviewNote(status));
+    }
   }
 
   setSourceType(index: number, raw: string): void {
@@ -286,12 +403,17 @@ export class AdminTrustPage implements OnInit {
     if (!company || this.saving()) {
       return;
     }
+
+    const nextStatus = this.statusControl.value;
+    const decisionEntry = this.buildReviewEntry(company, nextStatus);
+    const trustHistory = decisionEntry ? [...this.history(), decisionEntry] : this.history();
+
     this.saving.set(true);
     this.companiesService
       .updateVerification(company.id, {
-        verificationStatus: this.statusControl.value,
+        verificationStatus: nextStatus,
         verificationSources: this.sources(),
-        trustHistory: this.history(),
+        trustHistory,
       })
       .subscribe({
         next: (updated) => {
@@ -303,6 +425,7 @@ export class AdminTrustPage implements OnInit {
           this.statusControl.setValue(updated.verificationStatus);
           this.sources.set(updated.verificationSources.slice());
           this.history.set(updated.trustHistory.slice());
+          this.reviewNoteControl.setValue('');
           this.saving.set(false);
         },
         error: () => {
@@ -333,5 +456,86 @@ export class AdminTrustPage implements OnInit {
     }
     list[index] = { ...target, ...patch };
     this.history.set(list);
+  }
+
+  private reviewPriority(company: CompanyRecord): number {
+    switch (company.verificationStatus) {
+      case 'correctionRequested':
+        return 0;
+      case 'pending':
+        return this.hasValidatedSource(company.verificationSources) ? 1 : 2;
+      case 'rejected':
+        return 3;
+      case 'suspended':
+        return 4;
+      case 'unverified':
+        return 5;
+      default:
+        return 6;
+    }
+  }
+
+  private hasValidatedSource(
+    sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined
+  ): boolean {
+    return (sources ?? []).some((source) => source.status === 'validated');
+  }
+
+  private buildReviewEntry(
+    company: CompanyRecord,
+    nextStatus: CompanyVerificationStatus
+  ): CompanyTrustRecord | null {
+    const reviewNote = this.reviewNoteControl.value.trim();
+    if (!reviewNote && company.verificationStatus === nextStatus) {
+      return null;
+    }
+
+    return {
+      id: null,
+      label: this.reviewEntryLabel(nextStatus),
+      type: 'evaluation',
+      direction: 'inbound',
+      occurredAt: this.today(),
+      score: null,
+      notes: reviewNote || this.defaultReviewNote(nextStatus),
+    };
+  }
+
+  private reviewEntryLabel(status: CompanyVerificationStatus): string {
+    switch (status) {
+      case 'verified':
+        return 'Verification approved';
+      case 'correctionRequested':
+        return 'Corrections requested';
+      case 'rejected':
+        return 'Verification rejected';
+      case 'suspended':
+        return 'Verification suspended';
+      case 'pending':
+        return 'Verification queued for review';
+      default:
+        return 'Verification reset';
+    }
+  }
+
+  private defaultReviewNote(status: CompanyVerificationStatus): string {
+    switch (status) {
+      case 'verified':
+        return 'Evidence package approved and public badge can stay visible.';
+      case 'correctionRequested':
+        return 'Additional supporting evidence is required before verification can continue.';
+      case 'rejected':
+        return 'Current evidence package was rejected and must be resubmitted.';
+      case 'suspended':
+        return 'Badge exposure is suspended pending a follow-up review.';
+      case 'pending':
+        return 'Verification remains in the active review queue.';
+      default:
+        return 'Verification package was reset to an unverified state.';
+    }
+  }
+
+  private today(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }

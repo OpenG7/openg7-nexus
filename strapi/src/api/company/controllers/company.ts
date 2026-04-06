@@ -90,7 +90,13 @@ interface TrustRecordInput {
 }
 
 const mapVerificationStatus = (value: unknown) => {
-  if (value === 'verified' || value === 'pending' || value === 'suspended') {
+  if (
+    value === 'verified' ||
+    value === 'pending' ||
+    value === 'correctionRequested' ||
+    value === 'rejected' ||
+    value === 'suspended'
+  ) {
     return value;
   }
   return 'unverified' as const;

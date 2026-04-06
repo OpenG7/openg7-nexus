@@ -97,7 +97,13 @@ export class Og7PartnerDetailsCardComponent {
 
   protected readonly verificationStatus = computed<PartnerVerificationStatus>(() => {
     const status = this.profile()?.verificationStatus;
-    return status === 'pending' || status === 'verified' || status === 'suspended' ? status : 'unverified';
+    return status === 'pending' ||
+      status === 'verified' ||
+      status === 'correctionRequested' ||
+      status === 'rejected' ||
+      status === 'suspended'
+      ? status
+      : 'unverified';
   });
 
   protected readonly verificationStatusKey = computed(
@@ -118,6 +124,16 @@ export class Og7PartnerDetailsCardComponent {
       .sort((a, b) => Date.parse(b.occurredAt ?? '') - Date.parse(a.occurredAt ?? ''))
       .slice(0, 3);
   });
+  protected readonly recentReviewEntry = computed(
+    () => {
+      const reviewTrail = [...(this.profile()?.trustHistory ?? [])].reverse();
+      return (
+        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
+        reviewTrail.find((record) => record.type === 'evaluation') ??
+        null
+      );
+    }
+  );
 
   protected readonly socialLinks = computed(() => {
     const entity = this.profile();
@@ -152,6 +168,10 @@ export class Og7PartnerDetailsCardComponent {
         return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
       case 'pending':
         return 'bg-amber-500/15 text-amber-700 border border-amber-200';
+      case 'correctionRequested':
+        return 'bg-orange-500/15 text-orange-700 border border-orange-200';
+      case 'rejected':
+        return 'bg-rose-500/15 text-rose-700 border border-rose-200';
       case 'suspended':
         return 'bg-rose-500/15 text-rose-700 border border-rose-200';
       default:

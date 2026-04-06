@@ -61,7 +61,13 @@ interface SeedCompany {
   country: string | null;
   sector: { id: number; name: string } | null;
   province: { id: number; name: string } | null;
-  verificationStatus: 'unverified' | 'pending' | 'verified' | 'suspended';
+  verificationStatus:
+    | 'unverified'
+    | 'pending'
+    | 'verified'
+    | 'correctionRequested'
+    | 'rejected'
+    | 'suspended';
   trustScore: number;
   verificationSources: Array<{
     id?: number | null;
@@ -909,15 +915,45 @@ export async function mockConnectionsApis(
     const request = route.request();
     const method = request.method().toUpperCase();
     const url = new URL(request.url());
+    const connectionStatusMatch = url.pathname.match(/\/api\/connections\/([^/]+)\/status\/?$/i);
+    const connectionStatusId = connectionStatusMatch ? decodeURIComponent(connectionStatusMatch[1]) : null;
     const connectionIdMatch = url.pathname.match(/\/api\/connections\/([^/]+)\/?$/i);
     const connectionId = connectionIdMatch ? decodeURIComponent(connectionIdMatch[1]) : null;
 
-    if (method !== 'GET') {
-      await route.fulfill({ status: 404, body: 'Unhandled connections route' });
+    if (method === 'PATCH' && connectionStatusId) {
+      const payload = (request.postDataJSON?.() ?? {}) as {
+        data?: { status?: SeedConnection['status']; note?: string };
+      };
+      const index = connections.findIndex((entry) => entry.id === connectionStatusId);
+      if (index < 0) {
+        await route.fulfill({ status: 404, body: 'Connection not found' });
+        return;
+      }
+
+      const current = connections[index];
+      const nextStatus = payload.data?.status ?? current.status;
+      const note = typeof payload.data?.note === 'string' ? payload.data.note.trim() : '';
+      const now = '2026-03-14T12:00:00.000Z';
+      const updated: SeedConnection = {
+        ...current,
+        status: nextStatus,
+        lastStatusAt: now,
+        updatedAt: now,
+        statusHistory: [
+          ...current.statusHistory,
+          {
+            status: nextStatus,
+            timestamp: now,
+            ...(note ? { note } : {}),
+          },
+        ],
+      };
+      connections[index] = updated;
+      await route.fulfill(json({ data: mapConnectionToStrapi(updated) }));
       return;
     }
 
-    if (connectionId) {
+    if (method === 'GET' && connectionId) {
       const connection = connections.find((entry) => entry.id === connectionId);
       if (!connection) {
         await route.fulfill({ status: 404, body: 'Connection not found' });
@@ -928,17 +964,22 @@ export async function mockConnectionsApis(
       return;
     }
 
-    await route.fulfill(
-      json({
-        data: connections.map(mapConnectionToStrapi),
-        meta: {
-          count: connections.length,
-          limit: connections.length,
-          offset: 0,
-          hasMore: false,
-        },
-      })
-    );
+    if (method === 'GET') {
+      await route.fulfill(
+        json({
+          data: connections.map(mapConnectionToStrapi),
+          meta: {
+            count: connections.length,
+            limit: connections.length,
+            offset: 0,
+            hasMore: false,
+          },
+        })
+      );
+      return;
+    }
+
+    await route.fulfill({ status: 404, body: 'Unhandled connections route' });
   });
 
   await page.route('**/api/opportunity-matches**', async (route) => {

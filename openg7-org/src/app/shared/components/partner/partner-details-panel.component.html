@@ -215,6 +215,28 @@
             </div>
           </div>
 
+          @if (partnerLatestReviewEntry(); as reviewEntry) {
+          <div
+            class="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+            data-og7="partner-trust-review-decision"
+            [attr.data-og7-state]="partnerVerificationStatus()">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="space-y-1">
+                <p class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                  {{ 'partner.panel.verification.reviewDecisionTitle' | translate }}
+                </p>
+                <p class="text-sm font-semibold text-title">{{ reviewEntry.label }}</p>
+              </div>
+              <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                {{ 'partner.panel.verification.reviewDecisionDate' | translate:{ value: formatDate(reviewEntry.occurredAt) ?? reviewEntry.occurredAt } }}
+              </span>
+            </div>
+            @if (reviewEntry.notes) {
+            <p class="mt-3 text-xs leading-relaxed text-body">{{ reviewEntry.notes }}</p>
+            }
+          </div>
+          }
+
           <details class="og7-partner-panel__accordion" [attr.open]="partnerVerificationSources().length ? '' : null">
             <summary class="og7-partner-panel__accordion-summary">
               {{ 'partner.panel.verification.badgesTitle' | translate }}

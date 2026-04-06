@@ -3,7 +3,13 @@ import {
   syncCompanyToIndex,
 } from '../../../../services/search.service';
 
-type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+type VerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'correctionRequested'
+  | 'rejected'
+  | 'suspended';
 type VerificationSourceStatus = 'pending' | 'validated' | 'revoked';
 
 interface VerificationSource {
@@ -63,8 +69,12 @@ const deriveStatus = (
   current: VerificationStatus | null,
   sources: readonly VerificationSource[]
 ): VerificationStatus => {
-  if (current === 'suspended') {
-    return 'suspended';
+  if (
+    current === 'suspended' ||
+    current === 'correctionRequested' ||
+    current === 'rejected'
+  ) {
+    return current;
   }
   const validated = sources.some((source) => source?.status === 'validated');
   if (validated) {

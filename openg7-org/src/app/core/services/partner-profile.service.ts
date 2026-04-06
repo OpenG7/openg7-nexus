@@ -134,7 +134,7 @@ export class PartnerProfileService {
       leadership: attributes.leadership?.map((leader) => ({ ...leader })) ?? undefined,
       mission: attributes.mission ?? null,
       highlights: attributes.highlights ? [...attributes.highlights] : undefined,
-      verificationStatus: attributes.verificationStatus ?? 'unverified',
+      verificationStatus: this.normalizeVerificationStatus(attributes.verificationStatus),
       trustScore: attributes.trustScore ?? null,
       verificationSources: attributes.verificationSources?.map((item) => ({ ...item })) ?? undefined,
       trustHistory: attributes.trustHistory?.map((item) => ({ ...item })) ?? undefined,
@@ -143,6 +143,21 @@ export class PartnerProfileService {
 
   private normalizeRole(role?: PartnerProfile['role'] | null): PartnerProfile['role'] {
     return role === 'buyer' ? 'buyer' : 'supplier';
+  }
+
+  private normalizeVerificationStatus(
+    value: PartnerProfile['verificationStatus'] | null | undefined
+  ): PartnerProfile['verificationStatus'] {
+    if (
+      value === 'pending' ||
+      value === 'verified' ||
+      value === 'correctionRequested' ||
+      value === 'rejected' ||
+      value === 'suspended'
+    ) {
+      return value;
+    }
+    return 'unverified';
   }
 
   private demoFallback(id: string, role?: PartnerProfile['role']): PartnerProfile | null {
