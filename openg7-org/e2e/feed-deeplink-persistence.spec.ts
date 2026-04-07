@@ -5,64 +5,13 @@ test.describe('Feed deep-link persistence', () => {
   test('rehydrates a shared filtered feed link across reload, then clears both UI and URL state', async ({ page }) => {
     await page.goto('/feed?type=REQUEST&sector=energy&fromProvince=AB&mode=IMPORT&sort=VOLUME&q=fuel');
     await waitForAngularFeedStream(page);
-    console.log(
-      'feed-stream before clear',
-      await page.evaluate(() => {
-        const ng = (window as { ng?: { getComponent?: (element: Element) => Record<string, unknown> } }).ng;
-        const host = document.querySelector('og7-feed-stream');
-        const component = host && ng?.getComponent ? ng.getComponent(host) : null;
-        return component
-          ? {
-              hasClearFilters: typeof component['clearFilters'],
-              selectedType: typeof component['selectedType'] === 'function' ? component['selectedType']() : null,
-              searchTerm: typeof component['searchTerm'] === 'function' ? component['searchTerm']() : null,
-            }
-          : null;
-      })
-    );
 
     await expectFeedDeepLinkState(page);
     await expectVisibleItemIds(page, ['request-002']);
 
-    console.log(
-      'clearFilters direct call result',
-      await page.evaluate(() => {
-        const ng = (window as { ng?: { getComponent?: (element: Element) => Record<string, unknown> } }).ng;
-        const host = document.querySelector('og7-feed-stream');
-        const component = host && ng?.getComponent ? ng.getComponent(host) : null;
-        try {
-          if (component && typeof component['clearFilters'] === 'function') {
-            component['clearFilters']();
-          }
-          return { ok: true };
-        } catch (error) {
-          return {
-            ok: false,
-            message: error instanceof Error ? error.message : String(error),
-          };
-        }
-      })
-    );
-    await page.evaluate(() => {
-      const ng = (window as { ng?: { getComponent?: (element: Element) => Record<string, unknown> } }).ng;
-      const host = document.querySelector('og7-feed-stream');
-      const component = host && ng?.getComponent ? ng.getComponent(host) : null;
-      return component;
-    });
-    console.log(
-      'feed-stream after clear click',
-      await page.evaluate(() => {
-        const ng = (window as { ng?: { getComponent?: (element: Element) => Record<string, unknown> } }).ng;
-        const host = document.querySelector('og7-feed-stream');
-        const component = host && ng?.getComponent ? ng.getComponent(host) : null;
-        return component
-          ? {
-              selectedType: typeof component['selectedType'] === 'function' ? component['selectedType']() : null,
-              searchTerm: typeof component['searchTerm'] === 'function' ? component['searchTerm']() : null,
-            }
-          : null;
-      })
-    );
+    const clearFiltersButton = page.locator('[data-og7-id="feed-clear-filters"]');
+    await expect(clearFiltersButton).toBeVisible();
+    await clearFiltersButton.click();
 
     await expectClearedFeedState(page);
 
@@ -126,9 +75,9 @@ async function expectClearedFeedState(page: Page): Promise<void> {
     q: null,
   });
   await expect(page.locator('#feed-search')).toHaveValue('');
-  await expect(page.locator('#feed-type')).toHaveValue('null');
-  await expect(page.locator('#feed-sector')).toHaveValue('null');
-  await expect(page.locator('#feed-from')).toHaveValue('null');
+  await expect(page.locator('#feed-type')).toHaveValue(/null$/);
+  await expect(page.locator('#feed-sector')).toHaveValue(/null$/);
+  await expect(page.locator('#feed-from')).toHaveValue(/null$/);
   await expect(page.locator('#feed-mode')).toHaveValue(/BOTH$/);
   await expect(page.locator('#feed-sort')).toHaveValue(/NEWEST$/);
   await expect(page.locator('[data-og7="feed-active-filters"]')).toHaveCount(0);

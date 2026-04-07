@@ -190,6 +190,22 @@
       "source": { "kind": "COMPANY", "label": "Island Harvest Foods" }
     },
     {
+      "id": "offer-user-001",
+      "createdAt": "2026-02-03T12:30:00Z",
+      "type": "OFFER",
+      "sectorId": "energy",
+      "title": "Reserve capacity posted by you",
+      "summary": "You posted 180 MW of reserve capacity for April balancing across the western corridor.",
+      "fromProvinceId": "AB",
+      "toProvinceId": "BC",
+      "mode": "EXPORT",
+      "quantity": { "value": 180, "unit": "MW" },
+      "urgency": 2,
+      "credibility": 3,
+      "tags": ["reserve", "owner"],
+      "source": { "kind": "USER", "label": "Your desk" }
+    },
+    {
       "id": "request-001",
       "createdAt": "2026-02-03T09:05:00Z",
       "type": "REQUEST",

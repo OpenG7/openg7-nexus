@@ -61,6 +61,7 @@ import {
   FeedRealtimeEnvelope,
   FeedSnapshot,
 } from '../models/feed.models';
+import { OpportunityArchiveService } from './opportunity-archive.service';
 
 const STREAM_ENDPOINT = '/api/feed/stream';
 const COLLECTION_ENDPOINT = '/api/feed';
@@ -104,6 +105,7 @@ export class FeedRealtimeService {
   private readonly notifications = injectNotificationStore();
   private readonly translate = inject(TranslateService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly opportunityArchive = inject(OpportunityArchiveService);
   private readonly useMockFeed = Boolean(
     this.featureFlags?.['feedMocks'] ?? this.featureFlags?.['homeFeedMocks']
   );
@@ -131,7 +133,7 @@ export class FeedRealtimeService {
   private readonly stateSig = this.store.selectSignal(selectFeedState);
   private readonly onboardingSeenSig = this.store.selectSignal(selectFeedOnboardingSeen);
 
-  readonly items = this.itemsSig;
+  readonly items = computed(() => this.itemsSig().map(item => this.opportunityArchive.apply(item)));
   readonly loading = this.loadingSig;
   readonly error = this.errorSig;
   readonly onboardingSeen = this.onboardingSeenSig;
@@ -265,7 +267,7 @@ export class FeedRealtimeService {
       return null;
     }
 
-    const existing = this.itemsSig().find(item => item.id === normalizedId);
+    const existing = this.items().find(item => item.id === normalizedId);
     if (existing) {
       return this.normalizeItem(existing);
     }
@@ -901,7 +903,7 @@ export class FeedRealtimeService {
   }
 
   private normalizeItem(item: FeedItem): FeedItem {
-    return {
+    return this.opportunityArchive.apply({
       ...item,
       sectorId: item.sectorId ?? null,
       fromProvinceId: item.fromProvinceId ?? null,
@@ -915,7 +917,7 @@ export class FeedRealtimeService {
       originId: this.normalizeOriginId(item.originId),
       connectionMatchId: this.normalizeConnectionMatchId(item.connectionMatchId),
       source: item.source ?? { kind: 'USER', label: this.translate.instant('feed.sourceUnknown') },
-    };
+    });
   }
 
   private buildOptimisticItem(

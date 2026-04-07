@@ -72,6 +72,176 @@ yarn exec playwright test e2e/feed-advanced-discovery-roundtrip.spec.ts --worker
 - `Result`: `1 passed`
 - `What this adds`: a focused advanced-discovery roundtrip proof on `/feed`, covering deep-linked type, sector, mode, sort, and from-province state, visible filtered narrowing, `VOLUME` ordering, navigation into an opportunity detail route, and a return to the same filtered feed context with query params and controls preserved.
 
+- `Supplemental date`: `2026-04-06`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-deeplink-persistence.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a second focused advanced-discovery proof on `/feed`, covering direct entry with query-param filters already set, control and active-chip hydration from the deep link, filtered list stability across hard reload, and authoritative clear-filters behavior that resets both the UI state and the URL.
+
+- `Supplemental date`: `2026-04-06`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-accessibility.spec.ts e2e/quality-breadth-responsive-sweep.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `6 passed`
+- `What this adds`: two focused follow-on quality-breadth proof suites, covering keyboard-only operation of critical feed, profile, and admin-trust actions with labeled controls and announced feed state, plus a mobile-to-tablet responsive sweep across feed opportunity detail, statistics, and partner trust surfaces with stable CTA reachability and no horizontal overflow.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/opportunity-archive-lifecycle.spec.ts e2e/feed-advanced-discovery-comparison.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `2 passed`
+- `What this adds`: the first durable business-object lifecycle proof on `/feed`, covering archive-state persistence from opportunity detail back to the list, across reload, and on reopened detail, plus a stronger advanced-discovery comparison proof across two explicit filter combinations with preserved query-param state through detail navigation.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-source-context-drilldown.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a source-context drilldown proof on `/feed`, covering corridor-derived context carried from `home-corridors-realtime`, one refined search deep link layered on top of that context, filtered narrowing, detail navigation, browser back, and reload while the corridor context and refined discovery state remain coherent.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-screenreader-status.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `3 passed`
+- `What this adds`: a focused announced-status proof pack across `/feed`, `/login`, and `/profile`, covering live feed status plus inline and toast error alerts on feed load failure, polite session-expired notice plus assertive API-failure announcement on login, and profile save failure then recovery announced through alert and status toasts.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-perceived-performance.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `3 passed`
+- `What this adds`: a focused perceived-performance proof pack spanning delayed opportunity-detail hydration on `/feed/opportunities/:itemId`, a delayed client-side scope handoff on `/statistics`, and delayed-load plus create-retry coherence on `/saved-searches`, proving explicit loading feedback appears before the next state resolves and that persistence is not implied before the retry succeeds.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-offline-queueing.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `3 passed`
+- `What this adds`: a focused offline-queueing proof pack across `/profile`, `/saved-searches`, and `/feed/indicators/:id`, covering local profile edits that survive an offline-like save failure until a successful retry, one saved-search create draft that stays visible without a false persisted row and resolves to exactly one entry after retry, and one locally restored indicator-alert draft that reopens in offline state after reload before being retried into a durable subscribed rule.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-form-error-recovery.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `3 passed`
+- `What this adds`: a focused form-error-recovery proof pack across `/login`, `/profile`, and `/feed/opportunities/:itemId`, covering invalid-to-valid correction on login credentials, webhook validation recovery before profile save, and opportunity-offer drawer validation recovery into a single clean success state without lingering global errors.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-stacked-filters-drilldown.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused advanced-discovery drilldown proof on `/feed`, covering one light deep link that is intentionally stacked into a narrower query, detail navigation with preserved query params, browser-back rehydration, and one-filter unwind that broadens results without losing the remaining stacked context.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-context-switch-comparison.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused inherited-context comparison proof on `/feed`, covering one refined `home-feed-panels` entry and one refined `corridors-realtime` entry, with preserved source params through detail navigation and browser-back, plus a clear contrast between highlighted home-panel context and corridor-derived province chips.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/opportunity-enrichment-lifecycle.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused opportunity-enrichment lifecycle proof on `/feed/opportunities/:itemId`, covering queued report submission, header rehydration into `view-my-report` and `report-another` actions, reopen-from-list continuity, and reload persistence into a readable pending-report view.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-drawer-focus-return.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused drawer-keyboard proof on `/feed/opportunities/:itemId`, covering keyboard open on the offer drawer, forward tab navigation inside the dialog, wrap from the last actionable control back to the first, Escape close, opener focus return, and a second reopen-close cycle without focus loss.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-source-context-unwind.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused inherited-source unwind proof on `/feed`, covering a corridor-derived entry context, one explicit search refinement layered on top, removal of only that explicit refinement, and reload persistence while the `source` frame and derived province context remain intact.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/feed-view-context-refinement.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused route-view refinement proof on `/feed/hydrocarbons`, covering one explicit search refinement layered on top of the dedicated hydrocarbon defaults, preserved detail navigation, browser-back rehydration, reload persistence, and continued visibility of the hydrocarbon panel plus route-derived filter frame.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/admin-ops-provenance-trail.spec.ts e2e/admin-ops-observability.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `4 passed`
+- `What this adds`: a focused observability-depth proof on `/admin/ops`, covering visible provenance metadata per snapshot source, coherent provenance refresh on successful reload, preserved-last-good provenance state on failed refresh, and confirmation that the existing operational snapshot behavior remains intact on the same screen.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/company-or-partner-enrichment-lifecycle.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused non-feed business-object lifecycle proof spanning `/admin/trust` and `/partners/:id`, covering one richer trust-enrichment cycle with correction-request decision, added evidence source, added reliability-history entry, admin reload and reopen continuity, a second approval decision on the same company, and public partner-detail persistence after reopen and reload.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-offline-edge-continuity.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `1 passed`
+- `What this adds`: a focused offline-continuity proof on `/feed/indicators/:itemId`, covering one locally restored indicator-alert draft through drawer close, navigation interruption to another route, browser-back return, hard reload, eventual retry, and a final reopened success view without stranded offline state.
+
 ## Executive verdict
 
 The currently targeted E2E proof set is green and demonstrates that the main implemented OpenG7 Nexus journeys are covered across:
@@ -93,7 +263,7 @@ The currently targeted E2E proof set is green and demonstrates that the main imp
 
 This is a strong audit of `covered needs`. It is not a claim that every business need of the product is fully closed.
 
-The `2026-04-06` supplemental proof set does not change the core E2E verdict, but it does reduce uncertainty around three previously weaker areas: linkup quality breadth below the E2E layer, notification-preference matrix depth within targeted E2E, and cross-surface quality breadth on feed, statistics, and login under transient failure, delayed hydration, keyboard access, responsive stress, and accessible error announcement.
+The `2026-04-06` to `2026-04-07` supplemental proof set does not change the core E2E verdict, but it does reduce uncertainty around several previously weaker areas: linkup quality breadth below the E2E layer, notification-preference matrix depth within targeted E2E, cross-surface quality breadth on feed, profile, admin trust, statistics, and partner detail under transient failure, delayed hydration, keyboard access, responsive stress, accessible error announcement, announced status semantics, perceived-performance handoff, richer offline queueing behavior, invalid-to-valid form recovery, and drawer focus-return behavior, advanced-discovery continuity on `/feed` through roundtrip, deep-link persistence, comparison-oriented drilldown, stacked-filter drilldown with single-filter unwind, inherited-context switching between entry points, corridor-derived source-context refinement, explicit source-context unwind without collapsing the inherited frame, dedicated route-view refinement on `/feed/hydrocarbons`, and one visible provenance trail on `/admin/ops`, plus two concrete business-object lifecycles on opportunities via durable archive and persisted queued reporting.
 
 ## Covered needs proved by E2E
 
@@ -122,12 +292,12 @@ The `2026-04-06` supplemental proof set does not change the core E2E verdict, bu
 
 | Remaining-gap bucket | Domain | Current status | What remains outside solid proof |
 | --- | --- | --- | --- |
-| Implemented but still weakly proved | Quality breadth | `partial` | targeted proof now covers transient recovery, an offline-like save-and-retry path, transient feed publish failure with resilient resubmission, explicit delayed-hydration loading feedback, tablet-safe stacked rendering without horizontal overflow on feed and statistics, keyboard-usable labeled statistics filters with named complementary regions, baseline control semantics on profile, accessible login error announcements, and mobile keyboard navigation, but broader a11y depth, richer offline behavior, a larger responsive sweep, and deeper perceived-performance proof are still missing |
-| Partially implemented workflow | Business object lifecycle | `partial` | editing, archiving, and durable enrichment flows for opportunities, companies, and partners |
+| Implemented but still weakly proved | Quality breadth | `partial` | targeted proof now covers transient recovery, an offline-like save-and-retry path, transient feed publish failure with resilient resubmission, explicit delayed-hydration loading feedback, delayed client-side handoff on statistics, truthful create-retry behavior on saved searches, richer offline queueing across profile, saved searches, and indicator alerts, one stronger offline continuity path on indicator alerts through navigation interruption plus reload before retry, invalid-to-valid form recovery across login, profile, and feed offer flows, drawer focus return and repeatable keyboard reopen on feed opportunity detail, keyboard-only operation of critical feed, profile, and admin-trust controls, labeled statistics filters with named complementary regions, mobile-to-tablet responsive stability on feed opportunity detail, statistics, and partner trust surfaces, baseline control semantics on profile, accessible login error announcements, announced status and alert semantics on feed, login, and profile, and mobile keyboard navigation, but broader a11y depth and some additional offline breadth on other surfaces are still missing |
+| Partially implemented workflow | Business object lifecycle | `partial` | two concrete opportunity lifecycles are now proved through durable archive and persisted queued reporting on `/feed`, and one richer non-feed trust-enrichment lifecycle is now proved across `/admin/trust` and `/partners/:id`, but broader company and partner editing beyond trust plus other object types remain outside strong proof |
 | Partially implemented workflow | Linkup workflow depth | `partial` | direct creation remains outside current MVP; acceptance/refusal, messaging, attachments, and richer workflow branching remain unproved |
-| Present in fragments, not yet decision-grade | Advanced discovery | `partial` | one feed filter-sort-detail roundtrip is now proved, but side-by-side comparison, broader advanced filter combinations, and deeper discovery drilldowns remain outside strong proof |
+| Present in fragments, not yet decision-grade | Advanced discovery | `partial` | feed filter-sort-detail roundtrip, deep-link persistence with clear-filter reset, a comparison-oriented two-combination drilldown, one stacked-filter drilldown with partial unwind, one inherited-context switch comparison between home panels and corridor entry, corridor-derived source-context refinement, one explicit source-context unwind, and one dedicated hydrocarbon route-view refinement are now proved, but deeper discovery drilldowns remain outside strong proof |
 | Present in fragments, not yet decision-grade | Rich geospatial interaction | `partial` | direct map interactions, layers, richer geospatial drilldowns, decision-focused map behaviors |
-| Present in fragments, not yet decision-grade | Observability depth | `partial` | provenance surfaces, audit trails of sensitive actions, and user-visible analytics trails remain outside current frontend UI |
+| Present in fragments, not yet decision-grade | Observability depth | `partial` | one visible provenance trail is now proved on `/admin/ops`, but broader audit trails of sensitive actions and user-visible analytics trails remain outside current frontend UI |
 | Present in fragments, not yet decision-grade | OpenG7 domain depth | `partial` | capacities, interprovincial dependencies, and explicit essential-service prioritization remain only partly demonstrated |
 
 ## Product-scope limits, not test omissions
@@ -145,35 +315,34 @@ Recommended execution order is:
 
 | Domain | Gap type | Needs product work first? | Next recommended move | Priority |
 | --- | --- | --- | --- | --- |
-| Quality breadth | Weak proof on quality dimension | `no` | Extend the new proof pack beyond transient recovery, offline-like save retry, transient offer resubmission, delayed-hydration loading feedback, current feed/statistics tablet coverage, current keyboard-access checks, and current login-error announcement coverage into richer offline behavior, wider responsive coverage, and perceived-performance checks | `P1` |
-| Business object lifecycle | Partially implemented workflow | `yes` | Pick one canonical lifecycle first, preferably opportunity archive and enrichment, then prove transition durability | `P2` |
-| Advanced discovery | Present in fragments, not yet decision-grade | `yes` | Choose one high-value drilldown combining advanced filters, sorting, and detail navigation, then prove it end to end | `P2` |
-| Observability depth | Present in fragments, not yet decision-grade | `yes` | Expose one user-visible provenance or audit-trail surface for a sensitive action, then add targeted E2E | `P2` |
+| Quality breadth | Weak proof on quality dimension | `no` | Extend the current proof pack beyond transient recovery, offline-like save retry, transient offer resubmission, current perceived-performance handoff coverage, current offline queueing coverage, current form-error-recovery coverage, current drawer-focus-return coverage, current keyboard-only checks, current announced-status coverage, and current mobile-to-tablet responsive coverage into broader a11y depth and remaining offline edge cases | `P1` |
+| Advanced discovery | Present in fragments, not yet decision-grade | `no` | Extend the now-proved roundtrip, deep-link persistence, comparison drilldown, stacked-filter drilldown with partial unwind, inherited-context comparison, source-context refinement, source-context unwind, and route-view refinement into one deeper discovery flow or multi-step discovery decision path | `P2` |
+| Observability depth | Present in fragments, not yet decision-grade | `yes` | Extend the newly proved `/admin/ops` provenance surface into a second visible audit-trail or action-history signal tied to a sensitive admin or moderation action | `P2` |
 | Linkup workflow depth | Partially implemented workflow | `yes` | Revisit only if the product scope expands beyond the current MVP toward acceptance or refusal branches, messaging, or attachment handling | `P3` |
 | OpenG7 domain depth | Present in fragments, not yet decision-grade | `yes` | Expose one explicit prioritization journey such as essential-service or interprovincial-dependency triage, then prove it | `P3` |
 | Rich geospatial interaction | Present in fragments, not yet decision-grade | `yes` | Define one direct map action that changes downstream context and prove it through feed or sector navigation | `P3` |
 
-## Next 5 exact proofs to add
+## Next 5 exact proofs to add after the latest feed, lifecycle, and quality-breadth proofs
 
 This is the most profitable next-proof order if the goal is to reduce uncertainty quickly without reopening too much product scope.
 
 | Order | Proposed spec file | Exact flow to prove | Exact assertions to add | Needs product work first? | Suggested owner |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `e2e/feed-advanced-discovery-roundtrip.spec.ts` | `/feed -> apply type + sector + from province + mode + sort -> open one filtered opportunity -> return to /feed` | active-filter chips appear, filtered list narrows, sort changes the top of list, detail navigation preserves feed context when returning | `no` | `E2E` |
-| 2 | `e2e/feed-deeplink-persistence.spec.ts` | load `/feed` with query-param filters already set -> verify controls and list -> hard reload -> clear filters | controls reflect URL state, filtered items stay aligned with the deep link after reload, clear-filters resets both UI state and query params | `no` | `E2E` |
-| 3 | `e2e/quality-breadth-accessibility.spec.ts` | keyboard-only pass across `/feed`, `/profile`, and `/admin/trust` on critical controls and decision actions | visible focus remains trackable, critical controls are labeled, live or error messaging is announced, no primary action is mouse-only | `no` | `E2E` |
-| 4 | `e2e/quality-breadth-responsive-sweep.spec.ts` | run `/feed/opportunities/:itemId`, `/statistics`, and `/partners/:id` at narrow mobile, tablet portrait, and tablet landscape widths | no horizontal overflow, primary CTA stays reachable, cards and asides reflow without clipping, sticky headers do not cover critical content | `no` | `E2E` |
-| 5 | `e2e/opportunity-archive-lifecycle.spec.ts` | `/feed/opportunities/:itemId -> archive -> return to /feed -> reload -> reopen detail` | archive state is visible in detail and list views, the transition survives reload, and the archived item stays in a coherent lifecycle state | `yes` | `Frontend + E2E` |
+| 1 | `e2e/quality-breadth-announcement-continuity.spec.ts` | one accessible announced-status surface through update, navigation, and reload | ARIA-visible status remains truthful and non-duplicative across repeated transitions | `no` | `E2E` |
+| 2 | `e2e/feed-decision-path-depth.spec.ts` | one longer discovery chain combining route-view, inherited context, and explicit refinement before detail navigation | a richer discovery decision path remains legible across navigation without collapsing into ambiguous filter state | `no` | `E2E` |
+| 3 | `e2e/admin-ops-action-audit-trail.spec.ts` | `/admin/ops -> trigger or inspect one sensitive admin action with user-visible history metadata` | observability advances from static provenance into one coherent user-visible audit trail | `yes` | `Frontend + E2E` |
+| 4 | `e2e/essential-service-prioritization.spec.ts` | one explicit essential-service or interprovincial-dependency prioritization journey from exposed OpenG7 signals into downstream context | deeper OpenG7 domain logic becomes visible as a decision-grade workflow rather than fragmented indicators | `yes` | `Frontend + E2E` |
+| 5 | `e2e/map-to-feed-decision-chain.spec.ts` | one direct map interaction that changes downstream feed or sector context and survives detail navigation | richer geospatial interaction starts behaving like a decision-grade chain instead of a static visualization | `yes` | `Frontend + E2E` |
 
-Operationally, the first four are proof-only work on already exposed surfaces. The fifth is the next best lifecycle proof, but it should follow product closure because the current archive action still stops at a local saved-state signal.
+Operationally, the first three are proof-only work on already exposed surfaces. The fourth and fifth are the next best product-following proofs, but they should follow visible product closure because observability beyond static provenance and deeper OpenG7 prioritization are not yet surfaced enough.
 
 ## Overall conclusion
 
-As of `2026-04-06`, the covered-needs audit remains strong and current: the main E2E proof set used for the implemented high-value journeys is green (`33 passed`), the focused supplemental Angular proof for the implemented matchmaking surfaces is green (`22 SUCCESS`), the focused supplemental notification-preferences E2E suite is green (`7 passed`), and the focused quality-breadth proof pack is green (`10 passed`).
+As of `2026-04-07`, the covered-needs audit remains strong and current: the main E2E proof set used for the implemented high-value journeys is green (`33 passed`), the focused supplemental Angular proof for the implemented matchmaking surfaces is green (`22 SUCCESS`), the focused supplemental notification-preferences E2E suite is green (`7 passed`), the focused quality-breadth proof pack is green (`10 passed`), the focused supplemental advanced-discovery feed proofs are green (`1 passed` each for roundtrip and deep-link persistence), the two new quality-breadth follow-on suites are green (`6 passed`), the lifecycle-plus-discovery supplement is green (`2 passed`), the new source-context drilldown proof is green (`1 passed`), the new announced-status quality pack is green (`3 passed`), the new perceived-performance quality pack is green (`3 passed`), the new offline-queueing quality pack is green (`3 passed`), the new form-error-recovery quality pack is green (`3 passed`), the new stacked-filter drilldown proof is green (`1 passed`), the new inherited-context comparison proof is green (`1 passed`), the new opportunity-enrichment lifecycle proof is green (`1 passed`), the new drawer-focus-return proof is green (`1 passed`), the new source-context-unwind proof is green (`1 passed`), the new route-view refinement proof is green (`1 passed`), the new admin-ops provenance supplement is green (`4 passed`), the new company-or-partner enrichment lifecycle proof is green (`1 passed`), and the new offline-edge continuity proof is green (`1 passed`).
 
 The remaining gaps now fall into four clearer buckets:
 
 - implemented but still weakly proved surfaces or quality dimensions, such as broader quality proof beyond the now-better-covered linkup workflow
-- partially implemented workflows whose main UI exists but whose lifecycle is not yet closed, such as business-object lifecycle management or future linkup branching beyond the current MVP
-- product-map needs that are present in fragments but not yet exposed as decision-grade user flows, such as advanced discovery, richer geospatial interaction, explicit provenance, and deeper OpenG7 prioritization logic
+- partially implemented workflows whose main UI exists but whose lifecycle is only partly closed, such as richer business-object enrichment beyond the newly proved archive and queued-report paths or future linkup branching beyond the current MVP
+- product-map needs that are present in fragments but not yet exposed as decision-grade user flows, such as richer stacked advanced discovery, richer geospatial interaction, explicit provenance, and deeper OpenG7 prioritization logic
 - scope-deliberate exclusions that should not be mislabeled as missing tests

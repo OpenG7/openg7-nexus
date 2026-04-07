@@ -566,7 +566,8 @@
       "offline": "Hors connexion - tentative de reconnexion",
       "reconnecting": "Reconnexion...",
       "pending": "Publication en cours...",
-      "failed": "Echec de publication"
+      "failed": "Echec de publication",
+      "archived": "Archive"
     },
     "stream": {
       "refresh": "Réessayer la connexion",
@@ -763,6 +764,7 @@
         "breadcrumbCurrent": "Import 300 MW",
         "status": "Statut",
         "statusOpen": "Ouvert",
+        "statusArchived": "Archive",
         "urgency": "Urgence",
         "urgencyWinterPeak": "Hiver / pic",
         "visibility": "Visibilite",

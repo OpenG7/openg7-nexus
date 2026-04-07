@@ -57,7 +57,7 @@ export interface FeedItem {
   readonly originId?: string | null;
   readonly connectionMatchId?: number | null;
   readonly source: FeedItemSource;
-  readonly status?: 'confirmed' | 'pending' | 'failed';
+  readonly status?: 'confirmed' | 'pending' | 'failed' | 'archived';
   readonly optimisticIdempotencyKey?: string;
   readonly accessibilitySummary?: string | null;
   readonly metadata?: FeedPublicationMetadata | null;

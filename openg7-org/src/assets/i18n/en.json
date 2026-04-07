@@ -677,7 +677,8 @@
       "offline": "Offline - attempting to reconnect",
       "reconnecting": "Reconnecting...",
       "pending": "Publishing...",
-      "failed": "Publish failed"
+      "failed": "Publish failed",
+      "archived": "Archived"
     },
     "stream": {
       "refresh": "Retry connection",
@@ -874,6 +875,7 @@
         "breadcrumbCurrent": "Import 300 MW",
         "status": "Status",
         "statusOpen": "Open",
+        "statusArchived": "Archived",
         "urgency": "Urgency",
         "urgencyWinterPeak": "Winter / peak",
         "visibility": "Visibility",

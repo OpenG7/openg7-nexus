@@ -12,7 +12,7 @@
       <h1>{{ title() }}</h1>
       <p>{{ routeLabel() }} · {{ subtitle() }}</p>
       <div class="opportunity-header__badges">
-        <span class="badge badge--open">{{ 'feed.opportunity.detail.status' | translate }}: {{ statusLabel() }}</span>
+        <span class="badge badge--open" data-og7-id="opportunity-status-label">{{ 'feed.opportunity.detail.status' | translate }}: {{ statusLabel() }}</span>
         <span *ngIf="urgencyLabel() as urgency" class="badge badge--warning">{{ 'feed.opportunity.detail.urgency' | translate }}: {{ urgency }}</span>
         <span class="badge">{{ 'feed.opportunity.detail.visibility' | translate }}: {{ visibilityLabel() }}</span>
       </div>
@@ -75,6 +75,8 @@
         *ngIf="ownerMode()"
         type="button"
         class="opportunity-header__action"
+        data-og7="action"
+        data-og7-id="opportunity-archive"
         (click)="archive.emit()"
       >
         {{ 'feed.opportunity.detail.cta.archive' | translate }}
