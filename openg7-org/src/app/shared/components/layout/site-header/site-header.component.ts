@@ -58,6 +58,7 @@ export class SiteHeaderComponent {
   private readonly userAlerts = inject(UserAlertsService);
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
   private activeQuickSearchRef: Og7ModalRef<void> | null = null;
+  private lastNotifTrigger: HTMLElement | null = null;
 
   readonly isMobileMenuOpen = signal(false);
   readonly isLangOpen = signal(false);
@@ -192,7 +193,12 @@ export class SiteHeaderComponent {
     this.isMoreOpen.update((value) => !value);
   }
 
-  toggleNotif() {
+  toggleNotif(event?: Event) {
+    const trigger = event?.currentTarget;
+    if (trigger instanceof HTMLElement) {
+      this.lastNotifTrigger = trigger;
+    }
+
     this.isNotifOpen.update((value) => !value);
     if (!this.isNotifOpen()) {
       return;
@@ -263,7 +269,14 @@ export class SiteHeaderComponent {
         this.toggleSearch(false);
         return;
       }
+
+      const restoreNotificationFocus = this.isNotifOpen();
       this.closeFlyouts();
+      if (restoreNotificationFocus) {
+        queueMicrotask(() => {
+          this.lastNotifTrigger?.focus();
+        });
+      }
     }
   }
 

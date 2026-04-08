@@ -256,6 +256,56 @@ yarn exec playwright test e2e/quality-breadth-announcement-continuity.spec.ts --
 - `Command`:
 
 ```bash
+yarn exec playwright test e2e/quality-breadth-cross-surface-a11y-depth.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `3 passed`
+- `What this adds`: a focused notification accessibility-depth proof pack spanning the header panel and `/alerts`, covering keyboard-only open and read on header notifications, Escape-close focus return to the trigger, assertive batch-action error announcement plus retry recovery in the alerts inbox, and keyboard-usable item-level read and delete actions while the list mutates.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-importation-a11y-depth.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `2 passed`
+- `What this adds`: a focused importation accessibility-depth proof pack on `/importation`, covering a labeled compare filter with keyboard-only invalid-to-valid recovery into durable query-param state, plus assertive collaboration-form validation errors and keyboard-only corrected submission for watchlist creation and report scheduling.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-auth-recovery-depth.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `2 passed`
+- `What this adds`: a focused auth-recovery quality pack across `/forgot-password` and `/reset-password`, covering keyboard-only invalid-submit recovery, assertive API-failure feedback plus error toasts, success-state confirmation plus success toasts, durable reset-token hydration from the route, mismatch correction before retry, and successful redirect completion back to `/login`.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-importation-responsive.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `2 passed`
+- `What this adds`: a focused importation responsive sweep across narrow mobile and tablet landscape, covering page-level no-overflow stability, reachable compare controls on mobile, durable compare-state update without layout breakage, visible collaboration actions on narrow viewports, and stable flow drilldown plus collaboration-card rendering on tablet.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
+yarn exec playwright test e2e/quality-breadth-saved-searches-a11y-depth.spec.ts --workers=1 --reporter=dot
+```
+
+- `Result`: `2 passed`
+- `What this adds`: a focused saved-searches accessibility-depth proof on `/saved-searches`, covering keyboard-triggered invalid-to-valid creation recovery with described-by field errors, plus inline update failure announcement with assertive page feedback, visual-state rollback, and clean retry recovery on notify and frequency controls.
+
+- `Supplemental date`: `2026-04-07`
+- `Command`:
+
+```bash
 yarn exec playwright test e2e/feed-decision-path-depth.spec.ts --workers=1 --reporter=dot
 ```
 
@@ -283,7 +333,7 @@ The currently targeted E2E proof set is green and demonstrates that the main imp
 
 This is a strong audit of `covered needs`. It is not a claim that every business need of the product is fully closed.
 
-The `2026-04-06` to `2026-04-07` supplemental proof set does not change the core E2E verdict, but it does reduce uncertainty around several previously weaker areas: linkup quality breadth below the E2E layer, notification-preference matrix depth within targeted E2E, cross-surface quality breadth on feed, profile, admin trust, statistics, and partner detail under transient failure, delayed hydration, keyboard access, responsive stress, accessible error announcement, announced status semantics, perceived-performance handoff, richer offline queueing behavior, invalid-to-valid form recovery, and drawer focus-return behavior, advanced-discovery continuity on `/feed` through roundtrip, deep-link persistence, comparison-oriented drilldown, stacked-filter drilldown with single-filter unwind, inherited-context switching between entry points, corridor-derived source-context refinement, explicit source-context unwind without collapsing the inherited frame, dedicated route-view refinement on `/feed/hydrocarbons`, and one visible provenance trail on `/admin/ops`, plus two concrete business-object lifecycles on opportunities via durable archive and persisted queued reporting.
+The `2026-04-06` to `2026-04-07` supplemental proof set does not change the core E2E verdict, but it does reduce uncertainty around several previously weaker areas: linkup quality breadth below the E2E layer, notification-preference matrix depth within targeted E2E, cross-surface quality breadth on feed, profile, admin trust, statistics, partner detail, importation, auth recovery, and saved searches under transient failure, delayed hydration, keyboard access, responsive stress, accessible error announcement, announced status semantics, perceived-performance handoff, richer offline queueing behavior, invalid-to-valid form recovery, drawer focus-return behavior, and deeper keyboard-plus-error semantics on the notifications header panel, `/alerts` inbox, `/importation` collaboration filters and forms, auth recovery screens, `/saved-searches` creation and inline update flows, and importation responsive layouts, advanced-discovery continuity on `/feed` through roundtrip, deep-link persistence, comparison-oriented drilldown, stacked-filter drilldown with single-filter unwind, inherited-context switching between entry points, corridor-derived source-context refinement, explicit source-context unwind without collapsing the inherited frame, dedicated route-view refinement on `/feed/hydrocarbons`, and one visible provenance trail on `/admin/ops`, plus two concrete business-object lifecycles on opportunities via durable archive and persisted queued reporting.
 
 ## Covered needs proved by E2E
 
@@ -312,7 +362,7 @@ The `2026-04-06` to `2026-04-07` supplemental proof set does not change the core
 
 | Remaining-gap bucket | Domain | Current status | What remains outside solid proof |
 | --- | --- | --- | --- |
-| Implemented but still weakly proved | Quality breadth | `partial` | targeted proof now covers transient recovery, an offline-like save-and-retry path, transient feed publish failure with resilient resubmission, explicit delayed-hydration loading feedback, delayed client-side handoff on statistics, truthful create-retry behavior on saved searches, richer offline queueing across profile, saved searches, and indicator alerts, one stronger offline continuity path on indicator alerts through navigation interruption plus reload before retry, invalid-to-valid form recovery across login, profile, and feed offer flows, drawer focus return and repeatable keyboard reopen on feed opportunity detail, keyboard-only operation of critical feed, profile, and admin-trust controls, labeled statistics filters with named complementary regions, mobile-to-tablet responsive stability on feed opportunity detail, statistics, and partner trust surfaces, baseline control semantics on profile, accessible login error announcements, stronger local announcement continuity on alert detail through error-to-success transitions plus navigation and reload, and mobile keyboard navigation, but broader a11y depth and some additional offline breadth on other surfaces are still missing |
+| Implemented but still weakly proved | Quality breadth | `partial` | targeted proof now covers transient recovery, an offline-like save-and-retry path, transient feed publish failure with resilient resubmission, explicit delayed-hydration loading feedback, delayed client-side handoff on statistics, truthful create-retry behavior on saved searches, richer offline queueing across profile, saved searches, and indicator alerts, one stronger offline continuity path on indicator alerts through navigation interruption plus reload before retry, invalid-to-valid form recovery across login, profile, feed offer flows, importation collaboration forms, auth recovery screens, and saved-search creation, drawer focus return and repeatable keyboard reopen on feed opportunity detail, keyboard-only operation of critical feed, profile, admin-trust, header-notification, alerts-inbox, importation compare-plus-collaboration controls, auth recovery submission flows, and saved-search notify toggles, labeled statistics filters with named complementary regions, labeled importation compare input, described-by linkage on reset-password errors and saved-search required-field errors, mobile-to-tablet responsive stability on feed opportunity detail, statistics, partner trust, and importation surfaces, baseline control semantics on profile, accessible login error announcements, assertive batch-error semantics plus retry recovery on `/alerts`, assertive importation validation semantics, assertive forgot-password and reset-password API feedback with success completion, assertive saved-search inline update error semantics with rollback-correct retry behavior, stronger local announcement continuity on alert detail through error-to-success transitions plus navigation and reload, and mobile keyboard navigation, but broader a11y depth and some additional offline breadth on other surfaces are still missing |
 | Partially implemented workflow | Business object lifecycle | `partial` | two concrete opportunity lifecycles are now proved through durable archive and persisted queued reporting on `/feed`, and one richer non-feed trust-enrichment lifecycle is now proved across `/admin/trust` and `/partners/:id`, but broader company and partner editing beyond trust plus other object types remain outside strong proof |
 | Partially implemented workflow | Linkup workflow depth | `partial` | direct creation remains outside current MVP; acceptance/refusal, messaging, attachments, and richer workflow branching remain unproved |
 | Present in fragments, not yet decision-grade | Advanced discovery | `partial` | feed filter-sort-detail roundtrip, deep-link persistence with clear-filter reset, a comparison-oriented two-combination drilldown, one stacked-filter drilldown with partial unwind, one inherited-context switch comparison between home panels and corridor entry, corridor-derived source-context refinement, one explicit source-context unwind, one dedicated hydrocarbon route-view refinement, and one longer route-view-plus-inherited-context decision path with selective unwind are now proved, but cross-surface discovery chains remain outside strong proof |
@@ -358,7 +408,7 @@ Operationally, the first and fifth are proof-only work on already exposed surfac
 
 ## Overall conclusion
 
-As of `2026-04-07`, the covered-needs audit remains strong and current: the main E2E proof set used for the implemented high-value journeys is green (`33 passed`), the focused supplemental Angular proof for the implemented matchmaking surfaces is green (`22 SUCCESS`), the focused supplemental notification-preferences E2E suite is green (`7 passed`), the focused quality-breadth proof pack is green (`10 passed`), the focused supplemental advanced-discovery feed proofs are green (`1 passed` each for roundtrip and deep-link persistence), the two new quality-breadth follow-on suites are green (`6 passed`), the lifecycle-plus-discovery supplement is green (`2 passed`), the new source-context drilldown proof is green (`1 passed`), the new announced-status quality pack is green (`3 passed`), the new perceived-performance quality pack is green (`3 passed`), the new offline-queueing quality pack is green (`3 passed`), the new form-error-recovery quality pack is green (`3 passed`), the new stacked-filter drilldown proof is green (`1 passed`), the new inherited-context comparison proof is green (`1 passed`), the new opportunity-enrichment lifecycle proof is green (`1 passed`), the new drawer-focus-return proof is green (`1 passed`), the new source-context-unwind proof is green (`1 passed`), the new route-view refinement proof is green (`1 passed`), the new admin-ops provenance supplement is green (`4 passed`), the new company-or-partner enrichment lifecycle proof is green (`1 passed`), the new offline-edge continuity proof is green (`1 passed`), the new announcement-continuity proof is green (`1 passed`), and the new decision-path-depth proof is green (`1 passed`).
+As of `2026-04-07`, the covered-needs audit remains strong and current: the main E2E proof set used for the implemented high-value journeys is green (`33 passed`), the focused supplemental Angular proof for the implemented matchmaking surfaces is green (`22 SUCCESS`), the focused supplemental notification-preferences E2E suite is green (`7 passed`), the focused quality-breadth proof pack is green (`10 passed`), the focused supplemental advanced-discovery feed proofs are green (`1 passed` each for roundtrip and deep-link persistence), the two new quality-breadth follow-on suites are green (`6 passed`), the lifecycle-plus-discovery supplement is green (`2 passed`), the new source-context drilldown proof is green (`1 passed`), the new announced-status quality pack is green (`3 passed`), the new perceived-performance quality pack is green (`3 passed`), the new offline-queueing quality pack is green (`3 passed`), the new form-error-recovery quality pack is green (`3 passed`), the new stacked-filter drilldown proof is green (`1 passed`), the new inherited-context comparison proof is green (`1 passed`), the new opportunity-enrichment lifecycle proof is green (`1 passed`), the new drawer-focus-return proof is green (`1 passed`), the new source-context-unwind proof is green (`1 passed`), the new route-view refinement proof is green (`1 passed`), the new admin-ops provenance supplement is green (`4 passed`), the new company-or-partner enrichment lifecycle proof is green (`1 passed`), the new offline-edge continuity proof is green (`1 passed`), the new announcement-continuity proof is green (`1 passed`), the new notification accessibility-depth proof is green (`3 passed`), the new importation accessibility-depth proof is green (`2 passed`), the new auth-recovery quality proof is green (`2 passed`), the new importation responsive proof is green (`2 passed`), the new saved-searches accessibility-depth proof is green (`2 passed`), and the new decision-path-depth proof is green (`1 passed`).
 
 The remaining gaps now fall into four clearer buckets:
 
