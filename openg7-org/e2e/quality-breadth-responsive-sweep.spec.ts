@@ -5,7 +5,7 @@ import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
 import { DEFAULT_PROFILE, mockProfileAndFavoritesApis, mockSessionApis as mockDomainSessionApis } from './helpers/domain-mocks';
 
 type StatisticsScope = 'interprovincial' | 'international' | 'all';
-type StatisticsIntrant = 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
+type StatisticsIntrant = 'all' | 'energy' | 'agri-food' | 'manufacturing' | 'digital-services';
 
 interface StatisticsSummaryRecord {
   id: number;
@@ -24,9 +24,9 @@ const VIEWPORTS = [
 
 const statisticsSummaryRecords: StatisticsSummaryRecord[] = [
   { id: 1, scope: 'interprovincial', intrant: 'energy', period: '2024-Q1', province: 'CA-ON', country: null },
-  { id: 2, scope: 'interprovincial', intrant: 'agriculture', period: '2024-Q2', province: 'CA-QC', country: null },
+  { id: 2, scope: 'interprovincial', intrant: 'agri-food', period: '2024-Q2', province: 'CA-QC', country: null },
   { id: 3, scope: 'international', intrant: 'energy', period: '2024-Q3', province: null, country: 'US' },
-  { id: 4, scope: 'international', intrant: 'services', period: '2024-Q4', province: null, country: 'FR' },
+  { id: 4, scope: 'international', intrant: 'digital-services', period: '2024-Q4', province: null, country: 'FR' },
 ];
 
 async function enableMockFeed(page: Page): Promise<void> {
@@ -57,7 +57,7 @@ async function mockStatisticsApi(page: Page): Promise<void> {
         : 'interprovincial';
     const intrantRaw = url.searchParams.get('intrant');
     const intrant: StatisticsIntrant =
-      intrantRaw && ['all', 'energy', 'agriculture', 'manufacturing', 'services'].includes(intrantRaw.toLowerCase())
+      intrantRaw && ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(intrantRaw.toLowerCase())
         ? (intrantRaw.toLowerCase() as StatisticsIntrant)
         : 'all';
     const period = url.searchParams.get('period');

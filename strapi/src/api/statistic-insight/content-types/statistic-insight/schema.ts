@@ -34,7 +34,7 @@ const schema = {
     },
     intrant: {
       type: 'enumeration',
-      enum: ['energy', 'agriculture', 'manufacturing', 'services', 'all'],
+      enum: ['energy', 'agri-food', 'manufacturing', 'digital-services', 'all'],
       default: 'all',
     },
     kind: {

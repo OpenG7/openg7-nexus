@@ -186,7 +186,7 @@ export interface paths {
             parameters: {
                 query?: {
                     scope?: "interprovincial" | "international" | "all";
-                    intrant?: "all" | "energy" | "agriculture" | "manufacturing" | "services";
+                    intrant?: "all" | "energy" | "agri-food" | "manufacturing" | "digital-services";
                     period?: string;
                     province?: string;
                 };
@@ -968,7 +968,7 @@ export interface components {
             /** @enum {string} */
             scope: "interprovincial" | "international" | "all";
             /** @enum {string} */
-            intrant: "all" | "energy" | "agriculture" | "manufacturing" | "services";
+            intrant: "all" | "energy" | "agri-food" | "manufacturing" | "digital-services";
             value?: number | null;
             change?: number | null;
             unitKey?: string | null;
@@ -983,7 +983,7 @@ export interface components {
             /** @enum {string} */
             scope: "interprovincial" | "international" | "all";
             /** @enum {string} */
-            intrant: "all" | "energy" | "agriculture" | "manufacturing" | "services";
+            intrant: "all" | "energy" | "agri-food" | "manufacturing" | "digital-services";
             titleKey: string;
             descriptionKey: string;
             period?: string | null;

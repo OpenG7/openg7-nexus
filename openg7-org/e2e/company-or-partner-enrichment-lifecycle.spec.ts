@@ -99,7 +99,7 @@ function mapCompanyToStrapi(company: MutableTrustCompany) {
   };
 }
 
-function mapSector(name: string): 'energy' | 'manufacturing' | 'services' {
+function mapSector(name: string): 'energy' | 'manufacturing' | 'digital-services' {
   const normalized = name.trim().toLowerCase();
   if (normalized === 'advanced manufacturing') {
     return 'manufacturing';
@@ -107,7 +107,7 @@ function mapSector(name: string): 'energy' | 'manufacturing' | 'services' {
   if (normalized === 'energy') {
     return 'energy';
   }
-  return 'services';
+  return 'digital-services';
 }
 
 function mapPartnerProfile(company: MutableTrustCompany) {

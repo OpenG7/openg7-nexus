@@ -24,7 +24,7 @@ export const initialMapState: MapState = {
       currency: 'CAD',
       quantity: 420,
       quantityUnit: 'transactions',
-      sectorId: 'cleantech',
+      sectorId: 'energy',
     },
     {
       id: 'flow-canada-europe-digital',

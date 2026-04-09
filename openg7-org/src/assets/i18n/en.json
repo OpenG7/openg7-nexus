@@ -621,9 +621,9 @@
               "title": "Energy outlook",
               "description": "Latest production and investment indicators"
             },
-            "technology": {
-              "title": "Technology landscape",
-              "description": "Digital growth and workforce signals"
+            "digitalServices": {
+              "title": "Digital services landscape",
+              "description": "Software, connectivity, and digital workforce signals"
             }
           }
         },
@@ -3618,9 +3618,9 @@
         "label": "Input type",
         "all": "All",
         "energy": "Energy",
-        "agriculture": "Agri-food",
+        "agriFood": "Agri-food",
         "manufacturing": "Manufacturing",
-        "services": "Services",
+        "digitalServices": "Digital services",
         "period": "Period",
         "periodAll": "All periods",
         "country": "Country",
@@ -3941,7 +3941,7 @@
     "services": "Services",
     "agri": "Agri-food",
     "agriculture": "Agri-food",
-    "technology": "Technology"
+    "technology": "Digital services"
   },
   "provinces": {
     "AB": "Alberta",

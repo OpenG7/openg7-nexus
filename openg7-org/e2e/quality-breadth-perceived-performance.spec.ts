@@ -4,7 +4,7 @@ import { expect, Page, Route, test } from '@playwright/test';
 import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 type StatisticsScope = 'interprovincial' | 'international' | 'all';
-type StatisticsIntrant = 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
+type StatisticsIntrant = 'all' | 'energy' | 'agri-food' | 'manufacturing' | 'digital-services';
 
 interface StatisticsSummaryRecord {
   id: number;
@@ -39,7 +39,7 @@ const statisticsSummaryRecords: StatisticsSummaryRecord[] = [
   {
     id: 2,
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     period: '2024-Q2',
     province: 'CA-QC',
     country: null,

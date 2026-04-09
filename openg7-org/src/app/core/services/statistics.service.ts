@@ -88,7 +88,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 3,
     slug: 'agri-value',
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     value: 41,
     change: 3,
     unitKey: 'pages.statistics.units.billionCAD',
@@ -118,7 +118,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 5,
     slug: 'services-exports',
     scope: 'international',
-    intrant: 'services',
+    intrant: 'digital-services',
     value: 128,
     change: 4,
     unitKey: 'pages.statistics.units.billionCAD',
@@ -133,7 +133,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 6,
     slug: 'agri-global-share',
     scope: 'international',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     value: 27,
     change: -2,
     unitKey: 'pages.statistics.units.marketShare',
@@ -148,7 +148,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 7,
     slug: 'digital-services',
     scope: 'interprovincial',
-    intrant: 'services',
+    intrant: 'digital-services',
     value: 74,
     change: 11,
     unitKey: 'pages.statistics.units.billionCAD',
@@ -178,7 +178,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 9,
     slug: 'agri-resilience',
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     value: 18,
     change: 7,
     unitKey: 'pages.statistics.units.cooperatives',
@@ -253,7 +253,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 14,
     slug: 'g7-it-circular',
     scope: 'international',
-    intrant: 'services',
+    intrant: 'digital-services',
     value: 142,
     change: 3,
     unitKey: 'pages.statistics.units.billionCAD',
@@ -307,7 +307,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 18,
     slug: 'partnership-skills',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     titleKey: 'pages.statistics.sections.partnerships.cards.skills.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.skills.body',
     period: null,
@@ -331,7 +331,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 20,
     slug: 'partnership-sme',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     titleKey: 'pages.statistics.sections.partnerships.cards.sme.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.sme.body',
     period: null,
@@ -343,7 +343,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
     id: 21,
     slug: 'partnership-digital',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     titleKey: 'pages.statistics.sections.partnerships.cards.digital.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.digital.body',
     period: null,
@@ -354,7 +354,7 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
 ];
 
 const AVAILABLE_SCOPE_VALUES: StatisticsScope[] = ['interprovincial', 'international', 'all'];
-const AVAILABLE_INTRANTS: StatisticsIntrant[] = ['all', 'energy', 'agriculture', 'manufacturing', 'services'];
+const AVAILABLE_INTRANTS: StatisticsIntrant[] = ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'];
 
 @Injectable({ providedIn: 'root' })
 /**
