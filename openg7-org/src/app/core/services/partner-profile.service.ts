@@ -5,6 +5,7 @@ import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import { HttpClientService } from '../http/http-client.service';
 import { PartnerProfile } from '../models/partner-profile';
+import { normalizeSectorType } from '../models/opportunity';
 
 interface StrapiPartnerProfileResponse {
   readonly data: StrapiPartnerProfileEntity | null;
@@ -122,7 +123,7 @@ export class PartnerProfileService {
       role: this.normalizeRole(attributes.role),
       legalName,
       displayName: attributes.displayName ?? undefined,
-      sector: attributes.sector ?? undefined,
+      sector: normalizeSectorType(attributes.sector ?? null) ?? undefined,
       province: attributes.province ?? undefined,
       logoUrl: attributes.logoUrl ?? null,
       registrationIds: attributes.registrationIds?.map((item) => ({ ...item })) ?? undefined,
@@ -330,7 +331,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
       id: 202,
       role: 'buyer',
       legalName: 'Pacific Logistics Co-op',
-      sector: 'services',
+      sector: 'transport-logistics',
       province: 'BC',
       logoUrl: null,
       registrationIds: [{ type: 'BN', value: '88976-1234' }],

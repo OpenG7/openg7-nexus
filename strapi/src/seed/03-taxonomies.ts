@@ -26,9 +26,13 @@ const provinces: LocalizedTermSeed[] = [
 
 const sectors: LocalizedTermSeed[] = [
   { slug: 'energy', name: { en: 'Energy', fr: 'Energie' } },
-  { slug: 'agriculture', name: { en: 'Agriculture', fr: 'Agriculture' } },
+  { slug: 'agri-food', name: { en: 'Agri-food', fr: 'Agroalimentaire' } },
+  { slug: 'digital-services', name: { en: 'Digital services', fr: 'Services numeriques' } },
+  { slug: 'transport-logistics', name: { en: 'Transport & logistics', fr: 'Transport et logistique' } },
+  { slug: 'life-sciences', name: { en: 'Life sciences', fr: 'Sciences de la vie' } },
   { slug: 'manufacturing', name: { en: 'Manufacturing', fr: 'Manufacturier' } },
-  { slug: 'technology', name: { en: 'Technology', fr: 'Technologie' } },
+  { slug: 'construction', name: { en: 'Construction & materials', fr: 'Construction et materiaux' } },
+  { slug: 'mining', name: { en: 'Mining & minerals', fr: 'Mines et mineraux' } },
 ];
 
 export default async () => {

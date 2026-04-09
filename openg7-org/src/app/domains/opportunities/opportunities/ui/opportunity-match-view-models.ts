@@ -55,8 +55,10 @@ const SECTOR_ICON_MAP = new Map<SectorType, string>([
   ['manufacturing', '🛠️'],
   ['mining', '⛏️'],
   ['construction', '🏗️'],
-  ['services', '🔧'],
-  ['agri', '🌾'],
+  ['agri-food', '🌾'],
+  ['digital-services', '🧠'],
+  ['transport-logistics', '🚚'],
+  ['life-sciences', '🧪'],
 ]);
 const DEFAULT_SECTOR_ICON = '🧭';
 

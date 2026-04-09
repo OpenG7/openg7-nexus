@@ -20,7 +20,7 @@ const TARIFF_DATA: readonly TariffImpact[] = [
       fr: 'Acier et aluminium',
       en: 'Steel and aluminum',
     },
-    sectors: ['manufacturing', 'cleantech'],
+    sectors: ['manufacturing', 'construction'],
   },
   {
     id: 'copper',
@@ -29,7 +29,7 @@ const TARIFF_DATA: readonly TariffImpact[] = [
       fr: 'Cuivre',
       en: 'Copper',
     },
-    sectors: ['mining', 'cleantech'],
+    sectors: ['mining', 'energy'],
   },
   {
     id: 'softwood-lumber',
@@ -38,7 +38,7 @@ const TARIFF_DATA: readonly TariffImpact[] = [
       fr: "Bois d'œuvre",
       en: 'Softwood lumber',
     },
-    sectors: ['construction', 'agri', 'agri-food'],
+    sectors: ['construction', 'agri-food'],
   },
   {
     id: 'non-aceum-products',
@@ -47,7 +47,7 @@ const TARIFF_DATA: readonly TariffImpact[] = [
       fr: 'Produits hors ACEUM',
       en: 'Non-CUSMA products',
     },
-    sectors: ['services', 'digital-services', 'life-sciences'],
+    sectors: ['digital-services', 'life-sciences', 'transport-logistics'],
   },
   {
     id: 'automotive',

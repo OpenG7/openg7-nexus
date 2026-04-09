@@ -806,7 +806,7 @@ describe('FeedAlertDetailPage', () => {
       title: 'Sector-only related alert',
     });
     const unrelatedAlert = createAlertItem('alert-unrelated', {
-      sectorId: 'agri',
+      sectorId: 'agri-food',
       fromProvinceId: 'bc',
       toProvinceId: 'ab',
       tags: ['grain'],
@@ -826,7 +826,7 @@ describe('FeedAlertDetailPage', () => {
       title: 'Contextual opportunity',
     });
     const unrelatedOpportunity = createOpportunityItem('opportunity-unrelated', {
-      sectorId: 'agri',
+      sectorId: 'agri-food',
       fromProvinceId: 'bc',
       toProvinceId: 'ab',
       tags: ['grain'],

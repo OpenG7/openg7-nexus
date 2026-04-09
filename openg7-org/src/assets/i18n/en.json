@@ -3933,8 +3933,15 @@
     "mining": "Mining",
     "manufacturing": "Manufacturing",
     "construction": "Construction",
+    "agri-food": "Agri-food",
+    "digital-services": "Digital services",
+    "transport-logistics": "Transport & logistics",
+    "life-sciences": "Life sciences",
+    "cleantech": "Cleantech",
     "services": "Services",
-    "agri": "Agri-food"
+    "agri": "Agri-food",
+    "agriculture": "Agri-food",
+    "technology": "Technology"
   },
   "provinces": {
     "AB": "Alberta",

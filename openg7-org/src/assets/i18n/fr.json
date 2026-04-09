@@ -3813,8 +3813,15 @@
     "mining": "Mines",
     "manufacturing": "Fabrication",
     "construction": "Construction",
+    "agri-food": "Agroalimentaire",
+    "digital-services": "Services numériques",
+    "transport-logistics": "Transport et logistique",
+    "life-sciences": "Sciences de la vie",
+    "cleantech": "Technologies propres",
     "services": "Services",
-    "agri": "Agroalimentaire"
+    "agri": "Agroalimentaire",
+    "agriculture": "Agroalimentaire",
+    "technology": "Technologie"
   },
   "countryHighlights": {
     "us": {
