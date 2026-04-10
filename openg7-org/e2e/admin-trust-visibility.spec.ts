@@ -101,7 +101,7 @@ function mapCompanyToStrapi(company: MutableTrustCompany) {
 
 function mapSector(name: string): 'energy' | 'manufacturing' | 'digital-services' {
   const normalized = name.trim().toLowerCase();
-  if (normalized === 'advanced manufacturing') {
+  if (normalized === 'advanced manufacturing' || normalized === 'manufacturing') {
     return 'manufacturing';
   }
   if (normalized === 'energy') {

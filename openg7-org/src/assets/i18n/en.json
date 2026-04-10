@@ -3826,9 +3826,9 @@
           "title": "Oil",
           "description": "Crude flows, refining capacity, and integrated logistics."
         },
-        "services": {
-          "title": "Services",
-          "description": "Critical services, IT, engineering, and operations support."
+        "operations-support": {
+          "title": "Operations support",
+          "description": "Critical services, engineering, IT, and execution support for corridor operations."
         },
         "workforce": {
           "title": "Workforce",

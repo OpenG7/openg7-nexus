@@ -3706,9 +3706,9 @@
           "title": "Pétrole",
           "description": "Flux de brut, capacité de raffinage et logistique intégrée."
         },
-        "services": {
-          "title": "Services",
-          "description": "Services critiques, TI, ingénierie et soutien opérationnel."
+        "operations-support": {
+          "title": "Soutien opérationnel",
+          "description": "Services critiques, ingénierie, TI et soutien d'exécution pour les opérations de corridor."
         },
         "workforce": {
           "title": "Main-d'œuvre",

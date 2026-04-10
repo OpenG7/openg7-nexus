@@ -47,41 +47,47 @@ test.describe('Feed advanced discovery comparison', () => {
     await expect(page.locator('[data-feed-item-id="request-002"]')).toContainText('Refined fuel supply needed');
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toBeVisible();
 
-    await page.goto('/feed?type=REQUEST&sector=services&mode=IMPORT&sort=VOLUME');
+    await page.goto('/feed?type=REQUEST&sector=transport-logistics&mode=IMPORT&sort=VOLUME');
 
     await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
 
     await expectSearchParams(page, {
       type: 'REQUEST',
-      sector: 'services',
+      sector: 'transport-logistics',
       mode: 'IMPORT',
       sort: 'VOLUME',
       q: null,
     });
-    await expectVisibleItemIds(page, ['request-009', 'request-003', 'request-006']);
-    await expect(page.locator('[data-feed-item-id="request-009"]')).toContainText('Telecom field crews');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText('Services');
+    await expectVisibleItemIds(page, ['request-003', 'request-006']);
+    await expect(page.locator('[data-feed-item-id="request-003"]')).toContainText('Certified welders for rail upgrade');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText(
+      'Transport & logistics'
+    );
 
-    await page.locator('[data-feed-item-id="request-009"] [data-og7-id="feed-open-item"]').click();
+    await page.locator('[data-feed-item-id="request-003"] [data-og7-id="feed-open-item"]').click();
 
-    await expect(page).toHaveURL(/\/feed\/opportunities\/request-009\?type=REQUEST&sector=services&mode=IMPORT&sort=VOLUME$/);
+    await expect(page).toHaveURL(
+      /\/feed\/opportunities\/request-003\?type=REQUEST&sector=transport-logistics&mode=IMPORT&sort=VOLUME$/
+    );
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
-    await expect(page.locator('[data-og7="opportunity-detail-header"] h1')).toContainText('Telecom field crews');
+    await expect(page.locator('[data-og7="opportunity-detail-header"] h1')).toContainText(
+      'Certified welders for rail upgrade'
+    );
 
     await page.goBack();
 
     await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
     await expectSearchParams(page, {
       type: 'REQUEST',
-      sector: 'services',
+      sector: 'transport-logistics',
       mode: 'IMPORT',
       sort: 'VOLUME',
       q: null,
     });
     await expectSelectedLabel(page, '#feed-type', 'Demande');
-    await expectSelectedLabel(page, '#feed-sector', 'Services');
+    await expectSelectedLabel(page, '#feed-sector', 'Transport & logistics');
     await expectSelectedLabel(page, '#feed-mode', 'Import');
     await expectSelectedLabel(page, '#feed-sort', 'Volume');
-    await expectVisibleItemIds(page, ['request-009', 'request-003', 'request-006']);
+    await expectVisibleItemIds(page, ['request-003', 'request-006']);
   });
 });

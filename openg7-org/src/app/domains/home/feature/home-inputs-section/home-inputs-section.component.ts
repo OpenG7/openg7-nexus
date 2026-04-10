@@ -9,6 +9,7 @@ interface InputCard {
   readonly descriptionKey: string;
 }
 
+// Editorial home inputs intentionally stay separate from the canonical sector taxonomy.
 const INPUT_CARDS: readonly InputCard[] = [
   {
     id: 'electricity',
@@ -23,10 +24,10 @@ const INPUT_CARDS: readonly InputCard[] = [
     descriptionKey: 'home.inputs.cards.oil.description',
   },
   {
-    id: 'services',
+    id: 'operations-support',
     icon: '\uD83E\uDDF0',
-    titleKey: 'home.inputs.cards.services.title',
-    descriptionKey: 'home.inputs.cards.services.description',
+    titleKey: 'home.inputs.cards.operations-support.title',
+    descriptionKey: 'home.inputs.cards.operations-support.description',
   },
   {
     id: 'workforce',
