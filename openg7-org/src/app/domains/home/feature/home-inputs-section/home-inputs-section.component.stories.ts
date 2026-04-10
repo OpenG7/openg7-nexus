@@ -1,3 +1,4 @@
+import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
@@ -10,6 +11,7 @@ const meta: Meta<HomeInputsSectionComponent> = {
   decorators: [
     moduleMetadata({
       imports: [TranslateModule.forRoot()],
+      providers: [...provideStorybookEnTranslations()],
     }),
   ],
 };

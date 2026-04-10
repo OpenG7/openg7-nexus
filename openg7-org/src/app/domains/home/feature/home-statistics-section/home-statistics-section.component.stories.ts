@@ -1,3 +1,4 @@
+import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Meta, StoryObj } from '@storybook/angular';
@@ -33,6 +34,7 @@ const meta: Meta<HomeStatisticsSectionComponent> = {
   decorators: [
     moduleMetadata({
       imports: [TranslateModule.forRoot()],
+      providers: [...provideStorybookEnTranslations()],
     }),
   ],
 };

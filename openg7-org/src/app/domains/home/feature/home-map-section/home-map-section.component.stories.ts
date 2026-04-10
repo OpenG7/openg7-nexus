@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { FiltersService } from '@app/core/filters.service';
+import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { MapGeojsonService, MapFlowFeatureCollection, MapHubFeatureCollection, MapProvinceFeatureCollection } from '@app/core/services/map-geojson.service';
 import { selectFilteredFlows, selectMapKpis, selectMapReady } from '@app/state';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -23,6 +24,7 @@ const meta: Meta<HomeMapSectionComponent> = {
       imports: [TranslateModule.forRoot()],
       providers: [
         FiltersService,
+        ...provideStorybookEnTranslations(),
         { provide: MapGeojsonService, useClass: StoryMapGeojsonService },
         provideMockStore({
           selectors: [
