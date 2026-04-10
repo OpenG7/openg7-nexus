@@ -90,6 +90,12 @@
   color: var(--og7-feed-danger-text, #fecaca);
 }
 
+.feed-card__badge--archived {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(100, 116, 139, 0.22);
+  color: #cbd5e1;
+}
+
 .feed-card__title {
   margin: 0;
   font-weight: 600;

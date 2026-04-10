@@ -1,4 +1,5 @@
 import { FiltersService } from '@app/core/filters.service';
+import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
@@ -12,7 +13,7 @@ const meta: Meta<HomeFiltersSectionComponent> = {
   decorators: [
     moduleMetadata({
       imports: [TranslateModule.forRoot()],
-      providers: [FiltersService],
+      providers: [FiltersService, ...provideStorybookEnTranslations()],
     }),
   ],
 };

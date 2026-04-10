@@ -110,7 +110,7 @@ describe('PublicationFormMapperService', () => {
     expect(result.draft).toEqual(
       jasmine.objectContaining({
         type: 'OFFER',
-        sectorId: 'agriculture',
+        sectorId: 'agri-food',
         mode: 'EXPORT',
         quantity: { value: 180, unit: 'kg' },
         tags: ['overflow', 'certified', 'haccp', 'gfsi'],

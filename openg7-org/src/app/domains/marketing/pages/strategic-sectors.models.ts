@@ -174,9 +174,27 @@ export const SECTOR_CARDS: readonly StrategicSectorCard[] = [
     horizon: '7d',
   },
   {
-    id: 'services-logistics',
-    sectorId: 'services',
-    labelKey: 'sectors.services',
+    id: 'digital-services-resilience',
+    sectorId: 'digital-services',
+    labelKey: 'sectors.digital-services',
+    summaryKey: 'pages.strategicSectors.cards.summary',
+    accentClass: 'from-violet-200/35 to-sky-500/10',
+    metrics: [
+      { labelKey: 'pages.strategicSectors.cards.metrics.corridors', value: '11' },
+      { labelKey: 'pages.strategicSectors.cards.metrics.provinces', value: '6' },
+      { labelKey: 'pages.strategicSectors.cards.metrics.alerts', value: '3' },
+    ],
+    sourceProvinces: provinceList(['QC', 'ON', 'BC']),
+    targetProvinces: provinceList(['AB', 'ON', 'QC']),
+    inputs: ['electricity', 'logistics'],
+    availability: 'stable',
+    criticality: 'medium',
+    horizon: '30d',
+  },
+  {
+    id: 'transport-logistics-network',
+    sectorId: 'transport-logistics',
+    labelKey: 'sectors.transport-logistics',
     summaryKey: 'pages.strategicSectors.cards.summary',
     accentClass: 'from-cyan-200/35 to-teal-500/10',
     metrics: [
@@ -211,8 +229,8 @@ export const SECTOR_CARDS: readonly StrategicSectorCard[] = [
   },
   {
     id: 'agri-food',
-    sectorId: 'agri',
-    labelKey: 'sectors.agri',
+    sectorId: 'agri-food',
+    labelKey: 'sectors.agri-food',
     summaryKey: 'pages.strategicSectors.cards.summary',
     accentClass: 'from-emerald-200/35 to-cyan-500/10',
     metrics: [
@@ -226,6 +244,24 @@ export const SECTOR_CARDS: readonly StrategicSectorCard[] = [
     availability: 'stable',
     criticality: 'medium',
     horizon: '30d',
+  },
+  {
+    id: 'life-sciences-cold-chain',
+    sectorId: 'life-sciences',
+    labelKey: 'sectors.life-sciences',
+    summaryKey: 'pages.strategicSectors.cards.summary',
+    accentClass: 'from-rose-200/35 to-fuchsia-500/10',
+    metrics: [
+      { labelKey: 'pages.strategicSectors.cards.metrics.corridors', value: '5' },
+      { labelKey: 'pages.strategicSectors.cards.metrics.provinces', value: '4' },
+      { labelKey: 'pages.strategicSectors.cards.metrics.alerts', value: '3' },
+    ],
+    sourceProvinces: provinceList(['ON', 'QC', 'BC']),
+    targetProvinces: provinceList(['QC', 'ON', 'NS']),
+    inputs: ['logistics', 'electricity'],
+    availability: 'tight',
+    criticality: 'high',
+    horizon: '7d',
   },
 ];
 

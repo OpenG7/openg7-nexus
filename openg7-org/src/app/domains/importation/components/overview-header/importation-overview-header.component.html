@@ -47,6 +47,7 @@
         <label class="og7-importation-overview__input">
           <span>{{ 'pages.importation.filters.period.value' | translate }}</span>
           <input
+            id="importation-period-value"
             type="text"
             name="periodValueDraft"
             [(ngModel)]="periodValueDraft"
@@ -54,9 +55,16 @@
             (keydown.enter)="$event.preventDefault(); applyPeriodValue()"
             placeholder="2024-Q1"
             [attr.aria-invalid]="periodValueErrorKey ? 'true' : null"
+            [attr.aria-describedby]="periodValueErrorKey ? 'importation-period-value-error' : null"
           />
         </label>
-        <p *ngIf="periodValueErrorKey" class="og7-importation-overview__field-error">
+        <p
+          *ngIf="periodValueErrorKey"
+          id="importation-period-value-error"
+          class="og7-importation-overview__field-error"
+          role="alert"
+          aria-live="assertive"
+        >
           {{ periodValueErrorKey | translate }}
         </p>
         <div class="og7-importation-overview__field-actions">
@@ -82,6 +90,7 @@
         <label class="og7-importation-overview__input" *ngIf="viewModel.filters.filters.originScope === 'custom'">
           <span>{{ 'pages.importation.filters.origin.codes' | translate }}</span>
           <input
+            id="importation-origin-codes"
             type="text"
             name="originCodesDraft"
             [(ngModel)]="originCodesDraft"
@@ -89,9 +98,16 @@
             (keydown.enter)="$event.preventDefault(); applyOriginCodes()"
             placeholder="US, MX, EU"
             [attr.aria-invalid]="originCodesErrorKey ? 'true' : null"
+            [attr.aria-describedby]="originCodesErrorKey ? 'importation-origin-codes-error' : null"
           />
         </label>
-        <p *ngIf="originCodesErrorKey" class="og7-importation-overview__field-error">
+        <p
+          *ngIf="originCodesErrorKey"
+          id="importation-origin-codes-error"
+          class="og7-importation-overview__field-error"
+          role="alert"
+          aria-live="assertive"
+        >
           {{ originCodesErrorKey | translate }}
         </p>
         <div class="og7-importation-overview__field-actions" *ngIf="viewModel.filters.filters.originScope === 'custom'">
@@ -120,7 +136,11 @@
           <input type="checkbox" [checked]="viewModel.filters.filters.compareMode" (change)="onCompareToggle()" />
           <span>{{ 'pages.importation.filters.compare.label' | translate }}</span>
         </label>
+        <label class="sr-only" for="importation-compare-with">
+          {{ 'pages.importation.filters.compare.label' | translate }}
+        </label>
         <input
+          id="importation-compare-with"
           type="text"
           class="og7-importation-overview__compare-input"
           [disabled]="!viewModel.filters.filters.compareMode"
@@ -130,6 +150,7 @@
           (keydown.enter)="$event.preventDefault(); applyCompareWith()"
           placeholder="2023-Q4"
           [attr.aria-invalid]="compareWithErrorKey ? 'true' : null"
+          [attr.aria-describedby]="compareWithErrorKey ? 'importation-compare-with-error' : null"
         />
         <button
           type="button"
@@ -142,7 +163,13 @@
           {{ 'pages.importation.filters.actions.apply' | translate }}
         </button>
       </div>
-      <p *ngIf="compareWithErrorKey" class="og7-importation-overview__field-error">
+      <p
+        *ngIf="compareWithErrorKey"
+        id="importation-compare-with-error"
+        class="og7-importation-overview__field-error"
+        role="alert"
+        aria-live="assertive"
+      >
         {{ compareWithErrorKey | translate }}
       </p>
     </section>

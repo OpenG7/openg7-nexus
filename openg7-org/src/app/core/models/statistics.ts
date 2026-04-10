@@ -1,7 +1,10 @@
 import type { CountryCode } from './country';
+import type { SectorType } from './opportunity-taxonomies';
 
 export type StatisticsScope = 'interprovincial' | 'international' | 'all';
-export type StatisticsIntrant = 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
+export type StatisticsIntrant =
+  | 'all'
+  | Extract<SectorType, 'energy' | 'agri-food' | 'manufacturing' | 'digital-services'>;
 
 export interface StatisticsFilters {
   readonly scope: StatisticsScope;

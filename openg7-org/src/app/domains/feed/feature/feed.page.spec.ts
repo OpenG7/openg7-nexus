@@ -430,7 +430,6 @@ describe('FeedPage', () => {
         sort: 'URGENCY',
         q: 'winter peak',
       },
-      queryParamsHandling: 'merge',
       replaceUrl: true,
     });
   });
@@ -457,6 +456,8 @@ describe('FeedPage', () => {
     expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: TestBed.inject(ActivatedRoute),
       queryParams: {
+        source: 'home-feed-panels',
+        feedItemId: 'opportunity-300mw',
         fromProvince: null,
         toProvince: null,
         sector: null,
@@ -468,7 +469,6 @@ describe('FeedPage', () => {
         sort: null,
         q: null,
       },
-      queryParamsHandling: 'merge',
       replaceUrl: true,
     });
   });

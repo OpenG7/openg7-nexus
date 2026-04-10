@@ -566,7 +566,8 @@
       "offline": "Hors connexion - tentative de reconnexion",
       "reconnecting": "Reconnexion...",
       "pending": "Publication en cours...",
-      "failed": "Echec de publication"
+      "failed": "Echec de publication",
+      "archived": "Archive"
     },
     "stream": {
       "refresh": "Réessayer la connexion",
@@ -763,6 +764,7 @@
         "breadcrumbCurrent": "Import 300 MW",
         "status": "Statut",
         "statusOpen": "Ouvert",
+        "statusArchived": "Archive",
         "urgency": "Urgence",
         "urgencyWinterPeak": "Hiver / pic",
         "visibility": "Visibilite",
@@ -3044,9 +3046,9 @@
         "label": "Type d’intrant",
         "all": "Tous",
         "energy": "Énergie",
-        "agriculture": "Agroalimentaire",
+        "agriFood": "Agroalimentaire",
         "manufacturing": "Manufacturier",
-        "services": "Services",
+        "digitalServices": "Services numériques",
         "period": "Période",
         "periodAll": "Toutes les périodes",
         "country": "Pays",
@@ -3704,9 +3706,9 @@
           "title": "Pétrole",
           "description": "Flux de brut, capacité de raffinage et logistique intégrée."
         },
-        "services": {
-          "title": "Services",
-          "description": "Services critiques, TI, ingénierie et soutien opérationnel."
+        "operations-support": {
+          "title": "Soutien opérationnel",
+          "description": "Services critiques, ingénierie, TI et soutien d'exécution pour les opérations de corridor."
         },
         "workforce": {
           "title": "Main-d'œuvre",
@@ -3811,8 +3813,15 @@
     "mining": "Mines",
     "manufacturing": "Fabrication",
     "construction": "Construction",
+    "agri-food": "Agroalimentaire",
+    "digital-services": "Services numériques",
+    "transport-logistics": "Transport et logistique",
+    "life-sciences": "Sciences de la vie",
+    "cleantech": "Technologies propres",
     "services": "Services",
-    "agri": "Agroalimentaire"
+    "agri": "Agroalimentaire",
+    "agriculture": "Agroalimentaire",
+    "technology": "Services numériques"
   },
   "countryHighlights": {
     "us": {
@@ -4335,9 +4344,9 @@
               "title": "Panorama énergie",
               "description": "Derniers indicateurs de production et d’investissement"
             },
-            "technology": {
-              "title": "Écosystème technologique",
-              "description": "Croissance numérique et signaux sur l’emploi"
+            "digitalServices": {
+              "title": "Écosystème des services numériques",
+              "description": "Signaux sur les logiciels, la connectivité et l’emploi numérique"
             }
           }
         },

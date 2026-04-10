@@ -2,7 +2,7 @@ import './setup';
 import { expect, test } from '@playwright/test';
 
 type Scope = 'interprovincial' | 'international' | 'all';
-type Intrant = 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
+type Intrant = 'all' | 'energy' | 'agri-food' | 'manufacturing' | 'digital-services';
 
 interface SummaryRecord {
   id: number;
@@ -25,7 +25,7 @@ const allSummaries: SummaryRecord[] = [
   {
     id: 2,
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     period: '2024-Q2',
     province: 'CA-QC',
     country: null,
@@ -41,7 +41,7 @@ const allSummaries: SummaryRecord[] = [
   {
     id: 4,
     scope: 'international',
-    intrant: 'services',
+    intrant: 'digital-services',
     period: '2024-Q4',
     province: null,
     country: 'FR',
@@ -61,7 +61,7 @@ test('statistics filters update the dataset', async ({ page }) => {
         : 'interprovincial';
     const requestedIntrantRaw = url.searchParams.get('intrant');
     const requestedIntrant: Intrant =
-      requestedIntrantRaw && ['all', 'energy', 'agriculture', 'manufacturing', 'services'].includes(requestedIntrantRaw.toLowerCase())
+      requestedIntrantRaw && ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(requestedIntrantRaw.toLowerCase())
         ? (requestedIntrantRaw.toLowerCase() as Intrant)
         : 'all';
     const requestedPeriod = url.searchParams.get('period');

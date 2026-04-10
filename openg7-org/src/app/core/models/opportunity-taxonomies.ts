@@ -5,8 +5,17 @@ export type SectorType =
   | 'mining'
   | 'manufacturing'
   | 'construction'
-  | 'services'
-  | 'agri';
+  | 'agri-food'
+  | 'digital-services'
+  | 'transport-logistics'
+  | 'life-sciences';
+
+export type LegacySectorAlias =
+  | 'agri'
+  | 'agriculture'
+  | 'technology'
+  | 'tech'
+  | 'clean-energy';
 
 export type ProvinceCode =
   | 'AB'
@@ -55,9 +64,19 @@ export const SECTOR_OPTIONS: readonly TaxonomyOption<SectorType>[] = [
   { value: 'mining', labelKey: 'sectors.mining' },
   { value: 'manufacturing', labelKey: 'sectors.manufacturing' },
   { value: 'construction', labelKey: 'sectors.construction' },
-  { value: 'services', labelKey: 'sectors.services' },
-  { value: 'agri', labelKey: 'sectors.agri' },
+  { value: 'agri-food', labelKey: 'sectors.agri-food' },
+  { value: 'digital-services', labelKey: 'sectors.digital-services' },
+  { value: 'transport-logistics', labelKey: 'sectors.transport-logistics' },
+  { value: 'life-sciences', labelKey: 'sectors.life-sciences' },
 ];
+
+export const SECTOR_ALIAS_MAP: Readonly<Record<LegacySectorAlias, SectorType>> = {
+  agri: 'agri-food',
+  agriculture: 'agri-food',
+  technology: 'digital-services',
+  tech: 'digital-services',
+  'clean-energy': 'energy',
+};
 
 const PROVINCE_CODE_SET: ReadonlySet<string> = new Set(
   PROVINCE_OPTIONS.map((option) => option.value),
@@ -65,6 +84,10 @@ const PROVINCE_CODE_SET: ReadonlySet<string> = new Set(
 
 const SECTOR_TYPE_SET: ReadonlySet<string> = new Set(
   SECTOR_OPTIONS.map((option) => option.value),
+);
+
+const LEGACY_SECTOR_ALIAS_SET: ReadonlySet<string> = new Set(
+  Object.keys(SECTOR_ALIAS_MAP),
 );
 
 /**
@@ -85,4 +108,31 @@ export function isProvinceCode(value: string): value is ProvinceCode {
  */
 export function isSectorType(value: string): value is SectorType {
   return SECTOR_TYPE_SET.has(value);
+}
+
+/**
+ * Contexte : Used when legacy CMS payloads, imports, or query params still carry older sector slugs.
+ * Raison d'etre : Resolves known aliases into the canonical sector taxonomy before the rest of the UI consumes them.
+ * @param value Candidate sector identifier or legacy alias.
+ * @returns Canonical sector slug when recognized, otherwise null.
+ */
+export function normalizeSectorType(value: string | null | undefined): SectorType | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+
+  if (SECTOR_TYPE_SET.has(normalized)) {
+    return normalized as SectorType;
+  }
+
+  if (LEGACY_SECTOR_ALIAS_SET.has(normalized)) {
+    return SECTOR_ALIAS_MAP[normalized as LegacySectorAlias];
+  }
+
+  return null;
 }

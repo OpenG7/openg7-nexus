@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import {
+  feedCategorySig,
   feedFormKeySig,
   feedModeSig,
   feedSearchSig,
@@ -65,6 +66,7 @@ function resetFeedFilters(): void {
   toProvinceIdSig.set(null);
   sectorIdSig.set(null);
   feedFormKeySig.set(null);
+  feedCategorySig.set(null);
   feedTypeSig.set(null);
   feedModeSig.set('BOTH');
   feedSearchSig.set('');
@@ -222,6 +224,37 @@ describe('Og7FeedStreamComponent', () => {
 
     expect(selectedOptionLabel(templateSelect)).toBe('Surplus d energie');
     expect(host.textContent).toContain('Gabarit');
+  });
+
+  it('resets all shared feed filters when clear filters is clicked', async () => {
+    const fixture = TestBed.createComponent(Og7FeedStreamComponent);
+
+    fixture.componentRef.setInput('connectionState', createConnectionState({ connected: true }));
+    fromProvinceIdSig.set('AB');
+    toProvinceIdSig.set('BC');
+    sectorIdSig.set('energy');
+    feedFormKeySig.set('energy-surplus-offer');
+    feedCategorySig.set('OPPORTUNITY');
+    feedTypeSig.set('REQUEST');
+    feedModeSig.set('IMPORT');
+    feedSearchSig.set('fuel');
+    feedSortSig.set('VOLUME');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const clearButton = fixture.nativeElement.querySelector('[data-og7-id="feed-clear-filters"]') as HTMLButtonElement;
+    clearButton.click();
+    fixture.detectChanges();
+
+    expect(fromProvinceIdSig()).toBeNull();
+    expect(toProvinceIdSig()).toBeNull();
+    expect(sectorIdSig()).toBeNull();
+    expect(feedFormKeySig()).toBeNull();
+    expect(feedCategorySig()).toBeNull();
+    expect(feedTypeSig()).toBeNull();
+    expect(feedModeSig()).toBe('BOTH');
+    expect(feedSearchSig()).toBe('');
+    expect(feedSortSig()).toBe('NEWEST');
   });
 });
 

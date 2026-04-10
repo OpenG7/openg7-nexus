@@ -30,4 +30,12 @@ describe('parseFeedFilters', () => {
 
     expect(filters.formKey).toBe('energy-surplus-offer');
   });
+
+  it('normalizes legacy sector aliases from the route into canonical sector ids', () => {
+    const agriFilters = parseFeedFilters(convertToParamMap({ sector: 'agri' }));
+    const technologyFilters = parseFeedFilters(convertToParamMap({ sectorId: 'technology' }));
+
+    expect(agriFilters.sectorId).toBe('agri-food');
+    expect(technologyFilters.sectorId).toBe('digital-services');
+  });
 });

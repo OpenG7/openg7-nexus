@@ -45,7 +45,7 @@ export const OG7_COMPANIES_IMPORT_SAMPLE: Og7ImportedCompany[] = [
   {
     businessId: 'QUE-TECH-001',
     name: 'Québec Technologies',
-    sectors: ['tech', 'digital-services'],
+    sectors: ['digital-services'],
     location: { lat: 46.8139, lng: -71.2082, province: 'QC', country: 'Canada' },
     contacts: {
       website: 'https://quebectech.example',
@@ -57,7 +57,7 @@ export const OG7_COMPANIES_IMPORT_SAMPLE: Og7ImportedCompany[] = [
   {
     businessId: 'BC-CLEAN-ENERGY-778',
     name: 'Pacific Clean Energy',
-    sectors: ['clean-energy'],
+    sectors: ['energy'],
     location: { lat: 49.2827, lng: -123.1207, province: 'BC', country: 'Canada' },
     contacts: {
       website: 'https://pacificclean.example',

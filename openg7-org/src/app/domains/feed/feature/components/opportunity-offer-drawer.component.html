@@ -1,7 +1,13 @@
 ﻿<div class="opportunity-offer-drawer" *ngIf="visible()" data-og7="opportunity-offer-drawer">
   <button class="opportunity-offer-drawer__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
 
-  <section class="opportunity-offer-drawer__panel" role="dialog" [attr.aria-modal]="true">
+  <section
+    #panel
+    class="opportunity-offer-drawer__panel"
+    role="dialog"
+    tabindex="-1"
+    [attr.aria-modal]="true"
+  >
     <header>
       <h2>{{ 'feed.opportunity.detail.cta.makeOffer' | translate }}</h2>
       <button type="button" (click)="closed.emit()" [attr.aria-label]="'feed.drawer.close' | translate">x</button>

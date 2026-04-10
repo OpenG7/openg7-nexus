@@ -13,20 +13,35 @@
         <label>
           <span>{{ 'pages.importation.collaboration.watchlists.newLabel' | translate }}</span>
           <input
+            id="importation-watchlist-name"
             type="text"
             [(ngModel)]="watchlistName"
             (ngModelChange)="clearWatchlistError()"
             name="watchlistName"
             placeholder="{{ 'pages.importation.collaboration.watchlists.placeholder' | translate }}"
             [attr.aria-invalid]="watchlistErrorKey ? 'true' : null"
+            [attr.aria-describedby]="watchlistErrorKey ? 'importation-watchlist-name-error' : null"
           />
         </label>
-        <p *ngIf="watchlistErrorKey" class="og7-importation-collaboration__error">
+        <p
+          *ngIf="watchlistErrorKey"
+          id="importation-watchlist-name-error"
+          class="og7-importation-collaboration__error"
+          role="alert"
+          aria-live="assertive"
+        >
           {{ watchlistErrorKey | translate }}
         </p>
         <button type="submit">{{ 'pages.importation.collaboration.watchlists.create' | translate }}</button>
       </form>
-      <p *ngIf="viewModel.error" class="og7-importation-collaboration__error">{{ viewModel.error | translate }}</p>
+      <p
+        *ngIf="viewModel.error"
+        class="og7-importation-collaboration__error"
+        role="alert"
+        aria-live="assertive"
+      >
+        {{ viewModel.error | translate }}
+      </p>
       <div class="og7-importation-collaboration__watchlist-grid">
         <article *ngFor="let watchlist of viewModel.watchlists; trackBy: trackWatchlist">
           <header>
@@ -71,15 +86,23 @@
         <label>
           <span>{{ 'pages.importation.collaboration.schedule.recipients' | translate }}</span>
           <input
+            id="importation-schedule-recipients"
             type="text"
             name="recipients"
             [(ngModel)]="scheduleDraft.recipients"
             (ngModelChange)="clearScheduleRecipientsError()"
             placeholder="a@openg7.org, b@openg7.org"
             [attr.aria-invalid]="scheduleRecipientsErrorKey ? 'true' : null"
+            [attr.aria-describedby]="scheduleRecipientsErrorKey ? 'importation-schedule-recipients-error' : null"
           />
         </label>
-        <p *ngIf="scheduleRecipientsErrorKey" class="og7-importation-collaboration__error">
+        <p
+          *ngIf="scheduleRecipientsErrorKey"
+          id="importation-schedule-recipients-error"
+          class="og7-importation-collaboration__error"
+          role="alert"
+          aria-live="assertive"
+        >
           {{ scheduleRecipientsErrorKey | translate }}
         </p>
         <div class="og7-importation-collaboration__schedule-grid">

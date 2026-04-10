@@ -43,6 +43,80 @@ function createItem(id: string, overrides: Partial<FeedItem> = {}): FeedItem {
 }
 
 describe('feedReducer', () => {
+  it('preserves the incoming order when a non-newest page load replaces the feed items', () => {
+    const highVolumeOlder = createItem('request-002', {
+      createdAt: '2026-02-02T13:20:00.000Z',
+      updatedAt: '2026-02-02T13:20:00.000Z',
+      quantity: { value: 15000, unit: 'bbl_d' },
+    });
+    const mediumVolumeOldest = createItem('request-008', {
+      createdAt: '2026-01-30T19:25:00.000Z',
+      updatedAt: '2026-01-30T19:25:00.000Z',
+      quantity: { value: 5000, unit: 'bbl_d' },
+    });
+    const lowVolumeNewest = createItem('request-001', {
+      createdAt: '2026-02-03T09:05:00.000Z',
+      updatedAt: '2026-02-03T09:05:00.000Z',
+      quantity: { value: 300, unit: 'MW' },
+    });
+
+    const state = feedReducer(
+      undefined,
+      FeedActions.loadSuccess({
+        items: [highVolumeOlder, mediumVolumeOldest, lowVolumeNewest],
+        cursor: null,
+        append: false,
+      })
+    );
+
+    expect(state.items.map(item => item.id)).toEqual(['request-002', 'request-008', 'request-001']);
+  });
+
+  it('preserves server order when appending a follow-up page', () => {
+    const firstPage = feedReducer(
+      undefined,
+      FeedActions.loadSuccess({
+        items: [
+          createItem('request-002', {
+            createdAt: '2026-02-02T13:20:00.000Z',
+            updatedAt: '2026-02-02T13:20:00.000Z',
+          }),
+          createItem('request-008', {
+            createdAt: '2026-01-30T19:25:00.000Z',
+            updatedAt: '2026-01-30T19:25:00.000Z',
+          }),
+        ],
+        cursor: 'cursor-1',
+        append: false,
+      })
+    );
+
+    const appended = feedReducer(
+      firstPage,
+      FeedActions.loadSuccess({
+        items: [
+          createItem('request-001', {
+            createdAt: '2026-02-03T09:05:00.000Z',
+            updatedAt: '2026-02-03T09:05:00.000Z',
+          }),
+          createItem('request-010', {
+            createdAt: '2026-01-29T17:55:00.000Z',
+            updatedAt: '2026-01-29T17:55:00.000Z',
+          }),
+        ],
+        cursor: null,
+        append: true,
+      })
+    );
+
+    expect(appended.items.map(item => item.id)).toEqual([
+      'request-002',
+      'request-008',
+      'request-001',
+      'request-010',
+    ]);
+  });
+
   it('does not mark a locally published item as unread when the same item arrives over realtime', () => {
     const optimisticIdempotencyKey = 'publish-123';
     const optimisticItem = createItem(`optimistic-${optimisticIdempotencyKey}`, {

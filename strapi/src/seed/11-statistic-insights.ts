@@ -5,7 +5,7 @@ interface InsightSeed {
   titleKey: string;
   descriptionKey: string;
   scope: 'interprovincial' | 'international' | 'all';
-  intrant: 'energy' | 'agriculture' | 'manufacturing' | 'services' | 'all';
+  intrant: 'energy' | 'agri-food' | 'manufacturing' | 'digital-services' | 'all';
   kind: 'summary' | 'insight';
   value?: number;
   change?: number;
@@ -52,7 +52,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.summaries.agriValue.title',
     descriptionKey: 'pages.statistics.summaries.agriValue.description',
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     kind: 'summary',
     value: 41,
     change: 3,
@@ -82,7 +82,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.summaries.servicesExports.title',
     descriptionKey: 'pages.statistics.summaries.servicesExports.description',
     scope: 'international',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'summary',
     value: 128,
     change: 4,
@@ -97,7 +97,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.summaries.agriGlobalShare.title',
     descriptionKey: 'pages.statistics.summaries.agriGlobalShare.description',
     scope: 'international',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     kind: 'summary',
     value: 27,
     change: -2,
@@ -112,7 +112,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.summaries.digitalServices.title',
     descriptionKey: 'pages.statistics.summaries.digitalServices.description',
     scope: 'interprovincial',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'summary',
     value: 74,
     change: 11,
@@ -142,7 +142,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.summaries.agriResilience.title',
     descriptionKey: 'pages.statistics.summaries.agriResilience.description',
     scope: 'interprovincial',
-    intrant: 'agriculture',
+    intrant: 'agri-food',
     kind: 'summary',
     value: 18,
     change: 7,
@@ -213,7 +213,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.countries.it.title',
     descriptionKey: 'pages.statistics.countries.it.description',
     scope: 'international',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'summary',
     value: 142,
     change: 3,
@@ -259,7 +259,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.sections.partnerships.cards.skills.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.skills.body',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'insight',
     ordinal: 3,
   },
@@ -277,7 +277,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.sections.partnerships.cards.sme.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.sme.body',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'insight',
     ordinal: 5,
   },
@@ -286,7 +286,7 @@ const insights: InsightSeed[] = [
     titleKey: 'pages.statistics.sections.partnerships.cards.digital.title',
     descriptionKey: 'pages.statistics.sections.partnerships.cards.digital.body',
     scope: 'all',
-    intrant: 'services',
+    intrant: 'digital-services',
     kind: 'insight',
     ordinal: 6,
   },

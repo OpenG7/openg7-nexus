@@ -621,9 +621,9 @@
               "title": "Energy outlook",
               "description": "Latest production and investment indicators"
             },
-            "technology": {
-              "title": "Technology landscape",
-              "description": "Digital growth and workforce signals"
+            "digitalServices": {
+              "title": "Digital services landscape",
+              "description": "Software, connectivity, and digital workforce signals"
             }
           }
         },
@@ -677,7 +677,8 @@
       "offline": "Offline - attempting to reconnect",
       "reconnecting": "Reconnecting...",
       "pending": "Publishing...",
-      "failed": "Publish failed"
+      "failed": "Publish failed",
+      "archived": "Archived"
     },
     "stream": {
       "refresh": "Retry connection",
@@ -874,6 +875,7 @@
         "breadcrumbCurrent": "Import 300 MW",
         "status": "Status",
         "statusOpen": "Open",
+        "statusArchived": "Archived",
         "urgency": "Urgency",
         "urgencyWinterPeak": "Winter / peak",
         "visibility": "Visibility",
@@ -3616,9 +3618,9 @@
         "label": "Input type",
         "all": "All",
         "energy": "Energy",
-        "agriculture": "Agri-food",
+        "agriFood": "Agri-food",
         "manufacturing": "Manufacturing",
-        "services": "Services",
+        "digitalServices": "Digital services",
         "period": "Period",
         "periodAll": "All periods",
         "country": "Country",
@@ -3824,9 +3826,9 @@
           "title": "Oil",
           "description": "Crude flows, refining capacity, and integrated logistics."
         },
-        "services": {
-          "title": "Services",
-          "description": "Critical services, IT, engineering, and operations support."
+        "operations-support": {
+          "title": "Operations support",
+          "description": "Critical services, engineering, IT, and execution support for corridor operations."
         },
         "workforce": {
           "title": "Workforce",
@@ -3931,8 +3933,15 @@
     "mining": "Mining",
     "manufacturing": "Manufacturing",
     "construction": "Construction",
+    "agri-food": "Agri-food",
+    "digital-services": "Digital services",
+    "transport-logistics": "Transport & logistics",
+    "life-sciences": "Life sciences",
+    "cleantech": "Cleantech",
     "services": "Services",
-    "agri": "Agri-food"
+    "agri": "Agri-food",
+    "agriculture": "Agri-food",
+    "technology": "Digital services"
   },
   "provinces": {
     "AB": "Alberta",

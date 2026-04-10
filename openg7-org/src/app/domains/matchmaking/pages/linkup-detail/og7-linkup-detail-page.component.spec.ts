@@ -164,4 +164,59 @@ describe('Og7LinkupDetailPageComponent', () => {
       'Partner confirmed the revised meeting slot.'
     );
   });
+
+  it('shows a load error and retries the request from the detail page', async () => {
+    linkups.loadById.and.rejectWith(new Error('network down'));
+
+    const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent as string).toContain('pages.linkups.errors.title');
+
+    linkups.loadById.and.resolveTo(buildLinkup({ id: '42', reference: 'OG7-LINKUP-000042' }));
+
+    const retryButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find(
+      (button: HTMLButtonElement) => (button.textContent as string).includes('pages.linkups.actions.retry')
+    ) as HTMLButtonElement;
+
+    retryButton.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(linkups.loadById).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.textContent as string).toContain('OG7-LINKUP-000042');
+  });
+
+  it('caps note drafts locally and blocks blank note submissions', async () => {
+    linkups.loadById.and.resolveTo(buildLinkup());
+
+    const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      noteMaxLength: number;
+      noteDraft(): string;
+      canSaveNote(): boolean;
+      onNoteDraftChanged(note: string): void;
+      onSaveNote(): Promise<void>;
+    };
+
+    component.onNoteDraftChanged('x'.repeat(component.noteMaxLength + 24));
+    fixture.detectChanges();
+
+    expect(component.noteDraft().length).toBe(component.noteMaxLength);
+
+    component.onNoteDraftChanged('   ');
+    await component.onSaveNote();
+
+    expect(component.canSaveNote()).toBeFalse();
+    expect(linkups.saveNote).not.toHaveBeenCalled();
+  });
 });

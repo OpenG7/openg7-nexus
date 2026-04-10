@@ -27,12 +27,13 @@ import {
   sectorIdSig,
   toProvinceIdSig,
 } from '@app/state/shared-feed-signals';
+import { FeedActions } from '@app/store/feed/feed.actions';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { buildFeedFavoriteKey } from '../feed-item.helpers';
 import { PublicationFormConfigService } from '../form-config/publication-form-config.service';
-import { FeedItem, FeedItemType, FeedRealtimeConnectionState, FeedSort, FlowMode } from '../models/feed.models';
+import { FeedFilterState, FeedItem, FeedItemType, FeedRealtimeConnectionState, FeedSort, FlowMode } from '../models/feed.models';
 import { Og7FeedCardComponent } from '../og7-feed-card/og7-feed-card.component';
 import { Og7FeedPostDrawerComponent } from '../og7-feed-post-drawer/og7-feed-post-drawer.component';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
@@ -233,6 +234,11 @@ export class Og7FeedStreamComponent {
   }
 
   protected clearFilters(): void {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = null;
+    }
+
     fromProvinceIdSig.set(null);
     toProvinceIdSig.set(null);
     sectorIdSig.set(null);
@@ -242,6 +248,9 @@ export class Og7FeedStreamComponent {
     feedModeSig.set('BOTH');
     feedSearchSig.set('');
     feedSortSig.set('NEWEST');
+    if (typeof this.store.dispatch === 'function') {
+      this.store.dispatch(FeedActions.applyFilters({ filters: DEFAULT_FEED_FILTERS }));
+    }
   }
 
   protected updateSearch(value: string): void {
@@ -371,3 +380,15 @@ export class Og7FeedStreamComponent {
     }
   }
 }
+
+const DEFAULT_FEED_FILTERS: FeedFilterState = {
+  fromProvinceId: null,
+  toProvinceId: null,
+  sectorId: null,
+  formKey: null,
+  category: null,
+  type: null,
+  mode: 'BOTH',
+  sort: 'NEWEST',
+  search: '',
+};

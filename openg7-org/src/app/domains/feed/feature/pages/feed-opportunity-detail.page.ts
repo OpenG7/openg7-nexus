@@ -43,6 +43,7 @@ import {
 } from '../feed-offer-submission.helpers';
 import { FeedItem } from '../models/feed.models';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
+import { OpportunityArchiveService } from '../services/opportunity-archive.service';
 import { OpportunityEngagementService } from '../services/opportunity-engagement.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
@@ -72,6 +73,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly opportunityEngagement = inject(OpportunityEngagementService);
   private readonly conversationDrafts = inject(OpportunityConversationDraftsService);
+  private readonly opportunityArchive = inject(OpportunityArchiveService);
   private readonly reportQueue = inject(OpportunityReportQueueService);
 
   private readonly syncTimers: ReturnType<typeof setTimeout>[] = [];
@@ -358,6 +360,12 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   }
 
   protected handleArchive(): void {
+    const itemId = this.itemId() ?? this.selectedItem()?.id ?? null;
+    if (!itemId) {
+      return;
+    }
+
+    this.opportunityArchive.archive(itemId);
     this.syncState.set('saved-local');
   }
 
@@ -714,7 +722,10 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
       title: item.title,
       routeLabel,
       subtitle: `${sectorLabel} | ${this.translate.instant('feed.mode.import')} | ${this.translate.instant('feed.opportunity.detail.shortWindow')}`,
-      statusLabel: this.translate.instant('feed.opportunity.detail.statusOpen'),
+      statusLabel:
+        item.status === 'archived'
+          ? this.translate.instant('feed.opportunity.detail.statusArchived')
+          : this.translate.instant('feed.opportunity.detail.statusOpen'),
       urgencyLabel,
       visibilityLabel,
       tags,

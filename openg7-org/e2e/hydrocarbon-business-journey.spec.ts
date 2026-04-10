@@ -128,7 +128,7 @@ async function mockHydrocarbonValueApis(page: Page): Promise<{
       json({
         data: [
           { id: 'energy', name: 'Energy' },
-          { id: 'manufacturing', name: 'Advanced manufacturing' },
+          { id: 'manufacturing', name: 'Manufacturing' },
         ],
       })
     );

@@ -1,5 +1,6 @@
 import { ParamMap } from '@angular/router';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
+import { normalizeSectorType } from '@app/core/models/opportunity';
 
 import { FeedFilterState, FeedItemCategory, FeedItemType, FeedSort, FlowMode } from './models/feed.models';
 
@@ -29,10 +30,11 @@ export function parseFeedFilters(query: Pick<ParamMap, 'get'>): FeedFilterState 
   const modeParam = normalizeString(query.get('mode'))?.toUpperCase();
   const mode = MODE_OPTIONS.has(modeParam as FlowMode) ? (modeParam as FlowMode) : 'BOTH';
   const corridorContext = resolveCorridorContext(normalizeString(query.get('corridorId')));
-  const sectorId =
+  const sectorId = normalizeSectorType(
     normalizeString(query.get('sector')) ??
-    normalizeString(query.get('sectorId')) ??
-    null;
+      normalizeString(query.get('sectorId')) ??
+      null
+  );
   const formKey = normalizeString(query.get('formKey')) ?? null;
   const fromProvinceId =
     normalizeString(query.get('fromProvince')) ??

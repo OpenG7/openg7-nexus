@@ -63,7 +63,7 @@ const uniq = (values: Array<string | null | undefined>) => {
 const summaryKinds = ['summary'] as const;
 const insightKinds = ['insight'] as const;
 const scopeValues = ['interprovincial', 'international', 'all'] as const;
-const intrantValues = ['energy', 'agriculture', 'manufacturing', 'services', 'all'] as const;
+const intrantValues = ['energy', 'agri-food', 'manufacturing', 'digital-services', 'all'] as const;
 const countryValues = ['CA', 'DE', 'FR', 'IT', 'JP', 'UK', 'US'] as const;
 
 const mapInsight = (entity: InsightEntity) => {

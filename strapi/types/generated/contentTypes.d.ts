@@ -1064,7 +1064,7 @@ export interface ApiStatisticInsightStatisticInsight extends Struct.CollectionTy
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     descriptionKey: Schema.Attribute.String;
     intrant: Schema.Attribute.Enumeration<
-      ['energy', 'agriculture', 'manufacturing', 'services', 'all']
+      ['energy', 'agri-food', 'manufacturing', 'digital-services', 'all']
     > &
       Schema.Attribute.DefaultTo<'all'>;
     kind: Schema.Attribute.Enumeration<['summary', 'insight']> & Schema.Attribute.Required;
