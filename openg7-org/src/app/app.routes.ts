@@ -25,6 +25,12 @@ export const routes: Routes = [
     data: { roles: ['admin'], robots: ROBOTS_NOINDEX },
   },
   {
+    path: 'admin/quality',
+    loadComponent: () => import('./domains/admin/pages/admin-quality.page').then(m => m.AdminQualityPage),
+    canMatch: [authGuard, roleGuard],
+    data: { roles: ['admin'], robots: ROBOTS_NOINDEX },
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./domains/admin/pages/admin.page').then(m => m.AdminPage),
     canMatch: [authGuard, roleGuard],
