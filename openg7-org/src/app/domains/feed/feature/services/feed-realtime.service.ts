@@ -61,6 +61,7 @@ import {
   FeedRealtimeEnvelope,
   FeedSnapshot,
 } from '../models/feed.models';
+
 import { OpportunityArchiveService } from './opportunity-archive.service';
 
 const STREAM_ENDPOINT = '/api/feed/stream';

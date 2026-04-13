@@ -1,3 +1,4 @@
+import { RouterTestingModule } from '@angular/router/testing';
 import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { FeedItem } from '@app/domains/feed/feature/models/feed.models';
 import {
@@ -9,7 +10,6 @@ import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.co
 import { TranslateModule } from '@ngx-translate/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
-import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 
 import { HomeHeroSectionComponent } from './home-hero-section.component';

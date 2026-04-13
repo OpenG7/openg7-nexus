@@ -4,8 +4,8 @@ import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 
 import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import { HttpClientService } from '../http/http-client.service';
-import { PartnerProfile } from '../models/partner-profile';
 import { normalizeSectorType } from '../models/opportunity';
+import { PartnerProfile } from '../models/partner-profile';
 
 interface StrapiPartnerProfileResponse {
   readonly data: StrapiPartnerProfileEntity | null;

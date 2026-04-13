@@ -1,5 +1,5 @@
 import './setup';
-import { expect, Page, Route, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import {
   loginAsAuthenticatedE2eUser,

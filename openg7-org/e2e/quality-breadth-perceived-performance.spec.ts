@@ -309,9 +309,6 @@ test.describe('Quality breadth perceived performance', () => {
       const method = request.method().toUpperCase();
       const url = new URL(request.url());
       const path = url.pathname;
-      const idMatch = path.match(/\/saved-searches\/([^/]+)\/?$/i);
-      const resourceId = idMatch ? decodeURIComponent(idMatch[1]) : null;
-
       if (method === 'OPTIONS') {
         await route.fulfill({ status: 204 });
         return;
