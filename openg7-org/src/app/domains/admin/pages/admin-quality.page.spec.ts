@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
 import { of } from 'rxjs';
 
 import {
@@ -68,13 +69,20 @@ class AdminQualityMatrixServiceMock {
 
 describe('AdminQualityPage', () => {
   let service: AdminQualityMatrixServiceMock;
+  let notifications: jasmine.SpyObj<NotificationStoreApi>;
 
   beforeEach(async () => {
+    localStorage.removeItem('og7.admin-quality.mission-control.v1');
     service = new AdminQualityMatrixServiceMock();
+    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', ['success', 'info', 'error']);
 
     await TestBed.configureTestingModule({
       imports: [AdminQualityPage],
-      providers: [provideRouter([]), { provide: AdminQualityMatrixService, useValue: service }],
+      providers: [
+        provideRouter([]),
+        { provide: AdminQualityMatrixService, useValue: service },
+        { provide: NotificationStore, useValue: notifications },
+      ],
     }).compileComponents();
   });
 
@@ -115,6 +123,48 @@ describe('AdminQualityPage', () => {
     rows = root.querySelectorAll('[data-og7="admin-quality-row"]');
     expect(rows.length).toBe(1);
     expect(rows[0]?.getAttribute('data-og7-id')).toBe('trust-validation');
+  });
+
+  it('renders a delegation panel and updates it when another row is selected', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    let issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
+
+    expect(root.querySelector('[data-og7="admin-quality-delegation-panel"]')).not.toBeNull();
+    expect(issueLink.href).toContain('https://github.com/OpenG7/openg7-nexus/issues/new');
+    expect(root.textContent).toContain('Etendre la preuve QA - Recherche et decouverte profonde');
+
+    const trustRow = root.querySelector('[data-og7-id="trust-validation"]') as HTMLElement;
+    const trustSelect = trustRow.querySelector('[data-og7-id="admin-quality-select-row"]') as HTMLButtonElement;
+    trustSelect.click();
+    fixture.detectChanges();
+
+    issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
+    expect(root.textContent).toContain('Renforcer la regression - Trust et validation');
+    expect(issueLink.href).toContain('title=Regression%3A+maintenir+la+couverture+trust+et+validation');
+  });
+
+  it('renders mission control recommendations and moves to ready after approval', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const missionControl = root.querySelector('[data-og7="admin-quality-mission-control"]');
+    const recommendations = root.querySelectorAll('[data-og7="admin-quality-recommendation"]');
+    const approveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
+
+    expect(missionControl).not.toBeNull();
+    expect(root.textContent).toContain('AI Mission Control');
+    expect(recommendations.length).toBe(3);
+    expect(root.textContent).toContain('Validation humaine requise');
+
+    approveButton.click();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Pret a lancer');
+    expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', { source: 'admin-quality' });
   });
 
   it('resets active filters back to the full table', () => {
