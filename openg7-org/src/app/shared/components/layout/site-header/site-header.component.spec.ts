@@ -73,7 +73,7 @@ class MockAuthConfigService {
 }
 
 class MockRbacFacadeService {
-  hasPermission = jasmine.createSpy('hasPermission').and.returnValue(true);
+  hasPermission = jasmine.createSpy('hasPermission').and.returnValue(false);
   setContext = jasmine.createSpy('setContext');
 }
 
@@ -142,6 +142,7 @@ describe('SiteHeaderComponent', () => {
   let notifications: MockNotificationStore;
   let userAlerts: MockUserAlertsService;
   let quickSearch: MockQuickSearchLauncherService;
+  let rbac: MockRbacFacadeService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -164,6 +165,7 @@ describe('SiteHeaderComponent', () => {
     favorites = TestBed.inject(FavoritesService) as unknown as MockFavoritesService;
     translate = TestBed.inject(TranslateService) as unknown as MockTranslateService;
     notifications = TestBed.inject(NotificationStore) as unknown as MockNotificationStore;
+    rbac = TestBed.inject(RbacFacadeService) as unknown as MockRbacFacadeService;
     userAlerts = TestBed.inject(UserAlertsService) as unknown as MockUserAlertsService;
     quickSearch = TestBed.inject(QuickSearchLauncherService) as unknown as MockQuickSearchLauncherService;
 
@@ -253,6 +255,29 @@ describe('SiteHeaderComponent', () => {
     expect(profileButton?.classList.contains('site-header__profile-button--favorites')).toBeTrue();
     expect(reminder).not.toBeNull();
     expect(favoritesBadge?.textContent?.trim()).toBe('2');
+  });
+
+  it('renders the admin quality link inside profile menus for admins only', () => {
+    auth.isAuthenticatedSig.set(true);
+    rbac.hasPermission.and.returnValue(true);
+    component.toggleProfile();
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+
+    const qualityLinks = fixture.nativeElement.querySelectorAll('[data-og7-id="admin-quality"]');
+    expect(qualityLinks.length).toBe(2);
+
+    rbac.hasPermission.and.returnValue(false);
+    auth.isAuthenticatedSig.set(false);
+    fixture.detectChanges();
+    auth.isAuthenticatedSig.set(true);
+    component.toggleProfile();
+    component.toggleProfile();
+    component.toggleMobileMenu();
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-og7-id="admin-quality"]')).toBeNull();
   });
 
   it('uses persisted user alerts count when authenticated', () => {

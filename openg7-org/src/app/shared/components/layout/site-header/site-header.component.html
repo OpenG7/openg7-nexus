@@ -267,6 +267,16 @@
                 {{ 'header.profile.alerts' | translate }}
               </a>
             </li>
+            <li *ngIf="canAccessAdminQuality()">
+              <a
+                routerLink="/admin/quality"
+                (click)="toggleProfile()"
+                class="block rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 hover:text-white"
+                data-og7-id="admin-quality"
+              >
+                {{ 'header.profile.quality' | translate }}
+              </a>
+            </li>
             <li>
               <a
                 routerLink="/profile"
@@ -476,6 +486,15 @@
           data-og7-id="alerts"
         >
           {{ 'header.profile.alerts' | translate }}
+        </a>
+        <a
+          *ngIf="canAccessAdminQuality()"
+          routerLink="/admin/quality"
+          (click)="closeMobileMenu()"
+          class="rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 hover:text-white"
+          data-og7-id="admin-quality"
+        >
+          {{ 'header.profile.quality' | translate }}
         </a>
         <a
           routerLink="/profile"

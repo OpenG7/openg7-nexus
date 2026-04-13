@@ -518,6 +518,7 @@
       "matches": "Favorites",
       "savedSearches": "Saved searches",
       "alerts": "Alerts inbox",
+      "quality": "QA matrix",
       "account": "My profile",
       "logout": "Sign out",
       "menuLabel": "Open profile menu"
