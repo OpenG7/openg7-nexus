@@ -214,4 +214,52 @@ describe('LinkupDataService', () => {
       })
     );
   });
+
+  it('aggregates multiple history pages before mapping linkup records', async () => {
+    connections.getConnectionHistoryPage.and.returnValues(
+      of({
+        items: [buildConnection()],
+        meta: { count: 2, limit: 100, offset: 0, hasMore: true },
+      }),
+      of({
+        items: [buildConnection({ id: 42, matchId: null, introMessage: '' })],
+        meta: { count: 2, limit: 100, offset: 1, hasMore: false },
+      }),
+    );
+    opportunities.findMatchById.and.resolveTo(buildMatch());
+
+    const result = await service.loadHistory();
+
+    expect(connections.getConnectionHistoryPage.calls.allArgs()).toEqual([
+      [{ limit: 100, offset: 0 }],
+      [{ limit: 100, offset: 1 }],
+    ]);
+    expect(result).toHaveSize(2);
+    expect(result[1]).toEqual(
+      jasmine.objectContaining({
+        id: '42',
+        tradeMode: 'both',
+        summary: '',
+      })
+    );
+  });
+
+  it('falls back to reloading the linkup when a note contains only whitespace', async () => {
+    connections.getConnectionById.and.returnValue(of(buildConnection()));
+    opportunities.findMatchById.and.resolveTo(buildMatch());
+
+    const result = await service.saveNote('41', 'inDiscussion', '   ');
+
+    expect(connections.updateConnectionStatus).not.toHaveBeenCalled();
+    expect(connections.getConnectionById).toHaveBeenCalledWith('41');
+    expect(result).toEqual(jasmine.objectContaining({ id: '41' }));
+  });
+
+  it('rethrows detail errors that are not 404 responses', async () => {
+    connections.getConnectionById.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }))
+    );
+
+    await expectAsync(service.loadById('41')).toBeRejected();
+  });
 });

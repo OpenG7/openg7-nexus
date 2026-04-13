@@ -4,7 +4,7 @@
   "titleKey": "forms.coldChainCapacity.title",
   "descriptionKey": "forms.coldChainCapacity.description",
   "actorTypes": ["logistics", "distributor", "port"],
-  "sectorId": "agriculture",
+  "sectorId": "agri-food",
   "tags": ["cold-chain", "logistics", "storage"],
   "sections": [
     {
@@ -162,7 +162,7 @@
   "draftMapping": {
     "defaults": {
       "type": "OFFER",
-      "sectorId": "agriculture",
+      "sectorId": "agri-food",
       "mode": "EXPORT"
     },
     "bindings": {

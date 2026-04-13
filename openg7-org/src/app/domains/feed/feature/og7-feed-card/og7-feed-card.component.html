@@ -11,7 +11,7 @@
       <span *ngIf="item().credibility" class="feed-card__badge">
         {{ ('feed.credibility.' + item().credibility) | translate }}
       </span>
-      <span *ngIf="item().status === 'pending' || item().status === 'failed'" class="feed-card__badge" [class]="statusBadgeClass()">
+      <span *ngIf="item().status === 'pending' || item().status === 'failed' || item().status === 'archived'" class="feed-card__badge" [class]="statusBadgeClass()">
         {{ ('feed.status.' + item().status) | translate }}
       </span>
     </div>

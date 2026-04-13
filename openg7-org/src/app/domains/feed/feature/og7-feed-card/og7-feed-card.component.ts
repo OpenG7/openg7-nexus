@@ -53,6 +53,9 @@ export class Og7FeedCardComponent {
     if (status === 'failed') {
       return 'feed-card__badge--error';
     }
+    if (status === 'archived') {
+      return 'feed-card__badge--archived';
+    }
     return '';
   });
 

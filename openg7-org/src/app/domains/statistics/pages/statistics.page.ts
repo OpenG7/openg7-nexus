@@ -52,9 +52,9 @@ export class StatisticsPage {
   readonly intrantFilters = [
     { id: 'all' as StatisticsIntrant, label: 'pages.statistics.filters.all' },
     { id: 'energy' as StatisticsIntrant, label: 'pages.statistics.filters.energy' },
-    { id: 'agriculture' as StatisticsIntrant, label: 'pages.statistics.filters.agriculture' },
+    { id: 'agri-food' as StatisticsIntrant, label: 'pages.statistics.filters.agriFood' },
     { id: 'manufacturing' as StatisticsIntrant, label: 'pages.statistics.filters.manufacturing' },
-    { id: 'services' as StatisticsIntrant, label: 'pages.statistics.filters.services' },
+    { id: 'digital-services' as StatisticsIntrant, label: 'pages.statistics.filters.digitalServices' },
   ];
 
   private readonly periodsSig = toSignal(this.store.select(selectStatisticsAvailablePeriods), { initialValue: [] as string[] });

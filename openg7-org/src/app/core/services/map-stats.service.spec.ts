@@ -27,7 +27,7 @@ describe('MapStatsService', () => {
         currency: 'CAD',
         quantity: 2,
         quantityUnit: 'Shipments',
-        sectorIds: ['agri', 'services'],
+        sectorIds: ['agri-food', 'transport-logistics'],
       },
       {
         id: 'flow-3',
@@ -82,7 +82,7 @@ describe('MapStatsService', () => {
         currency: 'CAD',
         quantity: 1,
         quantityUnit: 'Transactions',
-        sectorId: 'services',
+        sectorId: 'transport-logistics',
       },
     ];
 

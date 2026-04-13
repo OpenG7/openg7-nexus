@@ -6,6 +6,26 @@ import { finalize } from 'rxjs';
 
 import { AdminOpsService, AdminOpsSnapshot } from '../data-access/admin-ops.service';
 
+type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
+
+interface AdminOpsProvenanceEntry {
+  readonly id: AdminOpsProvenanceId;
+  readonly label: string;
+  readonly route: string;
+  readonly generatedAt: string;
+}
+
+const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
+  readonly id: AdminOpsProvenanceId;
+  readonly label: string;
+  readonly route: string;
+}> = [
+  { id: 'health', label: 'API health', route: '/api/admin/ops/health' },
+  { id: 'backups', label: 'Backups', route: '/api/admin/ops/backups' },
+  { id: 'imports', label: 'Imports', route: '/api/admin/ops/imports' },
+  { id: 'security', label: 'Security', route: '/api/admin/ops/security' },
+];
+
 @Component({
   standalone: true,
   selector: 'og7-admin-ops-page',
@@ -40,6 +60,39 @@ export class AdminOpsPage implements OnInit {
       return null;
     }
     return new Date(Math.max(...values)).toISOString();
+  });
+
+  readonly provenanceEntries = computed<readonly AdminOpsProvenanceEntry[]>(() => {
+    const snapshot = this.snapshot();
+    if (!snapshot) {
+      return [];
+    }
+
+    return ADMIN_OPS_PROVENANCE_CONFIG.map((entry) => ({
+      ...entry,
+      generatedAt: snapshot[entry.id].generatedAt,
+    }));
+  });
+
+  readonly provenanceState = computed<'fresh' | 'preserved-last-good' | null>(() => {
+    if (!this.snapshot()) {
+      return null;
+    }
+
+    return this.error() ? 'preserved-last-good' : 'fresh';
+  });
+
+  readonly provenanceMessage = computed(() => {
+    const snapshot = this.snapshot();
+    if (!snapshot) {
+      return null;
+    }
+
+    if (this.error()) {
+      return 'Showing the last successful snapshot while the latest refresh failed.';
+    }
+
+    return 'Each block lists the API source and snapshot timestamp currently displayed.';
   });
 
   ngOnInit(): void {
@@ -111,6 +164,7 @@ export class AdminOpsPage implements OnInit {
   trackBackupFile = (_: number, file: { name: string }) => file.name;
   trackImportEntry = (_: number, item: { id: string }) => item.id;
   trackSource = (_: number, item: { source: string }) => item.source;
+  trackProvenanceEntry = (_: number, item: AdminOpsProvenanceEntry) => item.id;
 
   private fetchSnapshot(silent: boolean): void {
     if (silent) {

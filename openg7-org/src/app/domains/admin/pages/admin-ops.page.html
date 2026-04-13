@@ -45,6 +45,41 @@
   }
 
   @if (snapshot(); as vm) {
+    <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-provenance-trail">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">Snapshot provenance</h2>
+          @if (provenanceMessage(); as message) {
+            <p
+              class="text-xs text-slate-600"
+              data-og7-id="admin-ops-provenance-status"
+              [attr.data-og7-state]="provenanceState()"
+            >
+              {{ message }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <ul class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        @for (entry of provenanceEntries(); track trackProvenanceEntry($index, entry)) {
+          <li
+            class="rounded-lg border border-slate-200 bg-slate-50 p-3"
+            data-og7="admin-ops-provenance-entry"
+            [attr.data-og7-id]="entry.id"
+            [attr.data-og7-state]="provenanceState()"
+          >
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ entry.label }}</p>
+            <p class="mt-2 text-xs font-mono text-slate-700" data-og7="admin-ops-provenance-source">{{ entry.route }}</p>
+            <p class="mt-2 text-xs text-slate-500">
+              Snapshot:
+              <span data-og7="admin-ops-provenance-generated-at">{{ entry.generatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+            </p>
+          </li>
+        }
+      </ul>
+    </article>
+
     <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-health">
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">API health</p>

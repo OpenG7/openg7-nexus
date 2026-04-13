@@ -20,7 +20,7 @@ describe('HomeInputsSectionComponent', () => {
             cards: {
               electricity: { title: 'Electricity', description: 'Grid' },
               oil: { title: 'Oil', description: 'Logistics' },
-              services: { title: 'Services', description: 'Support' },
+              'operations-support': { title: 'Operations support', description: 'Execution' },
               workforce: { title: 'Workforce', description: 'Talent' },
               materials: { title: 'Materials', description: 'Supply' },
             },
@@ -42,5 +42,9 @@ describe('HomeInputsSectionComponent', () => {
     expect(heading?.textContent).toContain('Inputs & capacities');
     const cards = fixture.nativeElement.querySelectorAll('[data-og7="home-inputs"] article');
     expect(cards.length).toBe(5);
+    const operationsSupportCard: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-og7="home-inputs"] [data-og7-id="operations-support"]'
+    );
+    expect(operationsSupportCard?.textContent).toContain('Operations support');
   });
 });

@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
@@ -164,8 +164,7 @@ export class FeedPage {
 
       void this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: buildFeedFilterQueryParams(liveFilters),
-        queryParamsHandling: 'merge',
+        queryParams: buildFeedPageQueryParams(this.queryParamMap(), liveFilters),
         replaceUrl: true,
       });
     });
@@ -439,6 +438,44 @@ function buildFeedFilterQueryParams(filters: FeedFilterState): Record<string, st
     q: filters.search.length ? filters.search : null,
   };
 }
+
+function buildFeedPageQueryParams(
+  queryParamMap: ParamMap,
+  filters: FeedFilterState
+): Record<string, string | string[] | null> {
+  const preservedParams: Record<string, string | string[]> = {};
+
+  for (const key of queryParamMap.keys) {
+    if (FEED_FILTER_QUERY_PARAM_KEYS.has(key)) {
+      continue;
+    }
+
+    const values = queryParamMap.getAll(key);
+    if (!values.length) {
+      continue;
+    }
+
+    preservedParams[key] = values.length === 1 ? values[0] : values;
+  }
+
+  return {
+    ...preservedParams,
+    ...buildFeedFilterQueryParams(filters),
+  };
+}
+
+const FEED_FILTER_QUERY_PARAM_KEYS = new Set([
+  'fromProvince',
+  'toProvince',
+  'sector',
+  'sectorId',
+  'formKey',
+  'category',
+  'type',
+  'mode',
+  'sort',
+  'q',
+]);
 
 function feedFiltersEqual(left: FeedFilterState, right: FeedFilterState): boolean {
   return (

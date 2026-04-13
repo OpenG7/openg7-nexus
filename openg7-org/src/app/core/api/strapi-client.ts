@@ -23,7 +23,7 @@ type QueryParamsInput = Record<string, QueryParamValue>;
 
 interface StatisticsRequestParams extends QueryParamsInput {
   scope?: 'interprovincial' | 'international' | 'all';
-  intrant?: 'all' | 'energy' | 'agriculture' | 'manufacturing' | 'services';
+  intrant?: 'all' | 'energy' | 'agri-food' | 'manufacturing' | 'digital-services';
   period?: string | null;
   province?: string | null;
 }

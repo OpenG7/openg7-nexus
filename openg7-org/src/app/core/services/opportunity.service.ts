@@ -13,7 +13,7 @@ import {
   OpportunityMatch,
   OpportunityMatchQuery,
   isProvinceCode,
-  isSectorType,
+  normalizeSectorType,
 } from '../models/opportunity';
 import { injectNotificationStore } from '../observability/notification.store';
 
@@ -432,11 +432,7 @@ export class OpportunityService {
   }
 
   private normalizeSector(value?: string | null): CompanySummary['sector'] | null {
-    if (!value) {
-      return null;
-    }
-    const lower = value.toLowerCase();
-    return isSectorType(lower) ? lower : null;
+    return normalizeSectorType(value);
   }
 
   private cloneMatch(match: OpportunityMatch): OpportunityMatch {

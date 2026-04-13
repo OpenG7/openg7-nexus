@@ -38,7 +38,7 @@ describe('app routes', () => {
   });
 
   it('protects admin routes with auth and admin role guards', () => {
-    const adminRoutes = ['admin', 'admin/trust', 'admin/ops'];
+    const adminRoutes = ['admin', 'admin/trust', 'admin/ops', 'admin/quality'];
 
     for (const path of adminRoutes) {
       const route = routes.find((entry) => entry.path === path);

@@ -17,6 +17,7 @@ import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
+import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
 import { UserAlertsService } from '@app/core/user-alerts.service';
 import { QuickSearchLauncherService } from '@app/domains/search/feature/quick-search-modal/quick-search-launcher.service';
@@ -55,9 +56,11 @@ export class SiteHeaderComponent {
   private readonly favorites = inject(FavoritesService);
   private readonly authConfig = inject(AuthConfigService);
   private readonly notifications = injectNotificationStore();
+  private readonly rbac = inject(RbacFacadeService);
   private readonly userAlerts = inject(UserAlertsService);
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
   private activeQuickSearchRef: Og7ModalRef<void> | null = null;
+  private lastNotifTrigger: HTMLElement | null = null;
 
   readonly isMobileMenuOpen = signal(false);
   readonly isLangOpen = signal(false);
@@ -71,6 +74,7 @@ export class SiteHeaderComponent {
 
   readonly authMode = this.authConfig.authMode;
   readonly loginLabelKey = computed(() => (this.authMode() === 'sso-only' ? 'header.signin' : 'header.login'));
+  readonly canAccessAdminQuality = computed(() => this.isAuthSig() && this.rbac.hasPermission('admin:settings'));
 
   readonly userSig = this.auth.user;
   readonly isAuthSig = this.auth.isAuthenticated;
@@ -192,7 +196,12 @@ export class SiteHeaderComponent {
     this.isMoreOpen.update((value) => !value);
   }
 
-  toggleNotif() {
+  toggleNotif(event?: Event) {
+    const trigger = event?.currentTarget;
+    if (trigger instanceof HTMLElement) {
+      this.lastNotifTrigger = trigger;
+    }
+
     this.isNotifOpen.update((value) => !value);
     if (!this.isNotifOpen()) {
       return;
@@ -263,7 +272,14 @@ export class SiteHeaderComponent {
         this.toggleSearch(false);
         return;
       }
+
+      const restoreNotificationFocus = this.isNotifOpen();
       this.closeFlyouts();
+      if (restoreNotificationFocus) {
+        queueMicrotask(() => {
+          this.lastNotifTrigger?.focus();
+        });
+      }
     }
   }
 

@@ -77,7 +77,7 @@ const companySeeds: CompanySeed[] = [
     website: 'https://prairieagri.example.com',
     country: 'CA',
     provinceSlug: 'sk',
-    sectorSlug: 'agriculture',
+    sectorSlug: 'agri-food',
     status: 'approved',
     verificationStatus: 'pending',
     capacities: {

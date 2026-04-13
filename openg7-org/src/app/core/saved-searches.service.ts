@@ -134,6 +134,15 @@ export class SavedSearchesService {
       sanitizedPayload.name = name;
     }
 
+    const previousEntry = this.entriesSig().find((entry) => entry.id === normalizedId) ?? null;
+    if (previousEntry) {
+      const optimisticEntry: SavedSearchRecord = {
+        ...previousEntry,
+        ...sanitizedPayload,
+      };
+      this.entriesSig.update((current) => this.sortEntries(this.upsert(current, optimisticEntry)));
+    }
+
     this.setPending(normalizedId, true);
     this.errorSig.set(null);
 
@@ -148,6 +157,9 @@ export class SavedSearchesService {
           this.entriesSig.update((current) => this.sortEntries(this.upsert(current, updated)));
         },
         error: () => {
+          if (previousEntry) {
+            this.entriesSig.update((current) => this.sortEntries(this.upsert(current, previousEntry)));
+          }
           this.errorSig.set('pages.savedSearches.errors.update');
         },
       });

@@ -176,8 +176,8 @@ interface SeedOpportunityMatch {
 
 const DEFAULT_SECTORS: SeedSector[] = [
   { id: 1, name: 'Energy' },
-  { id: 2, name: 'Advanced manufacturing' },
-  { id: 3, name: 'Agrifood' },
+  { id: 2, name: 'Manufacturing' },
+  { id: 3, name: 'Agri-food' },
 ];
 
 const DEFAULT_PROVINCES: SeedProvince[] = [
@@ -270,7 +270,7 @@ const DEFAULT_COMPANIES: SeedCompany[] = [
     logoUrl: null,
     secondaryLogoUrl: null,
     country: 'CA',
-    sector: { id: 2, name: 'Advanced manufacturing' },
+    sector: { id: 2, name: 'Manufacturing' },
     province: { id: 11, name: 'Quebec' },
     verificationStatus: 'verified',
     trustScore: 93,

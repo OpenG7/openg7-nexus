@@ -2,6 +2,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   HostListener,
   computed,
   effect,
@@ -9,6 +11,7 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -25,6 +28,9 @@ import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './opportun
 })
 export class OpportunityOfferDrawerComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly panelRef = viewChild<ElementRef<HTMLElement>>('panel');
+  private previousFocusedElement: HTMLElement | null = null;
 
   readonly open = input(false);
   readonly initialCapacityMw = input(300);
@@ -89,6 +95,28 @@ export class OpportunityOfferDrawerComponent {
       this.form.markAsUntouched();
       this.submitAttempted.set(false);
     });
+
+    effect(() => {
+      if (!this.visible()) {
+        this.restoreFocus();
+        return;
+      }
+
+      if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+        this.previousFocusedElement = document.activeElement;
+      }
+
+      queueMicrotask(() => {
+        this.panelRef()?.nativeElement.focus();
+      });
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('og7-opportunity-offer-open');
+      }
+      this.restoreFocus();
+    });
   }
 
   @HostListener('document:keydown.escape')
@@ -97,6 +125,49 @@ export class OpportunityOfferDrawerComponent {
       return;
     }
     this.closed.emit();
+  }
+
+  @HostListener('document:keydown.tab', ['$event'])
+  protected onTabKeydown(event: Event): void {
+    if (!this.visible()) {
+      return;
+    }
+
+    if (!(event instanceof KeyboardEvent)) {
+      return;
+    }
+
+    const panel = this.panelRef()?.nativeElement;
+    if (!panel) {
+      return;
+    }
+
+    const focusableElements = Array.from(
+      panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(element => !element.hasAttribute('hidden') && element.tabIndex !== -1);
+
+    if (!focusableElements.length) {
+      event.preventDefault();
+      panel.focus();
+      return;
+    }
+
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+    const active = document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last?.focus();
+      return;
+    }
+
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first?.focus();
+    }
   }
 
   protected onBackdropClick(): void {
@@ -129,5 +200,10 @@ export class OpportunityOfferDrawerComponent {
       comment: value.comment.trim(),
       attachmentName: value.attachmentName.trim() || null,
     });
+  }
+
+  private restoreFocus(): void {
+    this.previousFocusedElement?.focus();
+    this.previousFocusedElement = null;
   }
 }

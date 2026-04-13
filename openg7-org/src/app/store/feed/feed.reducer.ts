@@ -71,16 +71,22 @@ export const feedReducer = createReducer(
     items: append ? state.items : [],
     itemIndex: append ? state.itemIndex : {},
   })),
-  on(FeedActions.loadSuccess, (state, { items, cursor, append }) => ({
-    ...state,
-    loading: false,
-    error: null,
-    cursor,
-    ...mergeItems(append ? state.items : [], append ? state.itemIndex : {}, items),
-    hydrated: true,
-    unseenIds: append ? state.unseenIds : [],
-    localPublishedIds: append ? state.localPublishedIds : [],
-  })),
+  on(FeedActions.loadSuccess, (state, { items, cursor, append }) => {
+    const merged = append
+      ? appendLoadedItems(state.items, state.itemIndex, items)
+      : replaceLoadedItems(items);
+
+    return {
+      ...state,
+      loading: false,
+      error: null,
+      cursor,
+      ...merged,
+      hydrated: true,
+      unseenIds: append ? state.unseenIds : [],
+      localPublishedIds: append ? state.localPublishedIds : [],
+    };
+  }),
   on(FeedActions.loadFailure, (state, { error }) => ({
     ...state,
     loading: false,
@@ -251,6 +257,93 @@ function mergeItems(
     items: normalizedItems,
     itemIndex: createItemIndex(normalizedItems),
   };
+}
+
+function replaceLoadedItems(next: readonly FeedItem[]): {
+  items: readonly FeedItem[];
+  itemIndex: Readonly<Record<string, number>>;
+} {
+  const items = dedupeItemsPreserveOrder(next);
+  return {
+    items,
+    itemIndex: createItemIndex(items),
+  };
+}
+
+function appendLoadedItems(
+  current: readonly FeedItem[],
+  currentIndex: Readonly<Record<string, number>>,
+  next: readonly FeedItem[]
+): {
+  items: readonly FeedItem[];
+  itemIndex: Readonly<Record<string, number>>;
+} {
+  const dedupedNext = dedupeItemsPreserveOrder(next);
+  if (!dedupedNext.length) {
+    return { items: current, itemIndex: currentIndex };
+  }
+
+  const items = current.slice();
+  const indexLookup = new Map<string, number>();
+  current.forEach((item, idx) => {
+    if (item?.id) {
+      indexLookup.set(item.id, idx);
+    }
+  });
+
+  let mutated = false;
+
+  for (const item of dedupedNext) {
+    const existingIndex = indexLookup.get(item.id);
+
+    if (existingIndex === undefined) {
+      items.push(item);
+      indexLookup.set(item.id, items.length - 1);
+      mutated = true;
+      continue;
+    }
+
+    const existingItem = items[existingIndex];
+    if (!shouldReplace(existingItem, item)) {
+      continue;
+    }
+
+    items[existingIndex] = item;
+    mutated = true;
+  }
+
+  if (!mutated) {
+    return { items: current, itemIndex: currentIndex };
+  }
+
+  return {
+    items,
+    itemIndex: createItemIndex(items),
+  };
+}
+
+function dedupeItemsPreserveOrder(items: readonly FeedItem[]): FeedItem[] {
+  const deduped: FeedItem[] = [];
+  const seen = new Map<string, number>();
+
+  for (const item of items) {
+    if (!item?.id) {
+      continue;
+    }
+
+    const existingIndex = seen.get(item.id);
+    if (existingIndex === undefined) {
+      seen.set(item.id, deduped.length);
+      deduped.push(item);
+      continue;
+    }
+
+    if (shouldReplace(deduped[existingIndex], item)) {
+      deduped[existingIndex] = item;
+    }
+  }
+
+  return deduped;
 }
 
 function reduceRealtimeEnvelope(state: FeedState, envelope: FeedRealtimeEnvelope): FeedState {

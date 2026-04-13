@@ -37,9 +37,17 @@
             class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
             formControlName="name"
             maxlength="120"
+            [attr.aria-describedby]="form.controls.name.touched && form.controls.name.invalid ? 'saved-search-name-error' : null"
+            [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid ? 'true' : null"
             data-og7-id="saved-search-name"
           />
-          <p *ngIf="form.controls.name.touched && form.controls.name.invalid" class="text-xs text-error">
+          <p
+            *ngIf="form.controls.name.touched && form.controls.name.invalid"
+            id="saved-search-name-error"
+            class="text-xs text-error"
+            role="alert"
+            aria-live="assertive"
+          >
             {{ 'validation.required' | translate }}
           </p>
         </div>
@@ -109,7 +117,7 @@
         <button
           type="submit"
           class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
-          [disabled]="!canSubmit()"
+          [disabled]="saving()"
           data-og7-id="saved-search-create"
         >
           <ng-container *ngIf="saving(); else createLabel">
@@ -127,7 +135,13 @@
         </h2>
       </div>
 
-      <p *ngIf="error() as errorKey" class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700" data-og7-id="saved-search-error">
+      <p
+        *ngIf="error() as errorKey"
+        class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+        data-og7-id="saved-search-error"
+        role="alert"
+        aria-live="assertive"
+      >
         {{ errorKey | translate }}
       </p>
 

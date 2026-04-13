@@ -1,12 +1,19 @@
 import type { Mode, ProvinceCode, SectorType } from './opportunity-taxonomies';
 
-export type { Mode, ProvinceCode, SectorType, TaxonomyOption } from './opportunity-taxonomies';
+export type {
+  LegacySectorAlias,
+  Mode,
+  ProvinceCode,
+  SectorType,
+  TaxonomyOption,
+} from './opportunity-taxonomies';
 export {
   MODE_OPTIONS,
   PROVINCE_OPTIONS,
   SECTOR_OPTIONS,
   isProvinceCode,
   isSectorType,
+  normalizeSectorType,
 } from './opportunity-taxonomies';
 
 export interface CompanySummary {

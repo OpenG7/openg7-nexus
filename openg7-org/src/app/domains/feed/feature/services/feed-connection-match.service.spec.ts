@@ -20,7 +20,7 @@ class OpportunityServiceMock {
       commodity: 'Timber export corridor',
       buyerProvince: 'NB',
       sellerProvince: 'SK',
-      sector: 'agri',
+      sector: 'agri-food',
       confidence: 0.61,
       mode: 'export',
     }),

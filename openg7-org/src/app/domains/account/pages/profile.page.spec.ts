@@ -58,7 +58,7 @@ describe('ProfilePage', () => {
     organization: 'OpenG7',
     phone: '+1 555-1000',
     avatarUrl: 'https://cdn.example.com/avatar.png',
-    sectorPreferences: ['energy', 'agri'],
+    sectorPreferences: ['energy', 'agri-food'],
     provincePreferences: ['qc'],
     notificationPreferences: {
       emailOptIn: true,
@@ -174,7 +174,7 @@ describe('ProfilePage', () => {
     expect(form.controls.firstName.value).toBe(profile.firstName);
     expect(form.controls.lastName.value).toBe(profile.lastName);
     expect(form.controls.jobTitle.value).toBe(profile.jobTitle);
-    expect(form.controls.sectorPreferences.value).toBe('energy, agri');
+    expect(form.controls.sectorPreferences.value).toBe('energy, agri-food');
     expect(form.controls.provincePreferences.value).toBe('qc');
     expect(form.controls.alertChannelInApp.value).toBeTrue();
     expect(form.controls.emailNotifications.value).toBeTrue();

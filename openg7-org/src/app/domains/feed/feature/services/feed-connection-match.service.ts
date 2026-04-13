@@ -5,7 +5,7 @@ import {
   ProvinceCode,
   SectorType,
   isProvinceCode,
-  isSectorType,
+  normalizeSectorType,
 } from '@app/core/models/opportunity';
 import { OpportunityService } from '@app/core/services/opportunity.service';
 
@@ -171,11 +171,7 @@ export class FeedConnectionMatchService {
   }
 
   private normalizeSector(value: string | null | undefined): SectorType | undefined {
-    if (!value) {
-      return undefined;
-    }
-    const normalized = value.trim().toLowerCase();
-    return isSectorType(normalized) ? normalized : undefined;
+    return normalizeSectorType(value) ?? undefined;
   }
 
   private normalizePositiveInteger(value: unknown): number | null {

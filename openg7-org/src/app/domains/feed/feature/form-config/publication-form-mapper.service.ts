@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { normalizeSectorType } from '@app/core/models/opportunity';
 
 import { FeedComposerDraft } from '../models/feed.models';
 
@@ -32,7 +33,10 @@ export class PublicationFormMapperService {
       type: config.draftMapping.defaults?.type ?? null,
       title: '',
       summary: '',
-      sectorId: config.draftMapping.defaults?.sectorId ?? config.sectorId,
+      sectorId:
+        normalizeSectorType(config.draftMapping.defaults?.sectorId ?? config.sectorId) ??
+        config.draftMapping.defaults?.sectorId ??
+        config.sectorId,
       fromProvinceId: config.draftMapping.defaults?.fromProvinceId ?? null,
       toProvinceId: config.draftMapping.defaults?.toProvinceId ?? null,
       mode: config.draftMapping.defaults?.mode ?? 'BOTH',

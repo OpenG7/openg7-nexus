@@ -21,7 +21,10 @@
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       @for (card of cards; track card.id) {
-        <article class="flex h-full flex-col gap-3 rounded-2xl bg-slate-900/70 p-4 shadow-lg ring-1 ring-white/10">
+        <article
+          class="flex h-full flex-col gap-3 rounded-2xl bg-slate-900/70 p-4 shadow-lg ring-1 ring-white/10"
+          [attr.data-og7-id]="card.id"
+        >
           <div class="flex items-center gap-3">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/80 text-lg" aria-hidden="true">
               {{ card.icon }}
