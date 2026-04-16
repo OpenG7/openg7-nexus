@@ -1,11 +1,15 @@
-<section class="mx-auto flex w-full max-w-7xl flex-col gap-6" data-og7="admin-quality-matrix">
-  <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+<section class="relative mx-auto flex w-full max-w-7xl flex-col gap-6 overflow-hidden pb-8" data-og7="admin-quality-matrix">
+  <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.24),_transparent_58%),linear-gradient(180deg,_rgba(239,246,255,0.95),_rgba(255,255,255,0))]"></div>
+  <div class="pointer-events-none absolute -bottom-16 left-0 right-0 -z-10 h-64 bg-[radial-gradient(circle_at_20%_30%,_rgba(59,130,246,0.18),_transparent_36%),radial-gradient(circle_at_80%_20%,_rgba(96,165,250,0.18),_transparent_32%),linear-gradient(180deg,_rgba(219,234,254,0),_rgba(191,219,254,0.55))]"></div>
+
+  <header class="rounded-[30px] border border-sky-100/80 bg-white/80 px-6 py-6 shadow-[0_24px_80px_-36px_rgba(30,64,175,0.45)] backdrop-blur">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div class="space-y-2">
-      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Admin QA</p>
-      <h1 class="text-2xl font-semibold text-slate-900">Quality matrix</h1>
+      <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">Gestion de la qualite</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Modeles de pilotage AI</h1>
       <p class="max-w-3xl text-sm text-slate-600">
-        Cette vue transforme l'audit QA en tableau de pilotage. Chaque ligne se lit comme un contrat entre metier,
-        implementation et preuve.
+        Cette vue transforme l'audit QA en tableau de pilotage. La matrice, le plan de delegation et Mission Control
+        se lisent comme un meme flux operateur.
       </p>
       @if (snapshot(); as data) {
         <p class="text-xs text-slate-500" data-og7-id="admin-quality-generated-at">
@@ -17,16 +21,17 @@
     <div class="flex flex-wrap items-center gap-2">
       <a
         routerLink="/admin"
-        class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+        class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
       >
         Retour moderation
       </a>
       <a
         routerLink="/admin/ops"
-        class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+        class="inline-flex items-center justify-center rounded-full border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
       >
         Ouvrir Ops
       </a>
+    </div>
     </div>
   </header>
 
@@ -43,45 +48,28 @@
   }
 
   @if (snapshot()) {
-    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-quality-summary" data-og7-id="total-domains">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Domaines suivis</p>
-        <p class="mt-2 text-2xl font-semibold text-slate-900">{{ totalDomains() }}</p>
-        <p class="mt-1 text-xs text-slate-500">Vue de pilotage globale</p>
-      </article>
+    <og7-admin-quality-command-rail [metrics]="commandMetrics()" />
 
-      <article class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm" data-og7="admin-quality-summary" data-og7-id="proved-domains">
-        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Prouves</p>
-        <p class="mt-2 text-2xl font-semibold text-emerald-900">{{ provedCount() }}</p>
-        <p class="mt-1 text-xs text-emerald-700">Flux critiques deja couverts</p>
-      </article>
+    <og7-admin-quality-command-overview
+      [selectedEntry]="selectedEntry()"
+      [selectedDelegation]="selectedDelegation()"
+      [missionControl]="missionControl()"
+      [selectedMission]="selectedMission()"
+    />
 
-      <article class="rounded-xl border border-sky-200 bg-sky-50 p-4 shadow-sm" data-og7="admin-quality-summary" data-og7-id="proof-gap-domains">
-        <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">Preuve QA suivante</p>
-        <p class="mt-2 text-2xl font-semibold text-sky-900">{{ proofGapCount() }}</p>
-        <p class="mt-1 text-xs text-sky-700">Peut avancer sans travail produit</p>
-      </article>
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] xl:items-start">
+      <div class="space-y-6">
 
-      <article class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 shadow-sm" data-og7="admin-quality-summary" data-og7-id="product-work-domains">
-        <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Produit d abord</p>
-        <p class="mt-2 text-2xl font-semibold text-indigo-900">{{ productWorkCount() }}</p>
-        <p class="mt-1 text-xs text-indigo-700">Doit gagner une surface avant la preuve</p>
-      </article>
-
-      <article class="rounded-xl border border-rose-200 bg-rose-50 p-4 shadow-sm" data-og7="admin-quality-summary" data-og7-id="high-priority-gaps">
-        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700">Gaps haute priorite</p>
-        <p class="mt-2 text-2xl font-semibold text-rose-900">{{ highPriorityGapCount() }}</p>
-        <p class="mt-1 text-xs text-rose-700">A surveiller en premier</p>
-      </article>
-    </section>
-
-    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-quality-filters">
+    <section
+      class="rounded-[28px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_24px_72px_-42px_rgba(37,99,235,0.34)] backdrop-blur"
+      data-og7="admin-quality-filters"
+    >
       <div class="grid gap-4 lg:grid-cols-[2fr_repeat(4,minmax(0,1fr))]">
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Recherche libre</span>
           <input
             type="search"
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            class="rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500"
             placeholder="Domaine, besoin, preuve, gap..."
             [value]="search()"
             (input)="setSearch($event)"
@@ -92,7 +80,7 @@
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Domaine</span>
           <select
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            class="rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500"
             [value]="selectedDomain()"
             (change)="setDomainFilter($event)"
             data-og7-id="admin-quality-domain-filter"
@@ -106,7 +94,7 @@
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Priorite</span>
           <select
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            class="rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500"
             [value]="selectedPriority()"
             (change)="setPriorityFilter($event)"
             data-og7-id="admin-quality-priority-filter"
@@ -121,7 +109,7 @@
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Statut E2E</span>
           <select
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            class="rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500"
             [value]="selectedE2EStatus()"
             (change)="setE2EFilter($event)"
             data-og7-id="admin-quality-e2e-filter"
@@ -137,7 +125,7 @@
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Type de gestion</span>
           <select
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            class="rounded-xl border border-slate-300 bg-white/90 px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-sky-500"
             [value]="selectedBucket()"
             (change)="setBucketFilter($event)"
             data-og7-id="admin-quality-bucket-filter"
@@ -157,7 +145,7 @@
         </p>
         <button
           type="button"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
           (click)="resetFilters()"
           [disabled]="!hasActiveFilters()"
           data-og7-id="admin-quality-reset-filters"
@@ -167,7 +155,7 @@
       </div>
     </section>
 
-    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto rounded-[30px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.34)] backdrop-blur">
       <table class="min-w-[1100px] divide-y divide-slate-200 text-left text-sm text-slate-700">
         <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
@@ -201,8 +189,13 @@
                     [attr.aria-pressed]="isSelected(entry)"
                     data-og7-id="admin-quality-select-row"
                   >
-                    <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
-                    <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
+                    <div class="flex items-start gap-3">
+                      <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
+                      <div class="min-w-0">
+                        <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
+                        <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
+                      </div>
+                    </div>
                   </button>
                 </td>
                 <td class="px-4 py-4 align-top">
@@ -255,8 +248,329 @@
       </table>
     </div>
 
+    <section
+      class="rounded-[30px] border border-sky-100/90 bg-white/92 p-6 shadow-[0_28px_80px_-42px_rgba(37,99,235,0.32)] backdrop-blur"
+      data-og7="admin-quality-actions"
+    >
+      <div class="flex flex-col gap-4 border-b border-slate-200/80 pb-5 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Registre des actions</p>
+          <div class="mt-2 flex items-center gap-3">
+            <og7-admin-quality-domain-icon [entryId]="selectedEntry()?.id ?? null" size="sm" />
+            <h2 class="text-2xl font-semibold text-slate-900">
+              Boutons et points d execution lies a {{ selectedEntry()?.domain ?? 'la matrice' }}
+            </h2>
+          </div>
+          <p class="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
+            Chaque action doit documenter son hook, son contexte, son resultat attendu, sa preuve et les etats
+            utilisateur couverts. Les gaps visibles ici servent a detecter les boutons a completer.
+          </p>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+          <article class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Actions recensees</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">{{ totalRegisteredActions() }}</p>
+            <p class="mt-1 text-xs text-slate-500">{{ selectedEntryActions().length }} pour le domaine courant</p>
+          </article>
+
+          <article class="rounded-[22px] border border-emerald-200 bg-emerald-50/90 p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Prouvees</p>
+            <p class="mt-2 text-2xl font-semibold text-emerald-900">{{ provedActionsCount() }}</p>
+            <p class="mt-1 text-xs text-emerald-700">Actions avec preuve et contrat complet</p>
+          </article>
+
+          <article class="rounded-[22px] border border-sky-200 bg-sky-50/90 p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-700">Detectees</p>
+            <p class="mt-2 text-2xl font-semibold text-sky-900">{{ detectedActionsCount() }}</p>
+            <p class="mt-1 text-xs text-sky-700">Templates recoupes avec specs et E2E</p>
+          </article>
+
+          <article class="rounded-[22px] border border-rose-200 bg-rose-50/90 p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-rose-700">A completer</p>
+            <p class="mt-2 text-2xl font-semibold text-rose-900">{{ actionsNeedingCompletionCount() }}</p>
+            <p class="mt-1 text-xs text-rose-700">
+              {{ unmappedActionsCount() }} non cartographiee(s), hooks ou preuves incomplets
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+        <div class="space-y-3">
+          @if (!selectedEntryActions().length) {
+            <article
+              class="rounded-[24px] border border-dashed border-slate-300 bg-slate-50/80 px-5 py-8 text-sm text-slate-600"
+              data-og7-id="admin-quality-action-empty"
+            >
+              Aucun bouton d action n est encore recense pour ce domaine. C est soit un trou de documentation, soit un
+              signal qu une surface produit doit encore etre modelisee.
+            </article>
+          } @else {
+            @for (action of selectedEntryActions(); track action.id) {
+              <article
+                class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4 transition"
+                data-og7="admin-quality-action-row"
+                [attr.data-og7-id]="action.id"
+                [class.border-slate-900]="isActionSelected(action)"
+                [class.bg-white]="isActionSelected(action)"
+                [class.shadow-md]="isActionSelected(action)"
+              >
+                <button type="button" class="w-full text-left" (click)="selectAction(action)" data-og7-id="admin-quality-select-action">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="space-y-1">
+                      <p class="text-base font-semibold text-slate-900">{{ action.label }}</p>
+                      <p class="text-xs text-slate-500">{{ action.selector }}</p>
+                    </div>
+
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="actionStatusClasses(action.status)">
+                      {{ actionStatusLabel(action.status) }}
+                    </span>
+                  </div>
+
+                  <p class="mt-3 text-sm leading-relaxed text-slate-700">{{ action.context }}</p>
+
+                  <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
+                    <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-700">
+                      {{ actionTriggerLabel(action.detectedTrigger) }}
+                    </span>
+                    <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-700">
+                      {{ actionIntentLabel(action.intent) }}
+                    </span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1" [class]="action.detectedActionHook ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
+                      {{ action.detectedActionHook ? 'Hook action detecte' : 'Hook action manquant' }}
+                    </span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1" [class]="action.sourceDetected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'">
+                      {{ action.sourceDetected ? 'Source detectee' : 'Source introuvable' }}
+                    </span>
+                  </div>
+
+                  <div class="mt-4 flex items-center gap-3">
+                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                      <div class="h-full rounded-full" [class]="actionScoreClasses(action.completionScore)" [style.width.%]="action.completionScore"></div>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-600">{{ action.completionScore }}%</span>
+                  </div>
+
+                  <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span>{{ action.detectedE2EFiles.length || action.proof.length }} preuve(s)</span>
+                    <span>{{ action.gaps.length }} gap(s)</span>
+                    <span>{{ action.route }}</span>
+                  </div>
+                </button>
+              </article>
+            }
+          }
+        </div>
+
+        @if (selectedAction(); as action) {
+          <article
+            class="rounded-[28px] border border-sky-100/90 bg-white/96 p-5 shadow-[0_24px_72px_-42px_rgba(15,23,42,0.24)]"
+            data-og7="admin-quality-action-detail"
+          >
+            <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
+              <div class="space-y-2">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Action selectionnee</p>
+                <h3 class="text-xl font-semibold text-slate-900">{{ action.label }}</h3>
+                <p class="max-w-3xl text-sm leading-relaxed text-slate-600">{{ action.expectedResult }}</p>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="actionStatusClasses(action.status)">
+                  {{ actionStatusLabel(action.status) }}
+                </span>
+                <span class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                  {{ action.completionScore }}% complet
+                </span>
+                <span class="inline-flex rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                  {{ action.domain }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr]">
+              <div class="space-y-5">
+                <section class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Instrumentation</p>
+                  <dl class="mt-3 grid gap-3 text-sm text-slate-700">
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Selector</dt>
+                      <dd class="mt-1 break-all">{{ action.selector }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Type</dt>
+                      <dd class="mt-1">{{ actionTriggerLabel(action.detectedTrigger) }} · {{ actionIntentLabel(action.intent) }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Hook action</dt>
+                      <dd class="mt-1">{{ action.detectedActionHook ? 'Oui' : 'Non' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Detection source</dt>
+                      <dd class="mt-1">{{ action.sourceDetected ? 'Oui' : 'Non' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Route</dt>
+                      <dd class="mt-1 break-all">{{ action.route }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Composant</dt>
+                      <dd class="mt-1">{{ action.component }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Fichier source</dt>
+                      <dd class="mt-1 break-all">{{ action.sourceFile }}</dd>
+                    </div>
+                  </dl>
+
+                  @if (action.detectedSourceFiles.length) {
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Occurrences detectees</p>
+                      <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
+                        @for (item of action.detectedSourceFiles; track $index) {
+                          <li class="break-all">{{ item }}</li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                </section>
+
+                <section class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Couverture des etats</p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    @for (stateKey of actionStateKeys; track stateKey) {
+                      <span
+                        class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                        [class]="actionStateClasses(action.states[stateKey])"
+                      >
+                        {{ actionStateLabel(stateKey) }} · {{ action.states[stateKey] ? 'doc' : 'manquant' }}
+                      </span>
+                    }
+                  </div>
+                </section>
+              </div>
+
+              <div class="space-y-5">
+                <section class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Contexte et preconditions</p>
+                  <p class="mt-3 text-sm leading-relaxed text-slate-700">{{ action.context }}</p>
+                  <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-700">
+                    @for (item of action.preconditions; track $index) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                </section>
+
+                <section class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Preuves</p>
+                  @if (action.proof.length) {
+                    <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Documentees</p>
+                    <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-700">
+                      @for (item of action.proof; track $index) {
+                        <li class="break-all">{{ item }}</li>
+                      }
+                    </ul>
+                  }
+
+                  @if (action.detectedSpecFiles.length) {
+                    <p class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Specs detectees</p>
+                    <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
+                      @for (item of action.detectedSpecFiles; track $index) {
+                        <li class="break-all">{{ item }}</li>
+                      }
+                    </ul>
+                  }
+
+                  @if (action.detectedE2EFiles.length) {
+                    <p class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">E2E detectees</p>
+                    <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
+                      @for (item of action.detectedE2EFiles; track $index) {
+                        <li class="break-all">{{ item }}</li>
+                      }
+                    </ul>
+                  }
+
+                  @if (!action.proof.length && !action.detectedSpecFiles.length && !action.detectedE2EFiles.length) {
+                    <p class="mt-3 text-sm text-rose-700">Aucune preuve executable n est encore rattachee a cette action.</p>
+                  }
+                </section>
+
+                <section class="rounded-[22px] border border-slate-200 bg-slate-50/90 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Gaps detectes</p>
+                  @if (action.gaps.length) {
+                    <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-700">
+                      @for (item of action.gaps; track $index) {
+                        <li>{{ item }}</li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="mt-3 text-sm text-emerald-700">Le contrat de l action est complet dans le perimetre documente actuel.</p>
+                  }
+                </section>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <section
+        class="mt-6 rounded-[24px] border border-slate-200 bg-slate-50/90 p-5"
+        data-og7="admin-quality-undocumented-actions"
+      >
+        <div class="flex flex-col gap-2 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Detection automatique</p>
+            <h3 class="mt-2 text-lg font-semibold text-slate-900">Actions detectees mais non cartographiees</h3>
+          </div>
+          <p class="text-sm text-slate-600">{{ selectedEntryUndocumentedActions().length }} action(s) pour le domaine courant</p>
+        </div>
+
+        @if (selectedEntryUndocumentedActions().length) {
+          <div class="mt-4 grid gap-3 lg:grid-cols-2">
+            @for (action of selectedEntryUndocumentedActions(); track action.id) {
+              <article class="rounded-[20px] border border-slate-200 bg-white p-4" data-og7="admin-quality-undocumented-action">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="text-sm font-semibold text-slate-900">{{ action.id }}</p>
+                    <p class="mt-1 text-xs text-slate-500">{{ actionTriggerLabel(action.trigger) }}</p>
+                  </div>
+                  <span
+                    class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                    [class]="action.hasActionHook ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'"
+                  >
+                    {{ action.hasActionHook ? 'Hook action detecte' : 'Hook action absent' }}
+                  </span>
+                </div>
+
+                <div class="mt-3 space-y-2 text-sm text-slate-700">
+                  @for (item of action.detectedSourceFiles; track $index) {
+                    <p class="break-all">{{ item }}</p>
+                  }
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-3 text-xs text-slate-500">
+                  <span>{{ action.detectedSpecFiles.length }} spec(s)</span>
+                  <span>{{ action.detectedE2EFiles.length }} e2e</span>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="mt-4 text-sm text-emerald-700">
+            Aucun bouton supplementaire n a ete detecte pour ce domaine en dehors du registre actuel.
+          </p>
+        }
+      </section>
+      </section>
+      </div>
+
+      <div class="space-y-6">
+
     @if (missionControl(); as mission) {
-      <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm" data-og7="admin-quality-mission-control">
+      <section
+        class="rounded-[30px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur"
+        data-og7="admin-quality-mission-control"
+      >
         <div class="grid gap-5 xl:grid-cols-[0.95fr_1.35fr]">
           <article class="relative overflow-hidden rounded-[24px] border border-slate-900 bg-slate-950 p-5 text-white">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(129,140,248,0.22),_transparent_35%),linear-gradient(160deg,_rgba(15,23,42,0.98),_rgba(2,6,23,1))]"></div>
@@ -326,7 +640,7 @@
             <div class="grid gap-4 xl:grid-cols-3">
               @for (recommendation of mission.recommendations; track recommendation.id) {
                 <article
-                  class="rounded-[24px] border border-slate-200 bg-slate-50 p-4 transition"
+                  class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4 transition"
                   data-og7="admin-quality-recommendation"
                   [attr.data-og7-id]="recommendation.id"
                   [class.border-slate-900]="isMissionSelected(recommendation)"
@@ -477,7 +791,10 @@
             </div>
 
             @if (selectedMission(); as missionItem) {
-              <article class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm" data-og7="admin-quality-mission-detail">
+              <article
+                class="rounded-[28px] border border-sky-100/90 bg-white/96 p-5 shadow-[0_24px_72px_-42px_rgba(15,23,42,0.26)]"
+                data-og7="admin-quality-mission-detail"
+              >
                 <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
                   <div class="space-y-2">
                     <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Mission selectionnee</p>
@@ -564,7 +881,10 @@
     }
 
     @if (selectedDelegation(); as plan) {
-      <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" data-og7="admin-quality-delegation-panel">
+      <section
+        class="rounded-[30px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.3)] backdrop-blur"
+        data-og7="admin-quality-delegation-panel"
+      >
         <div class="flex flex-col gap-4 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Delegation</p>
@@ -592,7 +912,7 @@
 
         <div class="mt-5 grid gap-5 xl:grid-cols-[1.2fr_1fr]">
           <div class="space-y-5">
-            <article class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-quality-delegation-summary">
+            <article class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4" data-og7="admin-quality-delegation-summary">
               <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Contrat de delegation</h3>
               <div class="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
@@ -614,7 +934,7 @@
               </div>
             </article>
 
-            <article class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-quality-delegation-criteria">
+            <article class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4" data-og7="admin-quality-delegation-criteria">
               <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Criteres d acceptation</h3>
               <ul class="mt-3 space-y-2 text-sm text-slate-700">
                 @for (item of plan.acceptanceCriteria; track $index) {
@@ -623,7 +943,7 @@
               </ul>
             </article>
 
-            <article class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-quality-delegation-targets">
+            <article class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4" data-og7="admin-quality-delegation-targets">
               <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Fichiers et commandes probables</h3>
               <div class="mt-4 grid gap-4 lg:grid-cols-2">
                 <div>
@@ -647,7 +967,7 @@
           </div>
 
           <div class="space-y-5">
-            <article class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-quality-delegation-codex">
+            <article class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4" data-og7="admin-quality-delegation-codex">
               <div class="flex items-center justify-between gap-3">
                 <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Brief Codex</h3>
                 <button
@@ -662,7 +982,7 @@
               <pre class="mt-3 max-h-[22rem] overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-700">{{ plan.codexPrompt }}</pre>
             </article>
 
-            <article class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-quality-delegation-issue">
+            <article class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4" data-og7="admin-quality-delegation-issue">
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Issue GitHub</h3>
                 <div class="flex flex-wrap gap-2">
@@ -692,5 +1012,17 @@
         </div>
       </section>
     }
+
+      </div>
+    </div>
+
+    <og7-admin-quality-workflow-rail
+      [snapshotLoaded]="!!snapshot()"
+      [totalDomains]="totalDomains()"
+      [selectedEntry]="selectedEntry()"
+      [selectedDelegation]="selectedDelegation()"
+      [missionControl]="missionControl()"
+      [selectedMission]="selectedMission()"
+    />
   }
 </section>
