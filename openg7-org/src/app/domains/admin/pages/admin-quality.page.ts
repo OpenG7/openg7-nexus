@@ -13,7 +13,22 @@ import {
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
 
+import {
+  AdminQualityActionIntent,
+  AdminQualityActionRecord,
+  AdminQualityActionStateCoverage,
+  AdminQualityActionStatus,
+  AdminQualityActionTrigger,
+  buildActionRegistry,
+  buildUndocumentedDiscoveredActions,
+} from './admin-quality-action-registry';
+import { AdminQualityCommandOverviewComponent } from './admin-quality-command-overview.component';
+import {
+  AdminQualityCommandMetric,
+  AdminQualityCommandRailComponent,
+} from './admin-quality-command-rail.component';
 import { AdminQualityDelegationPlan, buildDelegationPlan } from './admin-quality-delegation';
+import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
   AdminQualityMissionControlState,
   AdminQualityMissionDecisionMap,
@@ -23,6 +38,7 @@ import {
   AdminQualityMissionTimelineStatus,
   buildMissionControl,
 } from './admin-quality-mission-control';
+import { AdminQualityWorkflowRailComponent } from './admin-quality-workflow-rail.component';
 
 type FilterValue<T extends string> = 'all' | T;
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
@@ -30,7 +46,14 @@ const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
 @Component({
   standalone: true,
   selector: 'og7-admin-quality-page',
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    RouterLink,
+    AdminQualityCommandRailComponent,
+    AdminQualityCommandOverviewComponent,
+    AdminQualityDomainIconComponent,
+    AdminQualityWorkflowRailComponent,
+  ],
   templateUrl: './admin-quality.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,11 +74,21 @@ export class AdminQualityPage implements OnInit {
   readonly selectedE2EStatus = signal<FilterValue<AdminQualityMatrixStatus>>('all');
   readonly selectedBucket = signal<FilterValue<AdminQualityMatrixBucket>>('all');
   readonly selectedEntryId = signal<string | null>(null);
+  readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
+  readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
+    'loading',
+    'success',
+    'error',
+    'offline',
+    'permission',
+  ];
 
   readonly entries = computed(() => this.snapshot()?.entries ?? []);
+  readonly actionRegistry = computed(() => buildActionRegistry(this.entries()));
+  readonly undocumentedActions = computed(() => buildUndocumentedDiscoveredActions(this.entries()));
 
   readonly domainOptions = computed(() => {
     const options = new Set(this.entries().map((entry) => entry.domain));
@@ -106,6 +139,54 @@ export class AdminQualityPage implements OnInit {
   readonly highPriorityGapCount = computed(
     () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
   );
+  readonly commandMetrics = computed<readonly AdminQualityCommandMetric[]>(() => [
+    {
+      id: 'total-domains',
+      label: 'Domaines suivis',
+      value: this.totalDomains(),
+      detail: 'Vue de pilotage globale',
+      accent: 'slate',
+    },
+    {
+      id: 'proved-domains',
+      label: 'Prouves',
+      value: this.provedCount(),
+      detail: 'Flux critiques deja couverts',
+      accent: 'emerald',
+    },
+    {
+      id: 'proof-gap-domains',
+      label: 'Preuve QA suivante',
+      value: this.proofGapCount(),
+      detail: 'Peut avancer sans travail produit',
+      accent: 'sky',
+    },
+    {
+      id: 'product-work-domains',
+      label: 'Produit d abord',
+      value: this.productWorkCount(),
+      detail: 'Doit gagner une surface avant la preuve',
+      accent: 'indigo',
+    },
+    {
+      id: 'high-priority-gaps',
+      label: 'Gaps critiques',
+      value: this.highPriorityGapCount(),
+      detail: 'A surveiller en premier',
+      accent: 'rose',
+    },
+  ]);
+  readonly totalRegisteredActions = computed(() => this.actionRegistry().length);
+  readonly provedActionsCount = computed(
+    () => this.actionRegistry().filter((action) => action.status === 'proved').length
+  );
+  readonly actionsNeedingCompletionCount = computed(
+    () => this.actionRegistry().filter((action) => action.status === 'needs-completion').length
+  );
+  readonly detectedActionsCount = computed(
+    () => this.actionRegistry().filter((action) => action.sourceDetected).length + this.undocumentedActions().length
+  );
+  readonly unmappedActionsCount = computed(() => this.undocumentedActions().length);
 
   readonly hasActiveFilters = computed(
     () =>
@@ -127,6 +208,25 @@ export class AdminQualityPage implements OnInit {
   readonly selectedDelegation = computed<AdminQualityDelegationPlan | null>(() => {
     const entry = this.selectedEntry();
     return entry ? buildDelegationPlan(entry) : null;
+  });
+  readonly selectedEntryActions = computed<readonly AdminQualityActionRecord[]>(() => {
+    const entry = this.selectedEntry();
+    const actions = this.actionRegistry();
+    return entry ? actions.filter((action) => action.entryId === entry.id) : actions;
+  });
+  readonly selectedAction = computed<AdminQualityActionRecord | null>(() => {
+    const actions = this.selectedEntryActions();
+    if (!actions.length) {
+      return null;
+    }
+
+    const selectedId = this.selectedActionId();
+    return actions.find((action) => action.id === selectedId) ?? actions[0];
+  });
+  readonly selectedEntryUndocumentedActions = computed(() => {
+    const entry = this.selectedEntry();
+    const actions = this.undocumentedActions();
+    return entry ? actions.filter((action) => action.entryId === entry.id) : actions;
   });
   readonly missionControl = computed<AdminQualityMissionControlState | null>(() => {
     const entry = this.selectedEntry();
@@ -200,11 +300,20 @@ export class AdminQualityPage implements OnInit {
 
   selectEntry(entry: AdminQualityMatrixEntry): void {
     this.selectedEntryId.set(entry.id);
+    this.selectedActionId.set(null);
     this.selectedMissionId.set(null);
   }
 
   isSelected(entry: AdminQualityMatrixEntry): boolean {
     return this.selectedEntry()?.id === entry.id;
+  }
+
+  selectAction(action: AdminQualityActionRecord): void {
+    this.selectedActionId.set(action.id);
+  }
+
+  isActionSelected(action: AdminQualityActionRecord): boolean {
+    return this.selectedAction()?.id === action.id;
   }
 
   selectMission(recommendation: AdminQualityMissionRecommendation): void {
@@ -248,6 +357,89 @@ export class AdminQualityPage implements OnInit {
       default:
         return 'border-sky-200 bg-sky-50 text-sky-700';
     }
+  }
+
+  actionStatusLabel(status: AdminQualityActionStatus): string {
+    switch (status) {
+      case 'proved':
+        return 'Prouvee';
+      case 'documented':
+        return 'Documentee';
+      default:
+        return 'A completer';
+    }
+  }
+
+  actionStatusClasses(status: AdminQualityActionStatus): string {
+    switch (status) {
+      case 'proved':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'documented':
+        return 'border-sky-200 bg-sky-50 text-sky-700';
+      default:
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+    }
+  }
+
+  actionIntentLabel(intent: AdminQualityActionIntent): string {
+    switch (intent) {
+      case 'navigation':
+        return 'Navigation';
+      case 'workflow':
+        return 'Workflow';
+      case 'mutation':
+        return 'Mutation';
+      case 'sharing':
+        return 'Partage';
+      case 'export':
+        return 'Export';
+      default:
+        return 'Moderation';
+    }
+  }
+
+  actionTriggerLabel(trigger: AdminQualityActionTrigger): string {
+    switch (trigger) {
+      case 'link':
+        return 'Lien';
+      case 'submit':
+        return 'Submit';
+      case 'menu':
+        return 'Menu';
+      default:
+        return 'Bouton';
+    }
+  }
+
+  actionScoreClasses(score: number): string {
+    if (score >= 80) {
+      return 'bg-emerald-500';
+    }
+    if (score >= 60) {
+      return 'bg-sky-500';
+    }
+    return 'bg-rose-500';
+  }
+
+  actionStateLabel(key: keyof AdminQualityActionStateCoverage): string {
+    switch (key) {
+      case 'loading':
+        return 'Loading';
+      case 'success':
+        return 'Succes';
+      case 'error':
+        return 'Erreur';
+      case 'offline':
+        return 'Offline';
+      default:
+        return 'Permission';
+    }
+  }
+
+  actionStateClasses(enabled: boolean): string {
+    return enabled
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-slate-200 bg-slate-100 text-slate-500';
   }
 
   missionPhaseClasses(phase: AdminQualityMissionPhase): string {

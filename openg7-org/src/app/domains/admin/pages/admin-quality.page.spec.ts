@@ -97,6 +97,7 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7-id="proved-domains"]')?.textContent).toContain('1');
     expect(root.querySelector('[data-og7-id="proof-gap-domains"]')?.textContent).toContain('1');
     expect(root.querySelector('[data-og7-id="product-work-domains"]')?.textContent).toContain('1');
+    expect(root.querySelector('[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]')).not.toBeNull();
   });
 
   it('filters rows by search term and E2E status', () => {
@@ -166,6 +167,31 @@ describe('AdminQualityPage', () => {
 
     expect(root.textContent).toContain('Pret a lancer');
     expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', { source: 'admin-quality' });
+  });
+
+  it('renders the action registry for the selected domain and updates it on row change', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    let actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');
+
+    expect(root.querySelector('[data-og7="admin-quality-actions"]')).not.toBeNull();
+    expect(root.querySelector('[data-og7="admin-quality-undocumented-actions"]')).not.toBeNull();
+    expect(actionRows.length).toBe(3);
+    expect(root.textContent).toContain('feed-open-item');
+    expect(root.textContent).toContain('Hook action manquant');
+
+    const trustRow = root.querySelector('[data-og7-id="trust-validation"]') as HTMLElement;
+    const trustSelect = trustRow.querySelector('[data-og7-id="admin-quality-select-row"]') as HTMLButtonElement;
+    trustSelect.click();
+    fixture.detectChanges();
+
+    actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');
+    expect(actionRows.length).toBe(2);
+    expect(root.textContent).toContain('admin-trust-quick-verify');
+    expect(root.textContent).toContain('AdminTrustPage');
+    expect(root.textContent).toContain('admin-trust-quick-correction');
   });
 
   it('resets active filters back to the full table', () => {
