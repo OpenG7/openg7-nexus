@@ -100,6 +100,41 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]')).not.toBeNull();
   });
 
+  it('renders the compact coverage matrix and lets it change the active domain', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const matrix = root.querySelector('[data-og7="admin-quality-coverage-matrix"]');
+    const rows = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-row"]');
+    const legendItems = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]');
+    const trustRow = root.querySelector(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]'
+    ) as HTMLButtonElement;
+
+    expect(matrix).not.toBeNull();
+    expect(rows.length).toBe(3);
+    expect(legendItems.length).toBe(6);
+
+    trustRow.click();
+    fixture.detectChanges();
+
+    const delegationSurface = root.querySelector(
+      '[data-og7-id="admin-quality-surface-delegation"]'
+    ) as HTMLButtonElement;
+    delegationSurface.click();
+    fixture.detectChanges();
+
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]')
+        ?.getAttribute('data-og7-selected')
+    ).toBe('true');
+    expect((root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement).href).toContain(
+      'title=Regression%3A+maintenir+la+couverture+trust+et+validation'
+    );
+  });
+
   it('filters rows by search term and E2E status', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
@@ -132,15 +167,22 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const delegationSurface = root.querySelector(
+      '[data-og7-id="admin-quality-surface-delegation"]'
+    ) as HTMLButtonElement;
+    delegationSurface.click();
+    fixture.detectChanges();
+
     let issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
 
     expect(root.querySelector('[data-og7="admin-quality-delegation-panel"]')).not.toBeNull();
     expect(issueLink.href).toContain('https://github.com/OpenG7/openg7-nexus/issues/new');
     expect(root.textContent).toContain('Etendre la preuve QA - Recherche et decouverte profonde');
 
-    const trustRow = root.querySelector('[data-og7-id="trust-validation"]') as HTMLElement;
-    const trustSelect = trustRow.querySelector('[data-og7-id="admin-quality-select-row"]') as HTMLButtonElement;
-    trustSelect.click();
+    const trustRow = root.querySelector(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]'
+    ) as HTMLButtonElement;
+    trustRow.click();
     fixture.detectChanges();
 
     issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
@@ -154,11 +196,20 @@ describe('AdminQualityPage', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const missionControl = root.querySelector('[data-og7="admin-quality-mission-control"]');
+    const missionHero = root.querySelector('[data-og7="admin-quality-mission-hero"]');
+    const missionWorkflow = root.querySelector('[data-og7="admin-quality-mission-workflow"]');
     const recommendations = root.querySelectorAll('[data-og7="admin-quality-recommendation"]');
     const approveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
 
     expect(missionControl).not.toBeNull();
+    expect(missionHero).not.toBeNull();
+    expect(missionWorkflow).not.toBeNull();
+    expect(root.querySelector('[data-og7="admin-quality-local-state"]')).toBeNull();
     expect(root.textContent).toContain('AI Mission Control');
+    expect(root.textContent).toContain('Gap Detected:');
+    expect(root.textContent).toContain('Suggestion:');
+    expect(root.textContent).toContain('Create Mission');
+    expect(root.textContent).toContain('Auto-Delegate');
     expect(recommendations.length).toBe(3);
     expect(root.textContent).toContain('Validation humaine requise');
 
@@ -174,6 +225,10 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
+    actionsSurface.click();
+    fixture.detectChanges();
+
     let actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');
 
     expect(root.querySelector('[data-og7="admin-quality-actions"]')).not.toBeNull();
@@ -182,9 +237,10 @@ describe('AdminQualityPage', () => {
     expect(root.textContent).toContain('feed-open-item');
     expect(root.textContent).toContain('Hook action manquant');
 
-    const trustRow = root.querySelector('[data-og7-id="trust-validation"]') as HTMLElement;
-    const trustSelect = trustRow.querySelector('[data-og7-id="admin-quality-select-row"]') as HTMLButtonElement;
-    trustSelect.click();
+    const trustRow = root.querySelector(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]'
+    ) as HTMLButtonElement;
+    trustRow.click();
     fixture.detectChanges();
 
     actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');

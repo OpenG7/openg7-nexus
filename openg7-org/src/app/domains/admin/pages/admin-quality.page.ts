@@ -22,25 +22,28 @@ import {
   buildActionRegistry,
   buildUndocumentedDiscoveredActions,
 } from './admin-quality-action-registry';
-import { AdminQualityCommandOverviewComponent } from './admin-quality-command-overview.component';
 import {
   AdminQualityCommandMetric,
   AdminQualityCommandRailComponent,
 } from './admin-quality-command-rail.component';
+import { AdminQualityCoverageMatrixComponent } from './admin-quality-coverage-matrix.component';
 import { AdminQualityDelegationPlan, buildDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
   AdminQualityMissionControlState,
   AdminQualityMissionDecisionMap,
-  AdminQualityMissionPhase,
   AdminQualityMissionRecommendation,
   AdminQualityMissionStatus,
-  AdminQualityMissionTimelineStatus,
   buildMissionControl,
 } from './admin-quality-mission-control';
-import { AdminQualityWorkflowRailComponent } from './admin-quality-workflow-rail.component';
+import {
+  AdminQualityMissionControlActionEvent,
+  resolveMissionAction,
+} from './admin-quality-mission-actions';
+import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
 
 type FilterValue<T extends string> = 'all' | T;
+type AdminQualityInspectionSurface = 'queue' | 'delegation' | 'actions';
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
 
 @Component({
@@ -50,9 +53,9 @@ const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
     CommonModule,
     RouterLink,
     AdminQualityCommandRailComponent,
-    AdminQualityCommandOverviewComponent,
+    AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
-    AdminQualityWorkflowRailComponent,
+    AdminQualityMissionControlComponent,
   ],
   templateUrl: './admin-quality.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,6 +79,7 @@ export class AdminQualityPage implements OnInit {
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
+  readonly inspectionSurface = signal<AdminQualityInspectionSurface>('queue');
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
   readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
@@ -310,6 +314,7 @@ export class AdminQualityPage implements OnInit {
 
   selectAction(action: AdminQualityActionRecord): void {
     this.selectedActionId.set(action.id);
+    this.inspectionSurface.set('actions');
   }
 
   isActionSelected(action: AdminQualityActionRecord): boolean {
@@ -320,43 +325,26 @@ export class AdminQualityPage implements OnInit {
     this.selectedMissionId.set(recommendation.id);
   }
 
-  isMissionSelected(recommendation: AdminQualityMissionRecommendation): boolean {
-    return this.selectedMission()?.id === recommendation.id;
+  setInspectionSurface(surface: AdminQualityInspectionSurface): void {
+    this.inspectionSurface.set(surface);
   }
 
-  async copyCodexPrompt(plan: AdminQualityDelegationPlan): Promise<void> {
-    await this.copyText(plan.codexPrompt, 'Brief Codex copie.');
+  isInspectionSurfaceActive(surface: AdminQualityInspectionSurface): boolean {
+    return this.inspectionSurface() === surface;
   }
 
-  async copyIssue(plan: AdminQualityDelegationPlan): Promise<void> {
-    const payload = `${plan.issueTitle}\n\n${plan.issueBody}`;
-    await this.copyText(payload, 'Issue GitHub copiee.');
-  }
-
-  delegationModeLabel(plan: AdminQualityDelegationPlan): string {
-    switch (plan.mode) {
-      case 'hardening':
-        return 'Hardening';
-      case 'product-closure':
-        return 'Product closure';
-      case 'scope-cadrage':
-        return 'Scope cadrage';
-      default:
-        return 'QA proof';
+  handleMissionAction(event: AdminQualityMissionControlActionEvent): void {
+    const resolution = resolveMissionAction(event.action, event.recommendation);
+    if (!resolution) {
+      return;
     }
-  }
 
-  delegationModeClasses(plan: AdminQualityDelegationPlan): string {
-    switch (plan.mode) {
-      case 'hardening':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'product-closure':
-        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
-      case 'scope-cadrage':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
-      default:
-        return 'border-sky-200 bg-sky-50 text-sky-700';
+    if (resolution.kind === 'reset') {
+      this.resetMission(event.recommendation, resolution.message);
+      return;
     }
+
+    this.updateMissionStatus(event.recommendation, resolution.status, resolution.message);
   }
 
   actionStatusLabel(status: AdminQualityActionStatus): string {
@@ -442,138 +430,47 @@ export class AdminQualityPage implements OnInit {
       : 'border-slate-200 bg-slate-100 text-slate-500';
   }
 
-  missionPhaseClasses(phase: AdminQualityMissionPhase): string {
-    switch (phase) {
-      case 'ready':
-        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
-      case 'execution':
-        return 'border-amber-200 bg-amber-50 text-amber-700';
-      case 'proof-review':
+  async copyCodexPrompt(plan: AdminQualityDelegationPlan): Promise<void> {
+    await this.copyText(plan.codexPrompt, 'Brief Codex copie.');
+  }
+
+  async copyIssue(plan: AdminQualityDelegationPlan): Promise<void> {
+    const payload = `${plan.issueTitle}\n\n${plan.issueBody}`;
+    await this.copyText(payload, 'Issue GitHub copiee.');
+  }
+
+  delegationModeLabel(plan: AdminQualityDelegationPlan): string {
+    switch (plan.mode) {
+      case 'hardening':
+        return 'Hardening';
+      case 'product-closure':
+        return 'Product closure';
+      case 'scope-cadrage':
+        return 'Scope cadrage';
+      default:
+        return 'QA proof';
+    }
+  }
+
+  delegationModeClasses(plan: AdminQualityDelegationPlan): string {
+    switch (plan.mode) {
+      case 'hardening':
         return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'completed':
+      case 'product-closure':
+        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
+      case 'scope-cadrage':
         return 'border-slate-200 bg-slate-100 text-slate-700';
-      case 'blocked':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
       default:
         return 'border-sky-200 bg-sky-50 text-sky-700';
     }
   }
 
-  missionTimelineClasses(status: AdminQualityMissionTimelineStatus): string {
-    switch (status) {
-      case 'done':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'current':
-        return 'border-slate-900 bg-slate-900 text-white';
-      default:
-        return 'border-slate-200 bg-white text-slate-500';
-    }
-  }
-
-  missionStatusLabel(status: AdminQualityMissionStatus): string {
-    switch (status) {
-      case 'approved':
-        return 'Approuvee';
-      case 'in-progress':
-        return 'En cours';
-      case 'proof-returned':
-        return 'Preuve revenue';
-      case 'done':
-        return 'Cloturee';
-      case 'deferred':
-        return 'Differee';
-      case 'rejected':
-        return 'Rejetee';
-      case 'blocked':
-        return 'Bloquee';
-      default:
-        return 'Proposee';
-    }
-  }
-
-  missionStatusClasses(status: AdminQualityMissionStatus): string {
-    switch (status) {
-      case 'approved':
-        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
-      case 'in-progress':
-        return 'border-amber-200 bg-amber-50 text-amber-700';
-      case 'proof-returned':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'done':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
-      case 'deferred':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
-      case 'rejected':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
-      case 'blocked':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
-      default:
-        return 'border-sky-200 bg-sky-50 text-sky-700';
-    }
-  }
-
-  confidenceClasses(value: 'High' | 'Medium'): string {
-    return value === 'High'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-amber-200 bg-amber-50 text-amber-700';
-  }
-
-  impactClasses(value: 'High' | 'Medium' | 'Low'): string {
-    switch (value) {
-      case 'High':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
-      case 'Low':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
-      default:
-        return 'border-amber-200 bg-amber-50 text-amber-700';
-    }
-  }
-
-  recommendationKindLabel(recommendation: AdminQualityMissionRecommendation): string {
-    switch (recommendation.kind) {
-      case 'core':
-        return 'Mission coeur';
-      case 'safety-net':
-        return 'Safety net';
-      default:
-        return 'Gouvernance';
-    }
-  }
-
-  approveMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'approved', 'Mission approuvee par un humain.');
-  }
-
-  deferMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'deferred', 'Mission differee.');
-  }
-
-  rejectMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'rejected', 'Mission rejetee.');
-  }
-
-  startMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'in-progress', 'Mission marquee en execution.');
-  }
-
-  returnMissionProof(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'proof-returned', 'La preuve est marquee comme revenue.');
-  }
-
-  completeMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'done', 'Mission cloturee localement.');
-  }
-
-  blockMission(recommendation: AdminQualityMissionRecommendation): void {
-    this.updateMissionStatus(recommendation, 'blocked', 'Mission marquee comme bloquee.');
-  }
-
-  resetMission(recommendation: AdminQualityMissionRecommendation): void {
+  private resetMission(recommendation: AdminQualityMissionRecommendation, message: string): void {
     const next = { ...this.missionDecisions() };
     delete next[recommendation.id];
     this.missionDecisions.set(next);
     this.persistMissionDecisions();
-    this.notifications.info('Mission reinitialisee.', { source: 'admin-quality' });
+    this.notifications.info(message, { source: 'admin-quality' });
   }
 
   async speakMissionControl(state: AdminQualityMissionControlState): Promise<void> {

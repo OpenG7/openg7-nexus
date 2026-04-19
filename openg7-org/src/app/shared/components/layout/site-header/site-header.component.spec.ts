@@ -161,6 +161,7 @@ describe('SiteHeaderComponent', () => {
 
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
+    spyOn(router, 'navigateByUrl').and.resolveTo(true);
     auth = TestBed.inject(AuthService) as unknown as MockAuthService;
     favorites = TestBed.inject(FavoritesService) as unknown as MockFavoritesService;
     translate = TestBed.inject(TranslateService) as unknown as MockTranslateService;
@@ -278,6 +279,28 @@ describe('SiteHeaderComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-og7-id="admin-quality"]')).toBeNull();
+  });
+
+  it('navigates to the QA matrix from the desktop profile menu and closes the dropdown', () => {
+    auth.isAuthenticatedSig.set(true);
+    rbac.hasPermission.and.returnValue(true);
+    component.toggleProfile();
+    fixture.detectChanges();
+
+    const qualityLinkDebugEl = fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .find(debugEl => debugEl.nativeElement.dataset.og7Id === 'admin-quality');
+    const qualityLink = qualityLinkDebugEl?.nativeElement as HTMLAnchorElement | undefined;
+
+    expect(qualityLink).toBeDefined();
+
+    qualityLink?.click();
+    fixture.detectChanges();
+
+    const navigateByUrlSpy = router.navigateByUrl as jasmine.Spy;
+    expect(navigateByUrlSpy).toHaveBeenCalled();
+    expect(String(navigateByUrlSpy.calls.mostRecent().args[0])).toBe('/admin/quality');
+    expect(component.isProfileOpen()).toBeFalse();
   });
 
   it('uses persisted user alerts count when authenticated', () => {

@@ -218,6 +218,10 @@ export class SiteHeaderComponent {
     this.isProfileOpen.update((value) => !value);
   }
 
+  closeProfileMenu() {
+    this.isProfileOpen.set(false);
+  }
+
   closeMobileMenu() {
     this.isMobileMenuOpen.set(false);
     this.isNotifOpen.set(false);
