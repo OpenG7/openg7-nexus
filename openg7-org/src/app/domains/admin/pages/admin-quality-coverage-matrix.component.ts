@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 
 import {
   AdminQualityMatrixEntry,
@@ -65,29 +65,54 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
         </div>
 
         <div class="mt-5 flex flex-col gap-3 border-t border-white/10 pt-4">
-          <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">Legend</p>
-          <p class="text-xs leading-relaxed text-slate-400">
-            S synthese, M metier, I implementation, E end-to-end, R readiness, P priorite.
-          </p>
-          <div class="grid gap-2 sm:grid-cols-2" data-og7="admin-quality-coverage-matrix-legend">
-            @for (item of toneLegend; track item.tone) {
-              <div
-                class="flex items-center gap-3 rounded-[14px] border border-white/10 bg-white/5 px-3 py-2"
-                data-og7="admin-quality-coverage-matrix-legend-item"
-                [attr.data-og7-id]="item.tone"
-              >
-                <span
-                  class="h-3 w-8 shrink-0 rounded-[4px] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
-                  [ngClass]="signalClasses(item.tone)"
-                  aria-hidden="true"
-                ></span>
-                <div class="min-w-0">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">{{ item.label }}</p>
-                  <p class="text-xs leading-relaxed text-slate-400">{{ item.detail }}</p>
+          <button
+            type="button"
+            class="flex items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-white/5 px-3 py-2 text-left transition hover:bg-white/8"
+            (click)="toggleLegend()"
+            [attr.aria-expanded]="legendOpen()"
+            aria-controls="admin-quality-coverage-matrix-legend-panel"
+            data-og7-id="admin-quality-coverage-matrix-legend-toggle"
+          >
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">Legend</p>
+              <p class="mt-1 text-xs leading-relaxed text-slate-400">
+                S synthese, M metier, I implementation, E end-to-end, R readiness, P priorite.
+              </p>
+            </div>
+            <span
+              class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-slate-900/80 text-slate-300 transition"
+              [class.rotate-180]="legendOpen()"
+              aria-hidden="true"
+            >
+              <span class="text-sm leading-none">⌄</span>
+            </span>
+          </button>
+
+          @if (legendOpen()) {
+            <div
+              class="grid gap-2 sm:grid-cols-2"
+              id="admin-quality-coverage-matrix-legend-panel"
+              data-og7="admin-quality-coverage-matrix-legend"
+            >
+              @for (item of toneLegend; track item.tone) {
+                <div
+                  class="flex items-center gap-3 rounded-[14px] border border-white/10 bg-white/5 px-3 py-2"
+                  data-og7="admin-quality-coverage-matrix-legend-item"
+                  [attr.data-og7-id]="item.tone"
+                >
+                  <span
+                    class="h-3 w-8 shrink-0 rounded-[4px] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
+                    [ngClass]="signalClasses(item.tone)"
+                    aria-hidden="true"
+                  ></span>
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">{{ item.label }}</p>
+                    <p class="text-xs leading-relaxed text-slate-400">{{ item.detail }}</p>
+                  </div>
                 </div>
-              </div>
-            }
-          </div>
+              }
+            </div>
+          }
         </div>
 
         <div class="mt-4 rounded-[24px] border border-white/10 bg-slate-950/70 p-3">
@@ -174,8 +199,13 @@ export class AdminQualityCoverageMatrixComponent {
   readonly selectedEntryId = input<string | null>(null);
 
   readonly entrySelected = output<AdminQualityMatrixEntry>();
+  readonly legendOpen = signal(false);
   readonly legend = COVERAGE_SIGNAL_LEGEND;
   readonly toneLegend = COVERAGE_TONE_LEGEND;
+
+  toggleLegend(): void {
+    this.legendOpen.update((open) => !open);
+  }
 
   isSelected(entry: AdminQualityMatrixEntry): boolean {
     return this.selectedEntryId() === entry.id;

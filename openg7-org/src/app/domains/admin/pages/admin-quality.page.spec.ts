@@ -107,13 +107,23 @@ describe('AdminQualityPage', () => {
     const root = fixture.nativeElement as HTMLElement;
     const matrix = root.querySelector('[data-og7="admin-quality-coverage-matrix"]');
     const rows = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-row"]');
-    const legendItems = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]');
+    const legendToggle = root.querySelector(
+      '[data-og7-id="admin-quality-coverage-matrix-legend-toggle"]'
+    ) as HTMLButtonElement;
     const trustRow = root.querySelector(
       '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]'
     ) as HTMLButtonElement;
 
     expect(matrix).not.toBeNull();
     expect(rows.length).toBe(3);
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('false');
+    expect(root.querySelector('[data-og7="admin-quality-coverage-matrix-legend"]')).toBeNull();
+
+    legendToggle.click();
+    fixture.detectChanges();
+
+    const legendItems = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]');
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('true');
     expect(legendItems.length).toBe(6);
 
     trustRow.click();

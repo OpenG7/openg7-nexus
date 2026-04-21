@@ -16,25 +16,34 @@ export interface AdminQualityCommandMetric {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden rounded-[28px] border border-slate-800/80 bg-slate-950 px-4 py-4 text-white shadow-[0_28px_80px_-42px_rgba(15,23,42,0.9)]"
+      class="rounded-lg border border-slate-300 bg-slate-100/80 p-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.22)]"
       data-og7="admin-quality-command-rail"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_44%),radial-gradient(circle_at_80%_20%,_rgba(129,140,248,0.14),_transparent_28%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(2,6,23,1))]"></div>
+      <div class="grid gap-2 md:grid-cols-3 xl:grid-cols-[minmax(15rem,1.35fr)_repeat(5,minmax(0,1fr))]">
+        <article
+          class="flex min-h-17 items-center rounded-sm border border-slate-400 bg-white px-5 py-3"
+          data-og7="admin-quality-summary"
+          data-og7-id="rail-heading"
+        >
+          <p class="text-xl font-semibold tracking-tight text-slate-700">Rail de statistiques</p>
+        </article>
 
-      <div class="relative grid gap-px overflow-hidden rounded-[22px] bg-white/10 sm:grid-cols-2 xl:grid-cols-5">
         @for (metric of metrics(); track metric.id) {
           <article
-            class="bg-slate-950/85 px-4 py-4 backdrop-blur"
+            class="flex min-h-17 items-center rounded-sm border px-4 py-3"
+            [class]="cardClasses(metric.accent)"
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
+            [attr.aria-label]="metric.value + ' ' + metric.label + '. ' + metric.detail"
+            [attr.title]="metric.detail"
           >
-            <p class="text-[11px] font-semibold uppercase tracking-[0.24em]" [class]="labelClasses(metric.accent)">
-              {{ metric.label }}
-            </p>
-            <p class="mt-2 text-2xl font-semibold" [class]="valueClasses(metric.accent)">{{ metric.value }}</p>
-            <p class="mt-1 text-xs leading-relaxed" [class]="detailClasses(metric.accent)">
-              {{ metric.detail }}
-            </p>
+            <div class="flex items-center gap-3">
+              <p class="text-[2rem] font-extrabold leading-none" [class]="valueClasses(metric.accent)">{{ metric.value }}</p>
+              <div class="min-w-0">
+                <p class="text-base font-semibold leading-tight" [class]="labelClasses(metric.accent)">{{ metric.label }}</p>
+                <span class="sr-only">{{ metric.detail }}</span>
+              </div>
+            </div>
           </article>
         }
       </div>
@@ -44,48 +53,48 @@ export interface AdminQualityCommandMetric {
 export class AdminQualityCommandRailComponent {
   readonly metrics = input.required<readonly AdminQualityCommandMetric[]>();
 
-  labelClasses(accent: AdminQualityCommandMetric['accent']): string {
+  cardClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-300';
+        return 'border-slate-300 bg-white';
       case 'sky':
-        return 'text-sky-300';
+        return 'border-slate-300 bg-white';
       case 'indigo':
-        return 'text-indigo-300';
+        return 'border-slate-300 bg-white';
       case 'rose':
-        return 'text-rose-300';
+        return 'border-rose-400 bg-rose-500';
       default:
-        return 'text-slate-300';
+        return 'border-slate-300 bg-white';
     }
   }
 
   valueClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-100';
+        return 'text-slate-800';
       case 'sky':
-        return 'text-sky-100';
+        return 'text-slate-800';
       case 'indigo':
-        return 'text-indigo-100';
+        return 'text-slate-800';
       case 'rose':
-        return 'text-rose-100';
-      default:
         return 'text-white';
+      default:
+        return 'text-slate-800';
     }
   }
 
-  detailClasses(accent: AdminQualityCommandMetric['accent']): string {
+  labelClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-200/80';
+        return 'text-slate-700';
       case 'sky':
-        return 'text-sky-200/80';
+        return 'text-slate-700';
       case 'indigo':
-        return 'text-indigo-200/80';
+        return 'text-slate-700';
       case 'rose':
-        return 'text-rose-200/80';
+        return 'text-white';
       default:
-        return 'text-slate-300/80';
+        return 'text-slate-700';
     }
   }
 }

@@ -28,6 +28,15 @@ interface AdminQualityMissionWorkflowStep {
   readonly active: boolean;
 }
 
+interface AdminQualityMissionTimelineStepView {
+  readonly id: string;
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly supportLabel: string;
+  readonly helper: string;
+  readonly status: AdminQualityMissionTimelineStatus;
+}
+
 @Component({
   selector: 'og7-admin-quality-mission-control',
   standalone: true,
@@ -93,6 +102,36 @@ export class AdminQualityMissionControlComponent {
     },
   ]);
 
+  readonly missionTimelineSteps = computed<readonly AdminQualityMissionTimelineStepView[]>(() =>
+    this.missionControl().timeline.map((step) => ({
+      id: step.id,
+      label: step.label,
+      shortLabel: this.timelineShortLabel(step.id),
+      supportLabel: this.timelineSupportLabel(step.id, step.label),
+      helper: this.timelineHelper(step.id, step.label),
+      status: step.status,
+    }))
+  );
+
+  readonly missionTimelineProgress = computed(() => {
+    const steps = this.missionTimelineSteps();
+    const activeIndex = this.activeTimelineIndex(steps);
+    const total = steps.length;
+
+    return {
+      activeIndex,
+      currentStep: activeIndex + 1,
+      total,
+      percent: total > 1 ? (activeIndex / (total - 1)) * 100 : 100,
+    };
+  });
+
+  readonly activeTimelineStep = computed<AdminQualityMissionTimelineStepView | null>(() => {
+    const steps = this.missionTimelineSteps();
+    const index = this.activeTimelineIndex(steps);
+    return steps[index] ?? null;
+  });
+
   isMissionSelected(recommendation: AdminQualityMissionRecommendation): boolean {
     return this.selectedMission()?.id === recommendation.id;
   }
@@ -134,6 +173,65 @@ export class AdminQualityMissionControlComponent {
       default:
         return 'border-slate-200 bg-white text-slate-500';
     }
+  }
+
+  missionTimelineCardClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'border-emerald-300/25 bg-emerald-400/10 text-white';
+      case 'current':
+        return 'border-sky-300/35 bg-white/10 text-white shadow-[0_18px_34px_-22px_rgba(56,189,248,0.55)]';
+      default:
+        return 'border-white/10 bg-slate-950/35 text-slate-300';
+    }
+  }
+
+  missionTimelineMarkerClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'border-emerald-300 bg-emerald-400 text-slate-950';
+      case 'current':
+        return 'border-sky-200 bg-sky-400/20 text-sky-100 shadow-[0_0_0_6px_rgba(56,189,248,0.12)]';
+      default:
+        return 'border-white/15 bg-slate-950/85 text-slate-400';
+    }
+  }
+
+  missionTimelineConnectorClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'bg-linear-to-r from-emerald-300 via-sky-300 to-sky-200';
+      case 'current':
+        return 'bg-linear-to-r from-sky-300/80 to-white/10';
+      default:
+        return 'bg-white/10';
+    }
+  }
+
+  missionTimelineVerticalConnectorClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'bg-linear-to-b from-emerald-300 via-sky-300 to-sky-200';
+      case 'current':
+        return 'bg-linear-to-b from-sky-300/80 to-white/10';
+      default:
+        return 'bg-white/10';
+    }
+  }
+
+  missionTimelineStatusLabel(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'terminee';
+      case 'current':
+        return 'active';
+      default:
+        return 'a venir';
+    }
+  }
+
+  missionTimelineMarkerLabel(status: AdminQualityMissionTimelineStatus, index: number): string {
+    return status === 'done' ? '✓' : `${index + 1}`;
   }
 
   missionStatusLabel(status: AdminQualityMissionStatus): string {
@@ -258,5 +356,64 @@ export class AdminQualityMissionControlComponent {
 
   emitMissionAction(action: AdminQualityMissionControlAction, recommendation: AdminQualityMissionRecommendation): void {
     this.missionAction.emit({ action, recommendation });
+  }
+
+  private activeTimelineIndex(steps: readonly AdminQualityMissionTimelineStepView[]): number {
+    const currentIndex = steps.findIndex((step) => step.status === 'current');
+    if (currentIndex >= 0) {
+      return currentIndex;
+    }
+
+    const doneIndex = [...steps].reverse().findIndex((step) => step.status === 'done');
+    if (doneIndex >= 0) {
+      return steps.length - 1 - doneIndex;
+    }
+
+    return 0;
+  }
+
+  private timelineShortLabel(id: string): string {
+    switch (id) {
+      case 'analysis':
+        return 'Analyse';
+      case 'approval':
+        return 'Validation';
+      case 'execution':
+        return 'Execution';
+      case 'review':
+        return 'Preuve';
+      default:
+        return 'Cloture';
+    }
+  }
+
+  private timelineSupportLabel(id: string, label: string): string {
+    switch (id) {
+      case 'analysis':
+        return 'AI draft';
+      case 'approval':
+        return 'Go humain';
+      case 'execution':
+        return label.includes('bloquee') ? 'Blocage agent' : 'Agent actif';
+      case 'review':
+        return 'QA review';
+      default:
+        return 'Decision finale';
+    }
+  }
+
+  private timelineHelper(id: string, label: string): string {
+    switch (id) {
+      case 'analysis':
+        return 'Gap, mission et hypothese AI cadres.';
+      case 'approval':
+        return 'Arbitrage operateur avant depart.';
+      case 'execution':
+        return label.includes('bloquee') ? 'Lever le blocage avant reprise.' : 'Suivre issue, artefacts et hypotheses.';
+      case 'review':
+        return 'Relire tests, preuves et ecarts restants.';
+      default:
+        return 'Decider si la matrice peut etre mise a jour.';
+    }
   }
 }

@@ -1,5 +1,5 @@
 <section
-  class="rounded-[30px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur"
+  class="h-full max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-[30px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur"
   data-og7="admin-quality-mission-control"
 >
   <div class="space-y-5">
@@ -87,13 +87,92 @@
             {{ missionControl().phaseDetail }}
           </p>
 
-          <div class="grid gap-2 sm:grid-cols-5" data-og7-id="admin-quality-mission-timeline">
-            @for (step of missionControl().timeline; track step.id) {
-              <div class="rounded-2xl border px-3 py-3 text-xs font-medium" [class]="missionTimelineClasses(step.status)">
-                {{ step.label }}
+          <section class="rounded-2xl border border-white/10 bg-white/4 p-4" data-og7-id="admin-quality-mission-timeline">
+            <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">Progression mission</p>
+                <h3 class="mt-2 text-base font-semibold text-white">
+                  Etape {{ missionTimelineProgress().currentStep }} sur {{ missionTimelineProgress().total }}
+                </h3>
               </div>
-            }
-          </div>
+
+              @if (activeTimelineStep(); as step) {
+                <div class="rounded-full border border-white/10 bg-slate-950/50 px-3 py-1.5 text-xs font-medium text-slate-200">
+                  {{ step.label }} · {{ missionTimelineStatusLabel(step.status) }}
+                </div>
+              }
+            </div>
+
+            <div class="mt-4 space-y-3 md:hidden">
+              @for (step of missionTimelineSteps(); track step.id) {
+                <article class="flex gap-3" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+                  <div class="flex w-9 shrink-0 flex-col items-center">
+                    <span
+                      class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
+                      [class]="missionTimelineMarkerClasses(step.status)"
+                    >
+                      {{ missionTimelineMarkerLabel(step.status, $index) }}
+                    </span>
+                    @if (!$last) {
+                      <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
+                    }
+                  </div>
+
+                  <div class="min-w-0 flex-1 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+                    <div class="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.supportLabel }}</p>
+                        <p class="mt-1 text-sm font-semibold">{{ step.label }}</p>
+                      </div>
+                      <span class="rounded-full border border-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]">
+                        {{ missionTimelineStatusLabel(step.status) }}
+                      </span>
+                    </div>
+                    <p class="mt-2 text-xs leading-relaxed text-slate-300">{{ step.helper }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+
+            <div class="mt-5 hidden md:block">
+              <div class="flex items-start">
+                @for (step of missionTimelineSteps(); track step.id) {
+                  <div class="relative min-w-0 flex-1" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+                    @if (!$last) {
+                      <span class="absolute left-[calc(50%+1.3rem)] right-0 top-4 h-px" [class]="missionTimelineConnectorClasses(step.status)"></span>
+                    }
+
+                    <div class="pr-3">
+                      <div class="flex items-center gap-3">
+                        <span
+                          class="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
+                          [class]="missionTimelineMarkerClasses(step.status)"
+                        >
+                          {{ missionTimelineMarkerLabel(step.status, $index) }}
+                        </span>
+
+                        <div class="min-w-0">
+                          <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.supportLabel }}</p>
+                          <p class="mt-1 truncate text-sm font-semibold text-white">{{ step.shortLabel }}</p>
+                        </div>
+                      </div>
+
+                      <div class="mt-3 min-h-35 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+                        <div class="flex flex-wrap items-start justify-between gap-2">
+                          <p class="text-sm font-semibold">{{ step.label }}</p>
+                          <span class="rounded-full border border-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]">
+                            {{ missionTimelineStatusLabel(step.status) }}
+                          </span>
+                        </div>
+                        <p class="mt-3 text-xs font-medium text-slate-300">{{ step.supportLabel }}</p>
+                        <p class="mt-2 text-xs leading-relaxed text-slate-300">{{ step.helper }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
 
           <div class="flex flex-wrap gap-2">
             <button
