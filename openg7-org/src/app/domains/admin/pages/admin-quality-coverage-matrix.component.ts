@@ -11,6 +11,7 @@ type CoverageSignalTone = 'emerald' | 'lime' | 'amber' | 'orange' | 'rose' | 'sl
 
 interface CoverageSignal {
   readonly id: string;
+  readonly shortLabel: string;
   readonly label: string;
   readonly tone: CoverageSignalTone;
 }
@@ -21,7 +22,14 @@ interface CoverageToneLegendItem {
   readonly detail: string;
 }
 
-const COVERAGE_SIGNAL_LEGEND: readonly string[] = ['S', 'M', 'I', 'E', 'R', 'P'];
+const COVERAGE_SIGNAL_LEGEND: readonly CoverageSignal[] = [
+  { id: 'summary', shortLabel: 'S', label: 'Synthese', tone: 'slate' },
+  { id: 'business', shortLabel: 'M', label: 'Metier', tone: 'slate' },
+  { id: 'implementation', shortLabel: 'I', label: 'Implementation', tone: 'slate' },
+  { id: 'e2e', shortLabel: 'E', label: 'End-to-end', tone: 'slate' },
+  { id: 'readiness', shortLabel: 'R', label: 'Readiness', tone: 'slate' },
+  { id: 'priority', shortLabel: 'P', label: 'Priorite', tone: 'slate' },
+];
 const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
   { tone: 'emerald', label: 'Vert', detail: 'preuve forte ou surface couverte' },
   { tone: 'lime', label: 'Lime', detail: 'priorite basse' },
@@ -48,7 +56,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
       <div class="relative">
         <div class="flex items-start justify-between gap-4">
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Coverage Matrix</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Matrice de couverture</p>
             <p class="max-w-sm text-sm leading-relaxed text-slate-300">
               Lecture compacte des surfaces critiques. Chaque ligne pilote le focus detaille de la page.
             </p>
@@ -74,7 +82,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
             data-og7-id="admin-quality-coverage-matrix-legend-toggle"
           >
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">Legend</p>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">Legende de lecture</p>
               <p class="mt-1 text-xs leading-relaxed text-slate-400">
                 S synthese, M metier, I implementation, E end-to-end, R readiness, P priorite.
               </p>
@@ -113,14 +121,28 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
               }
             </div>
           }
+
+          <div class="flex flex-wrap gap-2" data-og7="admin-quality-coverage-matrix-signal-legend">
+            @for (item of legend; track item.id) {
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200"
+                [attr.data-og7-id]="item.id"
+              >
+                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold">
+                  {{ item.shortLabel }}
+                </span>
+                <span>{{ item.label }}</span>
+              </span>
+            }
+          </div>
         </div>
 
         <div class="mt-4 rounded-[24px] border border-white/10 bg-slate-950/70 p-3">
           <div class="mb-3 flex items-center justify-between gap-3 px-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
-            <span>Surface</span>
+            <span>Lecture</span>
             <div class="grid w-[9.5rem] grid-cols-6 gap-1.5 text-center">
               @for (item of legend; track item) {
-                <span>{{ item }}</span>
+                <span [attr.title]="item.label">{{ item.shortLabel }}</span>
               }
             </div>
           </div>
@@ -199,7 +221,7 @@ export class AdminQualityCoverageMatrixComponent {
   readonly selectedEntryId = input<string | null>(null);
 
   readonly entrySelected = output<AdminQualityMatrixEntry>();
-  readonly legendOpen = signal(false);
+  readonly legendOpen = signal(true);
   readonly legend = COVERAGE_SIGNAL_LEGEND;
   readonly toneLegend = COVERAGE_TONE_LEGEND;
 
@@ -224,12 +246,17 @@ export class AdminQualityCoverageMatrixComponent {
 
   signalsFor(entry: AdminQualityMatrixEntry): readonly CoverageSignal[] {
     return [
-      { id: 'summary', label: 'Synthese', tone: this.statusTone(entry.summaryStatus) },
-      { id: 'business', label: 'Metier', tone: this.statusTone(entry.businessStatus) },
-      { id: 'implementation', label: 'Implementation', tone: this.statusTone(entry.implementationStatus) },
-      { id: 'e2e', label: 'End-to-end', tone: this.statusTone(entry.e2eStatus) },
-      { id: 'readiness', label: 'Readiness', tone: this.readinessTone(entry) },
-      { id: 'priority', label: 'Priorite', tone: this.priorityTone(entry.priority) },
+      { id: 'summary', shortLabel: 'S', label: 'Synthese', tone: this.statusTone(entry.summaryStatus) },
+      { id: 'business', shortLabel: 'M', label: 'Metier', tone: this.statusTone(entry.businessStatus) },
+      {
+        id: 'implementation',
+        shortLabel: 'I',
+        label: 'Implementation',
+        tone: this.statusTone(entry.implementationStatus),
+      },
+      { id: 'e2e', shortLabel: 'E', label: 'End-to-end', tone: this.statusTone(entry.e2eStatus) },
+      { id: 'readiness', shortLabel: 'R', label: 'Readiness', tone: this.readinessTone(entry) },
+      { id: 'priority', shortLabel: 'P', label: 'Priorite', tone: this.priorityTone(entry.priority) },
     ];
   }
 

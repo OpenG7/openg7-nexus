@@ -11,7 +11,7 @@
         <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">Gestion de la qualite</p>
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Modeles de pilotage AI</h1>
         <p class="max-w-2xl text-sm leading-6 text-slate-600">
-          Le haut prepare le cockpit. La decision commence avec la matrix et AI Mission Control.
+          Le haut prepare le cockpit. La decision commence avec la matrix et le Mission Control.
         </p>
         @if (snapshot(); as data) {
         <p class="text-xs text-slate-500" data-og7-id="admin-quality-generated-at">
@@ -48,104 +48,130 @@
   
 
   <section
-    class="sticky top-4 z-30 -mx-1 rounded-[26px] border border-slate-800/80 bg-slate-950/90 px-4 py-4 text-white shadow-[0_24px_60px_-34px_rgba(15,23,42,0.86)] backdrop-blur xl:top-5 xl:px-5"
+    class="sticky top-4 z-30 -mx-1 rounded-[26px] border border-slate-200/90 bg-white/94 px-4 py-4 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.2)] backdrop-blur xl:top-5 xl:px-5"
     data-og7="admin-quality-filters">
-
-    <div class="flex gap-4">
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #f97316;">
-      <label class="min-w-0">
-        <span class="sr-only">Recherche</span>
-        <input type="search"
-          class="w-full rounded-xl border border-white/10 bg-white/8 px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-sky-400/60 focus:bg-white/10"
-          placeholder="Recherche..." [value]="search()" (input)="setSearch($event)"
-          data-og7-id="admin-quality-search" />
-      </label>
-    </div>
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #22c55e;">
-      <label class="min-w-0">
-        <span class="sr-only">Domaine</span>
-        <select
-          class="w-full min-w-0 rounded-xl border border-white/10 bg-white/8 px-3.5 py-3 text-sm text-white outline-none transition focus:border-sky-400/60 focus:bg-white/10"
-          [value]="selectedDomain()" (change)="setDomainFilter($event)" data-og7-id="admin-quality-domain-filter">
-          @for (option of domainOptions(); track option) {
-          <option class="bg-slate-950 text-white" [value]="option">{{ option === 'all' ? 'Domaine' : option }}</option>
-          }
-        </select>
-      </label>
-    </div>
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #3b82f6;">
-      <label class="min-w-0">
-        <span class="sr-only">Priorite</span>
-        <select
-          class="w-full min-w-0 rounded-xl border border-white/10 bg-white/8 px-3.5 py-3 text-sm text-white outline-none transition focus:border-sky-400/60 focus:bg-white/10"
-          [value]="selectedPriority()" (change)="setPriorityFilter($event)" data-og7-id="admin-quality-priority-filter">
-          <option class="bg-slate-950 text-white" value="all">Priorite</option>
-          <option class="bg-slate-950 text-white" value="haute">Haute</option>
-          <option class="bg-slate-950 text-white" value="moyenne">Moyenne</option>
-          <option class="bg-slate-950 text-white" value="basse">Basse</option>
-        </select>
-      </label>
-    </div>
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #eab308;"><label class="min-w-0">
-        <span class="sr-only">E2E</span>
-        <select
-          class="w-full min-w-0 rounded-xl border border-white/10 bg-white/8 px-3.5 py-3 text-sm text-white outline-none transition focus:border-sky-400/60 focus:bg-white/10"
-          [value]="selectedE2EStatus()" (change)="setE2EFilter($event)" data-og7-id="admin-quality-e2e-filter">
-          <option class="bg-slate-950 text-white" value="all">E2E</option>
-          <option class="bg-slate-950 text-white" value="oui">Oui</option>
-          <option class="bg-slate-950 text-white" value="partiel">Partiel</option>
-          <option class="bg-slate-950 text-white" value="non">Non</option>
-          <option class="bg-slate-950 text-white" value="hors MVP">Hors MVP</option>
-        </select>
-      </label></div>
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #ec4899;"><label class="min-w-0">
-        <span class="sr-only">Gestion</span>
-        <select
-          class="w-full min-w-0 rounded-xl border border-white/10 bg-white/8 px-3.5 py-3 text-sm text-white outline-none transition focus:border-sky-400/60 focus:bg-white/10"
-          [value]="selectedBucket()" (change)="setBucketFilter($event)" data-og7-id="admin-quality-bucket-filter">
-          <option class="bg-slate-950 text-white" value="all">Gestion</option>
-          <option class="bg-slate-950 text-white" value="covered">Couvert</option>
-          <option class="bg-slate-950 text-white" value="proof-gap">Preuve a renforcer</option>
-          <option class="bg-slate-950 text-white" value="product-gap">Produit d abord</option>
-          <option class="bg-slate-950 text-white" value="scope-limit">Hors scope courant</option>
-        </select>
-      </label></div>
-
-    <div class="h-24 flex-1 rounded-xl" style="background-color: #eab308;">
-      <button type="button"
-        class="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60 flex-none"
-        (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7-id="admin-quality-reset-filters">
-        Reset
-      </button>
-    </div>
-  </div>
-
     <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-2 border-t border-white/10 pt-3 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex flex-wrap items-center gap-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">Selection Console</p>
-          <span
-            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-white/70">
-            Workspace filters
-          </span>
+      <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-700">Selection console</p>
+            <span
+              class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+              Filtres visibles
+            </span>
+            @if (hasActiveFilters()) {
+            <span
+              class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">
+              {{ activeFilterChips().length }} actif(s)
+            </span>
+            }
+          </div>
+          <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
+            Affinez le perimetre avant d ouvrir une mission, une delegation ou un registre d actions. Le rail reste
+            compact pour garder la matrix et le detail au premier plan.
+          </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 text-xs text-white/70">
-          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium"
             data-og7-id="admin-quality-filter-count">
             {{ filteredEntries().length }} / {{ totalDomains() }} domaines visibles
           </span>
           @if (selectedEntry(); as entry) {
-          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium">
-            Domaine actif : <span class="ml-1 text-white">{{ entry.domain }}</span>
+          <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium">
+            Domaine actif : <span class="ml-1 text-slate-900">{{ entry.domain }}</span>
+          </span>
+          }
+          <button type="button"
+            class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7-id="admin-quality-reset-filters">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(16rem,1.35fr)_repeat(4,minmax(0,1fr))]">
+        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
+          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Recherche</span>
+          <input type="search"
+            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            placeholder="Domaine, gap, preuve..." [value]="search()" (input)="setSearch($event)"
+            data-og7-id="admin-quality-search" />
+        </label>
+
+        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
+          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Domaine</span>
+          <select
+            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            [value]="selectedDomain()" (change)="setDomainFilter($event)" data-og7-id="admin-quality-domain-filter">
+            @for (option of domainOptions(); track option) {
+            <option [value]="option">{{ option === 'all' ? 'Tous les domaines' : option }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
+          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Priorite</span>
+          <select
+            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            [value]="selectedPriority()" (change)="setPriorityFilter($event)" data-og7-id="admin-quality-priority-filter">
+            <option value="all">Toutes les priorites</option>
+            <option value="haute">Haute</option>
+            <option value="moyenne">Moyenne</option>
+            <option value="basse">Basse</option>
+          </select>
+        </label>
+
+        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
+          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">E2E</span>
+          <select
+            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            [value]="selectedE2EStatus()" (change)="setE2EFilter($event)" data-og7-id="admin-quality-e2e-filter">
+            <option value="all">Tous les statuts E2E</option>
+            <option value="oui">Oui</option>
+            <option value="partiel">Partiel</option>
+            <option value="non">Non</option>
+            <option value="hors MVP">Hors MVP</option>
+          </select>
+        </label>
+
+        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
+          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Gestion</span>
+          <select
+            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            [value]="selectedBucket()" (change)="setBucketFilter($event)" data-og7-id="admin-quality-bucket-filter">
+            <option value="all">Tous les buckets</option>
+            <option value="covered">Couvert</option>
+            <option value="proof-gap">Preuve a renforcer</option>
+            <option value="product-gap">Produit d abord</option>
+            <option value="scope-limit">Hors scope courant</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="flex flex-col gap-3 border-t border-slate-200/80 pt-3 sm:flex-row sm:items-start sm:justify-between">
+        @if (hasActiveFilters()) {
+        <div class="flex flex-wrap gap-2" data-og7="admin-quality-active-filters">
+          @for (chip of activeFilterChips(); track chip.id) {
+          <span
+            class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700"
+            data-og7="admin-quality-active-filter" [attr.data-og7-id]="chip.id">
+            {{ chip.label }}
           </span>
           }
         </div>
+        } @else {
+        <p class="text-xs text-slate-500">Aucun filtre actif. La vue montre tout le portefeuille QA.</p>
+        }
+
+        <p class="text-xs leading-relaxed text-slate-500 sm:max-w-xs sm:text-right">
+          La selection detaillee reste pilotee par la matrix et la surface secondaire.
+        </p>
       </div>
     </div>
   </section>
 
-  <og7-admin-quality-command-rail [metrics]="commandMetrics()" />
+  <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
 
 <div class="flex flex-col gap-6 md:flex-row md:items-stretch">
   <div class="w-full md:w-2/3">
@@ -175,14 +201,15 @@
       <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Workspace</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Execution deck</p>
             <span
               class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">
-              1 surface active
+              Surface principale : {{ inspectionSurface() === 'actions' ? 'Actions' : 'Delegation' }}
             </span>
           </div>
           <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
-            Zone d inspection compacte pour basculer entre la table QA, la delegation et le registre d actions.
+            La decision reste en haut avec la matrix et le Mission Control. Ici, on enchaine sur la delegation ou le
+            registre d actions. La QA Queue detaillee descend en surface secondaire.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
@@ -195,32 +222,6 @@
       </div>
 
       <div class="mt-4 flex flex-wrap gap-2">
-        <button type="button" class="min-w-[13rem] flex-1 rounded-[18px] border px-3.5 py-3 text-left transition"
-          [class.border-slate-900]="isInspectionSurfaceActive('queue')"
-          [class.bg-slate-900]="isInspectionSurfaceActive('queue')"
-          [class.text-white]="isInspectionSurfaceActive('queue')" [class.shadow-md]="isInspectionSurfaceActive('queue')"
-          [class.border-slate-200]="!isInspectionSurfaceActive('queue')"
-          [class.bg-slate-50]="!isInspectionSurfaceActive('queue')"
-          [class.text-slate-900]="!isInspectionSurfaceActive('queue')" (click)="setInspectionSurface('queue')"
-          data-og7-id="admin-quality-surface-queue">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="text-sm font-semibold">QA Queue</p>
-              <p class="mt-1 text-xs" [class.text-slate-300]="isInspectionSurfaceActive('queue')"
-                [class.text-slate-500]="!isInspectionSurfaceActive('queue')">
-                Table complete et reselection rapide
-              </p>
-            </div>
-            <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
-              [class.border-white/20]="isInspectionSurfaceActive('queue')"
-              [class.text-slate-100]="isInspectionSurfaceActive('queue')"
-              [class.border-slate-200]="!isInspectionSurfaceActive('queue')"
-              [class.text-slate-600]="!isInspectionSurfaceActive('queue')">
-              {{ filteredEntries().length }}
-            </span>
-          </div>
-        </button>
-
         <button type="button" class="min-w-[13rem] flex-1 rounded-[18px] border px-3.5 py-3 text-left transition"
           [class.border-slate-900]="isInspectionSurfaceActive('delegation')"
           [class.bg-slate-900]="isInspectionSurfaceActive('delegation')"
@@ -279,107 +280,6 @@
 
     <div class="mt-7">
       @switch (inspectionSurface()) {
-      @case ('queue') {
-      <section
-        class="rounded-[34px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.18)] backdrop-blur">
-        <div
-          class="flex flex-col gap-3 border-b border-slate-200/80 px-6 py-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">QA Queue</p>
-            <h2 class="mt-1 text-lg font-semibold text-slate-900">Table d audit secondaire</h2>
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-              Surface de verification detaillee apres la matrix. Elle sert a reselectionner, relire le gap et preparer
-              la prochaine action.
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium">
-              {{ filteredEntries().length }} domaine(s)
-            </span>
-            <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium">
-              scroll interne
-            </span>
-          </div>
-        </div>
-        <div class="max-h-[40rem] overflow-auto">
-          <table class="min-w-[900px] divide-y divide-slate-200 text-left text-sm text-slate-700">
-            <thead class="sticky top-0 z-10 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th class="px-4 py-3">Domaine</th>
-                <th class="px-4 py-3">Diagnostic</th>
-                <th class="px-4 py-3">Lecture</th>
-                <th class="px-4 py-3">Prochaine action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              @if (!filteredEntries().length) {
-              <tr>
-                <td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500" data-og7-id="admin-quality-empty">
-                  Aucun domaine ne correspond aux filtres actifs.</td>
-              </tr>
-              } @else {
-              @for (entry of filteredEntries(); track entry.id) {
-              <tr data-og7="admin-quality-row" [attr.data-og7-id]="entry.id" [attr.data-og7-state]="entry.e2eStatus"
-                [class.bg-slate-50]="isSelected(entry)">
-                <td class="px-4 py-4 align-top">
-                  <button type="button" class="w-full text-left" (click)="selectEntry(entry)"
-                    [attr.aria-pressed]="isSelected(entry)" data-og7-id="admin-quality-select-row">
-                    <div class="flex items-start gap-3">
-                      <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
-                      <div class="min-w-0">
-                        <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
-                        <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
-                      </div>
-                    </div>
-                  </button>
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <p class="font-medium leading-relaxed text-slate-900">{{ entry.need }}</p>
-                  <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ entry.observedGap }}</p>
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <div class="flex flex-wrap gap-1.5">
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.summaryStatus)">S {{ statusLabel(entry.summaryStatus) }}</span>
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.businessStatus)">M {{ statusLabel(entry.businessStatus) }}</span>
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.implementationStatus)">I {{ statusLabel(entry.implementationStatus)
-                      }}</span>
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.e2eStatus)">E {{ statusLabel(entry.e2eStatus) }}</span>
-                  </div>
-                  <div class="mt-3 flex flex-wrap gap-1.5">
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="priorityClasses(entry.priority)">Priorite {{ priorityLabel(entry.priority) }}</span>
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="bucketClasses(entry.managementBucket)">{{ bucketLabel(entry.managementBucket) }}</span>
-                    <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="readinessClasses(entry)">{{ readinessLabel(entry) }}</span>
-                  </div>
-                  @if (entry.evidence.length) {
-                  <div class="mt-3 space-y-1">
-                    <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Preuve</p>
-                    <p class="text-xs leading-relaxed text-slate-600">
-                      {{ entry.evidence.length }} reference(s)
-                      @if (entry.evidence[0]; as firstEvidence) {
-                      <span class="text-slate-500"> · {{ firstEvidence }}</span>
-                      }
-                    </p>
-                  </div>
-                  }
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <p class="leading-relaxed text-slate-700">{{ entry.nextMove }}</p>
-                </td>
-              </tr>
-              }
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
-      }
       @case ('delegation') {
       @if (selectedDelegation(); as plan) {
       <section
@@ -410,7 +310,7 @@
               <p class="mt-2 text-sm font-semibold text-slate-900">{{ plan.actionLabel }}</p>
             </article>
             <article class="rounded-[20px] border border-slate-200 bg-slate-50/90 px-4 py-3">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Project status</p>
+              <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Etat projet</p>
               <p class="mt-2 text-sm font-semibold text-slate-900">{{ plan.projectStatus }}</p>
             </article>
             <article class="rounded-[20px] border border-slate-200 bg-slate-50/90 px-4 py-3">
@@ -741,6 +641,114 @@
       }
       }
     </div>
+
+    <details
+      class="mt-6 rounded-[30px] border border-slate-200/90 bg-slate-50/90 shadow-[0_18px_56px_-40px_rgba(15,23,42,0.2)]"
+      data-og7="admin-quality-secondary-queue">
+      <summary class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+        data-og7-id="admin-quality-secondary-queue-toggle">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Surface secondaire</p>
+          <h2 class="mt-1 text-lg font-semibold text-slate-900">QA Queue detaillee</h2>
+          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+            Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer la prochaine
+            action sans concurrencer la surface principale.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium">
+            {{ filteredEntries().length }} domaine(s)
+          </span>
+          <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium">
+            Reselection manuelle
+          </span>
+        </div>
+      </summary>
+
+      <div class="border-t border-slate-200/80 px-4 py-4 sm:px-5">
+        <section
+          class="rounded-[30px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.18)] backdrop-blur">
+          <div class="max-h-[40rem] overflow-auto">
+            <table class="min-w-[900px] divide-y divide-slate-200 text-left text-sm text-slate-700">
+              <thead class="sticky top-0 z-10 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-4 py-3">Domaine</th>
+                  <th class="px-4 py-3">Diagnostic</th>
+                  <th class="px-4 py-3">Lecture</th>
+                  <th class="px-4 py-3">Prochaine action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @if (!filteredEntries().length) {
+                <tr>
+                  <td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500"
+                    data-og7-id="admin-quality-empty">
+                    Aucun domaine ne correspond aux filtres actifs.</td>
+                </tr>
+                } @else {
+                @for (entry of filteredEntries(); track entry.id) {
+                <tr data-og7="admin-quality-row" [attr.data-og7-id]="entry.id" [attr.data-og7-state]="entry.e2eStatus"
+                  [class.bg-slate-50]="isSelected(entry)">
+                  <td class="px-4 py-4 align-top">
+                    <button type="button" class="w-full text-left" (click)="selectEntry(entry)"
+                      [attr.aria-pressed]="isSelected(entry)" data-og7-id="admin-quality-select-row">
+                      <div class="flex items-start gap-3">
+                        <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
+                        <div class="min-w-0">
+                          <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
+                          <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
+                        </div>
+                      </div>
+                    </button>
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <p class="font-medium leading-relaxed text-slate-900">{{ entry.need }}</p>
+                    <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ entry.observedGap }}</p>
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <div class="flex flex-wrap gap-1.5">
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="statusClasses(entry.summaryStatus)">S {{ statusLabel(entry.summaryStatus) }}</span>
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="statusClasses(entry.businessStatus)">M {{ statusLabel(entry.businessStatus) }}</span>
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="statusClasses(entry.implementationStatus)">I {{ statusLabel(entry.implementationStatus)
+                        }}</span>
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="statusClasses(entry.e2eStatus)">E {{ statusLabel(entry.e2eStatus) }}</span>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-1.5">
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="priorityClasses(entry.priority)">Priorite {{ priorityLabel(entry.priority) }}</span>
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="bucketClasses(entry.managementBucket)">{{ bucketLabel(entry.managementBucket) }}</span>
+                      <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                        [class]="readinessClasses(entry)">{{ readinessLabel(entry) }}</span>
+                    </div>
+                    @if (entry.evidence.length) {
+                    <div class="mt-3 space-y-1">
+                      <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Preuve</p>
+                      <p class="text-xs leading-relaxed text-slate-600">
+                        {{ entry.evidence.length }} reference(s)
+                        @if (entry.evidence[0]; as firstEvidence) {
+                        <span class="text-slate-500"> - {{ firstEvidence }}</span>
+                        }
+                      </p>
+                    </div>
+                    }
+                  </td>
+                  <td class="px-4 py-4 align-top">
+                    <p class="leading-relaxed text-slate-700">{{ entry.nextMove }}</p>
+                  </td>
+                </tr>
+                }
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </details>
   </section>
 
   }

@@ -24,6 +24,7 @@ import {
 } from './admin-quality-action-registry';
 import {
   AdminQualityCommandMetric,
+  AdminQualityCommandScopeSummary,
   AdminQualityCommandRailComponent,
 } from './admin-quality-command-rail.component';
 import { AdminQualityCoverageMatrixComponent } from './admin-quality-coverage-matrix.component';
@@ -43,7 +44,12 @@ import {
 import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
 
 type FilterValue<T extends string> = 'all' | T;
-type AdminQualityInspectionSurface = 'queue' | 'delegation' | 'actions';
+type AdminQualityInspectionSurface = 'delegation' | 'actions';
+interface AdminQualityActiveFilterChip {
+  readonly id: string;
+  readonly label: string;
+}
+
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
 
 @Component({
@@ -79,7 +85,7 @@ export class AdminQualityPage implements OnInit {
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
-  readonly inspectionSurface = signal<AdminQualityInspectionSurface>('queue');
+  readonly inspectionSurface = signal<AdminQualityInspectionSurface>('delegation');
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
   readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
@@ -131,52 +137,77 @@ export class AdminQualityPage implements OnInit {
 
   readonly totalDomains = computed(() => this.entries().length);
   readonly provedCount = computed(() => this.entries().filter((entry) => entry.e2eStatus === 'oui').length);
+  readonly filteredProvedCount = computed(() => this.filteredEntries().filter((entry) => entry.e2eStatus === 'oui').length);
   readonly proofGapCount = computed(
     () =>
       this.entries().filter(
         (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
       ).length
   );
+  readonly filteredProofGapCount = computed(
+    () =>
+      this.filteredEntries().filter(
+        (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
+      ).length
+  );
   readonly productWorkCount = computed(
     () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
+  );
+  readonly filteredProductWorkCount = computed(
+    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
   );
   readonly highPriorityGapCount = computed(
     () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
   );
+  readonly filteredHighPriorityGapCount = computed(
+    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
+  );
+  readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
+    activeDomains: this.filteredEntries().length,
+    totalDomains: this.totalDomains(),
+    filtered: this.hasActiveFilters(),
+    activeFilterCount: this.activeFilterChips().length,
+    selectedDomain: this.selectedEntry()?.domain ?? null,
+  }));
   readonly commandMetrics = computed<readonly AdminQualityCommandMetric[]>(() => [
     {
       id: 'total-domains',
-      label: 'Domaines suivis',
-      value: this.totalDomains(),
-      detail: 'Vue de pilotage globale',
+      label: 'Domaines visibles',
+      activeValue: this.filteredEntries().length,
+      totalValue: this.totalDomains(),
+      detail: this.hasActiveFilters() ? 'Perimetre courant de la console.' : 'Portefeuille complet actuellement visible.',
       accent: 'slate',
     },
     {
       id: 'proved-domains',
       label: 'Prouves',
-      value: this.provedCount(),
-      detail: 'Flux critiques deja couverts',
+      activeValue: this.filteredProvedCount(),
+      totalValue: this.provedCount(),
+      detail: 'Flux critiques deja couverts dans le scope courant.',
       accent: 'emerald',
     },
     {
       id: 'proof-gap-domains',
       label: 'Preuve QA suivante',
-      value: this.proofGapCount(),
-      detail: 'Peut avancer sans travail produit',
+      activeValue: this.filteredProofGapCount(),
+      totalValue: this.proofGapCount(),
+      detail: 'Peut avancer sans travail produit additionnel.',
       accent: 'sky',
     },
     {
       id: 'product-work-domains',
       label: 'Produit d abord',
-      value: this.productWorkCount(),
-      detail: 'Doit gagner une surface avant la preuve',
+      activeValue: this.filteredProductWorkCount(),
+      totalValue: this.productWorkCount(),
+      detail: 'Doit gagner une surface avant la preuve QA.',
       accent: 'indigo',
     },
     {
       id: 'high-priority-gaps',
       label: 'Gaps critiques',
-      value: this.highPriorityGapCount(),
-      detail: 'A surveiller en premier',
+      activeValue: this.filteredHighPriorityGapCount(),
+      totalValue: this.highPriorityGapCount(),
+      detail: 'A surveiller en premier dans le scope actif.',
       accent: 'rose',
     },
   ]);
@@ -200,6 +231,31 @@ export class AdminQualityPage implements OnInit {
       this.selectedE2EStatus() !== 'all' ||
       this.selectedBucket() !== 'all'
   );
+  readonly activeFilterChips = computed<readonly AdminQualityActiveFilterChip[]>(() => {
+    const chips: AdminQualityActiveFilterChip[] = [];
+    const search = this.search().trim();
+
+    if (search) {
+      chips.push({ id: 'search', label: `Recherche : ${search}` });
+    }
+    if (this.selectedDomain() !== 'all') {
+      chips.push({ id: 'domain', label: `Domaine : ${this.selectedDomain()}` });
+    }
+    if (this.selectedPriority() !== 'all') {
+      const priority = this.selectedPriority() as AdminQualityMatrixPriority;
+      chips.push({ id: 'priority', label: `Priorite : ${this.priorityLabel(priority)}` });
+    }
+    if (this.selectedE2EStatus() !== 'all') {
+      const e2eStatus = this.selectedE2EStatus() as AdminQualityMatrixStatus;
+      chips.push({ id: 'e2e', label: `E2E : ${this.statusLabel(e2eStatus)}` });
+    }
+    if (this.selectedBucket() !== 'all') {
+      const bucket = this.selectedBucket() as AdminQualityMatrixBucket;
+      chips.push({ id: 'bucket', label: `Gestion : ${this.bucketLabel(bucket)}` });
+    }
+
+    return chips;
+  });
   readonly selectedEntry = computed<AdminQualityMatrixEntry | null>(() => {
     const filtered = this.filteredEntries();
     if (!filtered.length) {

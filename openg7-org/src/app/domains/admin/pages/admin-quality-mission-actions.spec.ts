@@ -29,9 +29,9 @@ describe('admin-quality-mission-actions', () => {
     const actions = missionActionDescriptors('proposed');
 
     expect(actions).toEqual([
-      { action: 'approve', label: 'Create Mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
-      { action: 'auto-delegate', label: 'Auto-Delegate', tone: 'secondary' },
-      { action: 'defer', label: 'Ignore', tone: 'neutral' },
+      { action: 'approve', label: 'Valider mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
+      { action: 'auto-delegate', label: 'Deleguer', tone: 'secondary' },
+      { action: 'defer', label: 'Differer', tone: 'neutral' },
     ]);
   });
 
@@ -39,9 +39,9 @@ describe('admin-quality-mission-actions', () => {
     const actions = missionActionDescriptors('in-progress');
 
     expect(actions).toEqual([
-      { action: 'return-proof', label: 'Proof Returned', tone: 'success' },
-      { action: 'block', label: 'Block Mission', tone: 'danger' },
-      { action: 'reset', label: 'Reset', tone: 'neutral' },
+      { action: 'return-proof', label: 'Preuve revenue', tone: 'success' },
+      { action: 'block', label: 'Bloquer', tone: 'danger' },
+      { action: 'reset', label: 'Reinitialiser', tone: 'neutral' },
     ]);
   });
 

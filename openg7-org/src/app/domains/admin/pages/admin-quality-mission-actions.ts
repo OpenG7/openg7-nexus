@@ -40,33 +40,33 @@ export function missionActionDescriptors(
   switch (status) {
     case 'approved':
       return [
-        { action: 'auto-delegate', label: 'Auto-Delegate', tone: 'secondary' },
-        { action: 'block', label: 'Block Mission', tone: 'danger' },
-        { action: 'reset', label: 'Reset', tone: 'neutral' },
+        { action: 'auto-delegate', label: 'Lancer delegation', tone: 'secondary' },
+        { action: 'block', label: 'Bloquer', tone: 'danger' },
+        { action: 'reset', label: 'Reinitialiser', tone: 'neutral' },
       ];
     case 'in-progress':
       return [
-        { action: 'return-proof', label: 'Proof Returned', tone: 'success' },
-        { action: 'block', label: 'Block Mission', tone: 'danger' },
-        { action: 'reset', label: 'Reset', tone: 'neutral' },
+        { action: 'return-proof', label: 'Preuve revenue', tone: 'success' },
+        { action: 'block', label: 'Bloquer', tone: 'danger' },
+        { action: 'reset', label: 'Reinitialiser', tone: 'neutral' },
       ];
     case 'proof-returned':
       return [
-        { action: 'complete', label: 'Close Mission', tone: 'primary' },
-        { action: 'reset', label: 'Reopen', tone: 'neutral' },
+        { action: 'complete', label: 'Cloturer', tone: 'primary' },
+        { action: 'reset', label: 'Reouvrir', tone: 'neutral' },
       ];
     case 'blocked':
       return [
-        { action: 'auto-delegate', label: 'Retry Mission', tone: 'secondary' },
-        { action: 'reset', label: 'Reset', tone: 'neutral' },
+        { action: 'auto-delegate', label: 'Relancer', tone: 'secondary' },
+        { action: 'reset', label: 'Reinitialiser', tone: 'neutral' },
       ];
     case 'done':
-      return [{ action: 'reset', label: 'Reopen', tone: 'neutral' }];
+      return [{ action: 'reset', label: 'Reouvrir', tone: 'neutral' }];
     default:
       return [
-        { action: 'approve', label: 'Create Mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
-        { action: 'auto-delegate', label: 'Auto-Delegate', tone: 'secondary' },
-        { action: 'defer', label: 'Ignore', tone: 'neutral' },
+        { action: 'approve', label: 'Valider mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
+        { action: 'auto-delegate', label: 'Deleguer', tone: 'secondary' },
+        { action: 'defer', label: 'Differer', tone: 'neutral' },
       ];
   }
 }

@@ -141,7 +141,7 @@ export class AdminQualityMissionControlComponent {
       case 'core':
         return 'Mission coeur';
       case 'safety-net':
-        return 'Safety net';
+        return 'Filet de securite';
       default:
         return 'Gouvernance';
     }
@@ -178,22 +178,22 @@ export class AdminQualityMissionControlComponent {
   missionTimelineCardClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'border-emerald-300/25 bg-emerald-400/10 text-white';
+        return 'border-emerald-200 bg-emerald-50 text-slate-900';
       case 'current':
-        return 'border-sky-300/35 bg-white/10 text-white shadow-[0_18px_34px_-22px_rgba(56,189,248,0.55)]';
+        return 'border-sky-200 bg-sky-50 text-slate-900 shadow-[0_18px_34px_-24px_rgba(56,189,248,0.3)]';
       default:
-        return 'border-white/10 bg-slate-950/35 text-slate-300';
+        return 'border-slate-200 bg-white text-slate-700';
     }
   }
 
   missionTimelineMarkerClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'border-emerald-300 bg-emerald-400 text-slate-950';
+        return 'border-emerald-200 bg-emerald-500 text-white';
       case 'current':
-        return 'border-sky-200 bg-sky-400/20 text-sky-100 shadow-[0_0_0_6px_rgba(56,189,248,0.12)]';
+        return 'border-sky-300 bg-sky-100 text-sky-700 shadow-[0_0_0_6px_rgba(56,189,248,0.1)]';
       default:
-        return 'border-white/15 bg-slate-950/85 text-slate-400';
+        return 'border-slate-200 bg-white text-slate-500';
     }
   }
 
@@ -202,9 +202,9 @@ export class AdminQualityMissionControlComponent {
       case 'done':
         return 'bg-linear-to-r from-emerald-300 via-sky-300 to-sky-200';
       case 'current':
-        return 'bg-linear-to-r from-sky-300/80 to-white/10';
+        return 'bg-linear-to-r from-sky-300 to-slate-200';
       default:
-        return 'bg-white/10';
+        return 'bg-slate-200';
     }
   }
 
@@ -213,9 +213,9 @@ export class AdminQualityMissionControlComponent {
       case 'done':
         return 'bg-linear-to-b from-emerald-300 via-sky-300 to-sky-200';
       case 'current':
-        return 'bg-linear-to-b from-sky-300/80 to-white/10';
+        return 'bg-linear-to-b from-sky-300 to-slate-200';
       default:
-        return 'bg-white/10';
+        return 'bg-slate-200';
     }
   }
 
@@ -328,15 +328,15 @@ export class AdminQualityMissionControlComponent {
     if (surface === 'hero') {
       switch (tone) {
         case 'primary':
-          return 'rounded-lg border border-orange-400/60 bg-orange-500/80 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-400';
+          return 'rounded-lg border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700';
         case 'secondary':
-          return 'rounded-lg border border-sky-300/50 bg-sky-500/80 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-400';
+          return 'rounded-lg border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100';
         case 'danger':
-          return 'rounded-lg border border-rose-300/30 bg-rose-500/15 px-4 py-2 text-sm font-medium text-rose-100 transition hover:bg-rose-500/25';
+          return 'rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100';
         case 'success':
-          return 'rounded-lg border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30';
+          return 'rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100';
         default:
-          return 'rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10';
+          return 'rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100';
       }
     }
 
@@ -390,13 +390,13 @@ export class AdminQualityMissionControlComponent {
   private timelineSupportLabel(id: string, label: string): string {
     switch (id) {
       case 'analysis':
-        return 'AI draft';
+        return 'Analyse AI';
       case 'approval':
-        return 'Go humain';
+        return 'Validation humaine';
       case 'execution':
-        return label.includes('bloquee') ? 'Blocage agent' : 'Agent actif';
+        return label.includes('bloquee') ? 'Blocage agent' : 'Mission active';
       case 'review':
-        return 'QA review';
+        return 'Relecture QA';
       default:
         return 'Decision finale';
     }

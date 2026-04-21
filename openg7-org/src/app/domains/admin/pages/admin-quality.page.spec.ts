@@ -100,6 +100,20 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]')).not.toBeNull();
   });
 
+  it('keeps delegation and actions as primary surfaces and moves the QA queue to a secondary panel', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const secondaryQueue = root.querySelector('[data-og7="admin-quality-secondary-queue"]') as HTMLDetailsElement;
+
+    expect(root.querySelector('[data-og7-id="admin-quality-surface-delegation"]')).not.toBeNull();
+    expect(root.querySelector('[data-og7-id="admin-quality-surface-actions"]')).not.toBeNull();
+    expect(root.querySelector('[data-og7-id="admin-quality-surface-queue"]')).toBeNull();
+    expect(secondaryQueue).not.toBeNull();
+    expect(secondaryQueue.open).toBeFalse();
+  });
+
   it('renders the compact coverage matrix and lets it change the active domain', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
@@ -107,6 +121,7 @@ describe('AdminQualityPage', () => {
     const root = fixture.nativeElement as HTMLElement;
     const matrix = root.querySelector('[data-og7="admin-quality-coverage-matrix"]');
     const rows = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-row"]');
+    const signalLegend = root.querySelector('[data-og7="admin-quality-coverage-matrix-signal-legend"]');
     const legendToggle = root.querySelector(
       '[data-og7-id="admin-quality-coverage-matrix-legend-toggle"]'
     ) as HTMLButtonElement;
@@ -116,15 +131,15 @@ describe('AdminQualityPage', () => {
 
     expect(matrix).not.toBeNull();
     expect(rows.length).toBe(3);
-    expect(legendToggle.getAttribute('aria-expanded')).toBe('false');
-    expect(root.querySelector('[data-og7="admin-quality-coverage-matrix-legend"]')).toBeNull();
+    expect(signalLegend).not.toBeNull();
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('true');
+    expect(root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]').length).toBe(6);
 
     legendToggle.click();
     fixture.detectChanges();
 
-    const legendItems = root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]');
-    expect(legendToggle.getAttribute('aria-expanded')).toBe('true');
-    expect(legendItems.length).toBe(6);
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('false');
+    expect(root.querySelector('[data-og7="admin-quality-coverage-matrix-legend"]')).toBeNull();
 
     trustRow.click();
     fixture.detectChanges();
@@ -172,6 +187,46 @@ describe('AdminQualityPage', () => {
     expect(rows[0]?.getAttribute('data-og7-id')).toBe('trust-validation');
   });
 
+  it('surfaces active filters as readable chips in the sticky rail', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const domainFilter = root.querySelector('[data-og7-id="admin-quality-domain-filter"]') as HTMLSelectElement;
+    const resetButton = root.querySelector('[data-og7-id="admin-quality-reset-filters"]') as HTMLButtonElement;
+
+    expect(root.querySelector('[data-og7="admin-quality-active-filters"]')).toBeNull();
+    expect(root.textContent).toContain('Aucun filtre actif. La vue montre tout le portefeuille QA.');
+    expect(resetButton.disabled).toBeTrue();
+
+    domainFilter.value = 'Trust et validation';
+    domainFilter.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const chips = root.querySelectorAll('[data-og7="admin-quality-active-filter"]');
+    expect(chips.length).toBe(1);
+    expect(chips[0]?.textContent).toContain('Domaine : Trust et validation');
+    expect(resetButton.disabled).toBeFalse();
+  });
+
+  it('distinguishes active scope from global totals in the command rail', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const domainFilter = root.querySelector('[data-og7-id="admin-quality-domain-filter"]') as HTMLSelectElement;
+
+    expect(root.querySelector('[data-og7-id="rail-heading"]')?.textContent).toContain('Vue globale');
+
+    domainFilter.value = 'Trust et validation';
+    domainFilter.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(root.querySelector('[data-og7-id="rail-heading"]')?.textContent).toContain('Scope actif');
+    expect(root.querySelector('[data-og7-id="total-domains"]')?.textContent).toContain('Global 3');
+    expect(root.querySelector('[data-og7-id="proved-domains"]')?.textContent).toContain('Global 1');
+  });
+
   it('renders a delegation panel and updates it when another row is selected', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
@@ -215,11 +270,11 @@ describe('AdminQualityPage', () => {
     expect(missionHero).not.toBeNull();
     expect(missionWorkflow).not.toBeNull();
     expect(root.querySelector('[data-og7="admin-quality-local-state"]')).toBeNull();
-    expect(root.textContent).toContain('AI Mission Control');
-    expect(root.textContent).toContain('Gap Detected:');
-    expect(root.textContent).toContain('Suggestion:');
-    expect(root.textContent).toContain('Create Mission');
-    expect(root.textContent).toContain('Auto-Delegate');
+    expect(missionControl?.textContent).toContain('Mission Control');
+    expect(missionControl?.textContent).toContain('Gap constate');
+    expect(missionControl?.textContent).toContain('Mission suggeree');
+    expect(missionControl?.textContent).toContain('Valider mission');
+    expect(missionControl?.textContent).toContain('Deleguer');
     expect(recommendations.length).toBe(3);
     expect(root.textContent).toContain('Validation humaine requise');
 
