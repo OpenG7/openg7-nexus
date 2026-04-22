@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
@@ -49,8 +49,20 @@ interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
 }
+interface AdminQualityPersistedViewState {
+  readonly search?: string;
+  readonly selectedDomain?: FilterValue<string>;
+  readonly selectedPriority?: FilterValue<AdminQualityMatrixPriority>;
+  readonly selectedE2EStatus?: FilterValue<AdminQualityMatrixStatus>;
+  readonly selectedBucket?: FilterValue<AdminQualityMatrixBucket>;
+  readonly selectedEntryId?: string | null;
+  readonly selectedActionId?: string | null;
+  readonly selectedMissionId?: string | null;
+  readonly inspectionSurface?: AdminQualityInspectionSurface;
+}
 
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
+const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
 
 @Component({
   standalone: true,
@@ -88,6 +100,7 @@ export class AdminQualityPage implements OnInit {
   readonly inspectionSurface = signal<AdminQualityInspectionSurface>('delegation');
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
+  private readonly viewStateReady = signal(false);
   readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
     'loading',
     'success',
@@ -272,7 +285,7 @@ export class AdminQualityPage implements OnInit {
   readonly selectedEntryActions = computed<readonly AdminQualityActionRecord[]>(() => {
     const entry = this.selectedEntry();
     const actions = this.actionRegistry();
-    return entry ? actions.filter((action) => action.entryId === entry.id) : actions;
+    return entry ? actions.filter((action) => action.entryId === entry.id) : [];
   });
   readonly selectedAction = computed<AdminQualityActionRecord | null>(() => {
     const actions = this.selectedEntryActions();
@@ -286,7 +299,7 @@ export class AdminQualityPage implements OnInit {
   readonly selectedEntryUndocumentedActions = computed(() => {
     const entry = this.selectedEntry();
     const actions = this.undocumentedActions();
-    return entry ? actions.filter((action) => action.entryId === entry.id) : actions;
+    return entry ? actions.filter((action) => action.entryId === entry.id) : [];
   });
   readonly missionControl = computed<AdminQualityMissionControlState | null>(() => {
     const entry = this.selectedEntry();
@@ -303,8 +316,20 @@ export class AdminQualityPage implements OnInit {
     return recommendations.find((recommendation) => recommendation.id === selectedId) ?? recommendations[0];
   });
 
+  constructor() {
+    effect(() => {
+      this.syncVisibleState();
+    });
+
+    effect(() => {
+      this.persistViewState();
+    });
+  }
+
   ngOnInit(): void {
+    this.restoreViewState();
     this.restoreMissionDecisions();
+    this.viewStateReady.set(true);
     this.destroyRef.onDestroy(() => this.stopMissionVoice(false));
 
     this.service
@@ -324,33 +349,39 @@ export class AdminQualityPage implements OnInit {
   }
 
   setSearch(event: Event): void {
+    this.stopVoiceForContextChange();
     const value = (event.target as HTMLInputElement | null)?.value ?? '';
     this.search.set(value);
   }
 
   setDomainFilter(event: Event): void {
+    this.stopVoiceForContextChange();
     this.selectedDomain.set(((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all');
   }
 
   setPriorityFilter(event: Event): void {
+    this.stopVoiceForContextChange();
     this.selectedPriority.set(
       ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all'
     );
   }
 
   setE2EFilter(event: Event): void {
+    this.stopVoiceForContextChange();
     this.selectedE2EStatus.set(
       ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all'
     );
   }
 
   setBucketFilter(event: Event): void {
+    this.stopVoiceForContextChange();
     this.selectedBucket.set(
       ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all'
     );
   }
 
   resetFilters(): void {
+    this.stopVoiceForContextChange();
     this.search.set('');
     this.selectedDomain.set('all');
     this.selectedPriority.set('all');
@@ -359,6 +390,7 @@ export class AdminQualityPage implements OnInit {
   }
 
   selectEntry(entry: AdminQualityMatrixEntry): void {
+    this.stopVoiceForContextChange();
     this.selectedEntryId.set(entry.id);
     this.selectedActionId.set(null);
     this.selectedMissionId.set(null);
@@ -369,6 +401,7 @@ export class AdminQualityPage implements OnInit {
   }
 
   selectAction(action: AdminQualityActionRecord): void {
+    this.stopVoiceForContextChange();
     this.selectedActionId.set(action.id);
     this.inspectionSurface.set('actions');
   }
@@ -378,10 +411,12 @@ export class AdminQualityPage implements OnInit {
   }
 
   selectMission(recommendation: AdminQualityMissionRecommendation): void {
+    this.stopVoiceForContextChange();
     this.selectedMissionId.set(recommendation.id);
   }
 
   setInspectionSurface(surface: AdminQualityInspectionSurface): void {
+    this.stopVoiceForContextChange();
     this.inspectionSurface.set(surface);
   }
 
@@ -394,6 +429,8 @@ export class AdminQualityPage implements OnInit {
     if (!resolution) {
       return;
     }
+
+    this.stopVoiceForContextChange();
 
     if (resolution.kind === 'reset') {
       this.resetMission(event.recommendation, resolution.message);
@@ -453,16 +490,6 @@ export class AdminQualityPage implements OnInit {
       default:
         return 'Bouton';
     }
-  }
-
-  actionScoreClasses(score: number): string {
-    if (score >= 80) {
-      return 'bg-emerald-500';
-    }
-    if (score >= 60) {
-      return 'bg-sky-500';
-    }
-    return 'bg-rose-500';
   }
 
   actionStateLabel(key: keyof AdminQualityActionStateCoverage): string {
@@ -797,5 +824,127 @@ export class AdminQualityPage implements OnInit {
       value === 'rejected' ||
       value === 'blocked'
     );
+  }
+
+  private syncVisibleState(): void {
+    if (!this.viewStateReady() || !this.snapshot()) {
+      return;
+    }
+
+    const selectedDomain = this.selectedDomain();
+    if (selectedDomain !== 'all' && !this.entries().some((entry) => entry.domain === selectedDomain)) {
+      this.selectedDomain.set('all');
+      return;
+    }
+
+    const entryId = this.selectedEntry()?.id ?? null;
+    if (entryId !== this.selectedEntryId()) {
+      this.selectedEntryId.set(entryId);
+      this.selectedActionId.set(null);
+      this.selectedMissionId.set(null);
+      return;
+    }
+
+    const actionId = this.selectedAction()?.id ?? null;
+    if (actionId !== this.selectedActionId()) {
+      this.selectedActionId.set(actionId);
+      return;
+    }
+
+    const missionId = this.selectedMission()?.id ?? null;
+    if (missionId !== this.selectedMissionId()) {
+      this.selectedMissionId.set(missionId);
+    }
+  }
+
+  private stopVoiceForContextChange(): void {
+    if (this.speaking()) {
+      this.stopMissionVoice(false);
+    }
+  }
+
+  private restoreViewState(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    try {
+      const rawValue = localStorage.getItem(VIEW_STATE_STORAGE_KEY);
+      if (!rawValue) {
+        return;
+      }
+
+      const parsed = JSON.parse(rawValue) as AdminQualityPersistedViewState;
+
+      if (typeof parsed.search === 'string') {
+        this.search.set(parsed.search);
+      }
+      if (typeof parsed.selectedDomain === 'string') {
+        this.selectedDomain.set(parsed.selectedDomain || 'all');
+      }
+      if (this.isPriorityFilterValue(parsed.selectedPriority)) {
+        this.selectedPriority.set(parsed.selectedPriority);
+      }
+      if (this.isStatusFilterValue(parsed.selectedE2EStatus)) {
+        this.selectedE2EStatus.set(parsed.selectedE2EStatus);
+      }
+      if (this.isBucketFilterValue(parsed.selectedBucket)) {
+        this.selectedBucket.set(parsed.selectedBucket);
+      }
+      if (parsed.selectedEntryId === null || typeof parsed.selectedEntryId === 'string') {
+        this.selectedEntryId.set(parsed.selectedEntryId);
+      }
+      if (parsed.selectedActionId === null || typeof parsed.selectedActionId === 'string') {
+        this.selectedActionId.set(parsed.selectedActionId);
+      }
+      if (parsed.selectedMissionId === null || typeof parsed.selectedMissionId === 'string') {
+        this.selectedMissionId.set(parsed.selectedMissionId);
+      }
+      if (this.isInspectionSurface(parsed.inspectionSurface)) {
+        this.inspectionSurface.set(parsed.inspectionSurface);
+      }
+    } catch {
+      localStorage.removeItem(VIEW_STATE_STORAGE_KEY);
+    }
+  }
+
+  private persistViewState(): void {
+    if (!this.viewStateReady() || typeof localStorage === 'undefined' || !this.snapshot()) {
+      return;
+    }
+
+    const state: AdminQualityPersistedViewState = {
+      search: this.search(),
+      selectedDomain: this.selectedDomain(),
+      selectedPriority: this.selectedPriority(),
+      selectedE2EStatus: this.selectedE2EStatus(),
+      selectedBucket: this.selectedBucket(),
+      selectedEntryId: this.selectedEntryId(),
+      selectedActionId: this.selectedActionId(),
+      selectedMissionId: this.selectedMissionId(),
+      inspectionSurface: this.inspectionSurface(),
+    };
+
+    try {
+      localStorage.setItem(VIEW_STATE_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Ignore local persistence failures to avoid noisy toasts during passive navigation.
+    }
+  }
+
+  private isPriorityFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixPriority> {
+    return value === 'all' || value === 'haute' || value === 'moyenne' || value === 'basse';
+  }
+
+  private isStatusFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixStatus> {
+    return value === 'all' || value === 'oui' || value === 'partiel' || value === 'non' || value === 'hors MVP';
+  }
+
+  private isBucketFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixBucket> {
+    return value === 'all' || value === 'covered' || value === 'proof-gap' || value === 'product-gap' || value === 'scope-limit';
+  }
+
+  private isInspectionSurface(value: unknown): value is AdminQualityInspectionSurface {
+    return value === 'delegation' || value === 'actions';
   }
 }

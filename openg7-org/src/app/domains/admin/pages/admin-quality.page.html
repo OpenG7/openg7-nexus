@@ -84,7 +84,8 @@
           }
           <button type="button"
             class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7-id="admin-quality-reset-filters">
+            (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7="action"
+            data-og7-id="admin-quality-reset-filters">
             Reset
           </button>
         </div>
@@ -173,14 +174,14 @@
 
   <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
 
-<div class="flex flex-col gap-6 md:flex-row md:items-stretch">
-  <div class="w-full md:w-2/3">
+<div class="flex flex-col gap-6 2xl:grid 2xl:grid-cols-[minmax(0,1.15fr)_minmax(26rem,0.95fr)] 2xl:items-start">
+  <div class="w-full min-w-0">
     <og7-admin-quality-coverage-matrix [entries]="filteredEntries()" [selectedEntryId]="selectedEntry()?.id ?? null"
         (entrySelected)="selectEntry($event)" />
 
   </div>
 
-  <div class="flex w-full md:w-1/3">
+  <div class="flex w-full min-w-0 2xl:self-start">
     @if (missionControl(); as mission) {
       <og7-admin-quality-mission-control [missionControl]="mission" [snapshotLoaded]="!!snapshot()"
         [totalDomains]="totalDomains()" [selectedDomain]="selectedEntry()?.domain ?? null"
@@ -230,6 +231,8 @@
           [class.border-slate-200]="!isInspectionSurfaceActive('delegation')"
           [class.bg-slate-50]="!isInspectionSurfaceActive('delegation')"
           [class.text-slate-900]="!isInspectionSurfaceActive('delegation')" (click)="setInspectionSurface('delegation')"
+          [attr.aria-pressed]="isInspectionSurfaceActive('delegation')"
+          data-og7="action"
           data-og7-id="admin-quality-surface-delegation">
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -257,6 +260,8 @@
           [class.border-slate-200]="!isInspectionSurfaceActive('actions')"
           [class.bg-slate-50]="!isInspectionSurfaceActive('actions')"
           [class.text-slate-900]="!isInspectionSurfaceActive('actions')" (click)="setInspectionSurface('actions')"
+          [attr.aria-pressed]="isInspectionSurfaceActive('actions')"
+          data-og7="action"
           data-og7-id="admin-quality-surface-actions">
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -373,7 +378,8 @@
                 </div>
                 <button type="button"
                   class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                  (click)="copyCodexPrompt(plan)" data-og7-id="admin-quality-copy-codex">Copier le brief</button>
+                  (click)="copyCodexPrompt(plan)" data-og7="action" data-og7-id="admin-quality-copy-codex">Copier le
+                  brief</button>
               </div>
               <details class="mt-4 rounded-[18px] border border-slate-200 bg-white">
                 <summary class="cursor-pointer list-none px-4 py-3 text-sm font-medium text-slate-700">
@@ -396,10 +402,11 @@
                 <div class="flex flex-wrap gap-2">
                   <button type="button"
                     class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-                    (click)="copyIssue(plan)" data-og7-id="admin-quality-copy-issue">Copier l issue</button>
+                    (click)="copyIssue(plan)" data-og7="action" data-og7-id="admin-quality-copy-issue">Copier l
+                    issue</button>
                   <a class="rounded-lg border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
                     [href]="plan.githubIssueUrl" target="_blank" rel="noopener noreferrer"
-                    data-og7-id="admin-quality-open-issue">Ouvrir sur GitHub</a>
+                    data-og7="action" data-og7-id="admin-quality-open-issue">Ouvrir sur GitHub</a>
                 </div>
               </div>
               <p
@@ -471,7 +478,8 @@
                 [class.border-slate-900]="isActionSelected(action)" [class.bg-white]="isActionSelected(action)"
                 [class.shadow-md]="isActionSelected(action)">
                 <button type="button" class="w-full text-left" (click)="selectAction(action)"
-                  data-og7-id="admin-quality-select-action">
+                  [attr.aria-pressed]="isActionSelected(action)"
+                  data-og7="action" data-og7-id="admin-quality-select-action">
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="space-y-1">
                       <p class="text-base font-semibold text-slate-900">{{ action.label }}</p>
@@ -691,7 +699,7 @@
                   [class.bg-slate-50]="isSelected(entry)">
                   <td class="px-4 py-4 align-top">
                     <button type="button" class="w-full text-left" (click)="selectEntry(entry)"
-                      [attr.aria-pressed]="isSelected(entry)" data-og7-id="admin-quality-select-row">
+                      [attr.aria-pressed]="isSelected(entry)" data-og7="action" data-og7-id="admin-quality-select-row">
                       <div class="flex items-start gap-3">
                         <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
                         <div class="min-w-0">

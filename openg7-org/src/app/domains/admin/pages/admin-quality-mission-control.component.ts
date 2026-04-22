@@ -164,17 +164,6 @@ export class AdminQualityMissionControlComponent {
     }
   }
 
-  missionTimelineClasses(status: AdminQualityMissionTimelineStatus): string {
-    switch (status) {
-      case 'done':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'current':
-        return 'border-slate-900 bg-slate-900 text-white';
-      default:
-        return 'border-slate-200 bg-white text-slate-500';
-    }
-  }
-
   missionTimelineCardClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
@@ -230,8 +219,8 @@ export class AdminQualityMissionControlComponent {
     }
   }
 
-  missionTimelineMarkerLabel(status: AdminQualityMissionTimelineStatus, index: number): string {
-    return status === 'done' ? '✓' : `${index + 1}`;
+  missionTimelineMarkerText(status: AdminQualityMissionTimelineStatus, index: number): string {
+    return status === 'done' ? 'OK' : `${index + 1}`;
   }
 
   missionStatusLabel(status: AdminQualityMissionStatus): string {

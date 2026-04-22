@@ -1,15 +1,15 @@
 <section
-  class="h-full max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-[30px] border border-sky-100/90 bg-white/92 p-5 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur"
+  class="h-full w-full rounded-[30px] border border-sky-100/90 bg-white/92 p-4 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur sm:p-5 2xl:max-h-[calc(100vh-2rem)] 2xl:overflow-x-hidden 2xl:overflow-y-auto 2xl:pr-3 2xl:[scrollbar-gutter:stable]"
   data-og7="admin-quality-mission-control"
 >
-  <div class="space-y-5">
-    <div class="grid gap-5 xl:grid-cols-[0.95fr_1.35fr]">
+  <div class="min-w-0 space-y-5">
+    <div class="grid gap-5">
       <article
         class="rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.98),rgba(239,246,255,0.92))] p-5 shadow-[0_24px_64px_-42px_rgba(15,23,42,0.22)]"
       >
         <div class="space-y-5">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div class="space-y-2">
+            <div class="min-w-0 space-y-2">
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Mission Control</p>
               <h2 class="text-2xl font-semibold text-slate-900">{{ selectedDomain() ?? 'Aucun domaine actif' }}</h2>
               <p class="max-w-xl text-sm leading-relaxed text-slate-600">{{ missionControl().overview }}</p>
@@ -24,11 +24,13 @@
             </div>
           </div>
 
-          <div class="flex flex-wrap gap-2">
+          <div class="flex min-w-0 flex-wrap gap-2">
             <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionPhaseClasses(missionControl().phase)">
               {{ missionControl().phaseLabel }}
             </span>
-            <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+            <span
+              class="inline-flex max-w-full rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 whitespace-normal break-words"
+            >
               {{ missionControl().operatorCue }}
             </span>
           </div>
@@ -71,6 +73,7 @@
                     type="button"
                     [class]="actionClasses(action.tone, 'hero')"
                     (click)="emitMissionAction(action.action, missionItem)"
+                    data-og7="action"
                     [attr.data-og7-id]="action.hookId ?? null"
                   >
                     {{ action.label }}
@@ -94,8 +97,8 @@
               </div>
 
               @if (activeTimelineStep(); as step) {
-                <div class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
-                  {{ step.label }} · {{ missionTimelineStatusLabel(step.status) }}
+                <div class="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 whitespace-normal break-words">
+                  {{ step.label }} <span aria-hidden="true">&middot;</span> {{ missionTimelineStatusLabel(step.status) }}
                 </div>
               }
             </div>
@@ -108,7 +111,7 @@
                       class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
                       [class]="missionTimelineMarkerClasses(step.status)"
                     >
-                      {{ missionTimelineMarkerLabel(step.status, $index) }}
+                      {{ missionTimelineMarkerText(step.status, $index) }}
                     </span>
                     @if (!$last) {
                       <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
@@ -145,7 +148,7 @@
                           class="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
                           [class]="missionTimelineMarkerClasses(step.status)"
                         >
-                          {{ missionTimelineMarkerLabel(step.status, $index) }}
+                          {{ missionTimelineMarkerText(step.status, $index) }}
                         </span>
 
                         <div class="min-w-0">
@@ -154,7 +157,7 @@
                         </div>
                       </div>
 
-                      <div class="mt-3 min-h-35 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+                      <div class="mt-3 min-h-[8.75rem] rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
                         <div class="flex flex-wrap items-start justify-between gap-2">
                           <p class="text-sm font-semibold text-slate-900">{{ step.label }}</p>
                           <span class="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
@@ -201,7 +204,7 @@
       </article>
 
       <div class="space-y-4">
-        <div class="grid gap-4 xl:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-2">
           @for (recommendation of missionControl().recommendations; track recommendation.id) {
             <article
               class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4 transition"
@@ -211,7 +214,12 @@
               [class.bg-white]="isMissionSelected(recommendation)"
               [class.shadow-md]="isMissionSelected(recommendation)"
             >
-              <button type="button" class="w-full text-left" (click)="missionSelected.emit(recommendation)">
+              <button
+                type="button"
+                class="w-full text-left"
+                (click)="missionSelected.emit(recommendation)"
+                [attr.aria-pressed]="isMissionSelected(recommendation)"
+              >
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div class="space-y-1">
                     <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -244,6 +252,7 @@
                     type="button"
                     [class]="actionClasses(action.tone, 'card')"
                     (click)="emitMissionAction(action.action, recommendation)"
+                    data-og7="action"
                     [attr.data-og7-id]="action.hookId ?? null"
                   >
                     {{ action.label }}
@@ -279,7 +288,7 @@
               </div>
             </div>
 
-            <div class="mt-5 grid gap-5 xl:grid-cols-[1fr_1fr_1.15fr]">
+            <div class="mt-5 grid gap-5 lg:grid-cols-2">
               <div class="space-y-4">
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Raisonnement mission</p>
@@ -316,7 +325,7 @@
                 </div>
               </div>
 
-              <div class="space-y-4">
+              <div class="space-y-4 lg:col-span-2">
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Fichiers et validation</p>
                   <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
@@ -356,7 +365,7 @@
         </p>
       </div>
 
-      <div class="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-5">
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
         @for (step of workflowSteps(); track step.id) {
           <article class="rounded-[20px] border p-4 transition" [class]="workflowCardClasses(step.active)">
             <div
