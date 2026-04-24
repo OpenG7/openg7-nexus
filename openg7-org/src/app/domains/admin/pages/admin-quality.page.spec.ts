@@ -388,7 +388,7 @@ describe('AdminQualityPage', () => {
     let recommendationButtons = root.querySelectorAll(
       '[data-og7="admin-quality-recommendation"] > button'
     ) as NodeListOf<HTMLButtonElement>;
-    let approveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
+    let approveButton: HTMLButtonElement;
 
     expect(missionControl).not.toBeNull();
     expect(missionHero).not.toBeNull();
