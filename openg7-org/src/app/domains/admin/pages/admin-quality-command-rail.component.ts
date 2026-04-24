@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+export interface AdminQualityCommandScopeSummary {
+  readonly activeDomains: number;
+  readonly totalDomains: number;
+  readonly filtered: boolean;
+  readonly activeFilterCount: number;
+  readonly selectedDomain: string | null;
+}
+
 export interface AdminQualityCommandMetric {
   readonly id: string;
   readonly label: string;
-  readonly value: string | number;
+  readonly activeValue: number;
+  readonly totalValue: number;
   readonly detail: string;
   readonly accent: 'slate' | 'emerald' | 'sky' | 'indigo' | 'rose';
 }
@@ -16,25 +25,64 @@ export interface AdminQualityCommandMetric {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden rounded-[28px] border border-slate-800/80 bg-slate-950 px-4 py-4 text-white shadow-[0_28px_80px_-42px_rgba(15,23,42,0.9)]"
+      class="relative overflow-hidden rounded-[26px] border border-violet-500/30 bg-[#071120]/94 p-3 shadow-[0_30px_84px_-48px_rgba(14,165,233,0.62)]"
       data-og7="admin-quality-command-rail"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_44%),radial-gradient(circle_at_80%_20%,_rgba(129,140,248,0.14),_transparent_28%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(2,6,23,1))]"></div>
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_82%_18%,_rgba(168,85,247,0.16),_transparent_22%),linear-gradient(180deg,_rgba(3,7,18,0.34),_rgba(3,7,18,0.04))]"></div>
+      <div class="pointer-events-none absolute inset-x-5 top-14 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent"></div>
 
-      <div class="relative grid gap-px overflow-hidden rounded-[22px] bg-white/10 sm:grid-cols-2 xl:grid-cols-5">
+      <div class="sr-only" data-og7-id="rail-heading">
+        {{ scope().filtered ? 'Scope actif' : 'Vue globale' }}
+      </div>
+
+      <div class="relative grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
         @for (metric of metrics(); track metric.id) {
           <article
-            class="bg-slate-950/85 px-4 py-4 backdrop-blur"
+            class="relative min-w-0 overflow-hidden rounded-[22px] border px-4 py-3.5"
+            [class]="cardClasses(metric.accent)"
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
+            [attr.aria-label]="metric.activeValue + ' actif pour ' + metric.label + '. Global ' + metric.totalValue + '. ' + metric.detail"
+            [attr.title]="metric.detail"
           >
-            <p class="text-[11px] font-semibold uppercase tracking-[0.24em]" [class]="labelClasses(metric.accent)">
-              {{ metric.label }}
-            </p>
-            <p class="mt-2 text-2xl font-semibold" [class]="valueClasses(metric.accent)">{{ metric.value }}</p>
-            <p class="mt-1 text-xs leading-relaxed" [class]="detailClasses(metric.accent)">
-              {{ metric.detail }}
-            </p>
+            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent"></div>
+            <div class="flex h-full flex-col gap-3.5">
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-xs font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  [class]="iconShellClasses(metric.accent)"
+                  aria-hidden="true"
+                >
+                  {{ iconLabel(metric.id) }}
+                </span>
+                <div class="min-w-0">
+                  <p class="truncate text-[2.1rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
+                    {{ metric.activeValue }}
+                  </p>
+                  <span class="sr-only">Global {{ metric.totalValue }}</span>
+                </div>
+              </div>
+
+              <div class="min-w-0 space-y-1">
+                <p class="truncate text-base font-semibold text-white">{{ titleLabel(metric.id) }}</p>
+                <p class="truncate text-sm" [class]="detailClasses(metric.accent)">{{ subtitleLabel(metric.id) }}</p>
+              </div>
+
+              <div class="mt-auto flex items-end justify-between gap-3">
+                <div>
+                  <p class="text-xs font-medium" [class]="supportClasses(metric.accent)">
+                    {{ footerLabel(metric.id) }}
+                  </p>
+                  <p class="sr-only">Global {{ metric.totalValue }}</p>
+                </div>
+                <span
+                  class="inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                  [class]="badgeClasses(metric.accent)"
+                >
+                  {{ deltaLabel(metric) }}
+                </span>
+              </div>
+            </div>
           </article>
         }
       </div>
@@ -42,50 +90,182 @@ export interface AdminQualityCommandMetric {
   `,
 })
 export class AdminQualityCommandRailComponent {
+  readonly scope = input.required<AdminQualityCommandScopeSummary>();
   readonly metrics = input.required<readonly AdminQualityCommandMetric[]>();
 
-  labelClasses(accent: AdminQualityCommandMetric['accent']): string {
+  cardClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-300';
+        return 'border-emerald-500/20 bg-[linear-gradient(180deg,rgba(6,36,27,0.96),rgba(4,20,17,0.98))] text-white';
       case 'sky':
-        return 'text-sky-300';
+        return 'border-sky-500/20 bg-[linear-gradient(180deg,rgba(5,29,55,0.96),rgba(4,16,34,0.98))] text-white';
       case 'indigo':
-        return 'text-indigo-300';
+        return 'border-violet-500/20 bg-[linear-gradient(180deg,rgba(21,18,53,0.96),rgba(10,12,31,0.98))] text-white';
       case 'rose':
-        return 'text-rose-300';
+        return 'border-rose-500/20 bg-[linear-gradient(180deg,rgba(55,16,25,0.96),rgba(29,10,16,0.98))] text-white';
       default:
-        return 'text-slate-300';
+        return 'border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.98))] text-white';
     }
   }
 
-  valueClasses(accent: AdminQualityCommandMetric['accent']): string {
+  scopeBadgeClasses(filtered: boolean): string {
+    return filtered
+      ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
+      : 'border-white/10 bg-white/[0.05] text-slate-200';
+  }
+
+  badgeClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-100';
+        return 'border-emerald-400/20 bg-transparent text-emerald-300';
       case 'sky':
-        return 'text-sky-100';
+        return 'border-amber-400/20 bg-transparent text-amber-300';
       case 'indigo':
-        return 'text-indigo-100';
+        return 'border-violet-400/20 bg-transparent text-violet-300';
       case 'rose':
-        return 'text-rose-100';
+        return 'border-rose-400/20 bg-transparent text-rose-300';
       default:
-        return 'text-white';
+        return 'border-sky-400/20 bg-transparent text-sky-300';
+    }
+  }
+
+  eyebrowClasses(accent: AdminQualityCommandMetric['accent']): string {
+    switch (accent) {
+      case 'emerald':
+        return 'text-emerald-200';
+      case 'sky':
+        return 'text-sky-200';
+      case 'indigo':
+        return 'text-violet-200';
+      case 'rose':
+        return 'text-rose-200';
+      default:
+        return 'text-slate-300';
     }
   }
 
   detailClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-200/80';
+        return 'text-slate-200';
       case 'sky':
-        return 'text-sky-200/80';
+        return 'text-slate-200';
       case 'indigo':
-        return 'text-indigo-200/80';
+        return 'text-slate-200';
       case 'rose':
-        return 'text-rose-200/80';
+        return 'text-slate-200';
       default:
-        return 'text-slate-300/80';
+        return 'text-slate-200';
     }
+  }
+
+  valueClasses(accent: AdminQualityCommandMetric['accent']): string {
+    switch (accent) {
+      case 'emerald':
+        return 'text-emerald-50';
+      case 'sky':
+        return 'text-sky-50';
+      case 'indigo':
+        return 'text-violet-50';
+      case 'rose':
+        return 'text-rose-50';
+      default:
+        return 'text-white';
+    }
+  }
+
+  supportClasses(accent: AdminQualityCommandMetric['accent']): string {
+    switch (accent) {
+      case 'emerald':
+        return 'text-slate-300';
+      case 'sky':
+        return 'text-slate-300';
+      case 'indigo':
+        return 'text-slate-300';
+      case 'rose':
+        return 'text-slate-300';
+      default:
+        return 'text-slate-300';
+    }
+  }
+
+  iconShellClasses(accent: AdminQualityCommandMetric['accent']): string {
+    switch (accent) {
+      case 'emerald':
+        return 'border-emerald-400/18 bg-emerald-500/12 text-emerald-200';
+      case 'sky':
+        return 'border-sky-400/18 bg-sky-500/12 text-sky-200';
+      case 'indigo':
+        return 'border-violet-400/18 bg-violet-500/12 text-violet-200';
+      case 'rose':
+        return 'border-rose-400/18 bg-rose-500/12 text-rose-200';
+      default:
+        return 'border-sky-400/18 bg-sky-500/12 text-sky-200';
+    }
+  }
+
+  iconLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'proved-domains':
+        return 'SH';
+      case 'proof-gap-domains':
+        return 'HG';
+      case 'product-work-domains':
+        return 'RC';
+      case 'high-priority-gaps':
+        return 'AL';
+      default:
+        return 'GR';
+    }
+  }
+
+  coveragePercent(metric: AdminQualityCommandMetric): number {
+    if (metric.totalValue <= 0) {
+      return 0;
+    }
+
+    return Math.round((metric.activeValue / metric.totalValue) * 100);
+  }
+
+  titleLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'total-domains':
+        return 'Domaines suivis';
+      case 'proved-domains':
+        return 'Domaines prouves';
+      case 'proof-gap-domains':
+        return 'Preuve QA suivante';
+      case 'product-work-domains':
+        return "Produit d'abord";
+      default:
+        return 'Gaps critiques';
+    }
+  }
+
+  subtitleLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'total-domains':
+        return 'Lecture globale';
+      case 'proved-domains':
+        return 'Couverture forte';
+      case 'proof-gap-domains':
+        return 'Execution prioritaire';
+      case 'product-work-domains':
+        return 'Produit a cadrer';
+      default:
+        return 'A surveiller';
+    }
+  }
+
+  footerLabel(id: AdminQualityCommandMetric['id']): string {
+    return id === 'total-domains' ? 'Total' : `Global ${this.metrics().find((metric) => metric.id === id)?.totalValue ?? 0}`;
+  }
+
+  deltaLabel(metric: AdminQualityCommandMetric): string {
+    if (metric.id === 'total-domains') {
+      return `Global ${metric.totalValue}`;
+    }
+
+    return `↗ ${this.coveragePercent(metric)}%`;
   }
 }

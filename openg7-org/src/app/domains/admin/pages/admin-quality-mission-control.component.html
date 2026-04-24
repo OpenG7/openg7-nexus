@@ -1,0 +1,300 @@
+<section
+  class="relative w-full overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
+  data-og7="admin-quality-mission-control"
+>
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.2),_transparent_34%),radial-gradient(circle_at_88%_14%,_rgba(168,85,247,0.14),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.24),_rgba(2,6,23,0.04))]"></div>
+  <div class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"></div>
+
+  <div class="relative space-y-4">
+    <div class="flex flex-col gap-3 border-b border-white/10 pb-4 xl:flex-row xl:items-start xl:justify-between">
+      <div class="space-y-2">
+        <div class="flex items-center gap-3">
+          <span
+            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.2)]"
+            aria-hidden="true"
+          >
+            ~
+          </span>
+
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Pilotage AI</p>
+            <h2 class="mt-1 text-[1.9rem] font-semibold tracking-tight text-white">AI Mission Control</h2>
+          </div>
+        </div>
+
+        <p class="max-w-2xl text-sm leading-relaxed text-slate-300">
+          {{ missionControl().overview }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 xl:justify-end">
+        <span
+          class="inline-flex rounded-full border px-3 py-1.5 text-[11px] font-semibold"
+          [class]="missionPhaseClasses(missionControl().phase)"
+        >
+          Phase : {{ missionControl().phaseLabel }}
+        </span>
+        <span
+          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[11px] font-semibold text-amber-100"
+        >
+          Cue : {{ missionCueLabel() }}
+        </span>
+      </div>
+    </div>
+
+    @if (selectedMission(); as missionItem) {
+      <article
+        class="rounded-[24px] border border-white/10 bg-[#071426]/90 p-4 shadow-[0_30px_80px_-50px_rgba(8,47,73,0.95)]"
+        data-og7="admin-quality-mission-hero"
+      >
+        <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_7rem] md:items-start">
+          <div class="space-y-4">
+            <div class="rounded-[18px] border border-emerald-400/25 bg-emerald-400/10 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="text-sm font-semibold text-emerald-300">Mission active</p>
+                  <h3 class="mt-2 text-[1.8rem] font-semibold leading-tight text-white">{{ missionItem.title }}</h3>
+                  <p class="mt-1 text-sm text-slate-100">Type : {{ recommendationKindLabel(missionItem) }}</p>
+                </div>
+
+                <span
+                  class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
+                  [class]="missionStatusClasses(missionItem.status)"
+                >
+                  {{ missionStatusLabel(missionItem.status) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="grid gap-3 lg:grid-cols-2">
+              <article class="rounded-[18px] border border-rose-500/25 bg-rose-500/10 p-4">
+                <p class="text-sm font-semibold text-rose-200">Gap constate</p>
+                <p class="mt-2 text-sm leading-relaxed text-rose-50/95">{{ missionItem.whyNow }}</p>
+              </article>
+
+              <article class="rounded-[18px] border border-emerald-500/20 bg-emerald-500/10 p-4">
+                <p class="text-sm font-semibold text-emerald-200">Mission suggeree</p>
+                <p class="mt-2 text-sm leading-relaxed text-emerald-50/95">{{ missionItem.summary }}</p>
+              </article>
+            </div>
+
+            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              @for (action of heroActions(missionItem); track action.action) {
+                <button
+                  type="button"
+                  [class]="actionClasses(action.tone, 'hero')"
+                  (click)="emitMissionAction(action.action, missionItem)"
+                  data-og7="action"
+                  [attr.data-og7-id]="action.hookId ?? null"
+                >
+                  {{ action.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Confiance AI</p>
+            <div
+              class="relative mx-auto mt-4 flex h-20 w-20 items-center justify-center rounded-full shadow-[0_20px_40px_-28px_rgba(14,165,233,0.8)]"
+              [style.background]="confidenceRingBackground(missionItem.confidence)"
+            >
+              <div class="absolute inset-[6px] rounded-full bg-[#071120]"></div>
+              <div class="relative">
+                <p class="text-lg font-semibold text-white">{{ confidencePercent(missionItem.confidence) }}%</p>
+              </div>
+            </div>
+            <span
+              class="mt-3 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+              [class]="confidenceClasses(missionItem.confidence)"
+            >
+              {{ missionItem.confidence }}
+            </span>
+            <span
+              class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+              [class]="impactClasses(missionItem.impact)"
+            >
+              Impact {{ missionItem.impact }}
+            </span>
+          </div>
+        </div>
+      </article>
+    }
+
+    <section class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4" data-og7-id="admin-quality-mission-timeline">
+      <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">Timeline de la mission</p>
+          <h3 class="mt-2 text-base font-semibold text-white">
+            {{ activeTimelineStep()?.label ?? missionControl().phaseLabel }}
+          </h3>
+        </div>
+
+        <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200">
+          {{ selectedDomain() ?? 'Aucun domaine actif' }}
+        </span>
+      </div>
+
+      <div class="mt-5 hidden md:flex items-start">
+        @for (step of missionTimelineSteps(); track step.id) {
+          <div class="flex min-w-0 flex-1 items-start" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+            <div class="flex flex-1 flex-col items-center text-center">
+              <span
+                class="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
+                [class]="missionTimelineMarkerClasses(step.status)"
+              >
+                {{ missionTimelineMarkerText(step.status, $index) }}
+              </span>
+              <p class="mt-3 text-sm font-semibold" [ngClass]="step.status === 'pending' ? 'text-slate-400' : 'text-white'">
+                {{ step.shortLabel }}
+              </p>
+              <p class="mt-1 text-xs text-slate-400">{{ step.label }}</p>
+            </div>
+
+            @if (!$last) {
+              <span class="mt-4 block h-px flex-1" [class]="missionTimelineConnectorClasses(step.status)"></span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mt-4 space-y-3 md:hidden">
+        @for (step of missionTimelineSteps(); track step.id) {
+          <article class="flex gap-3" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+            <div class="flex w-9 shrink-0 flex-col items-center">
+              <span
+                class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
+                [class]="missionTimelineMarkerClasses(step.status)"
+              >
+                {{ missionTimelineMarkerText(step.status, $index) }}
+              </span>
+              @if (!$last) {
+                <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
+              }
+            </div>
+
+            <div class="min-w-0 flex-1 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+              <p class="text-sm font-semibold text-white">{{ step.label }}</p>
+              <p class="mt-1 text-xs text-slate-300">{{ missionTimelineStatusLabel(step.status) }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <div class="hidden">
+      <section class="space-y-3">
+        @for (recommendation of missionControl().recommendations; track recommendation.id) {
+          <article
+            class="rounded-[24px] border bg-white/[0.04] p-4 transition"
+            data-og7="admin-quality-recommendation"
+            [attr.data-og7-id]="recommendation.id"
+            [ngClass]="
+              isMissionSelected(recommendation)
+                ? 'border-sky-400/35 bg-sky-400/10 shadow-[0_24px_60px_-42px_rgba(56,189,248,0.78)]'
+                : 'border-white/10'
+            "
+          >
+            <button
+              type="button"
+              class="w-full text-left"
+              (click)="missionSelected.emit(recommendation)"
+              [attr.aria-pressed]="isMissionSelected(recommendation)"
+            >
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="space-y-1">
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    {{ recommendationKindLabel(recommendation) }}
+                  </p>
+                  <h3 class="text-base font-semibold text-white">{{ recommendation.title }}</h3>
+                </div>
+
+                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(recommendation.status)">
+                  {{ missionStatusLabel(recommendation.status) }}
+                </span>
+              </div>
+
+              <p class="mt-3 text-sm leading-relaxed text-slate-200">{{ recommendation.summary }}</p>
+              <p class="mt-3 text-xs leading-relaxed text-slate-400">{{ recommendation.whyNow }}</p>
+            </button>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
+              <span class="inline-flex rounded-full border px-2.5 py-1" [class]="confidenceClasses(recommendation.confidence)">
+                Confiance {{ recommendation.confidence }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1" [class]="impactClasses(recommendation.impact)">
+                Impact {{ recommendation.impact }}
+              </span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              @for (action of cardActions(recommendation); track action.action) {
+                <button
+                  type="button"
+                  [class]="actionClasses(action.tone, 'card')"
+                  (click)="emitMissionAction(action.action, recommendation)"
+                  data-og7="action"
+                  [attr.data-og7-id]="action.hookId ?? null"
+                >
+                  {{ action.label }}
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+
+      @if (selectedMission(); as missionItem) {
+        <article
+          class="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,19,40,0.96),rgba(4,11,27,0.98))] p-5"
+          data-og7="admin-quality-mission-detail"
+        >
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Mission selectionnee</p>
+          <h3 class="mt-2 text-lg font-semibold text-white">{{ missionItem.title }}</h3>
+          <p class="mt-2 text-sm text-slate-300">{{ missionItem.whyNow }}</p>
+        </article>
+      }
+
+      <section
+        class="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+        data-og7="admin-quality-mission-workflow"
+      >
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          @for (step of workflowSteps(); track step.id) {
+            <article class="rounded-[20px] border p-4 transition" [class]="workflowCardClasses(step.active)">
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold"
+                [class]="workflowBadgeClasses(step.accent, step.active)"
+              >
+                {{ $index + 1 }}
+              </div>
+              <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.label }}</p>
+              <p class="mt-2 text-sm font-semibold text-white">{{ step.headline }}</p>
+              <p class="mt-1 text-xs leading-relaxed text-slate-300">{{ step.detail }}</p>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="rounded-xl border border-sky-400/35 bg-linear-to-r from-sky-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white"
+          (click)="speakRequested.emit()"
+          data-og7-id="admin-quality-speak"
+        >
+          Lancer la lecture
+        </button>
+        <button
+          type="button"
+          class="rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-100"
+          (click)="stopSpeakingRequested.emit()"
+          [disabled]="!speaking()"
+          data-og7-id="admin-quality-stop-speaking"
+        >
+          Arreter
+        </button>
+      </section>
+    </div>
+  </div>
+</section>

@@ -63,34 +63,16 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-approve-mission",
-    "trigger": "button",
-    "hasActionHook": false,
-    "sourceFiles": [
-      {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 895,
-        "tag": "button",
-        "trigger": "button",
-        "hasActionHook": false
-      }
-    ],
-    "specFiles": [
-      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
-    ],
-    "e2eFiles": []
-  },
-  {
     "id": "admin-quality-copy-codex",
     "trigger": "button",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 1185,
+        "line": 377,
         "tag": "button",
         "trigger": "button",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
     "specFiles": [],
@@ -99,14 +81,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     "id": "admin-quality-copy-issue",
     "trigger": "button",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 1201,
+        "line": 401,
         "tag": "button",
         "trigger": "button",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
     "specFiles": [],
@@ -115,14 +97,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     "id": "admin-quality-open-issue",
     "trigger": "link",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 1209,
+        "line": 405,
         "tag": "a",
         "trigger": "link",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
     "specFiles": [
@@ -133,14 +115,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     "id": "admin-quality-reset-filters",
     "trigger": "button",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 249,
+        "line": 85,
         "tag": "button",
         "trigger": "button",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
     "specFiles": [
@@ -151,14 +133,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     "id": "admin-quality-select-action",
     "trigger": "button",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 534,
+        "line": 478,
         "tag": "button",
         "trigger": "button",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
     "specFiles": [],
@@ -167,19 +149,17 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     "id": "admin-quality-select-row",
     "trigger": "button",
-    "hasActionHook": false,
+    "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 288,
+        "line": 698,
         "tag": "button",
         "trigger": "button",
-        "hasActionHook": false
+        "hasActionHook": true
       }
     ],
-    "specFiles": [
-      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
-    ],
+    "specFiles": [],
     "e2eFiles": []
   },
   {
@@ -188,8 +168,8 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "hasActionHook": false,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 830,
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
+        "line": 182,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -204,14 +184,50 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "hasActionHook": false,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 838,
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
+        "line": 190,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
       }
     ],
     "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-surface-actions",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 254,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-surface-delegation",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 226,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
     "e2eFiles": []
   },
   {
