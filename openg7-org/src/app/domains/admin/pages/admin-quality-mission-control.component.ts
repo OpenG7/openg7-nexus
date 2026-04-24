@@ -3,13 +3,6 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
 
-import {
-  AdminQualityMissionControlState,
-  AdminQualityMissionPhase,
-  AdminQualityMissionRecommendation,
-  AdminQualityMissionStatus,
-  AdminQualityMissionTimelineStatus,
-} from './admin-quality-mission-control';
 import { AdminQualityDelegationPlan } from './admin-quality-delegation';
 import {
   AdminQualityMissionActionDescriptor,
@@ -18,6 +11,13 @@ import {
   AdminQualityMissionControlActionEvent,
   missionActionDescriptors,
 } from './admin-quality-mission-actions';
+import {
+  AdminQualityMissionControlState,
+  AdminQualityMissionPhase,
+  AdminQualityMissionRecommendation,
+  AdminQualityMissionStatus,
+  AdminQualityMissionTimelineStatus,
+} from './admin-quality-mission-control';
 
 interface AdminQualityMissionWorkflowStep {
   readonly id: string;

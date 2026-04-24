@@ -1,5 +1,5 @@
-import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
 import { missionActionDescriptors, resolveMissionAction } from './admin-quality-mission-actions';
+import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
 
 function buildRecommendation(
   overrides: Partial<AdminQualityMissionRecommendation> = {}
