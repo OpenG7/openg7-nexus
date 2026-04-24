@@ -7,7 +7,7 @@ import {
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
 
-type CoverageSignalTone = 'emerald' | 'lime' | 'amber' | 'orange' | 'rose' | 'slate';
+type CoverageSignalTone = 'sky' | 'emerald' | 'lime' | 'amber' | 'orange' | 'rose' | 'violet' | 'slate';
 
 interface CoverageSignal {
   readonly id: string;
@@ -23,13 +23,14 @@ interface CoverageToneLegendItem {
 }
 
 const COVERAGE_SIGNAL_LEGEND: readonly CoverageSignal[] = [
-  { id: 'summary', shortLabel: 'S', label: 'Synthese', tone: 'slate' },
-  { id: 'business', shortLabel: 'M', label: 'Metier', tone: 'slate' },
-  { id: 'implementation', shortLabel: 'I', label: 'Implementation', tone: 'slate' },
-  { id: 'e2e', shortLabel: 'E', label: 'End-to-end', tone: 'slate' },
-  { id: 'readiness', shortLabel: 'R', label: 'Readiness', tone: 'slate' },
-  { id: 'priority', shortLabel: 'P', label: 'Priorite', tone: 'slate' },
+  { id: 'summary', shortLabel: 'S', label: 'Synthese', tone: 'sky' },
+  { id: 'business', shortLabel: 'M', label: 'Metier', tone: 'emerald' },
+  { id: 'implementation', shortLabel: 'I', label: 'Implementation', tone: 'violet' },
+  { id: 'e2e', shortLabel: 'E', label: 'E2E', tone: 'amber' },
+  { id: 'readiness', shortLabel: 'R', label: 'Revue', tone: 'rose' },
+  { id: 'priority', shortLabel: 'P', label: 'Preuves', tone: 'lime' },
 ];
+
 const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
   { tone: 'emerald', label: 'Vert', detail: 'preuve forte ou surface couverte' },
   { tone: 'lime', label: 'Lime', detail: 'priorite basse' },
@@ -46,151 +47,152 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden rounded-[28px] border border-slate-800/90 bg-slate-950 p-5 text-white shadow-[0_30px_90px_-46px_rgba(15,23,42,0.94)]"
+      class="relative overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-white shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
       data-og7="admin-quality-coverage-matrix"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.24),_transparent_38%),radial-gradient(circle_at_86%_12%,_rgba(14,165,233,0.18),_transparent_24%),linear-gradient(180deg,_rgba(15,23,42,0.98),_rgba(2,6,23,1))]"></div>
-      <div class="pointer-events-none absolute inset-x-4 top-14 h-px bg-gradient-to-r from-transparent via-sky-300/25 to-transparent"></div>
-      <div class="pointer-events-none absolute -right-12 top-10 h-32 w-32 rounded-full bg-sky-400/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.22),_transparent_34%),radial-gradient(circle_at_88%_12%,_rgba(14,165,233,0.16),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.28),_rgba(2,6,23,0.06))]"></div>
+      <div class="pointer-events-none absolute inset-x-6 top-16 h-px bg-gradient-to-r from-transparent via-sky-300/20 to-transparent"></div>
+      <div class="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl"></div>
 
-      <div class="relative">
-        <div class="flex items-start justify-between gap-4">
-          <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Matrice de couverture</p>
-            <p class="max-w-sm text-sm leading-relaxed text-slate-300">
-              Lecture compacte des surfaces critiques. Chaque ligne pilote le focus detaille de la page.
-            </p>
+      <div class="relative space-y-4">
+        <div class="flex flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Decision cockpit</p>
+            <h2 class="mt-2 text-[1.9rem] font-semibold tracking-tight text-white">Coverage Matrix</h2>
           </div>
 
-          <div class="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
-            <span>{{ entries().length }} domaines</span>
-            <div class="flex items-center gap-1.5" aria-hidden="true">
-              <span class="h-2 w-2 rounded-full bg-slate-700"></span>
-              <span class="h-2 w-2 rounded-full bg-slate-700"></span>
-              <span class="h-2 w-2 rounded-full bg-slate-700"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-5 flex flex-col gap-3 border-t border-white/10 pt-4">
           <button
             type="button"
-            class="flex items-center justify-between gap-3 rounded-[14px] border border-white/10 bg-white/5 px-3 py-2 text-left transition hover:bg-white/8"
+            class="inline-flex items-center gap-3 self-start rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]"
             (click)="toggleLegend()"
             [attr.aria-expanded]="legendOpen()"
             aria-controls="admin-quality-coverage-matrix-legend-panel"
             data-og7-id="admin-quality-coverage-matrix-legend-toggle"
           >
-            <div>
-              <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">Legende de lecture</p>
-              <p class="mt-1 text-xs leading-relaxed text-slate-400">
-                S synthese, M metier, I implementation, E end-to-end, R readiness, P priorite.
-              </p>
-            </div>
-            <span
-              class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-slate-900/80 text-slate-300 transition"
-              [class.rotate-180]="legendOpen()"
-              aria-hidden="true"
-            >
-              <span class="text-sm leading-none">⌄</span>
-            </span>
+            <span>Legende</span>
+            <span class="text-xs text-slate-400 transition" [class.rotate-180]="legendOpen()" aria-hidden="true">v</span>
           </button>
-
-          @if (legendOpen()) {
-            <div
-              class="grid gap-2 sm:grid-cols-2"
-              id="admin-quality-coverage-matrix-legend-panel"
-              data-og7="admin-quality-coverage-matrix-legend"
-            >
-              @for (item of toneLegend; track item.tone) {
-                <div
-                  class="flex items-center gap-3 rounded-[14px] border border-white/10 bg-white/5 px-3 py-2"
-                  data-og7="admin-quality-coverage-matrix-legend-item"
-                  [attr.data-og7-id]="item.tone"
-                >
-                  <span
-                    class="h-3 w-8 shrink-0 rounded-[4px] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
-                    [ngClass]="signalClasses(item.tone)"
-                    aria-hidden="true"
-                  ></span>
-                  <div class="min-w-0">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">{{ item.label }}</p>
-                    <p class="text-xs leading-relaxed text-slate-400">{{ item.detail }}</p>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-
-          <div class="flex flex-wrap gap-2" data-og7="admin-quality-coverage-matrix-signal-legend">
-            @for (item of legend; track item.id) {
-              <span
-                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200"
-                [attr.data-og7-id]="item.id"
-              >
-                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[10px] font-semibold">
-                  {{ item.shortLabel }}
-                </span>
-                <span>{{ item.label }}</span>
-              </span>
-            }
-          </div>
         </div>
 
-        <div class="mt-4 rounded-[24px] border border-white/10 bg-slate-950/70 p-3">
-          <div class="mb-3 flex items-center justify-between gap-3 px-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
-            <span>Lecture</span>
-            <div class="grid w-[9.5rem] grid-cols-6 gap-1.5 text-center">
-              @for (item of legend; track item) {
-                <span [attr.title]="item.label">{{ item.shortLabel }}</span>
-              }
-            </div>
+        <div class="flex flex-wrap gap-2" data-og7="admin-quality-coverage-matrix-signal-legend">
+          @for (item of legend; track item.id) {
+            <span
+              class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#091627] px-3 py-1.5 text-[11px] font-medium text-slate-200"
+              [attr.data-og7-id]="item.id"
+            >
+              <span
+                class="inline-flex h-5 w-5 items-center justify-center rounded-full border"
+                [ngClass]="signalIndicatorFrameClasses(item.tone)"
+              >
+                <span class="h-2 w-2 rounded-full" [ngClass]="signalIndicatorDotClasses(item.tone)"></span>
+              </span>
+              <span>{{ item.shortLabel }}</span>
+              <span class="text-slate-400">{{ item.label }}</span>
+            </span>
+          }
+        </div>
+
+        @if (legendOpen()) {
+          <div
+            class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3"
+            id="admin-quality-coverage-matrix-legend-panel"
+            data-og7="admin-quality-coverage-matrix-legend"
+          >
+            @for (item of toneLegend; track item.tone) {
+              <div
+                class="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/[0.04] px-3 py-2.5"
+                data-og7="admin-quality-coverage-matrix-legend-item"
+                [attr.data-og7-id]="item.tone"
+              >
+                <span
+                  class="h-3 w-8 shrink-0 rounded-full border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
+                  [ngClass]="signalClasses(item.tone)"
+                  aria-hidden="true"
+                ></span>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">{{ item.label }}</p>
+                  <p class="text-xs leading-relaxed text-slate-400">{{ item.detail }}</p>
+                </div>
+              </div>
+            }
           </div>
+        }
 
+        <div class="rounded-[24px] border border-white/10 bg-[#061221]/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           @if (entries().length) {
-            <div class="max-h-[26rem] space-y-2 overflow-y-auto pr-1">
-              @for (entry of entries(); track entry.id) {
-                <button
-                  type="button"
-                  class="grid w-full grid-cols-[minmax(0,1fr)_9.5rem] items-center gap-3 rounded-[18px] border px-3 py-3 text-left transition"
-                  [ngClass]="rowClasses(entry)"
-                  (click)="entrySelected.emit(entry)"
-                  [attr.aria-pressed]="isSelected(entry)"
-                  [attr.data-og7-id]="entry.id"
-                  [attr.data-og7-state]="entry.e2eStatus"
-                  [attr.data-og7-selected]="isSelected(entry) ? 'true' : 'false'"
-                  data-og7="admin-quality-coverage-matrix-row"
-                >
-                  <div class="flex min-w-0 items-center gap-3">
-                    <span
-                      class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border"
-                      [class]="statusBadgeClasses(entry.e2eStatus)"
-                      aria-hidden="true"
+            <div class="overflow-x-auto">
+              <div class="min-w-[42rem]">
+                <div class="grid grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 border-b border-white/10 px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  <span>Domaine</span>
+                  @for (item of legend; track item.id) {
+                    <span class="text-center" [attr.title]="item.label">{{ item.shortLabel }}</span>
+                  }
+                  <span class="text-center">E2E</span>
+                  <span>Resume</span>
+                </div>
+
+                <div class="divide-y divide-white/10">
+                  @for (entry of entries(); track entry.id) {
+                    <button
+                      type="button"
+                      class="grid w-full grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 px-3 py-3 text-left transition"
+                      [ngClass]="rowClasses(entry)"
+                      (click)="entrySelected.emit(entry)"
+                      [attr.aria-pressed]="isSelected(entry)"
+                      [attr.data-og7-id]="entry.id"
+                      [attr.data-og7-state]="entry.e2eStatus"
+                      [attr.data-og7-selected]="isSelected(entry) ? 'true' : 'false'"
+                      data-og7="admin-quality-coverage-matrix-row"
                     >
-                      <span class="h-2 w-2 rounded-full" [class]="statusDotClasses(entry.e2eStatus)"></span>
-                    </span>
+                      <div class="min-w-0 pr-3">
+                        <div class="flex items-center gap-3">
+                          <span
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border"
+                            [class]="statusBadgeClasses(entry.e2eStatus)"
+                            aria-hidden="true"
+                          >
+                            <span class="h-2.5 w-2.5 rounded-full" [class]="statusDotClasses(entry.e2eStatus)"></span>
+                          </span>
 
-                    <div class="min-w-0">
-                      <p class="truncate text-sm font-medium" [ngClass]="isSelected(entry) ? 'text-white' : 'text-slate-100'">
-                        {{ entry.domain }}
-                      </p>
-                      <p class="mt-1 truncate text-[11px] text-slate-500">{{ summaryLine(entry) }}</p>
-                    </div>
-                  </div>
+                          <div class="min-w-0">
+                            <p class="truncate text-sm font-semibold" [ngClass]="isSelected(entry) ? 'text-white' : 'text-slate-100'">
+                              {{ entry.domain }}
+                            </p>
+                            <p class="mt-1 truncate text-xs text-slate-400">{{ entry.need }}</p>
+                          </div>
+                        </div>
+                      </div>
 
-                  <div class="grid grid-cols-6 gap-1.5" aria-hidden="true">
-                    @for (signal of signalsFor(entry); track signal.id) {
-                      <span
-                        class="h-3 rounded-[4px] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
-                        [attr.title]="signal.label"
-                        [ngClass]="signalClasses(signal.tone)"
-                      ></span>
-                    }
-                  </div>
+                      @for (signal of signalsFor(entry); track signal.id) {
+                        <div class="flex justify-center" aria-hidden="true">
+                          <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full border"
+                            [attr.title]="signal.label"
+                            [ngClass]="signalIndicatorFrameClasses(signal.tone)"
+                          >
+                            <span class="h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
+                          </span>
+                        </div>
+                      }
 
-                  <span class="sr-only">{{ ariaSummary(entry) }}</span>
-                </button>
-              }
+                      <div class="flex justify-center">
+                        <span
+                          class="inline-flex min-w-[4.5rem] items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                          [ngClass]="statusChipClasses(entry.e2eStatus)"
+                        >
+                          {{ statusChipLabel(entry.e2eStatus) }}
+                        </span>
+                      </div>
+
+                      <div class="min-w-0">
+                        <p class="truncate text-sm text-slate-200">{{ resumeText(entry) }}</p>
+                      </div>
+
+                      <span class="sr-only">{{ ariaSummary(entry) }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
             </div>
           } @else {
             <div class="rounded-[18px] border border-dashed border-white/10 bg-slate-900/60 px-4 py-8 text-sm text-slate-400">
@@ -199,19 +201,29 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
           }
         </div>
 
-        <div class="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4">
-          @if (selectedEntry(); as entry) {
-            <div class="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/5 px-3 py-3">
-              <div>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">Focus actif</p>
-                <p class="mt-1 text-sm font-medium text-white">{{ entry.domain }}</p>
+        @if (selectedEntry(); as entry) {
+          <div class="rounded-[18px] border border-white/10 bg-[#091627] px-4 py-3">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div class="flex flex-wrap items-center gap-2 text-sm">
+                <span class="text-slate-300">Focus actif</span>
+                <span class="inline-flex rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 font-medium text-sky-100">
+                  {{ entry.domain }}
+                </span>
+                <span class="inline-flex rounded-full border px-3 py-1 font-medium" [ngClass]="priorityChipClasses(entry.priority)">
+                  {{ priorityChipLabel(entry.priority) }}
+                </span>
+                <span
+                  class="inline-flex rounded-full border px-3 py-1 font-medium"
+                  [ngClass]="focusBucketClasses(entry.managementBucket)"
+                >
+                  {{ focusBucketLabel(entry) }}
+                </span>
               </div>
-              <p class="max-w-xs text-right text-xs leading-relaxed text-slate-300">
-                {{ entry.nextMove }}
-              </p>
+
+              <p class="text-sm text-slate-300">{{ entry.nextMove }}</p>
             </div>
-          }
-        </div>
+          </div>
+        }
       </div>
     </section>
   `,
@@ -235,8 +247,8 @@ export class AdminQualityCoverageMatrixComponent {
 
   rowClasses(entry: AdminQualityMatrixEntry): string {
     return this.isSelected(entry)
-      ? 'border-sky-300/70 bg-slate-900 shadow-lg shadow-sky-950/40'
-      : 'border-white/10 bg-slate-950/70 hover:border-sky-400/20 hover:bg-slate-900/80';
+      ? 'bg-sky-400/[0.08] shadow-[inset_4px_0_0_rgba(56,189,248,0.95)]'
+      : 'bg-transparent hover:bg-white/[0.03]';
   }
 
   selectedEntry(): AdminQualityMatrixEntry | null {
@@ -270,6 +282,8 @@ export class AdminQualityCoverageMatrixComponent {
 
   signalClasses(tone: CoverageSignalTone): string {
     switch (tone) {
+      case 'sky':
+        return 'bg-gradient-to-b from-sky-300 to-sky-500';
       case 'emerald':
         return 'bg-gradient-to-b from-emerald-300 to-emerald-500';
       case 'lime':
@@ -280,8 +294,52 @@ export class AdminQualityCoverageMatrixComponent {
         return 'bg-gradient-to-b from-orange-300 to-orange-500';
       case 'rose':
         return 'bg-gradient-to-b from-rose-400 to-red-600';
+      case 'violet':
+        return 'bg-gradient-to-b from-violet-300 to-violet-500';
       default:
         return 'bg-gradient-to-b from-slate-500 to-slate-700';
+    }
+  }
+
+  signalIndicatorFrameClasses(tone: CoverageSignalTone): string {
+    switch (tone) {
+      case 'sky':
+        return 'border-sky-300/35 bg-sky-400/10';
+      case 'emerald':
+        return 'border-emerald-300/35 bg-emerald-400/10';
+      case 'lime':
+        return 'border-lime-300/35 bg-lime-400/10';
+      case 'amber':
+        return 'border-amber-300/35 bg-amber-400/10';
+      case 'orange':
+        return 'border-orange-300/35 bg-orange-400/10';
+      case 'rose':
+        return 'border-rose-300/35 bg-rose-400/10';
+      case 'violet':
+        return 'border-violet-300/35 bg-violet-400/10';
+      default:
+        return 'border-slate-500/35 bg-slate-800/80';
+    }
+  }
+
+  signalIndicatorDotClasses(tone: CoverageSignalTone): string {
+    switch (tone) {
+      case 'sky':
+        return 'bg-sky-300';
+      case 'emerald':
+        return 'bg-emerald-300';
+      case 'lime':
+        return 'bg-lime-300';
+      case 'amber':
+        return 'bg-amber-300';
+      case 'orange':
+        return 'bg-orange-300';
+      case 'rose':
+        return 'bg-rose-300';
+      case 'violet':
+        return 'bg-violet-300';
+      default:
+        return 'bg-slate-400';
     }
   }
 
@@ -309,6 +367,87 @@ export class AdminQualityCoverageMatrixComponent {
       default:
         return 'bg-rose-400';
     }
+  }
+
+  statusChipClasses(status: AdminQualityMatrixStatus): string {
+    switch (status) {
+      case 'oui':
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+      case 'partiel':
+        return 'border-amber-400/25 bg-amber-400/12 text-amber-100';
+      case 'hors MVP':
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
+      default:
+        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+    }
+  }
+
+  statusChipLabel(status: AdminQualityMatrixStatus): string {
+    switch (status) {
+      case 'oui':
+        return 'OK';
+      case 'partiel':
+        return 'WARN';
+      case 'hors MVP':
+        return 'MVP';
+      default:
+        return 'KO';
+    }
+  }
+
+  priorityChipClasses(priority: AdminQualityMatrixPriority): string {
+    switch (priority) {
+      case 'haute':
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
+      case 'basse':
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+      default:
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
+    }
+  }
+
+  priorityChipLabel(priority: AdminQualityMatrixPriority): string {
+    switch (priority) {
+      case 'haute':
+        return 'Priorite haute';
+      case 'basse':
+        return 'Priorite basse';
+      default:
+        return 'Priorite moyenne';
+    }
+  }
+
+  focusBucketClasses(bucket: AdminQualityMatrixEntry['managementBucket']): string {
+    switch (bucket) {
+      case 'covered':
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+      case 'product-gap':
+        return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
+      case 'scope-limit':
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
+      default:
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
+    }
+  }
+
+  focusBucketLabel(entry: AdminQualityMatrixEntry): string {
+    if (entry.managementBucket === 'covered') {
+      return 'Prouve';
+    }
+    if (entry.managementBucket === 'product-gap') {
+      return 'Produit d abord';
+    }
+    if (entry.managementBucket === 'scope-limit') {
+      return 'Hors scope courant';
+    }
+    return 'Preuve QA suivante';
+  }
+
+  resumeText(entry: AdminQualityMatrixEntry): string {
+    if (entry.e2eStatus === 'oui') {
+      return entry.need;
+    }
+    return entry.nextMove || entry.observedGap;
   }
 
   private statusTone(status: AdminQualityMatrixStatus): CoverageSignalTone {

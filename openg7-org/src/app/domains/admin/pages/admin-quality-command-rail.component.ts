@@ -29,97 +29,58 @@ export interface AdminQualityCommandMetric {
       data-og7="admin-quality-command-rail"
     >
       <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_82%_18%,_rgba(168,85,247,0.16),_transparent_22%),linear-gradient(180deg,_rgba(3,7,18,0.34),_rgba(3,7,18,0.04))]"></div>
-      <div class="pointer-events-none absolute inset-x-5 top-16 h-px bg-gradient-to-r from-transparent via-sky-300/20 to-transparent"></div>
+      <div class="pointer-events-none absolute inset-x-5 top-14 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent"></div>
 
-      <div class="relative grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(17rem,1.08fr)_repeat(5,minmax(0,1fr))]">
-        <article
-          class="rounded-[22px] border border-white/10 bg-white/[0.03] px-5 py-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-          data-og7="admin-quality-summary"
-          data-og7-id="rail-heading"
-        >
-          <div class="space-y-3">
-            <div class="flex flex-wrap items-center gap-2">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">Rail de pilotage</p>
-              <span
-                class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
-                [class]="scopeBadgeClasses(scope().filtered)"
-              >
-                {{ scope().filtered ? 'Scope actif' : 'Vue globale' }}
-              </span>
-            </div>
+      <div class="sr-only" data-og7-id="rail-heading">
+        {{ scope().filtered ? 'Scope actif' : 'Vue globale' }}
+      </div>
 
-            <div class="flex items-end gap-3">
-              <p class="text-4xl font-semibold tracking-tight text-white">{{ scope().activeDomains }}</p>
-              <p class="pb-1 text-sm text-slate-400">
-                {{ scope().filtered ? 'domaines visibles sur ' + scope().totalDomains : 'domaines dans le portefeuille' }}
-              </p>
-            </div>
-
-            <p class="max-w-sm text-sm leading-relaxed text-slate-300">
-              Lecture globale du scope courant, de la couverture prouvee et des domaines qui demandent encore une intervention QA ou produit.
-            </p>
-
-            <div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-300">
-              <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                {{ scope().filtered ? scope().activeFilterCount + ' filtre(s)' : 'Aucun filtre actif' }}
-              </span>
-              @if (scope().selectedDomain) {
-                <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                  Domaine actif : {{ scope().selectedDomain }}
-                </span>
-              }
-            </div>
-          </div>
-        </article>
-
+      <div class="relative grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
         @for (metric of metrics(); track metric.id) {
           <article
-            class="relative overflow-hidden rounded-[22px] border px-4 py-4"
+            class="relative min-w-0 overflow-hidden rounded-[22px] border px-4 py-3.5"
             [class]="cardClasses(metric.accent)"
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
             [attr.aria-label]="metric.activeValue + ' actif pour ' + metric.label + '. Global ' + metric.totalValue + '. ' + metric.detail"
             [attr.title]="metric.detail"
           >
-            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
-            <div class="flex h-full flex-col gap-3">
-              <div class="flex items-start justify-between gap-3">
+            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent"></div>
+            <div class="flex h-full flex-col gap-3.5">
+              <div class="flex min-w-0 items-center gap-3">
                 <span
-                  class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] border text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-xs font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                   [class]="iconShellClasses(metric.accent)"
                   aria-hidden="true"
                 >
                   {{ iconLabel(metric.id) }}
                 </span>
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]" [class]="badgeClasses(metric.accent)">
-                  {{ coveragePercent(metric) }}%
-                </span>
+                <div class="min-w-0">
+                  <p class="truncate text-[2.1rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
+                    {{ metric.activeValue }}
+                  </p>
+                  <span class="sr-only">Global {{ metric.totalValue }}</span>
+                </div>
               </div>
 
-              <div class="space-y-2">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" [class]="eyebrowClasses(metric.accent)">
-                  {{ metric.label }}
-                </p>
-                <p class="text-[2.35rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
-                  {{ metric.activeValue }}
-                </p>
-                <p class="text-xs leading-relaxed" [class]="detailClasses(metric.accent)">{{ metric.detail }}</p>
+              <div class="min-w-0 space-y-1">
+                <p class="truncate text-base font-semibold text-white">{{ titleLabel(metric.id) }}</p>
+                <p class="truncate text-sm" [class]="detailClasses(metric.accent)">{{ subtitleLabel(metric.id) }}</p>
               </div>
 
               <div class="mt-auto flex items-end justify-between gap-3">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em]" [class]="supportClasses(metric.accent)">
-                    Global {{ metric.totalValue }}
+                  <p class="text-xs font-medium" [class]="supportClasses(metric.accent)">
+                    {{ footerLabel(metric.id) }}
                   </p>
-                  <p class="mt-2 text-xs text-slate-400">
-                    {{ scope().filtered ? 'Dans le scope courant' : 'Lecture globale' }}
-                  </p>
+                  <p class="sr-only">Global {{ metric.totalValue }}</p>
                 </div>
-                @if (scope().filtered && metric.activeValue !== metric.totalValue) {
-                  <p class="text-xs font-medium text-slate-400">
-                    {{ metric.totalValue - metric.activeValue }} hors scope
-                  </p>
-                }
+                <span
+                  class="inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                  [class]="badgeClasses(metric.accent)"
+                >
+                  {{ deltaLabel(metric) }}
+                </span>
               </div>
             </div>
           </article>
@@ -156,15 +117,15 @@ export class AdminQualityCommandRailComponent {
   badgeClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+        return 'border-emerald-400/20 bg-transparent text-emerald-300';
       case 'sky':
-        return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
+        return 'border-amber-400/20 bg-transparent text-amber-300';
       case 'indigo':
-        return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
+        return 'border-violet-400/20 bg-transparent text-violet-300';
       case 'rose':
-        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
+        return 'border-rose-400/20 bg-transparent text-rose-300';
       default:
-        return 'border-white/10 bg-white/[0.05] text-slate-100';
+        return 'border-sky-400/20 bg-transparent text-sky-300';
     }
   }
 
@@ -186,15 +147,15 @@ export class AdminQualityCommandRailComponent {
   detailClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-100/80';
+        return 'text-slate-200';
       case 'sky':
-        return 'text-sky-100/80';
+        return 'text-slate-200';
       case 'indigo':
-        return 'text-violet-100/80';
+        return 'text-slate-200';
       case 'rose':
-        return 'text-rose-100/80';
+        return 'text-slate-200';
       default:
-        return 'text-slate-300';
+        return 'text-slate-200';
     }
   }
 
@@ -216,45 +177,45 @@ export class AdminQualityCommandRailComponent {
   supportClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-200';
+        return 'text-slate-300';
       case 'sky':
-        return 'text-sky-200';
+        return 'text-slate-300';
       case 'indigo':
-        return 'text-violet-200';
+        return 'text-slate-300';
       case 'rose':
-        return 'text-rose-200';
+        return 'text-slate-300';
       default:
-        return 'text-slate-200';
+        return 'text-slate-300';
     }
   }
 
   iconShellClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+        return 'border-emerald-400/18 bg-emerald-500/12 text-emerald-200';
       case 'sky':
-        return 'border-sky-400/25 bg-sky-400/12 text-sky-100';
+        return 'border-sky-400/18 bg-sky-500/12 text-sky-200';
       case 'indigo':
-        return 'border-violet-400/25 bg-violet-400/12 text-violet-100';
+        return 'border-violet-400/18 bg-violet-500/12 text-violet-200';
       case 'rose':
-        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+        return 'border-rose-400/18 bg-rose-500/12 text-rose-200';
       default:
-        return 'border-white/10 bg-white/[0.05] text-slate-100';
+        return 'border-sky-400/18 bg-sky-500/12 text-sky-200';
     }
   }
 
   iconLabel(id: AdminQualityCommandMetric['id']): string {
     switch (id) {
       case 'proved-domains':
-        return 'OK';
+        return 'SH';
       case 'proof-gap-domains':
-        return 'QA';
+        return 'HG';
       case 'product-work-domains':
-        return 'PX';
+        return 'RC';
       case 'high-priority-gaps':
-        return '!!';
+        return 'AL';
       default:
-        return 'DM';
+        return 'GR';
     }
   }
 
@@ -264,5 +225,47 @@ export class AdminQualityCommandRailComponent {
     }
 
     return Math.round((metric.activeValue / metric.totalValue) * 100);
+  }
+
+  titleLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'total-domains':
+        return 'Domaines suivis';
+      case 'proved-domains':
+        return 'Domaines prouves';
+      case 'proof-gap-domains':
+        return 'Preuve QA suivante';
+      case 'product-work-domains':
+        return "Produit d'abord";
+      default:
+        return 'Gaps critiques';
+    }
+  }
+
+  subtitleLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'total-domains':
+        return 'Lecture globale';
+      case 'proved-domains':
+        return 'Couverture forte';
+      case 'proof-gap-domains':
+        return 'Execution prioritaire';
+      case 'product-work-domains':
+        return 'Produit a cadrer';
+      default:
+        return 'A surveiller';
+    }
+  }
+
+  footerLabel(id: AdminQualityCommandMetric['id']): string {
+    return id === 'total-domains' ? 'Total' : `Global ${this.metrics().find((metric) => metric.id === id)?.totalValue ?? 0}`;
+  }
+
+  deltaLabel(metric: AdminQualityCommandMetric): string {
+    if (metric.id === 'total-domains') {
+      return `Global ${metric.totalValue}`;
+    }
+
+    return `↗ ${this.coveragePercent(metric)}%`;
   }
 }

@@ -200,14 +200,14 @@
 
   <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
 
-<div class="flex flex-col gap-6 2xl:grid 2xl:grid-cols-[minmax(0,1.04fr)_minmax(27rem,0.96fr)] 2xl:items-start">
+<div class="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(23rem,0.92fr)] lg:items-start">
   <div class="w-full min-w-0">
     <og7-admin-quality-coverage-matrix [entries]="filteredEntries()" [selectedEntryId]="selectedEntry()?.id ?? null"
         (entrySelected)="selectEntry($event)" />
 
   </div>
 
-  <div class="flex w-full min-w-0 2xl:self-start">
+  <div class="flex w-full min-w-0 lg:self-start">
     @if (missionControl(); as mission) {
       <og7-admin-quality-mission-control [missionControl]="mission" [snapshotLoaded]="!!snapshot()"
         [totalDomains]="totalDomains()" [selectedDomain]="selectedEntry()?.domain ?? null"

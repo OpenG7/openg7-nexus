@@ -164,6 +164,23 @@ export class AdminQualityMissionControlComponent {
     }
   }
 
+  missionCueLabel(): string {
+    switch (this.missionControl().phase) {
+      case 'ready':
+        return 'Lancement cadre';
+      case 'execution':
+        return 'Forte attention';
+      case 'proof-review':
+        return 'Preuve a relire';
+      case 'completed':
+        return 'Boucle fermee';
+      case 'blocked':
+        return 'Blocage';
+      default:
+        return 'Decision requise';
+    }
+  }
+
   missionTimelineCardClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
@@ -317,15 +334,15 @@ export class AdminQualityMissionControlComponent {
     if (surface === 'hero') {
       switch (tone) {
         case 'primary':
-          return 'rounded-xl border border-sky-400/40 bg-linear-to-r from-sky-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400';
+          return 'inline-flex min-h-11 items-center justify-center rounded-xl border border-sky-400/40 bg-linear-to-r from-sky-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400';
         case 'secondary':
-          return 'rounded-xl border border-amber-400/30 bg-amber-400/12 px-4 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/18';
+          return 'inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-400/12 px-4 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/18';
         case 'danger':
-          return 'rounded-xl border border-rose-400/30 bg-rose-400/12 px-4 py-2.5 text-sm font-medium text-rose-100 transition hover:bg-rose-400/18';
+          return 'inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-400/30 bg-rose-400/12 px-4 py-2.5 text-sm font-medium text-rose-100 transition hover:bg-rose-400/18';
         case 'success':
-          return 'rounded-xl border border-emerald-400/30 bg-emerald-400/12 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/18';
+          return 'inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-400/12 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/18';
         default:
-          return 'rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]';
+          return 'inline-flex min-h-11 items-center justify-center rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]';
       }
     }
 
