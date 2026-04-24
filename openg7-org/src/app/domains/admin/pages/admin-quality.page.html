@@ -236,28 +236,36 @@
               Surface principale : {{ inspectionSurface() === 'actions' ? 'Actions' : 'Delegation' }}
             </span>
           </div>
-          <h2 class="text-2xl font-semibold tracking-tight text-white">Execution workspace</h2>
+          <h2 class="text-[1.95rem] font-semibold tracking-tight text-white">
+            Workspace
+            <span class="font-medium text-slate-400">- Domaine actif :</span>
+            <span class="text-sky-300">{{ selectedEntry()?.domain ?? 'aucun' }}</span>
+          </h2>
           <p class="max-w-3xl text-sm leading-relaxed text-slate-300">
-            La decision reste en haut avec la matrix et le Mission Control. Ici, on enchaine sur la delegation ou le registre d actions. La QA Queue detaillee descend en surface secondaire.
+            La decision reste en haut avec la matrix et le Mission Control. Ici, on bascule sur la file QA, la delegation ou le registre d actions sans casser le rythme du cockpit.
           </p>
         </div>
+
         <div class="flex flex-wrap items-center gap-2 text-sm text-slate-300">
           <span
             class="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
-            Domaine actif
+            {{ filteredEntries().length }} domaine(s)
           </span>
-          <span class="font-medium text-white">{{ selectedEntry()?.domain ?? 'aucun' }}</span>
+          <span
+            class="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+            {{ selectedEntryActions().length }} action(s)
+          </span>
         </div>
       </div>
 
-      <div class="mt-5 grid gap-3 xl:grid-cols-3">
-        <article class="rounded-[20px] border border-sky-400/25 bg-sky-400/10 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div class="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <article class="rounded-[20px] border border-sky-400/30 bg-[linear-gradient(180deg,rgba(16,72,200,0.22),rgba(10,24,48,0.94))] px-4 py-4 shadow-[0_22px_56px_-42px_rgba(37,99,235,0.85)]">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-sm font-semibold text-white">QA Queue</p>
-              <p class="mt-1 text-xs text-sky-100/80">Revue des besoins et couverture</p>
+              <p class="text-lg font-semibold text-white">QA Queue</p>
+              <p class="mt-1 text-sm text-sky-100/80">Revue des besoins et couverture</p>
             </div>
-            <span class="rounded-full border border-sky-300/25 bg-sky-400/10 px-2 py-0.5 text-[11px] font-semibold text-sky-50">
+            <span class="rounded-full border border-sky-300/25 bg-sky-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-50">
               {{ filteredEntries().length }}
             </span>
           </div>
@@ -272,15 +280,15 @@
           data-og7-id="admin-quality-surface-delegation">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-sm font-semibold">Delegation</p>
-              <p class="mt-1 text-xs"
+              <p class="text-lg font-semibold">Delegation</p>
+              <p class="mt-1 text-sm"
                 [ngClass]="isInspectionSurfaceActive('delegation') ? 'text-amber-100' : 'text-slate-400'">
-                Brief Codex, contrat operateur et issue
+                Plan de delegation automatique
               </p>
             </div>
-            <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+            <span class="rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
               [ngClass]="isInspectionSurfaceActive('delegation') ? 'border-amber-300/25 text-amber-50' : 'border-white/10 text-slate-300'">
-              {{ selectedDelegation() ? 'ON' : 'OFF' }}
+              {{ selectedDelegation() ? 1 : 0 }}
             </span>
           </div>
         </button>
@@ -294,13 +302,13 @@
           data-og7-id="admin-quality-surface-actions">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-sm font-semibold">Actions</p>
-              <p class="mt-1 text-xs"
+              <p class="text-lg font-semibold">Actions</p>
+              <p class="mt-1 text-sm"
                 [ngClass]="isInspectionSurfaceActive('actions') ? 'text-rose-100' : 'text-slate-400'">
-                Instrumentation, preuve et gaps
+                Registre des actions et instrumentation
               </p>
             </div>
-            <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+            <span class="rounded-full border px-2.5 py-0.5 text-[11px] font-semibold"
               [ngClass]="isInspectionSurfaceActive('actions') ? 'border-rose-300/25 text-rose-50' : 'border-white/10 text-slate-300'">
               {{ selectedEntryActions().length }}
             </span>
