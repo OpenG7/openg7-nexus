@@ -1,73 +1,83 @@
 <section
-  class="h-full w-full rounded-[30px] border border-sky-100/90 bg-white/92 p-4 shadow-[0_28px_80px_-44px_rgba(37,99,235,0.34)] backdrop-blur sm:p-5 2xl:max-h-[calc(100vh-2rem)] 2xl:overflow-x-hidden 2xl:overflow-y-auto 2xl:pr-3 2xl:[scrollbar-gutter:stable]"
+  class="relative h-full w-full overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5 2xl:max-h-[calc(100vh-2rem)] 2xl:overflow-x-hidden 2xl:overflow-y-auto 2xl:pr-3 2xl:[scrollbar-gutter:stable]"
   data-og7="admin-quality-mission-control"
 >
-  <div class="min-w-0 space-y-5">
-    <div class="grid gap-5">
-      <article
-        class="rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.98),rgba(239,246,255,0.92))] p-5 shadow-[0_24px_64px_-42px_rgba(15,23,42,0.22)]"
-      >
-        <div class="space-y-5">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div class="min-w-0 space-y-2">
-              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Mission Control</p>
-              <h2 class="text-2xl font-semibold text-slate-900">{{ selectedDomain() ?? 'Aucun domaine actif' }}</h2>
-              <p class="max-w-xl text-sm leading-relaxed text-slate-600">{{ missionControl().overview }}</p>
-            </div>
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.2),_transparent_34%),radial-gradient(circle_at_88%_14%,_rgba(168,85,247,0.18),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.24),_rgba(2,6,23,0.04))]"></div>
+  <div class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"></div>
 
-            <div class="rounded-[20px] border border-slate-200 bg-white/90 px-4 py-3 shadow-sm">
-              <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Suivi actif</p>
-              <p class="mt-2 text-lg font-semibold text-slate-900">
-                Etape {{ missionTimelineProgress().currentStep }} / {{ missionTimelineProgress().total }}
-              </p>
-              <p class="mt-1 text-xs text-slate-500">{{ missionControl().phaseLabel }}</p>
-            </div>
-          </div>
-
-          <div class="flex min-w-0 flex-wrap gap-2">
+  <div class="relative space-y-5">
+    <article class="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(6,19,39,0.96),rgba(4,12,28,0.98))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div class="flex flex-col gap-5 border-b border-white/10 pb-5 lg:flex-row lg:items-start lg:justify-between">
+        <div class="min-w-0 space-y-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">AI Mission Control</p>
             <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionPhaseClasses(missionControl().phase)">
               {{ missionControl().phaseLabel }}
             </span>
-            <span
-              class="inline-flex max-w-full rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 whitespace-normal break-words"
-            >
+            <span class="inline-flex max-w-full rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100 whitespace-normal break-words">
               {{ missionControl().operatorCue }}
             </span>
           </div>
 
-          @if (selectedMission(); as missionItem) {
-            <div class="rounded-[22px] border border-slate-200 bg-white/92 p-4 shadow-sm" data-og7="admin-quality-mission-hero">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-semibold tracking-tight text-white">{{ selectedDomain() ?? 'Aucun domaine actif' }}</h2>
+            <p class="max-w-2xl text-sm leading-relaxed text-slate-300">{{ missionControl().overview }}</p>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 lg:w-[22rem]">
+          <div class="rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">Suivi actif</p>
+            <p class="mt-2 text-lg font-semibold text-white">
+              Etape {{ missionTimelineProgress().currentStep }} / {{ missionTimelineProgress().total }}
+            </p>
+            <p class="mt-1 text-xs text-slate-400">{{ activeTimelineStep()?.label ?? missionControl().phaseLabel }}</p>
+          </div>
+
+          <div class="rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">Domaine / preuve</p>
+            <p class="mt-2 text-sm font-semibold text-white">{{ selectedEntry()?.reviewedAt ?? 'Selection requise' }}</p>
+            <p class="mt-1 text-xs text-slate-400">{{ selectedDelegation()?.track ?? 'Aucune delegation active' }}</p>
+          </div>
+        </div>
+      </div>
+
+      @if (selectedMission(); as missionItem) {
+        <div class="mt-5 rounded-[24px] border border-sky-400/20 bg-slate-950/60 p-4 shadow-[0_30px_80px_-50px_rgba(8,47,73,0.95)]" data-og7="admin-quality-mission-hero">
+          <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_6.5rem] xl:items-start">
+            <div class="space-y-4">
               <div class="flex flex-wrap items-start justify-between gap-3">
-                <div class="space-y-1">
-                  <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
-                    {{ recommendationKindLabel(missionItem) }}
-                  </p>
-                  <h3 class="text-lg font-semibold text-slate-900">{{ missionItem.title }}</h3>
-                </div>
+                <div class="space-y-2">
+                  <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-200">
+                      {{ recommendationKindLabel(missionItem) }}
+                    </span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(missionItem.status)">
+                      {{ missionStatusLabel(missionItem.status) }}
+                    </span>
+                  </div>
 
-                <div class="flex flex-wrap gap-2">
-                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(missionItem.status)">
-                    {{ missionStatusLabel(missionItem.status) }}
-                  </span>
-                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="confidenceClasses(missionItem.confidence)">
-                    Confiance {{ missionItem.confidence }}
-                  </span>
+                  <div>
+                    <p class="text-sm font-semibold text-emerald-300">Mission active</p>
+                    <h3 class="mt-2 text-2xl font-semibold tracking-tight text-white">{{ missionItem.title }}</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-300">{{ missionItem.summary }}</p>
+                  </div>
                 </div>
               </div>
 
-              <div class="mt-4 space-y-4 border-t border-slate-200 pt-4">
-                <div class="space-y-2">
-                  <p class="text-sm font-semibold text-rose-700">Gap constate</p>
-                  <p class="text-base leading-relaxed text-slate-900">{{ missionItem.whyNow }}</p>
-                </div>
+              <div class="grid gap-3 xl:grid-cols-2">
+                <article class="rounded-[18px] border border-rose-500/25 bg-rose-500/10 p-4">
+                  <p class="text-sm font-semibold text-rose-200">Gap constate</p>
+                  <p class="mt-2 text-sm leading-relaxed text-rose-50/95">{{ missionItem.whyNow }}</p>
+                </article>
 
-                <div class="space-y-2">
-                  <p class="text-sm font-semibold text-slate-600">Mission suggeree</p>
-                  <p class="text-base leading-relaxed text-slate-700">{{ missionItem.summary }}</p>
-                </div>
+                <article class="rounded-[18px] border border-emerald-500/20 bg-emerald-500/10 p-4">
+                  <p class="text-sm font-semibold text-emerald-200">Mission suggeree</p>
+                  <p class="mt-2 text-sm leading-relaxed text-emerald-50/95">{{ missionItem.summary }}</p>
+                </article>
               </div>
 
-              <div class="mt-5 flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-2">
                 @for (action of heroActions(missionItem); track action.action) {
                   <button
                     type="button"
@@ -81,138 +91,174 @@
                 }
               </div>
             </div>
+
+            <div class="flex flex-col items-center gap-2 rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Confiance AI</p>
+              <div
+                class="relative flex h-20 w-20 items-center justify-center rounded-full shadow-[0_20px_40px_-28px_rgba(14,165,233,0.8)]"
+                [style.background]="confidenceRingBackground(missionItem.confidence)"
+              >
+                <div class="absolute inset-[6px] rounded-full bg-[#071120]"></div>
+                <div class="relative">
+                  <p class="text-lg font-semibold text-white">{{ confidencePercent(missionItem.confidence) }}%</p>
+                </div>
+              </div>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="confidenceClasses(missionItem.confidence)">
+                Confiance {{ missionItem.confidence }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="impactClasses(missionItem.impact)">
+                Impact {{ missionItem.impact }}
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="mt-5 rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Lecture operateur</p>
+        <p class="mt-2 text-sm leading-relaxed text-slate-300">
+          {{ missionControl().phaseDetail }}
+        </p>
+      </div>
+
+      <section class="mt-5 rounded-[24px] border border-white/10 bg-slate-950/65 p-4" data-og7-id="admin-quality-mission-timeline">
+        <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">Timeline mission</p>
+            <h3 class="mt-2 text-base font-semibold text-white">
+              Etape {{ missionTimelineProgress().currentStep }} sur {{ missionTimelineProgress().total }}
+            </h3>
+          </div>
+
+          @if (activeTimelineStep(); as step) {
+            <div class="max-w-full rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200 whitespace-normal break-words">
+              {{ step.label }} <span aria-hidden="true">&middot;</span> {{ missionTimelineStatusLabel(step.status) }}
+            </div>
           }
+        </div>
 
-          <p class="text-sm leading-relaxed text-slate-600">
-            {{ missionControl().phaseDetail }}
-          </p>
-
-          <section class="rounded-2xl border border-slate-200 bg-white/92 p-4" data-og7-id="admin-quality-mission-timeline">
-            <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Progression mission</p>
-                <h3 class="mt-2 text-base font-semibold text-slate-900">
-                  Etape {{ missionTimelineProgress().currentStep }} sur {{ missionTimelineProgress().total }}
-                </h3>
+        <div class="mt-4 space-y-3 md:hidden">
+          @for (step of missionTimelineSteps(); track step.id) {
+            <article class="flex gap-3" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+              <div class="flex w-9 shrink-0 flex-col items-center">
+                <span
+                  class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
+                  [class]="missionTimelineMarkerClasses(step.status)"
+                >
+                  {{ missionTimelineMarkerText(step.status, $index) }}
+                </span>
+                @if (!$last) {
+                  <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
+                }
               </div>
 
-              @if (activeTimelineStep(); as step) {
-                <div class="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 whitespace-normal break-words">
-                  {{ step.label }} <span aria-hidden="true">&middot;</span> {{ missionTimelineStatusLabel(step.status) }}
+              <div class="min-w-0 flex-1 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.supportLabel }}</p>
+                    <p class="mt-1 text-sm font-semibold text-white">{{ step.label }}</p>
+                  </div>
+                  <span class="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+                    {{ missionTimelineStatusLabel(step.status) }}
+                  </span>
                 </div>
-              }
-            </div>
+                <p class="mt-2 text-xs leading-relaxed text-slate-300">{{ step.helper }}</p>
+              </div>
+            </article>
+          }
+        </div>
 
-            <div class="mt-4 space-y-3 md:hidden">
-              @for (step of missionTimelineSteps(); track step.id) {
-                <article class="flex gap-3" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
-                  <div class="flex w-9 shrink-0 flex-col items-center">
+        <div class="mt-5 hidden md:block">
+          <div class="flex items-start">
+            @for (step of missionTimelineSteps(); track step.id) {
+              <div class="relative min-w-0 flex-1" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+                @if (!$last) {
+                  <span class="absolute left-[calc(50%+1.3rem)] right-0 top-4 h-px" [class]="missionTimelineConnectorClasses(step.status)"></span>
+                }
+
+                <div class="pr-3">
+                  <div class="flex items-center gap-3">
                     <span
-                      class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
+                      class="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
                       [class]="missionTimelineMarkerClasses(step.status)"
                     >
                       {{ missionTimelineMarkerText(step.status, $index) }}
                     </span>
-                    @if (!$last) {
-                      <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
-                    }
+
+                    <div class="min-w-0">
+                      <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.supportLabel }}</p>
+                      <p class="mt-1 truncate text-sm font-semibold text-white">{{ step.shortLabel }}</p>
+                    </div>
                   </div>
 
-                  <div class="min-w-0 flex-1 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+                  <div class="mt-3 min-h-[7.75rem] rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
                     <div class="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">{{ step.supportLabel }}</p>
-                        <p class="mt-1 text-sm font-semibold text-slate-900">{{ step.label }}</p>
-                      </div>
-                      <span class="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                      <p class="text-sm font-semibold text-white">{{ step.label }}</p>
+                      <span class="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200">
                         {{ missionTimelineStatusLabel(step.status) }}
                       </span>
                     </div>
-                    <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ step.helper }}</p>
+                    <p class="mt-3 text-xs font-medium text-slate-300">{{ step.supportLabel }}</p>
+                    <p class="mt-2 text-xs leading-relaxed text-slate-300">{{ step.helper }}</p>
                   </div>
-                </article>
-              }
-            </div>
-
-            <div class="mt-5 hidden md:block">
-              <div class="flex items-start">
-                @for (step of missionTimelineSteps(); track step.id) {
-                  <div class="relative min-w-0 flex-1" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
-                    @if (!$last) {
-                      <span class="absolute left-[calc(50%+1.3rem)] right-0 top-4 h-px" [class]="missionTimelineConnectorClasses(step.status)"></span>
-                    }
-
-                    <div class="pr-3">
-                      <div class="flex items-center gap-3">
-                        <span
-                          class="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
-                          [class]="missionTimelineMarkerClasses(step.status)"
-                        >
-                          {{ missionTimelineMarkerText(step.status, $index) }}
-                        </span>
-
-                        <div class="min-w-0">
-                          <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">{{ step.supportLabel }}</p>
-                          <p class="mt-1 truncate text-sm font-semibold text-slate-900">{{ step.shortLabel }}</p>
-                        </div>
-                      </div>
-
-                      <div class="mt-3 min-h-[8.75rem] rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
-                        <div class="flex flex-wrap items-start justify-between gap-2">
-                          <p class="text-sm font-semibold text-slate-900">{{ step.label }}</p>
-                          <span class="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-600">
-                            {{ missionTimelineStatusLabel(step.status) }}
-                          </span>
-                        </div>
-                        <p class="mt-3 text-xs font-medium text-slate-600">{{ step.supportLabel }}</p>
-                        <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ step.helper }}</p>
-                      </div>
-                    </div>
-                  </div>
-                }
+                </div>
               </div>
-            </div>
-          </section>
-
-          <div class="flex flex-col gap-3 rounded-[18px] border border-slate-200 bg-slate-50/90 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Lecture vocale</p>
-              <p class="mt-1 text-sm text-slate-600">Resume le contexte, la mission active et la prochaine etape.</p>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="rounded-lg border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-                (click)="speakRequested.emit()"
-                data-og7-id="admin-quality-speak"
-              >
-                Lancer la lecture
-              </button>
-              <button
-                type="button"
-                class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                (click)="stopSpeakingRequested.emit()"
-                [disabled]="!speaking()"
-                data-og7-id="admin-quality-stop-speaking"
-              >
-                Arreter
-              </button>
-            </div>
+            }
           </div>
         </div>
-      </article>
+      </section>
 
-      <div class="space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2">
+      <div class="mt-5 flex flex-col gap-3 rounded-[20px] border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Lecture vocale</p>
+          <p class="mt-1 text-sm text-slate-300">Resume le contexte, la mission active et la prochaine etape.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="rounded-xl border border-sky-400/35 bg-linear-to-r from-sky-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400"
+            (click)="speakRequested.emit()"
+            data-og7-id="admin-quality-speak"
+          >
+            Lancer la lecture
+          </button>
+          <button
+            type="button"
+            class="rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="stopSpeakingRequested.emit()"
+            [disabled]="!speaking()"
+            data-og7-id="admin-quality-stop-speaking"
+          >
+            Arreter
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <div class="grid gap-5 xl:grid-cols-[minmax(17rem,0.86fr)_minmax(0,1.14fr)]">
+      <section class="space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Mission queue</p>
+            <h3 class="mt-2 text-lg font-semibold text-white">Recommandations disponibles</h3>
+          </div>
+          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold text-slate-200">
+            {{ missionControl().recommendations.length }} piste(s)
+          </span>
+        </div>
+
+        <div class="space-y-3">
           @for (recommendation of missionControl().recommendations; track recommendation.id) {
             <article
-              class="rounded-[24px] border border-slate-200 bg-slate-50/90 p-4 transition"
+              class="rounded-[24px] border bg-white/[0.04] p-4 transition"
               data-og7="admin-quality-recommendation"
               [attr.data-og7-id]="recommendation.id"
-              [class.border-slate-900]="isMissionSelected(recommendation)"
-              [class.bg-white]="isMissionSelected(recommendation)"
-              [class.shadow-md]="isMissionSelected(recommendation)"
+              [ngClass]="
+                isMissionSelected(recommendation)
+                  ? 'border-sky-400/35 bg-sky-400/10 shadow-[0_24px_60px_-42px_rgba(56,189,248,0.78)]'
+                  : 'border-white/10'
+              "
             >
               <button
                 type="button"
@@ -222,10 +268,10 @@
               >
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div class="space-y-1">
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
                       {{ recommendationKindLabel(recommendation) }}
                     </p>
-                    <h3 class="text-base font-semibold text-slate-900">{{ recommendation.title }}</h3>
+                    <h3 class="text-base font-semibold text-white">{{ recommendation.title }}</h3>
                   </div>
 
                   <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(recommendation.status)">
@@ -233,8 +279,8 @@
                   </span>
                 </div>
 
-                <p class="mt-3 text-sm leading-relaxed text-slate-700">{{ recommendation.summary }}</p>
-                <p class="mt-3 text-xs leading-relaxed text-slate-500">{{ recommendation.whyNow }}</p>
+                <p class="mt-3 text-sm leading-relaxed text-slate-200">{{ recommendation.summary }}</p>
+                <p class="mt-3 text-xs leading-relaxed text-slate-400">{{ recommendation.whyNow }}</p>
               </button>
 
               <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
@@ -262,121 +308,121 @@
             </article>
           }
         </div>
+      </section>
 
-        @if (selectedMission(); as missionItem) {
-          <article
-            class="rounded-[28px] border border-sky-100/90 bg-white/96 p-5 shadow-[0_24px_72px_-42px_rgba(15,23,42,0.26)]"
-            data-og7="admin-quality-mission-detail"
-          >
-            <div class="flex flex-col gap-3 border-b border-slate-200 pb-4 lg:flex-row lg:items-start lg:justify-between">
-              <div class="space-y-2">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Mission selectionnee</p>
-                <h3 class="text-lg font-semibold text-slate-900">{{ missionItem.title }}</h3>
-                <p class="max-w-3xl text-sm text-slate-600">{{ missionItem.whyNow }}</p>
-              </div>
-
-              <div class="flex flex-wrap gap-2">
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(missionItem.status)">
-                  {{ missionStatusLabel(missionItem.status) }}
-                </span>
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="confidenceClasses(missionItem.confidence)">
-                  Confiance {{ missionItem.confidence }}
-                </span>
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="impactClasses(missionItem.impact)">
-                  Impact {{ missionItem.impact }}
-                </span>
-              </div>
+      @if (selectedMission(); as missionItem) {
+        <article
+          class="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,19,40,0.96),rgba(4,11,27,0.98))] p-5 shadow-[0_32px_90px_-54px_rgba(14,165,233,0.62)]"
+          data-og7="admin-quality-mission-detail"
+        >
+          <div class="flex flex-col gap-3 border-b border-white/10 pb-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Mission selectionnee</p>
+              <h3 class="text-lg font-semibold text-white">{{ missionItem.title }}</h3>
+              <p class="max-w-3xl text-sm text-slate-300">{{ missionItem.whyNow }}</p>
             </div>
 
-            <div class="mt-5 grid gap-5 lg:grid-cols-2">
-              <div class="space-y-4">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Raisonnement mission</p>
-                  <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
-                    @for (item of missionItem.rationale; track $index) {
-                      <li>{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Dependances</p>
-                  <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
-                    @for (item of missionItem.dependencies; track $index) {
-                      <li>{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-              </div>
-
-              <div class="space-y-4">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Criteres d acceptation</p>
-                  <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
-                    @for (item of missionItem.acceptanceCriteria; track $index) {
-                      <li>{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Owner suggere</p>
-                  <p class="mt-2 text-sm text-slate-700">{{ missionItem.suggestedOwner }}</p>
-                </div>
-              </div>
-
-              <div class="space-y-4 lg:col-span-2">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Fichiers et validation</p>
-                  <ul class="mt-2 space-y-2 text-sm leading-relaxed text-slate-700">
-                    @for (item of missionItem.targetFiles; track $index) {
-                      <li class="break-all">{{ item }}</li>
-                    }
-                  </ul>
-                  <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-700">
-                    @for (item of missionItem.validationCommands; track $index) {
-                      <li class="break-all">{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Prompt operateur</p>
-                  <pre class="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">{{ missionItem.operatorPrompt }}</pre>
-                </div>
-              </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(missionItem.status)">
+                {{ missionStatusLabel(missionItem.status) }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="confidenceClasses(missionItem.confidence)">
+                Confiance {{ missionItem.confidence }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="impactClasses(missionItem.impact)">
+                Impact {{ missionItem.impact }}
+              </span>
             </div>
-          </article>
-        }
-      </div>
+          </div>
+
+          <div class="mt-5 grid gap-4 lg:grid-cols-2">
+            <div class="space-y-4">
+              <section class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Raisonnement mission</p>
+                <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-200">
+                  @for (item of missionItem.rationale; track $index) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </section>
+
+              <section class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Dependances</p>
+                <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-200">
+                  @for (item of missionItem.dependencies; track $index) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </section>
+            </div>
+
+            <div class="space-y-4">
+              <section class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Criteres d acceptation</p>
+                <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-200">
+                  @for (item of missionItem.acceptanceCriteria; track $index) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+              </section>
+
+              <section class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Owner suggere</p>
+                <p class="mt-3 text-sm text-slate-200">{{ missionItem.suggestedOwner }}</p>
+              </section>
+            </div>
+
+            <section class="space-y-4 lg:col-span-2">
+              <div class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Fichiers et validation</p>
+                <ul class="mt-3 space-y-2 text-sm leading-relaxed text-slate-200">
+                  @for (item of missionItem.targetFiles; track $index) {
+                    <li class="break-all">{{ item }}</li>
+                  }
+                </ul>
+                <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-300">
+                  @for (item of missionItem.validationCommands; track $index) {
+                    <li class="break-all">{{ item }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Prompt operateur</p>
+                <pre class="mt-3 max-h-48 overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-950/70 p-3 text-xs leading-relaxed text-slate-200">{{ missionItem.operatorPrompt }}</pre>
+              </div>
+            </section>
+          </div>
+        </article>
+      }
     </div>
 
     <section
-      class="rounded-[24px] border border-sky-100/90 bg-slate-50/80 p-4 shadow-[0_18px_50px_-34px_rgba(37,99,235,0.18)]"
+      class="rounded-[24px] border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
       data-og7="admin-quality-mission-workflow"
     >
-      <div class="flex flex-col gap-2 border-b border-slate-200/80 pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Workflow operateur</p>
-          <h3 class="mt-2 text-lg font-semibold text-slate-900">Contexte, mission et preuve reunis</h3>
+          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Workflow operateur</p>
+          <h3 class="mt-2 text-lg font-semibold text-white">Contexte, mission et preuve reunis</h3>
         </div>
-        <p class="max-w-2xl text-sm leading-relaxed text-slate-600">
-          Le rail de preuve est maintenant integre ici pour garder a portee de main la progression du domaine, du plan et de la mission active.
+        <p class="max-w-2xl text-sm leading-relaxed text-slate-300">
+          Le rail de preuve reste integre ici pour garder a portee de main la progression du domaine, du plan et de la mission active.
         </p>
       </div>
 
-      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         @for (step of workflowSteps(); track step.id) {
           <article class="rounded-[20px] border p-4 transition" [class]="workflowCardClasses(step.active)">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-sm font-semibold"
+              class="flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold"
               [class]="workflowBadgeClasses(step.accent, step.active)"
             >
               {{ $index + 1 }}
             </div>
-            <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{{ step.label }}</p>
-            <p class="mt-2 text-sm font-semibold text-slate-900">{{ step.headline }}</p>
-            <p class="mt-1 text-xs leading-relaxed text-slate-500">{{ step.detail }}</p>
+            <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.label }}</p>
+            <p class="mt-2 text-sm font-semibold text-white">{{ step.headline }}</p>
+            <p class="mt-1 text-xs leading-relaxed text-slate-300">{{ step.detail }}</p>
           </article>
         }
       </div>

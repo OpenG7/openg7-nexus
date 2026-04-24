@@ -1,180 +1,206 @@
-<section class="relative mx-auto flex w-full max-w-[90rem] flex-col gap-8 overflow-hidden px-1 pb-12 xl:px-0"
+<section class="relative mx-auto flex w-full max-w-[96rem] flex-col gap-6 overflow-hidden px-1 pb-12 text-slate-100 xl:px-0"
   data-og7="admin-quality-matrix">
   <div
-    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle_at_top,_rgba(96,165,250,0.22),_transparent_60%),linear-gradient(180deg,_rgba(239,246,255,0.95),_rgba(255,255,255,0))]">
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem] bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_40%),radial-gradient(circle_at_86%_8%,_rgba(59,130,246,0.16),_transparent_26%),linear-gradient(180deg,_rgba(15,23,42,0.18),_rgba(15,23,42,0))]">
   </div>
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0))]"></div>
 
   <header
-    class="rounded-[34px] border border-sky-100/80 bg-white/82 px-7 py-6 shadow-[0_28px_90px_-42px_rgba(30,64,175,0.42)] backdrop-blur xl:px-8 xl:py-7">
-    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div class="space-y-3">
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">Gestion de la qualite</p>
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Modeles de pilotage AI</h1>
-        <p class="max-w-2xl text-sm leading-6 text-slate-600">
-          Le haut prepare le cockpit. La decision commence avec la matrix et le Mission Control.
+    class="relative overflow-hidden rounded-[34px] border border-sky-500/30 bg-[linear-gradient(180deg,rgba(3,10,26,0.98),rgba(4,14,34,0.96)_52%,rgba(2,8,22,0.98))] px-6 py-5 shadow-[0_42px_120px_-64px_rgba(37,99,235,0.92)] xl:px-7 xl:py-6">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,_rgba(37,99,235,0.2),_transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"></div>
+    <div class="pointer-events-none absolute right-4 bottom-0 h-32 w-[42%] rounded-tl-[4rem] bg-[radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.34),_transparent_48%)]"></div>
+    <div
+      class="pointer-events-none absolute right-10 bottom-4 h-28 w-[36%] bg-[radial-gradient(circle,_rgba(59,130,246,0.9)_1px,_transparent_1.7px)] [background-size:12px_12px] [mask-image:linear-gradient(90deg,transparent,rgba(255,255,255,0.85)_26%,rgba(255,255,255,0.95))] opacity-65">
+    </div>
+    <div class="pointer-events-none absolute right-6 bottom-5 h-7 w-7 rounded-full bg-sky-400/80 blur-[10px]"></div>
+
+    <div class="relative lg:min-h-[14rem]">
+      <div class="max-w-3xl space-y-3 lg:max-w-[calc(100%-36rem)] lg:pr-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-300">Gestion de la qualite</p>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <h1 class="text-3xl font-semibold tracking-tight text-white xl:text-[2.65rem]">Modeles de pilotage AI</h1>
+          <span
+            class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-sky-400/20 bg-sky-400/10 text-lg text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.22)]"
+            aria-hidden="true">
+            ✦
+          </span>
+        </div>
+
+        <p class="max-w-2xl text-base leading-8 text-slate-300">
+          Cockpit de pilotage de la qualite produit. Selectionnez un domaine pour piloter les missions, suivre la couverture et accelerer les preuves.
         </p>
-        @if (snapshot(); as data) {
-        <p class="text-xs text-slate-500" data-og7-id="admin-quality-generated-at">
-          Snapshot charge le {{ data.generatedAt | date: 'yyyy-MM-dd HH:mm' }}
-        </p>
-        }
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="mt-5 flex flex-wrap items-center gap-3 lg:absolute lg:top-0 lg:right-0 lg:mt-0 lg:max-w-[35rem] lg:flex-nowrap lg:justify-end">
+        @if (snapshot(); as data) {
+        <div
+          class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/10 bg-[#10192b] px-3 py-2 text-xs text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+          data-og7-id="admin-quality-generated-at">
+          <span class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-slate-950/80 text-[10px] text-slate-300">
+            ○
+          </span>
+          <span class="max-w-full whitespace-nowrap">Snapshot charge le {{ data.generatedAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+          <span
+            class="inline-flex rounded-full border border-emerald-400/25 bg-emerald-400/12 px-2 py-0.5 font-semibold text-emerald-100">
+            A jour
+          </span>
+        </div>
+        }
+
         <a routerLink="/admin"
-          class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
-          Retour moderation
+          class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-[16px] border border-white/14 bg-[#10192b] px-6 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]">
+          &larr; Retour Admin
         </a>
         <a routerLink="/admin/ops"
-          class="inline-flex items-center justify-center rounded-full border border-slate-900 bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700">
-          Ouvrir Ops
+          class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-[16px] border border-sky-400/35 bg-linear-to-r from-sky-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400">
+          Acces Ops &rarr;
         </a>
       </div>
     </div>
   </header>
 
   @if (error(); as message) {
-  <p class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+  <p class="rounded-[20px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
     data-og7-id="admin-quality-error">{{ message }}</p>
   }
 
   @if (loading()) {
-  <p class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
+  <p class="rounded-[20px] border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-slate-200"
     data-og7-id="admin-quality-loading">Chargement de la matrice QA...</p>
   }
 
   @if (snapshot()) {
 
-  
-
   <section
-    class="sticky top-4 z-30 -mx-1 rounded-[26px] border border-slate-200/90 bg-white/94 px-4 py-4 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.2)] backdrop-blur xl:top-5 xl:px-5"
+    class="relative sticky top-4 z-30 -mx-1 overflow-hidden rounded-[28px] border border-emerald-400/35 bg-[linear-gradient(180deg,rgba(4,13,29,0.98),rgba(2,8,20,0.94))] px-4 py-4 shadow-[0_34px_96px_-58px_rgba(34,197,94,0.4)] backdrop-blur xl:top-5 xl:px-5"
     data-og7="admin-quality-filters">
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <div class="space-y-2">
-          <div class="flex flex-wrap items-center gap-2">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-700">Selection console</p>
-            <span
-              class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
-              Filtres visibles
-            </span>
-            @if (hasActiveFilters()) {
-            <span
-              class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">
-              {{ activeFilterChips().length }} actif(s)
-            </span>
-            }
-          </div>
-          <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
-            Affinez le perimetre avant d ouvrir une mission, une delegation ou un registre d actions. Le rail reste
-            compact pour garder la matrix et le detail au premier plan.
-          </p>
-        </div>
+    <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/35 to-transparent"></div>
 
-        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-          <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium"
-            data-og7-id="admin-quality-filter-count">
-            {{ filteredEntries().length }} / {{ totalDomains() }} domaines visibles
-          </span>
-          @if (selectedEntry(); as entry) {
-          <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-medium">
-            Domaine actif : <span class="ml-1 text-slate-900">{{ entry.domain }}</span>
-          </span>
-          }
-          <button type="button"
-            class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7="action"
-            data-og7-id="admin-quality-reset-filters">
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(16rem,1.35fr)_repeat(4,minmax(0,1fr))]">
-        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Recherche</span>
+    <div class="relative flex flex-col gap-3">
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(16rem,1.5fr)_repeat(4,minmax(9rem,1fr))_minmax(7rem,0.8fr)] lg:items-center">
+        <label class="flex min-w-0 items-center gap-3 rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <span class="text-sm text-slate-400" aria-hidden="true">O</span>
           <input type="search"
-            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-            placeholder="Domaine, gap, preuve..." [value]="search()" (input)="setSearch($event)"
+            class="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+            placeholder="Recherche..." [value]="search()" (input)="setSearch($event)"
             data-og7-id="admin-quality-search" />
+          <span class="inline-flex shrink-0 rounded-[10px] border border-white/10 bg-slate-950/80 px-2 py-1 text-[11px] font-semibold text-slate-300">
+            Ctrl K
+          </span>
         </label>
 
-        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Domaine</span>
+        <label class="relative flex min-w-0 items-center rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <span class="sr-only">Domaine</span>
           <select
-            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            class="w-full min-w-0 appearance-none bg-transparent pr-7 text-sm text-white outline-none"
             [value]="selectedDomain()" (change)="setDomainFilter($event)" data-og7-id="admin-quality-domain-filter">
             @for (option of domainOptions(); track option) {
-            <option [value]="option">{{ option === 'all' ? 'Tous les domaines' : option }}</option>
+            <option [value]="option">{{ option === 'all' ? 'Domaine' : option }}</option>
             }
           </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
         </label>
 
-        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Priorite</span>
+        <label class="relative flex min-w-0 items-center rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <span class="sr-only">Priorite</span>
           <select
-            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            class="w-full min-w-0 appearance-none bg-transparent pr-7 text-sm text-white outline-none"
             [value]="selectedPriority()" (change)="setPriorityFilter($event)" data-og7-id="admin-quality-priority-filter">
-            <option value="all">Toutes les priorites</option>
-            <option value="haute">Haute</option>
-            <option value="moyenne">Moyenne</option>
-            <option value="basse">Basse</option>
+            <option value="all">Priorite</option>
+            <option value="haute">Priorite : Haute</option>
+            <option value="moyenne">Priorite : Moyenne</option>
+            <option value="basse">Priorite : Basse</option>
           </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
         </label>
 
-        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">E2E</span>
+        <label class="relative flex min-w-0 items-center rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <span class="sr-only">E2E</span>
           <select
-            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            class="w-full min-w-0 appearance-none bg-transparent pr-7 text-sm text-white outline-none"
             [value]="selectedE2EStatus()" (change)="setE2EFilter($event)" data-og7-id="admin-quality-e2e-filter">
-            <option value="all">Tous les statuts E2E</option>
-            <option value="oui">Oui</option>
-            <option value="partiel">Partiel</option>
-            <option value="non">Non</option>
-            <option value="hors MVP">Hors MVP</option>
+            <option value="all">E2E</option>
+            <option value="oui">E2E : Oui</option>
+            <option value="partiel">E2E : Partiel</option>
+            <option value="non">E2E : Non</option>
+            <option value="hors MVP">E2E : Hors MVP</option>
           </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
         </label>
 
-        <label class="flex min-w-0 flex-col gap-2 rounded-[18px] border border-slate-200 bg-slate-50/90 px-3.5 py-3">
-          <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Gestion</span>
+        <label class="relative flex min-w-0 items-center rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <span class="sr-only">Gestion</span>
           <select
-            class="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            class="w-full min-w-0 appearance-none bg-transparent pr-7 text-sm text-white outline-none"
             [value]="selectedBucket()" (change)="setBucketFilter($event)" data-og7-id="admin-quality-bucket-filter">
-            <option value="all">Tous les buckets</option>
-            <option value="covered">Couvert</option>
-            <option value="proof-gap">Preuve a renforcer</option>
-            <option value="product-gap">Produit d abord</option>
-            <option value="scope-limit">Hors scope courant</option>
+            <option value="all">Gestion</option>
+            <option value="covered">Gestion : Couvert</option>
+            <option value="proof-gap">Gestion : Preuve a renforcer</option>
+            <option value="product-gap">Gestion : Produit d abord</option>
+            <option value="scope-limit">Gestion : Hors scope courant</option>
           </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
         </label>
+
+        <button type="button"
+          class="inline-flex min-h-[3.125rem] items-center justify-center rounded-[14px] border border-white/12 bg-[#10192b] px-5 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-50"
+          (click)="resetFilters()" [disabled]="!hasActiveFilters()" data-og7="action"
+          data-og7-id="admin-quality-reset-filters">
+          Reset
+        </button>
       </div>
 
-      <div class="flex flex-col gap-3 border-t border-slate-200/80 pt-3 sm:flex-row sm:items-start sm:justify-between">
-        @if (hasActiveFilters()) {
-        <div class="flex flex-wrap gap-2" data-og7="admin-quality-active-filters">
-          @for (chip of activeFilterChips(); track chip.id) {
-          <span
-            class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700"
-            data-og7="admin-quality-active-filter" [attr.data-og7-id]="chip.id">
-            {{ chip.label }}
+      <div class="h-px bg-white/10"></div>
+
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300">
+          <span class="inline-flex items-center rounded-full px-0 py-0 font-medium text-slate-200"
+            data-og7-id="admin-quality-filter-count">
+            {{ filteredEntries().length }} domaines visibles sur {{ totalDomains() }}
+          </span>
+          <span class="hidden h-4 w-px bg-white/10 lg:block" aria-hidden="true"></span>
+          @if (selectedEntry(); as entry) {
+          <span class="inline-flex items-center gap-1 text-xs font-medium">
+            Domaine actif : <span class="text-emerald-300">{{ entry.domain }}</span>
           </span>
           }
         </div>
-        } @else {
-        <p class="text-xs text-slate-500">Aucun filtre actif. La vue montre tout le portefeuille QA.</p>
-        }
 
-        <p class="text-xs leading-relaxed text-slate-500 sm:max-w-xs sm:text-right">
-          La selection detaillee reste pilotee par la matrix et la surface secondaire.
-        </p>
+        <div class="flex flex-wrap items-center gap-3 text-xs">
+          @if (hasActiveFilters()) {
+          <span class="inline-flex items-center gap-1 font-medium text-emerald-100">
+            <span class="text-emerald-300" aria-hidden="true">•</span>
+            Filtres actifs : {{ activeFilterChips().length }}
+          </span>
+          } @else {
+          <span class="inline-flex items-center gap-1 font-medium text-slate-400">
+            <span class="text-slate-500" aria-hidden="true">•</span>
+            Aucun filtre actif
+          </span>
+          }
+        </div>
       </div>
+
+      @if (hasActiveFilters()) {
+      <div class="sr-only" data-og7="admin-quality-active-filters">
+        @for (chip of activeFilterChips(); track chip.id) {
+        <span
+          class="inline-flex rounded-full border border-sky-400/20 bg-sky-400/10 px-2.5 py-1 text-[11px] font-medium text-sky-100"
+          data-og7="admin-quality-active-filter" [attr.data-og7-id]="chip.id">
+          {{ chip.label }}
+        </span>
+        }
+      </div>
+      } @else {
+      <p class="sr-only">Aucun filtre actif. La vue montre tout le portefeuille QA.</p>
+      }
     </div>
   </section>
 
   <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
 
-<div class="flex flex-col gap-6 2xl:grid 2xl:grid-cols-[minmax(0,1.15fr)_minmax(26rem,0.95fr)] 2xl:items-start">
+<div class="flex flex-col gap-6 2xl:grid 2xl:grid-cols-[minmax(0,1.04fr)_minmax(27rem,0.96fr)] 2xl:items-start">
   <div class="w-full min-w-0">
     <og7-admin-quality-coverage-matrix [entries]="filteredEntries()" [selectedEntryId]="selectedEntry()?.id ?? null"
         (entrySelected)="selectEntry($event)" />
@@ -196,86 +222,86 @@
 
 
   <section
-    class="mt-8 rounded-[34px] border border-sky-100/90 bg-white/94 p-5 shadow-[0_24px_72px_-42px_rgba(15,23,42,0.18)] backdrop-blur xl:p-6"
+    class="relative mt-8 overflow-hidden rounded-[34px] border border-amber-400/30 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(5,10,24,0.98))] p-5 shadow-[0_40px_110px_-68px_rgba(251,146,60,0.72)] xl:p-6"
     data-og7="admin-quality-inspection-deck">
-    <div class="border-b border-slate-200/80 pb-5">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.14),_transparent_24%),radial-gradient(circle_at_18%_18%,_rgba(56,189,248,0.08),_transparent_22%)]"></div>
+
+    <div class="relative border-b border-white/10 pb-5">
       <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Execution deck</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Workspace</p>
             <span
-              class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">
+              class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
               Surface principale : {{ inspectionSurface() === 'actions' ? 'Actions' : 'Delegation' }}
             </span>
           </div>
-          <p class="max-w-3xl text-sm leading-relaxed text-slate-600">
-            La decision reste en haut avec la matrix et le Mission Control. Ici, on enchaine sur la delegation ou le
-            registre d actions. La QA Queue detaillee descend en surface secondaire.
+          <h2 class="text-2xl font-semibold tracking-tight text-white">Execution workspace</h2>
+          <p class="max-w-3xl text-sm leading-relaxed text-slate-300">
+            La decision reste en haut avec la matrix et le Mission Control. Ici, on enchaine sur la delegation ou le registre d actions. La QA Queue detaillee descend en surface secondaire.
           </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-300">
           <span
-            class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+            class="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
             Domaine actif
           </span>
-          <span class="font-medium text-slate-900">{{ selectedEntry()?.domain ?? 'aucun' }}</span>
+          <span class="font-medium text-white">{{ selectedEntry()?.domain ?? 'aucun' }}</span>
         </div>
       </div>
 
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button type="button" class="min-w-[13rem] flex-1 rounded-[18px] border px-3.5 py-3 text-left transition"
-          [class.border-slate-900]="isInspectionSurfaceActive('delegation')"
-          [class.bg-slate-900]="isInspectionSurfaceActive('delegation')"
-          [class.text-white]="isInspectionSurfaceActive('delegation')"
-          [class.shadow-md]="isInspectionSurfaceActive('delegation')"
-          [class.border-slate-200]="!isInspectionSurfaceActive('delegation')"
-          [class.bg-slate-50]="!isInspectionSurfaceActive('delegation')"
-          [class.text-slate-900]="!isInspectionSurfaceActive('delegation')" (click)="setInspectionSurface('delegation')"
+      <div class="mt-5 grid gap-3 xl:grid-cols-3">
+        <article class="rounded-[20px] border border-sky-400/25 bg-sky-400/10 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-white">QA Queue</p>
+              <p class="mt-1 text-xs text-sky-100/80">Revue des besoins et couverture</p>
+            </div>
+            <span class="rounded-full border border-sky-300/25 bg-sky-400/10 px-2 py-0.5 text-[11px] font-semibold text-sky-50">
+              {{ filteredEntries().length }}
+            </span>
+          </div>
+        </article>
+
+        <button type="button" class="min-w-[13rem] rounded-[20px] border px-4 py-4 text-left transition"
+          [ngClass]="isInspectionSurfaceActive('delegation')
+            ? 'border-amber-400/35 bg-amber-400/12 text-white shadow-[0_22px_56px_-42px_rgba(251,191,36,0.8)]'
+            : 'border-white/10 bg-white/[0.04] text-slate-100'" (click)="setInspectionSurface('delegation')"
           [attr.aria-pressed]="isInspectionSurfaceActive('delegation')"
           data-og7="action"
           data-og7-id="admin-quality-surface-delegation">
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-sm font-semibold">Delegation</p>
-              <p class="mt-1 text-xs" [class.text-slate-300]="isInspectionSurfaceActive('delegation')"
-                [class.text-slate-500]="!isInspectionSurfaceActive('delegation')">
+              <p class="mt-1 text-xs"
+                [ngClass]="isInspectionSurfaceActive('delegation') ? 'text-amber-100' : 'text-slate-400'">
                 Brief Codex, contrat operateur et issue
               </p>
             </div>
             <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
-              [class.border-white/20]="isInspectionSurfaceActive('delegation')"
-              [class.text-slate-100]="isInspectionSurfaceActive('delegation')"
-              [class.border-slate-200]="!isInspectionSurfaceActive('delegation')"
-              [class.text-slate-600]="!isInspectionSurfaceActive('delegation')">
+              [ngClass]="isInspectionSurfaceActive('delegation') ? 'border-amber-300/25 text-amber-50' : 'border-white/10 text-slate-300'">
               {{ selectedDelegation() ? 'ON' : 'OFF' }}
             </span>
           </div>
         </button>
 
-        <button type="button" class="min-w-[13rem] flex-1 rounded-[18px] border px-3.5 py-3 text-left transition"
-          [class.border-slate-900]="isInspectionSurfaceActive('actions')"
-          [class.bg-slate-900]="isInspectionSurfaceActive('actions')"
-          [class.text-white]="isInspectionSurfaceActive('actions')"
-          [class.shadow-md]="isInspectionSurfaceActive('actions')"
-          [class.border-slate-200]="!isInspectionSurfaceActive('actions')"
-          [class.bg-slate-50]="!isInspectionSurfaceActive('actions')"
-          [class.text-slate-900]="!isInspectionSurfaceActive('actions')" (click)="setInspectionSurface('actions')"
+        <button type="button" class="min-w-[13rem] rounded-[20px] border px-4 py-4 text-left transition"
+          [ngClass]="isInspectionSurfaceActive('actions')
+            ? 'border-rose-400/35 bg-rose-400/12 text-white shadow-[0_22px_56px_-42px_rgba(244,63,94,0.78)]'
+            : 'border-white/10 bg-white/[0.04] text-slate-100'" (click)="setInspectionSurface('actions')"
           [attr.aria-pressed]="isInspectionSurfaceActive('actions')"
           data-og7="action"
           data-og7-id="admin-quality-surface-actions">
           <div class="flex items-start justify-between gap-3">
             <div>
               <p class="text-sm font-semibold">Actions</p>
-              <p class="mt-1 text-xs" [class.text-slate-300]="isInspectionSurfaceActive('actions')"
-                [class.text-slate-500]="!isInspectionSurfaceActive('actions')">
+              <p class="mt-1 text-xs"
+                [ngClass]="isInspectionSurfaceActive('actions') ? 'text-rose-100' : 'text-slate-400'">
                 Instrumentation, preuve et gaps
               </p>
             </div>
             <span class="rounded-full border px-2 py-0.5 text-[11px] font-semibold"
-              [class.border-white/20]="isInspectionSurfaceActive('actions')"
-              [class.text-slate-100]="isInspectionSurfaceActive('actions')"
-              [class.border-slate-200]="!isInspectionSurfaceActive('actions')"
-              [class.text-slate-600]="!isInspectionSurfaceActive('actions')">
+              [ngClass]="isInspectionSurfaceActive('actions') ? 'border-rose-300/25 text-rose-50' : 'border-white/10 text-slate-300'">
               {{ selectedEntryActions().length }}
             </span>
           </div>

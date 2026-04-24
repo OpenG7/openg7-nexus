@@ -25,18 +25,21 @@ export interface AdminQualityCommandMetric {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="rounded-[24px] border border-slate-200/90 bg-white/94 p-3 shadow-[0_18px_46px_-34px_rgba(15,23,42,0.18)]"
+      class="relative overflow-hidden rounded-[26px] border border-violet-500/30 bg-[#071120]/94 p-3 shadow-[0_30px_84px_-48px_rgba(14,165,233,0.62)]"
       data-og7="admin-quality-command-rail"
     >
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(16rem,1.2fr)_repeat(5,minmax(0,1fr))]">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_82%_18%,_rgba(168,85,247,0.16),_transparent_22%),linear-gradient(180deg,_rgba(3,7,18,0.34),_rgba(3,7,18,0.04))]"></div>
+      <div class="pointer-events-none absolute inset-x-5 top-16 h-px bg-gradient-to-r from-transparent via-sky-300/20 to-transparent"></div>
+
+      <div class="relative grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(17rem,1.08fr)_repeat(5,minmax(0,1fr))]">
         <article
-          class="rounded-[20px] border border-slate-200 bg-slate-50/90 px-5 py-4"
+          class="rounded-[22px] border border-white/10 bg-white/[0.03] px-5 py-4 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
           data-og7="admin-quality-summary"
           data-og7-id="rail-heading"
         >
           <div class="space-y-3">
             <div class="flex flex-wrap items-center gap-2">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Rail de pilotage</p>
+              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300">Rail de pilotage</p>
               <span
                 class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
                 [class]="scopeBadgeClasses(scope().filtered)"
@@ -46,18 +49,22 @@ export interface AdminQualityCommandMetric {
             </div>
 
             <div class="flex items-end gap-3">
-              <p class="text-3xl font-semibold tracking-tight text-slate-900">{{ scope().activeDomains }}</p>
-              <p class="pb-1 text-sm text-slate-500">
+              <p class="text-4xl font-semibold tracking-tight text-white">{{ scope().activeDomains }}</p>
+              <p class="pb-1 text-sm text-slate-400">
                 {{ scope().filtered ? 'domaines visibles sur ' + scope().totalDomains : 'domaines dans le portefeuille' }}
               </p>
             </div>
 
-            <div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-600">
-              <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1">
+            <p class="max-w-sm text-sm leading-relaxed text-slate-300">
+              Lecture globale du scope courant, de la couverture prouvee et des domaines qui demandent encore une intervention QA ou produit.
+            </p>
+
+            <div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-300">
+              <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
                 {{ scope().filtered ? scope().activeFilterCount + ' filtre(s)' : 'Aucun filtre actif' }}
               </span>
               @if (scope().selectedDomain) {
-                <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1">
+                <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
                   Domaine actif : {{ scope().selectedDomain }}
                 </span>
               }
@@ -67,38 +74,49 @@ export interface AdminQualityCommandMetric {
 
         @for (metric of metrics(); track metric.id) {
           <article
-            class="rounded-[20px] border px-4 py-4"
+            class="relative overflow-hidden rounded-[22px] border px-4 py-4"
             [class]="cardClasses(metric.accent)"
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
             [attr.aria-label]="metric.activeValue + ' actif pour ' + metric.label + '. Global ' + metric.totalValue + '. ' + metric.detail"
             [attr.title]="metric.detail"
           >
+            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
             <div class="flex h-full flex-col gap-3">
               <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" [class]="eyebrowClasses(metric.accent)">
-                    {{ metric.label }}
-                  </p>
-                  <p class="mt-2 text-sm leading-relaxed" [class]="detailClasses(metric.accent)">{{ metric.detail }}</p>
-                </div>
-
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="badgeClasses(metric.accent)">
-                  Global {{ metric.totalValue }}
+                <span
+                  class="inline-flex h-12 w-12 items-center justify-center rounded-[16px] border text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  [class]="iconShellClasses(metric.accent)"
+                  aria-hidden="true"
+                >
+                  {{ iconLabel(metric.id) }}
                 </span>
+                <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]" [class]="badgeClasses(metric.accent)">
+                  {{ coveragePercent(metric) }}%
+                </span>
+              </div>
+
+              <div class="space-y-2">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em]" [class]="eyebrowClasses(metric.accent)">
+                  {{ metric.label }}
+                </p>
+                <p class="text-[2.35rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
+                  {{ metric.activeValue }}
+                </p>
+                <p class="text-xs leading-relaxed" [class]="detailClasses(metric.accent)">{{ metric.detail }}</p>
               </div>
 
               <div class="mt-auto flex items-end justify-between gap-3">
                 <div>
-                  <p class="text-[2rem] font-extrabold leading-none" [class]="valueClasses(metric.accent)">
-                    {{ metric.activeValue }}
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em]" [class]="supportClasses(metric.accent)">
+                    Global {{ metric.totalValue }}
                   </p>
-                  <p class="mt-2 text-xs font-medium" [class]="supportClasses(metric.accent)">
-                    {{ scope().filtered ? 'dans le scope courant' : 'dans la vue globale' }}
+                  <p class="mt-2 text-xs text-slate-400">
+                    {{ scope().filtered ? 'Dans le scope courant' : 'Lecture globale' }}
                   </p>
                 </div>
                 @if (scope().filtered && metric.activeValue !== metric.totalValue) {
-                  <p class="text-xs font-medium text-slate-500">
+                  <p class="text-xs font-medium text-slate-400">
                     {{ metric.totalValue - metric.activeValue }} hors scope
                   </p>
                 }
@@ -117,96 +135,134 @@ export class AdminQualityCommandRailComponent {
   cardClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'border-emerald-200 bg-emerald-50/80';
+        return 'border-emerald-500/20 bg-[linear-gradient(180deg,rgba(6,36,27,0.96),rgba(4,20,17,0.98))] text-white';
       case 'sky':
-        return 'border-sky-200 bg-sky-50/80';
+        return 'border-sky-500/20 bg-[linear-gradient(180deg,rgba(5,29,55,0.96),rgba(4,16,34,0.98))] text-white';
       case 'indigo':
-        return 'border-indigo-200 bg-indigo-50/80';
+        return 'border-violet-500/20 bg-[linear-gradient(180deg,rgba(21,18,53,0.96),rgba(10,12,31,0.98))] text-white';
       case 'rose':
-        return 'border-rose-200 bg-rose-50/90';
+        return 'border-rose-500/20 bg-[linear-gradient(180deg,rgba(55,16,25,0.96),rgba(29,10,16,0.98))] text-white';
       default:
-        return 'border-slate-200 bg-slate-50/90';
+        return 'border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,6,23,0.98))] text-white';
     }
   }
 
   scopeBadgeClasses(filtered: boolean): string {
     return filtered
-      ? 'border-sky-200 bg-sky-50 text-sky-700'
-      : 'border-slate-200 bg-white text-slate-700';
+      ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
+      : 'border-white/10 bg-white/[0.05] text-slate-200';
   }
 
   badgeClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'border-emerald-200 bg-white text-emerald-700';
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
       case 'sky':
-        return 'border-sky-200 bg-white text-sky-700';
+        return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
       case 'indigo':
-        return 'border-indigo-200 bg-white text-indigo-700';
+        return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
       case 'rose':
-        return 'border-rose-200 bg-white text-rose-700';
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
       default:
-        return 'border-slate-200 bg-white text-slate-700';
+        return 'border-white/10 bg-white/[0.05] text-slate-100';
     }
   }
 
   eyebrowClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-700';
+        return 'text-emerald-200';
       case 'sky':
-        return 'text-sky-700';
+        return 'text-sky-200';
       case 'indigo':
-        return 'text-indigo-700';
+        return 'text-violet-200';
       case 'rose':
-        return 'text-rose-700';
+        return 'text-rose-200';
       default:
-        return 'text-slate-500';
+        return 'text-slate-300';
     }
   }
 
   detailClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-900';
+        return 'text-emerald-100/80';
       case 'sky':
-        return 'text-sky-900';
+        return 'text-sky-100/80';
       case 'indigo':
-        return 'text-indigo-900';
+        return 'text-violet-100/80';
       case 'rose':
-        return 'text-rose-900';
+        return 'text-rose-100/80';
       default:
-        return 'text-slate-700';
+        return 'text-slate-300';
     }
   }
 
   valueClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-900';
+        return 'text-emerald-50';
       case 'sky':
-        return 'text-sky-900';
+        return 'text-sky-50';
       case 'indigo':
-        return 'text-indigo-900';
+        return 'text-violet-50';
       case 'rose':
-        return 'text-rose-900';
+        return 'text-rose-50';
       default:
-        return 'text-slate-900';
+        return 'text-white';
     }
   }
 
   supportClasses(accent: AdminQualityCommandMetric['accent']): string {
     switch (accent) {
       case 'emerald':
-        return 'text-emerald-700';
+        return 'text-emerald-200';
       case 'sky':
-        return 'text-sky-700';
+        return 'text-sky-200';
       case 'indigo':
-        return 'text-indigo-700';
+        return 'text-violet-200';
       case 'rose':
-        return 'text-rose-700';
+        return 'text-rose-200';
       default:
-        return 'text-slate-600';
+        return 'text-slate-200';
     }
+  }
+
+  iconShellClasses(accent: AdminQualityCommandMetric['accent']): string {
+    switch (accent) {
+      case 'emerald':
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+      case 'sky':
+        return 'border-sky-400/25 bg-sky-400/12 text-sky-100';
+      case 'indigo':
+        return 'border-violet-400/25 bg-violet-400/12 text-violet-100';
+      case 'rose':
+        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+      default:
+        return 'border-white/10 bg-white/[0.05] text-slate-100';
+    }
+  }
+
+  iconLabel(id: AdminQualityCommandMetric['id']): string {
+    switch (id) {
+      case 'proved-domains':
+        return 'OK';
+      case 'proof-gap-domains':
+        return 'QA';
+      case 'product-work-domains':
+        return 'PX';
+      case 'high-priority-gaps':
+        return '!!';
+      default:
+        return 'DM';
+    }
+  }
+
+  coveragePercent(metric: AdminQualityCommandMetric): number {
+    if (metric.totalValue <= 0) {
+      return 0;
+    }
+
+    return Math.round((metric.activeValue / metric.totalValue) * 100);
   }
 }

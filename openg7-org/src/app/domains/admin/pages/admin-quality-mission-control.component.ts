@@ -150,61 +150,61 @@ export class AdminQualityMissionControlComponent {
   missionPhaseClasses(phase: AdminQualityMissionPhase): string {
     switch (phase) {
       case 'ready':
-        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
+        return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
       case 'execution':
-        return 'border-amber-200 bg-amber-50 text-amber-700';
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
       case 'proof-review':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
       case 'completed':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
       case 'blocked':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
       default:
-        return 'border-sky-200 bg-sky-50 text-sky-700';
+        return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
     }
   }
 
   missionTimelineCardClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'border-emerald-200 bg-emerald-50 text-slate-900';
+        return 'border-emerald-400/20 bg-emerald-400/10 text-white';
       case 'current':
-        return 'border-sky-200 bg-sky-50 text-slate-900 shadow-[0_18px_34px_-24px_rgba(56,189,248,0.3)]';
+        return 'border-sky-400/30 bg-sky-400/12 text-white shadow-[0_22px_54px_-36px_rgba(56,189,248,0.75)]';
       default:
-        return 'border-slate-200 bg-white text-slate-700';
+        return 'border-white/10 bg-slate-950/70 text-slate-300';
     }
   }
 
   missionTimelineMarkerClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'border-emerald-200 bg-emerald-500 text-white';
+        return 'border-emerald-300/35 bg-emerald-400/20 text-emerald-50';
       case 'current':
-        return 'border-sky-300 bg-sky-100 text-sky-700 shadow-[0_0_0_6px_rgba(56,189,248,0.1)]';
+        return 'border-sky-300/45 bg-sky-400/20 text-sky-50 shadow-[0_0_0_6px_rgba(56,189,248,0.14)]';
       default:
-        return 'border-slate-200 bg-white text-slate-500';
+        return 'border-white/10 bg-slate-900 text-slate-400';
     }
   }
 
   missionTimelineConnectorClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'bg-linear-to-r from-emerald-300 via-sky-300 to-sky-200';
+        return 'bg-linear-to-r from-emerald-300 via-sky-300 to-sky-300';
       case 'current':
-        return 'bg-linear-to-r from-sky-300 to-slate-200';
+        return 'bg-linear-to-r from-sky-300 to-white/10';
       default:
-        return 'bg-slate-200';
+        return 'bg-white/10';
     }
   }
 
   missionTimelineVerticalConnectorClasses(status: AdminQualityMissionTimelineStatus): string {
     switch (status) {
       case 'done':
-        return 'bg-linear-to-b from-emerald-300 via-sky-300 to-sky-200';
+        return 'bg-linear-to-b from-emerald-300 via-sky-300 to-sky-300';
       case 'current':
-        return 'bg-linear-to-b from-sky-300 to-slate-200';
+        return 'bg-linear-to-b from-sky-300 to-white/10';
       default:
-        return 'bg-slate-200';
+        return 'bg-white/10';
     }
   }
 
@@ -247,61 +247,61 @@ export class AdminQualityMissionControlComponent {
   missionStatusClasses(status: AdminQualityMissionStatus): string {
     switch (status) {
       case 'approved':
-        return 'border-indigo-200 bg-indigo-50 text-indigo-700';
+        return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
       case 'in-progress':
-        return 'border-amber-200 bg-amber-50 text-amber-700';
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
       case 'proof-returned':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
       case 'done':
       case 'deferred':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
       case 'rejected':
       case 'blocked':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
       default:
-        return 'border-sky-200 bg-sky-50 text-sky-700';
+        return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
     }
   }
 
   confidenceClasses(value: 'High' | 'Medium'): string {
     return value === 'High'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-amber-200 bg-amber-50 text-amber-700';
+      ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
+      : 'border-amber-400/25 bg-amber-400/10 text-amber-100';
   }
 
   impactClasses(value: 'High' | 'Medium' | 'Low'): string {
     switch (value) {
       case 'High':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
       case 'Low':
-        return 'border-slate-200 bg-slate-100 text-slate-700';
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
       default:
-        return 'border-amber-200 bg-amber-50 text-amber-700';
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
     }
   }
 
   workflowCardClasses(active: boolean): string {
     return active
-      ? 'border-slate-900 bg-white text-slate-900 shadow-md'
-      : 'border-slate-200 bg-slate-50/90 text-slate-700';
+      ? 'border-sky-400/25 bg-sky-400/10 text-white shadow-[0_24px_60px_-42px_rgba(56,189,248,0.76)]'
+      : 'border-white/10 bg-white/[0.04] text-slate-300';
   }
 
   workflowBadgeClasses(accent: AdminQualityMissionWorkflowStep['accent'], active: boolean): string {
     if (!active) {
-      return 'border-slate-200 text-slate-500';
+      return 'border-white/10 bg-white/[0.04] text-slate-400';
     }
 
     switch (accent) {
       case 'sky':
-        return 'border-sky-200 text-sky-700';
+        return 'border-sky-300/40 bg-sky-400/16 text-sky-100';
       case 'rose':
-        return 'border-rose-200 text-rose-700';
+        return 'border-rose-300/40 bg-rose-400/16 text-rose-100';
       case 'emerald':
-        return 'border-emerald-200 text-emerald-700';
+        return 'border-emerald-300/40 bg-emerald-400/16 text-emerald-100';
       case 'amber':
-        return 'border-amber-200 text-amber-700';
+        return 'border-amber-300/40 bg-amber-400/16 text-amber-100';
       default:
-        return 'border-indigo-200 text-indigo-700';
+        return 'border-violet-300/40 bg-violet-400/16 text-violet-100';
     }
   }
 
@@ -317,30 +317,41 @@ export class AdminQualityMissionControlComponent {
     if (surface === 'hero') {
       switch (tone) {
         case 'primary':
-          return 'rounded-lg border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700';
+          return 'rounded-xl border border-sky-400/40 bg-linear-to-r from-sky-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400';
         case 'secondary':
-          return 'rounded-lg border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100';
+          return 'rounded-xl border border-amber-400/30 bg-amber-400/12 px-4 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/18';
         case 'danger':
-          return 'rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100';
+          return 'rounded-xl border border-rose-400/30 bg-rose-400/12 px-4 py-2.5 text-sm font-medium text-rose-100 transition hover:bg-rose-400/18';
         case 'success':
-          return 'rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100';
+          return 'rounded-xl border border-emerald-400/30 bg-emerald-400/12 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/18';
         default:
-          return 'rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100';
+          return 'rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]';
       }
     }
 
     switch (tone) {
       case 'primary':
-        return 'rounded-lg border border-slate-900 bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700';
+        return 'rounded-xl border border-sky-400/35 bg-sky-400/12 px-3 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-400/18';
       case 'secondary':
-        return 'rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-medium text-sky-700 transition hover:bg-sky-100';
+        return 'rounded-xl border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-400/16';
       case 'danger':
-        return 'rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100';
+        return 'rounded-xl border border-rose-400/25 bg-rose-400/10 px-3 py-2 text-sm font-medium text-rose-100 transition hover:bg-rose-400/16';
       case 'success':
-        return 'rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100';
+        return 'rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-400/16';
       default:
-        return 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100';
+        return 'rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]';
     }
+  }
+
+  confidencePercent(value: 'High' | 'Medium'): number {
+    return value === 'High' ? 88 : 72;
+  }
+
+  confidenceRingBackground(value: 'High' | 'Medium'): string {
+    const percent = this.confidencePercent(value);
+    const degrees = `${Math.round(percent * 3.6)}deg`;
+    const color = value === 'High' ? 'rgba(34,197,94,0.96)' : 'rgba(245,158,11,0.96)';
+    return `conic-gradient(${color} 0deg ${degrees}, rgba(148,163,184,0.14) ${degrees} 360deg)`;
   }
 
   emitMissionAction(action: AdminQualityMissionControlAction, recommendation: AdminQualityMissionRecommendation): void {
