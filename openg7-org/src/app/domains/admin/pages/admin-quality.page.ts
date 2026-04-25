@@ -13,6 +13,10 @@ import {
   AdminQualityMatrixSnapshot,
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
+import {
+  AdminQualityWorkspaceDrawerComponent,
+  AdminQualityWorkspaceSurface,
+} from '../feature/admin-quality-workspace-drawer.component';
 
 import {
   AdminQualityActionIntent,
@@ -43,10 +47,6 @@ import {
   buildMissionControl,
 } from './admin-quality-mission-control';
 import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
-import {
-  AdminQualityWorkspaceDrawerComponent,
-  AdminQualityWorkspaceSurface,
-} from '../feature/admin-quality-workspace-drawer.component';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
