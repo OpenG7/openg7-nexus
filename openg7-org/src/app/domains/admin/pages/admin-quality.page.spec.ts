@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import {
@@ -79,13 +80,122 @@ describe('AdminQualityPage', () => {
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', ['success', 'info', 'error']);
 
     await TestBed.configureTestingModule({
-      imports: [AdminQualityPage],
+      imports: [AdminQualityPage, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         { provide: AdminQualityMatrixService, useValue: service },
         { provide: NotificationStore, useValue: notifications },
       ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation(
+      'en',
+      {
+        admin: {
+          quality: {
+            workspace: {
+              compact: {
+                label: 'Workspace',
+                title: 'Active workspace',
+                subtitle: 'QA, delegation, and actions are available in the side panel.',
+                open: 'Open workspace',
+                primarySurface: 'Primary surface: {{ surface }}',
+                domains: '{{ count }} domain(s)',
+                actions: '{{ count }} action(s)',
+                activeSurface: 'Active surface: {{ surface }}',
+                activePanel: 'Active panel',
+                activePanelCount: '{{ count }} item(s)',
+              },
+              drawer: {
+                label: 'Workspace',
+                activeSurface: 'Active surface',
+                selectedCount: '{{ count }} item(s)',
+                close: 'Close workspace',
+                closeAction: 'Close',
+                backdropLabel: 'Close workspace',
+                tabsLabel: 'Workspace surfaces',
+              },
+              tabs: {
+                qaQueue: 'QA Queue',
+                delegation: 'Delegation',
+                actions: 'Actions',
+              },
+              surfaces: {
+                qaQueue: { title: 'QA Queue', subtitle: 'Requirements and coverage review' },
+                delegation: { title: 'Delegation', subtitle: 'Automatic delegation plan' },
+                actions: { title: 'Actions', subtitle: 'Action registry and instrumentation' },
+              },
+              qaQueue: {
+                kicker: 'QA Queue',
+                title: 'QA Queue',
+                subtitle: 'Requirements and coverage review',
+                emptyTitle: 'QA Queue pending',
+                emptyBody: 'The QA queue will connect to the detailed matrix once structured data is available.',
+                status: {
+                  yes: 'Proved',
+                  partial: 'Partial',
+                  no: 'To cover',
+                  outOfScope: 'Out of MVP',
+                },
+              },
+              delegation: {
+                header: 'Delegation',
+                emptyTitle: 'Delegation unavailable',
+                missing: 'No delegation plan is available for the current selection.',
+                modes: {
+                  qaProof: 'QA proof',
+                  productClosure: 'Product closure',
+                  hardening: 'Hardening',
+                  scopeCadrage: 'Scope framing',
+                },
+                cards: {
+                  action: 'Action',
+                  projectStatus: 'Project status',
+                  repos: 'Repos',
+                  labels: 'Labels',
+                  acceptance: 'Acceptance criteria',
+                  execution: 'Likely execution plan',
+                  files: 'Files',
+                  validation: 'Validation',
+                  brief: 'Codex brief',
+                  briefBody: 'Prompt ready to copy, review, or delegate quickly.',
+                  issue: 'GitHub issue',
+                  issueBody: 'Precomposed issue for delegation or follow-up.',
+                },
+                buttons: {
+                  copyBrief: 'Copy brief',
+                  copyIssue: 'Copy issue',
+                  openGithub: 'Open on GitHub',
+                },
+                acceptanceCount: '{{ count }} item(s)',
+                executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
+              },
+              actions: {
+                kicker: 'Actions',
+                title: 'Actions',
+                subtitle: 'Action registry and instrumentation',
+                emptyTitle: 'Actions pending',
+                emptyBody: 'The action registry will appear here once the active domain exposes structured instrumentation.',
+                status: {
+                  proved: 'Proved',
+                  documented: 'Documented',
+                  needsCompletion: 'Needs completion',
+                },
+              },
+              notifications: {
+                briefCopied: 'Codex brief copied.',
+                issueCopied: 'GitHub issue copied.',
+                copyFailed: 'Unable to copy the workspace item.',
+                githubUnavailable: 'No GitHub URL is available for this delegation.',
+              },
+            },
+          },
+        },
+      },
+      true
+    );
+    translate.use('en');
   });
 
   it('renders summary counts from the QA matrix snapshot', () => {
@@ -101,31 +211,41 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]')).not.toBeNull();
   });
 
-  it('keeps delegation and actions as primary surfaces and moves the QA queue to a secondary panel', () => {
+  it('renders a compact workspace bar and opens the drawer on demand', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const delegationSurface = root.querySelector('[data-og7-id="admin-quality-surface-delegation"]') as HTMLButtonElement;
-    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
+    const workspaceBar = root.querySelector('[data-og7="admin-quality-workspace-bar"]');
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
     const secondaryQueue = root.querySelector('[data-og7="admin-quality-secondary-queue"]') as HTMLDetailsElement;
 
-    expect(delegationSurface).not.toBeNull();
-    expect(actionsSurface).not.toBeNull();
-    expect(root.querySelector('[data-og7-id="admin-quality-surface-queue"]')).toBeNull();
+    expect(workspaceBar).not.toBeNull();
     expect(secondaryQueue).not.toBeNull();
     expect(secondaryQueue.open).toBeFalse();
-    expect(delegationSurface.getAttribute('aria-pressed')).toBe('true');
-    expect(actionsSurface.getAttribute('aria-pressed')).toBe('false');
+    expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).toBeNull();
 
-    actionsSurface.click();
+    openWorkspaceButton.click();
     fixture.detectChanges();
 
-    expect(delegationSurface.getAttribute('aria-pressed')).toBe('false');
-    expect(actionsSurface.getAttribute('aria-pressed')).toBe('true');
+    const actionsTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-actions"]') as HTMLButtonElement;
+    const closeButton = root.querySelector('[data-og7-id="admin-quality-workspace-close"]') as HTMLButtonElement;
+
+    expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).not.toBeNull();
+    expect(actionsTab.getAttribute('aria-selected')).toBe('false');
+
+    actionsTab.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('actions');
+
+    closeButton.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).toBeNull();
   });
 
-  it('renders the compact coverage matrix and lets it change the active domain', () => {
+  it('renders the compact coverage matrix and updates the delegation drawer when the active domain changes', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -155,10 +275,8 @@ describe('AdminQualityPage', () => {
     trustRow.click();
     fixture.detectChanges();
 
-    const delegationSurface = root.querySelector(
-      '[data-og7-id="admin-quality-surface-delegation"]'
-    ) as HTMLButtonElement;
-    delegationSurface.click();
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
+    openWorkspaceButton.click();
     fixture.detectChanges();
 
     expect(
@@ -166,8 +284,8 @@ describe('AdminQualityPage', () => {
         .querySelector('[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]')
         ?.getAttribute('data-og7-selected')
     ).toBe('true');
-    expect((root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement).href).toContain(
-      'title=Regression%3A+maintenir+la+couverture+trust+et+validation'
+    expect(root.querySelector('[data-og7="admin-quality-workspace-panel"][data-og7-id="delegation"]')?.textContent).toContain(
+      'Renforcer la regression - Trust et validation'
     );
   });
 
@@ -260,30 +378,32 @@ describe('AdminQualityPage', () => {
     ).toBe('advanced-discovery');
   });
 
-  it('clears the action registry when filters leave no visible domain', () => {
+  it('shows an actions empty state in the workspace drawer when filters leave no visible domain', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
     const search = root.querySelector('[data-og7-id="admin-quality-search"]') as HTMLInputElement;
-    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
 
     search.value = 'zzz';
     search.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    actionsSurface.click();
+    openWorkspaceButton.click();
+    fixture.detectChanges();
+
+    const actionsTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-actions"]') as HTMLButtonElement;
+    actionsTab.click();
     fixture.detectChanges();
 
     expect(root.querySelector('[data-og7-id="admin-quality-empty"]')?.textContent).toContain(
       'Aucun domaine ne correspond aux filtres actifs.'
     );
-    expect(root.querySelectorAll('[data-og7="admin-quality-action-row"]').length).toBe(0);
-    expect(root.querySelector('[data-og7-id="admin-quality-action-empty"]')?.textContent).toContain(
-      "Aucun bouton d action n est encore recense pour ce domaine."
+    expect(root.querySelectorAll('[data-og7="admin-quality-workspace-action-item"]').length).toBe(0);
+    expect(root.querySelector('[data-og7="admin-quality-workspace-panel"][data-og7-id="actions"]')?.textContent).toContain(
+      'Actions pending'
     );
-    expect(root.querySelector('[data-og7="admin-quality-action-detail"]')).toBeNull();
-    expect(root.querySelector('[data-og7="admin-quality-actions"]')?.textContent).toContain('0 pour le domaine courant');
   });
 
   it('distinguishes active scope from global totals in the command rail', () => {
@@ -311,20 +431,24 @@ describe('AdminQualityPage', () => {
 
     let root = fixture.nativeElement as HTMLElement;
     const domainFilter = root.querySelector('[data-og7-id="admin-quality-domain-filter"]') as HTMLSelectElement;
-    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
 
     domainFilter.value = 'Observabilite et tracabilite';
     domainFilter.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
-    actionsSurface.click();
+    openWorkspaceButton.click();
+    fixture.detectChanges();
+
+    const actionsTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-actions"]') as HTMLButtonElement;
+    actionsTab.click();
     fixture.detectChanges();
     await fixture.whenStable();
 
     expect(JSON.parse(localStorage.getItem('og7.admin-quality.view-state.v1') ?? '{}')).toEqual(
       jasmine.objectContaining({
         selectedDomain: 'Observabilite et tracabilite',
-        inspectionSurface: 'actions',
+        activeWorkspaceSurface: 'actions',
       })
     );
 
@@ -343,26 +467,20 @@ describe('AdminQualityPage', () => {
         'data-og7-id'
       )
     ).toBe('observability');
-    expect(root.querySelector('[data-og7="admin-quality-inspection-deck"]')?.textContent).toContain(
-      'Surface principale : Actions'
-    );
+    expect(restoredFixture.componentInstance.activeWorkspaceSurface()).toBe('actions');
+    expect(root.querySelector('[data-og7="admin-quality-workspace-bar"]')?.textContent).toContain('Actions');
   });
 
-  it('renders a delegation panel and updates it when another row is selected', () => {
+  it('renders delegation content inside the workspace drawer and updates it when another row is selected', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const delegationSurface = root.querySelector(
-      '[data-og7-id="admin-quality-surface-delegation"]'
-    ) as HTMLButtonElement;
-    delegationSurface.click();
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
+    openWorkspaceButton.click();
     fixture.detectChanges();
 
-    let issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
-
-    expect(root.querySelector('[data-og7="admin-quality-delegation-panel"]')).not.toBeNull();
-    expect(issueLink.href).toContain('https://github.com/OpenG7/openg7-nexus/issues/new');
+    expect(root.querySelector('[data-og7="admin-quality-workspace-panel"][data-og7-id="delegation"]')).not.toBeNull();
     expect(root.textContent).toContain('Etendre la preuve QA - Recherche et decouverte profonde');
 
     const trustRow = root.querySelector(
@@ -371,9 +489,8 @@ describe('AdminQualityPage', () => {
     trustRow.click();
     fixture.detectChanges();
 
-    issueLink = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLAnchorElement;
     expect(root.textContent).toContain('Renforcer la regression - Trust et validation');
-    expect(issueLink.href).toContain('title=Regression%3A+maintenir+la+couverture+trust+et+validation');
+    expect(root.querySelector('[data-og7-id="admin-quality-open-issue"]')).not.toBeNull();
   });
 
   it('renders mission control recommendations and moves to ready after approval', () => {
@@ -419,32 +536,25 @@ describe('AdminQualityPage', () => {
     expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', { source: 'admin-quality' });
   });
 
-  it('renders the action registry for the selected domain and updates it on row change', () => {
+  it('renders the compact actions list in the workspace drawer and updates it on row change', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
-    actionsSurface.click();
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
+    openWorkspaceButton.click();
     fixture.detectChanges();
 
-    let actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');
-    let actionButtons = root.querySelectorAll('[data-og7="admin-quality-action-row"] > button') as NodeListOf<HTMLButtonElement>;
-
-    expect(root.querySelector('[data-og7="admin-quality-actions"]')).not.toBeNull();
-    expect(root.querySelector('[data-og7="admin-quality-undocumented-actions"]')).not.toBeNull();
-    expect(actionRows.length).toBe(3);
-    expect(actionButtons[0]?.getAttribute('aria-pressed')).toBe('true');
-    expect(actionButtons[1]?.getAttribute('aria-pressed')).toBe('false');
-    expect(root.textContent).toContain('feed-open-item');
-    expect(root.textContent).toContain('Hook action manquant');
-
-    actionButtons[1]?.click();
+    const actionsTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-actions"]') as HTMLButtonElement;
+    actionsTab.click();
     fixture.detectChanges();
 
-    actionButtons = root.querySelectorAll('[data-og7="admin-quality-action-row"] > button') as NodeListOf<HTMLButtonElement>;
-    expect(actionButtons[0]?.getAttribute('aria-pressed')).toBe('false');
-    expect(actionButtons[1]?.getAttribute('aria-pressed')).toBe('true');
+    let actionRows = root.querySelectorAll('[data-og7="admin-quality-workspace-action-item"]');
+
+    expect(root.querySelector('[data-og7="admin-quality-workspace-panel"][data-og7-id="actions"]')).not.toBeNull();
+    expect(actionRows.length).toBe(2);
+    const initialActionIds = Array.from(actionRows).map((row) => row.getAttribute('data-og7-id'));
+    expect(initialActionIds.every((id) => typeof id === 'string' && id.length > 0)).toBeTrue();
 
     const trustRow = root.querySelector(
       '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]'
@@ -452,11 +562,10 @@ describe('AdminQualityPage', () => {
     trustRow.click();
     fixture.detectChanges();
 
-    actionRows = root.querySelectorAll('[data-og7="admin-quality-action-row"]');
+    actionRows = root.querySelectorAll('[data-og7="admin-quality-workspace-action-item"]');
     expect(actionRows.length).toBe(2);
-    expect(root.textContent).toContain('admin-trust-quick-verify');
-    expect(root.textContent).toContain('AdminTrustPage');
-    expect(root.textContent).toContain('admin-trust-quick-correction');
+    const trustActionIds = Array.from(actionRows).map((row) => row.getAttribute('data-og7-id')).sort();
+    expect(trustActionIds).toEqual(['admin-trust-quick-verify', 'admin-trust-save'].sort());
   });
 
   it('stops spoken briefing when the active admin-quality context changes', () => {
@@ -466,13 +575,13 @@ describe('AdminQualityPage', () => {
     const page = fixture.componentInstance;
     const stopSpy = spyOn(page, 'stopMissionVoice').and.callFake(() => undefined);
     const root = fixture.nativeElement as HTMLElement;
-    const actionsSurface = root.querySelector('[data-og7-id="admin-quality-surface-actions"]') as HTMLButtonElement;
+    const openWorkspaceButton = root.querySelector('[data-og7-id="admin-quality-open-workspace"]') as HTMLButtonElement;
     const recommendationButtons = root.querySelectorAll(
       '[data-og7="admin-quality-recommendation"] > button'
     ) as NodeListOf<HTMLButtonElement>;
 
     page.speaking.set(true);
-    actionsSurface.click();
+    openWorkspaceButton.click();
     fixture.detectChanges();
 
     expect(stopSpy).toHaveBeenCalledWith(false);

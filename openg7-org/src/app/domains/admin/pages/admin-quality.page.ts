@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
+import { TranslateModule } from '@ngx-translate/core';
 
 import {
   AdminQualityMatrixBucket,
@@ -42,9 +43,13 @@ import {
   buildMissionControl,
 } from './admin-quality-mission-control';
 import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
+import {
+  AdminQualityWorkspaceDrawerComponent,
+  AdminQualityWorkspaceSurface,
+} from '../feature/admin-quality-workspace-drawer.component';
 
 type FilterValue<T extends string> = 'all' | T;
-type AdminQualityInspectionSurface = 'delegation' | 'actions';
+type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
@@ -58,7 +63,8 @@ interface AdminQualityPersistedViewState {
   readonly selectedEntryId?: string | null;
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
-  readonly inspectionSurface?: AdminQualityInspectionSurface;
+  readonly activeWorkspaceSurface?: AdminQualityWorkspaceSurface;
+  readonly inspectionSurface?: AdminQualityLegacyInspectionSurface;
 }
 
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
@@ -70,10 +76,12 @@ const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
   imports: [
     CommonModule,
     RouterLink,
+    TranslateModule,
     AdminQualityCommandRailComponent,
     AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
     AdminQualityMissionControlComponent,
+    AdminQualityWorkspaceDrawerComponent,
   ],
   templateUrl: './admin-quality.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,7 +105,8 @@ export class AdminQualityPage implements OnInit {
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
-  readonly inspectionSurface = signal<AdminQualityInspectionSurface>('delegation');
+  readonly workspaceOpen = signal(false);
+  readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
   private readonly viewStateReady = signal(false);
@@ -287,6 +296,38 @@ export class AdminQualityPage implements OnInit {
     const actions = this.actionRegistry();
     return entry ? actions.filter((action) => action.entryId === entry.id) : [];
   });
+  readonly qaQueuePreviewItems = computed<readonly AdminQualityMatrixEntry[]>(() => this.filteredEntries().slice(0, 3));
+  readonly actionPreviewItems = computed<readonly AdminQualityActionRecord[]>(() => this.selectedEntryActions().slice(0, 2));
+  readonly selectedWorkspaceTitle = computed(() => {
+    switch (this.activeWorkspaceSurface()) {
+      case 'qaQueue':
+        return 'admin.quality.workspace.surfaces.qaQueue.title';
+      case 'actions':
+        return 'admin.quality.workspace.surfaces.actions.title';
+      default:
+        return 'admin.quality.workspace.surfaces.delegation.title';
+    }
+  });
+  readonly selectedWorkspaceSubtitle = computed(() => {
+    switch (this.activeWorkspaceSurface()) {
+      case 'qaQueue':
+        return 'admin.quality.workspace.surfaces.qaQueue.subtitle';
+      case 'actions':
+        return 'admin.quality.workspace.surfaces.actions.subtitle';
+      default:
+        return 'admin.quality.workspace.surfaces.delegation.subtitle';
+    }
+  });
+  readonly selectedWorkspaceCount = computed(() => {
+    switch (this.activeWorkspaceSurface()) {
+      case 'qaQueue':
+        return this.filteredEntries().length;
+      case 'actions':
+        return this.selectedEntryActions().length;
+      default:
+        return this.selectedDelegation() ? 1 : 0;
+    }
+  });
   readonly selectedAction = computed<AdminQualityActionRecord | null>(() => {
     const actions = this.selectedEntryActions();
     if (!actions.length) {
@@ -403,7 +444,8 @@ export class AdminQualityPage implements OnInit {
   selectAction(action: AdminQualityActionRecord): void {
     this.stopVoiceForContextChange();
     this.selectedActionId.set(action.id);
-    this.inspectionSurface.set('actions');
+    this.activeWorkspaceSurface.set('actions');
+    this.workspaceOpen.set(true);
   }
 
   isActionSelected(action: AdminQualityActionRecord): boolean {
@@ -415,13 +457,19 @@ export class AdminQualityPage implements OnInit {
     this.selectedMissionId.set(recommendation.id);
   }
 
-  setInspectionSurface(surface: AdminQualityInspectionSurface): void {
+  openWorkspace(surface: AdminQualityWorkspaceSurface = this.activeWorkspaceSurface()): void {
     this.stopVoiceForContextChange();
-    this.inspectionSurface.set(surface);
+    this.activeWorkspaceSurface.set(surface);
+    this.workspaceOpen.set(true);
   }
 
-  isInspectionSurfaceActive(surface: AdminQualityInspectionSurface): boolean {
-    return this.inspectionSurface() === surface;
+  closeWorkspace(): void {
+    this.workspaceOpen.set(false);
+  }
+
+  setActiveWorkspaceSurface(surface: AdminQualityWorkspaceSurface): void {
+    this.stopVoiceForContextChange();
+    this.activeWorkspaceSurface.set(surface);
   }
 
   handleMissionAction(event: AdminQualityMissionControlActionEvent): void {
@@ -900,8 +948,10 @@ export class AdminQualityPage implements OnInit {
       if (parsed.selectedMissionId === null || typeof parsed.selectedMissionId === 'string') {
         this.selectedMissionId.set(parsed.selectedMissionId);
       }
-      if (this.isInspectionSurface(parsed.inspectionSurface)) {
-        this.inspectionSurface.set(parsed.inspectionSurface);
+      if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
+        this.activeWorkspaceSurface.set(parsed.activeWorkspaceSurface);
+      } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
+        this.activeWorkspaceSurface.set(parsed.inspectionSurface);
       }
     } catch {
       localStorage.removeItem(VIEW_STATE_STORAGE_KEY);
@@ -922,7 +972,7 @@ export class AdminQualityPage implements OnInit {
       selectedEntryId: this.selectedEntryId(),
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),
-      inspectionSurface: this.inspectionSurface(),
+      activeWorkspaceSurface: this.activeWorkspaceSurface(),
     };
 
     try {
@@ -944,7 +994,11 @@ export class AdminQualityPage implements OnInit {
     return value === 'all' || value === 'covered' || value === 'proof-gap' || value === 'product-gap' || value === 'scope-limit';
   }
 
-  private isInspectionSurface(value: unknown): value is AdminQualityInspectionSurface {
+  private isWorkspaceSurface(value: unknown): value is AdminQualityWorkspaceSurface {
+    return value === 'qaQueue' || value === 'delegation' || value === 'actions';
+  }
+
+  private isLegacyInspectionSurface(value: unknown): value is AdminQualityLegacyInspectionSurface {
     return value === 'delegation' || value === 'actions';
   }
 }
