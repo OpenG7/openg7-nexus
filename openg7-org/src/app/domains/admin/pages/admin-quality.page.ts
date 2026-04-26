@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import {
   AdminQualityMatrixBucket,
@@ -47,6 +47,12 @@ import {
   buildMissionControl,
 } from './admin-quality-mission-control';
 import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
+import {
+  AdminQualityMissionQuotaSummary,
+  AdminQualityMissionTask,
+  buildMissionTasks,
+  summarizeMissionQuota,
+} from './admin-quality-mission-task-planner';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
@@ -64,6 +70,7 @@ interface AdminQualityPersistedViewState {
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
   readonly activeWorkspaceSurface?: AdminQualityWorkspaceSurface;
+  readonly availableCodexQuotaUnits?: number;
   readonly inspectionSurface?: AdminQualityLegacyInspectionSurface;
 }
 
@@ -91,6 +98,7 @@ export class AdminQualityPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly notifications = injectNotificationStore();
+  private readonly translate = inject(TranslateService);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly loading = signal(true);
@@ -107,6 +115,7 @@ export class AdminQualityPage implements OnInit {
   readonly selectedMissionId = signal<string | null>(null);
   readonly workspaceOpen = signal(false);
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
+  readonly availableCodexQuotaUnits = signal(160);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly speaking = signal(false);
   private readonly viewStateReady = signal(false);
@@ -356,6 +365,16 @@ export class AdminQualityPage implements OnInit {
     const selectedId = this.selectedMissionId();
     return recommendations.find((recommendation) => recommendation.id === selectedId) ?? recommendations[0];
   });
+  readonly selectedMissionTasks = computed<readonly AdminQualityMissionTask[]>(() => {
+    const mission = this.selectedMission();
+    const difficulty = this.selectedDelegation()?.difficulty;
+    return mission && difficulty ? buildMissionTasks(mission, difficulty) : [];
+  });
+  readonly selectedMissionQuotaSummary = computed<AdminQualityMissionQuotaSummary | null>(() => {
+    const tasks = this.selectedMissionTasks();
+    return tasks.length ? summarizeMissionQuota(tasks, this.availableCodexQuotaUnits()) : null;
+  });
+  readonly canStartSelectedMission = computed(() => this.selectedMissionQuotaSummary()?.sufficient ?? false);
 
   constructor() {
     effect(() => {
@@ -472,7 +491,31 @@ export class AdminQualityPage implements OnInit {
     this.activeWorkspaceSurface.set(surface);
   }
 
+  setAvailableCodexQuotaUnits(event: Event): void {
+    const nextValue = Number((event.target as HTMLInputElement | null)?.value ?? this.availableCodexQuotaUnits());
+    if (!Number.isFinite(nextValue)) {
+      return;
+    }
+
+    this.availableCodexQuotaUnits.set(Math.max(0, Math.round(nextValue)));
+  }
+
   handleMissionAction(event: AdminQualityMissionControlActionEvent): void {
+    if (event.action === 'auto-delegate') {
+      const quotaSummary = this.quotaSummaryForMission(event.recommendation);
+      if (!quotaSummary.sufficient) {
+        this.notifications.error(
+          this.translate.instant('admin.quality.codex.notifications.insufficientQuota', {
+            required: quotaSummary.requiredUnits,
+            available: quotaSummary.availableUnits,
+            missing: quotaSummary.shortageUnits,
+          }),
+          { source: 'admin-quality' }
+        );
+        return;
+      }
+    }
+
     const resolution = resolveMissionAction(event.action, event.recommendation);
     if (!resolution) {
       return;
@@ -948,6 +991,9 @@ export class AdminQualityPage implements OnInit {
       if (parsed.selectedMissionId === null || typeof parsed.selectedMissionId === 'string') {
         this.selectedMissionId.set(parsed.selectedMissionId);
       }
+      if (typeof parsed.availableCodexQuotaUnits === 'number' && Number.isFinite(parsed.availableCodexQuotaUnits)) {
+        this.availableCodexQuotaUnits.set(Math.max(0, Math.round(parsed.availableCodexQuotaUnits)));
+      }
       if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
         this.activeWorkspaceSurface.set(parsed.activeWorkspaceSurface);
       } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
@@ -973,6 +1019,7 @@ export class AdminQualityPage implements OnInit {
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),
       activeWorkspaceSurface: this.activeWorkspaceSurface(),
+      availableCodexQuotaUnits: this.availableCodexQuotaUnits(),
     };
 
     try {
@@ -1000,5 +1047,11 @@ export class AdminQualityPage implements OnInit {
 
   private isLegacyInspectionSurface(value: unknown): value is AdminQualityLegacyInspectionSurface {
     return value === 'delegation' || value === 'actions';
+  }
+
+  private quotaSummaryForMission(recommendation: AdminQualityMissionRecommendation): AdminQualityMissionQuotaSummary {
+    const difficulty = this.selectedDelegation()?.difficulty ?? 'Medium';
+    const tasks = buildMissionTasks(recommendation, difficulty);
+    return summarizeMissionQuota(tasks, this.availableCodexQuotaUnits());
   }
 }

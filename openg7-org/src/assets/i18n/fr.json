@@ -4616,6 +4616,155 @@
         "reviewDecisionDate": "Revu le {{ value }}"
       }
     }
+  },
+  "admin": {
+    "quality": {
+      "workspace": {
+        "compact": {
+          "label": "Workspace",
+          "title": "Workspace actif",
+          "subtitle": "QA, delegation et actions sont disponibles dans le panneau lateral.",
+          "open": "Ouvrir le workspace",
+          "primarySurface": "Surface principale : {{ surface }}",
+          "domains": "{{ count }} domaine(s)",
+          "actions": "{{ count }} action(s)",
+          "activeSurface": "Surface active : {{ surface }}",
+          "activePanel": "Panneau actif",
+          "activePanelCount": "{{ count }} element(s)"
+        },
+        "drawer": {
+          "label": "Workspace",
+          "activeSurface": "Surface active",
+          "selectedCount": "{{ count }} element(s)",
+          "close": "Fermer le workspace",
+          "closeAction": "Fermer",
+          "backdropLabel": "Fermer le workspace",
+          "tabsLabel": "Surfaces du workspace"
+        },
+        "tabs": {
+          "qaQueue": "QA Queue",
+          "delegation": "Delegation",
+          "actions": "Actions"
+        },
+        "surfaces": {
+          "qaQueue": {
+            "title": "QA Queue",
+            "subtitle": "Revue des besoins et couverture"
+          },
+          "delegation": {
+            "title": "Delegation",
+            "subtitle": "Plan de delegation automatique"
+          },
+          "actions": {
+            "title": "Actions",
+            "subtitle": "Registre des actions et instrumentation"
+          }
+        },
+        "qaQueue": {
+          "kicker": "QA Queue",
+          "title": "QA Queue",
+          "subtitle": "Revue des besoins et couverture",
+          "emptyTitle": "QA Queue en attente",
+          "emptyBody": "La file QA sera reliee a la matrice detaillee quand les donnees structurees seront disponibles.",
+          "status": {
+            "yes": "Prouve",
+            "partial": "Partiel",
+            "no": "A couvrir",
+            "outOfScope": "Hors MVP"
+          }
+        },
+        "delegation": {
+          "header": "Delegation",
+          "emptyTitle": "Delegation indisponible",
+          "missing": "Aucun plan de delegation n est disponible pour la selection courante.",
+          "modes": {
+            "qaProof": "Preuve QA",
+            "productClosure": "Fermeture produit",
+            "hardening": "Hardening",
+            "scopeCadrage": "Cadrage de scope"
+          },
+          "cards": {
+            "action": "Action",
+            "projectStatus": "Etat projet",
+            "repos": "Repos",
+            "labels": "Labels",
+            "acceptance": "Criteres d acceptation",
+            "execution": "Plan d execution probable",
+            "files": "Fichiers",
+            "validation": "Validation",
+            "brief": "Brief Codex",
+            "briefBody": "Prompt pret a copier, relire ou deleguer rapidement.",
+            "issue": "Issue GitHub",
+            "issueBody": "Issue precomposee pour delegation ou suivi."
+          },
+          "buttons": {
+            "copyBrief": "Copier le brief",
+            "copyIssue": "Copier l issue",
+            "openGithub": "Ouvrir sur GitHub"
+          },
+          "acceptanceCount": "{{ count }} element(s)",
+          "executionCount": "{{ files }} fichier(s) · {{ commands }} commande(s)"
+        },
+        "actions": {
+          "kicker": "Actions",
+          "title": "Actions",
+          "subtitle": "Registre des actions et instrumentation",
+          "emptyTitle": "Actions en attente",
+          "emptyBody": "Le registre d actions apparaitra ici quand le domaine actif exposera une instrumentation structuree.",
+          "status": {
+            "proved": "Prouvee",
+            "documented": "Documentee",
+            "needsCompletion": "A completer"
+          }
+        },
+        "notifications": {
+          "briefCopied": "Brief Codex copie.",
+          "issueCopied": "Issue GitHub copiee.",
+          "copyFailed": "Impossible de copier l element du workspace.",
+          "githubUnavailable": "Aucune URL GitHub n est disponible pour cette delegation."
+        }
+      },
+      "codex": {
+        "runway": {
+          "label": "Rampe Codex",
+          "title": "Rampe de taches generees",
+          "subtitle": "Estimer le volume de taches avant de lancer la mission selectionnee.",
+          "status": {
+            "sufficient": "Quota suffisant",
+            "insufficient": "Quota insuffisant"
+          },
+          "metrics": {
+            "tasks": "Taches",
+            "tasksBody": "Generees depuis la mission active.",
+            "required": "Quota requis",
+            "requiredBody": "Unites estimees pour le plan courant.",
+            "available": "Quota disponible",
+            "availableBody": "Estimation operateur locale tant que l usage Codex n est pas branche.",
+            "remaining": "Marge restante",
+            "remainingBody": "Unites restantes apres cette mission.",
+            "missing": "Unites manquantes",
+            "missingBody": "Augmenter le quota avant de lancer la tache."
+          },
+          "ready": "La mission peut etre deleguee sans depasser l estimation de quota courante.",
+          "blocked": "Augmenter le quota disponible avant de lancer cet ensemble de taches."
+        },
+        "tasks": {
+          "label": "Taches generees",
+          "title": "{{ count }} tache(s) pretes pour la mission active",
+          "blocking": "Bloquante",
+          "units": "{{ count }} unite(s)",
+          "kinds": {
+            "alignment": "Alignement",
+            "implementation": "Implementation",
+            "validation": "Validation",
+            "proof": "Preuve"
+          }
+        },
+        "notifications": {
+          "insufficientQuota": "Quota trop faible : {{ required }} unite(s) requises, {{ available }} disponibles, {{ missing }} manquantes."
+        }
+      }
+    }
   }
 }
 

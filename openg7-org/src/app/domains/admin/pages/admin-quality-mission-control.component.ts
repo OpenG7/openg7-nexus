@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
 
@@ -18,6 +19,7 @@ import {
   AdminQualityMissionStatus,
   AdminQualityMissionTimelineStatus,
 } from './admin-quality-mission-control';
+import { AdminQualityMissionQuotaSummary, AdminQualityMissionTask, AdminQualityMissionTaskKind } from './admin-quality-mission-task-planner';
 
 interface AdminQualityMissionWorkflowStep {
   readonly id: string;
@@ -40,7 +42,7 @@ interface AdminQualityMissionTimelineStepView {
 @Component({
   selector: 'og7-admin-quality-mission-control',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './admin-quality-mission-control.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -52,10 +54,15 @@ export class AdminQualityMissionControlComponent {
   readonly selectedEntry = input<AdminQualityMatrixEntry | null>(null);
   readonly selectedDelegation = input<AdminQualityDelegationPlan | null>(null);
   readonly selectedMission = input<AdminQualityMissionRecommendation | null>(null);
+  readonly selectedMissionTasks = input<readonly AdminQualityMissionTask[]>([]);
+  readonly selectedMissionQuotaSummary = input<AdminQualityMissionQuotaSummary | null>(null);
+  readonly canStartSelectedMission = input(false);
+  readonly availableCodexQuotaUnits = input(0);
   readonly speaking = input(false);
 
   readonly missionSelected = output<AdminQualityMissionRecommendation>();
   readonly missionAction = output<AdminQualityMissionControlActionEvent>();
+  readonly availableCodexQuotaUnitsChanged = output<Event>();
   readonly speakRequested = output<void>();
   readonly stopSpeakingRequested = output<void>();
 
@@ -373,6 +380,47 @@ export class AdminQualityMissionControlComponent {
 
   emitMissionAction(action: AdminQualityMissionControlAction, recommendation: AdminQualityMissionRecommendation): void {
     this.missionAction.emit({ action, recommendation });
+  }
+
+  quotaStatusClasses(sufficient: boolean): string {
+    return sufficient
+      ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
+      : 'border-rose-400/25 bg-rose-400/10 text-rose-100';
+  }
+
+  taskKindClasses(kind: AdminQualityMissionTaskKind): string {
+    switch (kind) {
+      case 'alignment':
+        return 'border-sky-400/25 bg-sky-400/10 text-sky-100';
+      case 'implementation':
+        return 'border-indigo-400/25 bg-indigo-400/10 text-indigo-100';
+      case 'validation':
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
+      default:
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+    }
+  }
+
+  taskKindKey(kind: AdminQualityMissionTaskKind): string {
+    switch (kind) {
+      case 'alignment':
+        return 'admin.quality.codex.tasks.kinds.alignment';
+      case 'implementation':
+        return 'admin.quality.codex.tasks.kinds.implementation';
+      case 'validation':
+        return 'admin.quality.codex.tasks.kinds.validation';
+      default:
+        return 'admin.quality.codex.tasks.kinds.proof';
+    }
+  }
+
+  isMissionActionBlocked(action: AdminQualityMissionControlAction, recommendation: AdminQualityMissionRecommendation): boolean {
+    return (
+      action === 'auto-delegate' &&
+      this.isMissionSelected(recommendation) &&
+      Boolean(this.selectedMissionQuotaSummary()) &&
+      !this.canStartSelectedMission()
+    );
   }
 
   private activeTimelineIndex(steps: readonly AdminQualityMissionTimelineStepView[]): number {

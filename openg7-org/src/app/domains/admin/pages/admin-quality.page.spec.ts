@@ -190,6 +190,46 @@ describe('AdminQualityPage', () => {
                 githubUnavailable: 'No GitHub URL is available for this delegation.',
               },
             },
+            codex: {
+              runway: {
+                label: 'Codex runway',
+                title: 'Generated task runway',
+                subtitle: 'Estimate the task volume before starting the selected mission.',
+                status: {
+                  sufficient: 'Quota sufficient',
+                  insufficient: 'Quota insufficient',
+                },
+                metrics: {
+                  tasks: 'Tasks',
+                  tasksBody: 'Generated from the active mission.',
+                  required: 'Required quota',
+                  requiredBody: 'Estimated units for the current plan.',
+                  available: 'Available quota',
+                  availableBody: 'Local operator estimate until Codex usage is connected.',
+                  remaining: 'Runway left',
+                  remainingBody: 'Units left after this mission.',
+                  missing: 'Units missing',
+                  missingBody: 'Increase the quota before launching the task.',
+                },
+                ready: 'The mission can be delegated without exceeding the current quota estimate.',
+                blocked: 'Increase the available quota before launching the generated task set.',
+              },
+              tasks: {
+                label: 'Generated tasks',
+                title: '{{ count }} task(s) ready for the active mission',
+                blocking: 'Blocking',
+                units: '{{ count }} unit(s)',
+                kinds: {
+                  alignment: 'Alignment',
+                  implementation: 'Implementation',
+                  validation: 'Validation',
+                  proof: 'Proof',
+                },
+              },
+              notifications: {
+                insufficientQuota: 'Quota too low: {{ required }} unit(s) required, {{ available }} available, {{ missing }} missing.',
+              },
+            },
           },
         },
       },
@@ -533,6 +573,51 @@ describe('AdminQualityPage', () => {
 
     expect(root.textContent).toContain('Pret a lancer');
     expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', { source: 'admin-quality' });
+  });
+
+  it('generates mission tasks and shows a sufficient quota runway for the active mission', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const runway = root.querySelector('[data-og7="admin-quality-codex-runway"]');
+    const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
+    const generatedTasks = root.querySelectorAll('[data-og7="admin-quality-generated-task"]');
+    const generatedTaskCount = root.querySelector('[data-og7-id="admin-quality-generated-task-count"]');
+
+    expect(runway).not.toBeNull();
+    expect(quotaStatus?.textContent).toContain('Quota sufficient');
+    expect(generatedTasks.length).toBe(8);
+    expect(generatedTaskCount?.textContent).toContain('8');
+    expect(runway?.textContent).toContain('The mission can be delegated without exceeding the current quota estimate.');
+  });
+
+  it('blocks delegation when the available quota is below the generated task estimate', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const quotaInput = root.querySelector('[data-og7-id="admin-quality-codex-quota-input"]') as HTMLInputElement;
+
+    quotaInput.value = '40';
+    quotaInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
+      (element) => element.textContent?.trim() === 'Deleguer'
+    ) as HTMLButtonElement | undefined;
+    const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
+
+    expect(fixture.componentInstance.availableCodexQuotaUnits()).toBe(40);
+    expect(quotaStatus?.textContent).toContain('Quota insufficient');
+    expect(delegateButton?.disabled).toBeTrue();
+
+    delegateButton?.click();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Increase the available quota before launching the generated task set.');
+    expect(notifications.error).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.selectedMission()?.status).toBe('proposed');
   });
 
   it('renders the compact actions list in the workspace drawer and updates it on row change', () => {

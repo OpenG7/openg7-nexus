@@ -212,7 +212,10 @@
       <og7-admin-quality-mission-control [missionControl]="mission" [snapshotLoaded]="!!snapshot()"
         [totalDomains]="totalDomains()" [selectedDomain]="selectedEntry()?.domain ?? null"
         [selectedEntry]="selectedEntry()" [selectedDelegation]="selectedDelegation()"
-        [selectedMission]="selectedMission()" [speaking]="speaking()" (missionSelected)="selectMission($event)"
+        [selectedMission]="selectedMission()" [selectedMissionTasks]="selectedMissionTasks()"
+        [selectedMissionQuotaSummary]="selectedMissionQuotaSummary()" [canStartSelectedMission]="canStartSelectedMission()"
+        [availableCodexQuotaUnits]="availableCodexQuotaUnits()" [speaking]="speaking()"
+        (availableCodexQuotaUnitsChanged)="setAvailableCodexQuotaUnits($event)" (missionSelected)="selectMission($event)"
         (missionAction)="handleMissionAction($event)" (speakRequested)="speakMissionControl(mission)"
         (stopSpeakingRequested)="stopMissionVoice()" />
       }
