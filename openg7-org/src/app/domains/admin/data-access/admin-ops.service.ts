@@ -1,7 +1,16 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { forkJoin, map, Observable } from 'rxjs';
+
+export type AdminOpsCodexScope =
+  | 'openg7-org'
+  | 'strapi'
+  | 'packages-contracts'
+  | 'packages-tooling'
+  | 'repository-root';
 
 export interface AdminOpsHealthSnapshot {
   generatedAt: string;
@@ -101,6 +110,33 @@ export interface AdminOpsSnapshot {
   security: AdminOpsSecuritySnapshot;
 }
 
+export interface AdminOpsCodexDispatchRequest {
+  task: string;
+  scope: AdminOpsCodexScope;
+  baseBranch: string;
+  draftPr: boolean;
+  model: string | null;
+  effort: string | null;
+}
+
+export interface AdminOpsCodexDispatchResponse {
+  queued: boolean;
+  provider: 'github-actions';
+  owner: string;
+  repo: string;
+  workflow: string;
+  ref: string;
+  requestedAt: string;
+  request: {
+    scope: AdminOpsCodexScope;
+    baseBranch: string;
+    draftPr: boolean;
+    model: string | null;
+    effort: string | null;
+    taskLength: number;
+  };
+}
+
 interface StrapiDataResponse<T> {
   data: T;
 }
@@ -133,6 +169,20 @@ export class AdminOpsService {
       .pipe(map((response) => response.data));
   }
 
+  dispatchCodexWorkflow(
+    payload: AdminOpsCodexDispatchRequest,
+  ): Observable<AdminOpsCodexDispatchResponse> {
+    return this.http
+      .post<StrapiDataResponse<AdminOpsCodexDispatchResponse>>(
+        STRAPI_ROUTES.admin.opsCodexDispatch,
+        payload,
+        {
+          context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+        },
+      )
+      .pipe(map((response) => response.data));
+  }
+
   getSnapshot(): Observable<AdminOpsSnapshot> {
     return forkJoin({
       health: this.getHealth(),
@@ -142,4 +192,3 @@ export class AdminOpsService {
     });
   }
 }
-

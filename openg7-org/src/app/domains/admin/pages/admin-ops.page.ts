@@ -1,10 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { finalize } from 'rxjs';
 
-import { AdminOpsService, AdminOpsSnapshot } from '../data-access/admin-ops.service';
+import {
+  AdminOpsCodexDispatchResponse,
+  AdminOpsCodexScope,
+  AdminOpsService,
+  AdminOpsSnapshot,
+} from '../data-access/admin-ops.service';
 
 type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
 
@@ -26,6 +40,16 @@ const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
   { id: 'security', label: 'Security', route: '/api/admin/ops/security' },
 ];
 
+const ADMIN_OPS_CODEX_SCOPES: readonly AdminOpsCodexScope[] = [
+  'openg7-org',
+  'strapi',
+  'packages-contracts',
+  'packages-tooling',
+  'repository-root',
+];
+
+const ADMIN_OPS_CODEX_EFFORTS = ['low', 'medium', 'high'] as const;
+
 @Component({
   standalone: true,
   selector: 'og7-admin-ops-page',
@@ -36,12 +60,32 @@ const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
 export class AdminOpsPage implements OnInit {
   private readonly service = inject(AdminOpsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notifications = injectNotificationStore();
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly loading = signal(true);
   readonly refreshing = signal(false);
   readonly error = signal<string | null>(null);
   readonly snapshot = signal<AdminOpsSnapshot | null>(null);
+  readonly codexTask = signal('');
+  readonly codexScope = signal<AdminOpsCodexScope>('openg7-org');
+  readonly codexBaseBranch = signal('main');
+  readonly codexDraftPr = signal(true);
+  readonly codexModel = signal('');
+  readonly codexEffort = signal('');
+  readonly codexSubmitting = signal(false);
+  readonly codexError = signal<string | null>(null);
+  readonly codexResult = signal<AdminOpsCodexDispatchResponse | null>(null);
+  readonly codexScopes = ADMIN_OPS_CODEX_SCOPES;
+  readonly codexEfforts = ADMIN_OPS_CODEX_EFFORTS;
+
+  readonly canDispatchCodex = computed(() => {
+    return (
+      this.codexTask().trim().length > 0 &&
+      this.codexBaseBranch().trim().length > 0 &&
+      !this.codexSubmitting()
+    );
+  });
 
   readonly lastUpdated = computed(() => {
     const snapshot = this.snapshot();
@@ -107,6 +151,84 @@ export class AdminOpsPage implements OnInit {
 
   refresh(): void {
     this.fetchSnapshot(true);
+  }
+
+  updateCodexTask(value: string): void {
+    this.codexTask.set(value);
+    this.codexError.set(null);
+  }
+
+  updateCodexScope(value: string): void {
+    if (ADMIN_OPS_CODEX_SCOPES.includes(value as AdminOpsCodexScope)) {
+      this.codexScope.set(value as AdminOpsCodexScope);
+      this.codexError.set(null);
+    }
+  }
+
+  updateCodexBaseBranch(value: string): void {
+    this.codexBaseBranch.set(value);
+    this.codexError.set(null);
+  }
+
+  updateCodexDraftPr(checked: boolean): void {
+    this.codexDraftPr.set(checked);
+  }
+
+  updateCodexModel(value: string): void {
+    this.codexModel.set(value);
+  }
+
+  updateCodexEffort(value: string): void {
+    this.codexEffort.set(value);
+  }
+
+  dispatchCodexWorkflow(): void {
+    const task = this.codexTask().trim();
+    const baseBranch = this.codexBaseBranch().trim();
+    if (!task) {
+      this.codexError.set('Describe the task you want to delegate before dispatching Codex.');
+      return;
+    }
+    if (!baseBranch) {
+      this.codexError.set('Choose a target base branch before dispatching Codex.');
+      return;
+    }
+
+    this.codexSubmitting.set(true);
+    this.codexError.set(null);
+    this.codexResult.set(null);
+
+    this.service
+      .dispatchCodexWorkflow({
+        task,
+        scope: this.codexScope(),
+        baseBranch,
+        draftPr: this.codexDraftPr(),
+        model: this.codexModel().trim() || null,
+        effort: this.codexEffort().trim() || null,
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.codexSubmitting.set(false);
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          this.codexResult.set(result);
+          this.notifications.success(
+            'Codex workflow queued. Review the upcoming PR before merging.',
+            {
+              source: 'admin-ops',
+            },
+          );
+        },
+        error: (error: unknown) => {
+          const message = this.resolveError(error);
+          this.codexError.set(message);
+          this.notifications.error(message, { source: 'admin-ops' });
+        },
+      });
   }
 
   formatBytes(bytes: number | null | undefined): string {
@@ -181,7 +303,7 @@ export class AdminOpsPage implements OnInit {
         finalize(() => {
           this.loading.set(false);
           this.refreshing.set(false);
-        })
+        }),
       )
       .subscribe({
         next: (snapshot) => {
@@ -217,4 +339,3 @@ export class AdminOpsPage implements OnInit {
     return 'Unable to load operations data.';
   }
 }
-

@@ -42,6 +42,12 @@ This guide documents the Strapi backend endpoint used to trigger the GitHub Acti
 - `OPS_CODEX_ALLOWED_BASE_BRANCHES` - comma-separated allowlist of base branches accepted from callers.
 - `OPS_CODEX_TIMEOUT_MS` - outbound GitHub API timeout in milliseconds.
 
+## Kubernetes wiring
+
+The production manifest now exposes the non-secret settings through the shared Strapi `ConfigMap` and expects the GitHub token from the Kubernetes secret `strapi-github-actions` under the key `codex-github-token`.
+
+The deployment keeps the secret optional so environments that do not use the Codex control plane can leave it unset while `OPS_CODEX_DISPATCH_ENABLED=false`.
+
 ## Response shape
 
 Successful responses return a small queue acknowledgement:
