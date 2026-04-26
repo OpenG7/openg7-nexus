@@ -550,6 +550,115 @@
     "clear": "Effacer",
     "info": "Informations"
   },
+  "admin": {
+    "quality": {
+      "workspace": {
+        "compact": {
+          "label": "Workspace",
+          "title": "Workspace actif",
+          "subtitle": "QA, delegation et actions disponibles dans le panneau lateral.",
+          "open": "Ouvrir le workspace",
+          "primarySurface": "Surface principale : {{ surface }}",
+          "domains": "{{ count }} domaine(s)",
+          "actions": "{{ count }} action(s)",
+          "activeSurface": "Surface active : {{ surface }}",
+          "activePanel": "Panneau actif",
+          "activePanelCount": "{{ count }} element(s)"
+        },
+        "drawer": {
+          "label": "Workspace",
+          "activeSurface": "Surface active",
+          "selectedCount": "{{ count }} element(s)",
+          "close": "Fermer le workspace",
+          "closeAction": "Fermer",
+          "backdropLabel": "Fermer le workspace",
+          "tabsLabel": "Surfaces du workspace"
+        },
+        "tabs": {
+          "qaQueue": "QA Queue",
+          "delegation": "Delegation",
+          "actions": "Actions"
+        },
+        "surfaces": {
+          "qaQueue": {
+            "title": "QA Queue",
+            "subtitle": "Revue des besoins et couverture"
+          },
+          "delegation": {
+            "title": "Delegation",
+            "subtitle": "Plan de delegation automatique"
+          },
+          "actions": {
+            "title": "Actions",
+            "subtitle": "Registre des actions et instrumentation"
+          }
+        },
+        "qaQueue": {
+          "kicker": "QA Queue",
+          "title": "QA Queue",
+          "subtitle": "Revue des besoins et couverture",
+          "emptyTitle": "QA Queue en attente",
+          "emptyBody": "La file QA sera connectee a la matrice detaillee quand une source structuree sera disponible.",
+          "status": {
+            "yes": "Prouve",
+            "partial": "Partiel",
+            "no": "A couvrir",
+            "outOfScope": "Hors MVP"
+          }
+        },
+        "delegation": {
+          "header": "Delegation",
+          "emptyTitle": "Delegation indisponible",
+          "missing": "Aucun plan de delegation n est disponible avec la selection courante.",
+          "modes": {
+            "qaProof": "QA proof",
+            "productClosure": "Product closure",
+            "hardening": "Hardening",
+            "scopeCadrage": "Scope cadrage"
+          },
+          "cards": {
+            "action": "Action",
+            "projectStatus": "Etat projet",
+            "repos": "Repos",
+            "labels": "Labels",
+            "acceptance": "Criteres d acceptation",
+            "execution": "Plan d execution probable",
+            "files": "Fichiers",
+            "validation": "Validation",
+            "brief": "Brief Codex",
+            "briefBody": "Prompt pret a copier, relire ou deleguer rapidement.",
+            "issue": "Issue GitHub",
+            "issueBody": "Issue precomposee pour delegation ou suivi."
+          },
+          "buttons": {
+            "copyBrief": "Copier le brief",
+            "copyIssue": "Copier l issue",
+            "openGithub": "Ouvrir sur GitHub"
+          },
+          "acceptanceCount": "{{ count }} item(s)",
+          "executionCount": "{{ files }} fichier(s) · {{ commands }} commande(s)"
+        },
+        "actions": {
+          "kicker": "Actions",
+          "title": "Actions",
+          "subtitle": "Registre des actions et instrumentation",
+          "emptyTitle": "Actions en attente",
+          "emptyBody": "Le registre d actions apparaitra ici quand le domaine actif exposera une instrumentation structuree.",
+          "status": {
+            "proved": "Prouvee",
+            "documented": "Documentee",
+            "needsCompletion": "A completer"
+          }
+        },
+        "notifications": {
+          "briefCopied": "Brief Codex copie.",
+          "issueCopied": "Issue GitHub copiee.",
+          "copyFailed": "Impossible de copier l element du workspace.",
+          "githubUnavailable": "Aucune URL GitHub n est disponible pour cette delegation."
+        }
+      }
+    }
+  },
   "feed": {
     "title": "Fil des echanges",
     "subtitle": "Offres, demandes et signaux economiques entre provinces canadiennes.",

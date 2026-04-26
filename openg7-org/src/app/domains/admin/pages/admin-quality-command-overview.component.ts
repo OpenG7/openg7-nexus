@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
 
-import { AdminQualityDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityCoverageMatrixComponent } from './admin-quality-coverage-matrix.component';
+import { AdminQualityDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
   AdminQualityMissionControlState,

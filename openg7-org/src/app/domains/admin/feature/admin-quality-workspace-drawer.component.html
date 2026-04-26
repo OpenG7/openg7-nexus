@@ -1,0 +1,458 @@
+@if (open()) {
+  <div class="fixed inset-0 z-50" data-og7="admin-quality-workspace-drawer-shell">
+    <button
+      type="button"
+      class="absolute inset-0 bg-slate-950/78 backdrop-blur-[2px]"
+      (click)="requestClose()"
+      [attr.aria-label]="'admin.quality.workspace.drawer.backdropLabel' | translate"
+      data-og7="action"
+      data-og7-id="admin-quality-workspace-backdrop"
+    ></button>
+
+    <div class="absolute inset-0 flex justify-end">
+      <aside
+        #panel
+        tabindex="-1"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="dialogTitleId"
+        [attr.aria-describedby]="dialogDescriptionId"
+        class="relative flex h-full w-full flex-col overflow-hidden border-l border-white/10 bg-[linear-gradient(180deg,rgba(3,10,24,0.98),rgba(7,17,35,0.98)_42%,rgba(2,6,23,1))] text-slate-100 shadow-[-32px_0_96px_-54px_rgba(15,23,42,0.96)] sm:max-w-[580px] lg:max-w-[680px]"
+        data-og7="admin-quality-workspace-drawer"
+      >
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_26%),radial-gradient(circle_at_18%_16%,_rgba(251,191,36,0.12),_transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"></div>
+
+        <header class="sticky top-0 z-10 border-b border-white/10 bg-slate-950/82 px-5 py-4 backdrop-blur xl:px-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
+                  {{ 'admin.quality.workspace.drawer.label' | translate }}
+                </p>
+                <span class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
+                  {{ 'admin.quality.workspace.drawer.activeSurface' | translate }}
+                </span>
+              </div>
+              <h2 [attr.id]="dialogTitleId" class="mt-3 text-2xl font-semibold tracking-tight text-white">
+                {{ activeSurfaceTitleKey() | translate }}
+              </h2>
+              <p id="{{ dialogDescriptionId }}" class="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                {{ activeSurfaceSubtitleKey() | translate }}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/12 bg-white/[0.04] text-lg text-slate-100 transition hover:bg-white/[0.08]"
+              (click)="requestClose()"
+              [attr.aria-label]="'admin.quality.workspace.drawer.close' | translate"
+              data-og7="action"
+              data-og7-id="admin-quality-workspace-close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-300">
+            <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-medium">
+              {{ 'admin.quality.workspace.drawer.selectedCount' | translate: { count: activeSurfaceCount() } }}
+            </span>
+            @if (selectedEntry(); as entry) {
+              <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 font-medium text-cyan-100">
+                {{ entry.domain }}
+              </span>
+            }
+          </div>
+
+          <div
+            class="mt-4 grid grid-cols-3 gap-2 rounded-[22px] border border-white/10 bg-white/[0.03] p-1"
+            role="tablist"
+            [attr.aria-label]="'admin.quality.workspace.drawer.tabsLabel' | translate"
+          >
+            @for (surface of surfaces; track surface) {
+              <button
+                type="button"
+                role="tab"
+                class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+                [class.bg-cyan-400/12]="isSurfaceActive(surface)"
+                [class.border]="true"
+                [class.border-cyan-300/20]="isSurfaceActive(surface)"
+                [class.text-white]="isSurfaceActive(surface)"
+                [class.shadow-[0_16px_44px_-34px_rgba(56,189,248,0.85)]]="isSurfaceActive(surface)"
+                [class.border-transparent]="!isSurfaceActive(surface)"
+                [class.text-slate-300]="!isSurfaceActive(surface)"
+                [attr.id]="surfaceTabId(surface)"
+                [attr.aria-selected]="isSurfaceActive(surface)"
+                [attr.aria-controls]="surfacePanelId(surface)"
+                (click)="selectSurface(surface)"
+                data-og7="action"
+                [attr.data-og7-id]="'admin-quality-workspace-tab-' + surface"
+              >
+                {{ ('admin.quality.workspace.tabs.' + surface) | translate }}
+              </button>
+            }
+          </div>
+        </header>
+
+        <div class="relative flex-1 overflow-y-auto px-5 py-5 xl:px-6">
+          @switch (activeSurface()) {
+            @case ('qaQueue') {
+              <section
+                role="tabpanel"
+                [attr.id]="surfacePanelId('qaQueue')"
+                [attr.aria-labelledby]="surfaceTabId('qaQueue')"
+                class="space-y-4"
+                data-og7="admin-quality-workspace-panel"
+                data-og7-id="qaQueue"
+              >
+                <article class="rounded-[28px] border border-sky-300/20 bg-sky-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(56,189,248,0.88)]">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                        {{ 'admin.quality.workspace.qaQueue.kicker' | translate }}
+                      </p>
+                      <h3 class="mt-3 text-lg font-semibold text-white">
+                        {{ 'admin.quality.workspace.qaQueue.title' | translate }}
+                      </h3>
+                      <p class="mt-2 text-sm leading-6 text-slate-300">
+                        {{ 'admin.quality.workspace.qaQueue.subtitle' | translate }}
+                      </p>
+                    </div>
+                    <span class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/12 px-3 py-1 text-sm font-semibold text-sky-100">
+                      {{ qaQueueCount() }}
+                    </span>
+                  </div>
+                </article>
+
+                @if (qaQueueItems().length) {
+                  <div class="space-y-3">
+                    @for (entry of qaQueueItems(); track entry.id) {
+                      <article
+                        class="rounded-[24px] border border-white/10 bg-white/[0.04] p-4"
+                        data-og7="admin-quality-workspace-qa-item"
+                        [attr.data-og7-id]="entry.id">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="min-w-0">
+                            <h4 class="text-base font-semibold text-white">{{ entry.domain }}</h4>
+                            <p class="mt-1 text-sm leading-6 text-slate-300">{{ entry.need }}</p>
+                          </div>
+                          <span
+                            class="inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                            [class]="qaStatusClasses(entry.e2eStatus)"
+                          >
+                            {{ qaStatusKey(entry.e2eStatus) | translate }}
+                          </span>
+                        </div>
+                        <p class="mt-3 rounded-[20px] border border-white/8 bg-slate-950/50 px-3.5 py-3 text-sm leading-6 text-slate-300">
+                          {{ entry.nextMove }}
+                        </p>
+                      </article>
+                    }
+                  </div>
+                } @else {
+                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/[0.03] px-5 py-8 text-sm text-slate-300">
+                    <p class="text-base font-semibold text-white">
+                      {{ 'admin.quality.workspace.qaQueue.emptyTitle' | translate }}
+                    </p>
+                    <p class="mt-2 leading-6 text-slate-400">
+                      {{ 'admin.quality.workspace.qaQueue.emptyBody' | translate }}
+                    </p>
+                  </article>
+                }
+              </section>
+            }
+
+            @case ('delegation') {
+              <section
+                role="tabpanel"
+                [attr.id]="surfacePanelId('delegation')"
+                [attr.aria-labelledby]="surfaceTabId('delegation')"
+                class="space-y-4"
+                data-og7="admin-quality-workspace-panel"
+                data-og7-id="delegation"
+              >
+                @if (delegationPlan(); as plan) {
+                  <article class="rounded-[30px] border border-white/10 bg-white/[0.04] p-5 shadow-[0_28px_84px_-58px_rgba(15,23,42,0.9)]">
+                    <div class="flex flex-col gap-4 border-b border-white/10 pb-5">
+                      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/80">
+                            {{ 'admin.quality.workspace.delegation.header' | translate }}
+                          </p>
+                          <h3 class="mt-3 text-xl font-semibold text-white">{{ plan.title }}</h3>
+                          <p class="mt-3 text-sm leading-7 text-slate-300">
+                            {{ selectedEntry()?.nextMove || ('admin.quality.workspace.delegation.missing' | translate) }}
+                          </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                          <span
+                            class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                            [class]="delegationModeClasses(plan.mode)"
+                          >
+                            {{ delegationModeKey(plan.mode) | translate }}
+                          </span>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+                            {{ plan.track }}
+                          </span>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+                            {{ plan.difficulty }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div class="grid gap-3 md:grid-cols-2">
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.action' | translate }}
+                          </p>
+                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.actionLabel }}</p>
+                        </article>
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.projectStatus' | translate }}
+                          </p>
+                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.projectStatus }}</p>
+                        </article>
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.repos' | translate }}
+                          </p>
+                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.repos.join(', ') }}</p>
+                        </article>
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.labels' | translate }}
+                          </p>
+                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.labels.join(', ') }}</p>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="mt-5 grid gap-4">
+                      <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            {{ 'admin.quality.workspace.delegation.cards.acceptance' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                            {{ 'admin.quality.workspace.delegation.acceptanceCount' | translate: { count: plan.acceptanceCriteria.length } }}
+                          </span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
+                          @for (item of plan.acceptanceCriteria; track $index) {
+                            <li>{{ item }}</li>
+                          }
+                        </ul>
+                      </article>
+
+                      <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            {{ 'admin.quality.workspace.delegation.cards.execution' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                            {{ 'admin.quality.workspace.delegation.executionCount' | translate: { files: plan.targetFiles.length, commands: plan.commands.length } }}
+                          </span>
+                        </div>
+                        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                          <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                              {{ 'admin.quality.workspace.delegation.cards.files' | translate }}
+                            </p>
+                            <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                              @for (item of plan.targetFiles; track $index) {
+                                <li class="break-all">{{ item }}</li>
+                              }
+                            </ul>
+                          </div>
+                          <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                              {{ 'admin.quality.workspace.delegation.cards.validation' | translate }}
+                            </p>
+                            <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                              @for (item of plan.commands; track $index) {
+                                <li class="break-all">{{ item }}</li>
+                              }
+                            </ul>
+                          </div>
+                        </div>
+                      </article>
+
+                      <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4" data-og7="admin-quality-delegation-codex">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                              {{ 'admin.quality.workspace.delegation.cards.brief' | translate }}
+                            </h4>
+                            <p class="mt-2 text-sm leading-6 text-slate-400">
+                              {{ 'admin.quality.workspace.delegation.cards.briefBody' | translate }}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            class="rounded-2xl border border-cyan-300/25 bg-cyan-400/12 px-3.5 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-400/18"
+                            (click)="copyBrief(plan)"
+                            data-og7="action"
+                            data-og7-id="admin-quality-copy-codex"
+                          >
+                            {{ 'admin.quality.workspace.delegation.buttons.copyBrief' | translate }}
+                          </button>
+                        </div>
+                        <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                      </article>
+
+                      <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4" data-og7="admin-quality-delegation-issue">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                              {{ 'admin.quality.workspace.delegation.cards.issue' | translate }}
+                            </h4>
+                            <p class="mt-2 text-sm leading-6 text-slate-400">
+                              {{ 'admin.quality.workspace.delegation.cards.issueBody' | translate }}
+                            </p>
+                          </div>
+                          <div class="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              class="rounded-2xl border border-white/10 bg-white/[0.05] px-3.5 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.1]"
+                              (click)="copyIssue(plan)"
+                              data-og7="action"
+                              data-og7-id="admin-quality-copy-issue"
+                            >
+                              {{ 'admin.quality.workspace.delegation.buttons.copyIssue' | translate }}
+                            </button>
+                            <button
+                              type="button"
+                              class="rounded-2xl border border-amber-300/25 bg-amber-400/12 px-3.5 py-2 text-sm font-medium text-amber-50 transition hover:bg-amber-400/18 disabled:cursor-not-allowed disabled:opacity-60"
+                              (click)="openGitHubIssue(plan)"
+                              [disabled]="!hasGitHubIssueUrl(plan)"
+                              [attr.aria-disabled]="!hasGitHubIssueUrl(plan)"
+                              data-og7="action"
+                              data-og7-id="admin-quality-open-issue"
+                            >
+                              {{ 'admin.quality.workspace.delegation.buttons.openGithub' | translate }}
+                            </button>
+                          </div>
+                        </div>
+                        <p class="mt-4 rounded-[20px] border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-white">
+                          {{ plan.issueTitle }}
+                        </p>
+                        <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
+                      </article>
+                    </div>
+                  </article>
+                } @else {
+                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/[0.03] px-5 py-8 text-sm text-slate-300">
+                    <p class="text-base font-semibold text-white">
+                      {{ 'admin.quality.workspace.delegation.emptyTitle' | translate }}
+                    </p>
+                    <p class="mt-2 leading-6 text-slate-400">
+                      {{ 'admin.quality.workspace.delegation.missing' | translate }}
+                    </p>
+                  </article>
+                }
+              </section>
+            }
+
+            @case ('actions') {
+              <section
+                role="tabpanel"
+                [attr.id]="surfacePanelId('actions')"
+                [attr.aria-labelledby]="surfaceTabId('actions')"
+                class="space-y-4"
+                data-og7="admin-quality-workspace-panel"
+                data-og7-id="actions"
+              >
+                <article class="rounded-[28px] border border-rose-300/20 bg-rose-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(244,63,94,0.7)]">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-rose-200/80">
+                        {{ 'admin.quality.workspace.actions.kicker' | translate }}
+                      </p>
+                      <h3 class="mt-3 text-lg font-semibold text-white">
+                        {{ 'admin.quality.workspace.actions.title' | translate }}
+                      </h3>
+                      <p class="mt-2 text-sm leading-6 text-slate-300">
+                        {{ 'admin.quality.workspace.actions.subtitle' | translate }}
+                      </p>
+                    </div>
+                    <span class="inline-flex rounded-full border border-rose-300/20 bg-rose-400/12 px-3 py-1 text-sm font-semibold text-rose-100">
+                      {{ actionsCount() }}
+                    </span>
+                  </div>
+                </article>
+
+                @if (actionItems().length) {
+                  <div class="space-y-3">
+                    @for (action of actionItems(); track action.id) {
+                      <article
+                        class="rounded-[24px] border border-white/10 bg-white/[0.04] p-4"
+                        data-og7="admin-quality-workspace-action-item"
+                        [attr.data-og7-id]="action.id">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="min-w-0">
+                            <h4 class="text-base font-semibold text-white">{{ action.label }}</h4>
+                            <p class="mt-1 break-all text-xs text-slate-400">{{ action.selector }}</p>
+                          </div>
+                          <span
+                            class="inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                            [class]="actionStatusClasses(action.status)"
+                          >
+                            {{ actionStatusKey(action.status) | translate }}
+                          </span>
+                        </div>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">{{ action.expectedResult }}</p>
+                      </article>
+                    }
+                  </div>
+                } @else {
+                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/[0.03] px-5 py-8 text-sm text-slate-300">
+                    <p class="text-base font-semibold text-white">
+                      {{ 'admin.quality.workspace.actions.emptyTitle' | translate }}
+                    </p>
+                    <p class="mt-2 leading-6 text-slate-400">
+                      {{ 'admin.quality.workspace.actions.emptyBody' | translate }}
+                    </p>
+                  </article>
+                }
+              </section>
+            }
+          }
+        </div>
+
+        <footer class="sticky bottom-0 z-10 border-t border-white/10 bg-slate-950/88 px-5 py-4 backdrop-blur xl:px-6">
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div class="text-sm text-slate-400">
+              {{ activeSurfaceTitleKey() | translate }}
+              <span class="text-slate-500">&middot;</span>
+              {{ 'admin.quality.workspace.drawer.selectedCount' | translate: { count: activeSurfaceCount() } }}
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              @if (activeSurface() === 'delegation') {
+                @if (delegationPlan(); as plan) {
+                  <button
+                    type="button"
+                    class="rounded-2xl border border-cyan-300/25 bg-cyan-400/12 px-3.5 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-400/18"
+                    (click)="copyBrief(plan)"
+                  >
+                    {{ 'admin.quality.workspace.delegation.buttons.copyBrief' | translate }}
+                  </button>
+                }
+              }
+
+              <button
+                type="button"
+                class="rounded-2xl border border-white/10 bg-white/[0.05] px-3.5 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.1]"
+                (click)="requestClose()"
+              >
+                {{ 'admin.quality.workspace.drawer.closeAction' | translate }}
+              </button>
+            </div>
+          </div>
+        </footer>
+      </aside>
+    </div>
+  </div>
+}
