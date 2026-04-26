@@ -505,7 +505,6 @@ describe('AdminQualityPage', () => {
     let recommendationButtons = root.querySelectorAll(
       '[data-og7="admin-quality-recommendation"] > button'
     ) as NodeListOf<HTMLButtonElement>;
-    let approveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
 
     expect(missionControl).not.toBeNull();
     expect(missionHero).not.toBeNull();
@@ -528,8 +527,8 @@ describe('AdminQualityPage', () => {
     expect(recommendationButtons[0]?.getAttribute('aria-pressed')).toBe('false');
     expect(recommendationButtons[1]?.getAttribute('aria-pressed')).toBe('true');
 
-    approveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
-    approveButton.click();
+    const updatedApproveButton = root.querySelector('[data-og7-id="admin-quality-approve-mission"]') as HTMLButtonElement;
+    updatedApproveButton.click();
     fixture.detectChanges();
 
     expect(root.textContent).toContain('Pret a lancer');
