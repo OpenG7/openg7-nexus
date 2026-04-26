@@ -506,6 +506,7 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-recommendation"] > button'
     ) as NodeListOf<HTMLButtonElement>;
 
+
     expect(missionControl).not.toBeNull();
     expect(missionHero).not.toBeNull();
     expect(missionWorkflow).not.toBeNull();

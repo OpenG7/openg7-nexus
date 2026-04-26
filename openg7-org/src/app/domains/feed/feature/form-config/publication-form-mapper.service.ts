@@ -122,7 +122,7 @@ export class PublicationFormMapperService {
         .filter(Boolean);
     }
 
-    if (value === null || value === undefined || value === '') {
+    if (value === null || value === undefined) {
       return [];
     }
 
