@@ -32,5 +32,13 @@ export default {
         policies: ['global::owner-admin-ops'],
       },
     },
+    {
+      method: 'POST',
+      path: '/admin/ops/codex/dispatch',
+      handler: 'admin-ops.dispatchCodexWorkflow',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
   ],
 };

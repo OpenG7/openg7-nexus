@@ -9,18 +9,21 @@ Open-source platform for exploring interprovincial exchanges, company intelligen
 OpenG7 turns fragmented ecosystem, trade, and company data into a usable operational platform. Instead of working across disconnected spreadsheets, CMS entries, and ad hoc dashboards, teams get a shared product surface for discovery, mapping, imports, alerts, and observability.
 
 Funding this repository helps deliver:
+
 - Decision-grade visibility across companies, sectors, corridors, and statistics
 - A vendor-neutral stack built on Angular, Strapi, and shared API contracts
 - Faster onboarding and safer operations through seeds, selectors, docs, and tooling
 - A stronger bridge between product UX, content operations, and integration workflows
 
 Near-term funding unlocks:
+
 - Better data ingestion and import workflows
 - Stronger analytics, alerting, and feed experiences
 - More resilient SSR, runtime configuration, and search integration
 - Hardening of admin and operator tooling for real production use
 
 How to support:
+
 - GitHub Sponsors
 - Pilot partnerships
 - Data and integration partnerships
@@ -37,6 +40,7 @@ How to support:
 ### What it is
 
 OpenG7 is an open-source monorepo for an interprovincial exchange platform. It combines:
+
 - an Angular front-end in `openg7-org/`
 - a Strapi CMS in `strapi/`
 - shared API contracts in `packages/contracts/`
@@ -49,6 +53,7 @@ The platform already includes a trade map, company and import workflows, search,
 Trade and ecosystem workflows usually fail at the handoff points: fragmented data, slow content updates, disconnected operational tools, and no shared view of what is happening across sectors and corridors.
 
 OpenG7 exists to provide:
+
 - a unified product surface for exploration, discovery, and monitoring
 - shared contracts between front-end and CMS
 - reusable UI hooks and selectors for instrumentation and testing
@@ -98,6 +103,7 @@ OpenG7 exists to provide:
 > On Windows, `Run-Installer-pwsh.cmd` runs `install-dev-basics_robuste.ps1` to prepare the environment and offers a menu for the main `yarn` commands.
 
 Useful repo-level scripts:
+
 - `yarn test:e2e`: run the full Playwright end-to-end suite from the monorepo root
 - `yarn test:e2e:smoke`: run the critical smoke journey only
 - `yarn test:e2e:regression`: run the broader regression journey
@@ -105,6 +111,7 @@ Useful repo-level scripts:
 - `yarn predeploy:preprod:full`: run the same checks plus the full E2E suite
 
 Detailed guides live in `docs/`:
+
 - `docs/getting-started.md`: onboarding and local setup details
 - `docs/frontend/`: Angular architecture, selectors, UX notes
 - `docs/strapi/`: CMS conventions and seed behavior
@@ -121,6 +128,7 @@ The platform includes admin operations surfaces for monitoring runtime health an
   - `GET /api/admin/ops/backups`
   - `GET /api/admin/ops/imports`
   - `GET /api/admin/ops/security`
+  - `POST /api/admin/ops/codex/dispatch`
 - API policy: `global::owner-admin-ops`
 - API access: roles `Admin` and `Owner`
 - Frontend access to `/admin/ops`: currently admin-only
@@ -139,6 +147,7 @@ The code of conduct in `CODE_OF_CONDUCT.md` applies to all community spaces.
 Support and governance details live in `SUPPORT.md`.
 
 Community first steps:
+
 - Use the issue and PR templates
 - Look for `good first issue` and `help wanted`
 - Add screenshots for visible UI changes
@@ -158,6 +167,7 @@ Community first steps:
 ### Ce que c'est
 
 OpenG7 est un monorepo open source pour une plateforme d'exploration des échanges interprovinciaux. Il regroupe :
+
 - un front Angular dans `openg7-org/`
 - un CMS Strapi dans `strapi/`
 - des contrats d'API partagés dans `packages/contracts/`
@@ -170,6 +180,7 @@ La plateforme inclut déjà une carte, des parcours entreprises et importation, 
 Les parcours métier échouent souvent aux points de friction : données dispersées, mises à jour de contenu lentes, outils d'exploitation déconnectés, et faible visibilité commune sur ce qui se passe entre secteurs, corridors et entreprises.
 
 OpenG7 sert à fournir :
+
 - une surface produit unifiée pour explorer, découvrir et suivre l'activité
 - des contrats partagés entre le front et le CMS
 - des hooks UI et sélecteurs réutilisables pour l'instrumentation et les tests
@@ -219,6 +230,7 @@ OpenG7 sert à fournir :
 > Sous Windows, `Run-Installer-pwsh.cmd` exécute `install-dev-basics_robuste.ps1` pour préparer l'environnement et proposer un menu sur les principales commandes `yarn`.
 
 Scripts utiles à la racine :
+
 - `yarn test:e2e` : lance toute la suite Playwright depuis la racine du monorepo
 - `yarn test:e2e:smoke` : lance uniquement le parcours critique smoke
 - `yarn test:e2e:regression` : lance le parcours de régression plus large
@@ -226,6 +238,7 @@ Scripts utiles à la racine :
 - `yarn predeploy:preprod:full` : exécute les mêmes vérifications puis toute la suite E2E
 
 Guides détaillés dans `docs/` :
+
 - `docs/getting-started.md` : onboarding et détails de setup local
 - `docs/frontend/` : architecture Angular, sélecteurs, notes UX
 - `docs/strapi/` : conventions CMS et comportement des seeds
@@ -260,6 +273,7 @@ Le code de conduite dans `CODE_OF_CONDUCT.md` s'applique à tous les espaces com
 Les détails de support et de gouvernance sont dans `SUPPORT.md`.
 
 Premiers pas communautaires :
+
 - utilisez les templates d'issues et de PR
 - regardez les labels `good first issue` et `help wanted`
 - ajoutez des captures pour les changements UI visibles
