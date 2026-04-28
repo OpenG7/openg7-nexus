@@ -1,7 +1,17 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -11,6 +21,7 @@ import {
   AdminQualityMatrixPriority,
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
+  AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
 import {
@@ -99,6 +110,7 @@ export class AdminQualityPage implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly notifications = injectNotificationStore();
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly loading = signal(true);
@@ -128,12 +140,19 @@ export class AdminQualityPage implements OnInit {
   ];
 
   readonly entries = computed(() => this.snapshot()?.entries ?? []);
+  readonly matrixSourceStatus = computed<AdminQualityMatrixSourceStatus | null>(
+    () => this.snapshot()?.sourceStatus ?? null,
+  );
+  readonly matrixSourceMessage = computed(() => this.snapshot()?.sourceMessage ?? null);
   readonly actionRegistry = computed(() => buildActionRegistry(this.entries()));
   readonly undocumentedActions = computed(() => buildUndocumentedDiscoveredActions(this.entries()));
 
   readonly domainOptions = computed(() => {
     const options = new Set(this.entries().map((entry) => entry.domain));
-    return ['all', ...Array.from(options).sort((left, right) => left.localeCompare(right, 'fr-CA'))];
+    return [
+      'all',
+      ...Array.from(options).sort((left, right) => left.localeCompare(right, 'fr-CA')),
+    ];
   });
 
   readonly filteredEntries = computed(() => {
@@ -157,7 +176,13 @@ export class AdminQualityPage implements OnInit {
           return true;
         }
 
-        const haystack = [entry.domain, entry.need, entry.observedGap, entry.nextMove, ...entry.evidence]
+        const haystack = [
+          entry.domain,
+          entry.need,
+          entry.observedGap,
+          entry.nextMove,
+          ...entry.evidence,
+        ]
           .join(' ')
           .toLocaleLowerCase('fr-CA');
 
@@ -167,31 +192,51 @@ export class AdminQualityPage implements OnInit {
   });
 
   readonly totalDomains = computed(() => this.entries().length);
-  readonly provedCount = computed(() => this.entries().filter((entry) => entry.e2eStatus === 'oui').length);
-  readonly filteredProvedCount = computed(() => this.filteredEntries().filter((entry) => entry.e2eStatus === 'oui').length);
+  readonly provedCount = computed(
+    () => this.entries().filter((entry) => entry.e2eStatus === 'oui').length,
+  );
+  readonly filteredProvedCount = computed(
+    () => this.filteredEntries().filter((entry) => entry.e2eStatus === 'oui').length,
+  );
   readonly proofGapCount = computed(
     () =>
       this.entries().filter(
-        (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
-      ).length
+        (entry) =>
+          entry.e2eStatus !== 'oui' &&
+          !entry.needsProductWorkFirst &&
+          entry.managementBucket === 'proof-gap',
+      ).length,
   );
   readonly filteredProofGapCount = computed(
     () =>
       this.filteredEntries().filter(
-        (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
-      ).length
+        (entry) =>
+          entry.e2eStatus !== 'oui' &&
+          !entry.needsProductWorkFirst &&
+          entry.managementBucket === 'proof-gap',
+      ).length,
   );
   readonly productWorkCount = computed(
-    () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
+    () =>
+      this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst)
+        .length,
   );
   readonly filteredProductWorkCount = computed(
-    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
+    () =>
+      this.filteredEntries().filter(
+        (entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst,
+      ).length,
   );
   readonly highPriorityGapCount = computed(
-    () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
+    () =>
+      this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute')
+        .length,
   );
   readonly filteredHighPriorityGapCount = computed(
-    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
+    () =>
+      this.filteredEntries().filter(
+        (entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute',
+      ).length,
   );
   readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
     activeDomains: this.filteredEntries().length,
@@ -206,7 +251,9 @@ export class AdminQualityPage implements OnInit {
       label: 'Domaines visibles',
       activeValue: this.filteredEntries().length,
       totalValue: this.totalDomains(),
-      detail: this.hasActiveFilters() ? 'Perimetre courant de la console.' : 'Portefeuille complet actuellement visible.',
+      detail: this.hasActiveFilters()
+        ? 'Perimetre courant de la console.'
+        : 'Portefeuille complet actuellement visible.',
       accent: 'slate',
     },
     {
@@ -244,13 +291,15 @@ export class AdminQualityPage implements OnInit {
   ]);
   readonly totalRegisteredActions = computed(() => this.actionRegistry().length);
   readonly provedActionsCount = computed(
-    () => this.actionRegistry().filter((action) => action.status === 'proved').length
+    () => this.actionRegistry().filter((action) => action.status === 'proved').length,
   );
   readonly actionsNeedingCompletionCount = computed(
-    () => this.actionRegistry().filter((action) => action.status === 'needs-completion').length
+    () => this.actionRegistry().filter((action) => action.status === 'needs-completion').length,
   );
   readonly detectedActionsCount = computed(
-    () => this.actionRegistry().filter((action) => action.sourceDetected).length + this.undocumentedActions().length
+    () =>
+      this.actionRegistry().filter((action) => action.sourceDetected).length +
+      this.undocumentedActions().length,
   );
   readonly unmappedActionsCount = computed(() => this.undocumentedActions().length);
 
@@ -260,7 +309,7 @@ export class AdminQualityPage implements OnInit {
       this.selectedDomain() !== 'all' ||
       this.selectedPriority() !== 'all' ||
       this.selectedE2EStatus() !== 'all' ||
-      this.selectedBucket() !== 'all'
+      this.selectedBucket() !== 'all',
   );
   readonly activeFilterChips = computed<readonly AdminQualityActiveFilterChip[]>(() => {
     const chips: AdminQualityActiveFilterChip[] = [];
@@ -305,8 +354,12 @@ export class AdminQualityPage implements OnInit {
     const actions = this.actionRegistry();
     return entry ? actions.filter((action) => action.entryId === entry.id) : [];
   });
-  readonly qaQueuePreviewItems = computed<readonly AdminQualityMatrixEntry[]>(() => this.filteredEntries().slice(0, 3));
-  readonly actionPreviewItems = computed<readonly AdminQualityActionRecord[]>(() => this.selectedEntryActions().slice(0, 2));
+  readonly qaQueuePreviewItems = computed<readonly AdminQualityMatrixEntry[]>(() =>
+    this.filteredEntries().slice(0, 3),
+  );
+  readonly actionPreviewItems = computed<readonly AdminQualityActionRecord[]>(() =>
+    this.selectedEntryActions().slice(0, 2),
+  );
   readonly selectedWorkspaceTitle = computed(() => {
     switch (this.activeWorkspaceSurface()) {
       case 'qaQueue':
@@ -363,7 +416,10 @@ export class AdminQualityPage implements OnInit {
     }
 
     const selectedId = this.selectedMissionId();
-    return recommendations.find((recommendation) => recommendation.id === selectedId) ?? recommendations[0];
+    return (
+      recommendations.find((recommendation) => recommendation.id === selectedId) ??
+      recommendations[0]
+    );
   });
   readonly selectedMissionTasks = computed<readonly AdminQualityMissionTask[]>(() => {
     const mission = this.selectedMission();
@@ -374,7 +430,9 @@ export class AdminQualityPage implements OnInit {
     const tasks = this.selectedMissionTasks();
     return tasks.length ? summarizeMissionQuota(tasks, this.availableCodexQuotaUnits()) : null;
   });
-  readonly canStartSelectedMission = computed(() => this.selectedMissionQuotaSummary()?.sufficient ?? false);
+  readonly canStartSelectedMission = computed(
+    () => this.selectedMissionQuotaSummary()?.sufficient ?? false,
+  );
 
   constructor() {
     effect(() => {
@@ -402,7 +460,7 @@ export class AdminQualityPage implements OnInit {
           this.error.set(null);
         },
         error: () => {
-          this.error.set("Impossible de charger la matrice QA.");
+          this.error.set('Impossible de charger la matrice QA.');
           this.loading.set(false);
         },
       });
@@ -416,27 +474,32 @@ export class AdminQualityPage implements OnInit {
 
   setDomainFilter(event: Event): void {
     this.stopVoiceForContextChange();
-    this.selectedDomain.set(((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all');
+    this.selectedDomain.set(
+      ((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all',
+    );
   }
 
   setPriorityFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedPriority.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all',
     );
   }
 
   setE2EFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedE2EStatus.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all',
     );
   }
 
   setBucketFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedBucket.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all',
     );
   }
 
@@ -492,7 +555,9 @@ export class AdminQualityPage implements OnInit {
   }
 
   setAvailableCodexQuotaUnits(event: Event): void {
-    const nextValue = Number((event.target as HTMLInputElement | null)?.value ?? this.availableCodexQuotaUnits());
+    const nextValue = Number(
+      (event.target as HTMLInputElement | null)?.value ?? this.availableCodexQuotaUnits(),
+    );
     if (!Number.isFinite(nextValue)) {
       return;
     }
@@ -501,7 +566,9 @@ export class AdminQualityPage implements OnInit {
   }
 
   handleMissionAction(event: AdminQualityMissionControlActionEvent): void {
-    if (event.action === 'auto-delegate') {
+    const launchesDelegation = event.action === 'auto-delegate';
+
+    if (launchesDelegation) {
       const quotaSummary = this.quotaSummaryForMission(event.recommendation);
       if (!quotaSummary.sufficient) {
         this.notifications.error(
@@ -510,7 +577,7 @@ export class AdminQualityPage implements OnInit {
             available: quotaSummary.availableUnits,
             missing: quotaSummary.shortageUnits,
           }),
-          { source: 'admin-quality' }
+          { source: 'admin-quality' },
         );
         return;
       }
@@ -529,6 +596,32 @@ export class AdminQualityPage implements OnInit {
     }
 
     this.updateMissionStatus(event.recommendation, resolution.status, resolution.message);
+
+    if (launchesDelegation && resolution.status === 'in-progress') {
+      void this.openCodexOpsPrefill(event.recommendation);
+    }
+  }
+
+  matrixSourceLabel(status: AdminQualityMatrixSourceStatus): string {
+    switch (status) {
+      case 'fallback':
+        return 'Fallback';
+      case 'stale':
+        return 'A verifier';
+      default:
+        return 'A jour';
+    }
+  }
+
+  matrixSourceClasses(status: AdminQualityMatrixSourceStatus): string {
+    switch (status) {
+      case 'fallback':
+        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+      case 'stale':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+      default:
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+    }
   }
 
   actionStatusLabel(status: AdminQualityActionStatus): string {
@@ -649,7 +742,9 @@ export class AdminQualityPage implements OnInit {
 
   async speakMissionControl(state: AdminQualityMissionControlState): Promise<void> {
     if (!this.isBrowser || typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      this.notifications.info('Synthese vocale indisponible dans ce navigateur.', { source: 'admin-quality' });
+      this.notifications.info('Synthese vocale indisponible dans ce navigateur.', {
+        source: 'admin-quality',
+      });
       return;
     }
 
@@ -666,7 +761,7 @@ export class AdminQualityPage implements OnInit {
     window.speechSynthesis.cancel();
     this.speaking.set(true);
     window.speechSynthesis.speak(utterance);
-    this.notifications.info("Analyse AI lue a voix haute.", { source: 'admin-quality' });
+    this.notifications.info('Analyse AI lue a voix haute.', { source: 'admin-quality' });
   }
 
   stopMissionVoice(notify = true): void {
@@ -813,7 +908,7 @@ export class AdminQualityPage implements OnInit {
   private updateMissionStatus(
     recommendation: AdminQualityMissionRecommendation,
     status: AdminQualityMissionStatus,
-    message: string
+    message: string,
   ): void {
     this.missionDecisions.set({
       ...this.missionDecisions(),
@@ -841,7 +936,9 @@ export class AdminQualityPage implements OnInit {
         this.legacyCopy(value);
         this.notifications.success(successMessage, { source: 'admin-quality' });
       } catch {
-        this.notifications.error("Impossible de copier l'action de delegation.", { source: 'admin-quality' });
+        this.notifications.error("Impossible de copier l'action de delegation.", {
+          source: 'admin-quality',
+        });
       }
     }
   }
@@ -900,7 +997,9 @@ export class AdminQualityPage implements OnInit {
     try {
       localStorage.setItem(MISSION_CONTROL_STORAGE_KEY, JSON.stringify(this.missionDecisions()));
     } catch {
-      this.notifications.error('Impossible de persister le pilotage local des missions.', { source: 'admin-quality' });
+      this.notifications.error('Impossible de persister le pilotage local des missions.', {
+        source: 'admin-quality',
+      });
     }
   }
 
@@ -923,7 +1022,10 @@ export class AdminQualityPage implements OnInit {
     }
 
     const selectedDomain = this.selectedDomain();
-    if (selectedDomain !== 'all' && !this.entries().some((entry) => entry.domain === selectedDomain)) {
+    if (
+      selectedDomain !== 'all' &&
+      !this.entries().some((entry) => entry.domain === selectedDomain)
+    ) {
       this.selectedDomain.set('all');
       return;
     }
@@ -991,7 +1093,10 @@ export class AdminQualityPage implements OnInit {
       if (parsed.selectedMissionId === null || typeof parsed.selectedMissionId === 'string') {
         this.selectedMissionId.set(parsed.selectedMissionId);
       }
-      if (typeof parsed.availableCodexQuotaUnits === 'number' && Number.isFinite(parsed.availableCodexQuotaUnits)) {
+      if (
+        typeof parsed.availableCodexQuotaUnits === 'number' &&
+        Number.isFinite(parsed.availableCodexQuotaUnits)
+      ) {
         this.availableCodexQuotaUnits.set(Math.max(0, Math.round(parsed.availableCodexQuotaUnits)));
       }
       if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
@@ -1034,11 +1139,23 @@ export class AdminQualityPage implements OnInit {
   }
 
   private isStatusFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixStatus> {
-    return value === 'all' || value === 'oui' || value === 'partiel' || value === 'non' || value === 'hors MVP';
+    return (
+      value === 'all' ||
+      value === 'oui' ||
+      value === 'partiel' ||
+      value === 'non' ||
+      value === 'hors MVP'
+    );
   }
 
   private isBucketFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixBucket> {
-    return value === 'all' || value === 'covered' || value === 'proof-gap' || value === 'product-gap' || value === 'scope-limit';
+    return (
+      value === 'all' ||
+      value === 'covered' ||
+      value === 'proof-gap' ||
+      value === 'product-gap' ||
+      value === 'scope-limit'
+    );
   }
 
   private isWorkspaceSurface(value: unknown): value is AdminQualityWorkspaceSurface {
@@ -1049,9 +1166,40 @@ export class AdminQualityPage implements OnInit {
     return value === 'delegation' || value === 'actions';
   }
 
-  private quotaSummaryForMission(recommendation: AdminQualityMissionRecommendation): AdminQualityMissionQuotaSummary {
+  private quotaSummaryForMission(
+    recommendation: AdminQualityMissionRecommendation,
+  ): AdminQualityMissionQuotaSummary {
     const difficulty = this.selectedDelegation()?.difficulty ?? 'Medium';
     const tasks = buildMissionTasks(recommendation, difficulty);
     return summarizeMissionQuota(tasks, this.availableCodexQuotaUnits());
+  }
+
+  private openCodexOpsPrefill(recommendation: AdminQualityMissionRecommendation): Promise<boolean> {
+    return this.router.navigate(['/admin/ops'], {
+      queryParams: {
+        codexTask: recommendation.operatorPrompt,
+        codexScope: this.resolveCodexScope(recommendation.targetFiles),
+        codexBaseBranch: 'main',
+        codexDraftPr: 'true',
+        codexSource: 'admin-quality',
+        codexMissionId: recommendation.id,
+      },
+    });
+  }
+
+  private resolveCodexScope(targetFiles: readonly string[]): string {
+    if (targetFiles.length && targetFiles.every((file) => file.startsWith('strapi/'))) {
+      return 'strapi';
+    }
+    if (targetFiles.some((file) => file.startsWith('packages/contracts/'))) {
+      return 'packages-contracts';
+    }
+    if (targetFiles.some((file) => file.startsWith('packages/tooling/'))) {
+      return 'packages-tooling';
+    }
+    if (targetFiles.some((file) => file.startsWith('openg7-org/'))) {
+      return 'openg7-org';
+    }
+    return 'repository-root';
   }
 }

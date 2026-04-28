@@ -2,6 +2,7 @@
 
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import {
   NotificationStore,
   NotificationStoreApi,
@@ -119,8 +120,10 @@ class AdminOpsServiceMock {
 describe('AdminOpsPage', () => {
   let service: AdminOpsServiceMock;
   let notifications: jasmine.SpyObj<NotificationStoreApi>;
+  let routeQueryParams: Record<string, string>;
 
   beforeEach(async () => {
+    routeQueryParams = {};
     service = new AdminOpsServiceMock();
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
       'success',
@@ -133,12 +136,23 @@ describe('AdminOpsPage', () => {
       providers: [
         { provide: AdminOpsService, useValue: service },
         { provide: NotificationStore, useValue: notifications },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              get queryParamMap() {
+                return convertToParamMap(routeQueryParams);
+              },
+            },
+          },
+        },
       ],
     }).compileComponents();
   });
 
   it('dispatches the Codex workflow from the admin ops control plane', () => {
     const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
@@ -164,6 +178,43 @@ describe('AdminOpsPage', () => {
     });
     expect(root.querySelector('[data-og7-id="admin-ops-codex-success"]')).not.toBeNull();
     expect(notifications.success).toHaveBeenCalled();
+  });
+
+  it('prefills Codex dispatch fields from admin quality query params', () => {
+    Object.assign(routeQueryParams, {
+      codexTask: 'Objectif: renforcer la preuve qualite.',
+      codexScope: 'openg7-org',
+      codexBaseBranch: 'release/quality',
+      codexDraftPr: 'false',
+      codexModel: 'gpt-5.4',
+      codexEffort: 'high',
+      codexSource: 'admin-quality',
+    });
+
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(fixture.componentInstance.codexEffort()).toBe('high');
+    expect((root.querySelector('[data-og7-id="task"]') as HTMLTextAreaElement).value).toBe(
+      'Objectif: renforcer la preuve qualite.',
+    );
+    expect((root.querySelector('[data-og7-id="base-branch"]') as HTMLInputElement).value).toBe(
+      'release/quality',
+    );
+    expect((root.querySelector('[data-og7-id="model"]') as HTMLInputElement).value).toBe('gpt-5.4');
+    expect((root.querySelector('[data-og7-id="effort"]') as HTMLSelectElement).value).toBe('high');
+    expect(
+      (root.querySelector('[data-og7-id="draft-pr"]') as HTMLInputElement).checked,
+    ).toBeFalse();
+    expect(notifications.info).toHaveBeenCalledWith(
+      'Codex dispatch prefilled from the quality cockpit.',
+      {
+        source: 'admin-ops',
+      },
+    );
   });
 
   it('shows the dispatch error inline when the backend rejects the request', () => {

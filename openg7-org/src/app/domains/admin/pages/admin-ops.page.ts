@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { finalize } from 'rxjs';
 
@@ -61,6 +62,7 @@ export class AdminOpsPage implements OnInit {
   private readonly service = inject(AdminOpsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notifications = injectNotificationStore();
+  private readonly route = inject(ActivatedRoute);
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly loading = signal(true);
@@ -140,6 +142,7 @@ export class AdminOpsPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.applyCodexRoutePrefill();
     this.fetchSnapshot(false);
     this.refreshTimer = setInterval(() => this.fetchSnapshot(true), 60_000);
     this.destroyRef.onDestroy(() => {
@@ -336,6 +339,56 @@ export class AdminOpsPage implements OnInit {
     if (error instanceof Error && error.message.trim()) {
       return error.message;
     }
+    if (error && typeof error === 'object') {
+      const payload = error as { error?: unknown; message?: unknown };
+      if (typeof payload.message === 'string' && payload.message.trim()) {
+        return payload.message;
+      }
+      if (payload.error && typeof payload.error === 'object') {
+        const message = (payload.error as { message?: unknown }).message;
+        if (typeof message === 'string' && message.trim()) {
+          return message;
+        }
+      }
+      if (typeof payload.error === 'string' && payload.error.trim()) {
+        return payload.error;
+      }
+    }
     return 'Unable to load operations data.';
+  }
+
+  private applyCodexRoutePrefill(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const task = params.get('codexTask') ?? params.get('task');
+    const scope = params.get('codexScope') ?? params.get('scope');
+    const baseBranch = params.get('codexBaseBranch') ?? params.get('baseBranch');
+    const draftPr = params.get('codexDraftPr') ?? params.get('draftPr');
+    const model = params.get('codexModel') ?? params.get('model');
+    const effort = params.get('codexEffort') ?? params.get('effort');
+
+    if (task?.trim()) {
+      this.codexTask.set(task);
+    }
+    if (scope) {
+      this.updateCodexScope(scope);
+    }
+    if (baseBranch?.trim()) {
+      this.codexBaseBranch.set(baseBranch);
+    }
+    if (draftPr != null) {
+      this.codexDraftPr.set(draftPr !== 'false');
+    }
+    if (model != null) {
+      this.codexModel.set(model);
+    }
+    if (effort != null) {
+      this.codexEffort.set(effort);
+    }
+
+    if (task?.trim() || params.get('codexSource') === 'admin-quality') {
+      this.notifications.info('Codex dispatch prefilled from the quality cockpit.', {
+        source: 'admin-ops',
+      });
+    }
   }
 }

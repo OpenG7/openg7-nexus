@@ -19,6 +19,24 @@ export interface GeneratedAdminQualityActionDiscovery {
 
 export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
+    "id": "admin-ops-codex-dispatch",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-ops.page.html",
+        "line": 149,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-ops.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-ops-refresh",
     "trigger": "button",
     "hasActionHook": false,
@@ -68,14 +86,16 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "hasActionHook": true,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 377,
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 292,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
       }
     ],
-    "specFiles": [],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts"
+    ],
     "e2eFiles": []
   },
   {
@@ -84,26 +104,47 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "hasActionHook": true,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 401,
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 316,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
       }
     ],
-    "specFiles": [],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts"
+    ],
     "e2eFiles": []
   },
   {
     "id": "admin-quality-open-issue",
-    "trigger": "link",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 325,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts",
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-open-workspace",
+    "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 405,
-        "tag": "a",
-        "trigger": "link",
+        "line": 410,
+        "tag": "button",
+        "trigger": "button",
         "hasActionHook": true
       }
     ],
@@ -119,7 +160,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 85,
+        "line": 239,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -131,29 +172,13 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-select-action",
-    "trigger": "button",
-    "hasActionHook": true,
-    "sourceFiles": [
-      {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 478,
-        "tag": "button",
-        "trigger": "button",
-        "hasActionHook": true
-      }
-    ],
-    "specFiles": [],
-    "e2eFiles": []
-  },
-  {
     "id": "admin-quality-select-row",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 698,
+        "line": 504,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -169,7 +194,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
-        "line": 182,
+        "line": 464,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -185,7 +210,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
-        "line": 190,
+        "line": 472,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -195,37 +220,38 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-surface-actions",
+    "id": "admin-quality-workspace-backdrop",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 254,
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 3,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
       }
     ],
     "specFiles": [
-      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts"
     ],
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-surface-delegation",
+    "id": "admin-quality-workspace-close",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 226,
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 44,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
       }
     ],
     "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts",
       "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
     ],
     "e2eFiles": []

@@ -121,9 +121,9 @@
             [value]="codexEffort()"
             (change)="updateCodexEffort($any($event.target).value)"
           >
-            <option value="">Default</option>
+            <option value="" [selected]="codexEffort() === ''">Default</option>
             @for (effort of codexEfforts; track effort) {
-            <option [value]="effort">{{ effort }}</option>
+            <option [value]="effort" [selected]="codexEffort() === effort">{{ effort }}</option>
             }
           </select>
         </label>
