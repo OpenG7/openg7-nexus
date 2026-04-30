@@ -28,6 +28,7 @@ export const STRAPI_ROUTES = {
     opsImports: '/api/admin/ops/imports',
     opsSecurity: '/api/admin/ops/security',
     opsCodexDispatch: '/api/admin/ops/codex/dispatch',
+    qualityMissionDecisions: '/api/admin/quality/mission-decisions',
   },
 } as const;
 
@@ -59,3 +60,6 @@ export const strapiAlertReadById = (id: string | number): string => {
 export const strapiAlertReadAll = (): string => `${STRAPI_ROUTES.users.meAlerts}/read-all`;
 export const strapiAlertDeleteRead = (): string => `${STRAPI_ROUTES.users.meAlerts}/read`;
 export const strapiGenerateAlerts = (): string => `${STRAPI_ROUTES.users.meAlerts}/generate`;
+
+export const strapiAdminQualityMissionDecisionById = (id: string): string =>
+  `${STRAPI_ROUTES.admin.qualityMissionDecisions}/${encodeURIComponent(id)}`;

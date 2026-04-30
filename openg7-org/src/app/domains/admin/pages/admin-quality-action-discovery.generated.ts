@@ -142,7 +142,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 410,
+        "line": 430,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -160,7 +160,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 239,
+        "line": 259,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -178,7 +178,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 504,
+        "line": 524,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true

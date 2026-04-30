@@ -11,6 +11,11 @@ import {
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
 } from '../data-access/admin-quality-matrix.service';
+import {
+  AdminQualityMissionDecisionSaveInput,
+  AdminQualityMissionDecisionSnapshot,
+  AdminQualityMissionDecisionsService,
+} from '../data-access/admin-quality-mission-decisions.service';
 
 import { AdminQualityPage } from './admin-quality.page';
 
@@ -74,14 +79,43 @@ class AdminQualityMatrixServiceMock {
   );
 }
 
+class AdminQualityMissionDecisionsServiceMock {
+  readonly loadDecisions = jasmine.createSpy('loadDecisions').and.returnValue(
+    of<AdminQualityMissionDecisionSnapshot>({
+      generatedAt: '2026-04-30T00:00:00.000Z',
+      decisions: [],
+    }),
+  );
+  readonly saveDecision = jasmine
+    .createSpy('saveDecision')
+    .and.callFake((input: AdminQualityMissionDecisionSaveInput) =>
+      of({
+        ...input,
+        decidedByUserId: '1',
+        createdAt: '2026-04-30T00:00:00.000Z',
+        updatedAt: '2026-04-30T00:00:00.000Z',
+      }),
+    );
+  readonly deleteDecision = jasmine
+    .createSpy('deleteDecision')
+    .and.callFake((recommendationId: string) =>
+      of({
+        recommendationId,
+        deleted: true,
+      }),
+    );
+}
+
 describe('AdminQualityPage', () => {
   let service: AdminQualityMatrixServiceMock;
+  let missionDecisions: AdminQualityMissionDecisionsServiceMock;
   let notifications: jasmine.SpyObj<NotificationStoreApi>;
 
   beforeEach(async () => {
     localStorage.removeItem('og7.admin-quality.mission-control.v1');
     localStorage.removeItem('og7.admin-quality.view-state.v1');
     service = new AdminQualityMatrixServiceMock();
+    missionDecisions = new AdminQualityMissionDecisionsServiceMock();
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
       'success',
       'info',
@@ -93,6 +127,7 @@ describe('AdminQualityPage', () => {
       providers: [
         provideRouter([]),
         { provide: AdminQualityMatrixService, useValue: service },
+        { provide: AdminQualityMissionDecisionsService, useValue: missionDecisions },
         { provide: NotificationStore, useValue: notifications },
       ],
     }).compileComponents();
@@ -257,9 +292,13 @@ describe('AdminQualityPage', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(service.loadMatrix).toHaveBeenCalled();
+    expect(missionDecisions.loadDecisions).toHaveBeenCalled();
     expect(root.querySelector('[data-og7-id="proved-domains"]')?.textContent).toContain('1');
     expect(root.querySelector('[data-og7-id="proof-gap-domains"]')?.textContent).toContain('1');
     expect(root.querySelector('[data-og7-id="product-work-domains"]')?.textContent).toContain('1');
+    expect(root.querySelector('[data-og7-id="admin-quality-mission-sync"]')?.textContent).toContain(
+      'Missions serveur',
+    );
     expect(
       root.querySelector(
         '[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]',
@@ -650,6 +689,12 @@ describe('AdminQualityPage', () => {
     expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', {
       source: 'admin-quality',
     });
+    expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        recommendationId: 'advanced-discovery::safety-net',
+        status: 'approved',
+      }),
+    );
   });
 
   it('generates mission tasks and shows a sufficient quota runway for the active mission', () => {
@@ -713,13 +758,19 @@ describe('AdminQualityPage', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
-      (element) => element.textContent?.trim() === 'Deleguer'
+      (element) => element.textContent?.trim() === 'Deleguer',
     ) as HTMLButtonElement | undefined;
 
     delegateButton?.click();
     fixture.detectChanges();
 
     expect(fixture.componentInstance.selectedMission()?.status).toBe('in-progress');
+    expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        recommendationId: 'advanced-discovery::core',
+        status: 'in-progress',
+      }),
+    );
     expect(navigateSpy).toHaveBeenCalledWith(['/admin/ops'], {
       queryParams: jasmine.objectContaining({
         codexScope: 'openg7-org',
@@ -729,7 +780,10 @@ describe('AdminQualityPage', () => {
         codexMissionId: 'advanced-discovery::core',
       }),
     });
-    const queryParams = navigateSpy.calls.mostRecent().args[1]?.queryParams as Record<string, string>;
+    const queryParams = navigateSpy.calls.mostRecent().args[1]?.queryParams as Record<
+      string,
+      string
+    >;
     expect(queryParams['codexTask']).toContain('Recherche et decouverte profonde');
   });
 

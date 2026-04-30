@@ -24,6 +24,7 @@ import {
   AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
+import { AdminQualityMissionDecisionsService } from '../data-access/admin-quality-mission-decisions.service';
 import {
   AdminQualityWorkspaceDrawerComponent,
   AdminQualityWorkspaceSurface,
@@ -67,6 +68,7 @@ import {
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
+type AdminQualityMissionDecisionSyncStatus = 'local' | 'syncing' | 'server' | 'unavailable';
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
@@ -106,6 +108,7 @@ const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
 })
 export class AdminQualityPage implements OnInit {
   private readonly service = inject(AdminQualityMatrixService);
+  private readonly missionDecisionService = inject(AdminQualityMissionDecisionsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly notifications = injectNotificationStore();
@@ -129,6 +132,10 @@ export class AdminQualityPage implements OnInit {
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
   readonly availableCodexQuotaUnits = signal(160);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
+  readonly missionDecisionSyncStatus = signal<AdminQualityMissionDecisionSyncStatus>('local');
+  readonly missionDecisionSyncMessage = signal(
+    'Decisions conservees localement jusqu a la synchronisation serveur.',
+  );
   readonly speaking = signal(false);
   private readonly viewStateReady = signal(false);
   readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
@@ -447,6 +454,7 @@ export class AdminQualityPage implements OnInit {
   ngOnInit(): void {
     this.restoreViewState();
     this.restoreMissionDecisions();
+    this.loadMissionDecisionsFromServer();
     this.viewStateReady.set(true);
     this.destroyRef.onDestroy(() => this.stopMissionVoice(false));
 
@@ -624,6 +632,32 @@ export class AdminQualityPage implements OnInit {
     }
   }
 
+  missionDecisionSyncLabel(status: AdminQualityMissionDecisionSyncStatus): string {
+    switch (status) {
+      case 'server':
+        return 'Missions serveur';
+      case 'syncing':
+        return 'Sync missions...';
+      case 'unavailable':
+        return 'Missions locales';
+      default:
+        return 'Missions locales';
+    }
+  }
+
+  missionDecisionSyncClasses(status: AdminQualityMissionDecisionSyncStatus): string {
+    switch (status) {
+      case 'server':
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+      case 'syncing':
+        return 'border-sky-300/25 bg-sky-400/12 text-sky-100';
+      case 'unavailable':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+      default:
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
+    }
+  }
+
   actionStatusLabel(status: AdminQualityActionStatus): string {
     switch (status) {
       case 'proved':
@@ -737,6 +771,7 @@ export class AdminQualityPage implements OnInit {
     delete next[recommendation.id];
     this.missionDecisions.set(next);
     this.persistMissionDecisions();
+    this.deleteMissionDecisionFromServer(recommendation);
     this.notifications.info(message, { source: 'admin-quality' });
   }
 
@@ -916,7 +951,114 @@ export class AdminQualityPage implements OnInit {
     });
     this.persistMissionDecisions();
     this.selectedMissionId.set(recommendation.id);
+    this.saveMissionDecisionToServer(recommendation, status, message);
     this.notifications.success(message, { source: 'admin-quality' });
+  }
+
+  private loadMissionDecisionsFromServer(): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation des decisions de mission...');
+
+    this.missionDecisionService
+      .loadDecisions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (snapshot) => {
+          const next: Record<string, AdminQualityMissionStatus> = {};
+          for (const decision of snapshot.decisions) {
+            if (decision.recommendationId && this.isMissionStatus(decision.status)) {
+              next[decision.recommendationId] = decision.status;
+            }
+          }
+
+          this.missionDecisions.set(next);
+          this.persistMissionDecisions();
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set(
+            `${snapshot.decisions.length} decision(s) de mission synchronisee(s).`,
+          );
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Serveur mission indisponible; les decisions restent conservees localement.',
+          );
+        },
+      });
+  }
+
+  private saveMissionDecisionToServer(
+    recommendation: AdminQualityMissionRecommendation,
+    status: AdminQualityMissionStatus,
+    message: string,
+  ): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation de la decision de mission...');
+
+    this.missionDecisionService
+      .saveDecision({
+        recommendationId: recommendation.id,
+        entryId: this.recommendationEntryId(recommendation),
+        kind: recommendation.kind,
+        status,
+        title: recommendation.title,
+        message,
+        operatorPrompt: recommendation.operatorPrompt,
+        metadata: {
+          confidence: recommendation.confidence,
+          impact: recommendation.impact,
+          suggestedOwner: recommendation.suggestedOwner,
+          targetFiles: recommendation.targetFiles,
+          validationCommands: recommendation.validationCommands,
+        },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set('Decision de mission synchronisee cote serveur.');
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Decision sauvegardee localement; synchronisation serveur impossible.',
+          );
+          this.notifications.info('Decision gardee localement; serveur mission indisponible.', {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  private deleteMissionDecisionFromServer(recommendation: AdminQualityMissionRecommendation): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation de la reinitialisation de mission...');
+
+    this.missionDecisionService
+      .deleteDecision(recommendation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set('Mission reinitialisee cote serveur.');
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Mission reinitialisee localement; synchronisation serveur impossible.',
+          );
+          this.notifications.info(
+            'Mission reinitialisee localement; serveur mission indisponible.',
+            {
+              source: 'admin-quality',
+            },
+          );
+        },
+      });
+  }
+
+  private recommendationEntryId(recommendation: AdminQualityMissionRecommendation): string {
+    return recommendation.id.split('::')[0] ?? recommendation.id;
   }
 
   private async copyText(value: string, successMessage: string): Promise<void> {

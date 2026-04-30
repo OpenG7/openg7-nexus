@@ -373,6 +373,55 @@ export interface ApiAccountProfileAccountProfile extends Struct.CollectionTypeSc
   };
 }
 
+export interface ApiAdminQualityMissionDecisionAdminQualityMissionDecision
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'admin_quality_mission_decisions';
+  info: {
+    displayName: 'Admin Quality Mission Decision';
+    pluralName: 'admin-quality-mission-decisions';
+    singularName: 'admin-quality-mission-decision';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    decidedByUserId: Schema.Attribute.String;
+    entryId: Schema.Attribute.String & Schema.Attribute.Required;
+    kind: Schema.Attribute.Enumeration<['core', 'safety-net', 'governance']> &
+      Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::admin-quality-mission-decision.admin-quality-mission-decision'
+    > &
+      Schema.Attribute.Private;
+    message: Schema.Attribute.Text;
+    metadata: Schema.Attribute.JSON;
+    operatorPrompt: Schema.Attribute.Text;
+    publishedAt: Schema.Attribute.DateTime;
+    recommendationId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Unique;
+    status: Schema.Attribute.Enumeration<
+      [
+        'proposed',
+        'approved',
+        'in-progress',
+        'proof-returned',
+        'done',
+        'deferred',
+        'rejected',
+        'blocked',
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'proposed'>;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCompanyCompany extends Struct.CollectionTypeSchema {
   collectionName: 'companies';
   info: {
@@ -1577,6 +1626,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::account-profile.account-profile': ApiAccountProfileAccountProfile;
+      'api::admin-quality-mission-decision.admin-quality-mission-decision': ApiAdminQualityMissionDecisionAdminQualityMissionDecision;
       'api::company.company': ApiCompanyCompany;
       'api::connection.connection': ApiConnectionConnection;
       'api::exchange.exchange': ApiExchangeExchange;
