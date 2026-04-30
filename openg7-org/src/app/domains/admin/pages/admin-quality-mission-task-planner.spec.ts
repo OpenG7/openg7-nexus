@@ -1,5 +1,5 @@
-import { buildMissionTasks, summarizeMissionQuota } from './admin-quality-mission-task-planner';
 import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
+import { buildMissionTasks, summarizeMissionQuota } from './admin-quality-mission-task-planner';
 
 function buildRecommendation(
   overrides: Partial<AdminQualityMissionRecommendation> = {}

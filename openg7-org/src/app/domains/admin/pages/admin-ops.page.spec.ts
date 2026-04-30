@@ -1,6 +1,5 @@
 /// <reference types="jasmine" />
 
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import {
