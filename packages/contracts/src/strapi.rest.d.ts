@@ -174,6 +174,239 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ops/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get admin operations health snapshot */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsHealthResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ops/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get admin operations backups snapshot */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsBackupsResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ops/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get admin operations imports snapshot */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsImportsResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ops/security": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get admin operations security snapshot */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsSecurityResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ops/codex/dispatch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dispatch the Codex GitHub workflow from the owner/admin control plane */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AdminOpsCodexDispatchRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsCodexDispatchResponse"];
+                    };
+                };
+                /** @description Invalid payload */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Dispatch disabled */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/statistics": {
         parameters: {
             query?: never;
@@ -785,6 +1018,142 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminOpsHealthResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                /** @enum {string} */
+                status?: "ok" | "degraded";
+                runtime?: {
+                    env?: string;
+                    nodeVersion?: string;
+                    uptimeSeconds?: number;
+                };
+                memory?: {
+                    rssBytes?: number;
+                    heapUsedBytes?: number;
+                    heapTotalBytes?: number;
+                };
+                database?: {
+                    /** @enum {string} */
+                    status?: "ok" | "degraded";
+                    users?: number;
+                    companies?: number;
+                    feedItems?: number;
+                };
+            };
+        };
+        AdminOpsBackupsResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                /** @enum {string} */
+                status?: "ok" | "warning" | "disabled";
+                enabled?: boolean;
+                directory?: string;
+                retentionDays?: number;
+                schedule?: string | null;
+                totalFiles?: number;
+                totalSizeBytes?: number;
+                /** Format: date-time */
+                lastBackupAt?: string | null;
+                files?: {
+                    name?: string;
+                    sizeBytes?: number;
+                    /** Format: date-time */
+                    modifiedAt?: string;
+                }[];
+            };
+        };
+        AdminOpsImportsResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                totalCompanies?: number;
+                scannedCompanies?: number;
+                truncated?: boolean;
+                importedCompanies?: number;
+                importsLast24h?: number;
+                /** Format: date-time */
+                lastImportAt?: string | null;
+                sources?: {
+                    source?: string;
+                    count?: number;
+                }[];
+                recent?: {
+                    id?: string;
+                    businessId?: string | null;
+                    name?: string;
+                    status?: string;
+                    source?: string | null;
+                    /** Format: date-time */
+                    importedAt?: string | null;
+                    /** Format: date-time */
+                    updatedAt?: string | null;
+                }[];
+            };
+        };
+        AdminOpsSecurityResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                users?: {
+                    total?: number;
+                    blocked?: number;
+                    registrationsLast7d?: number;
+                };
+                sessions?: {
+                    scannedUsers?: number;
+                    truncated?: boolean;
+                    active?: number;
+                    revoked?: number;
+                    usersWithActiveSessions?: number;
+                };
+                uploads?: {
+                    safetyEnabled?: boolean;
+                    maxFileSizeBytes?: number;
+                    allowedMimeTypes?: string[];
+                };
+                auth?: {
+                    sessionIdleTimeoutMs?: number | null;
+                };
+                moderation?: {
+                    pendingCompanies?: number;
+                    suspendedCompanies?: number;
+                };
+            };
+        };
+        AdminOpsCodexDispatchRequest: {
+            task: string;
+            /** @enum {string} */
+            scope: "openg7-org" | "strapi" | "packages-contracts" | "packages-tooling" | "repository-root";
+            baseBranch: string;
+            draftPr: boolean;
+            model?: string | null;
+            effort?: string | null;
+        };
+        AdminOpsCodexDispatchResponse: {
+            data?: {
+                queued?: boolean;
+                /** @enum {string} */
+                provider?: "github-actions";
+                owner?: string;
+                repo?: string;
+                workflow?: string;
+                ref?: string;
+                /** Format: date-time */
+                requestedAt?: string;
+                request?: {
+                    /** @enum {string} */
+                    scope?: "openg7-org" | "strapi" | "packages-contracts" | "packages-tooling" | "repository-root";
+                    baseBranch?: string;
+                    draftPr?: boolean;
+                    model?: string | null;
+                    effort?: string | null;
+                    taskLength?: number;
+                };
+            };
+        };
         Province: {
             id: number;
             name: string;
