@@ -2,11 +2,17 @@
   class="relative w-full overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
   data-og7="admin-quality-mission-control"
 >
-  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.2),_transparent_34%),radial-gradient(circle_at_88%_14%,_rgba(168,85,247,0.14),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.24),_rgba(2,6,23,0.04))]"></div>
-  <div class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"></div>
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.2),_transparent_34%),radial-gradient(circle_at_88%_14%,_rgba(168,85,247,0.14),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.24),_rgba(2,6,23,0.04))]"
+  ></div>
+  <div
+    class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"
+  ></div>
 
   <div class="relative space-y-4">
-    <div class="flex flex-col gap-3 border-b border-white/10 pb-4 xl:flex-row xl:items-start xl:justify-between">
+    <div
+      class="flex flex-col gap-3 border-b border-white/10 pb-4 xl:flex-row xl:items-start xl:justify-between"
+    >
       <div class="space-y-2">
         <div class="flex items-center gap-3">
           <span
@@ -17,8 +23,12 @@
           </span>
 
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Pilotage AI</p>
-            <h2 class="mt-1 text-[1.9rem] font-semibold tracking-tight text-white">AI Mission Control</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">
+              Pilotage AI
+            </p>
+            <h2 class="mt-1 text-[1.9rem] font-semibold tracking-tight text-white">
+              AI Mission Control
+            </h2>
           </div>
         </div>
 
@@ -35,6 +45,12 @@
           Phase : {{ missionControl().phaseLabel }}
         </span>
         <span
+          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100"
+          data-og7-id="admin-quality-active-ai-provider"
+        >
+          AI : {{ selectedAiProviderLabel() }}
+        </span>
+        <span
           class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[11px] font-semibold text-amber-100"
         >
           Cue : {{ missionCueLabel() }}
@@ -42,7 +58,371 @@
       </div>
     </div>
 
+    <article
+      class="og7-flight-bay rounded-3xl border border-cyan-400/20 bg-[linear-gradient(145deg,rgba(7,20,38,0.96),rgba(4,14,30,0.92))] p-4 shadow-[0_28px_70px_-48px_rgba(56,189,248,0.58)]"
+      data-og7="admin-quality-ai-bay"
+      [attr.data-og7-state]="providerFlightDeckState()"
+    >
+      <div class="pointer-events-none absolute inset-y-5 left-5 w-px bg-white/10"></div>
+      <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_12rem] xl:items-center">
+        <div class="flex items-center gap-4 pl-4">
+          <div
+            class="relative h-16 w-24 rounded-[20px] border border-white/10 bg-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          >
+            <div
+              class="absolute left-4 top-1/2 h-0.5 w-8 -translate-y-1/2 rounded-full bg-slate-700"
+            ></div>
+            <div
+              class="absolute right-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border border-cyan-300/45 bg-cyan-400/10"
+            ></div>
+            <svg
+              viewBox="0 0 64 64"
+              class="og7-flight-key absolute left-1 top-1/2 h-12 w-12 -translate-y-1/2 text-cyan-200 drop-shadow-[0_0_10px_rgba(56,189,248,0.35)]"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="3.4"
+              aria-hidden="true"
+            >
+              <circle cx="20" cy="32" r="9"></circle>
+              <path d="M29 32h18"></path>
+              <path d="M41 32v7"></path>
+              <path d="M47 32v4"></path>
+            </svg>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-200/80">
+                Flight deck
+              </p>
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="providerFlightDeckStatusClasses()"
+                data-og7-id="admin-quality-ai-bay-status"
+              >
+                {{ providerFlightDeckLabel() }}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="aiTelemetryClasses()"
+                data-og7-id="admin-quality-ai-telemetry-status"
+                [attr.data-og7-state]="aiTelemetryState()"
+              >
+                <span
+                  class="h-2.5 w-2.5 rounded-full"
+                  [class.og7-flight-telemetry--live]="aiTelemetryState() === 'live'"
+                  [class.og7-flight-telemetry--degraded]="aiTelemetryState() === 'degraded'"
+                  [class.og7-flight-telemetry--syncing]="aiTelemetryState() === 'syncing'"
+                  [class.bg-emerald-400]="aiTelemetryState() === 'live'"
+                  [class.bg-amber-400]="aiTelemetryState() === 'degraded'"
+                  [class.bg-sky-400]="aiTelemetryState() === 'syncing'"
+                  [class.bg-slate-400]="aiTelemetryState() === 'offline'"
+                ></span>
+                {{ aiTelemetryLabel() }}
+              </span>
+            </div>
+            <h3 class="text-lg font-semibold text-white">
+              {{ selectedAiProviderLabel() }} console
+            </h3>
+            <p class="max-w-xl text-sm leading-6 text-slate-300">
+              {{ selectedAiProviderCaption() }}
+            </p>
+            <p class="max-w-xl text-xs leading-5 text-cyan-100/80">
+              {{ providerFlightDeckNote() }}
+            </p>
+            <p
+              class="max-w-xl text-[11px] leading-5 text-slate-400"
+              data-og7-id="admin-quality-ai-telemetry-detail"
+            >
+              {{ aiTelemetryDetail() }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center justify-between gap-3 rounded-[20px] border border-white/10 bg-white/4 px-4 py-3 xl:flex-col xl:items-end xl:text-right"
+        >
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              {{ providerFlightDeckMetricLabel() }}
+            </p>
+            <p class="mt-2 text-3xl font-semibold" [class]="providerFlightDeckMetricClasses()">
+              {{ providerFlightDeckMetric() }}
+            </p>
+          </div>
+          <span
+            class="h-4 w-4 rounded-full border border-white/20 bg-cyan-400 shadow-[0_0_18px_rgba(56,189,248,0.55)]"
+            [class.og7-flight-indicator--armed]="providerFlightDeckState() === 'armed'"
+            [class.bg-amber-400]="providerFlightDeckState() === 'constrained'"
+            [class.shadow-[0_0_18px_rgba(251,191,36,0.48)]]="
+              providerFlightDeckState() === 'constrained'
+            "
+            [class.bg-cyan-400]="providerFlightDeckState() === 'armed'"
+          ></span>
+        </div>
+      </div>
+    </article>
+
+    <section
+      class="rounded-3xl border border-white/10 bg-[#071426]/90 p-4"
+      data-og7="admin-quality-provider-comparison"
+    >
+      <div
+        class="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
+      >
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+            Provider comparison
+          </p>
+          <h3 class="mt-2 text-base font-semibold text-white">Dispatch lanes at a glance</h3>
+          <p class="mt-2 text-sm text-slate-300">
+            Compare key readiness, workflow lane, and last proof telemetry before switching console.
+          </p>
+        </div>
+        <span
+          class="inline-flex rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-slate-200"
+        >
+          {{ providerComparison().length }} providers tracked
+        </span>
+      </div>
+
+      <div class="mt-4 grid gap-3 xl:grid-cols-4">
+        @for (entry of providerComparison(); track entry.provider) {
+          <article
+            class="rounded-[20px] border p-4"
+            data-og7="admin-quality-provider-comparison-card"
+            [attr.data-og7-id]="entry.provider"
+            [attr.data-og7-selected]="entry.selected"
+            [attr.data-og7-proof-state]="entry.proofState"
+            [class]="providerComparisonCardClasses(entry)"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-sm font-semibold text-white">{{ entry.label }}</p>
+                <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                  {{ entry.workflow }}
+                </p>
+              </div>
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="providerComparisonOpsClasses(entry.opsState)"
+              >
+                {{ entry.opsLabel }}
+              </span>
+            </div>
+
+            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.opsDetail }}</p>
+
+            <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1"
+                [class]="missionProofStateClasses(entry.proofState)"
+              >
+                {{ entry.proofLabel }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-200"
+              >
+                {{ entry.artifactCount }} artifact(s)
+              </span>
+            </div>
+
+            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.proofDetail }}</p>
+            <p class="mt-2 text-[11px] text-slate-400">{{ entry.pullRequestLabel }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
     @if (selectedMission(); as missionItem) {
+      <section
+        class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4"
+        data-og7="admin-quality-mission-loop"
+      >
+        <div
+          class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Mission loop
+            </p>
+            <h3 class="mt-2 text-base font-semibold text-white">
+              Mission -> dispatch -> proof -> validation
+            </h3>
+            <p class="mt-2 text-sm text-slate-300">
+              Unified operator view for {{ selectedAiProviderLabel() }} through
+              {{ aiDispatchWorkflow() }}.
+            </p>
+          </div>
+
+          <span
+            class="inline-flex rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-xs font-medium text-slate-200"
+            data-og7-id="admin-quality-mission-loop-summary"
+          >
+            {{ missionStatusLabel(missionItem.status) }}
+          </span>
+        </div>
+
+        <div class="mt-4 grid gap-3 xl:grid-cols-4">
+          @for (step of missionExecutionLoop(); track step.id) {
+            <article
+              class="rounded-[20px] border p-4"
+              data-og7="admin-quality-mission-loop-step"
+              [attr.data-og7-id]="step.id"
+              [attr.data-og7-status]="step.status"
+              [class]="missionLoopCardClasses(step.status)"
+            >
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
+                    {{ step.label }}
+                  </p>
+                  <p class="mt-2 text-sm font-semibold text-white">{{ step.detail }}</p>
+                </div>
+                <span
+                  class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  [class]="missionLoopBadgeClasses(step.status)"
+                >
+                  {{ missionLoopStatusLabel(step.status) }}
+                </span>
+              </div>
+              <p class="mt-3 text-xs leading-5 text-slate-300">{{ step.support }}</p>
+            </article>
+          }
+        </div>
+
+        <section
+          class="mt-4 rounded-[20px] border border-cyan-300/12 bg-slate-950/45 px-4 py-3"
+          data-og7="admin-quality-mission-energy-lane"
+        >
+          <div
+            class="grid grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-2"
+          >
+            @for (step of missionExecutionLoop(); track step.id; let index = $index) {
+              <div class="flex flex-col items-center gap-1 text-center">
+                <span
+                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  data-og7="admin-quality-mission-energy-node"
+                  [attr.data-og7-id]="step.id"
+                  [attr.data-og7-status]="step.status"
+                  [class]="missionEnergyLaneNodeClasses(step.status)"
+                >
+                  {{ index + 1 }}
+                </span>
+                <span class="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  {{ step.label }}
+                </span>
+              </div>
+
+              @if (index < missionEnergyLaneSegments().length) {
+                @let segment = missionEnergyLaneSegments()[index];
+                <div
+                  class="flex flex-col gap-1"
+                  data-og7="admin-quality-mission-energy-lane-segment"
+                  [attr.data-og7-id]="segment.id"
+                  [attr.data-og7-state]="segment.state"
+                >
+                  <div
+                    class="relative h-3 overflow-hidden rounded-full border"
+                    [class]="missionEnergyLaneTrackClasses(segment.state)"
+                  >
+                    <span
+                      [class]="missionEnergyLaneBeamClasses(segment.state)"
+                      [style.animation-delay.ms]="segment.delayMs"
+                    ></span>
+                  </div>
+                  <p
+                    class="text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500"
+                  >
+                    {{ missionEnergyLaneStateLabel(segment.state) }}
+                  </p>
+                </div>
+              }
+            }
+          </div>
+        </section>
+
+        @if (selectedAiProof(); as proof) {
+          <article
+            class="mt-4 rounded-[20px] border border-white/10 bg-slate-950/55 p-4"
+            data-og7="admin-quality-proof-telemetry"
+            [attr.data-og7-state]="proof.state"
+          >
+            <div
+              class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+                  Live proof telemetry
+                </p>
+                <h4 class="mt-2 text-base font-semibold text-white">{{ proof.label }}</h4>
+                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{{ proof.summary }}</p>
+              </div>
+              <span
+                class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
+                [class]="missionProofStateClasses(proof.state)"
+              >
+                {{ proof.label }}
+              </span>
+            </div>
+
+            <div class="mt-4 grid gap-3 lg:grid-cols-3">
+              <article class="rounded-[18px] border border-white/10 bg-white/4 p-3">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  Last run
+                </p>
+                <p class="mt-2 text-sm font-semibold text-white">{{ proof.runLabel }}</p>
+                <p class="mt-2 text-xs leading-5 text-slate-300">{{ proof.detail }}</p>
+                @if (proof.runUrl) {
+                  <a
+                    class="mt-3 inline-flex text-xs font-semibold text-cyan-200 underline-offset-4 hover:underline"
+                    [href]="proof.runUrl"
+                    target="_blank"
+                    rel="noreferrer"
+                    data-og7-id="admin-quality-proof-run-link"
+                  >
+                    Open workflow run
+                  </a>
+                }
+              </article>
+
+              <article class="rounded-[18px] border border-white/10 bg-white/4 p-3">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  Artifacts
+                </p>
+                <p class="mt-2 text-sm font-semibold text-white">{{ proof.artifactLabel }}</p>
+                <p class="mt-2 text-xs leading-5 text-slate-300">
+                  Screenshots, logs, and proof bundles observed on the latest provider run.
+                </p>
+              </article>
+
+              <article class="rounded-[18px] border border-white/10 bg-white/4 p-3">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  Pull request
+                </p>
+                <p class="mt-2 text-sm font-semibold text-white">{{ proof.pullRequestLabel }}</p>
+                <p class="mt-2 text-xs leading-5 text-slate-300">
+                  Proof review can pivot directly into the opened branch lane when a PR exists.
+                </p>
+                @if (proof.pullRequestUrl) {
+                  <a
+                    class="mt-3 inline-flex text-xs font-semibold text-cyan-200 underline-offset-4 hover:underline"
+                    [href]="proof.pullRequestUrl"
+                    target="_blank"
+                    rel="noreferrer"
+                    data-og7-id="admin-quality-proof-pr-link"
+                  >
+                    Open pull request
+                  </a>
+                }
+              </article>
+            </div>
+          </article>
+        }
+      </section>
+
       <article
         class="rounded-[24px] border border-white/10 bg-[#071426]/90 p-4 shadow-[0_30px_80px_-50px_rgba(8,47,73,0.95)]"
         data-og7="admin-quality-mission-hero"
@@ -53,8 +433,12 @@
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p class="text-sm font-semibold text-emerald-300">Mission active</p>
-                  <h3 class="mt-2 text-[1.8rem] font-semibold leading-tight text-white">{{ missionItem.title }}</h3>
-                  <p class="mt-1 text-sm text-slate-100">Type : {{ recommendationKindLabel(missionItem) }}</p>
+                  <h3 class="mt-2 text-[1.8rem] font-semibold leading-tight text-white">
+                    {{ missionItem.title }}
+                  </h3>
+                  <p class="mt-1 text-sm text-slate-100">
+                    Type : {{ recommendationKindLabel(missionItem) }}
+                  </p>
                 </div>
 
                 <span
@@ -74,7 +458,9 @@
 
               <article class="rounded-[18px] border border-emerald-500/20 bg-emerald-500/10 p-4">
                 <p class="text-sm font-semibold text-emerald-200">Mission suggeree</p>
-                <p class="mt-2 text-sm leading-relaxed text-emerald-50/95">{{ missionItem.summary }}</p>
+                <p class="mt-2 text-sm leading-relaxed text-emerald-50/95">
+                  {{ missionItem.summary }}
+                </p>
               </article>
             </div>
 
@@ -87,32 +473,38 @@
                   [attr.aria-disabled]="isMissionActionBlocked(action.action, missionItem)"
                   [attr.title]="
                     isMissionActionBlocked(action.action, missionItem)
-                      ? ('admin.quality.codex.notifications.insufficientQuota' | translate : {
-                          required: selectedMissionQuotaSummary()?.requiredUnits ?? 0,
-                          available: selectedMissionQuotaSummary()?.availableUnits ?? 0,
-                          missing: selectedMissionQuotaSummary()?.shortageUnits ?? 0
-                        })
+                      ? aiDispatchStatusDetail()
                       : null
                   "
                   (click)="emitMissionAction(action.action, missionItem)"
                   data-og7="action"
                   [attr.data-og7-id]="action.hookId ?? null"
                 >
-                  {{ action.label }}
+                  {{
+                    action.action === 'auto-delegate'
+                      ? aiDispatching()
+                        ? 'Dispatch...'
+                        : 'Lancer ' + selectedAiProviderLabel()
+                      : action.label
+                  }}
                 </button>
               }
             </div>
           </div>
 
           <div class="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Confiance AI</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              Confiance AI
+            </p>
             <div
               class="relative mx-auto mt-4 flex h-20 w-20 items-center justify-center rounded-full shadow-[0_20px_40px_-28px_rgba(14,165,233,0.8)]"
               [style.background]="confidenceRingBackground(missionItem.confidence)"
             >
               <div class="absolute inset-[6px] rounded-full bg-[#071120]"></div>
               <div class="relative">
-                <p class="text-lg font-semibold text-white">{{ confidencePercent(missionItem.confidence) }}%</p>
+                <p class="text-lg font-semibold text-white">
+                  {{ confidencePercent(missionItem.confidence) }}%
+                </p>
               </div>
             </div>
             <span
@@ -142,26 +534,37 @@
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
-                  {{ 'admin.quality.codex.runway.label' | translate }}
+                  {{
+                    'admin.quality.codex.runway.label'
+                      | translate: { provider: selectedAiProviderLabel() }
+                  }}
                 </p>
                 <h3 class="mt-2 text-lg font-semibold text-white">
-                  {{ 'admin.quality.codex.runway.title' | translate }}
+                  {{
+                    'admin.quality.codex.runway.title'
+                      | translate: { provider: selectedAiProviderLabel() }
+                  }}
                 </h3>
                 <p class="mt-2 text-sm leading-relaxed text-slate-300">
-                  {{ 'admin.quality.codex.runway.subtitle' | translate }}
+                  {{
+                    'admin.quality.codex.runway.subtitle'
+                      | translate: { provider: selectedAiProviderLabel() }
+                  }}
+                </p>
+                <p class="mt-2 text-xs leading-relaxed text-cyan-100/80">
+                  {{ selectedAiProviderCaption() }}
                 </p>
               </div>
 
               <span
                 class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
-                [class]="quotaStatusClasses(quota.sufficient)"
+                [class]="quotaStatusClasses(aiDispatchReady())"
                 data-og7-id="admin-quality-codex-quota-status"
               >
                 {{
-                  (
-                    quota.sufficient
-                      ? 'admin.quality.codex.runway.status.sufficient'
-                      : 'admin.quality.codex.runway.status.insufficient'
+                  (aiDispatchReady()
+                    ? 'admin.quality.codex.runway.status.sufficient'
+                    : 'admin.quality.codex.runway.status.insufficient'
                   ) | translate
                 }}
               </span>
@@ -172,7 +575,10 @@
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.tasks' | translate }}
                 </p>
-                <p class="mt-2 text-2xl font-semibold text-white" data-og7-id="admin-quality-generated-task-count">
+                <p
+                  class="mt-2 text-2xl font-semibold text-white"
+                  data-og7-id="admin-quality-generated-task-count"
+                >
                   {{ quota.taskCount }}
                 </p>
                 <p class="mt-1 text-xs text-slate-400">
@@ -196,42 +602,37 @@
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.available' | translate }}
                 </p>
-                <label class="mt-2 block">
-                  <span class="sr-only">{{ 'admin.quality.codex.runway.metrics.available' | translate }}</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    class="w-full rounded-[14px] border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none"
-                    [value]="availableCodexQuotaUnits()"
-                    (input)="availableCodexQuotaUnitsChanged.emit($event)"
-                    data-og7-id="admin-quality-codex-quota-input"
-                  />
-                </label>
-                <p class="mt-1 text-xs text-slate-400">
-                  {{ 'admin.quality.codex.runway.metrics.availableBody' | translate }}
+                <p
+                  class="mt-2 text-lg font-semibold text-white"
+                  data-og7-id="admin-quality-codex-ops-status"
+                >
+                  {{ aiDispatchStatusLabel() }}
+                </p>
+                <p class="mt-1 text-xs leading-relaxed text-slate-400">
+                  {{
+                    'admin.quality.codex.runway.metrics.availableBody'
+                      | translate: { provider: selectedAiProviderLabel() }
+                  }}
                 </p>
               </article>
 
               <article class="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
                   {{
-                    (
-                      quota.sufficient
-                        ? 'admin.quality.codex.runway.metrics.remaining'
-                        : 'admin.quality.codex.runway.metrics.missing'
+                    (aiDispatchReady()
+                      ? 'admin.quality.codex.runway.metrics.remaining'
+                      : 'admin.quality.codex.runway.metrics.missing'
                     ) | translate
                   }}
                 </p>
-                <p class="mt-2 text-2xl font-semibold text-white">
-                  {{ quota.sufficient ? quota.remainingUnits : quota.shortageUnits }}
+                <p class="mt-2 break-all text-lg font-semibold text-white">
+                  {{ aiDispatchWorkflow() }}
                 </p>
-                <p class="mt-1 text-xs text-slate-400">
+                <p class="mt-1 text-xs leading-relaxed text-slate-400">
                   {{
-                    (
-                      quota.sufficient
-                        ? 'admin.quality.codex.runway.metrics.remainingBody'
-                        : 'admin.quality.codex.runway.metrics.missingBody'
+                    (aiDispatchReady()
+                      ? 'admin.quality.codex.runway.metrics.remainingBody'
+                      : 'admin.quality.codex.runway.metrics.missingBody'
                     ) | translate
                   }}
                 </p>
@@ -240,11 +641,10 @@
 
             <p class="mt-4 text-sm text-slate-300">
               {{
-                (
-                  quota.sufficient
-                    ? 'admin.quality.codex.runway.ready'
-                    : 'admin.quality.codex.runway.blocked'
-                ) | translate
+                (aiDispatchReady()
+                  ? 'admin.quality.codex.runway.ready'
+                  : 'admin.quality.codex.runway.blocked'
+                ) | translate: { provider: selectedAiProviderLabel() }
               }}
             </p>
           </article>
@@ -253,17 +653,24 @@
             class="rounded-[24px] border border-white/10 bg-[#071426]/90 p-4 shadow-[0_28px_72px_-48px_rgba(15,23,42,0.9)]"
             data-og7="admin-quality-generated-tasks"
           >
-            <div class="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
+            <div
+              class="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4"
+            >
               <div>
                 <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200/80">
                   {{ 'admin.quality.codex.tasks.label' | translate }}
                 </p>
                 <h3 class="mt-2 text-lg font-semibold text-white">
-                  {{ 'admin.quality.codex.tasks.title' | translate: { count: selectedMissionTasks().length } }}
+                  {{
+                    'admin.quality.codex.tasks.title'
+                      | translate: { count: selectedMissionTasks().length }
+                  }}
                 </h3>
               </div>
 
-              <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold text-slate-200">
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold text-slate-200"
+              >
                 {{ missionItem.title }}
               </span>
             </div>
@@ -278,21 +685,35 @@
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div class="min-w-0">
                       <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="taskKindClasses(task.kind)">
+                        <span
+                          class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                          [class]="taskKindClasses(task.kind)"
+                        >
                           {{ taskKindKey(task.kind) | translate }}
                         </span>
                         @if (task.blocking) {
-                          <span class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
+                          <span
+                            class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
+                          >
                             {{ 'admin.quality.codex.tasks.blocking' | translate }}
                           </span>
                         }
                       </div>
-                      <p class="mt-3 text-sm font-semibold text-white break-all">{{ task.headline }}</p>
-                      <p class="mt-1 text-xs leading-relaxed text-slate-400 break-all">{{ task.support }}</p>
+                      <p class="mt-3 text-sm font-semibold text-white break-all">
+                        {{ task.headline }}
+                      </p>
+                      <p class="mt-1 text-xs leading-relaxed text-slate-400 break-all">
+                        {{ task.support }}
+                      </p>
                     </div>
 
-                    <span class="inline-flex rounded-full border border-white/10 bg-slate-950/80 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
-                      {{ 'admin.quality.codex.tasks.units' | translate: { count: task.estimatedUnits } }}
+                    <span
+                      class="inline-flex rounded-full border border-white/10 bg-slate-950/80 px-2.5 py-1 text-[11px] font-semibold text-slate-100"
+                    >
+                      {{
+                        'admin.quality.codex.tasks.units'
+                          | translate: { count: task.estimatedUnits }
+                      }}
                     </span>
                   </div>
                 </article>
@@ -303,23 +724,37 @@
       }
     }
 
-    <section class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4" data-og7-id="admin-quality-mission-timeline">
-      <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4"
+      data-og7-id="admin-quality-mission-timeline"
+    >
+      <div
+        class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
+      >
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">Timeline de la mission</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">
+            Timeline de la mission
+          </p>
           <h3 class="mt-2 text-base font-semibold text-white">
             {{ activeTimelineStep()?.label ?? missionControl().phaseLabel }}
           </h3>
         </div>
 
-        <span class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200">
+        <span
+          class="inline-flex rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-slate-200"
+        >
           {{ selectedDomain() ?? 'Aucun domaine actif' }}
         </span>
       </div>
 
       <div class="mt-5 hidden md:flex items-start">
         @for (step of missionTimelineSteps(); track step.id) {
-          <div class="flex min-w-0 flex-1 items-start" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+          <div
+            class="flex min-w-0 flex-1 items-start"
+            data-og7="admin-quality-mission-step"
+            [attr.data-og7-id]="step.id"
+            [attr.data-og7-status]="step.status"
+          >
             <div class="flex flex-1 flex-col items-center text-center">
               <span
                 class="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
@@ -327,14 +762,20 @@
               >
                 {{ missionTimelineMarkerText(step.status, $index) }}
               </span>
-              <p class="mt-3 text-sm font-semibold" [ngClass]="step.status === 'pending' ? 'text-slate-400' : 'text-white'">
+              <p
+                class="mt-3 text-sm font-semibold"
+                [ngClass]="step.status === 'pending' ? 'text-slate-400' : 'text-white'"
+              >
                 {{ step.shortLabel }}
               </p>
               <p class="mt-1 text-xs text-slate-400">{{ step.label }}</p>
             </div>
 
             @if (!$last) {
-              <span class="mt-4 block h-px flex-1" [class]="missionTimelineConnectorClasses(step.status)"></span>
+              <span
+                class="mt-4 block h-px flex-1"
+                [class]="missionTimelineConnectorClasses(step.status)"
+              ></span>
             }
           </div>
         }
@@ -342,7 +783,12 @@
 
       <div class="mt-4 space-y-3 md:hidden">
         @for (step of missionTimelineSteps(); track step.id) {
-          <article class="flex gap-3" data-og7="admin-quality-mission-step" [attr.data-og7-id]="step.id" [attr.data-og7-status]="step.status">
+          <article
+            class="flex gap-3"
+            data-og7="admin-quality-mission-step"
+            [attr.data-og7-id]="step.id"
+            [attr.data-og7-status]="step.status"
+          >
             <div class="flex w-9 shrink-0 flex-col items-center">
               <span
                 class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold"
@@ -351,13 +797,21 @@
                 {{ missionTimelineMarkerText(step.status, $index) }}
               </span>
               @if (!$last) {
-                <span class="mt-2 w-px flex-1" [class]="missionTimelineVerticalConnectorClasses(step.status)"></span>
+                <span
+                  class="mt-2 w-px flex-1"
+                  [class]="missionTimelineVerticalConnectorClasses(step.status)"
+                ></span>
               }
             </div>
 
-            <div class="min-w-0 flex-1 rounded-[18px] border p-3" [class]="missionTimelineCardClasses(step.status)">
+            <div
+              class="min-w-0 flex-1 rounded-[18px] border p-3"
+              [class]="missionTimelineCardClasses(step.status)"
+            >
               <p class="text-sm font-semibold text-white">{{ step.label }}</p>
-              <p class="mt-1 text-xs text-slate-300">{{ missionTimelineStatusLabel(step.status) }}</p>
+              <p class="mt-1 text-xs text-slate-300">
+                {{ missionTimelineStatusLabel(step.status) }}
+              </p>
             </div>
           </article>
         }
@@ -391,20 +845,31 @@
                   <h3 class="text-base font-semibold text-white">{{ recommendation.title }}</h3>
                 </div>
 
-                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [class]="missionStatusClasses(recommendation.status)">
+                <span
+                  class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
+                  [class]="missionStatusClasses(recommendation.status)"
+                >
                   {{ missionStatusLabel(recommendation.status) }}
                 </span>
               </div>
 
-              <p class="mt-3 text-sm leading-relaxed text-slate-200">{{ recommendation.summary }}</p>
+              <p class="mt-3 text-sm leading-relaxed text-slate-200">
+                {{ recommendation.summary }}
+              </p>
               <p class="mt-3 text-xs leading-relaxed text-slate-400">{{ recommendation.whyNow }}</p>
             </button>
 
             <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
-              <span class="inline-flex rounded-full border px-2.5 py-1" [class]="confidenceClasses(recommendation.confidence)">
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1"
+                [class]="confidenceClasses(recommendation.confidence)"
+              >
                 Confiance {{ recommendation.confidence }}
               </span>
-              <span class="inline-flex rounded-full border px-2.5 py-1" [class]="impactClasses(recommendation.impact)">
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1"
+                [class]="impactClasses(recommendation.impact)"
+              >
                 Impact {{ recommendation.impact }}
               </span>
             </div>
@@ -420,7 +885,13 @@
                   data-og7="action"
                   [attr.data-og7-id]="action.hookId ?? null"
                 >
-                  {{ action.label }}
+                  {{
+                    action.action === 'auto-delegate'
+                      ? aiDispatching()
+                        ? 'Dispatch...'
+                        : 'Lancer ' + selectedAiProviderLabel()
+                      : action.label
+                  }}
                 </button>
               }
             </div>
@@ -433,7 +904,9 @@
           class="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,19,40,0.96),rgba(4,11,27,0.98))] p-5"
           data-og7="admin-quality-mission-detail"
         >
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Mission selectionnee</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Mission selectionnee
+          </p>
           <h3 class="mt-2 text-lg font-semibold text-white">{{ missionItem.title }}</h3>
           <p class="mt-2 text-sm text-slate-300">{{ missionItem.whyNow }}</p>
         </article>
@@ -445,14 +918,19 @@
       >
         <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           @for (step of workflowSteps(); track step.id) {
-            <article class="rounded-[20px] border p-4 transition" [class]="workflowCardClasses(step.active)">
+            <article
+              class="rounded-[20px] border p-4 transition"
+              [class]="workflowCardClasses(step.active)"
+            >
               <div
                 class="flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold"
                 [class]="workflowBadgeClasses(step.accent, step.active)"
               >
                 {{ $index + 1 }}
               </div>
-              <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">{{ step.label }}</p>
+              <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                {{ step.label }}
+              </p>
               <p class="mt-2 text-sm font-semibold text-white">{{ step.headline }}</p>
               <p class="mt-1 text-xs leading-relaxed text-slate-300">{{ step.detail }}</p>
             </article>

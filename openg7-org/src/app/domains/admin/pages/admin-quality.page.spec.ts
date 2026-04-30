@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import {
   NotificationStore,
   NotificationStoreApi,
@@ -7,6 +7,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { AdminOpsService } from '../data-access/admin-ops.service';
 import {
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
@@ -106,8 +107,217 @@ class AdminQualityMissionDecisionsServiceMock {
     );
 }
 
+class AdminOpsServiceMock {
+  readonly getSecurity = jasmine.createSpy('getSecurity').and.returnValue(
+    of({
+      generatedAt: '2026-04-30T00:00:00.000Z',
+      users: {
+        total: 3,
+        blocked: 0,
+        registrationsLast7d: 1,
+      },
+      sessions: {
+        scannedUsers: 3,
+        truncated: false,
+        active: 1,
+        revoked: 0,
+        usersWithActiveSessions: 1,
+      },
+      uploads: {
+        safetyEnabled: true,
+        maxFileSizeBytes: 5242880,
+        allowedMimeTypes: ['image/png'],
+      },
+      auth: {
+        sessionIdleTimeoutMs: 43200000,
+      },
+      aiKeys: [
+        {
+          provider: 'codex',
+          label: 'Codex',
+          workflow: 'codex-pr.yml',
+          secretName: 'OPENAI_API_KEY',
+          dispatchEnabled: true,
+          keyInserted: true,
+          state: 'ready',
+          note: 'Key detected. The engine bay is armed and ready for dispatch.',
+        },
+        {
+          provider: 'copilot',
+          label: 'GitHub Copilot',
+          workflow: 'copilot-pr.yml',
+          secretName: null,
+          dispatchEnabled: false,
+          keyInserted: false,
+          state: 'unsupported',
+          note: 'No stable ignition key is wired for this console yet.',
+        },
+        {
+          provider: 'claude',
+          label: 'Claude',
+          workflow: 'claude-pr.yml',
+          secretName: 'ANTHROPIC_API_KEY',
+          dispatchEnabled: true,
+          keyInserted: true,
+          state: 'ready',
+          note: 'Key detected. The engine bay is armed and ready for dispatch.',
+        },
+        {
+          provider: 'gemini',
+          label: 'Gemini',
+          workflow: 'gemini-pr.yml',
+          secretName: 'GEMINI_API_KEY',
+          dispatchEnabled: false,
+          keyInserted: false,
+          state: 'offline',
+          note: 'Insert GEMINI_API_KEY into GitHub Actions secrets to power this module.',
+        },
+      ],
+      moderation: {
+        pendingCompanies: 0,
+        suspendedCompanies: 0,
+      },
+    }),
+  );
+  readonly getAiProofs = jasmine.createSpy('getAiProofs').and.returnValue(
+    of({
+      generatedAt: '2026-04-30T00:12:00.000Z',
+      providers: [
+        {
+          provider: 'codex',
+          label: 'Codex',
+          workflow: 'codex-pr.yml',
+          state: 'completed' as const,
+          summary: 'Workflow #51 completed with 2 artifact(s) and PR #321.',
+          run: {
+            id: 501,
+            number: 51,
+            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501',
+            status: 'completed',
+            conclusion: 'success',
+            branch: 'codex/qa-proof-501',
+            createdAt: '2026-04-30T00:00:00.000Z',
+            updatedAt: '2026-04-30T00:08:00.000Z',
+          },
+          artifacts: [
+            {
+              id: 9001,
+              name: 'playwright-report',
+              sizeBytes: 2048,
+              expired: false,
+              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+            },
+            {
+              id: 9002,
+              name: 'logs',
+              sizeBytes: 1024,
+              expired: false,
+              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+            },
+          ],
+          pullRequest: {
+            number: 321,
+            title: 'Codex QA proof package',
+            url: 'https://github.com/OpenG7/openg7-platform/pull/321',
+            state: 'open',
+            merged: false,
+            branch: 'codex/qa-proof-501',
+          },
+        },
+        {
+          provider: 'copilot',
+          label: 'GitHub Copilot',
+          workflow: 'copilot-pr.yml',
+          state: 'failed' as const,
+          summary: 'Workflow #7 finished with conclusion failure.',
+          run: {
+            id: 701,
+            number: 7,
+            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/701',
+            status: 'completed',
+            conclusion: 'failure',
+            branch: 'copilot/placeholder-701',
+            createdAt: '2026-04-30T00:12:00.000Z',
+            updatedAt: '2026-04-30T00:13:00.000Z',
+          },
+          artifacts: [],
+          pullRequest: null,
+        },
+        {
+          provider: 'claude',
+          label: 'Claude',
+          workflow: 'claude-pr.yml',
+          state: 'in-progress' as const,
+          summary: 'Workflow #18 is executing on claude/qa-proof-601.',
+          run: {
+            id: 601,
+            number: 18,
+            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601',
+            status: 'in_progress',
+            conclusion: null,
+            branch: 'claude/qa-proof-601',
+            createdAt: '2026-04-30T00:10:00.000Z',
+            updatedAt: '2026-04-30T00:11:00.000Z',
+          },
+          artifacts: [
+            {
+              id: 9003,
+              name: 'draft-proof',
+              sizeBytes: 512,
+              expired: false,
+              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601#artifacts',
+            },
+          ],
+          pullRequest: {
+            number: 322,
+            title: 'Claude draft improvements',
+            url: 'https://github.com/OpenG7/openg7-platform/pull/322',
+            state: 'open',
+            merged: false,
+            branch: 'claude/qa-proof-601',
+          },
+        },
+        {
+          provider: 'gemini',
+          label: 'Gemini',
+          workflow: 'gemini-pr.yml',
+          state: 'unavailable' as const,
+          summary: 'No workflow run detected yet for gemini-pr.yml.',
+          run: null,
+          artifacts: [],
+          pullRequest: null,
+        },
+      ],
+    }),
+  );
+  readonly dispatchCodexWorkflow = jasmine
+    .createSpy('dispatchCodexWorkflow')
+    .and.callFake((payload: { provider: 'codex' | 'copilot' | 'claude' | 'gemini' }) =>
+      of({
+        queued: true,
+        provider: 'github-actions' as const,
+        selectedProvider: payload.provider,
+        owner: 'OpenG7',
+        repo: 'openg7-platform',
+        workflow: `${payload.provider}-pr.yml`,
+        ref: 'main',
+        requestedAt: '2026-04-30T00:00:00.000Z',
+        request: {
+          selectedProvider: payload.provider,
+          scope: 'openg7-org' as const,
+          baseBranch: 'main',
+          draftPr: true,
+          model: 'gpt-5.4',
+          effort: null,
+          taskLength: 49,
+        },
+      }),
+    );
+}
+
 describe('AdminQualityPage', () => {
   let service: AdminQualityMatrixServiceMock;
+  let opsService: AdminOpsServiceMock;
   let missionDecisions: AdminQualityMissionDecisionsServiceMock;
   let notifications: jasmine.SpyObj<NotificationStoreApi>;
 
@@ -115,6 +325,7 @@ describe('AdminQualityPage', () => {
     localStorage.removeItem('og7.admin-quality.mission-control.v1');
     localStorage.removeItem('og7.admin-quality.view-state.v1');
     service = new AdminQualityMatrixServiceMock();
+    opsService = new AdminOpsServiceMock();
     missionDecisions = new AdminQualityMissionDecisionsServiceMock();
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
       'success',
@@ -127,6 +338,7 @@ describe('AdminQualityPage', () => {
       providers: [
         provideRouter([]),
         { provide: AdminQualityMatrixService, useValue: service },
+        { provide: AdminOpsService, useValue: opsService },
         { provide: AdminQualityMissionDecisionsService, useValue: missionDecisions },
         { provide: NotificationStore, useValue: notifications },
       ],
@@ -238,27 +450,29 @@ describe('AdminQualityPage', () => {
             },
             codex: {
               runway: {
-                label: 'Codex runway',
-                title: 'Generated task runway',
-                subtitle: 'Estimate the task volume before starting the selected mission.',
+                label: 'Codex Ops clearance',
+                title: 'Generated task plan',
+                subtitle:
+                  'Review the estimated task volume and live Ops readiness before dispatch.',
                 status: {
-                  sufficient: 'Quota sufficient',
-                  insufficient: 'Quota insufficient',
+                  sufficient: 'Ops ready',
+                  insufficient: 'Ops blocked',
                 },
                 metrics: {
                   tasks: 'Tasks',
                   tasksBody: 'Generated from the active mission.',
-                  required: 'Required quota',
+                  required: 'Estimated units',
                   requiredBody: 'Estimated units for the current plan.',
-                  available: 'Available quota',
-                  availableBody: 'Local operator estimate until Codex usage is connected.',
-                  remaining: 'Runway left',
-                  remainingBody: 'Units left after this mission.',
-                  missing: 'Units missing',
-                  missingBody: 'Increase the quota before launching the task.',
+                  available: 'Ops status',
+                  availableBody: 'Live readiness from Owner Ops.',
+                  remaining: 'Workflow',
+                  remainingBody: 'GitHub Actions workflow selected by the backend.',
+                  missing: 'Workflow',
+                  missingBody: 'Fix the Ops readiness blocker before dispatch.',
                 },
-                ready: 'The mission can be delegated without exceeding the current quota estimate.',
-                blocked: 'Increase the available quota before launching the generated task set.',
+                ready: 'The mission can be dispatched directly from Mission Control.',
+                blocked:
+                  'Dispatch is blocked until Ops reports an enabled workflow and inserted key.',
               },
               tasks: {
                 label: 'Generated tasks',
@@ -273,8 +487,7 @@ describe('AdminQualityPage', () => {
                 },
               },
               notifications: {
-                insufficientQuota:
-                  'Quota too low: {{ required }} unit(s) required, {{ available }} available, {{ missing }} missing.',
+                insufficientQuota: 'Ops readiness is blocking dispatch.',
               },
             },
           },
@@ -651,6 +864,9 @@ describe('AdminQualityPage', () => {
     const missionControl = root.querySelector('[data-og7="admin-quality-mission-control"]');
     const missionHero = root.querySelector('[data-og7="admin-quality-mission-hero"]');
     const missionWorkflow = root.querySelector('[data-og7="admin-quality-mission-workflow"]');
+    const missionControlShell = root.querySelector(
+      '[data-og7="admin-quality-mission-control-shell"]',
+    );
     const recommendations = root.querySelectorAll('[data-og7="admin-quality-recommendation"]');
     let recommendationButtons = root.querySelectorAll(
       '[data-og7="admin-quality-recommendation"] > button',
@@ -664,7 +880,7 @@ describe('AdminQualityPage', () => {
     expect(missionControl?.textContent).toContain('Gap constate');
     expect(missionControl?.textContent).toContain('Mission suggeree');
     expect(missionControl?.textContent).toContain('Valider mission');
-    expect(missionControl?.textContent).toContain('Deleguer');
+    expect(missionControl?.textContent).toContain('Lancer Codex');
     expect(recommendations.length).toBe(3);
     expect(root.textContent).toContain('Validation humaine requise');
     expect(recommendationButtons[0]?.getAttribute('aria-pressed')).toBe('true');
@@ -682,10 +898,40 @@ describe('AdminQualityPage', () => {
     const updatedApproveButton = root.querySelector(
       '[data-og7-id="admin-quality-approve-mission"]',
     ) as HTMLButtonElement;
+    const missionControlRadarSweep = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-sweep"]',
+    );
+    const missionControlCadence = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence"]',
+    );
+    const missionControlCadenceDetail = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence-detail"]',
+    );
     updatedApproveButton.click();
     fixture.detectChanges();
 
+    const contactLogEntries = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-contact-log-entry"]',
+    );
+    const contactLogTimes = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-contact-log-time"]',
+    );
+
     expect(root.textContent).toContain('Pret a lancer');
+    expect(missionControlShell?.getAttribute('data-og7-radar-signal')).toBe('primary');
+    expect(missionControlRadarSweep?.getAttribute('data-og7-mode')).toBe('action');
+    expect(missionControlCadence?.textContent).toContain('2 events / active cycle');
+    expect(missionControlCadenceDetail?.textContent).toContain('1 lock');
+    expect(missionControlCadenceDetail?.textContent).toContain('1 action');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-kind')).toBe('action');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-id')).toBe('mission');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-signal')).toBe('primary');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-age')).toBe('current');
+    expect(contactLogTimes[0]?.textContent).toContain('T+0');
+    expect(contactLogEntries[0]?.textContent).toContain('Latest action');
+    expect(contactLogEntries[0]?.textContent).toContain('Approve');
+    expect(contactLogEntries[0]?.textContent).toContain('now');
+    expect(contactLogEntries[1]?.getAttribute('data-og7-age')).toBe('recent');
     expect(notifications.success).toHaveBeenCalledWith('Mission approuvee par un humain.', {
       source: 'admin-quality',
     });
@@ -697,7 +943,7 @@ describe('AdminQualityPage', () => {
     );
   });
 
-  it('generates mission tasks and shows a sufficient quota runway for the active mission', () => {
+  it('generates mission tasks and shows Ops readiness for the active mission', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -708,57 +954,442 @@ describe('AdminQualityPage', () => {
     const generatedTaskCount = root.querySelector(
       '[data-og7-id="admin-quality-generated-task-count"]',
     );
+    const telemetryStatus = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-status"]');
+    const telemetryDetail = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-detail"]');
+    const missionLoop = root.querySelector('[data-og7="admin-quality-mission-loop"]');
+    const missionLoopSteps = root.querySelectorAll('[data-og7="admin-quality-mission-loop-step"]');
+    const missionEnergyLane = root.querySelector('[data-og7="admin-quality-mission-energy-lane"]');
+    const missionEnergySegments = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-energy-lane-segment"]',
+    );
+    const missionHud = root.querySelector('[data-og7="admin-quality-mission-hud"]');
+    const missionHudAmbientLayer = root.querySelector(
+      '[data-og7="admin-quality-hud-ambient-layer"]',
+    );
+    const missionControlShell = root.querySelector(
+      '[data-og7="admin-quality-mission-control-shell"]',
+    );
+    const missionControlRadar = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar"]',
+    );
+    const missionControlRadarSweep = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-sweep"]',
+    );
+    const missionControlAcquisitionRings = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-radar-acquisition-ring"]',
+    );
+    const missionControlRadarTrails = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-radar-trail"]',
+    );
+    const missionControlRadarEndpoints = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-radar-trail-endpoint"]',
+    );
+    const missionControlRadarEchoes = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-radar-echo"]',
+    );
+    const missionControlSignature = root.querySelector(
+      '[data-og7="admin-quality-mission-control-signature"]',
+    );
+    const missionControlContactLock = root.querySelector(
+      '[data-og7="admin-quality-mission-control-contact-lock"]',
+    );
+    const contactLogEntries = root.querySelectorAll(
+      '[data-og7="admin-quality-mission-control-contact-log-entry"]',
+    );
+    const coveragePanel = root.querySelector(
+      '[data-og7="admin-quality-panel-shell"][data-og7-id="coverage"]',
+    );
+    const workspacePanel = root.querySelector('[data-og7="admin-quality-workspace-bar"]');
+    const missionControlCadence = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence"]',
+    );
+    const missionControlCadenceDetail = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence-detail"]',
+    );
+    const cockpitSyncBands = root.querySelectorAll('[data-og7="admin-quality-cockpit-sync-band"]');
+    const missionHudMiniLane = root.querySelector('[data-og7="admin-quality-hud-energy-lane"]');
+    const missionHudMiniSegments = root.querySelectorAll(
+      '[data-og7="admin-quality-hud-energy-segment"]',
+    );
+    const proofTelemetry = root.querySelector('[data-og7="admin-quality-proof-telemetry"]');
 
     expect(runway).not.toBeNull();
-    expect(quotaStatus?.textContent).toContain('Quota sufficient');
+    expect(missionHud).not.toBeNull();
+    expect(missionHud?.getAttribute('data-og7-expanded')).toBe('true');
+    expect(missionHud?.getAttribute('data-og7-ambient')).toBe('nominal');
+    expect(missionHud?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
+    expect(missionHudAmbientLayer).not.toBeNull();
+    expect(missionControlShell?.getAttribute('data-og7-ambient')).toBe('nominal');
+    expect(missionControlShell?.getAttribute('data-og7-provider')).toBe('codex');
+    expect(missionControlShell?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
+    expect(missionControlShell?.getAttribute('data-og7-proof-stream')).toBe('high');
+    expect(missionControlShell?.getAttribute('data-og7-radar-signal')).toBe('pulse');
+    expect(missionControlRadar).not.toBeNull();
+    expect(missionControlRadarSweep).not.toBeNull();
+    expect(missionControlRadarSweep?.getAttribute('data-og7-speed')).toBe('nominal');
+    expect(missionControlRadarSweep?.getAttribute('data-og7-mode')).toBe('lock');
+    expect(missionControlCadence?.textContent).toContain('1 event / active cycle');
+    expect(missionControlCadenceDetail?.textContent).toContain('1 lock');
+    expect(missionControlCadenceDetail?.textContent).toContain('0 action');
+    expect(missionControlAcquisitionRings.length).toBe(3);
+    expect(missionControlRadarTrails.length).toBe(3);
+    expect(missionControlRadarEndpoints.length).toBe(3);
+    expect(missionControlRadarEchoes.length).toBe(3);
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-control-radar-echo"][data-og7-id="coverage"]')
+        ?.getAttribute('data-og7-active'),
+    ).toBe('true');
+    expect(
+      root
+        .querySelector(
+          '[data-og7="admin-quality-mission-control-radar-acquisition-ring"][data-og7-id="coverage"]',
+        )
+        ?.getAttribute('data-og7-active'),
+    ).toBe('true');
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-control-radar-trail"][data-og7-id="coverage"]')
+        ?.getAttribute('data-og7-intensity'),
+    ).toBe('high');
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-control-radar-echo"][data-og7-id="workspace"]')
+        ?.getAttribute('data-og7-active'),
+    ).toBe('false');
+    expect(missionControlSignature?.textContent).toContain('Codex spectrum');
+    expect(missionControlContactLock?.textContent).toContain('Contact lock');
+    expect(missionControlContactLock?.textContent).toContain('Coverage matrix');
+    expect(missionControlContactLock?.textContent).toContain('3/3');
+    expect(contactLogEntries.length).toBe(1);
+    expect(contactLogEntries[0]?.getAttribute('data-og7-kind')).toBe('lock');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-id')).toBe('coverage');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-state')).toBe('locked');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-reason')).toBe('section-pulse');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-signal')).toBe('pulse');
+    expect(contactLogEntries[0]?.getAttribute('data-og7-age')).toBe('current');
+    expect(
+      root.querySelector('[data-og7="admin-quality-mission-control-contact-log-time"]')?.textContent,
+    ).toContain('T+0');
+    expect(contactLogEntries[0]?.textContent).toContain('Latest lock');
+    expect(contactLogEntries[0]?.textContent).toContain('Section pulse');
+    expect(contactLogEntries[0]?.textContent).toContain('now');
+    expect(contactLogEntries[0]?.textContent).toContain('Coverage matrix');
+    expect(coveragePanel?.getAttribute('data-og7-lock-focus')).toBe('true');
+    expect(missionControlShell?.getAttribute('data-og7-lock-focus')).toBe('false');
+    expect(workspacePanel?.getAttribute('data-og7-lock-focus')).toBe('false');
+    expect(cockpitSyncBands.length).toBe(2);
+    expect(missionHud?.textContent).toContain('Etendre la preuve QA');
+    expect(missionHud?.textContent).toContain('Recherche et decouverte profonde');
+    expect(missionHudMiniLane).not.toBeNull();
+    expect(missionHudMiniSegments.length).toBe(3);
+    expect(missionHudMiniSegments[0]?.getAttribute('data-og7-state')).toBe('flowing');
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-status"]')?.textContent).toContain(
+      'Ops pret',
+    );
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-hud-proof-status"]')?.textContent,
+    ).toContain('Proof package ready');
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-hud-proof-status"]')?.getAttribute(
+        'data-og7-hot',
+      ),
+    ).toBe('true');
+    expect(missionLoop).not.toBeNull();
+    expect(missionLoopSteps.length).toBe(4);
+    expect(missionEnergyLane).not.toBeNull();
+    expect(missionEnergySegments.length).toBe(3);
+    expect(missionEnergySegments[0]?.getAttribute('data-og7-state')).toBe('flowing');
+    expect(missionEnergySegments[1]?.getAttribute('data-og7-state')).toBe('standby');
+    expect(proofTelemetry?.textContent).toContain(
+      'Workflow #51 completed with 2 artifact(s) and PR #321.',
+    );
+    expect(proofTelemetry?.textContent).toContain('2 artifact(s)');
+    expect(proofTelemetry?.textContent).toContain('PR #321');
+    expect(quotaStatus?.textContent).toContain('Ops ready');
     expect(generatedTasks.length).toBe(8);
     expect(generatedTaskCount?.textContent).toContain('8');
     expect(runway?.textContent).toContain(
-      'The mission can be delegated without exceeding the current quota estimate.',
+      'The mission can be dispatched directly from Mission Control.',
     );
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-codex-ops-status"]')?.textContent,
+    ).toContain('Ops pret');
+    expect(telemetryStatus?.textContent).toContain('Live pulse nominal');
+    expect(telemetryStatus?.getAttribute('data-og7-state')).toBe('live');
+    expect(telemetryDetail?.textContent).toContain('Next sweep in');
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]')
+        ?.getAttribute('data-og7-status'),
+    ).toBe('pending');
   });
 
-  it('blocks delegation when the available quota is below the generated task estimate', () => {
+  it('toggles the sticky mission HUD between expanded and compact modes', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const quotaInput = root.querySelector(
-      '[data-og7-id="admin-quality-codex-quota-input"]',
-    ) as HTMLInputElement;
+    const toggleButton = root.querySelector(
+      '[data-og7-id="admin-quality-hud-toggle"]',
+    ) as HTMLButtonElement;
 
-    quotaInput.value = '40';
-    quotaInput.dispatchEvent(new Event('input'));
+    expect(root.querySelector('[data-og7="admin-quality-hud-expanded-panels"]')).not.toBeNull();
+
+    toggleButton.click();
     fixture.detectChanges();
 
+    expect(fixture.componentInstance.missionHudExpanded()).toBeFalse();
+    expect(root.querySelector('[data-og7="admin-quality-hud-expanded-panels"]')).toBeNull();
+    expect(root.querySelector('[data-og7="admin-quality-mission-hud"]')?.getAttribute('data-og7-expanded')).toBe(
+      'false',
+    );
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-summary"]')?.textContent).toContain(
+      'Ops pret',
+    );
+  });
+
+  it('opens the workspace directly from the sticky mission HUD actions', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const proofDeskButton = root.querySelector(
+      '[data-og7-id="admin-quality-hud-open-actions"]',
+    ) as HTMLButtonElement;
+
+    proofDeskButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('actions');
+    expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).not.toBeNull();
+  });
+
+  it('updates the sticky mission HUD active section when a section chip is selected', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const workspaceChip = root.querySelector(
+      '[data-og7-id="admin-quality-hud-section-workspace"]',
+    ) as HTMLButtonElement;
+    const workspaceEcho = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-echo"][data-og7-id="workspace"]',
+    ) as HTMLButtonElement;
+    const workspaceTrail = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-trail"][data-og7-id="workspace"]',
+    );
+    const contactLock = root.querySelector(
+      '[data-og7="admin-quality-mission-control-contact-lock"]',
+    );
+    const contactLog = () =>
+      Array.from(
+        root.querySelectorAll('[data-og7="admin-quality-mission-control-contact-log-entry"]'),
+      );
+    const workspacePanel = root.querySelector('[data-og7="admin-quality-workspace-bar"]');
+    const coveragePanel = root.querySelector(
+      '[data-og7="admin-quality-panel-shell"][data-og7-id="coverage"]',
+    );
+    const missionControlShell = root.querySelector(
+      '[data-og7="admin-quality-mission-control-shell"]',
+    );
+    const missionControlRadarSweep = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-sweep"]',
+    );
+    const missionControlCadence = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence"]',
+    );
+    const missionControlCadenceDetail = root.querySelector(
+      '[data-og7="admin-quality-mission-control-cadence-detail"]',
+    );
+    const contactLogTimes = () =>
+      Array.from(root.querySelectorAll('[data-og7="admin-quality-mission-control-contact-log-time"]'));
+
+    workspaceChip.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.missionHudActiveSection()).toBe('workspace');
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-hud-active-section-label"]')?.textContent,
+    ).toContain('Workspace deck');
+    expect(workspaceChip.getAttribute('data-og7-active')).toBe('true');
+    expect(workspaceChip.getAttribute('data-og7-pulse')).toBe('true');
+    expect(workspaceEcho.getAttribute('data-og7-active')).toBe('true');
+    expect(workspaceEcho.getAttribute('data-og7-pulse')).toBe('true');
+    expect(workspaceTrail?.getAttribute('data-og7-active')).toBe('true');
+    expect(workspaceTrail?.getAttribute('data-og7-pulse')).toBe('true');
+    expect(workspaceTrail?.getAttribute('data-og7-intensity')).toBe('low');
+    expect(contactLock?.textContent).toContain('Acquiring Workspace deck');
+    expect(contactLock?.textContent).toContain('1 surface(s)');
+    expect(contactLog().length).toBe(2);
+    expect(contactLog()[0]?.getAttribute('data-og7-id')).toBe('workspace');
+    expect(contactLog()[0]?.getAttribute('data-og7-kind')).toBe('lock');
+    expect(contactLog()[0]?.getAttribute('data-og7-state')).toBe('acquiring');
+    expect(contactLog()[0]?.getAttribute('data-og7-reason')).toBe('manual-targeting');
+    expect(contactLog()[0]?.getAttribute('data-og7-signal')).toBe('manual');
+    expect(contactLog()[0]?.textContent).toContain('Latest lock');
+    expect(contactLog()[0]?.textContent).toContain('Manual targeting');
+    expect(contactLogTimes()[0]?.textContent).toContain('T+0');
+    expect(contactLogTimes()[1]?.textContent).toContain('T-1');
+    expect(contactLog()[0]?.getAttribute('data-og7-age')).toBe('current');
+    expect(contactLog()[1]?.getAttribute('data-og7-age')).toBe('recent');
+    expect(contactLog()[0]?.textContent).toContain('Workspace deck');
+    expect(missionControlShell?.getAttribute('data-og7-radar-signal')).toBe('manual');
+    expect(missionControlRadarSweep?.getAttribute('data-og7-mode')).toBe('lock');
+    expect(missionControlCadence?.textContent).toContain('2 events / active cycle');
+    expect(contactLog()[1]?.getAttribute('data-og7-id')).toBe('coverage');
+    expect(contactLog()[1]?.getAttribute('data-og7-state')).toBe('locked');
+    expect(workspacePanel?.getAttribute('data-og7-lock-focus')).toBe('true');
+    expect(coveragePanel?.getAttribute('data-og7-lock-focus')).toBe('false');
+
+    (contactLog()[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.missionHudActiveSection()).toBe('coverage');
+    expect(contactLog().length).toBe(3);
+    expect(contactLog()[0]?.getAttribute('data-og7-id')).toBe('coverage');
+    expect(contactLog()[0]?.getAttribute('data-og7-reason')).toBe('manual-targeting');
+    expect(contactLog()[0]?.textContent).toContain('Manual targeting');
+    expect(contactLog()[2]?.getAttribute('data-og7-age')).toBe('stale');
+    expect(contactLogTimes()[2]?.textContent).toContain('T-2');
+    expect(missionControlCadence?.textContent).toContain('3 events / active cycle');
+    expect(missionControlCadenceDetail?.textContent).toContain('3 lock');
+    expect(coveragePanel?.getAttribute('data-og7-lock-focus')).toBe('true');
+  });
+
+  it('renders a multi-provider comparison deck driven by Ops readiness and proof telemetry', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const cards = root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]');
+    const codexCard = root.querySelector(
+      '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="codex"]',
+    );
+    const claudeCard = root.querySelector(
+      '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="claude"]',
+    );
+
+    expect(cards.length).toBe(4);
+    expect(codexCard?.textContent).toContain('Ops armed');
+    expect(codexCard?.textContent).toContain('Proof package ready');
+    expect(codexCard?.textContent).toContain('PR #321');
+    expect(codexCard?.getAttribute('data-og7-selected')).toBe('true');
+    expect(claudeCard?.textContent).toContain('Proof pipeline active');
+    expect(claudeCard?.getAttribute('data-og7-proof-state')).toBe('in-progress');
+  });
+
+  it('blocks delegation when Ops readiness does not allow dispatch', () => {
+    opsService.getSecurity.and.returnValue(
+      of({
+        aiKeys: [
+          {
+            provider: 'codex',
+            label: 'Codex',
+            workflow: 'codex-pr.yml',
+            secretName: 'OPENAI_API_KEY',
+            dispatchEnabled: false,
+            keyInserted: true,
+            state: 'ready',
+            note: 'Key detected. The engine bay stays in standby until dispatch is enabled.',
+          },
+        ],
+      }),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
     const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
-      (element) => element.textContent?.trim() === 'Deleguer',
+      (element) => element.textContent?.trim() === 'Lancer Codex',
     ) as HTMLButtonElement | undefined;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
 
-    expect(fixture.componentInstance.availableCodexQuotaUnits()).toBe(40);
-    expect(quotaStatus?.textContent).toContain('Quota insufficient');
+    expect(fixture.componentInstance.selectedAiDispatchReady()).toBeFalse();
+    expect(quotaStatus?.textContent).toContain('Ops blocked');
     expect(delegateButton?.disabled).toBeTrue();
 
     delegateButton?.click();
     fixture.detectChanges();
 
     expect(root.textContent).toContain(
-      'Increase the available quota before launching the generated task set.',
+      'Dispatch is blocked until Ops reports an enabled workflow and inserted key.',
     );
     expect(notifications.error).not.toHaveBeenCalled();
+    expect(opsService.dispatchCodexWorkflow).not.toHaveBeenCalled();
     expect(fixture.componentInstance.selectedMission()?.status).toBe('proposed');
   });
 
-  it('opens admin ops with a prefilled Codex dispatch when delegation starts', () => {
-    const router = TestBed.inject(Router);
-    const navigateSpy = spyOn(router, 'navigate').and.resolveTo(true);
+  it('uses the selected provider Ops module to arm or constrain dispatch', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const providerSelect = root.querySelector(
+      '[data-og7-id="admin-quality-ai-provider"]',
+    ) as HTMLSelectElement;
+    const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
+    const aiBay = root.querySelector('[data-og7="admin-quality-ai-bay"]');
+    const aiBayStatus = root.querySelector('[data-og7-id="admin-quality-ai-bay-status"]');
+    const telemetryStatus = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-status"]');
+    const missionControlShell = root.querySelector(
+      '[data-og7="admin-quality-mission-control-shell"]',
+    );
+    const missionControlSignature = root.querySelector(
+      '[data-og7="admin-quality-mission-control-signature"]',
+    );
+    const missionHud = root.querySelector('[data-og7="admin-quality-mission-hud"]');
+    const missionControlRadarSweep = root.querySelector(
+      '[data-og7="admin-quality-mission-control-radar-sweep"]',
+    );
+
+    expect(fixture.componentInstance.selectedAiDispatchReady()).toBeTrue();
+    expect(quotaStatus?.textContent).toContain('Ops ready');
+    expect(aiBay?.getAttribute('data-og7-state')).toBe('armed');
+    expect(aiBayStatus?.textContent).toContain('Ops armed');
+    expect(telemetryStatus?.getAttribute('data-og7-state')).toBe('live');
+    expect(missionControlShell?.getAttribute('data-og7-provider')).toBe('codex');
+    expect(missionControlShell?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
+    expect(missionHud?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
+    expect(missionControlRadarSweep?.getAttribute('data-og7-speed')).toBe('nominal');
+    expect(missionControlSignature?.textContent).toContain('Codex spectrum');
+
+    providerSelect.value = 'copilot';
+    providerSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedAiProvider()).toBe('copilot');
+    expect(fixture.componentInstance.selectedAiDispatchReady()).toBeFalse();
+    expect(quotaStatus?.textContent).toContain('Ops blocked');
+    expect(aiBay?.textContent).toContain('GitHub Copilot console');
+    expect(aiBay?.getAttribute('data-og7-state')).toBe('constrained');
+    expect(aiBayStatus?.textContent).toContain('Ops constrained');
+
+    providerSelect.value = 'claude';
+    providerSelect.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedAiProvider()).toBe('claude');
+    expect(fixture.componentInstance.selectedAiDispatchReady()).toBeTrue();
+    expect(quotaStatus?.textContent).toContain('Ops ready');
+    expect(missionControlShell?.getAttribute('data-og7-provider')).toBe('claude');
+    expect(missionControlShell?.getAttribute('data-og7-ambient')).toBe('syncing');
+    expect(missionControlShell?.getAttribute('data-og7-cockpit-tone')).toBe('claude');
+    expect(missionHud?.getAttribute('data-og7-cockpit-tone')).toBe('claude');
+    expect(missionControlRadarSweep?.getAttribute('data-og7-speed')).toBe('fast');
+    expect(missionControlSignature?.textContent).toContain('Claude ember line');
+  });
+
+  it('dispatches the selected mission directly from Mission Control when delegation starts', () => {
+    spyOn(window, 'confirm').and.returnValue(true);
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
     const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
-      (element) => element.textContent?.trim() === 'Deleguer',
+      (element) => element.textContent?.trim() === 'Lancer Codex',
     ) as HTMLButtonElement | undefined;
 
     delegateButton?.click();
@@ -771,20 +1402,35 @@ describe('AdminQualityPage', () => {
         status: 'in-progress',
       }),
     );
-    expect(navigateSpy).toHaveBeenCalledWith(['/admin/ops'], {
-      queryParams: jasmine.objectContaining({
-        codexScope: 'openg7-org',
-        codexBaseBranch: 'main',
-        codexDraftPr: 'true',
-        codexSource: 'admin-quality',
-        codexMissionId: 'advanced-discovery::core',
-      }),
+    expect(opsService.dispatchCodexWorkflow).toHaveBeenCalledWith({
+      provider: 'codex',
+      task: jasmine.stringContaining('Recherche et decouverte profonde'),
+      scope: 'openg7-org',
+      baseBranch: 'main',
+      draftPr: true,
+      model: 'gpt-5.4',
+      effort: null,
     });
-    const queryParams = navigateSpy.calls.mostRecent().args[1]?.queryParams as Record<
-      string,
-      string
-    >;
-    expect(queryParams['codexTask']).toContain('Recherche et decouverte profonde');
+    expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
+      source: 'admin-quality',
+    });
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]')
+        ?.getAttribute('data-og7-status'),
+    ).toBe('done');
+    expect(
+      root
+        .querySelector(
+          '[data-og7="admin-quality-mission-energy-lane-segment"][data-og7-id="dispatch-proof"]',
+        )
+        ?.getAttribute('data-og7-state'),
+    ).toBe('flowing');
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="proof"]')
+        ?.getAttribute('data-og7-status'),
+    ).toBe('pending');
   });
 
   it('renders the compact actions list in the workspace drawer and updates it on row change', () => {

@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  NgZone,
   OnInit,
   computed,
   inject,
@@ -17,9 +18,15 @@ import { finalize } from 'rxjs';
 import {
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
+  AdminOpsSecuritySnapshot,
   AdminOpsService,
   AdminOpsSnapshot,
 } from '../data-access/admin-ops.service';
+import {
+  ADMIN_AI_PROVIDER_OPTIONS,
+  AdminAiProvider,
+  resolveAdminAiProviderOption,
+} from '../data-access/admin-ai-providers';
 
 type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
 
@@ -29,6 +36,15 @@ interface AdminOpsProvenanceEntry {
   readonly route: string;
   readonly generatedAt: string;
 }
+
+interface AdminOpsDiagnosticItem {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly tone: 'ready' | 'warning' | 'offline' | 'neutral';
+}
+
+type AdminOpsAiIgnitionModule = AdminOpsSecuritySnapshot['aiKeys'][number];
 
 const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
   readonly id: AdminOpsProvenanceId;
@@ -50,25 +66,223 @@ const ADMIN_OPS_CODEX_SCOPES: readonly AdminOpsCodexScope[] = [
 ];
 
 const ADMIN_OPS_CODEX_EFFORTS = ['low', 'medium', 'high'] as const;
+const ADMIN_OPS_REFRESH_INTERVAL_MS = 30_000;
+const ADMIN_OPS_LIVE_TICK_INTERVAL_MS = 1_000;
 
 @Component({
   standalone: true,
   selector: 'og7-admin-ops-page',
   imports: [CommonModule],
   templateUrl: './admin-ops.page.html',
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+
+      .og7-ignition-module {
+        opacity: 0;
+        transform: translateY(12px) scale(0.985);
+        animation: og7-console-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+
+      .og7-ignition-module::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.08) 48%,
+          transparent 100%
+        );
+        opacity: 0;
+        transform: translateX(-115%);
+        animation: og7-console-sheen 5.8s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .og7-ignition-key {
+        transform-origin: 48px 32px;
+      }
+
+      .og7-ignition-key--inserted {
+        animation:
+          og7-key-seat 720ms cubic-bezier(0.2, 0.9, 0.2, 1) both,
+          og7-key-hum 3.6s ease-in-out 720ms infinite;
+      }
+
+      .og7-ignition-indicator--ready {
+        animation: og7-ready-pulse 2.4s ease-in-out infinite;
+      }
+
+      .og7-ignition-indicator--scan {
+        animation: og7-scan-pulse 2.8s linear infinite;
+      }
+
+      .og7-live-heartbeat {
+        animation: og7-live-heartbeat 1.8s ease-in-out infinite;
+      }
+
+      .og7-live-heartbeat--degraded {
+        animation: og7-live-degraded 2.4s ease-in-out infinite;
+      }
+
+      .og7-live-heartbeat--syncing {
+        animation: og7-live-syncing 1.2s linear infinite;
+      }
+
+      @keyframes og7-console-rise {
+        0% {
+          opacity: 0;
+          transform: translateY(12px) scale(0.985);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes og7-console-sheen {
+        0%,
+        22% {
+          opacity: 0;
+          transform: translateX(-115%);
+        }
+
+        30% {
+          opacity: 1;
+        }
+
+        44% {
+          opacity: 0;
+          transform: translateX(115%);
+        }
+
+        100% {
+          opacity: 0;
+          transform: translateX(115%);
+        }
+      }
+
+      @keyframes og7-key-seat {
+        0% {
+          transform: translateY(-50%) rotate(6deg) scale(0.92);
+        }
+
+        55% {
+          transform: translateY(-50%) rotate(-21deg) scale(1.02);
+        }
+
+        100% {
+          transform: translateY(-50%) rotate(-18deg) scale(1);
+        }
+      }
+
+      @keyframes og7-key-hum {
+        0%,
+        100% {
+          filter: brightness(1);
+        }
+
+        50% {
+          filter: brightness(1.12);
+        }
+      }
+
+      @keyframes og7-ready-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow:
+            0 0 0 rgba(74, 222, 128, 0.18),
+            0 0 18px rgba(74, 222, 128, 0.42);
+        }
+
+        50% {
+          transform: scale(1.08);
+          box-shadow:
+            0 0 0 8px rgba(74, 222, 128, 0.08),
+            0 0 24px rgba(74, 222, 128, 0.7);
+        }
+      }
+
+      @keyframes og7-scan-pulse {
+        0%,
+        100% {
+          opacity: 0.82;
+          transform: scale(0.96);
+        }
+
+        50% {
+          opacity: 1;
+          transform: scale(1.08);
+        }
+      }
+
+      @keyframes og7-live-heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 rgba(34, 197, 94, 0.14);
+        }
+
+        50% {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.1);
+        }
+      }
+
+      @keyframes og7-live-degraded {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: scale(0.96);
+        }
+
+        50% {
+          opacity: 1;
+          transform: scale(1.06);
+        }
+      }
+
+      @keyframes og7-live-syncing {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.55;
+        }
+
+        50% {
+          transform: scale(1.14);
+          opacity: 1;
+        }
+
+        100% {
+          transform: scale(0.9);
+          opacity: 0.55;
+        }
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminOpsPage implements OnInit {
   private readonly service = inject(AdminOpsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
   private readonly notifications = injectNotificationStore();
   private readonly route = inject(ActivatedRoute);
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
+  private liveTickTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly loading = signal(true);
   readonly refreshing = signal(false);
   readonly error = signal<string | null>(null);
   readonly snapshot = signal<AdminOpsSnapshot | null>(null);
+  readonly liveNow = signal(Date.now());
+  readonly lastSuccessfulRefreshAt = signal<number | null>(null);
+  readonly dispatchProvider = signal<AdminAiProvider>('codex');
   readonly codexTask = signal('');
   readonly codexScope = signal<AdminOpsCodexScope>('openg7-org');
   readonly codexBaseBranch = signal('main');
@@ -78,8 +292,15 @@ export class AdminOpsPage implements OnInit {
   readonly codexSubmitting = signal(false);
   readonly codexError = signal<string | null>(null);
   readonly codexResult = signal<AdminOpsCodexDispatchResponse | null>(null);
+  readonly dispatchProviders = ADMIN_AI_PROVIDER_OPTIONS;
   readonly codexScopes = ADMIN_OPS_CODEX_SCOPES;
   readonly codexEfforts = ADMIN_OPS_CODEX_EFFORTS;
+  readonly dispatchProviderOption = computed(() =>
+    resolveAdminAiProviderOption(this.dispatchProvider()),
+  );
+  readonly dispatchProviderLabel = computed(() => this.dispatchProviderOption().label);
+  readonly dispatchProviderCaption = computed(() => this.dispatchProviderOption().caption);
+  readonly dispatchRoutesThroughCodex = computed(() => this.dispatchProvider() !== 'codex');
 
   readonly canDispatchCodex = computed(() => {
     return (
@@ -141,13 +362,140 @@ export class AdminOpsPage implements OnInit {
     return 'Each block lists the API source and snapshot timestamp currently displayed.';
   });
 
+  readonly aiIgnitionModules = computed<readonly AdminOpsAiIgnitionModule[]>(() => {
+    return this.snapshot()?.security.aiKeys ?? [];
+  });
+  readonly selectedAiDiagnosticModule = computed<AdminOpsAiIgnitionModule | null>(() => {
+    return (
+      this.aiIgnitionModules().find((module) => module.provider === this.dispatchProvider()) ?? null
+    );
+  });
+  readonly aiDiagnosticItems = computed<readonly AdminOpsDiagnosticItem[]>(() => {
+    const module = this.selectedAiDiagnosticModule();
+    if (!module) {
+      return [];
+    }
+
+    return [
+      {
+        id: 'workflow',
+        label: 'Workflow lane',
+        value: module.workflow,
+        tone: module.dispatchEnabled ? 'ready' : 'warning',
+      },
+      {
+        id: 'socket',
+        label: 'Secret socket',
+        value: module.secretName ?? 'No socket exposed',
+        tone: module.secretName ? 'neutral' : 'warning',
+      },
+      {
+        id: 'key',
+        label: 'Key insertion',
+        value: module.keyInserted ? 'Inserted and detected' : 'Missing from control plane',
+        tone: module.keyInserted ? 'ready' : 'offline',
+      },
+      {
+        id: 'dispatch',
+        label: 'Dispatch gate',
+        value: module.dispatchEnabled ? 'Enabled for operator launch' : 'Standby / disabled',
+        tone: module.dispatchEnabled ? 'ready' : 'warning',
+      },
+    ];
+  });
+  readonly aiDiagnosticActionLabel = computed(() => {
+    const module = this.selectedAiDiagnosticModule();
+    if (!module) {
+      return 'Diagnostics unavailable';
+    }
+    switch (module.state) {
+      case 'ready':
+        return 'Run a dispatch and review the returning PR/proof package.';
+      case 'scan-unavailable':
+        return 'Restore GitHub secret scanning before trusting this bay.';
+      case 'unsupported':
+        return 'Keep this provider in observation mode until a stable automation runner exists.';
+      default:
+        return module.secretName
+          ? `Insert ${module.secretName} and re-arm the workflow gate.`
+          : 'Finish wiring a secret socket and workflow before launch.';
+    }
+  });
+
+  readonly liveTelemetryState = computed<'live' | 'degraded' | 'syncing' | 'offline'>(() => {
+    if (this.loading() || this.refreshing()) {
+      return 'syncing';
+    }
+
+    if (!this.snapshot()) {
+      return 'offline';
+    }
+
+    const lastRefreshAt = this.lastSuccessfulRefreshAt();
+    if (lastRefreshAt == null) {
+      return this.error() ? 'degraded' : 'offline';
+    }
+
+    const ageMs = this.liveNow() - lastRefreshAt;
+    if (this.error() || ageMs > ADMIN_OPS_REFRESH_INTERVAL_MS * 2) {
+      return 'degraded';
+    }
+
+    return 'live';
+  });
+
+  readonly liveTelemetryLabel = computed(() => {
+    switch (this.liveTelemetryState()) {
+      case 'live':
+        return 'Live pulse nominal';
+      case 'degraded':
+        return 'Telemetry degraded';
+      case 'syncing':
+        return 'Sync in progress';
+      default:
+        return 'Console offline';
+    }
+  });
+
+  readonly liveTelemetryDetail = computed(() => {
+    const lastRefreshAt = this.lastSuccessfulRefreshAt();
+    if (this.liveTelemetryState() === 'offline') {
+      return 'Waiting for the first control-plane sync.';
+    }
+
+    if (this.liveTelemetryState() === 'syncing') {
+      return lastRefreshAt == null
+        ? 'Bootstrapping the cockpit feed.'
+        : `Last stable sync ${this.formatRelativeFromNow(lastRefreshAt)}.`;
+    }
+
+    const refreshCountdown = this.nextRefreshCountdownSeconds();
+    if (lastRefreshAt == null) {
+      return 'Awaiting refresh cadence.';
+    }
+
+    return `Last sync ${this.formatRelativeFromNow(lastRefreshAt)}. Next sweep in ${refreshCountdown}s.`;
+  });
+
   ngOnInit(): void {
     this.applyCodexRoutePrefill();
     this.fetchSnapshot(false);
-    this.refreshTimer = setInterval(() => this.fetchSnapshot(true), 60_000);
+    this.ngZone.runOutsideAngular(() => {
+      this.refreshTimer = setInterval(
+        () => this.ngZone.run(() => this.fetchSnapshot(true)),
+        ADMIN_OPS_REFRESH_INTERVAL_MS,
+      );
+      this.liveTickTimer = setInterval(
+        () => this.ngZone.run(() => this.liveNow.set(Date.now())),
+        ADMIN_OPS_LIVE_TICK_INTERVAL_MS,
+      );
+    });
     this.destroyRef.onDestroy(() => {
       if (this.refreshTimer) {
         clearInterval(this.refreshTimer);
+      }
+      if (this.liveTickTimer) {
+        clearInterval(this.liveTickTimer);
       }
     });
   }
@@ -159,6 +507,28 @@ export class AdminOpsPage implements OnInit {
   updateCodexTask(value: string): void {
     this.codexTask.set(value);
     this.codexError.set(null);
+  }
+
+  updateDispatchProvider(value: string): void {
+    const normalizedProvider = value.trim().toLowerCase();
+    if (!this.dispatchProviders.some((provider) => provider.id === normalizedProvider)) {
+      return;
+    }
+
+    const previousModel = resolveAdminAiProviderOption(this.dispatchProvider()).defaultModel;
+    const nextProvider = normalizedProvider as AdminAiProvider;
+    const nextOption = resolveAdminAiProviderOption(nextProvider);
+    const currentModel = this.codexModel().trim();
+
+    this.dispatchProvider.set(nextProvider);
+    if (!currentModel || currentModel === previousModel) {
+      this.codexModel.set(nextOption.defaultModel);
+    }
+    this.codexError.set(null);
+  }
+
+  selectAiDiagnostic(provider: AdminAiProvider): void {
+    this.updateDispatchProvider(provider);
   }
 
   updateCodexScope(value: string): void {
@@ -189,11 +559,13 @@ export class AdminOpsPage implements OnInit {
     const task = this.codexTask().trim();
     const baseBranch = this.codexBaseBranch().trim();
     if (!task) {
-      this.codexError.set('Describe the task you want to delegate before dispatching Codex.');
+      this.codexError.set(
+        'Describe the task you want to delegate before dispatching the selected AI.',
+      );
       return;
     }
     if (!baseBranch) {
-      this.codexError.set('Choose a target base branch before dispatching Codex.');
+      this.codexError.set('Choose a target base branch before dispatching the selected AI.');
       return;
     }
 
@@ -203,6 +575,7 @@ export class AdminOpsPage implements OnInit {
 
     this.service
       .dispatchCodexWorkflow({
+        provider: this.dispatchProvider(),
         task,
         scope: this.codexScope(),
         baseBranch,
@@ -220,7 +593,7 @@ export class AdminOpsPage implements OnInit {
         next: (result) => {
           this.codexResult.set(result);
           this.notifications.success(
-            'Codex workflow queued. Review the upcoming PR before merging.',
+            `${this.dispatchProviderLabel()} request queued. Review the upcoming PR before merging.`,
             {
               source: 'admin-ops',
             },
@@ -290,6 +663,60 @@ export class AdminOpsPage implements OnInit {
   trackImportEntry = (_: number, item: { id: string }) => item.id;
   trackSource = (_: number, item: { source: string }) => item.source;
   trackProvenanceEntry = (_: number, item: AdminOpsProvenanceEntry) => item.id;
+  trackAiIgnitionModule = (_: number, module: AdminOpsAiIgnitionModule) =>
+    `${module.provider}:${module.secretName ?? 'socket'}`;
+
+  aiIgnitionRevealDelay(index: number): number {
+    return 90 + index * 110;
+  }
+
+  isAiIgnitionReady(module: AdminOpsAiIgnitionModule): boolean {
+    return module.state === 'ready';
+  }
+
+  isAiIgnitionOffline(module: AdminOpsAiIgnitionModule): boolean {
+    return module.state === 'offline';
+  }
+
+  isAiIgnitionUnknown(module: AdminOpsAiIgnitionModule): boolean {
+    return module.state === 'scan-unavailable';
+  }
+
+  isAiIgnitionUnsupported(module: AdminOpsAiIgnitionModule): boolean {
+    return module.state === 'unsupported';
+  }
+
+  isAiDiagnosticSelected(module: AdminOpsAiIgnitionModule): boolean {
+    return this.selectedAiDiagnosticModule()?.provider === module.provider;
+  }
+
+  diagnosticToneClasses(tone: AdminOpsDiagnosticItem['tone']): string {
+    switch (tone) {
+      case 'ready':
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+      case 'warning':
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
+      case 'offline':
+        return 'border-rose-400/25 bg-rose-400/10 text-rose-100';
+      default:
+        return 'border-white/10 bg-white/5 text-slate-100';
+    }
+  }
+
+  isLiveTelemetry(state: 'live' | 'degraded' | 'syncing' | 'offline'): boolean {
+    return this.liveTelemetryState() === state;
+  }
+
+  nextRefreshCountdownSeconds(): number {
+    const lastRefreshAt = this.lastSuccessfulRefreshAt();
+    if (lastRefreshAt == null) {
+      return 0;
+    }
+
+    const elapsedMs = this.liveNow() - lastRefreshAt;
+    const remainingMs = Math.max(0, ADMIN_OPS_REFRESH_INTERVAL_MS - elapsedMs);
+    return Math.ceil(remainingMs / 1000);
+  }
 
   private fetchSnapshot(silent: boolean): void {
     if (silent) {
@@ -311,11 +738,29 @@ export class AdminOpsPage implements OnInit {
       .subscribe({
         next: (snapshot) => {
           this.snapshot.set(snapshot);
+          this.lastSuccessfulRefreshAt.set(Date.now());
         },
         error: (error: unknown) => {
           this.error.set(this.resolveError(error));
         },
       });
+  }
+
+  private formatRelativeFromNow(timestampMs: number): string {
+    const deltaMs = Math.max(0, this.liveNow() - timestampMs);
+    const seconds = Math.floor(deltaMs / 1000);
+    if (seconds < 5) {
+      return 'just now';
+    }
+    if (seconds < 60) {
+      return `${seconds}s ago`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return `${minutes}m ago`;
+    }
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
   }
 
   private resolveError(error: unknown): string {
@@ -359,6 +804,8 @@ export class AdminOpsPage implements OnInit {
 
   private applyCodexRoutePrefill(): void {
     const params = this.route.snapshot.queryParamMap;
+    const provider =
+      params.get('aiProvider') ?? params.get('provider') ?? params.get('codexProvider');
     const task = params.get('codexTask') ?? params.get('task');
     const scope = params.get('codexScope') ?? params.get('scope');
     const baseBranch = params.get('codexBaseBranch') ?? params.get('baseBranch');
@@ -366,6 +813,13 @@ export class AdminOpsPage implements OnInit {
     const model = params.get('codexModel') ?? params.get('model');
     const effort = params.get('codexEffort') ?? params.get('effort');
 
+    const normalizedProvider = provider?.trim().toLowerCase() ?? null;
+    if (
+      normalizedProvider &&
+      this.dispatchProviders.some((candidate) => candidate.id === normalizedProvider)
+    ) {
+      this.dispatchProvider.set(normalizedProvider as AdminAiProvider);
+    }
     if (task?.trim()) {
       this.codexTask.set(task);
     }
@@ -380,15 +834,25 @@ export class AdminOpsPage implements OnInit {
     }
     if (model != null) {
       this.codexModel.set(model);
+    } else if (
+      normalizedProvider &&
+      this.dispatchProviders.some((candidate) => candidate.id === normalizedProvider)
+    ) {
+      this.codexModel.set(
+        resolveAdminAiProviderOption(normalizedProvider as AdminAiProvider).defaultModel,
+      );
     }
     if (effort != null) {
       this.codexEffort.set(effort);
     }
 
     if (task?.trim() || params.get('codexSource') === 'admin-quality') {
-      this.notifications.info('Codex dispatch prefilled from the quality cockpit.', {
-        source: 'admin-ops',
-      });
+      this.notifications.info(
+        `${this.dispatchProviderLabel()} dispatch prefilled from the quality cockpit.`,
+        {
+          source: 'admin-ops',
+        },
+      );
     }
   }
 }

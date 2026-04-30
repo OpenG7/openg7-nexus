@@ -12,6 +12,7 @@ const OPS_ACTIONS = [
   'api::admin-ops.admin-ops.backups',
   'api::admin-ops.admin-ops.imports',
   'api::admin-ops.admin-ops.security',
+  'api::admin-ops.admin-ops.proofs',
   'api::admin-ops.admin-ops.dispatchCodexWorkflow',
 ];
 
@@ -40,6 +41,14 @@ function applyTestEnvironment() {
   process.env.OPS_CODEX_ALLOWED_SCOPES = 'openg7-org,strapi';
   process.env.OPS_CODEX_ALLOWED_BASE_BRANCHES = 'main,develop';
   process.env.OPS_CODEX_GITHUB_API_URL = 'https://api.github.test';
+  process.env.OPS_AI_GITHUB_TOKEN = 'ghs_admin_ops_test_token';
+  process.env.OPS_AI_GITHUB_OWNER = 'OpenG7';
+  process.env.OPS_AI_GITHUB_REPO = 'openg7-platform';
+  process.env.OPS_AI_GITHUB_API_URL = 'https://api.github.test';
+  process.env.OPS_AI_ALLOWED_SCOPES = 'openg7-org,strapi';
+  process.env.OPS_AI_ALLOWED_BASE_BRANCHES = 'main,develop';
+  process.env.OPS_AI_COPILOT_DISPATCH_ENABLED = 'true';
+  process.env.OPS_AI_COPILOT_GITHUB_WORKFLOW = 'copilot-pr.yml';
 }
 
 async function cleanupDatabase() {
@@ -181,9 +190,196 @@ async function run() {
   const workflowDispatchCalls = [];
   global.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    const parsedUrl = new URL(url);
+    if (url === 'https://api.github.test/repos/OpenG7/openg7-platform/actions/secrets?per_page=100') {
+      return new Response(
+        JSON.stringify({
+          total_count: 2,
+          secrets: [{ name: 'OPENAI_API_KEY' }, { name: 'ANTHROPIC_API_KEY' }],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/workflows/codex-pr.yml/runs')) {
+      return new Response(
+        JSON.stringify({
+          total_count: 1,
+          workflow_runs: [
+            {
+              id: 501,
+              run_number: 51,
+              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501',
+              status: 'completed',
+              conclusion: 'success',
+              head_branch: 'codex/qa-proof-501',
+              created_at: '2026-04-30T00:00:00.000Z',
+              updated_at: '2026-04-30T00:08:00.000Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/workflows/claude-pr.yml/runs')) {
+      return new Response(
+        JSON.stringify({
+          total_count: 1,
+          workflow_runs: [
+            {
+              id: 601,
+              run_number: 18,
+              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601',
+              status: 'in_progress',
+              conclusion: null,
+              head_branch: 'claude/qa-proof-601',
+              created_at: '2026-04-30T00:10:00.000Z',
+              updated_at: '2026-04-30T00:11:00.000Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/workflows/gemini-pr.yml/runs')) {
+      return new Response(
+        JSON.stringify({ total_count: 0, workflow_runs: [] }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/workflows/copilot-pr.yml/runs')) {
+      return new Response(
+        JSON.stringify({
+          total_count: 1,
+          workflow_runs: [
+            {
+              id: 701,
+              run_number: 7,
+              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/701',
+              status: 'completed',
+              conclusion: 'failure',
+              head_branch: 'copilot/placeholder-701',
+              created_at: '2026-04-30T00:12:00.000Z',
+              updated_at: '2026-04-30T00:13:00.000Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/runs/501/artifacts')) {
+      return new Response(
+        JSON.stringify({
+          total_count: 2,
+          artifacts: [
+            {
+              id: 9001,
+              name: 'playwright-report',
+              size_in_bytes: 2048,
+              expired: false,
+            },
+            {
+              id: 9002,
+              name: 'logs',
+              size_in_bytes: 1024,
+              expired: false,
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/runs/601/artifacts')) {
+      return new Response(
+        JSON.stringify({
+          total_count: 1,
+          artifacts: [
+            {
+              id: 9003,
+              name: 'draft-proof',
+              size_in_bytes: 512,
+              expired: false,
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/actions/runs/701/artifacts')) {
+      return new Response(
+        JSON.stringify({ total_count: 0, artifacts: [] }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+    if (parsedUrl.pathname.endsWith('/pulls')) {
+      const head = parsedUrl.searchParams.get('head');
+      if (head === 'OpenG7:codex/qa-proof-501') {
+        return new Response(
+          JSON.stringify([
+            {
+              number: 321,
+              title: 'Codex QA proof package',
+              html_url: 'https://github.com/OpenG7/openg7-platform/pull/321',
+              state: 'open',
+              merged_at: null,
+            },
+          ]),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      }
+      if (head === 'OpenG7:claude/qa-proof-601') {
+        return new Response(
+          JSON.stringify([
+            {
+              number: 322,
+              title: 'Claude draft improvements',
+              html_url: 'https://github.com/OpenG7/openg7-platform/pull/322',
+              state: 'open',
+              merged_at: null,
+            },
+          ]),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        );
+      }
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     if (
       url ===
-      'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/codex-pr.yml/dispatches'
+        'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/codex-pr.yml/dispatches' ||
+      url ===
+        'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/copilot-pr.yml/dispatches'
     ) {
       workflowDispatchCalls.push({ url, init });
       return new Response(null, { status: 204 });
@@ -251,11 +447,69 @@ async function run() {
       Array.isArray(security.body?.data?.uploads?.allowedMimeTypes),
       'Expected upload mime type list.'
     );
+    assert.ok(Array.isArray(security.body?.data?.aiKeys), 'Expected ignition console modules.');
+    assert.equal(
+      security.body?.data?.aiKeys?.find((entry) => entry.provider === 'codex')?.state,
+      'ready',
+      'Expected Codex bay to be lit when OPENAI_API_KEY is present.',
+    );
+    assert.equal(
+      security.body?.data?.aiKeys?.find((entry) => entry.provider === 'claude')?.state,
+      'ready',
+      'Expected Claude bay to be lit when ANTHROPIC_API_KEY is present.',
+    );
+    assert.equal(
+      security.body?.data?.aiKeys?.find((entry) => entry.provider === 'gemini')?.state,
+      'offline',
+      'Expected Gemini bay to stay dark while GEMINI_API_KEY is missing.',
+    );
+    assert.equal(
+      security.body?.data?.aiKeys?.find((entry) => entry.provider === 'copilot')?.state,
+      'unsupported',
+      'Expected Copilot bay to stay inactive until a stable key socket exists.',
+    );
 
-    const invalidCodexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
+    const proofs = await requestJson(`${baseUrl}/api/admin/ops/ai/proofs`, {
+      headers: authHeaders(adminUser.jwt),
+    });
+    assert.equal(proofs.status, 200, 'Expected admin proofs endpoint access.');
+    assert.ok(Array.isArray(proofs.body?.data?.providers), 'Expected AI proof provider list.');
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'codex')?.state,
+      'completed',
+      'Expected Codex latest proof package to be completed.',
+    );
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'codex')?.artifacts?.length,
+      2,
+      'Expected Codex proof package artifacts to be exposed.',
+    );
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'codex')?.pullRequest?.number,
+      321,
+      'Expected Codex latest proof package to surface its PR.',
+    );
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'claude')?.state,
+      'in-progress',
+      'Expected Claude proof package to surface the in-progress run.',
+    );
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'copilot')?.state,
+      'failed',
+      'Expected Copilot placeholder run to surface as failed evidence.',
+    );
+    assert.equal(
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'gemini')?.state,
+      'unavailable',
+      'Expected Gemini to show no proof package when no workflow run exists.',
+    );
+
+    const invalidCodexDispatch = await requestJson(`${baseUrl}/api/admin/ops/ai/dispatch`, {
       method: 'POST',
       headers: authHeaders(adminUser.jwt),
       body: JSON.stringify({
+        provider: 'copilot',
         task: 'Try an invalid scope.',
         scope: 'repository-root',
         baseBranch: 'main',
@@ -264,10 +518,11 @@ async function run() {
     });
     assert.equal(invalidCodexDispatch.status, 400, 'Expected invalid codex scope to be rejected.');
 
-    const codexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
+    const copilotDispatch = await requestJson(`${baseUrl}/api/admin/ops/ai/dispatch`, {
       method: 'POST',
       headers: authHeaders(adminUser.jwt),
       body: JSON.stringify({
+        provider: 'copilot',
         task: 'Fix the login empty state and add a focused test.',
         scope: 'openg7-org',
         baseBranch: 'main',
@@ -276,17 +531,37 @@ async function run() {
         effort: 'medium',
       }),
     });
-    assert.equal(codexDispatch.status, 200, 'Expected codex dispatch endpoint access.');
-    assert.equal(codexDispatch.body?.data?.queued, true, 'Expected queued dispatch response.');
+    assert.equal(copilotDispatch.status, 200, 'Expected provider dispatch endpoint access.');
+    assert.equal(copilotDispatch.body?.data?.queued, true, 'Expected queued dispatch response.');
+    assert.equal(copilotDispatch.body?.data?.selectedProvider, 'copilot', 'Expected provider echo.');
     assert.equal(workflowDispatchCalls.length, 1, 'Expected one GitHub workflow dispatch call.');
 
     const dispatchedPayload = JSON.parse(String(workflowDispatchCalls[0]?.init?.body ?? '{}'));
     assert.equal(dispatchedPayload.ref, 'main', 'Expected configured GitHub ref.');
+    assert.equal(dispatchedPayload.inputs?.provider, 'copilot', 'Expected forwarded provider.');
     assert.equal(dispatchedPayload.inputs?.scope, 'openg7-org', 'Expected forwarded codex scope.');
     assert.equal(dispatchedPayload.inputs?.base_branch, 'main', 'Expected forwarded base branch.');
     assert.equal(dispatchedPayload.inputs?.draft_pr, 'true', 'Expected forwarded draft PR flag.');
     assert.equal(dispatchedPayload.inputs?.model, 'gpt-5.4', 'Expected forwarded model.');
     assert.equal(dispatchedPayload.inputs?.effort, 'medium', 'Expected forwarded effort.');
+    assert.equal(
+      workflowDispatchCalls[0]?.url,
+      'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/copilot-pr.yml/dispatches',
+      'Expected the copilot workflow to be selected.',
+    );
+
+    const legacyCodexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
+      method: 'POST',
+      headers: authHeaders(adminUser.jwt),
+      body: JSON.stringify({
+        task: 'Run the legacy Codex dispatch alias.',
+        scope: 'openg7-org',
+        baseBranch: 'main',
+        draftPr: true,
+      }),
+    });
+    assert.equal(legacyCodexDispatch.status, 200, 'Expected legacy codex alias to keep working.');
+    assert.equal(workflowDispatchCalls.length, 2, 'Expected legacy alias dispatch to trigger a second call.');
 
     const ownerHealth = await requestJson(`${baseUrl}/api/admin/ops/health`, {
       headers: authHeaders(ownerUser.jwt),

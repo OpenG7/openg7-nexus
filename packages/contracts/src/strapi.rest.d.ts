@@ -346,7 +346,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/ops/codex/dispatch": {
+    "/api/admin/ops/ai/proofs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the latest GitHub proof telemetry for each AI provider workflow */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsAiProofResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ops/ai/dispatch": {
         parameters: {
             query?: never;
             header?: never;
@@ -355,7 +398,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Dispatch the Codex GitHub workflow from the owner/admin control plane */
+        /** Dispatch a provider-specific GitHub workflow from the owner/admin control plane */
         post: {
             parameters: {
                 query?: never;
@@ -436,6 +479,62 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StatisticsResponse"];
+                    };
+                };
+            };
+        };
+        "/api/admin/ops/codex/dispatch": {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            get?: never;
+            put?: never;
+            /** Compatibility alias for the AI dispatch endpoint */
+            post: {
+                parameters: {
+                    query?: never;
+                    header?: never;
+                    path?: never;
+                    cookie?: never;
+                };
+                requestBody: {
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsCodexDispatchRequest"];
+                    };
+                };
+                responses: {
+                    /** @description OK */
+                    200: {
+                        headers: {
+                            [name: string]: unknown;
+                        };
+                        content: {
+                            "application/json": components["schemas"]["AdminOpsCodexDispatchResponse"];
+                        };
+                    };
+                    /** @description Invalid payload */
+                    400: {
+                        headers: {
+                            [name: string]: unknown;
+                        };
+                        content?: never;
+                    };
+                    /** @description Forbidden */
+                    403: {
+                        headers: {
+                            [name: string]: unknown;
+                        };
+                        content?: never;
+                    };
+                    /** @description Dispatch disabled */
+                    503: {
+                        headers: {
+                            [name: string]: unknown;
+                        };
+                        content?: never;
                     };
                 };
             };
@@ -1117,13 +1216,69 @@ export interface components {
                 auth?: {
                     sessionIdleTimeoutMs?: number | null;
                 };
+                aiKeys?: {
+                    /** @enum {string} */
+                    provider?: "codex" | "copilot" | "claude" | "gemini";
+                    label?: string;
+                    workflow?: string;
+                    secretName?: string | null;
+                    dispatchEnabled?: boolean;
+                    keyInserted?: boolean;
+                    /** @enum {string} */
+                    state?: "ready" | "offline" | "scan-unavailable" | "unsupported";
+                    note?: string;
+                }[];
                 moderation?: {
                     pendingCompanies?: number;
                     suspendedCompanies?: number;
                 };
             };
         };
+        AdminOpsAiProofResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                providers?: {
+                    /** @enum {string} */
+                    provider?: "codex" | "copilot" | "claude" | "gemini";
+                    label?: string;
+                    workflow?: string;
+                    /** @enum {string} */
+                    state?: "queued" | "in-progress" | "completed" | "failed" | "unavailable";
+                    summary?: string;
+                    run?: {
+                        id?: number | null;
+                        number?: number | null;
+                        url?: string | null;
+                        status?: string | null;
+                        conclusion?: string | null;
+                        branch?: string | null;
+                        /** Format: date-time */
+                        createdAt?: string | null;
+                        /** Format: date-time */
+                        updatedAt?: string | null;
+                    } | null;
+                    artifacts?: {
+                        id?: number | null;
+                        name?: string;
+                        sizeBytes?: number;
+                        expired?: boolean;
+                        url?: string | null;
+                    }[];
+                    pullRequest?: {
+                        number?: number | null;
+                        title?: string;
+                        url?: string | null;
+                        state?: string;
+                        merged?: boolean;
+                        branch?: string | null;
+                    } | null;
+                }[];
+            };
+        };
         AdminOpsCodexDispatchRequest: {
+            /** @enum {string} */
+            provider?: "codex" | "copilot" | "claude" | "gemini";
             task: string;
             /** @enum {string} */
             scope: "openg7-org" | "strapi" | "packages-contracts" | "packages-tooling" | "repository-root";
@@ -1137,6 +1292,8 @@ export interface components {
                 queued?: boolean;
                 /** @enum {string} */
                 provider?: "github-actions";
+                /** @enum {string} */
+                selectedProvider?: "codex" | "copilot" | "claude" | "gemini";
                 owner?: string;
                 repo?: string;
                 workflow?: string;
@@ -1144,6 +1301,8 @@ export interface components {
                 /** Format: date-time */
                 requestedAt?: string;
                 request?: {
+                    /** @enum {string} */
+                    selectedProvider?: "codex" | "copilot" | "claude" | "gemini";
                     /** @enum {string} */
                     scope?: "openg7-org" | "strapi" | "packages-contracts" | "packages-tooling" | "repository-root";
                     baseBranch?: string;
