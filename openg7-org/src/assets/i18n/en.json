@@ -651,7 +651,7 @@
           }
         },
         "notifications": {
-          "briefCopied": "Codex brief copied.",
+          "briefCopied": "AI brief copied.",
           "issueCopied": "GitHub issue copied.",
           "copyFailed": "Unable to copy the workspace item.",
           "githubUnavailable": "No GitHub URL is available for this delegation."
@@ -1712,12 +1712,7 @@
             "province": "QC",
             "status": "Founder",
             "location": "Thetford Mines, Quebec",
-            "skills": [
-              "Angular",
-              "TypeScript",
-              "Product strategy",
-              "Ecosystem design"
-            ],
+            "skills": ["Angular", "TypeScript", "Product strategy", "Ecosystem design"],
             "impact": "Laying the digital, strategic and human foundations of OpenG7 as a founder-led public-interest initiative.",
             "contribution": "Shapes the product direction, full-stack delivery and the initial operating model for the platform.",
             "focus": "Building the first release, structuring partnerships and turning a founder's note into an operational ecosystem.",
@@ -1773,31 +1768,19 @@
             "id": "nationalCoordination",
             "title": "National coordination",
             "summary": "Harmonise interprovincial flows and shared references.",
-            "tags": [
-              "Open data",
-              "Interoperability",
-              "Security"
-            ]
+            "tags": ["Open data", "Interoperability", "Security"]
           },
           {
             "id": "digitalInnovation",
             "title": "Digital innovation",
             "summary": "Interactive maps, open AI and real-time integrations.",
-            "tags": [
-              "Angular",
-              "NgRx",
-              "Leaflet"
-            ]
+            "tags": ["Angular", "NgRx", "Leaflet"]
           },
           {
             "id": "communityPartnerships",
             "title": "Community partnerships",
             "summary": "Connect SMEs, clusters and local institutions.",
-            "tags": [
-              "Clusters",
-              "SMEs",
-              "Academic"
-            ]
+            "tags": ["Clusters", "SMEs", "Academic"]
           }
         ]
       }
@@ -1927,26 +1910,17 @@
           {
             "title": "Co-design",
             "description": "Mixed working groups iterate scenarios, privacy guardrails and funding needs.",
-            "deliverables": [
-              "Open workshop notes",
-              "Risk register updated"
-            ]
+            "deliverables": ["Open workshop notes", "Risk register updated"]
           },
           {
             "title": "Decide",
             "description": "The stewardship board votes in public session with rationale recorded and streamed.",
-            "deliverables": [
-              "Voting record",
-              "Implementation charter"
-            ]
+            "deliverables": ["Voting record", "Implementation charter"]
           },
           {
             "title": "Review",
             "description": "Results are measured against agreed indicators and lessons learned feed back into planning.",
-            "deliverables": [
-              "Post-implementation review",
-              "Updated public roadmap"
-            ]
+            "deliverables": ["Post-implementation review", "Updated public roadmap"]
           }
         ]
       },
@@ -3199,8 +3173,14 @@
               }
             },
             "fields": {
-              "title": { "label": "Offer title", "placeholder": "Example: Spare chilled storage capacity available near Montreal hub" },
-              "summary": { "label": "Summary", "placeholder": "Describe the spare capacity, target products, and service level expectations." },
+              "title": {
+                "label": "Offer title",
+                "placeholder": "Example: Spare chilled storage capacity available near Montreal hub"
+              },
+              "summary": {
+                "label": "Summary",
+                "placeholder": "Describe the spare capacity, target products, and service level expectations."
+              },
               "availablePallets": { "label": "Available pallet positions" },
               "temperatureRange": {
                 "label": "Temperature range",
@@ -3223,9 +3203,15 @@
               "availableUntil": { "label": "Available until" },
               "fromProvinceId": { "label": "Origin province" },
               "toProvinceId": { "label": "Target province" },
-              "contactChannel": { "label": "Operations contact", "placeholder": "Example: Cold-chain coordination desk" },
+              "contactChannel": {
+                "label": "Operations contact",
+                "placeholder": "Example: Cold-chain coordination desk"
+              },
               "minimumCommitmentDays": { "label": "Minimum commitment (days)" },
-              "handlingNotes": { "label": "Handling notes", "help": "Add packaging, loading, or temperature-control instructions relevant to the offer." },
+              "handlingNotes": {
+                "label": "Handling notes",
+                "help": "Add packaging, loading, or temperature-control instructions relevant to the offer."
+              },
               "tags": { "label": "Tags", "placeholder": "Example: frozen, overflow, certified" }
             },
             "validation": {
@@ -3234,7 +3220,9 @@
                 "maxLength": "Keep the title under 160 characters."
               },
               "summary": { "minLength": "Provide at least ten characters in the summary." },
-              "availablePallets": { "min": "Available pallet positions must be greater than zero." },
+              "availablePallets": {
+                "min": "Available pallet positions must be greater than zero."
+              },
               "availableUntil": { "dateOrder": "The end date must be on or after the start date." },
               "minimumCommitmentDays": { "min": "Minimum commitment must be at least one day." }
             }
@@ -3526,9 +3514,7 @@
         },
         "credits": {
           "title": "Credits & partners",
-          "paragraphs": [
-            "OpenG7 acknowledges the contributions of the following partners:"
-          ],
+          "paragraphs": ["OpenG7 acknowledges the contributions of the following partners:"],
           "bullets": [
             "Innovation, Science and Economic Development Canada for strategic guidance.",
             "Global Affairs Canada for international market intelligence.",
@@ -4799,27 +4785,27 @@
       },
       "codex": {
         "runway": {
-          "label": "Codex runway",
-          "title": "Generated task runway",
-          "subtitle": "Estimate the task volume before starting the selected mission.",
+          "label": "{{ provider }} Ops clearance",
+          "title": "Generated task plan for {{ provider }}",
+          "subtitle": "Review the estimated task volume and live Ops readiness before dispatch.",
           "status": {
-            "sufficient": "Quota sufficient",
-            "insufficient": "Quota insufficient"
+            "sufficient": "Ops ready",
+            "insufficient": "Ops blocked"
           },
           "metrics": {
             "tasks": "Tasks",
             "tasksBody": "Generated from the active mission.",
-            "required": "Required quota",
+            "required": "Estimated units",
             "requiredBody": "Estimated units for the current plan.",
-            "available": "Available quota",
-            "availableBody": "Local operator estimate until Codex usage is connected.",
-            "remaining": "Runway left",
-            "remainingBody": "Units left after this mission.",
-            "missing": "Units missing",
-            "missingBody": "Increase the quota before launching the task."
+            "available": "Ops status",
+            "availableBody": "Live readiness from the Owner Ops security endpoint for {{ provider }}.",
+            "remaining": "Workflow",
+            "remainingBody": "GitHub Actions workflow selected by the backend.",
+            "missing": "Workflow",
+            "missingBody": "Fix the Ops readiness blocker before dispatch."
           },
-          "ready": "The mission can be delegated without exceeding the current quota estimate.",
-          "blocked": "Increase the available quota before launching the generated task set."
+          "ready": "{{ provider }} can be dispatched directly from Mission Control.",
+          "blocked": "{{ provider }} dispatch is blocked until Ops reports an enabled workflow and inserted key."
         },
         "tasks": {
           "label": "Generated tasks",
@@ -4834,10 +4820,9 @@
           }
         },
         "notifications": {
-          "insufficientQuota": "Quota too low: {{ required }} unit(s) required, {{ available }} available, {{ missing }} missing."
+          "insufficientQuota": "{{ provider }} Ops readiness is blocking dispatch."
         }
       }
     }
   }
 }
-

@@ -5,6 +5,36 @@
       <p class="text-sm text-slate-600">
         Monitor platform health, backups, import throughput and security indicators in one place.
       </p>
+      <div class="flex flex-wrap items-center gap-3 text-xs">
+        <span
+          class="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+          data-og7-id="admin-ops-live-status"
+          [attr.data-og7-state]="liveTelemetryState()"
+          [class.border-emerald-200]="isLiveTelemetry('live')"
+          [class.bg-emerald-50]="isLiveTelemetry('live')"
+          [class.text-emerald-700]="isLiveTelemetry('live')"
+          [class.border-amber-200]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+          [class.bg-amber-50]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+          [class.text-amber-700]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+          [class.border-slate-200]="isLiveTelemetry('offline')"
+          [class.bg-slate-50]="isLiveTelemetry('offline')"
+          [class.text-slate-600]="isLiveTelemetry('offline')"
+        >
+          <span
+            class="h-2.5 w-2.5 rounded-full"
+            [class.og7-live-heartbeat]="isLiveTelemetry('live')"
+            [class.og7-live-heartbeat--degraded]="isLiveTelemetry('degraded')"
+            [class.og7-live-heartbeat--syncing]="isLiveTelemetry('syncing')"
+            [class.bg-emerald-500]="isLiveTelemetry('live')"
+            [class.bg-amber-500]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+            [class.bg-slate-400]="isLiveTelemetry('offline')"
+          ></span>
+          {{ liveTelemetryLabel() }}
+        </span>
+        <span class="text-slate-500" data-og7-id="admin-ops-live-detail">
+          {{ liveTelemetryDetail() }}
+        </span>
+      </div>
       @if (lastUpdated(); as timestamp) {
       <p class="text-xs text-slate-500" data-og7-id="admin-ops-last-updated">
         Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
@@ -44,17 +74,235 @@
   >
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h2 class="text-base font-semibold text-slate-900">Codex dispatch</h2>
+        <h2 class="text-base font-semibold text-slate-900">AI dispatch</h2>
         <p class="text-sm text-slate-600">
-          Queue a focused GitHub Actions run from the owner/admin control plane. The workflow
-          creates a dedicated branch and opens a PR.
+          Switch between approved AI copilots, keep the task brief ready, and queue the owner/admin
+          workflow from the same control plane.
         </p>
       </div>
       <span
         class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600"
       >
-        Endpoint: /api/admin/ops/codex/dispatch
+        Execution endpoint: /api/admin/ops/ai/dispatch
       </span>
+    </div>
+
+    <div class="mt-4 rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+      <p class="font-medium" data-og7-id="admin-ops-provider-label">
+        Active AI: {{ dispatchProviderLabel() }}
+      </p>
+      <p class="mt-1 text-xs text-sky-800">{{ dispatchProviderCaption() }}</p>
+      @if (dispatchRoutesThroughCodex()) {
+      <p
+        class="mt-2 text-xs font-medium text-sky-900"
+        data-og7-id="admin-ops-provider-routing-note"
+      >
+        The backend still routes execution through the Codex GitHub workflow; this selector lets you
+        switch the briefing, default model and quota cockpit quickly.
+      </p>
+      }
+    </div>
+
+    <div
+      class="mt-4 overflow-hidden rounded-[28px] border border-slate-800 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_36%),linear-gradient(160deg,_#07111f_0%,_#091a2d_52%,_#050b15_100%)] p-4 text-white shadow-[0_22px_60px_rgba(2,6,23,0.38)]"
+      data-og7="admin-ops-ai-key-console"
+    >
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-200/80">
+            Engine ignition console
+          </p>
+          <h3 class="mt-2 text-lg font-semibold text-white">Provider key sockets</h3>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+            Insert each engine key into the GitHub Actions console to light the corresponding
+            module. Missing keys keep the bay dark. Detected keys light the indicator green.
+          </p>
+        </div>
+        <div
+          class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100"
+        >
+          {{ liveTelemetryLabel() }} · {{ liveTelemetryDetail() }}
+        </div>
+      </div>
+
+      <ul class="mt-5 grid gap-3 lg:grid-cols-2">
+        @for (module of aiIgnitionModules(); track trackAiIgnitionModule($index, module)) {
+        <li
+          class="og7-ignition-module relative overflow-hidden rounded-[22px] border p-4 transition"
+          data-og7="admin-ops-ai-key-module"
+          [attr.data-og7-id]="'admin-ops-ai-key-' + module.provider"
+          [attr.data-og7-state]="module.state"
+          [attr.data-og7-selected]="isAiDiagnosticSelected(module)"
+          [style.animation-delay.ms]="aiIgnitionRevealDelay($index)"
+          [class.border-emerald-400/40]="isAiIgnitionReady(module)"
+          [class.bg-emerald-400/10]="isAiIgnitionReady(module)"
+          [class.shadow-[0_0_0_1px_rgba(74,222,128,0.08),0_0_28px_rgba(74,222,128,0.16)]]="isAiIgnitionReady(module)"
+          [class.ring-1]="isAiDiagnosticSelected(module)"
+          [class.ring-cyan-300/45]="isAiDiagnosticSelected(module)"
+          [class.border-slate-700]="isAiIgnitionOffline(module) || isAiIgnitionUnsupported(module)"
+          [class.bg-slate-950/55]="isAiIgnitionOffline(module) || isAiIgnitionUnsupported(module)"
+          [class.border-amber-400/40]="isAiIgnitionUnknown(module)"
+          [class.bg-amber-400/10]="isAiIgnitionUnknown(module)"
+        >
+          <div class="absolute inset-y-4 left-4 w-px bg-white/10"></div>
+          <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-4 pl-4">
+              <div
+                class="relative h-16 w-24 rounded-[20px] border border-white/10 bg-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+              >
+                <div
+                  class="absolute left-4 top-1/2 h-[2px] w-8 -translate-y-1/2 rounded-full bg-slate-700"
+                ></div>
+                <div
+                  class="absolute right-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border transition"
+                  [class.border-emerald-300/60]="isAiIgnitionReady(module)"
+                  [class.bg-emerald-300/10]="isAiIgnitionReady(module)"
+                  [class.shadow-[0_0_18px_rgba(74,222,128,0.35)]]="isAiIgnitionReady(module)"
+                  [class.border-slate-700]="!isAiIgnitionReady(module)"
+                  [class.bg-slate-900]="!isAiIgnitionReady(module)"
+                ></div>
+                @if (module.secretName) {
+                <svg
+                  viewBox="0 0 64 64"
+                  class="og7-ignition-key absolute left-1 top-1/2 h-12 w-12 -translate-y-1/2 transition"
+                  [class.og7-ignition-key--inserted]="module.keyInserted"
+                  [class.text-emerald-300]="isAiIgnitionReady(module)"
+                  [class.drop-shadow-[0_0_10px_rgba(74,222,128,0.45)]]="isAiIgnitionReady(module)"
+                  [class.text-slate-600]="!isAiIgnitionReady(module)"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3.4"
+                  aria-hidden="true"
+                >
+                  <circle cx="20" cy="32" r="9"></circle>
+                  <path d="M29 32h18"></path>
+                  <path d="M41 32v7"></path>
+                  <path d="M47 32v4"></path>
+                </svg>
+                } @else {
+                <div
+                  class="absolute left-3 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-dashed border-slate-700"
+                ></div>
+                }
+              </div>
+
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="text-sm font-semibold text-white">{{ module.label }}</p>
+                  <span
+                    class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300"
+                  >
+                    {{ module.workflow }}
+                  </span>
+                </div>
+                <p class="mt-1 text-xs font-mono text-cyan-100/85">
+                  {{ module.secretName ?? 'No engine key exposed yet' }}
+                </p>
+                <p class="mt-2 max-w-md text-xs leading-5 text-slate-300">{{ module.note }}</p>
+                <button
+                  type="button"
+                  class="mt-3 inline-flex rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100 transition hover:bg-cyan-400/16"
+                  [attr.data-og7-id]="'admin-ops-ai-key-inspect-' + module.provider"
+                  (click)="selectAiDiagnostic(module.provider)"
+                >
+                  Inspect bay
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 self-start md:self-center">
+              <div class="flex flex-col items-end gap-1 text-right">
+                <span class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  Bay status
+                </span>
+                <span
+                  class="text-xs font-semibold"
+                  [class.text-emerald-200]="isAiIgnitionReady(module)"
+                  [class.text-amber-200]="isAiIgnitionUnknown(module)"
+                  [class.text-slate-300]="isAiIgnitionOffline(module) || isAiIgnitionUnsupported(module)"
+                >
+                  @if (isAiIgnitionReady(module)) { Ignition ready } @else if
+                  (isAiIgnitionUnknown(module)) { Scan link unavailable } @else if
+                  (isAiIgnitionUnsupported(module)) { Socket inactive } @else { Console offline }
+                </span>
+              </div>
+              <span
+                class="h-4 w-4 rounded-full border border-white/20 transition"
+                data-og7="admin-ops-ai-key-indicator"
+                [class.og7-ignition-indicator--ready]="isAiIgnitionReady(module)"
+                [class.og7-ignition-indicator--scan]="isAiIgnitionUnknown(module)"
+                [class.bg-emerald-400]="isAiIgnitionReady(module)"
+                [class.shadow-[0_0_18px_rgba(74,222,128,0.7)]]="isAiIgnitionReady(module)"
+                [class.bg-amber-400]="isAiIgnitionUnknown(module)"
+                [class.shadow-[0_0_18px_rgba(251,191,36,0.55)]]="isAiIgnitionUnknown(module)"
+                [class.bg-slate-700]="isAiIgnitionOffline(module) || isAiIgnitionUnsupported(module)"
+              ></span>
+            </div>
+          </div>
+        </li>
+        }
+      </ul>
+
+      @if (selectedAiDiagnosticModule(); as module) {
+      <section
+        class="mt-4 rounded-[24px] border border-white/10 bg-black/15 p-4"
+        data-og7="admin-ops-ai-diagnostics"
+        [attr.data-og7-id]="'admin-ops-ai-diagnostics-' + module.provider"
+      >
+        <div
+          class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between"
+        >
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Operator diagnostics
+            </p>
+            <h4 class="mt-2 text-base font-semibold text-white">{{ module.label }} engine bay</h4>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{{ module.note }}</p>
+          </div>
+          <span
+            class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
+            [class.border-emerald-300/25]="module.state === 'ready'"
+            [class.bg-emerald-400/10]="module.state === 'ready'"
+            [class.text-emerald-100]="module.state === 'ready'"
+            [class.border-amber-300/25]="module.state === 'scan-unavailable'"
+            [class.bg-amber-400/10]="module.state === 'scan-unavailable'"
+            [class.text-amber-100]="module.state === 'scan-unavailable'"
+            [class.border-slate-300/20]="module.state === 'unsupported' || module.state === 'offline'"
+            [class.bg-slate-900/70]="module.state === 'unsupported' || module.state === 'offline'"
+            [class.text-slate-100]="module.state === 'unsupported' || module.state === 'offline'"
+          >
+            State: {{ module.state }}
+          </span>
+        </div>
+
+        <div class="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4">
+          @for (item of aiDiagnosticItems(); track item.id) {
+          <article
+            class="rounded-[18px] border p-3"
+            data-og7="admin-ops-ai-diagnostic-item"
+            [attr.data-og7-id]="item.id"
+            [class]="diagnosticToneClasses(item.tone)"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] opacity-80">
+              {{ item.label }}
+            </p>
+            <p class="mt-2 text-sm font-semibold">{{ item.value }}</p>
+          </article>
+          }
+        </div>
+
+        <div
+          class="mt-4 flex flex-col gap-2 rounded-[18px] border border-cyan-300/15 bg-cyan-400/8 px-4 py-3 text-sm text-cyan-50"
+        >
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+            Recommended next action
+          </p>
+          <p data-og7-id="admin-ops-ai-diagnostic-action">{{ aiDiagnosticActionLabel() }}</p>
+        </div>
+      </section>
+      }
     </div>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -67,11 +315,26 @@
           data-og7-id="task"
           [value]="codexTask()"
           (input)="updateCodexTask($any($event.target).value)"
-          placeholder="Describe the exact change Codex should implement."
+          [placeholder]="'Describe the exact change ' + dispatchProviderLabel() + ' should implement.'"
         ></textarea>
       </label>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+        <label class="flex flex-col gap-2 text-sm text-slate-700">
+          <span class="font-medium">AI provider</span>
+          <select
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            data-og7="admin-ops-codex-field"
+            data-og7-id="provider"
+            [value]="dispatchProvider()"
+            (change)="updateDispatchProvider($any($event.target).value)"
+          >
+            @for (provider of dispatchProviders; track provider.id) {
+            <option [value]="provider.id">{{ provider.label }}</option>
+            }
+          </select>
+        </label>
+
         <label class="flex flex-col gap-2 text-sm text-slate-700">
           <span class="font-medium">Scope</span>
           <select
@@ -154,7 +417,8 @@
         (click)="dispatchCodexWorkflow()"
         [disabled]="!canDispatchCodex()"
       >
-        @if (codexSubmitting()) { Queueing Codex... } @else { Dispatch Codex workflow }
+        @if (codexSubmitting()) { Queueing {{ dispatchProviderLabel() }}... } @else { Dispatch {{
+        dispatchProviderLabel() }} request }
       </button>
     </div>
 
@@ -170,7 +434,9 @@
       class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
       data-og7-id="admin-ops-codex-success"
     >
-      <p class="font-medium">Workflow queued on {{ result.owner }}/{{ result.repo }}.</p>
+      <p class="font-medium">
+        {{ dispatchProviderLabel() }} request queued on {{ result.owner }}/{{ result.repo }}.
+      </p>
       <p class="mt-1 text-xs text-emerald-700">
         Workflow {{ result.workflow }} on ref {{ result.ref }}. Requested at {{ result.requestedAt |
         date: 'yyyy-MM-dd HH:mm:ss' }}.

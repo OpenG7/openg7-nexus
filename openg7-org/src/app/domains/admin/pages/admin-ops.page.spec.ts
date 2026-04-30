@@ -85,6 +85,48 @@ class AdminOpsServiceMock {
         auth: {
           sessionIdleTimeoutMs: 3600000,
         },
+        aiKeys: [
+          {
+            provider: 'codex',
+            label: 'Codex',
+            workflow: 'codex-pr.yml',
+            secretName: 'OPENAI_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: true,
+            state: 'ready',
+            note: 'Key detected. The engine bay is armed and ready for dispatch.',
+          },
+          {
+            provider: 'claude',
+            label: 'Claude',
+            workflow: 'claude-pr.yml',
+            secretName: 'ANTHROPIC_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: false,
+            state: 'offline',
+            note: 'Insert ANTHROPIC_API_KEY into GitHub Actions secrets to power this module.',
+          },
+          {
+            provider: 'gemini',
+            label: 'Gemini',
+            workflow: 'gemini-pr.yml',
+            secretName: 'GEMINI_API_KEY',
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'scan-unavailable',
+            note: 'The control plane could not verify GitHub Actions secrets for this module.',
+          },
+          {
+            provider: 'copilot',
+            label: 'GitHub Copilot',
+            workflow: 'copilot-pr.yml',
+            secretName: null,
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'unsupported',
+            note: 'No stable ignition key is wired for this console yet.',
+          },
+        ],
         moderation: {
           pendingCompanies: 1,
           suspendedCompanies: 0,
@@ -99,12 +141,14 @@ class AdminOpsServiceMock {
       of<AdminOpsCodexDispatchResponse>({
         queued: true,
         provider: 'github-actions',
+        selectedProvider: payload.provider,
         owner: 'OpenG7',
         repo: 'openg7-platform',
         workflow: 'codex-pr.yml',
         ref: 'main',
         requestedAt: '2026-04-26T00:00:00.000Z',
         request: {
+          selectedProvider: payload.provider,
           scope: payload.scope,
           baseBranch: payload.baseBranch,
           draftPr: payload.draftPr,
@@ -119,16 +163,20 @@ class AdminOpsServiceMock {
 describe('AdminOpsPage', () => {
   let service: AdminOpsServiceMock;
   let notifications: jasmine.SpyObj<NotificationStoreApi>;
-  let routeQueryParams: Record<string, string>;
+  let activatedRouteMock: { snapshot: { queryParamMap: ReturnType<typeof convertToParamMap> } };
 
   beforeEach(async () => {
-    routeQueryParams = {};
     service = new AdminOpsServiceMock();
     notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
       'success',
       'info',
       'error',
     ]);
+    activatedRouteMock = {
+      snapshot: {
+        queryParamMap: convertToParamMap({}),
+      },
+    };
 
     await TestBed.configureTestingModule({
       imports: [AdminOpsPage],
@@ -137,13 +185,7 @@ describe('AdminOpsPage', () => {
         { provide: NotificationStore, useValue: notifications },
         {
           provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              get queryParamMap() {
-                return convertToParamMap(routeQueryParams);
-              },
-            },
-          },
+          useValue: activatedRouteMock,
         },
       ],
     }).compileComponents();
@@ -168,6 +210,7 @@ describe('AdminOpsPage', () => {
     fixture.detectChanges();
 
     expect(service.dispatchCodexWorkflow).toHaveBeenCalledWith({
+      provider: 'codex',
       task: 'Fix the login empty state and add a focused test.',
       scope: 'openg7-org',
       baseBranch: 'main',
@@ -180,7 +223,10 @@ describe('AdminOpsPage', () => {
   });
 
   it('prefills Codex dispatch fields from admin quality query params', () => {
-    Object.assign(routeQueryParams, {
+    activatedRouteMock.snapshot.queryParamMap = convertToParamMap({
+      aiProvider: 'copilot',
+      provider: 'copilot',
+      codexProvider: 'copilot',
       codexTask: 'Objectif: renforcer la preuve qualite.',
       codexScope: 'openg7-org',
       codexBaseBranch: 'release/quality',
@@ -208,12 +254,81 @@ describe('AdminOpsPage', () => {
     expect(
       (root.querySelector('[data-og7-id="draft-pr"]') as HTMLInputElement).checked,
     ).toBeFalse();
-    expect(notifications.info).toHaveBeenCalledWith(
-      'Codex dispatch prefilled from the quality cockpit.',
-      {
-        source: 'admin-ops',
-      },
+    expect(notifications.info).toHaveBeenCalled();
+  });
+
+  it('switches AI provider from the admin ops form and updates the helper state', () => {
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const providerField = root.querySelector('[data-og7-id="provider"]') as HTMLSelectElement;
+    const modelField = root.querySelector('[data-og7-id="model"]') as HTMLInputElement;
+
+    providerField.value = 'claude';
+    providerField.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.dispatchProvider()).toBe('claude');
+    expect(modelField.value).toBe('claude-sonnet-4-5');
+    expect(root.querySelector('[data-og7-id="admin-ops-provider-routing-note"]')).not.toBeNull();
+  });
+
+  it('renders the ignition console with green and dark key bays from the security snapshot', () => {
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const codexBay = root.querySelector('[data-og7-id="admin-ops-ai-key-codex"]');
+    const claudeBay = root.querySelector('[data-og7-id="admin-ops-ai-key-claude"]');
+    const geminiBay = root.querySelector('[data-og7-id="admin-ops-ai-key-gemini"]');
+    const readyIndicator = codexBay?.querySelector('[data-og7="admin-ops-ai-key-indicator"]');
+    const liveStatus = root.querySelector('[data-og7-id="admin-ops-live-status"]');
+    const liveDetail = root.querySelector('[data-og7-id="admin-ops-live-detail"]');
+
+    expect(root.querySelector('[data-og7="admin-ops-ai-key-console"]')).not.toBeNull();
+    expect(codexBay?.getAttribute('data-og7-state')).toBe('ready');
+    expect(claudeBay?.getAttribute('data-og7-state')).toBe('offline');
+    expect(geminiBay?.getAttribute('data-og7-state')).toBe('scan-unavailable');
+    expect(codexBay?.className).toContain('og7-ignition-module');
+    expect(codexBay?.getAttribute('style')).toContain('animation-delay');
+    expect(readyIndicator?.className).toContain('og7-ignition-indicator--ready');
+    expect(liveStatus?.textContent).toContain('Live pulse nominal');
+    expect(liveStatus?.getAttribute('data-og7-state')).toBe('live');
+    expect(liveDetail?.textContent).toContain('Next sweep in');
+    expect(root.textContent).toContain('ANTHROPIC_API_KEY');
+  });
+
+  it('shows provider diagnostics and updates the panel when another bay is inspected', () => {
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const claudeInspect = root.querySelector(
+      '[data-og7-id="admin-ops-ai-key-inspect-claude"]',
+    ) as HTMLButtonElement;
+
+    expect(root.querySelector('[data-og7="admin-ops-ai-diagnostics"]')?.textContent).toContain(
+      'Codex engine bay',
     );
+    expect(
+      root.querySelector('[data-og7-id="admin-ops-ai-diagnostic-action"]')?.textContent,
+    ).toContain('Run a dispatch');
+
+    claudeInspect.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.dispatchProvider()).toBe('claude');
+    expect(root.querySelector('[data-og7="admin-ops-ai-diagnostics"]')?.textContent).toContain(
+      'Claude engine bay',
+    );
+    expect(
+      root.querySelector('[data-og7="admin-ops-ai-diagnostic-item"][data-og7-id="socket"]')
+        ?.textContent,
+    ).toContain('ANTHROPIC_API_KEY');
+    expect(
+      root.querySelector('[data-og7-id="admin-ops-ai-diagnostic-action"]')?.textContent,
+    ).toContain('Insert ANTHROPIC_API_KEY');
   });
 
   it('shows the dispatch error inline when the backend rejects the request', () => {

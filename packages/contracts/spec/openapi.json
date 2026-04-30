@@ -140,9 +140,65 @@
         }
       }
     },
+    "/api/admin/ops/ai/proofs": {
+      "get": {
+        "summary": "Get the latest GitHub proof telemetry for each AI provider workflow",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsAiProofResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/ops/ai/dispatch": {
+      "post": {
+        "summary": "Dispatch a provider-specific GitHub workflow from the owner/admin control plane",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOpsCodexDispatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsCodexDispatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "503": {
+            "description": "Dispatch disabled"
+          }
+        }
+      }
+    },
     "/api/admin/ops/codex/dispatch": {
       "post": {
-        "summary": "Dispatch the Codex GitHub workflow from the owner/admin control plane",
+        "summary": "Compatibility alias for the AI dispatch endpoint",
         "requestBody": {
           "required": true,
           "content": {
@@ -874,6 +930,28 @@
                   "sessionIdleTimeoutMs": { "type": "integer", "nullable": true }
                 }
               },
+              "aiKeys": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "enum": ["codex", "copilot", "claude", "gemini"]
+                    },
+                    "label": { "type": "string" },
+                    "workflow": { "type": "string" },
+                    "secretName": { "type": "string", "nullable": true },
+                    "dispatchEnabled": { "type": "boolean" },
+                    "keyInserted": { "type": "boolean" },
+                    "state": {
+                      "type": "string",
+                      "enum": ["ready", "offline", "scan-unavailable", "unsupported"]
+                    },
+                    "note": { "type": "string" }
+                  }
+                }
+              },
               "moderation": {
                 "type": "object",
                 "properties": {
@@ -885,10 +963,83 @@
           }
         }
       },
+      "AdminOpsAiProofResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "providers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "provider": {
+                      "type": "string",
+                      "enum": ["codex", "copilot", "claude", "gemini"]
+                    },
+                    "label": { "type": "string" },
+                    "workflow": { "type": "string" },
+                    "state": {
+                      "type": "string",
+                      "enum": ["queued", "in-progress", "completed", "failed", "unavailable"]
+                    },
+                    "summary": { "type": "string" },
+                    "run": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": { "type": "integer", "nullable": true },
+                        "number": { "type": "integer", "nullable": true },
+                        "url": { "type": "string", "nullable": true },
+                        "status": { "type": "string", "nullable": true },
+                        "conclusion": { "type": "string", "nullable": true },
+                        "branch": { "type": "string", "nullable": true },
+                        "createdAt": { "type": "string", "nullable": true, "format": "date-time" },
+                        "updatedAt": { "type": "string", "nullable": true, "format": "date-time" }
+                      }
+                    },
+                    "artifacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "nullable": true },
+                          "name": { "type": "string" },
+                          "sizeBytes": { "type": "integer" },
+                          "expired": { "type": "boolean" },
+                          "url": { "type": "string", "nullable": true }
+                        }
+                      }
+                    },
+                    "pullRequest": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "number": { "type": "integer", "nullable": true },
+                        "title": { "type": "string" },
+                        "url": { "type": "string", "nullable": true },
+                        "state": { "type": "string" },
+                        "merged": { "type": "boolean" },
+                        "branch": { "type": "string", "nullable": true }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "AdminOpsCodexDispatchRequest": {
         "type": "object",
         "required": ["task", "scope", "baseBranch", "draftPr"],
         "properties": {
+          "provider": {
+            "type": "string",
+            "enum": ["codex", "copilot", "claude", "gemini"]
+          },
           "task": { "type": "string" },
           "scope": {
             "type": "string",
@@ -914,6 +1065,10 @@
             "properties": {
               "queued": { "type": "boolean" },
               "provider": { "type": "string", "enum": ["github-actions"] },
+              "selectedProvider": {
+                "type": "string",
+                "enum": ["codex", "copilot", "claude", "gemini"]
+              },
               "owner": { "type": "string" },
               "repo": { "type": "string" },
               "workflow": { "type": "string" },
@@ -922,6 +1077,10 @@
               "request": {
                 "type": "object",
                 "properties": {
+                  "selectedProvider": {
+                    "type": "string",
+                    "enum": ["codex", "copilot", "claude", "gemini"]
+                  },
                   "scope": {
                     "type": "string",
                     "enum": [

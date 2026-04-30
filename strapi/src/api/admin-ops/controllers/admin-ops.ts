@@ -16,18 +16,44 @@ const DEFAULT_UPLOAD_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/web
 const DEFAULT_IMPORT_SCAN_LIMIT = 2000;
 const DEFAULT_SECURITY_SESSION_SCAN_LIMIT = 250;
 const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 12 * 60 * 60 * 1000;
-const DEFAULT_CODEX_GITHUB_API_URL = 'https://api.github.com';
-const DEFAULT_CODEX_GITHUB_WORKFLOW = 'codex-pr.yml';
-const DEFAULT_CODEX_GITHUB_REF = 'main';
-const DEFAULT_CODEX_TIMEOUT_MS = 10_000;
-const DEFAULT_CODEX_ALLOWED_SCOPES = [
+const DEFAULT_AI_GITHUB_API_URL = 'https://api.github.com';
+const DEFAULT_AI_GITHUB_REF = 'main';
+const DEFAULT_AI_TIMEOUT_MS = 10_000;
+const DEFAULT_AI_ALLOWED_SCOPES = [
   'openg7-org',
   'strapi',
   'packages-contracts',
   'packages-tooling',
   'repository-root',
 ] as const;
-const DEFAULT_CODEX_ALLOWED_BASE_BRANCHES = ['main'] as const;
+const DEFAULT_AI_ALLOWED_BASE_BRANCHES = ['main'] as const;
+const ADMIN_AI_PROVIDERS = ['codex', 'copilot', 'claude', 'gemini'] as const;
+
+type AdminAiProvider = (typeof ADMIN_AI_PROVIDERS)[number];
+
+const DEFAULT_AI_PROVIDER_WORKFLOWS: Readonly<Record<AdminAiProvider, string>> = {
+  codex: 'codex-pr.yml',
+  copilot: 'copilot-pr.yml',
+  claude: 'claude-pr.yml',
+  gemini: 'gemini-pr.yml',
+};
+
+const ADMIN_AI_PROVIDER_SECRET_NAMES: Readonly<Record<AdminAiProvider, string | null>> = {
+  codex: 'OPENAI_API_KEY',
+  copilot: null,
+  claude: 'ANTHROPIC_API_KEY',
+  gemini: 'GEMINI_API_KEY',
+};
+
+const ADMIN_AI_PROVIDER_LABELS: Readonly<Record<AdminAiProvider, string>> = {
+  codex: 'Codex',
+  copilot: 'GitHub Copilot',
+  claude: 'Claude',
+  gemini: 'Gemini',
+};
+
+type AiIgnitionState = 'ready' | 'offline' | 'scan-unavailable' | 'unsupported';
+type AiProofState = 'queued' | 'in-progress' | 'completed' | 'failed' | 'unavailable';
 
 interface BackupFileEntry {
   readonly name: string;
@@ -52,7 +78,8 @@ interface ImportedCompanyLike {
   readonly updatedAt?: unknown;
 }
 
-interface CodexDispatchConfig {
+interface AiDispatchConfig {
+  readonly selectedProvider: AdminAiProvider;
   readonly enabled: boolean;
   readonly configured: boolean;
   readonly apiUrl: string;
@@ -66,13 +93,72 @@ interface CodexDispatchConfig {
   readonly allowedBaseBranches: string[];
 }
 
-interface CodexDispatchInput {
+interface AiDispatchInput {
+  readonly provider: AdminAiProvider;
   readonly task: string;
   readonly scope: string;
   readonly baseBranch: string;
   readonly draftPr: boolean;
   readonly model: string | null;
   readonly effort: string | null;
+}
+
+interface AiIgnitionModuleSnapshot {
+  readonly provider: AdminAiProvider;
+  readonly label: string;
+  readonly workflow: string;
+  readonly secretName: string | null;
+  readonly dispatchEnabled: boolean;
+  readonly keyInserted: boolean;
+  readonly state: AiIgnitionState;
+  readonly note: string;
+}
+
+interface AiProofArtifactSnapshot {
+  readonly id: number | null;
+  readonly name: string;
+  readonly sizeBytes: number;
+  readonly expired: boolean;
+  readonly url: string | null;
+}
+
+interface AiProofPullRequestSnapshot {
+  readonly number: number | null;
+  readonly title: string;
+  readonly url: string | null;
+  readonly state: string;
+  readonly merged: boolean;
+  readonly branch: string | null;
+}
+
+interface AiProofRunSnapshot {
+  readonly id: number | null;
+  readonly number: number | null;
+  readonly url: string | null;
+  readonly status: string | null;
+  readonly conclusion: string | null;
+  readonly branch: string | null;
+  readonly createdAt: string | null;
+  readonly updatedAt: string | null;
+}
+
+interface AiProofProviderSnapshot {
+  readonly provider: AdminAiProvider;
+  readonly label: string;
+  readonly workflow: string;
+  readonly state: AiProofState;
+  readonly summary: string;
+  readonly run: AiProofRunSnapshot | null;
+  readonly artifacts: AiProofArtifactSnapshot[];
+  readonly pullRequest: AiProofPullRequestSnapshot | null;
+}
+
+interface GitHubWorkflowRunListPayload {
+  readonly workflow_runs?: Array<Record<string, unknown>>;
+}
+
+interface GitHubArtifactsListPayload {
+  readonly artifacts?: Array<Record<string, unknown>>;
 }
 
 function normalizeString(value: unknown, maxLength = 320): string | null {
@@ -106,6 +192,16 @@ function normalizeWorkflowToken(value: unknown, maxLength = 160): string | null 
     return null;
   }
   return normalized;
+}
+
+function normalizeAiProvider(value: unknown): AdminAiProvider | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  return ADMIN_AI_PROVIDERS.includes(normalized as AdminAiProvider)
+    ? (normalized as AdminAiProvider)
+    : null;
 }
 
 function normalizeInteger(value: unknown): number | null {
@@ -148,6 +244,23 @@ function parseBoolean(value: unknown, fallback: boolean): boolean {
   return fallback;
 }
 
+function normalizeBoolean(value: unknown): boolean | null {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (['true', '1', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+  if (['false', '0', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+  return null;
+}
+
 function parseDelimitedLowerStrings(value: unknown): string[] {
   if (typeof value !== 'string') {
     return [];
@@ -180,6 +293,431 @@ function parseDelimitedWorkflowTokens(value: unknown): string[] {
   }
 
   return Array.from(unique);
+}
+
+function resolveNormalizedText(values: ReadonlyArray<unknown>, maxLength = 320): string | null {
+  for (const value of values) {
+    const normalized = normalizeText(value, maxLength);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+function resolveWorkflowTokenValue(values: ReadonlyArray<unknown>, maxLength = 160): string | null {
+  for (const value of values) {
+    const normalized = normalizeWorkflowToken(value, maxLength);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+function resolveBooleanValue(values: ReadonlyArray<unknown>): boolean | null {
+  for (const value of values) {
+    const normalized = normalizeBoolean(value);
+    if (normalized != null) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+function resolvePositiveIntegerValue(values: ReadonlyArray<unknown>, fallback: number): number {
+  for (const value of values) {
+    const parsed = normalizeInteger(value);
+    if (parsed != null && parsed > 0) {
+      return parsed;
+    }
+  }
+  return fallback;
+}
+
+function resolveDelimitedLowerStrings(values: ReadonlyArray<unknown>): string[] {
+  for (const value of values) {
+    const parsed = parseDelimitedLowerStrings(value);
+    if (parsed.length > 0) {
+      return parsed;
+    }
+  }
+  return [];
+}
+
+function resolveDelimitedWorkflowTokens(values: ReadonlyArray<unknown>): string[] {
+  for (const value of values) {
+    const parsed = parseDelimitedWorkflowTokens(value);
+    if (parsed.length > 0) {
+      return parsed;
+    }
+  }
+  return [];
+}
+
+function aiProviderEnvKey(provider: AdminAiProvider, suffix: string): string {
+  return `OPS_AI_${provider.toUpperCase()}_${suffix}`;
+}
+
+function resolveAiSecretsProbeConfig(): {
+  apiUrl: string;
+  owner: string;
+  repo: string;
+  token: string;
+} | null {
+  for (const provider of ADMIN_AI_PROVIDERS) {
+    const config = getAiDispatchConfig(provider);
+    if (config.token && config.owner && config.repo) {
+      return {
+        apiUrl: config.apiUrl,
+        owner: config.owner,
+        repo: config.repo,
+        token: config.token,
+      };
+    }
+  }
+
+  return null;
+}
+
+async function fetchGitHubActionsSecretNames(): Promise<Set<string> | null> {
+  const probe = resolveAiSecretsProbeConfig();
+  if (!probe) {
+    return null;
+  }
+
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), DEFAULT_AI_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(
+      `${probe.apiUrl}/repos/${probe.owner}/${probe.repo}/actions/secrets?per_page=100`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${probe.token}`,
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'openg7-admin-ops',
+        },
+        signal: abortController.signal,
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as { secrets?: Array<{ name?: unknown }> };
+    const secretNames = new Set<string>();
+
+    for (const secret of Array.isArray(payload.secrets) ? payload.secrets : []) {
+      const normalized = normalizeWorkflowToken(secret?.name, 160);
+      if (normalized) {
+        secretNames.add(normalized);
+      }
+    }
+
+    return secretNames;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchGitHubJson<T>(config: AiDispatchConfig, endpoint: string): Promise<T | null> {
+  if (!config.token || !config.owner || !config.repo) {
+    return null;
+  }
+
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), config.timeoutMs);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${config.token}`,
+        'User-Agent': 'openg7-admin-ops',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      signal: abortController.signal,
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function normalizeUrl(value: unknown): string | null {
+  const normalized = normalizeText(value, 500);
+  if (!normalized) {
+    return null;
+  }
+
+  return /^https?:\/\//i.test(normalized) ? normalized : null;
+}
+
+function parseAiProofRun(value: unknown): AiProofRunSnapshot | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    id: normalizeInteger(record.id),
+    number: normalizeInteger(record.run_number),
+    url: normalizeUrl(record.html_url),
+    status: normalizeText(record.status, 80),
+    conclusion: normalizeText(record.conclusion, 80),
+    branch: normalizeText(record.head_branch, 160),
+    createdAt: normalizeIsoDate(record.created_at),
+    updatedAt: normalizeIsoDate(record.updated_at),
+  };
+}
+
+async function fetchLatestWorkflowRun(
+  config: AiDispatchConfig,
+): Promise<AiProofRunSnapshot | null> {
+  if (!config.owner || !config.repo) {
+    return null;
+  }
+
+  const runsUrl = new URL(
+    `${config.apiUrl}/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/actions/workflows/${encodeURIComponent(config.workflow)}/runs`,
+  );
+  runsUrl.searchParams.set('per_page', '1');
+  runsUrl.searchParams.set('branch', config.ref);
+  runsUrl.searchParams.set('event', 'workflow_dispatch');
+
+  const payload = await fetchGitHubJson<GitHubWorkflowRunListPayload>(config, runsUrl.toString());
+  const run = payload?.workflow_runs?.[0];
+  return parseAiProofRun(run);
+}
+
+async function fetchWorkflowRunArtifacts(
+  config: AiDispatchConfig,
+  run: AiProofRunSnapshot,
+): Promise<AiProofArtifactSnapshot[]> {
+  if (!config.owner || !config.repo || run.id == null) {
+    return [];
+  }
+
+  const artifactsUrl = `${config.apiUrl}/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/actions/runs/${run.id}/artifacts`;
+  const payload = await fetchGitHubJson<GitHubArtifactsListPayload>(config, artifactsUrl);
+
+  return Array.isArray(payload?.artifacts)
+    ? payload.artifacts.map((artifact) => {
+        const artifactRecord = artifact as Record<string, unknown>;
+        return {
+          id: normalizeInteger(artifactRecord.id),
+          name: normalizeText(artifactRecord.name, 180) ?? 'artifact',
+          sizeBytes: Math.max(0, normalizeInteger(artifactRecord.size_in_bytes) ?? 0),
+          expired: Boolean(artifactRecord.expired),
+          url: run.url ? `${run.url}#artifacts` : null,
+        };
+      })
+    : [];
+}
+
+async function fetchPullRequestForBranch(
+  config: AiDispatchConfig,
+  branch: string,
+): Promise<AiProofPullRequestSnapshot | null> {
+  if (!config.owner || !config.repo) {
+    return null;
+  }
+
+  const pullsUrl = new URL(
+    `${config.apiUrl}/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/pulls`,
+  );
+  pullsUrl.searchParams.set('head', `${config.owner}:${branch}`);
+  pullsUrl.searchParams.set('state', 'all');
+  pullsUrl.searchParams.set('per_page', '5');
+
+  const payload = await fetchGitHubJson<Array<Record<string, unknown>>>(
+    config,
+    pullsUrl.toString(),
+  );
+  const pull = Array.isArray(payload) ? payload[0] : null;
+  if (!pull) {
+    return null;
+  }
+
+  return {
+    number: normalizeInteger(pull.number),
+    title: normalizeText(pull.title, 200) ?? 'Pull request',
+    url: normalizeUrl(pull.html_url),
+    state: normalizeText(pull.state, 40) ?? 'unknown',
+    merged: Boolean(pull.merged_at),
+    branch,
+  };
+}
+
+function resolveAiProofState(
+  run: AiProofRunSnapshot | null,
+  artifacts: readonly AiProofArtifactSnapshot[],
+): AiProofState {
+  if (!run?.status) {
+    return 'unavailable';
+  }
+
+  if (run.status === 'queued' || run.status === 'waiting') {
+    return 'queued';
+  }
+
+  if (run.status === 'in_progress' || run.status === 'requested' || run.status === 'pending') {
+    return 'in-progress';
+  }
+
+  if (run.status === 'completed') {
+    return run.conclusion === 'success' && artifacts.length >= 0 ? 'completed' : 'failed';
+  }
+
+  return 'unavailable';
+}
+
+function buildAiProofSummary(
+  state: AiProofState,
+  workflow: string,
+  run: AiProofRunSnapshot | null,
+  artifacts: readonly AiProofArtifactSnapshot[],
+  pullRequest: AiProofPullRequestSnapshot | null,
+): string {
+  if (!run) {
+    return `No workflow run detected yet for ${workflow}.`;
+  }
+
+  switch (state) {
+    case 'queued':
+      return `Workflow #${run.number ?? 'n/a'} is queued on ${run.branch ?? 'the last branch'}.`;
+    case 'in-progress':
+      return `Workflow #${run.number ?? 'n/a'} is executing on ${run.branch ?? 'the active branch'}.`;
+    case 'completed':
+      return `Workflow #${run.number ?? 'n/a'} completed with ${artifacts.length} artifact(s)${pullRequest ? ` and PR #${pullRequest.number ?? 'n/a'}` : ''}.`;
+    case 'failed':
+      return `Workflow #${run.number ?? 'n/a'} finished with conclusion ${run.conclusion ?? 'unknown'}.`;
+    default:
+      return `GitHub evidence is unavailable for ${workflow}.`;
+  }
+}
+
+async function buildAiProofProviders(): Promise<AiProofProviderSnapshot[]> {
+  return Promise.all(
+    ADMIN_AI_PROVIDERS.map(async (provider) => {
+      const config = getAiDispatchConfig(provider);
+      const baseSnapshot = {
+        provider,
+        label: ADMIN_AI_PROVIDER_LABELS[provider],
+        workflow: config.workflow,
+      } as const;
+
+      if (!config.configured) {
+        return {
+          ...baseSnapshot,
+          state: 'unavailable' as const,
+          summary: 'GitHub workflow monitoring is not configured for this provider.',
+          run: null,
+          artifacts: [],
+          pullRequest: null,
+        };
+      }
+
+      try {
+        const run = await fetchLatestWorkflowRun(config);
+        if (!run) {
+          return {
+            ...baseSnapshot,
+            state: 'unavailable' as const,
+            summary: `No workflow run detected yet for ${config.workflow}.`,
+            run: null,
+            artifacts: [],
+            pullRequest: null,
+          };
+        }
+
+        const [artifacts, pullRequest] = await Promise.all([
+          fetchWorkflowRunArtifacts(config, run),
+          run.branch ? fetchPullRequestForBranch(config, run.branch) : Promise.resolve(null),
+        ]);
+        const state = resolveAiProofState(run, artifacts);
+
+        return {
+          ...baseSnapshot,
+          state,
+          summary: buildAiProofSummary(state, config.workflow, run, artifacts, pullRequest),
+          run,
+          artifacts,
+          pullRequest,
+        };
+      } catch {
+        return {
+          ...baseSnapshot,
+          state: 'unavailable' as const,
+          summary: `GitHub evidence is unavailable for ${config.workflow}.`,
+          run: null,
+          artifacts: [],
+          pullRequest: null,
+        };
+      }
+    }),
+  );
+}
+
+async function buildAiProofSnapshot() {
+  return {
+    generatedAt: new Date().toISOString(),
+    providers: await buildAiProofProviders(),
+  };
+}
+
+async function buildAiIgnitionModules(): Promise<AiIgnitionModuleSnapshot[]> {
+  const repoSecretNames = await fetchGitHubActionsSecretNames();
+
+  return ADMIN_AI_PROVIDERS.map((provider) => {
+    const config = getAiDispatchConfig(provider);
+    const secretName = ADMIN_AI_PROVIDER_SECRET_NAMES[provider];
+    const keyInserted = Boolean(secretName && repoSecretNames?.has(secretName));
+
+    let state: AiIgnitionState;
+    let note: string;
+
+    if (!secretName) {
+      state = 'unsupported';
+      note = 'No stable ignition key is wired for this console yet.';
+    } else if (repoSecretNames == null) {
+      state = 'scan-unavailable';
+      note = 'The control plane could not verify GitHub Actions secrets for this module.';
+    } else if (keyInserted) {
+      state = 'ready';
+      note = config.enabled
+        ? 'Key detected. The engine bay is armed and ready for dispatch.'
+        : 'Key detected. The engine bay stays in standby until dispatch is enabled.';
+    } else {
+      state = 'offline';
+      note = `Insert ${secretName} into GitHub Actions secrets to power this module.`;
+    }
+
+    return {
+      provider,
+      label: ADMIN_AI_PROVIDER_LABELS[provider],
+      workflow: config.workflow,
+      secretName,
+      dispatchEnabled: config.enabled,
+      keyInserted,
+      state,
+      note,
+    };
+  });
 }
 
 function normalizeIsoDate(value: unknown): string | null {
@@ -258,42 +796,103 @@ function respondHttpError(ctx: Context, status: number, name: string, message: s
   };
 }
 
-function getCodexDispatchConfig(): CodexDispatchConfig {
-  const allowedScopes = parseDelimitedLowerStrings(process.env.OPS_CODEX_ALLOWED_SCOPES);
-  const allowedBaseBranches = parseDelimitedWorkflowTokens(
-    process.env.OPS_CODEX_ALLOWED_BASE_BRANCHES,
+function getAiDispatchConfig(provider: AdminAiProvider): AiDispatchConfig {
+  const isCodex = provider === 'codex';
+  const allowedScopes = resolveDelimitedLowerStrings([
+    process.env[aiProviderEnvKey(provider, 'ALLOWED_SCOPES')],
+    process.env.OPS_AI_ALLOWED_SCOPES,
+    isCodex ? process.env.OPS_CODEX_ALLOWED_SCOPES : null,
+  ]);
+  const allowedBaseBranches = resolveDelimitedWorkflowTokens([
+    process.env[aiProviderEnvKey(provider, 'ALLOWED_BASE_BRANCHES')],
+    process.env.OPS_AI_ALLOWED_BASE_BRANCHES,
+    isCodex ? process.env.OPS_CODEX_ALLOWED_BASE_BRANCHES : null,
+  ]);
+  const token = resolveNormalizedText(
+    [
+      process.env[aiProviderEnvKey(provider, 'GITHUB_TOKEN')],
+      process.env.OPS_AI_GITHUB_TOKEN,
+      process.env.OPS_CODEX_GITHUB_TOKEN,
+    ],
+    500,
   );
-  const token = normalizeText(process.env.OPS_CODEX_GITHUB_TOKEN, 500);
-  const owner = normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_OWNER, 120);
-  const repo = normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_REPO, 120);
+  const owner = resolveWorkflowTokenValue(
+    [
+      process.env[aiProviderEnvKey(provider, 'GITHUB_OWNER')],
+      process.env.OPS_AI_GITHUB_OWNER,
+      process.env.OPS_CODEX_GITHUB_OWNER,
+    ],
+    120,
+  );
+  const repo = resolveWorkflowTokenValue(
+    [
+      process.env[aiProviderEnvKey(provider, 'GITHUB_REPO')],
+      process.env.OPS_AI_GITHUB_REPO,
+      process.env.OPS_CODEX_GITHUB_REPO,
+    ],
+    120,
+  );
+  const workflow =
+    resolveWorkflowTokenValue(
+      [
+        process.env[aiProviderEnvKey(provider, 'GITHUB_WORKFLOW')],
+        isCodex ? process.env.OPS_CODEX_GITHUB_WORKFLOW : null,
+      ],
+      160,
+    ) ?? DEFAULT_AI_PROVIDER_WORKFLOWS[provider];
+  const ref =
+    resolveWorkflowTokenValue(
+      [
+        process.env[aiProviderEnvKey(provider, 'GITHUB_REF')],
+        process.env.OPS_AI_GITHUB_REF,
+        isCodex ? process.env.OPS_CODEX_GITHUB_REF : null,
+      ],
+      160,
+    ) ?? DEFAULT_AI_GITHUB_REF;
 
   return {
-    enabled: parseBoolean(process.env.OPS_CODEX_DISPATCH_ENABLED, false),
-    configured: Boolean(token && owner && repo),
+    selectedProvider: provider,
+    enabled:
+      resolveBooleanValue([
+        process.env[aiProviderEnvKey(provider, 'DISPATCH_ENABLED')],
+        process.env.OPS_AI_DISPATCH_ENABLED,
+        isCodex ? process.env.OPS_CODEX_DISPATCH_ENABLED : null,
+      ]) ?? false,
+    configured: Boolean(token && owner && repo && workflow),
     apiUrl:
-      normalizeText(process.env.OPS_CODEX_GITHUB_API_URL, 500)?.replace(/\/+$/, '') ??
-      DEFAULT_CODEX_GITHUB_API_URL,
+      resolveNormalizedText(
+        [
+          process.env[aiProviderEnvKey(provider, 'GITHUB_API_URL')],
+          process.env.OPS_AI_GITHUB_API_URL,
+          process.env.OPS_CODEX_GITHUB_API_URL,
+        ],
+        500,
+      )?.replace(/\/+$/, '') ?? DEFAULT_AI_GITHUB_API_URL,
     owner,
     repo,
-    workflow:
-      normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_WORKFLOW, 160) ??
-      DEFAULT_CODEX_GITHUB_WORKFLOW,
-    ref: normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_REF, 160) ?? DEFAULT_CODEX_GITHUB_REF,
+    workflow,
+    ref,
     token,
-    timeoutMs: parsePositiveInteger(process.env.OPS_CODEX_TIMEOUT_MS, DEFAULT_CODEX_TIMEOUT_MS),
-    allowedScopes:
-      allowedScopes.length > 0 ? allowedScopes : Array.from(DEFAULT_CODEX_ALLOWED_SCOPES),
+    timeoutMs: resolvePositiveIntegerValue(
+      [
+        process.env[aiProviderEnvKey(provider, 'TIMEOUT_MS')],
+        process.env.OPS_AI_TIMEOUT_MS,
+        process.env.OPS_CODEX_TIMEOUT_MS,
+      ],
+      DEFAULT_AI_TIMEOUT_MS,
+    ),
+    allowedScopes: allowedScopes.length > 0 ? allowedScopes : Array.from(DEFAULT_AI_ALLOWED_SCOPES),
     allowedBaseBranches:
       allowedBaseBranches.length > 0
         ? allowedBaseBranches
-        : Array.from(DEFAULT_CODEX_ALLOWED_BASE_BRANCHES),
+        : Array.from(DEFAULT_AI_ALLOWED_BASE_BRANCHES),
   };
 }
 
-function validateCodexDispatchInput(
+function validateAiDispatchInput(
   body: unknown,
-  config: CodexDispatchConfig,
-): { input: CodexDispatchInput | null; error: string | null } {
+  config: AiDispatchConfig,
+): { input: AiDispatchInput | null; error: string | null } {
   const record =
     body && typeof body === 'object' && !Array.isArray(body)
       ? (body as Record<string, unknown>)
@@ -302,7 +901,16 @@ function validateCodexDispatchInput(
   if (!record) {
     return {
       input: null,
-      error: 'owner.ops.codex.payload.invalid',
+      error: 'owner.ops.ai.payload.invalid',
+    };
+  }
+
+  const provider =
+    record.provider == null ? config.selectedProvider : normalizeAiProvider(record.provider);
+  if (!provider) {
+    return {
+      input: null,
+      error: 'owner.ops.ai.provider.invalid',
     };
   }
 
@@ -310,7 +918,7 @@ function validateCodexDispatchInput(
   if (!task) {
     return {
       input: null,
-      error: 'owner.ops.codex.task.required',
+      error: 'owner.ops.ai.task.required',
     };
   }
 
@@ -318,7 +926,7 @@ function validateCodexDispatchInput(
   if (!scope || !config.allowedScopes.includes(scope)) {
     return {
       input: null,
-      error: 'owner.ops.codex.scope.invalid',
+      error: 'owner.ops.ai.scope.invalid',
     };
   }
 
@@ -326,12 +934,13 @@ function validateCodexDispatchInput(
   if (!baseBranch || !config.allowedBaseBranches.includes(baseBranch)) {
     return {
       input: null,
-      error: 'owner.ops.codex.base_branch.invalid',
+      error: 'owner.ops.ai.base_branch.invalid',
     };
   }
 
   return {
     input: {
+      provider,
       task,
       scope,
       baseBranch,
@@ -343,12 +952,12 @@ function validateCodexDispatchInput(
   };
 }
 
-async function dispatchCodexWorkflow(
-  config: CodexDispatchConfig,
-  input: CodexDispatchInput,
+async function dispatchAiWorkflow(
+  config: AiDispatchConfig,
+  input: AiDispatchInput,
 ): Promise<Record<string, unknown>> {
   if (!config.token || !config.owner || !config.repo) {
-    throw new Error('Codex GitHub dispatch is not configured.');
+    throw new Error(`${config.selectedProvider} GitHub dispatch is not configured.`);
   }
 
   const abortController = new AbortController();
@@ -373,6 +982,7 @@ async function dispatchCodexWorkflow(
       body: JSON.stringify({
         ref: config.ref,
         inputs: {
+          provider: input.provider,
           task: input.task,
           scope: input.scope,
           base_branch: input.baseBranch,
@@ -391,12 +1001,14 @@ async function dispatchCodexWorkflow(
     return {
       queued: true,
       provider: 'github-actions',
+      selectedProvider: config.selectedProvider,
       owner: config.owner,
       repo: config.repo,
       workflow: config.workflow,
       ref: config.ref,
       requestedAt: new Date().toISOString(),
       request: {
+        selectedProvider: input.provider,
         scope: input.scope,
         baseBranch: input.baseBranch,
         draftPr: input.draftPr,
@@ -736,6 +1348,7 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
     }
     return DEFAULT_UPLOAD_ALLOWED_MIME_TYPES;
   })();
+  const aiKeys = await buildAiIgnitionModules();
 
   return {
     generatedAt: new Date().toISOString(),
@@ -759,6 +1372,7 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
     auth: {
       sessionIdleTimeoutMs: parseSessionIdleTimeoutMs(process.env.AUTH_SESSION_IDLE_TIMEOUT_MS),
     },
+    aiKeys,
     moderation: {
       pendingCompanies,
       suspendedCompanies,
@@ -803,31 +1417,54 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     }
   },
 
-  async dispatchCodexWorkflow(ctx: Context) {
-    const config = getCodexDispatchConfig();
+  async proofs(ctx: Context) {
+    try {
+      ctx.body = { data: await buildAiProofSnapshot() };
+    } catch (error: unknown) {
+      strapi.log.error(`[ops] Failed to build AI proof snapshot: ${toErrorMessage(error)}`);
+      ctx.internalServerError('owner.ops.ai.proofs.failed');
+    }
+  },
 
-    if (!config.enabled || !config.configured) {
-      strapi.log.warn('[ops] Codex workflow dispatch requested while integration is disabled.');
-      respondHttpError(ctx, 503, 'ServiceUnavailableError', 'owner.ops.codex.disabled');
+  async dispatchCodexWorkflow(ctx: Context) {
+    const body = (ctx.request as Context['request']).body;
+    const record =
+      body && typeof body === 'object' && !Array.isArray(body)
+        ? (body as Record<string, unknown>)
+        : null;
+    const requestedProvider =
+      record?.provider == null ? 'codex' : normalizeAiProvider(record.provider);
+
+    if (record?.provider != null && !requestedProvider) {
+      ctx.badRequest('owner.ops.ai.provider.invalid');
       return;
     }
 
-    const { input, error } = validateCodexDispatchInput(
-      (ctx.request as Context['request']).body,
-      config,
-    );
+    const config = getAiDispatchConfig(requestedProvider ?? 'codex');
+
+    if (!config.enabled || !config.configured) {
+      strapi.log.warn(
+        `[ops] ${config.selectedProvider} workflow dispatch requested while integration is disabled.`,
+      );
+      respondHttpError(ctx, 503, 'ServiceUnavailableError', 'owner.ops.ai.disabled');
+      return;
+    }
+
+    const { input, error } = validateAiDispatchInput(body, config);
     if (error || !input) {
-      ctx.badRequest(error ?? 'owner.ops.codex.payload.invalid');
+      ctx.badRequest(error ?? 'owner.ops.ai.payload.invalid');
       return;
     }
 
     try {
       ctx.body = {
-        data: await dispatchCodexWorkflow(config, input),
+        data: await dispatchAiWorkflow(config, input),
       };
     } catch (error: unknown) {
-      strapi.log.error(`[ops] Failed to dispatch Codex workflow: ${toErrorMessage(error)}`);
-      respondHttpError(ctx, 502, 'BadGatewayError', 'owner.ops.codex.dispatch.failed');
+      strapi.log.error(
+        `[ops] Failed to dispatch ${config.selectedProvider} workflow: ${toErrorMessage(error)}`,
+      );
+      respondHttpError(ctx, 502, 'BadGatewayError', 'owner.ops.ai.dispatch.failed');
     }
   },
 });

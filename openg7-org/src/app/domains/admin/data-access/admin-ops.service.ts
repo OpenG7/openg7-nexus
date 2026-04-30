@@ -5,6 +5,8 @@ import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
 import { forkJoin, map, Observable } from 'rxjs';
 
+import { AdminAiProvider } from './admin-ai-providers';
+
 export type AdminOpsCodexScope =
   | 'openg7-org'
   | 'strapi'
@@ -97,10 +99,64 @@ export interface AdminOpsSecuritySnapshot {
   auth: {
     sessionIdleTimeoutMs: number | null;
   };
+  aiKeys: Array<{
+    provider: AdminAiProvider;
+    label: string;
+    workflow: string;
+    secretName: string | null;
+    dispatchEnabled: boolean;
+    keyInserted: boolean;
+    state: 'ready' | 'offline' | 'scan-unavailable' | 'unsupported';
+    note: string;
+  }>;
   moderation: {
     pendingCompanies: number;
     suspendedCompanies: number;
   };
+}
+
+export interface AdminOpsAiProofArtifact {
+  id: number | null;
+  name: string;
+  sizeBytes: number;
+  expired: boolean;
+  url: string | null;
+}
+
+export interface AdminOpsAiProofPullRequest {
+  number: number | null;
+  title: string;
+  url: string | null;
+  state: string;
+  merged: boolean;
+  branch: string | null;
+}
+
+export interface AdminOpsAiProofRun {
+  id: number | null;
+  number: number | null;
+  url: string | null;
+  status: string | null;
+  conclusion: string | null;
+  branch: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface AdminOpsAiProofProviderSnapshot {
+  provider: AdminAiProvider;
+  label: string;
+  workflow: string;
+  state: 'queued' | 'in-progress' | 'completed' | 'failed' | 'unavailable';
+  summary: string;
+  run: AdminOpsAiProofRun | null;
+  artifacts: AdminOpsAiProofArtifact[];
+  pullRequest: AdminOpsAiProofPullRequest | null;
+}
+
+export interface AdminOpsAiProofSnapshot {
+  generatedAt: string;
+  providers: AdminOpsAiProofProviderSnapshot[];
 }
 
 export interface AdminOpsSnapshot {
@@ -111,6 +167,7 @@ export interface AdminOpsSnapshot {
 }
 
 export interface AdminOpsCodexDispatchRequest {
+  provider: AdminAiProvider;
   task: string;
   scope: AdminOpsCodexScope;
   baseBranch: string;
@@ -122,12 +179,14 @@ export interface AdminOpsCodexDispatchRequest {
 export interface AdminOpsCodexDispatchResponse {
   queued: boolean;
   provider: 'github-actions';
+  selectedProvider: AdminAiProvider;
   owner: string;
   repo: string;
   workflow: string;
   ref: string;
   requestedAt: string;
   request: {
+    selectedProvider: AdminAiProvider;
     scope: AdminOpsCodexScope;
     baseBranch: string;
     draftPr: boolean;
@@ -169,12 +228,18 @@ export class AdminOpsService {
       .pipe(map((response) => response.data));
   }
 
+  getAiProofs(): Observable<AdminOpsAiProofSnapshot> {
+    return this.http
+      .get<StrapiDataResponse<AdminOpsAiProofSnapshot>>(STRAPI_ROUTES.admin.opsAiProofs)
+      .pipe(map((response) => response.data));
+  }
+
   dispatchCodexWorkflow(
     payload: AdminOpsCodexDispatchRequest,
   ): Observable<AdminOpsCodexDispatchResponse> {
     return this.http
       .post<StrapiDataResponse<AdminOpsCodexDispatchResponse>>(
-        STRAPI_ROUTES.admin.opsCodexDispatch,
+        STRAPI_ROUTES.admin.opsAiDispatch,
         payload,
         {
           context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),

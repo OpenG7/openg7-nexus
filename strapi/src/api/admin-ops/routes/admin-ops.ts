@@ -33,6 +33,22 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/admin/ops/ai/proofs',
+      handler: 'admin-ops.proofs',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/admin/ops/ai/dispatch',
+      handler: 'admin-ops.dispatchCodexWorkflow',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
       method: 'POST',
       path: '/admin/ops/codex/dispatch',
       handler: 'admin-ops.dispatchCodexWorkflow',

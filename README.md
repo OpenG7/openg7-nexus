@@ -123,11 +123,13 @@ Detailed guides live in `docs/`:
 The platform includes admin operations surfaces for monitoring runtime health and platform status.
 
 - Frontend route: `/admin/ops` for the admin UI
+- Frontend route: `/admin/quality` for Mission Control dispatches backed by Ops readiness
 - API endpoints:
   - `GET /api/admin/ops/health`
   - `GET /api/admin/ops/backups`
   - `GET /api/admin/ops/imports`
   - `GET /api/admin/ops/security`
+  - `POST /api/admin/ops/ai/dispatch`
   - `POST /api/admin/ops/codex/dispatch`
 - API policy: `global::owner-admin-ops`
 - API access: roles `Admin` and `Owner`

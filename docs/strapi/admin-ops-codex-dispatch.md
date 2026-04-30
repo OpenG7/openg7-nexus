@@ -1,17 +1,76 @@
-# Admin Ops Codex Dispatch
+# Admin Ops AI Dispatch
 
-This guide documents the Strapi backend endpoint used to trigger the GitHub Actions Codex v1 workflow from an owner/admin surface.
+This guide documents the Strapi backend endpoint used to trigger provider-specific GitHub Actions workflows from an owner/admin surface.
 
 ## Endpoint
 
-- `POST /api/admin/ops/codex/dispatch`
+- `GET /api/admin/ops/ai/proofs`
+- `POST /api/admin/ops/ai/dispatch`
+- Compatibility alias: `POST /api/admin/ops/codex/dispatch`
 - Auth: authenticated user with role `Admin` or `Owner`
 - Policy: `global::owner-admin-ops`
+
+## Proof telemetry response
+
+`GET /api/admin/ops/ai/proofs` returns the latest observable GitHub evidence for each provider workflow. The response is read-only and meant for Mission Control / Ops dashboards.
+
+```json
+{
+  "data": {
+    "generatedAt": "2026-04-30T12:00:00.000Z",
+    "providers": [
+      {
+        "provider": "codex",
+        "label": "Codex",
+        "workflow": "codex-pr.yml",
+        "state": "completed",
+        "summary": "Workflow #51 completed with 2 artifact(s) and PR #321.",
+        "run": {
+          "id": 501,
+          "number": 51,
+          "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501",
+          "status": "completed",
+          "conclusion": "success",
+          "branch": "codex/qa-proof-501",
+          "createdAt": "2026-04-30T00:00:00.000Z",
+          "updatedAt": "2026-04-30T00:08:00.000Z"
+        },
+        "artifacts": [
+          {
+            "id": 9001,
+            "name": "playwright-report",
+            "sizeBytes": 2048,
+            "expired": false,
+            "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts"
+          }
+        ],
+        "pullRequest": {
+          "number": 321,
+          "title": "Codex QA proof package",
+          "url": "https://github.com/OpenG7/openg7-platform/pull/321",
+          "state": "open",
+          "merged": false,
+          "branch": "codex/qa-proof-501"
+        }
+      }
+    ]
+  }
+}
+```
+
+States are intentionally coarse:
+
+- `queued` -> the workflow has been accepted by GitHub and is waiting to start.
+- `in-progress` -> the provider lane is actively generating proof.
+- `completed` -> the latest run finished successfully and artifacts/PR evidence can be reviewed.
+- `failed` -> the latest run finished but did not conclude successfully.
+- `unavailable` -> no run is observable yet or GitHub monitoring is not configured.
 
 ## Request payload
 
 ```json
 {
+  "provider": "copilot",
   "task": "Fix the login empty state and add a focused test.",
   "scope": "openg7-org",
   "baseBranch": "main",
@@ -23,9 +82,10 @@ This guide documents the Strapi backend endpoint used to trigger the GitHub Acti
 
 ## Validation rules
 
+- `provider` accepts `codex`, `copilot`, `claude`, or `gemini`. Omit it to keep the legacy `codex` default.
 - `task` is required and trimmed to 2000 characters.
-- `scope` must belong to `OPS_CODEX_ALLOWED_SCOPES`.
-- `baseBranch` must belong to `OPS_CODEX_ALLOWED_BASE_BRANCHES`.
+- `scope` must belong to the allowlist resolved for the selected provider.
+- `baseBranch` must belong to the branch allowlist resolved for the selected provider.
 - `draftPr` defaults to `true`.
 - `model` and `effort` are optional pass-through fields.
 
@@ -42,11 +102,30 @@ This guide documents the Strapi backend endpoint used to trigger the GitHub Acti
 - `OPS_CODEX_ALLOWED_BASE_BRANCHES` - comma-separated allowlist of base branches accepted from callers.
 - `OPS_CODEX_TIMEOUT_MS` - outbound GitHub API timeout in milliseconds.
 
+Optional multi-provider overrides use the `OPS_AI_*` namespace:
+
+- `OPS_AI_GITHUB_TOKEN`, `OPS_AI_GITHUB_OWNER`, `OPS_AI_GITHUB_REPO`, `OPS_AI_GITHUB_API_URL`
+- `OPS_AI_ALLOWED_SCOPES`, `OPS_AI_ALLOWED_BASE_BRANCHES`, `OPS_AI_TIMEOUT_MS`
+- `OPS_AI_<PROVIDER>_DISPATCH_ENABLED`
+- `OPS_AI_<PROVIDER>_GITHUB_WORKFLOW`
+- `OPS_AI_<PROVIDER>_GITHUB_REF`
+
+`<PROVIDER>` can be `COPILOT`, `CLAUDE`, or `GEMINI`. Non-Codex providers fall back to `OPS_AI_*` first and then to the legacy `OPS_CODEX_*` values for shared GitHub owner/repo/token settings.
+
+## Workflow files and provider secrets
+
+- `codex` -> `.github/workflows/codex-pr.yml` using `OPENAI_API_KEY`
+- `claude` -> `.github/workflows/claude-pr.yml` using `ANTHROPIC_API_KEY`
+- `gemini` -> `.github/workflows/gemini-pr.yml` using `GEMINI_API_KEY` by default; adapt the workflow if you prefer Vertex AI or Gemini Code Assist via repository variables
+- `copilot` -> `.github/workflows/copilot-pr.yml` is a guarded placeholder that fails fast on purpose; keep `OPS_AI_COPILOT_DISPATCH_ENABLED=false` until GitHub exposes a stable automation surface for Copilot branch-and-PR runs in this repository
+
+The Claude and Gemini workflows mirror the existing Codex flow: checkout the requested base branch, constrain the prompt to the selected scope, let the provider edit the repo, then open a PR with `peter-evans/create-pull-request`.
+
 ## Kubernetes wiring
 
 The production manifest now exposes the non-secret settings through the shared Strapi `ConfigMap` and expects the GitHub token from the Kubernetes secret `strapi-github-actions` under the key `codex-github-token`.
 
-The deployment keeps the secret optional so environments that do not use the Codex control plane can leave it unset while `OPS_CODEX_DISPATCH_ENABLED=false`.
+The deployment keeps the secret optional so environments that do not use AI dispatch can leave it unset while all dispatch flags remain `false`.
 
 ## Response shape
 
@@ -57,12 +136,14 @@ Successful responses return a small queue acknowledgement:
   "data": {
     "queued": true,
     "provider": "github-actions",
+    "selectedProvider": "copilot",
     "owner": "OpenG7",
     "repo": "openg7-platform",
-    "workflow": "codex-pr.yml",
+    "workflow": "copilot-pr.yml",
     "ref": "main",
     "requestedAt": "2026-04-25T12:00:00.000Z",
     "request": {
+      "selectedProvider": "copilot",
       "scope": "openg7-org",
       "baseBranch": "main",
       "draftPr": true,
@@ -80,14 +161,25 @@ Successful responses return a small queue acknowledgement:
 - `403` when the authenticated user is not `Admin` or `Owner`.
 - `503` when the integration is disabled or missing required GitHub configuration.
 - `502` when GitHub rejects or times out the workflow dispatch.
+- A dispatched workflow run can still fail later if the provider-specific secret is missing or, for `copilot`, if the placeholder workflow is enabled accidentally.
+
+## Admin quality launch path
+
+`/admin/quality` now uses the same backend control point instead of relying on a local quota estimate:
+
+- Mission Control reads `/api/admin/ops/security` and only arms the launch action when the selected provider has `dispatchEnabled=true`, `keyInserted=true`, and `state="ready"`.
+- Mission Control also reads `/api/admin/ops/ai/proofs` to surface the latest workflow run, PR lane, and artifact package for each provider.
+- The launch button dispatches the selected mission directly through `POST /api/admin/ops/ai/dispatch` after an explicit browser confirmation.
+- The prompt, scope, base branch, draft PR flag, model, and provider are still the same fields shown in `/admin/ops`; `/admin/ops` remains the manual inspection and retry surface.
+- Mission status changes to `in-progress` only after the backend has accepted the GitHub workflow dispatch.
 
 ## Operating model
 
 This endpoint is intentionally thin:
 
 - Strapi validates operator intent.
-- GitHub keeps the `OPENAI_API_KEY` secret and executes Codex.
+- GitHub keeps provider secrets and executes the selected workflow.
 - The workflow creates a dedicated branch and opens a PR.
 - Human review still gates merge.
 
-That keeps Codex secrets and branch automation outside the Angular app while giving OpenG7 a single backend control point for audits and future rate limiting.
+That keeps AI provider secrets and branch automation outside the Angular app while giving OpenG7 a single backend control point for audits and future rate limiting.

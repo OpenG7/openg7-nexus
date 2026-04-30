@@ -287,6 +287,30 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 text-xs">
+          <label
+            class="flex min-w-[15rem] items-center gap-3 rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-2.5 text-sm text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+          >
+            <span class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80"
+              >AI</span
+            >
+            <select
+              class="min-w-0 flex-1 appearance-none bg-transparent text-sm text-white outline-none"
+              [value]="selectedAiProvider()"
+              (change)="setAiProvider($event)"
+              data-og7="admin-quality-ai-provider"
+              data-og7-id="admin-quality-ai-provider"
+            >
+              @for (provider of aiProviders; track provider.id) {
+              <option [value]="provider.id">{{ provider.label }}</option>
+              }
+            </select>
+          </label>
+          <span
+            class="max-w-[22rem] text-[11px] leading-5 text-slate-400"
+            data-og7-id="admin-quality-ai-provider-caption"
+          >
+            {{ selectedAiProviderCaption() }}
+          </span>
           @if (hasActiveFilters()) {
           <span class="inline-flex items-center gap-1 font-medium text-emerald-100">
             <span class="text-emerald-300" aria-hidden="true">•</span>
@@ -300,6 +324,224 @@
           }
         </div>
       </div>
+
+      @if (selectedMission(); as mission) {
+      <div class="h-px bg-white/10"></div>
+
+      <section
+        class="og7-cockpit-surface relative overflow-hidden rounded-[18px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(7,20,38,0.94))] px-4 py-3 shadow-[0_24px_70px_-46px_rgba(34,211,238,0.36)] transition-[box-shadow,border-color,transform] duration-500"
+        data-og7="admin-quality-mission-hud"
+        [attr.data-og7-expanded]="missionHudExpanded()"
+        [attr.data-og7-ambient]="missionHudAmbientTone()"
+        [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
+        [ngStyle]="missionCockpitStyleVars()"
+      >
+        <div
+          class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
+          data-og7="admin-quality-cockpit-sync-band"
+          data-og7-surface="hud"
+        ></div>
+        <div
+          class="pointer-events-none absolute inset-0 opacity-95 transition-opacity duration-500"
+          [class]="missionHudAmbientOverlayClasses()"
+          data-og7="admin-quality-hud-ambient-layer"
+        ></div>
+
+        <div class="relative grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1.4fr)_auto] xl:items-start">
+          <div class="min-w-0 space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                Mission HUD
+              </p>
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudStatusClasses(mission.status)"
+                data-og7-id="admin-quality-hud-mission-status"
+              >
+                {{ missionHudStatusLabel(mission.status) }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100"
+              >
+                {{ selectedAiProviderLabel() }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200"
+                data-og7-id="admin-quality-hud-active-section-label"
+              >
+                Zone active · {{ missionHudSectionLabel() }}
+              </span>
+            </div>
+
+            <div class="min-w-0">
+              <h2 class="truncate text-lg font-semibold text-white" data-og7-id="admin-quality-hud-title">
+                {{ mission.title }}
+              </h2>
+              <p class="mt-1 max-w-3xl text-sm leading-6 text-slate-300" data-og7-id="admin-quality-hud-summary">
+                @if (missionHudExpanded()) {
+                {{ selectedEntry()?.domain ?? 'Mission active' }} · {{ selectedAiDispatchWorkflow() }}
+                } @else {
+                {{ missionHudCompactSummary() }}
+                }
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 xl:justify-end">
+            @for (section of missionHudSectionOptions; track section.id) {
+            <button
+              type="button"
+              class="inline-flex min-h-9 items-center justify-center rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition"
+              [class]="missionHudSectionClasses(section.id)"
+              [attr.data-og7-active]="missionHudActiveSection() === section.id"
+              [attr.data-og7-pulse]="missionHudSectionPulse(section.id)"
+              [attr.data-og7-id]="'admin-quality-hud-section-' + section.id"
+              data-og7="admin-quality-hud-section-chip"
+              (click)="scrollMissionHudToSection(section.id)"
+            >
+              {{ section.shortLabel }}
+            </button>
+            }
+            <button
+              type="button"
+              class="inline-flex min-h-9 items-center justify-center rounded-full border border-white/12 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-100 transition hover:bg-white/8"
+              (click)="toggleMissionHud()"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-toggle"
+            >
+              {{ missionHudExpanded() ? 'Compact mode' : 'Expanded mode' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="relative mt-3 grid gap-3 2xl:grid-cols-[minmax(0,1fr)_auto] 2xl:items-center">
+          <div
+            class="rounded-[16px] border border-white/10 bg-white/[0.04] px-3 py-3"
+            data-og7="admin-quality-hud-energy-lane"
+          >
+            <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <span>Energy lane</span>
+              <span class="h-px flex-1 bg-white/10"></span>
+            </div>
+            <div class="mt-3 grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] items-center gap-2">
+              <span
+                class="inline-flex h-8 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudEnergyNodeClasses(missionHudEnergyLaneSegments()[0]?.state ?? 'standby')"
+              >
+                Mission
+              </span>
+              @for (segment of missionHudEnergyLaneSegments(); track segment.id) {
+              <div
+                class="h-1.5 rounded-full"
+                [class]="missionHudEnergyTrackClasses(segment.state)"
+                data-og7="admin-quality-hud-energy-segment"
+                [attr.data-og7-id]="segment.id"
+                [attr.data-og7-state]="segment.state"
+              ></div>
+              <span
+                class="inline-flex h-8 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudEnergyNodeClasses(segment.state)"
+              >
+                {{ segment.to }}
+              </span>
+              }
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 xl:justify-end">
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center justify-center rounded-[12px] border border-white/12 bg-[#10192b] px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]"
+              (click)="openWorkspace('delegation')"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-open-workspace"
+            >
+              Ouvrir mission desk
+            </button>
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center justify-center rounded-[12px] border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/16"
+              (click)="openWorkspace('actions')"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-open-actions"
+            >
+              Ouvrir proof desk
+            </button>
+          </div>
+        </div>
+
+        @if (missionHudExpanded()) {
+        <div class="relative mt-3 grid gap-2 sm:grid-cols-2 xl:min-w-[34rem] xl:grid-cols-4" data-og7="admin-quality-hud-expanded-panels">
+            <article class="rounded-[14px] border border-white/10 bg-white/5 px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Ops
+              </p>
+              <span
+                class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudOpsClasses()"
+                data-og7-id="admin-quality-hud-ops-status"
+              >
+                {{ selectedAiDispatchStatusLabel() }}
+              </span>
+            </article>
+
+            <article class="rounded-[14px] border border-white/10 bg-white/5 px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Proof
+              </p>
+              @if (selectedAiProofDisplay(); as proof) {
+              <span
+                class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudProofClasses(proof.state)"
+                data-og7-id="admin-quality-hud-proof-status"
+                [attr.data-og7-hot]="missionHudProofPulse(proof.state)"
+              >
+                {{ proof.label }}
+              </span>
+              }
+            </article>
+
+            <article class="rounded-[14px] border border-white/10 bg-white/5 px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Telemetry
+              </p>
+              <span
+                class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
+                data-og7-id="admin-quality-hud-telemetry-status"
+              >
+                {{ selectedAiTelemetryLabel() }}
+              </span>
+            </article>
+
+            <article class="rounded-[14px] border border-white/10 bg-white/5 px-3 py-2.5">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Charge
+              </p>
+              <p
+                class="mt-2 text-sm font-semibold text-white"
+                data-og7-id="admin-quality-hud-required-units"
+              >
+                {{ selectedMissionQuotaSummary()?.requiredUnits ?? 0 }} unit(s)
+              </p>
+            </article>
+          </div>
+
+        <div class="mt-3 flex flex-col gap-3 border-t border-white/10 pt-3 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
+            @if (selectedAiProofDisplay(); as proof) {
+            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-200">
+              {{ proof.artifactLabel }}
+            </span>
+            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-200">
+              {{ proof.pullRequestLabel }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+      </section>
+      }
 
       @if (hasActiveFilters()) {
       <div class="sr-only" data-og7="admin-quality-active-filters">
@@ -316,129 +558,681 @@
       } @else {
       <p class="sr-only">Aucun filtre actif. La vue montre tout le portefeuille QA.</p>
       }
+
+      <div class="border-t border-white/10 pt-3">
+        <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
+      </div>
     </div>
   </section>
-
-  <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
 
   <div
-    class="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(23rem,0.92fr)] lg:items-start"
-  >
-    <div class="w-full min-w-0">
-      <og7-admin-quality-coverage-matrix
-        [entries]="filteredEntries()"
-        [selectedEntryId]="selectedEntry()?.id ?? null"
-        (entrySelected)="selectEntry($event)"
-      />
-    </div>
-
-    <div class="flex w-full min-w-0 lg:self-start">
-      @if (missionControl(); as mission) {
-      <og7-admin-quality-mission-control
-        [missionControl]="mission"
-        [snapshotLoaded]="!!snapshot()"
-        [totalDomains]="totalDomains()"
-        [selectedDomain]="selectedEntry()?.domain ?? null"
-        [selectedEntry]="selectedEntry()"
-        [selectedDelegation]="selectedDelegation()"
-        [selectedMission]="selectedMission()"
-        [selectedMissionTasks]="selectedMissionTasks()"
-        [selectedMissionQuotaSummary]="selectedMissionQuotaSummary()"
-        [canStartSelectedMission]="canStartSelectedMission()"
-        [availableCodexQuotaUnits]="availableCodexQuotaUnits()"
-        [speaking]="speaking()"
-        (availableCodexQuotaUnitsChanged)="setAvailableCodexQuotaUnits($event)"
-        (missionSelected)="selectMission($event)"
-        (missionAction)="handleMissionAction($event)"
-        (speakRequested)="speakMissionControl(mission)"
-        (stopSpeakingRequested)="stopMissionVoice()"
-      />
-      }
-    </div>
-  </div>
-
-  <section
-    class="relative mt-8 overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
-    data-og7="admin-quality-workspace-bar"
+    class="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(21rem,0.65fr)] xl:items-start"
+    data-og7="admin-quality-main-cockpit"
   >
     <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_24%),radial-gradient(circle_at_18%_18%,_rgba(251,191,36,0.1),_transparent_22%)]"
-    ></div>
-
-    <div class="relative flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-      <div class="min-w-0 space-y-3">
-        <div class="flex flex-wrap items-center gap-2">
-          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
-            {{ 'admin.quality.workspace.compact.label' | translate }}
-          </p>
-          <span
-            class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
-          >
-            {{ 'admin.quality.workspace.compact.primarySurface' | translate: { surface:
-            (selectedWorkspaceTitle() | translate) } }}
-          </span>
-        </div>
-
-        <div class="space-y-1">
-          <h2 class="text-2xl font-semibold tracking-tight text-white">
-            {{ 'admin.quality.workspace.compact.title' | translate }}
-          </h2>
-          <p class="max-w-3xl text-sm leading-6 text-slate-300">
-            {{ 'admin.quality.workspace.compact.subtitle' | translate }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap gap-2 text-sm text-slate-200">
-          <span
-            class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
-          >
-            {{ 'admin.quality.workspace.compact.domains' | translate: { count:
-            filteredEntries().length } }}
-          </span>
-          <span
-            class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
-          >
-            {{ 'admin.quality.workspace.compact.actions' | translate: { count:
-            selectedEntryActions().length } }}
-          </span>
-          <span
-            class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100"
-          >
-            {{ 'admin.quality.workspace.compact.activeSurface' | translate: { surface:
-            (selectedWorkspaceTitle() | translate) } }}
-          </span>
-        </div>
+      #coverageSection
+      class="flex min-w-0 flex-col gap-6"
+      data-og7="admin-quality-scroll-section"
+      data-og7-id="coverage"
+    >
+      <div
+        class="og7-radar-lock-focus-shell w-full min-w-0 rounded-[28px]"
+        [attr.data-og7-lock-focus]="missionControlPanelFocused('coverage')"
+        data-og7="admin-quality-panel-shell"
+        data-og7-id="coverage"
+      >
+        <og7-admin-quality-coverage-matrix
+          [entries]="filteredEntries()"
+          [selectedEntryId]="selectedEntry()?.id ?? null"
+          (entrySelected)="selectEntry($event)"
+        />
       </div>
 
-      <div class="flex flex-col gap-3 xl:min-w-[18rem] xl:max-w-[22rem] xl:items-end">
-        <article class="w-full rounded-[24px] border border-white/10 bg-slate-950/55 p-4 text-left">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-            {{ 'admin.quality.workspace.compact.activePanel' | translate }}
-          </p>
-          <p class="mt-2 text-lg font-semibold text-white">
-            {{ selectedWorkspaceTitle() | translate }}
-          </p>
-          <p class="mt-2 text-sm leading-6 text-slate-300">
-            {{ selectedWorkspaceSubtitle() | translate }}
-          </p>
-          <p class="mt-3 text-xs font-medium text-cyan-100">
-            {{ 'admin.quality.workspace.compact.activePanelCount' | translate: { count:
-            selectedWorkspaceCount() } }}
-          </p>
-        </article>
-
-        <button
-          type="button"
-          class="inline-flex min-h-12 items-center justify-center rounded-[18px] border border-cyan-300/25 bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-blue-400"
-          (click)="openWorkspace()"
-          data-og7="action"
-          data-og7-id="admin-quality-open-workspace"
+      <details
+        class="rounded-[30px] border border-slate-200/90 bg-slate-50/90 shadow-[0_18px_56px_-40px_rgba(15,23,42,0.2)]"
+        data-og7="admin-quality-secondary-queue"
+      >
+        <summary
+          class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+          data-og7-id="admin-quality-secondary-queue-toggle"
         >
-          {{ 'admin.quality.workspace.compact.open' | translate }}
-        </button>
-      </div>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              Surface secondaire
+            </p>
+            <h2 class="mt-1 text-lg font-semibold text-slate-900">QA Queue detaillee</h2>
+            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+              Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
+              la prochaine action sans concurrencer la surface principale.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span
+              class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
+            >
+              {{ filteredEntries().length }} domaine(s)
+            </span>
+            <span
+              class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
+            >
+              Reselection manuelle
+            </span>
+          </div>
+        </summary>
+
+        <div class="border-t border-slate-200/80 px-4 py-4 sm:px-5">
+          <section
+            class="rounded-[30px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.18)] backdrop-blur"
+          >
+            <div class="max-h-[40rem] overflow-auto">
+              <table class="min-w-[900px] divide-y divide-slate-200 text-left text-sm text-slate-700">
+                <thead
+                  class="sticky top-0 z-10 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"
+                >
+                  <tr>
+                    <th class="px-4 py-3">Domaine</th>
+                    <th class="px-4 py-3">Diagnostic</th>
+                    <th class="px-4 py-3">Lecture</th>
+                    <th class="px-4 py-3">Prochaine action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  @if (!filteredEntries().length) {
+                  <tr>
+                    <td
+                      colspan="4"
+                      class="px-4 py-8 text-center text-sm text-slate-500"
+                      data-og7-id="admin-quality-empty"
+                    >
+                      Aucun domaine ne correspond aux filtres actifs.
+                    </td>
+                  </tr>
+                  } @else { @for (entry of filteredEntries(); track entry.id) {
+                  <tr
+                    data-og7="admin-quality-row"
+                    [attr.data-og7-id]="entry.id"
+                    [attr.data-og7-state]="entry.e2eStatus"
+                    [class.bg-slate-50]="isSelected(entry)"
+                  >
+                    <td class="px-4 py-4 align-top">
+                      <button
+                        type="button"
+                        class="w-full text-left"
+                        (click)="selectEntry(entry)"
+                        [attr.aria-pressed]="isSelected(entry)"
+                        data-og7="action"
+                        data-og7-id="admin-quality-select-row"
+                      >
+                        <div class="flex items-start gap-3">
+                          <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
+                          <div class="min-w-0">
+                            <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
+                            <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
+                          </div>
+                        </div>
+                      </button>
+                    </td>
+                    <td class="px-4 py-4 align-top">
+                      <p class="font-medium leading-relaxed text-slate-900">{{ entry.need }}</p>
+                      <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ entry.observedGap }}</p>
+                    </td>
+                    <td class="px-4 py-4 align-top">
+                      <div class="flex flex-wrap gap-1.5">
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="statusClasses(entry.summaryStatus)"
+                          >S {{ statusLabel(entry.summaryStatus) }}</span
+                        >
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="statusClasses(entry.businessStatus)"
+                          >M {{ statusLabel(entry.businessStatus) }}</span
+                        >
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="statusClasses(entry.implementationStatus)"
+                          >I {{ statusLabel(entry.implementationStatus) }}</span
+                        >
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="statusClasses(entry.e2eStatus)"
+                          >E {{ statusLabel(entry.e2eStatus) }}</span
+                        >
+                      </div>
+                      <div class="mt-3 flex flex-wrap gap-1.5">
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="priorityClasses(entry.priority)"
+                          >Priorite {{ priorityLabel(entry.priority) }}</span
+                        >
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="bucketClasses(entry.managementBucket)"
+                          >{{ bucketLabel(entry.managementBucket) }}</span
+                        >
+                        <span
+                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="readinessClasses(entry)"
+                          >{{ readinessLabel(entry) }}</span
+                        >
+                      </div>
+                      @if (entry.evidence.length) {
+                      <div class="mt-3 space-y-1">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                          Preuve
+                        </p>
+                        <p class="text-xs leading-relaxed text-slate-600">
+                          {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
+                          firstEvidence) {
+                          <span class="text-slate-500"> - {{ firstEvidence }}</span>
+                          }
+                        </p>
+                      </div>
+                      }
+                    </td>
+                    <td class="px-4 py-4 align-top">
+                      <p class="leading-relaxed text-slate-700">{{ entry.nextMove }}</p>
+                    </td>
+                  </tr>
+                  } }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </details>
     </div>
-  </section>
+
+    <aside
+      class="flex min-w-0 flex-col gap-6 xl:sticky xl:top-[15.5rem]"
+      data-og7="admin-quality-mission-inspector"
+    >
+      <div
+        #missionSection
+        class="flex w-full min-w-0"
+        data-og7="admin-quality-scroll-section"
+        data-og7-id="mission"
+      >
+        @if (missionControl(); as mission) {
+        <section
+          class="og7-cockpit-surface og7-radar-lock-focus-shell relative w-full overflow-hidden rounded-[32px] border p-3 transition-[border-color,box-shadow,background] duration-500"
+          [class]="missionControlShellClasses()"
+          data-og7="admin-quality-mission-control-shell"
+          [attr.data-og7-ambient]="missionHudAmbientTone()"
+          [attr.data-og7-provider]="selectedAiProvider()"
+          [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
+          [attr.data-og7-proof-stream]="missionControlProofStreamIntensity()"
+          [attr.data-og7-radar-signal]="missionControlRadarSignalTone()"
+          [attr.data-og7-lock-focus]="missionControlPanelFocused('mission')"
+          [ngStyle]="missionControlShellStyleVars()"
+        >
+        <div
+          class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
+          data-og7="admin-quality-cockpit-sync-band"
+          data-og7-surface="mission"
+        ></div>
+        <div
+          class="pointer-events-none absolute inset-0 opacity-90 transition-opacity duration-500"
+          [class]="missionControlRadarClasses()"
+          data-og7="admin-quality-mission-control-radar"
+          [style.opacity]="missionControlRadarOpacity()"
+        ></div>
+        <div
+          class="og7-radar-sweep pointer-events-none absolute inset-0"
+          data-og7="admin-quality-mission-control-radar-sweep"
+          [attr.data-og7-speed]="missionControlRadarSweepSpeed()"
+          [attr.data-og7-mode]="missionControlRadarSweepMode()"
+          [attr.data-og7-signal]="missionControlRadarSignalTone()"
+          [style.opacity]="missionControlRadarSweepOpacity()"
+        ></div>
+        <svg
+          class="pointer-events-none absolute inset-0 h-full w-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          data-og7="admin-quality-mission-control-radar-trails"
+          [style.opacity]="missionControlRadarFieldOpacity()"
+        >
+          @for (point of missionControlRadarEchoPoints(); track point.id) {
+          <line
+            class="og7-radar-trail-line"
+            x1="50"
+            y1="52"
+            [attr.x2]="point.leftPercent"
+            [attr.y2]="point.topPercent"
+            stroke="var(--og7-cockpit-accent-strong)"
+            [attr.stroke-opacity]="missionControlRadarTrailOpacity(point)"
+            [attr.stroke-width]="missionControlRadarTrailWidth(point)"
+            [attr.stroke-dasharray]="missionControlRadarTrailDasharray(point)"
+            stroke-linecap="round"
+            [attr.data-og7-id]="point.id"
+            [attr.data-og7-active]="point.active"
+            [attr.data-og7-pulse]="point.pulsing"
+            [attr.data-og7-intensity]="point.intensity"
+            data-og7="admin-quality-mission-control-radar-trail"
+          />
+          <circle
+            [attr.cx]="point.leftPercent"
+            [attr.cy]="point.topPercent"
+            [attr.r]="missionControlRadarTrailEndpointRadius(point)"
+            fill="var(--og7-cockpit-accent)"
+            [attr.fill-opacity]="missionControlRadarTrailOpacity(point)"
+            [attr.data-og7-id]="point.id"
+            [attr.data-og7-intensity]="point.intensity"
+            data-og7="admin-quality-mission-control-radar-trail-endpoint"
+          />
+          }
+        </svg>
+        <div
+          class="pointer-events-none absolute inset-0"
+          data-og7="admin-quality-mission-control-radar-echo-field"
+          [style.opacity]="missionControlRadarFieldOpacity()"
+        >
+          @for (point of missionControlRadarEchoPoints(); track point.id) {
+          <button
+            type="button"
+            class="pointer-events-auto absolute inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 rounded-full border px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition"
+            [class]="missionControlRadarEchoClasses(point)"
+            [style.left]="point.left"
+            [style.top]="point.top"
+            [attr.data-og7-active]="point.active"
+            [attr.data-og7-pulse]="point.pulsing"
+            [attr.data-og7-id]="point.id"
+            data-og7="admin-quality-mission-control-radar-echo"
+            (click)="scrollMissionHudToSection(point.id)"
+          >
+            <span
+              class="og7-radar-acquisition-ring pointer-events-none absolute inset-[-0.85rem] rounded-full border"
+              [class]="missionControlRadarAcquisitionRingClasses(point)"
+              [attr.data-og7-active]="point.active"
+              [attr.data-og7-pulse]="point.pulsing"
+              [attr.data-og7-id]="point.id"
+              data-og7="admin-quality-mission-control-radar-acquisition-ring"
+              aria-hidden="true"
+            ></span>
+            <span
+              class="pointer-events-none absolute inset-[-0.4rem] rounded-full border transition"
+              [class]="missionControlRadarEchoRingClasses(point)"
+              aria-hidden="true"
+            ></span>
+            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--og7-cockpit-accent-strong)]"></span>
+            <span class="relative" [class]="missionControlRadarEchoLabelClasses(point)">
+              {{ point.shortLabel }}
+            </span>
+            <span
+              class="relative text-[9px] font-medium normal-case tracking-normal"
+              [class]="missionControlRadarMetricClasses(point)"
+              data-og7="admin-quality-mission-control-radar-echo-metric"
+            >
+              {{ point.metricLabel }}
+            </span>
+          </button>
+          }
+        </div>
+        <div
+          class="pointer-events-none absolute inset-x-8 top-0 h-24 blur-2xl transition-opacity duration-500"
+          [class]="missionControlProviderLightClasses()"
+          data-og7="admin-quality-mission-control-provider-light"
+        ></div>
+
+        <div class="relative mb-3 flex items-start justify-between gap-3">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+              <span>Mission radar</span>
+              <span class="h-px w-10 bg-white/10"></span>
+              <span class="text-slate-400">{{ missionHudAmbientTone() }}</span>
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.18em]"
+                [class]="missionControlContactLogSignalClasses(missionControlDisplaySignalTone())"
+                data-og7="admin-quality-mission-control-cadence"
+              >
+                {{ missionControlRadarCadenceLabel() }}
+              </span>
+            </div>
+            <p
+              class="text-[10px] font-medium tracking-[0.14em] text-slate-400"
+              data-og7="admin-quality-mission-control-cadence-detail"
+            >
+              {{ missionControlRadarCadenceDetail() }}
+            </p>
+            <div
+              class="inline-flex flex-col rounded-[16px] border px-3 py-2 text-left"
+              [class]="missionControlContactLockClasses()"
+              data-og7="admin-quality-mission-control-contact-lock"
+            >
+              <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">
+                {{ missionControlContactLockLabel() }}
+              </span>
+              <span class="mt-1 text-[11px] text-slate-300/90">
+                {{ missionControlContactLockDetail() }}
+              </span>
+            </div>
+            <div class="grid gap-1.5" data-og7="admin-quality-mission-control-contact-log">
+              @for (entry of missionControlRadarLockLog(); track entry.sequence; let index = $index) {
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-[14px] border px-3 py-2 text-[10px] text-left transition hover:border-white/20 hover:bg-white/[0.08]"
+                [class]="missionControlContactLogEntryClasses(index)"
+                [attr.data-og7-age]="missionControlContactLogAge(index)"
+                [attr.data-og7-id]="entry.id"
+                [attr.data-og7-kind]="entry.kind"
+                [attr.data-og7-state]="entry.stateLabel.toLowerCase()"
+                [attr.data-og7-reason]="entry.reason ?? null"
+                [attr.data-og7-signal]="entry.signalTone"
+                data-og7="admin-quality-mission-control-contact-log-entry"
+                (click)="focusMissionControlLockEntry(entry.id)"
+              >
+                <span
+                  class="inline-flex rounded-full border px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.18em]"
+                  [class]="missionControlContactLogTimeClasses(index)"
+                  [attr.data-og7-age]="missionControlContactLogAge(index)"
+                  data-og7="admin-quality-mission-control-contact-log-time"
+                >
+                  {{ missionControlTimelineSlotLabel(index) }}
+                </span>
+                <span class="font-semibold uppercase tracking-[0.18em] text-slate-200/80">
+                  {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` : `T-${index} ${entry.kindLabel.toLowerCase()}` }}
+                </span>
+                <span
+                  class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
+                  [class]="missionControlContactLogSignalClasses(entry.signalTone)"
+                  data-og7="admin-quality-mission-control-contact-log-reason"
+                >
+                  {{ entry.reasonLabel }}
+                </span>
+                <span class="text-slate-100/95">
+                  {{ entry.detailLabel }}
+                </span>
+                <span class="text-slate-400/90">
+                  {{ missionControlTimelineCadenceLabel(index) }} · {{ entry.metricLabel }} · proof {{ entry.proofStream }}
+                </span>
+              </button>
+              }
+            </div>
+          </div>
+          <span
+            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
+            [class]="missionControlProviderSignatureClasses()"
+            data-og7="admin-quality-mission-control-signature"
+          >
+            {{ missionControlProviderSignatureLabel() }}
+          </span>
+        </div>
+
+        <div class="relative">
+          <og7-admin-quality-mission-control
+            [missionControl]="mission"
+            [snapshotLoaded]="!!snapshot()"
+            [totalDomains]="totalDomains()"
+            [selectedDomain]="selectedEntry()?.domain ?? null"
+            [selectedEntry]="selectedEntry()"
+            [selectedDelegation]="selectedDelegation()"
+            [selectedMission]="selectedMission()"
+            [selectedMissionTasks]="selectedMissionTasks()"
+            [selectedMissionQuotaSummary]="selectedMissionQuotaSummary()"
+            [canStartSelectedMission]="canStartSelectedMission()"
+            [selectedAiProviderLabel]="selectedAiProviderLabel()"
+            [selectedAiProviderCaption]="selectedAiProviderCaption()"
+            [aiDispatchReady]="selectedAiDispatchReady()"
+            [aiDispatchStatusLabel]="selectedAiDispatchStatusLabel()"
+            [aiDispatchStatusDetail]="selectedAiDispatchStatusDetail()"
+            [aiDispatchWorkflow]="selectedAiDispatchWorkflow()"
+            [aiTelemetryState]="selectedAiTelemetryState()"
+            [aiTelemetryLabel]="selectedAiTelemetryLabel()"
+            [aiTelemetryDetail]="selectedAiTelemetryDetail()"
+            [aiDispatching]="selectedAiDispatching()"
+            [selectedAiProof]="selectedAiProofDisplay()"
+            [providerComparison]="aiProviderComparison()"
+            [speaking]="speaking()"
+            (missionSelected)="selectMission($event)"
+            (missionAction)="handleMissionAction($event)"
+            (speakRequested)="speakMissionControl(mission)"
+            (stopSpeakingRequested)="stopMissionVoice()"
+          />
+        </div>
+        </section>
+        }
+      </div>
+
+      <section
+        #workspaceSection
+        class="og7-radar-lock-focus-shell relative overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
+        data-og7="admin-quality-workspace-bar"
+        data-og7-id="workspace"
+        [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
+      >
+        <div
+          class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_24%),radial-gradient(circle_at_18%_18%,_rgba(251,191,36,0.1),_transparent_22%)]"
+        ></div>
+
+        <div class="relative flex flex-col gap-4">
+          <div class="min-w-0 space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
+                {{ 'admin.quality.workspace.compact.label' | translate }}
+              </p>
+              <span
+                class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
+              >
+                {{ 'admin.quality.workspace.compact.primarySurface' | translate: { surface:
+                (selectedWorkspaceTitle() | translate) } }}
+              </span>
+            </div>
+
+            <div class="space-y-1">
+              <h2 class="text-xl font-semibold tracking-tight text-white">
+                {{ 'admin.quality.workspace.compact.title' | translate }}
+              </h2>
+              <p class="text-sm leading-6 text-slate-300">
+                {{ 'admin.quality.workspace.compact.subtitle' | translate }}
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 text-sm text-slate-200">
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
+              >
+                {{ 'admin.quality.workspace.compact.domains' | translate: { count:
+                filteredEntries().length } }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
+              >
+                {{ 'admin.quality.workspace.compact.actions' | translate: { count:
+                selectedEntryActions().length } }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100"
+              >
+                {{ 'admin.quality.workspace.compact.activeSurface' | translate: { surface:
+                (selectedWorkspaceTitle() | translate) } }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="grid grid-cols-3 gap-2 rounded-[22px] border border-white/10 bg-white/[0.04] p-1"
+            role="tablist"
+            aria-label="Workspace inspector"
+            data-og7="admin-quality-workspace-inspector-tabs"
+          >
+            <button
+              type="button"
+              role="tab"
+              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'qaQueue'"
+              [class.border]="true"
+              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'qaQueue'"
+              [class.text-white]="activeWorkspaceSurface() === 'qaQueue'"
+              [class.border-transparent]="activeWorkspaceSurface() !== 'qaQueue'"
+              [class.text-slate-300]="activeWorkspaceSurface() !== 'qaQueue'"
+              [attr.aria-selected]="activeWorkspaceSurface() === 'qaQueue'"
+              data-og7="action"
+              data-og7-id="admin-quality-inspector-tab-qaQueue"
+              (click)="setActiveWorkspaceSurface('qaQueue')"
+            >
+              {{ 'admin.quality.workspace.tabs.qaQueue' | translate }}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'delegation'"
+              [class.border]="true"
+              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'delegation'"
+              [class.text-white]="activeWorkspaceSurface() === 'delegation'"
+              [class.border-transparent]="activeWorkspaceSurface() !== 'delegation'"
+              [class.text-slate-300]="activeWorkspaceSurface() !== 'delegation'"
+              [attr.aria-selected]="activeWorkspaceSurface() === 'delegation'"
+              data-og7="action"
+              data-og7-id="admin-quality-inspector-tab-delegation"
+              (click)="setActiveWorkspaceSurface('delegation')"
+            >
+              {{ 'admin.quality.workspace.tabs.delegation' | translate }}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'actions'"
+              [class.border]="true"
+              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'actions'"
+              [class.text-white]="activeWorkspaceSurface() === 'actions'"
+              [class.border-transparent]="activeWorkspaceSurface() !== 'actions'"
+              [class.text-slate-300]="activeWorkspaceSurface() !== 'actions'"
+              [attr.aria-selected]="activeWorkspaceSurface() === 'actions'"
+              data-og7="action"
+              data-og7-id="admin-quality-inspector-tab-actions"
+              (click)="setActiveWorkspaceSurface('actions')"
+            >
+              {{ 'admin.quality.workspace.tabs.actions' | translate }}
+            </button>
+          </div>
+
+          <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4 text-left">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  {{ 'admin.quality.workspace.compact.activePanel' | translate }}
+                </p>
+                <p class="mt-2 text-lg font-semibold text-white">
+                  {{ selectedWorkspaceTitle() | translate }}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-300">
+                  {{ selectedWorkspaceSubtitle() | translate }}
+                </p>
+              </div>
+              <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100">
+                {{ selectedWorkspaceCount() }}
+              </span>
+            </div>
+
+            <div class="mt-4" data-og7="admin-quality-workspace-inspector-panel" [attr.data-og7-id]="activeWorkspaceSurface()">
+              @switch (activeWorkspaceSurface()) {
+                @case ('qaQueue') {
+                  @if (qaQueuePreviewItems().length) {
+                  <div class="space-y-3">
+                    @for (entry of qaQueuePreviewItems(); track entry.id) {
+                    <article class="rounded-[20px] border border-white/10 bg-white/[0.04] p-3.5" data-og7="admin-quality-workspace-inspector-qa-item" [attr.data-og7-id]="entry.id">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                          <h3 class="text-sm font-semibold text-white">{{ entry.domain }}</h3>
+                          <p class="mt-1 text-xs leading-5 text-slate-300">{{ entry.need }}</p>
+                        </div>
+                        <span class="inline-flex shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold" [class]="statusClasses(entry.e2eStatus)">
+                          {{ statusLabel(entry.e2eStatus) }}
+                        </span>
+                      </div>
+                      <p class="mt-3 text-xs leading-5 text-slate-400">{{ entry.nextMove }}</p>
+                    </article>
+                    }
+                  </div>
+                  } @else {
+                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/[0.03] px-4 py-5 text-sm leading-6 text-slate-300">
+                    {{ 'admin.quality.workspace.qaQueue.emptyBody' | translate }}
+                  </p>
+                  }
+                }
+                @case ('actions') {
+                  @if (actionPreviewItems().length) {
+                  <div class="space-y-3">
+                    @for (action of actionPreviewItems(); track action.id) {
+                    <article class="rounded-[20px] border border-white/10 bg-white/[0.04] p-3.5" data-og7="admin-quality-workspace-inspector-action-item" [attr.data-og7-id]="action.id">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                          <h3 class="text-sm font-semibold text-white">{{ action.label }}</h3>
+                          <p class="mt-1 break-all text-[11px] text-slate-400">{{ action.selector }}</p>
+                        </div>
+                        <span
+                          class="inline-flex shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class.border-emerald-300/20]="action.status === 'proved'"
+                          [class.bg-emerald-400/12]="action.status === 'proved'"
+                          [class.text-emerald-100]="action.status === 'proved'"
+                          [class.border-sky-300/20]="action.status === 'documented'"
+                          [class.bg-sky-400/12]="action.status === 'documented'"
+                          [class.text-sky-100]="action.status === 'documented'"
+                          [class.border-amber-300/25]="action.status === 'needs-completion'"
+                          [class.bg-amber-400/12]="action.status === 'needs-completion'"
+                          [class.text-amber-100]="action.status === 'needs-completion'"
+                        >
+                          {{ action.status }}
+                        </span>
+                      </div>
+                      <p class="mt-3 text-xs leading-5 text-slate-300">{{ action.expectedResult }}</p>
+                    </article>
+                    }
+                  </div>
+                  } @else {
+                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/[0.03] px-4 py-5 text-sm leading-6 text-slate-300">
+                    {{ 'admin.quality.workspace.actions.emptyBody' | translate }}
+                  </p>
+                  }
+                }
+                @default {
+                  @if (selectedDelegation(); as plan) {
+                  <div class="space-y-3">
+                    <article class="rounded-[20px] border border-white/10 bg-white/[0.04] p-3.5">
+                      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-200/80">
+                        {{ plan.track }}
+                      </p>
+                      <h3 class="mt-2 text-sm font-semibold text-white">{{ plan.title }}</h3>
+                      <p class="mt-2 text-xs leading-6 text-slate-300">
+                        {{ selectedEntry()?.nextMove || ('admin.quality.workspace.delegation.missing' | translate) }}
+                      </p>
+                    </article>
+                    <article class="rounded-[20px] border border-white/10 bg-slate-950/55 p-3.5">
+                      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                        {{ 'admin.quality.workspace.delegation.cards.validation' | translate }}
+                      </p>
+                      <ul class="mt-3 space-y-2 text-xs leading-6 text-slate-300">
+                        @for (item of plan.commands.slice(0, 3); track $index) {
+                        <li class="break-all">{{ item }}</li>
+                        }
+                      </ul>
+                    </article>
+                  </div>
+                  } @else {
+                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/[0.03] px-4 py-5 text-sm leading-6 text-slate-300">
+                    {{ 'admin.quality.workspace.delegation.missing' | translate }}
+                  </p>
+                  }
+                }
+              }
+            </div>
+          </article>
+
+          <button
+            type="button"
+            class="inline-flex min-h-12 items-center justify-center rounded-[18px] border border-cyan-300/25 bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-blue-400"
+            (click)="openWorkspace()"
+            data-og7="action"
+            data-og7-id="admin-quality-open-workspace"
+          >
+            {{ 'admin.quality.workspace.compact.open' | translate }}
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
 
   <og7-admin-quality-workspace-drawer
     [open]="workspaceOpen()"
@@ -453,160 +1247,6 @@
     (closeRequested)="closeWorkspace()"
     (surfaceChanged)="setActiveWorkspaceSurface($event)"
   />
-
-  <details
-    class="mt-6 rounded-[30px] border border-slate-200/90 bg-slate-50/90 shadow-[0_18px_56px_-40px_rgba(15,23,42,0.2)]"
-    data-og7="admin-quality-secondary-queue"
-  >
-    <summary
-      class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-      data-og7-id="admin-quality-secondary-queue-toggle"
-    >
-      <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-          Surface secondaire
-        </p>
-        <h2 class="mt-1 text-lg font-semibold text-slate-900">QA Queue detaillee</h2>
-        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-          Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
-          la prochaine action sans concurrencer la surface principale.
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-        <span
-          class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
-        >
-          {{ filteredEntries().length }} domaine(s)
-        </span>
-        <span
-          class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
-        >
-          Reselection manuelle
-        </span>
-      </div>
-    </summary>
-
-    <div class="border-t border-slate-200/80 px-4 py-4 sm:px-5">
-      <section
-        class="rounded-[30px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.18)] backdrop-blur"
-      >
-        <div class="max-h-[40rem] overflow-auto">
-          <table class="min-w-[900px] divide-y divide-slate-200 text-left text-sm text-slate-700">
-            <thead
-              class="sticky top-0 z-10 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"
-            >
-              <tr>
-                <th class="px-4 py-3">Domaine</th>
-                <th class="px-4 py-3">Diagnostic</th>
-                <th class="px-4 py-3">Lecture</th>
-                <th class="px-4 py-3">Prochaine action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              @if (!filteredEntries().length) {
-              <tr>
-                <td
-                  colspan="4"
-                  class="px-4 py-8 text-center text-sm text-slate-500"
-                  data-og7-id="admin-quality-empty"
-                >
-                  Aucun domaine ne correspond aux filtres actifs.
-                </td>
-              </tr>
-              } @else { @for (entry of filteredEntries(); track entry.id) {
-              <tr
-                data-og7="admin-quality-row"
-                [attr.data-og7-id]="entry.id"
-                [attr.data-og7-state]="entry.e2eStatus"
-                [class.bg-slate-50]="isSelected(entry)"
-              >
-                <td class="px-4 py-4 align-top">
-                  <button
-                    type="button"
-                    class="w-full text-left"
-                    (click)="selectEntry(entry)"
-                    [attr.aria-pressed]="isSelected(entry)"
-                    data-og7="action"
-                    data-og7-id="admin-quality-select-row"
-                  >
-                    <div class="flex items-start gap-3">
-                      <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
-                      <div class="min-w-0">
-                        <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
-                        <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
-                      </div>
-                    </div>
-                  </button>
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <p class="font-medium leading-relaxed text-slate-900">{{ entry.need }}</p>
-                  <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ entry.observedGap }}</p>
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <div class="flex flex-wrap gap-1.5">
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.summaryStatus)"
-                      >S {{ statusLabel(entry.summaryStatus) }}</span
-                    >
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.businessStatus)"
-                      >M {{ statusLabel(entry.businessStatus) }}</span
-                    >
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.implementationStatus)"
-                      >I {{ statusLabel(entry.implementationStatus) }}</span
-                    >
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="statusClasses(entry.e2eStatus)"
-                      >E {{ statusLabel(entry.e2eStatus) }}</span
-                    >
-                  </div>
-                  <div class="mt-3 flex flex-wrap gap-1.5">
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="priorityClasses(entry.priority)"
-                      >Priorite {{ priorityLabel(entry.priority) }}</span
-                    >
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="bucketClasses(entry.managementBucket)"
-                      >{{ bucketLabel(entry.managementBucket) }}</span
-                    >
-                    <span
-                      class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                      [class]="readinessClasses(entry)"
-                      >{{ readinessLabel(entry) }}</span
-                    >
-                  </div>
-                  @if (entry.evidence.length) {
-                  <div class="mt-3 space-y-1">
-                    <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                      Preuve
-                    </p>
-                    <p class="text-xs leading-relaxed text-slate-600">
-                      {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
-                      firstEvidence) {
-                      <span class="text-slate-500"> - {{ firstEvidence }}</span>
-                      }
-                    </p>
-                  </div>
-                  }
-                </td>
-                <td class="px-4 py-4 align-top">
-                  <p class="leading-relaxed text-slate-700">{{ entry.nextMove }}</p>
-                </td>
-              </tr>
-              } }
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  </details>
 
   }
 </section>

@@ -104,6 +104,21 @@ data:
   OPS_CODEX_ALLOWED_SCOPES: openg7-org,strapi,packages-contracts,packages-tooling,repository-root
   OPS_CODEX_ALLOWED_BASE_BRANCHES: main
   OPS_CODEX_TIMEOUT_MS: '10000'
+  OPS_AI_GITHUB_OWNER: OpenG7
+  OPS_AI_GITHUB_REPO: openg7-platform
+  OPS_AI_GITHUB_API_URL: https://api.github.com
+  OPS_AI_ALLOWED_SCOPES: openg7-org,strapi,packages-contracts,packages-tooling,repository-root
+  OPS_AI_ALLOWED_BASE_BRANCHES: main
+  OPS_AI_TIMEOUT_MS: '10000'
+  OPS_AI_COPILOT_DISPATCH_ENABLED: 'false'
+  OPS_AI_COPILOT_GITHUB_WORKFLOW: copilot-pr.yml
+  OPS_AI_COPILOT_GITHUB_REF: main
+  OPS_AI_CLAUDE_DISPATCH_ENABLED: 'false'
+  OPS_AI_CLAUDE_GITHUB_WORKFLOW: claude-pr.yml
+  OPS_AI_CLAUDE_GITHUB_REF: main
+  OPS_AI_GEMINI_DISPATCH_ENABLED: 'false'
+  OPS_AI_GEMINI_GITHUB_WORKFLOW: gemini-pr.yml
+  OPS_AI_GEMINI_GITHUB_REF: main
   DATABASE_CLIENT: postgres
   DATABASE_HOST: openg7-postgres
   DATABASE_PORT: '5432'
@@ -187,6 +202,12 @@ spec:
                   name: openg7-redis-secret
                   key: password
             - name: OPS_CODEX_GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: strapi-github-actions
+                  key: codex-github-token
+                  optional: true
+            - name: OPS_AI_GITHUB_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: strapi-github-actions
