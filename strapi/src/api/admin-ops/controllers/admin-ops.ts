@@ -425,6 +425,14 @@ async function fetchGitHubActionsSecretNames(): Promise<Set<string> | null> {
   }
 }
 
+function hasLocalAiProviderKey(secretName: string | null): boolean {
+  if (!secretName) {
+    return false;
+  }
+
+  return Boolean(normalizeText(process.env[secretName], 4000));
+}
+
 async function fetchGitHubJson<T>(config: AiDispatchConfig, endpoint: string): Promise<T | null> {
   if (!config.token || !config.owner || !config.repo) {
     return null;
@@ -686,7 +694,9 @@ async function buildAiIgnitionModules(): Promise<AiIgnitionModuleSnapshot[]> {
   return ADMIN_AI_PROVIDERS.map((provider) => {
     const config = getAiDispatchConfig(provider);
     const secretName = ADMIN_AI_PROVIDER_SECRET_NAMES[provider];
-    const keyInserted = Boolean(secretName && repoSecretNames?.has(secretName));
+    const repoKeyInserted = Boolean(secretName && repoSecretNames?.has(secretName));
+    const localKeyInserted = hasLocalAiProviderKey(secretName);
+    const keyInserted = repoKeyInserted || localKeyInserted;
 
     let state: AiIgnitionState;
     let note: string;
@@ -694,17 +704,22 @@ async function buildAiIgnitionModules(): Promise<AiIgnitionModuleSnapshot[]> {
     if (!secretName) {
       state = 'unsupported';
       note = 'No stable ignition key is wired for this console yet.';
-    } else if (repoSecretNames == null) {
-      state = 'scan-unavailable';
-      note = 'The control plane could not verify GitHub Actions secrets for this module.';
-    } else if (keyInserted) {
+    } else if (repoKeyInserted) {
       state = 'ready';
       note = config.enabled
-        ? 'Key detected. The engine bay is armed and ready for dispatch.'
-        : 'Key detected. The engine bay stays in standby until dispatch is enabled.';
+        ? 'Key detected in GitHub Actions secrets. The engine bay is armed and ready for dispatch.'
+        : 'Key detected in GitHub Actions secrets. The engine bay stays in standby until dispatch is enabled.';
+    } else if (localKeyInserted) {
+      state = config.enabled ? 'offline' : 'ready';
+      note = config.enabled
+        ? `Local ${secretName} detected in Strapi env for development, but GitHub dispatch still requires the repository secret ${secretName}.`
+        : `Local ${secretName} detected in Strapi env for development. Enable dispatch and add the repository secret ${secretName} to arm the GitHub workflow.`;
+    } else if (repoSecretNames == null) {
+      state = 'scan-unavailable';
+      note = `The control plane could not verify GitHub Actions secrets for this module. For local development, you can still set ${secretName} in strapi/.env.`;
     } else {
       state = 'offline';
-      note = `Insert ${secretName} into GitHub Actions secrets to power this module.`;
+      note = `Insert ${secretName} into GitHub Actions secrets to power this module. For local development, you can also set ${secretName} in strapi/.env.`;
     }
 
     return {

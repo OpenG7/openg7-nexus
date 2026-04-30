@@ -121,6 +121,23 @@ Optional multi-provider overrides use the `OPS_AI_*` namespace:
 
 The Claude and Gemini workflows mirror the existing Codex flow: checkout the requested base branch, constrain the prompt to the selected scope, let the provider edit the repo, then open a PR with `peter-evans/create-pull-request`.
 
+## Local development keys
+
+For local development, each developer may place their own provider key in `strapi/.env`:
+
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `GEMINI_API_KEY`
+
+This local key is meant to unblock local platform development and to let the admin cockpit surface that a provider key is available on the workstation. It does not replace the repository GitHub Actions secret required by the remote branch-and-PR workflows.
+
+In practice:
+
+- local `OPENAI_API_KEY` in `strapi/.env` -> local development key detected for Codex
+- repository secret `OPENAI_API_KEY` in GitHub Actions -> required for `.github/workflows/codex-pr.yml`
+
+The same split applies to Claude and Gemini.
+
 ## Kubernetes wiring
 
 The production manifest now exposes the non-secret settings through the shared Strapi `ConfigMap` and expects the GitHub token from the Kubernetes secret `strapi-github-actions` under the key `codex-github-token`.

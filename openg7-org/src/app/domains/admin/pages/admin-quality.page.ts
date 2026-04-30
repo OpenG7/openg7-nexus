@@ -542,6 +542,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     if (module.state === 'unsupported') {
       return 'Module non supporte';
     }
+    if (module.state === 'scan-unavailable') {
+      return 'Scan indisponible';
+    }
+    if (module.state === 'offline' && module.keyInserted) {
+      return 'Cle locale';
+    }
     if (!module.keyInserted) {
       return 'Cle manquante';
     }

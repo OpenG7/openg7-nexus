@@ -17,6 +17,16 @@ To re-run the seeders without starting the HTTP server you can use:
 yarn seed:dev                # executes the seed pipeline against the local database
 ```
 
+## AI keys for local development
+
+Each developer can work locally with their own AI provider key by copying [strapi/.env.example](./.env.example) to `strapi/.env` and filling the provider they need:
+
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `GEMINI_API_KEY`
+
+These local keys are only for per-developer development on the workstation and must never be committed. They do not replace the GitHub Actions repository secrets required by the remote branch-and-PR workflows.
+
 > **Note:** `runSeeds()` is automatically invoked from `strapi/src/bootstrap.ts` when `NODE_ENV` or `STRAPI_ENV` is set to `development`, `dev`, `integration`, or `test`, unless `STRAPI_SEED_AUTO=false` is provided. Production workloads should set `STRAPI_SEED_AUTO=false` and trigger the dedicated seed job instead (see [Seeding in multi-pod environments](#seeding-in-multi-pod-environments)).
 
 ## Required environment variables

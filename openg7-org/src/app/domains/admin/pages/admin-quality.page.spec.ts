@@ -1149,6 +1149,94 @@ describe('AdminQualityPage', () => {
     );
   });
 
+  it('surfaces an explicit local AI key note in the sticky mission HUD', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    const adminOps = TestBed.inject(AdminOpsService) as unknown as AdminOpsServiceMock;
+
+    adminOps.getSecurity.and.returnValue(
+      of({
+        generatedAt: '2026-04-30T00:00:00.000Z',
+        users: {
+          total: 3,
+          blocked: 0,
+          registrationsLast7d: 1,
+        },
+        sessions: {
+          scannedUsers: 3,
+          truncated: false,
+          active: 1,
+          revoked: 0,
+          usersWithActiveSessions: 1,
+        },
+        uploads: {
+          safetyEnabled: true,
+          maxFileSizeBytes: 5242880,
+          allowedMimeTypes: ['image/png'],
+        },
+        auth: {
+          sessionIdleTimeoutMs: 43200000,
+        },
+        aiKeys: [
+          {
+            provider: 'codex',
+            label: 'Codex',
+            workflow: 'codex-pr.yml',
+            secretName: 'OPENAI_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: true,
+            state: 'offline',
+            note: 'Local OPENAI_API_KEY detected in Strapi env for development, but GitHub dispatch still requires the repository secret OPENAI_API_KEY.',
+          },
+          {
+            provider: 'copilot',
+            label: 'GitHub Copilot',
+            workflow: 'copilot-pr.yml',
+            secretName: null,
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'unsupported',
+            note: 'No stable ignition key is wired for this console yet.',
+          },
+          {
+            provider: 'claude',
+            label: 'Claude',
+            workflow: 'claude-pr.yml',
+            secretName: 'ANTHROPIC_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: true,
+            state: 'ready',
+            note: 'Key detected in GitHub Actions secrets. The engine bay is armed and ready for dispatch.',
+          },
+          {
+            provider: 'gemini',
+            label: 'Gemini',
+            workflow: 'gemini-pr.yml',
+            secretName: 'GEMINI_API_KEY',
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'offline',
+            note: 'Insert GEMINI_API_KEY into GitHub Actions secrets to power this module. For local development, you can also set GEMINI_API_KEY in strapi/.env.',
+          },
+        ],
+        moderation: {
+          pendingCompanies: 0,
+          suspendedCompanies: 0,
+        },
+      }),
+    );
+
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-status"]')?.textContent).toContain(
+      'Cle locale',
+    );
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-detail"]')?.textContent).toContain(
+      'Local OPENAI_API_KEY detected in Strapi env for development',
+    );
+  });
+
   it('opens the workspace directly from the sticky mission HUD actions', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
