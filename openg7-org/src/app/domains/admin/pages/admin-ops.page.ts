@@ -16,17 +16,17 @@ import { injectNotificationStore } from '@app/core/observability/notification.st
 import { finalize } from 'rxjs';
 
 import {
+  ADMIN_AI_PROVIDER_OPTIONS,
+  AdminAiProvider,
+  resolveAdminAiProviderOption,
+} from '../data-access/admin-ai-providers';
+import {
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
   AdminOpsSecuritySnapshot,
   AdminOpsService,
   AdminOpsSnapshot,
 } from '../data-access/admin-ops.service';
-import {
-  ADMIN_AI_PROVIDER_OPTIONS,
-  AdminAiProvider,
-  resolveAdminAiProviderOption,
-} from '../data-access/admin-ai-providers';
 
 type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
 
