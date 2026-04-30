@@ -82,44 +82,53 @@ data:
   STRAPI_ENV: production
   NODE_ENV: production
   STRAPI_SESSION_DRIVER: redis
-  STRAPI_SESSION_TTL: "86400000"
+  STRAPI_SESSION_TTL: '86400000'
   STRAPI_SESSION_COOKIE_SAMESITE: lax
-  STRAPI_SESSION_COOKIE_SECURE: "true"
-  STRAPI_SESSION_REDIS_PREFIX: "strapi:sess:"
-  RATE_LIMIT_ENABLED: "true"
-  RATE_LIMIT_INTERVAL_MS: "60000"
-  RATE_LIMIT_MAX: "250"
-  RATE_LIMIT_PREFIX: "strapi::rl::"
-  ACTIVATION_EMAIL_COOLDOWN_ENABLED: "true"
-  ACTIVATION_EMAIL_COOLDOWN_MS: "120000"
-  ACTIVATION_EMAIL_COOLDOWN_PREFIX: "strapi::activation-email-cooldown::"
-  ACTIVATION_EMAIL_COOLDOWN_USE_REDIS: "true"
-  STRAPI_SEED_AUTO: "false"
+  STRAPI_SESSION_COOKIE_SECURE: 'true'
+  STRAPI_SESSION_REDIS_PREFIX: 'strapi:sess:'
+  RATE_LIMIT_ENABLED: 'true'
+  RATE_LIMIT_INTERVAL_MS: '60000'
+  RATE_LIMIT_MAX: '250'
+  RATE_LIMIT_PREFIX: 'strapi::rl::'
+  ACTIVATION_EMAIL_COOLDOWN_ENABLED: 'true'
+  ACTIVATION_EMAIL_COOLDOWN_MS: '120000'
+  ACTIVATION_EMAIL_COOLDOWN_PREFIX: 'strapi::activation-email-cooldown::'
+  ACTIVATION_EMAIL_COOLDOWN_USE_REDIS: 'true'
+  STRAPI_SEED_AUTO: 'false'
+  OPS_CODEX_DISPATCH_ENABLED: 'false'
+  OPS_CODEX_GITHUB_OWNER: OpenG7
+  OPS_CODEX_GITHUB_REPO: openg7-platform
+  OPS_CODEX_GITHUB_WORKFLOW: codex-pr.yml
+  OPS_CODEX_GITHUB_REF: main
+  OPS_CODEX_GITHUB_API_URL: https://api.github.com
+  OPS_CODEX_ALLOWED_SCOPES: openg7-org,strapi,packages-contracts,packages-tooling,repository-root
+  OPS_CODEX_ALLOWED_BASE_BRANCHES: main
+  OPS_CODEX_TIMEOUT_MS: '10000'
   DATABASE_CLIENT: postgres
   DATABASE_HOST: openg7-postgres
-  DATABASE_PORT: "5432"
+  DATABASE_PORT: '5432'
   DATABASE_NAME: openg7_cms
   DATABASE_SCHEMA: public
-  DATABASE_POOL_MIN: "2"
-  DATABASE_POOL_MAX: "20"
+  DATABASE_POOL_MIN: '2'
+  DATABASE_POOL_MAX: '20'
   UPLOAD_PROVIDER: aws-s3
   UPLOAD_S3_BUCKET: openg7-strapi-media
   UPLOAD_S3_REGION: ca-central-1
   UPLOAD_S3_ENDPOINT: https://s3.ca-central-1.amazonaws.com
   UPLOAD_S3_BASE_URL: https://cdn.openg7.org/cms
   UPLOAD_S3_ACL: private
-  UPLOAD_S3_FORCE_PATH_STYLE: "false"
+  UPLOAD_S3_FORCE_PATH_STYLE: 'false'
   SMTP_HOST: mail.papamail.net
-  SMTP_PORT: "465"
-  SMTP_SECURE: "true"
-  SMTP_REQUIRE_TLS: "false"
+  SMTP_PORT: '465'
+  SMTP_SECURE: 'true'
+  SMTP_REQUIRE_TLS: 'false'
   SMTP_USERNAME: notify@openg7.org
   SMTP_DEFAULT_FROM_NAME: OpenG7
   SMTP_DEFAULT_FROM: notify@openg7.org
   SMTP_DEFAULT_REPLY_TO: notify@openg7.org
-  SMTP_CONNECTION_TIMEOUT_MS: "10000"
-  SMTP_GREETING_TIMEOUT_MS: "10000"
-  SMTP_SOCKET_TIMEOUT_MS: "20000"
+  SMTP_CONNECTION_TIMEOUT_MS: '10000'
+  SMTP_GREETING_TIMEOUT_MS: '10000'
+  SMTP_SOCKET_TIMEOUT_MS: '20000'
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -171,12 +180,18 @@ spec:
             - name: REDIS_HOST
               value: openg7-redis
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: openg7-redis-secret
                   key: password
+            - name: OPS_CODEX_GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: strapi-github-actions
+                  key: codex-github-token
+                  optional: true
           readinessProbe:
             httpGet:
               path: /_health
@@ -224,7 +239,7 @@ spec:
             - name: STRAPI_BACKEND_HOST
               value: openg7-strapi
             - name: STRAPI_BACKEND_PORT
-              value: "80"
+              value: '80'
             - name: PURGE_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -300,9 +315,9 @@ kind: Ingress
 metadata:
   name: openg7-strapi
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "25m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-body-size: '25m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '120'
   labels:
     app: openg7-strapi
 spec:
@@ -388,15 +403,15 @@ spec:
             - name: REDIS_HOST
               value: openg7-redis
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: openg7-redis-secret
                   key: password
             - name: STRAPI_SEED_AUTO
-              value: "false"
-          command: ["/bin/sh", "-c", "yarn seed:dev"]
+              value: 'false'
+          command: ['/bin/sh', '-c', 'yarn seed:dev']
 
 ---
 apiVersion: external-secrets.io/v1beta1

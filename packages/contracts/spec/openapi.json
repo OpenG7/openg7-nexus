@@ -60,6 +60,122 @@
         }
       }
     },
+    "/api/admin/ops/health": {
+      "get": {
+        "summary": "Get admin operations health snapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsHealthResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/ops/backups": {
+      "get": {
+        "summary": "Get admin operations backups snapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsBackupsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/ops/imports": {
+      "get": {
+        "summary": "Get admin operations imports snapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsImportsResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/ops/security": {
+      "get": {
+        "summary": "Get admin operations security snapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsSecurityResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/admin/ops/codex/dispatch": {
+      "post": {
+        "summary": "Dispatch the Codex GitHub workflow from the owner/admin control plane",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminOpsCodexDispatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsCodexDispatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "503": {
+            "description": "Dispatch disabled"
+          }
+        }
+      }
+    },
     "/api/statistics": {
       "get": {
         "summary": "Fetch statistics summaries",
@@ -375,20 +491,14 @@
             "name": "originCodes",
             "in": "query",
             "schema": {
-              "oneOf": [
-                { "type": "string" },
-                { "type": "array", "items": { "type": "string" } }
-              ]
+              "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
             }
           },
           {
             "name": "hsSections",
             "in": "query",
             "schema": {
-              "oneOf": [
-                { "type": "string" },
-                { "type": "array", "items": { "type": "string" } }
-              ]
+              "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
             }
           }
         ],
@@ -613,6 +723,226 @@
   },
   "components": {
     "schemas": {
+      "AdminOpsHealthResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "status": { "type": "string", "enum": ["ok", "degraded"] },
+              "runtime": {
+                "type": "object",
+                "properties": {
+                  "env": { "type": "string" },
+                  "nodeVersion": { "type": "string" },
+                  "uptimeSeconds": { "type": "integer" }
+                }
+              },
+              "memory": {
+                "type": "object",
+                "properties": {
+                  "rssBytes": { "type": "integer" },
+                  "heapUsedBytes": { "type": "integer" },
+                  "heapTotalBytes": { "type": "integer" }
+                }
+              },
+              "database": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string", "enum": ["ok", "degraded"] },
+                  "users": { "type": "integer" },
+                  "companies": { "type": "integer" },
+                  "feedItems": { "type": "integer" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AdminOpsBackupsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "status": { "type": "string", "enum": ["ok", "warning", "disabled"] },
+              "enabled": { "type": "boolean" },
+              "directory": { "type": "string" },
+              "retentionDays": { "type": "integer" },
+              "schedule": { "type": "string", "nullable": true },
+              "totalFiles": { "type": "integer" },
+              "totalSizeBytes": { "type": "integer" },
+              "lastBackupAt": { "type": "string", "nullable": true, "format": "date-time" },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "sizeBytes": { "type": "integer" },
+                    "modifiedAt": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AdminOpsImportsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "totalCompanies": { "type": "integer" },
+              "scannedCompanies": { "type": "integer" },
+              "truncated": { "type": "boolean" },
+              "importedCompanies": { "type": "integer" },
+              "importsLast24h": { "type": "integer" },
+              "lastImportAt": { "type": "string", "nullable": true, "format": "date-time" },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": { "type": "string" },
+                    "count": { "type": "integer" }
+                  }
+                }
+              },
+              "recent": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "businessId": { "type": "string", "nullable": true },
+                    "name": { "type": "string" },
+                    "status": { "type": "string" },
+                    "source": { "type": "string", "nullable": true },
+                    "importedAt": { "type": "string", "nullable": true, "format": "date-time" },
+                    "updatedAt": { "type": "string", "nullable": true, "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AdminOpsSecurityResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "users": {
+                "type": "object",
+                "properties": {
+                  "total": { "type": "integer" },
+                  "blocked": { "type": "integer" },
+                  "registrationsLast7d": { "type": "integer" }
+                }
+              },
+              "sessions": {
+                "type": "object",
+                "properties": {
+                  "scannedUsers": { "type": "integer" },
+                  "truncated": { "type": "boolean" },
+                  "active": { "type": "integer" },
+                  "revoked": { "type": "integer" },
+                  "usersWithActiveSessions": { "type": "integer" }
+                }
+              },
+              "uploads": {
+                "type": "object",
+                "properties": {
+                  "safetyEnabled": { "type": "boolean" },
+                  "maxFileSizeBytes": { "type": "integer" },
+                  "allowedMimeTypes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              },
+              "auth": {
+                "type": "object",
+                "properties": {
+                  "sessionIdleTimeoutMs": { "type": "integer", "nullable": true }
+                }
+              },
+              "moderation": {
+                "type": "object",
+                "properties": {
+                  "pendingCompanies": { "type": "integer" },
+                  "suspendedCompanies": { "type": "integer" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AdminOpsCodexDispatchRequest": {
+        "type": "object",
+        "required": ["task", "scope", "baseBranch", "draftPr"],
+        "properties": {
+          "task": { "type": "string" },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "openg7-org",
+              "strapi",
+              "packages-contracts",
+              "packages-tooling",
+              "repository-root"
+            ]
+          },
+          "baseBranch": { "type": "string" },
+          "draftPr": { "type": "boolean" },
+          "model": { "type": "string", "nullable": true },
+          "effort": { "type": "string", "nullable": true }
+        }
+      },
+      "AdminOpsCodexDispatchResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "queued": { "type": "boolean" },
+              "provider": { "type": "string", "enum": ["github-actions"] },
+              "owner": { "type": "string" },
+              "repo": { "type": "string" },
+              "workflow": { "type": "string" },
+              "ref": { "type": "string" },
+              "requestedAt": { "type": "string", "format": "date-time" },
+              "request": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "openg7-org",
+                      "strapi",
+                      "packages-contracts",
+                      "packages-tooling",
+                      "repository-root"
+                    ]
+                  },
+                  "baseBranch": { "type": "string" },
+                  "draftPr": { "type": "boolean" },
+                  "model": { "type": "string", "nullable": true },
+                  "effort": { "type": "string", "nullable": true },
+                  "taskLength": { "type": "integer" }
+                }
+              }
+            }
+          }
+        }
+      },
       "Province": {
         "type": "object",
         "properties": {
@@ -725,7 +1055,13 @@
           },
           "businessReason": {
             "type": "string",
-            "enum": ["surplusStock", "demandSlowdown", "transportDisruption", "buyerOutage", "priceWindow"]
+            "enum": [
+              "surplusStock",
+              "demandSlowdown",
+              "transportDisruption",
+              "buyerOutage",
+              "priceWindow"
+            ]
           },
           "volumeBarrels": { "type": "number" },
           "quantityUnit": {
@@ -936,7 +1272,17 @@
           "highlight": { "type": "boolean" },
           "available": { "type": "boolean" }
         },
-        "required": ["id", "tier", "provider", "price", "features", "capabilities", "i18nKey", "highlight", "available"]
+        "required": [
+          "id",
+          "tier",
+          "provider",
+          "price",
+          "features",
+          "capabilities",
+          "i18nKey",
+          "highlight",
+          "available"
+        ]
       },
       "StatisticsSummary": {
         "type": "object",
@@ -1101,13 +1447,25 @@
           "sparkline": { "type": "array", "items": { "type": "number" } },
           "flags": { "type": "array", "items": { "type": "string" } }
         },
-        "required": ["id", "hsCode", "hsSection", "label", "originCode", "value", "sparkline", "flags"]
+        "required": [
+          "id",
+          "hsCode",
+          "hsSection",
+          "label",
+          "originCode",
+          "value",
+          "sparkline",
+          "flags"
+        ]
       },
       "ImportCommodityCollections": {
         "type": "object",
         "properties": {
           "top": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } },
-          "emerging": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } },
+          "emerging": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImportCommodity" }
+          },
           "risk": { "type": "array", "items": { "$ref": "#/components/schemas/ImportCommodity" } }
         },
         "required": ["top", "emerging", "risk"]

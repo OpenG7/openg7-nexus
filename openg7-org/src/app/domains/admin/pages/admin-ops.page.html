@@ -6,9 +6,9 @@
         Monitor platform health, backups, import throughput and security indicators in one place.
       </p>
       @if (lastUpdated(); as timestamp) {
-        <p class="text-xs text-slate-500" data-og7-id="admin-ops-last-updated">
-          Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
-        </p>
+      <p class="text-xs text-slate-500" data-og7-id="admin-ops-last-updated">
+        Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
+      </p>
       }
     </div>
     <button
@@ -18,217 +18,401 @@
       (click)="refresh()"
       [disabled]="loading() || refreshing()"
     >
-      @if (refreshing()) {
-        Refreshing...
-      } @else {
-        Refresh
-      }
+      @if (refreshing()) { Refreshing... } @else { Refresh }
     </button>
   </header>
 
   @if (error(); as message) {
+  <p
+    class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+    data-og7-id="admin-ops-error"
+  >
+    {{ message }}
+  </p>
+  } @if (loading()) {
+  <p
+    class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
+    data-og7-id="admin-ops-loading"
+  >
+    Loading operations data...
+  </p>
+  }
+
+  <article
+    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    data-og7="admin-ops-codex-dispatch"
+  >
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-slate-900">Codex dispatch</h2>
+        <p class="text-sm text-slate-600">
+          Queue a focused GitHub Actions run from the owner/admin control plane. The workflow
+          creates a dedicated branch and opens a PR.
+        </p>
+      </div>
+      <span
+        class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600"
+      >
+        Endpoint: /api/admin/ops/codex/dispatch
+      </span>
+    </div>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-[2fr_1fr]">
+      <label class="flex flex-col gap-2 text-sm text-slate-700">
+        <span class="font-medium">Task</span>
+        <textarea
+          rows="5"
+          class="min-h-32 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+          data-og7="admin-ops-codex-field"
+          data-og7-id="task"
+          [value]="codexTask()"
+          (input)="updateCodexTask($any($event.target).value)"
+          placeholder="Describe the exact change Codex should implement."
+        ></textarea>
+      </label>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+        <label class="flex flex-col gap-2 text-sm text-slate-700">
+          <span class="font-medium">Scope</span>
+          <select
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            data-og7="admin-ops-codex-field"
+            data-og7-id="scope"
+            [value]="codexScope()"
+            (change)="updateCodexScope($any($event.target).value)"
+          >
+            @for (scope of codexScopes; track scope) {
+            <option [value]="scope">{{ scope }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm text-slate-700">
+          <span class="font-medium">Base branch</span>
+          <input
+            type="text"
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            data-og7="admin-ops-codex-field"
+            data-og7-id="base-branch"
+            [value]="codexBaseBranch()"
+            (input)="updateCodexBaseBranch($any($event.target).value)"
+          />
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm text-slate-700">
+          <span class="font-medium">Model</span>
+          <input
+            type="text"
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            data-og7="admin-ops-codex-field"
+            data-og7-id="model"
+            [value]="codexModel()"
+            (input)="updateCodexModel($any($event.target).value)"
+            placeholder="Optional"
+          />
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm text-slate-700">
+          <span class="font-medium">Effort</span>
+          <select
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+            data-og7="admin-ops-codex-field"
+            data-og7-id="effort"
+            [value]="codexEffort()"
+            (change)="updateCodexEffort($any($event.target).value)"
+          >
+            <option value="" [selected]="codexEffort() === ''">Default</option>
+            @for (effort of codexEfforts; track effort) {
+            <option [value]="effort" [selected]="codexEffort() === effort">{{ effort }}</option>
+            }
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <label class="mt-4 inline-flex items-center gap-2 text-sm text-slate-700">
+      <input
+        type="checkbox"
+        class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
+        data-og7="admin-ops-codex-field"
+        data-og7-id="draft-pr"
+        [checked]="codexDraftPr()"
+        (change)="updateCodexDraftPr($any($event.target).checked)"
+      />
+      Open the pull request as draft
+    </label>
+
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="text-xs text-slate-500">
+        Scope and base branch must match the allowlists configured on Strapi.
+      </div>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        data-og7="action"
+        data-og7-id="admin-ops-codex-dispatch"
+        (click)="dispatchCodexWorkflow()"
+        [disabled]="!canDispatchCodex()"
+      >
+        @if (codexSubmitting()) { Queueing Codex... } @else { Dispatch Codex workflow }
+      </button>
+    </div>
+
+    @if (codexError(); as message) {
     <p
-      class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-      data-og7-id="admin-ops-error"
+      class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+      data-og7-id="admin-ops-codex-error"
     >
       {{ message }}
     </p>
-  }
-
-  @if (loading()) {
-    <p
-      class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
-      data-og7-id="admin-ops-loading"
+    } @if (codexResult(); as result) {
+    <div
+      class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+      data-og7-id="admin-ops-codex-success"
     >
-      Loading operations data...
-    </p>
-  }
+      <p class="font-medium">Workflow queued on {{ result.owner }}/{{ result.repo }}.</p>
+      <p class="mt-1 text-xs text-emerald-700">
+        Workflow {{ result.workflow }} on ref {{ result.ref }}. Requested at {{ result.requestedAt |
+        date: 'yyyy-MM-dd HH:mm:ss' }}.
+      </p>
+    </div>
+    }
+  </article>
 
   @if (snapshot(); as vm) {
-    <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-provenance-trail">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 class="text-base font-semibold text-slate-900">Snapshot provenance</h2>
-          @if (provenanceMessage(); as message) {
-            <p
-              class="text-xs text-slate-600"
-              data-og7-id="admin-ops-provenance-status"
-              [attr.data-og7-state]="provenanceState()"
-            >
-              {{ message }}
-            </p>
-          }
-        </div>
-      </div>
-
-      <ul class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        @for (entry of provenanceEntries(); track trackProvenanceEntry($index, entry)) {
-          <li
-            class="rounded-lg border border-slate-200 bg-slate-50 p-3"
-            data-og7="admin-ops-provenance-entry"
-            [attr.data-og7-id]="entry.id"
-            [attr.data-og7-state]="provenanceState()"
-          >
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ entry.label }}</p>
-            <p class="mt-2 text-xs font-mono text-slate-700" data-og7="admin-ops-provenance-source">{{ entry.route }}</p>
-            <p class="mt-2 text-xs text-slate-500">
-              Snapshot:
-              <span data-og7="admin-ops-provenance-generated-at">{{ entry.generatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
-            </p>
-          </li>
+  <article
+    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    data-og7="admin-ops-provenance-trail"
+  >
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-slate-900">Snapshot provenance</h2>
+        @if (provenanceMessage(); as message) {
+        <p
+          class="text-xs text-slate-600"
+          data-og7-id="admin-ops-provenance-status"
+          [attr.data-og7-state]="provenanceState()"
+        >
+          {{ message }}
+        </p>
         }
-      </ul>
+      </div>
+    </div>
+
+    <ul class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      @for (entry of provenanceEntries(); track trackProvenanceEntry($index, entry)) {
+      <li
+        class="rounded-lg border border-slate-200 bg-slate-50 p-3"
+        data-og7="admin-ops-provenance-entry"
+        [attr.data-og7-id]="entry.id"
+        [attr.data-og7-state]="provenanceState()"
+      >
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          {{ entry.label }}
+        </p>
+        <p class="mt-2 text-xs font-mono text-slate-700" data-og7="admin-ops-provenance-source">
+          {{ entry.route }}
+        </p>
+        <p class="mt-2 text-xs text-slate-500">
+          Snapshot:
+          <span data-og7="admin-ops-provenance-generated-at"
+            >{{ entry.generatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span
+          >
+        </p>
+      </li>
+      }
+    </ul>
+  </article>
+
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-health"
+    >
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">API health</p>
+      <p
+        class="mt-2 text-lg font-semibold"
+        [class.text-emerald-600]="vm.health.status === 'ok'"
+        [class.text-amber-600]="vm.health.status !== 'ok'"
+      >
+        {{ vm.health.status === 'ok' ? 'Operational' : 'Degraded' }}
+      </p>
+      <p class="mt-2 text-sm text-slate-600">
+        Uptime: {{ formatDuration(vm.health.runtime.uptimeSeconds) }}
+      </p>
+      <p class="text-xs text-slate-500">Node {{ vm.health.runtime.nodeVersion }}</p>
     </article>
 
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-health">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">API health</p>
-        <p class="mt-2 text-lg font-semibold" [class.text-emerald-600]="vm.health.status === 'ok'" [class.text-amber-600]="vm.health.status !== 'ok'">
-          {{ vm.health.status === 'ok' ? 'Operational' : 'Degraded' }}
-        </p>
-        <p class="mt-2 text-sm text-slate-600">Uptime: {{ formatDuration(vm.health.runtime.uptimeSeconds) }}</p>
-        <p class="text-xs text-slate-500">Node {{ vm.health.runtime.nodeVersion }}</p>
-      </article>
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-backups"
+    >
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Backups</p>
+      <p
+        class="mt-2 text-lg font-semibold"
+        [class.text-emerald-600]="vm.backups.status === 'ok'"
+        [class.text-amber-600]="vm.backups.status === 'warning'"
+        [class.text-slate-500]="vm.backups.status === 'disabled'"
+      >
+        {{ vm.backups.status | titlecase }}
+      </p>
+      <p class="mt-2 text-sm text-slate-600">
+        Last: {{ vm.backups.lastBackupAt ? (vm.backups.lastBackupAt | date: 'yyyy-MM-dd HH:mm') :
+        'No backup detected' }}
+      </p>
+      <p class="text-xs text-slate-500">
+        {{ vm.backups.totalFiles }} files, {{ formatBytes(vm.backups.totalSizeBytes) }}
+      </p>
+    </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-backups">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Backups</p>
-        <p class="mt-2 text-lg font-semibold" [class.text-emerald-600]="vm.backups.status === 'ok'" [class.text-amber-600]="vm.backups.status === 'warning'" [class.text-slate-500]="vm.backups.status === 'disabled'">
-          {{ vm.backups.status | titlecase }}
-        </p>
-        <p class="mt-2 text-sm text-slate-600">
-          Last: {{ vm.backups.lastBackupAt ? (vm.backups.lastBackupAt | date: 'yyyy-MM-dd HH:mm') : 'No backup detected' }}
-        </p>
-        <p class="text-xs text-slate-500">{{ vm.backups.totalFiles }} files, {{ formatBytes(vm.backups.totalSizeBytes) }}</p>
-      </article>
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-imports"
+    >
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Imports</p>
+      <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.imports.importedCompanies }}</p>
+      <p class="mt-2 text-sm text-slate-600">Imported companies in scan</p>
+      <p class="text-xs text-slate-500">{{ vm.imports.importsLast24h }} in last 24h</p>
+    </article>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-imports">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Imports</p>
-        <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.imports.importedCompanies }}</p>
-        <p class="mt-2 text-sm text-slate-600">Imported companies in scan</p>
-        <p class="text-xs text-slate-500">{{ vm.imports.importsLast24h }} in last 24h</p>
-      </article>
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-security"
+    >
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Security</p>
+      <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.security.users.total }}</p>
+      <p class="mt-2 text-sm text-slate-600">Registered users</p>
+      <p class="text-xs text-slate-500">
+        {{ vm.security.users.blocked }} blocked, {{ vm.security.sessions.active }} active sessions
+      </p>
+    </article>
+  </section>
 
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-security">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Security</p>
-        <p class="mt-2 text-lg font-semibold text-slate-900">{{ vm.security.users.total }}</p>
-        <p class="mt-2 text-sm text-slate-600">Registered users</p>
-        <p class="text-xs text-slate-500">
-          {{ vm.security.users.blocked }} blocked, {{ vm.security.sessions.active }} active sessions
-        </p>
-      </article>
-    </section>
-
-    <section class="grid gap-4 xl:grid-cols-2">
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-backup-files">
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-base font-semibold text-slate-900">Backup files</h2>
-          <span class="text-xs text-slate-500">Retention: {{ vm.backups.retentionDays }} days</span>
-        </div>
-        @if (!vm.backups.files.length) {
-          <p class="text-sm text-slate-500">No backup file found in {{ vm.backups.directory }}.</p>
-        } @else {
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th class="px-3 py-2">File</th>
-                  <th class="px-3 py-2">Size</th>
-                  <th class="px-3 py-2">Modified</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                @for (file of vm.backups.files; track trackBackupFile($index, file)) {
-                  <tr>
-                    <td class="px-3 py-2 font-medium text-slate-800">{{ file.name }}</td>
-                    <td class="px-3 py-2">{{ formatBytes(file.sizeBytes) }}</td>
-                    <td class="px-3 py-2">{{ file.modifiedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-      </article>
-
-      <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-import-activity">
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-base font-semibold text-slate-900">Recent import activity</h2>
-          <span class="text-xs text-slate-500">
-            Last import: {{ vm.imports.lastImportAt ? (vm.imports.lastImportAt | date: 'yyyy-MM-dd HH:mm') : 'N/A' }}
-          </span>
-        </div>
-        @if (!vm.imports.recent.length) {
-          <p class="text-sm text-slate-500">No import records available yet.</p>
-        } @else {
-          <ul class="space-y-2">
-            @for (entry of vm.imports.recent; track trackImportEntry($index, entry)) {
-              <li class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                <p class="text-sm font-medium text-slate-800">{{ entry.name }}</p>
-                <p class="text-xs text-slate-600">
-                  {{ entry.businessId || 'no-business-id' }} - {{ entry.status }}
-                  <span *ngIf="entry.source">- {{ entry.source }}</span>
-                </p>
-                <p class="text-xs text-slate-500">
-                  {{ (entry.importedAt || entry.updatedAt) ? ((entry.importedAt || entry.updatedAt)! | date: 'yyyy-MM-dd HH:mm') : 'Unknown timestamp' }}
-                </p>
-              </li>
-            }
-          </ul>
-        }
-      </article>
-    </section>
-
-    <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" data-og7="admin-ops-security-controls">
-      <h2 class="mb-3 text-base font-semibold text-slate-900">Security controls</h2>
-      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <p class="text-xs uppercase tracking-wide text-slate-500">Users</p>
-          <p class="mt-1 text-sm text-slate-800">
-            {{ vm.security.users.total }} total, {{ vm.security.users.registrationsLast7d }} new (7d), {{ vm.security.users.blocked }} blocked
-          </p>
-        </div>
-        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <p class="text-xs uppercase tracking-wide text-slate-500">Sessions</p>
-          <p class="mt-1 text-sm text-slate-800">
-            {{ vm.security.sessions.active }} active / {{ vm.security.sessions.revoked }} revoked
-          </p>
-          <p class="text-xs text-slate-500">
-            scanned {{ vm.security.sessions.scannedUsers }} users
-            <span *ngIf="vm.security.sessions.truncated">(truncated)</span>
-          </p>
-        </div>
-        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <p class="text-xs uppercase tracking-wide text-slate-500">Upload safety</p>
-          <p class="mt-1 text-sm text-slate-800">
-            {{ vm.security.uploads.safetyEnabled ? 'Enabled' : 'Disabled' }}
-          </p>
-          <p class="text-xs text-slate-500">
-            Max size {{ formatBytes(vm.security.uploads.maxFileSizeBytes) }}
-          </p>
-        </div>
-        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <p class="text-xs uppercase tracking-wide text-slate-500">Auth policy</p>
-          <p class="mt-1 text-sm text-slate-800">
-            Session timeout: {{ formatSessionTimeout(vm.security.auth.sessionIdleTimeoutMs) }}
-          </p>
-          <p class="text-xs text-slate-500">
-            Pending companies: {{ vm.security.moderation.pendingCompanies }}
-          </p>
-        </div>
+  <section class="grid gap-4 xl:grid-cols-2">
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-backup-files"
+    >
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-slate-900">Backup files</h2>
+        <span class="text-xs text-slate-500">Retention: {{ vm.backups.retentionDays }} days</span>
       </div>
-
-      @if (vm.imports.sources.length) {
-        <div class="mt-4" data-og7="admin-ops-import-sources">
-          <h3 class="mb-2 text-sm font-semibold text-slate-800">Import sources (scan)</h3>
-          <ul class="flex flex-wrap gap-2">
-            @for (source of vm.imports.sources; track trackSource($index, source)) {
-              <li class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700">
-                {{ source.source }}: {{ source.count }}
-              </li>
+      @if (!vm.backups.files.length) {
+      <p class="text-sm text-slate-500">No backup file found in {{ vm.backups.directory }}.</p>
+      } @else {
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="px-3 py-2">File</th>
+              <th class="px-3 py-2">Size</th>
+              <th class="px-3 py-2">Modified</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (file of vm.backups.files; track trackBackupFile($index, file)) {
+            <tr>
+              <td class="px-3 py-2 font-medium text-slate-800">{{ file.name }}</td>
+              <td class="px-3 py-2">{{ formatBytes(file.sizeBytes) }}</td>
+              <td class="px-3 py-2">{{ file.modifiedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+            </tr>
             }
-          </ul>
-        </div>
+          </tbody>
+        </table>
+      </div>
       }
     </article>
+
+    <article
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      data-og7="admin-ops-import-activity"
+    >
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-slate-900">Recent import activity</h2>
+        <span class="text-xs text-slate-500">
+          Last import: {{ vm.imports.lastImportAt ? (vm.imports.lastImportAt | date: 'yyyy-MM-dd
+          HH:mm') : 'N/A' }}
+        </span>
+      </div>
+      @if (!vm.imports.recent.length) {
+      <p class="text-sm text-slate-500">No import records available yet.</p>
+      } @else {
+      <ul class="space-y-2">
+        @for (entry of vm.imports.recent; track trackImportEntry($index, entry)) {
+        <li class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+          <p class="text-sm font-medium text-slate-800">{{ entry.name }}</p>
+          <p class="text-xs text-slate-600">
+            {{ entry.businessId || 'no-business-id' }} - {{ entry.status }}
+            <span *ngIf="entry.source">- {{ entry.source }}</span>
+          </p>
+          <p class="text-xs text-slate-500">
+            {{ (entry.importedAt || entry.updatedAt) ? ((entry.importedAt || entry.updatedAt)! |
+            date: 'yyyy-MM-dd HH:mm') : 'Unknown timestamp' }}
+          </p>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+  </section>
+
+  <article
+    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    data-og7="admin-ops-security-controls"
+  >
+    <h2 class="mb-3 text-base font-semibold text-slate-900">Security controls</h2>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Users</p>
+        <p class="mt-1 text-sm text-slate-800">
+          {{ vm.security.users.total }} total, {{ vm.security.users.registrationsLast7d }} new (7d),
+          {{ vm.security.users.blocked }} blocked
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Sessions</p>
+        <p class="mt-1 text-sm text-slate-800">
+          {{ vm.security.sessions.active }} active / {{ vm.security.sessions.revoked }} revoked
+        </p>
+        <p class="text-xs text-slate-500">
+          scanned {{ vm.security.sessions.scannedUsers }} users
+          <span *ngIf="vm.security.sessions.truncated">(truncated)</span>
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Upload safety</p>
+        <p class="mt-1 text-sm text-slate-800">
+          {{ vm.security.uploads.safetyEnabled ? 'Enabled' : 'Disabled' }}
+        </p>
+        <p class="text-xs text-slate-500">
+          Max size {{ formatBytes(vm.security.uploads.maxFileSizeBytes) }}
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Auth policy</p>
+        <p class="mt-1 text-sm text-slate-800">
+          Session timeout: {{ formatSessionTimeout(vm.security.auth.sessionIdleTimeoutMs) }}
+        </p>
+        <p class="text-xs text-slate-500">
+          Pending companies: {{ vm.security.moderation.pendingCompanies }}
+        </p>
+      </div>
+    </div>
+
+    @if (vm.imports.sources.length) {
+    <div class="mt-4" data-og7="admin-ops-import-sources">
+      <h3 class="mb-2 text-sm font-semibold text-slate-800">Import sources (scan)</h3>
+      <ul class="flex flex-wrap gap-2">
+        @for (source of vm.imports.sources; track trackSource($index, source)) {
+        <li
+          class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700"
+        >
+          {{ source.source }}: {{ source.count }}
+        </li>
+        }
+      </ul>
+    </div>
+    }
+  </article>
   }
 </section>

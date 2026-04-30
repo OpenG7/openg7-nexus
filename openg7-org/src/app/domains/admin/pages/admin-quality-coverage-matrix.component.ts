@@ -14,6 +14,7 @@ interface CoverageSignal {
   readonly shortLabel: string;
   readonly label: string;
   readonly tone: CoverageSignalTone;
+  readonly attention?: boolean;
 }
 
 interface CoverageToneLegendItem {
@@ -147,11 +148,13 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                       <div class="min-w-0 pr-3">
                         <div class="flex items-center gap-3">
                           <span
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border"
-                            [class]="statusBadgeClasses(entry.e2eStatus)"
+                            class="coverage-signal flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border"
+                            [ngClass]="statusBadgeClasses(entry.e2eStatus)"
+                            [class.coverage-signal--attention]="statusNeedsAttention(entry.e2eStatus)"
+                            [style.--coverage-glow]="statusGlowColor(entry.e2eStatus)"
                             aria-hidden="true"
                           >
-                            <span class="h-2.5 w-2.5 rounded-full" [class]="statusDotClasses(entry.e2eStatus)"></span>
+                            <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="statusDotClasses(entry.e2eStatus)"></span>
                           </span>
 
                           <div class="min-w-0">
@@ -166,11 +169,14 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                       @for (signal of signalsFor(entry); track signal.id) {
                         <div class="flex justify-center" aria-hidden="true">
                           <span
-                            class="flex h-6 w-6 items-center justify-center rounded-full border"
+                            class="coverage-signal flex h-6 w-6 items-center justify-center rounded-full border"
                             [attr.title]="signal.label"
+                            [attr.data-og7-attention]="signal.attention ? 'true' : 'false'"
                             [ngClass]="signalIndicatorFrameClasses(signal.tone)"
+                            [class.coverage-signal--attention]="signal.attention"
+                            [style.--coverage-glow]="signalGlowColor(signal.tone)"
                           >
-                            <span class="h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
+                            <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
                           </span>
                         </div>
                       }
@@ -227,6 +233,77 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
       </div>
     </section>
   `,
+  styles: [
+    `
+      :host .coverage-signal {
+        isolation: isolate;
+        overflow: visible;
+        position: relative;
+      }
+
+      :host .coverage-signal::before {
+        background: radial-gradient(
+          circle,
+          var(--coverage-glow, rgba(148, 163, 184, 0.48)) 0%,
+          color-mix(in srgb, var(--coverage-glow, rgba(148, 163, 184, 0.48)) 42%, transparent) 42%,
+          transparent 72%
+        );
+        border-radius: inherit;
+        content: '';
+        inset: -0.45rem;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transform: scale(0.72);
+        transition:
+          opacity 180ms ease,
+          transform 180ms ease;
+        z-index: 0;
+      }
+
+      :host .coverage-signal--attention::before {
+        animation: og7CoverageHalo 2.6s ease-out infinite;
+        opacity: 0.48;
+      }
+
+      :host button:hover .coverage-signal::before,
+      :host button:focus-visible .coverage-signal::before {
+        animation: none;
+        opacity: 0.42;
+        transform: scale(1);
+      }
+
+      @keyframes og7CoverageHalo {
+        0% {
+          opacity: 0.5;
+          transform: scale(0.68);
+        }
+
+        70% {
+          opacity: 0;
+          transform: scale(1.45);
+        }
+
+        100% {
+          opacity: 0;
+          transform: scale(1.45);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        :host .coverage-signal,
+        :host .coverage-signal::before {
+          transition: none;
+        }
+
+        :host .coverage-signal--attention::before {
+          animation: none;
+          opacity: 0.34;
+          transform: scale(1);
+        }
+      }
+    `,
+  ],
 })
 export class AdminQualityCoverageMatrixComponent {
   readonly entries = input<readonly AdminQualityMatrixEntry[]>([]);
@@ -258,17 +335,48 @@ export class AdminQualityCoverageMatrixComponent {
 
   signalsFor(entry: AdminQualityMatrixEntry): readonly CoverageSignal[] {
     return [
-      { id: 'summary', shortLabel: 'S', label: 'Synthese', tone: this.statusTone(entry.summaryStatus) },
-      { id: 'business', shortLabel: 'M', label: 'Metier', tone: this.statusTone(entry.businessStatus) },
+      {
+        id: 'summary',
+        shortLabel: 'S',
+        label: 'Synthese',
+        tone: this.statusTone(entry.summaryStatus),
+        attention: this.statusNeedsAttention(entry.summaryStatus),
+      },
+      {
+        id: 'business',
+        shortLabel: 'M',
+        label: 'Metier',
+        tone: this.statusTone(entry.businessStatus),
+        attention: this.statusNeedsAttention(entry.businessStatus),
+      },
       {
         id: 'implementation',
         shortLabel: 'I',
         label: 'Implementation',
         tone: this.statusTone(entry.implementationStatus),
+        attention: this.statusNeedsAttention(entry.implementationStatus),
       },
-      { id: 'e2e', shortLabel: 'E', label: 'End-to-end', tone: this.statusTone(entry.e2eStatus) },
-      { id: 'readiness', shortLabel: 'R', label: 'Readiness', tone: this.readinessTone(entry) },
-      { id: 'priority', shortLabel: 'P', label: 'Priorite', tone: this.priorityTone(entry.priority) },
+      {
+        id: 'e2e',
+        shortLabel: 'E',
+        label: 'End-to-end',
+        tone: this.statusTone(entry.e2eStatus),
+        attention: this.statusNeedsAttention(entry.e2eStatus),
+      },
+      {
+        id: 'readiness',
+        shortLabel: 'R',
+        label: 'Readiness',
+        tone: this.readinessTone(entry),
+        attention: this.readinessNeedsAttention(entry),
+      },
+      {
+        id: 'priority',
+        shortLabel: 'P',
+        label: 'Priorite',
+        tone: this.priorityTone(entry.priority),
+        attention: this.priorityNeedsAttention(entry),
+      },
     ];
   }
 
@@ -343,6 +451,31 @@ export class AdminQualityCoverageMatrixComponent {
     }
   }
 
+  signalGlowColor(tone: CoverageSignalTone): string {
+    switch (tone) {
+      case 'sky':
+        return 'rgba(125, 211, 252, 0.62)';
+      case 'emerald':
+        return 'rgba(110, 231, 183, 0.58)';
+      case 'lime':
+        return 'rgba(190, 242, 100, 0.58)';
+      case 'amber':
+        return 'rgba(252, 211, 77, 0.64)';
+      case 'orange':
+        return 'rgba(251, 146, 60, 0.66)';
+      case 'rose':
+        return 'rgba(251, 113, 133, 0.68)';
+      case 'violet':
+        return 'rgba(196, 181, 253, 0.58)';
+      default:
+        return 'rgba(148, 163, 184, 0.46)';
+    }
+  }
+
+  statusGlowColor(status: AdminQualityMatrixStatus): string {
+    return this.signalGlowColor(this.statusTone(status));
+  }
+
   statusBadgeClasses(status: AdminQualityMatrixStatus): string {
     switch (status) {
       case 'oui':
@@ -393,6 +526,10 @@ export class AdminQualityCoverageMatrixComponent {
       default:
         return 'KO';
     }
+  }
+
+  statusNeedsAttention(status: AdminQualityMatrixStatus): boolean {
+    return status === 'non' || status === 'partiel';
   }
 
   priorityChipClasses(priority: AdminQualityMatrixPriority): string {
@@ -485,6 +622,14 @@ export class AdminQualityCoverageMatrixComponent {
       default:
         return 'amber';
     }
+  }
+
+  private readinessNeedsAttention(entry: AdminQualityMatrixEntry): boolean {
+    return entry.e2eStatus !== 'oui' && entry.managementBucket !== 'scope-limit';
+  }
+
+  private priorityNeedsAttention(entry: AdminQualityMatrixEntry): boolean {
+    return entry.priority === 'haute' && entry.e2eStatus !== 'oui';
   }
 
   private bucketLabel(entry: AdminQualityMatrixEntry): string {

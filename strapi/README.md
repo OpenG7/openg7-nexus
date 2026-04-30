@@ -23,22 +23,23 @@ yarn seed:dev                # executes the seed pipeline against the local data
 
 The seed process expects several environment variables to be defined before running the CMS (see [`./.env.example`](./.env.example) for a ready-to-copy template):
 
-| Variable | Description |
-| --- | --- |
-| `STRAPI_ADMIN_EMAIL` | Email address for the initial admin user. Used when `STRAPI_SEED_ADMIN_ALLOWED=true`. |
-| `STRAPI_ADMIN_PASSWORD` | Strong password for the initial admin user. |
-| `STRAPI_WEB_ADMIN_ROLE` | Optional. Users-permissions role assigned to the mirrored web account for `STRAPI_ADMIN_EMAIL` (default: `Owner`). |
-| `STRAPI_SEED_ADMIN_ALLOWED` | Must be `true` to allow creation of the bootstrap admin account. |
-| `STRAPI_API_READONLY_TOKEN` | Token string that will be used to create the read-only API access key. |
-| `STRAPI_SEED_AUTO` | Optional flag. Set to `false` to skip automatic seeding from bootstrap, `true` to force it. |
-| `APP_KEYS` / `SESSION_KEYS` | Comma separated secrets used by Koa for cookie signing and session encryption. |
-| `STRAPI_SESSION_DRIVER` | Defaults to `redis`. Set to `memory` locally if you do not run Redis. |
-| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB` | Connection parameters for the shared Redis instance powering sessions and rate limiting. |
-| `RATE_LIMIT_ENABLED`, `RATE_LIMIT_INTERVAL_MS`, `RATE_LIMIT_MAX` | Control the Redis-backed throttling middleware. |
-| `ACTIVATION_EMAIL_COOLDOWN_ENABLED`, `ACTIVATION_EMAIL_COOLDOWN_MS`, `ACTIVATION_EMAIL_COOLDOWN_PREFIX`, `ACTIVATION_EMAIL_COOLDOWN_USE_REDIS` | Server-side cooldown for `POST /api/auth/send-email-confirmation` (default: 120s). |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_REQUIRE_TLS`, `SMTP_USERNAME`, `SMTP_PASSWORD` | SMTP transport used by the Strapi email plugin (HostPapa for `notify@openg7.org`). |
-| `SMTP_DEFAULT_FROM_NAME` | Display name used by users-permissions email templates when defaults are seeded. |
-| `SMTP_DEFAULT_FROM`, `SMTP_DEFAULT_REPLY_TO` | Default sender and reply-to headers used by transactional emails. |
+| Variable                                                                                                                                       | Description                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `STRAPI_ADMIN_EMAIL`                                                                                                                           | Email address for the initial admin user. Used when `STRAPI_SEED_ADMIN_ALLOWED=true`.                                       |
+| `STRAPI_ADMIN_PASSWORD`                                                                                                                        | Strong password for the initial admin user.                                                                                 |
+| `STRAPI_WEB_ADMIN_ROLE`                                                                                                                        | Optional. Users-permissions role assigned to the mirrored web account for `STRAPI_ADMIN_EMAIL` (default: `Owner`).          |
+| `STRAPI_SEED_ADMIN_ALLOWED`                                                                                                                    | Must be `true` to allow creation of the bootstrap admin account.                                                            |
+| `STRAPI_API_READONLY_TOKEN`                                                                                                                    | Token string that will be used to create the read-only API access key.                                                      |
+| `STRAPI_SEED_AUTO`                                                                                                                             | Optional flag. Set to `false` to skip automatic seeding from bootstrap, `true` to force it.                                 |
+| `OPS_CODEX_DISPATCH_ENABLED`, `OPS_CODEX_GITHUB_*`, `OPS_CODEX_ALLOWED_*`, `OPS_CODEX_TIMEOUT_MS`                                              | Optional. Enables the owner/admin endpoint that dispatches `.github/workflows/codex-pr.yml` through the GitHub Actions API. |
+| `APP_KEYS` / `SESSION_KEYS`                                                                                                                    | Comma separated secrets used by Koa for cookie signing and session encryption.                                              |
+| `STRAPI_SESSION_DRIVER`                                                                                                                        | Defaults to `redis`. Set to `memory` locally if you do not run Redis.                                                       |
+| `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB`                                                                                       | Connection parameters for the shared Redis instance powering sessions and rate limiting.                                    |
+| `RATE_LIMIT_ENABLED`, `RATE_LIMIT_INTERVAL_MS`, `RATE_LIMIT_MAX`                                                                               | Control the Redis-backed throttling middleware.                                                                             |
+| `ACTIVATION_EMAIL_COOLDOWN_ENABLED`, `ACTIVATION_EMAIL_COOLDOWN_MS`, `ACTIVATION_EMAIL_COOLDOWN_PREFIX`, `ACTIVATION_EMAIL_COOLDOWN_USE_REDIS` | Server-side cooldown for `POST /api/auth/send-email-confirmation` (default: 120s).                                          |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_REQUIRE_TLS`, `SMTP_USERNAME`, `SMTP_PASSWORD`                                                  | SMTP transport used by the Strapi email plugin (HostPapa for `notify@openg7.org`).                                          |
+| `SMTP_DEFAULT_FROM_NAME`                                                                                                                       | Display name used by users-permissions email templates when defaults are seeded.                                            |
+| `SMTP_DEFAULT_FROM`, `SMTP_DEFAULT_REPLY_TO`                                                                                                   | Default sender and reply-to headers used by transactional emails.                                                           |
 
 Ensure these variables are exported in your shell (or defined in a `.env` file that Strapi loads) before running the development commands above.
 
@@ -87,15 +88,15 @@ Automatic seeding is now disabled by default whenever `STRAPI_ENV`/`NODE_ENV` re
 
 The quick-search experience relies on an external search engine (Meilisearch or OpenSearch). Configure the following variables in your Strapi environment so lifecycle hooks can keep the indices synchronised and the `/api/search` endpoint can proxy queries:
 
-| Variable | Development (Meilisearch) | Production (OpenSearch) |
-| --- | --- | --- |
-| `SEARCH_ENGINE_URL` | `http://localhost:7700` | `https://search.prod.openg7.org` |
-| `SEARCH_ENGINE_DRIVER` | `meilisearch` | `opensearch` |
-| `SEARCH_ENGINE_API_KEY` | `masterKey` (or your local key) | Read/write API key provisioned for Strapi |
-| `SEARCH_ENGINE_AUTH_HEADER` | `X-Meili-API-Key` | `Authorization` |
-| `SEARCH_ENGINE_AUTH_SCHEME` | *(leave empty)* | `Bearer` (or your preferred scheme) |
-| `SEARCH_ENGINE_INDEX_COMPANIES` | `companies` | `og7-companies` |
-| `SEARCH_ENGINE_INDEX_EXCHANGES` | `exchanges` | `og7-exchanges` |
+| Variable                        | Development (Meilisearch)       | Production (OpenSearch)                   |
+| ------------------------------- | ------------------------------- | ----------------------------------------- |
+| `SEARCH_ENGINE_URL`             | `http://localhost:7700`         | `https://search.prod.openg7.org`          |
+| `SEARCH_ENGINE_DRIVER`          | `meilisearch`                   | `opensearch`                              |
+| `SEARCH_ENGINE_API_KEY`         | `masterKey` (or your local key) | Read/write API key provisioned for Strapi |
+| `SEARCH_ENGINE_AUTH_HEADER`     | `X-Meili-API-Key`               | `Authorization`                           |
+| `SEARCH_ENGINE_AUTH_SCHEME`     | _(leave empty)_                 | `Bearer` (or your preferred scheme)       |
+| `SEARCH_ENGINE_INDEX_COMPANIES` | `companies`                     | `og7-companies`                           |
+| `SEARCH_ENGINE_INDEX_EXCHANGES` | `exchanges`                     | `og7-exchanges`                           |
 
 > **Note:** when using Meilisearch the authentication header differs from OpenSearch. Setting `SEARCH_ENGINE_AUTH_HEADER=X-Meili-API-Key` and leaving `SEARCH_ENGINE_AUTH_SCHEME` blank ensures the API key is sent in the format expected by Meilisearch.
 
@@ -115,9 +116,10 @@ The seed files located in `strapi/src/seed/` initialise:
 All seeders are idempotent, making them safe to re-run during development or integration testing.
 
 The admin seed now provisions both:
+
 - the Strapi Admin panel account (`admin::user`), and
 - a mirrored Content API account (`plugin::users-permissions.user`) for the same email/password,
-so `contact@openg7.org` can authenticate from `@openg7/web` via `POST /api/auth/local`.
+  so `contact@openg7.org` can authenticate from `@openg7/web` via `POST /api/auth/local`.
 
 ## Runtime APIs delivered in this sprint
 
@@ -140,7 +142,10 @@ Strapi now exposes additional backend endpoints used directly by authenticated u
   - `GET /api/admin/ops/backups`
   - `GET /api/admin/ops/imports`
   - `GET /api/admin/ops/security`
+  - `POST /api/admin/ops/codex/dispatch`
   - Guarded by policy: `global::owner-admin-ops`
+
+For the Codex dispatch payload, environment variables, and the expected GitHub workflow contract, see `../docs/strapi/admin-ops-codex-dispatch.md`.
 
 For payload details, auth model, filters, and transition rules, see `../docs/strapi/realtime-apis.md`.
 

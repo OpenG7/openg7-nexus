@@ -1,9 +1,19 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import {
   AdminQualityMatrixBucket,
@@ -11,8 +21,10 @@ import {
   AdminQualityMatrixPriority,
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
+  AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
+import { AdminQualityMissionDecisionsService } from '../data-access/admin-quality-mission-decisions.service';
 import {
   AdminQualityWorkspaceDrawerComponent,
   AdminQualityWorkspaceSurface,
@@ -47,9 +59,16 @@ import {
   buildMissionControl,
 } from './admin-quality-mission-control';
 import { AdminQualityMissionControlComponent } from './admin-quality-mission-control.component';
+import {
+  AdminQualityMissionQuotaSummary,
+  AdminQualityMissionTask,
+  buildMissionTasks,
+  summarizeMissionQuota,
+} from './admin-quality-mission-task-planner';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
+type AdminQualityMissionDecisionSyncStatus = 'local' | 'syncing' | 'server' | 'unavailable';
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
@@ -64,6 +83,7 @@ interface AdminQualityPersistedViewState {
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
   readonly activeWorkspaceSurface?: AdminQualityWorkspaceSurface;
+  readonly availableCodexQuotaUnits?: number;
   readonly inspectionSurface?: AdminQualityLegacyInspectionSurface;
 }
 
@@ -88,9 +108,12 @@ const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
 })
 export class AdminQualityPage implements OnInit {
   private readonly service = inject(AdminQualityMatrixService);
+  private readonly missionDecisionService = inject(AdminQualityMissionDecisionsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly notifications = injectNotificationStore();
+  private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly loading = signal(true);
@@ -107,7 +130,12 @@ export class AdminQualityPage implements OnInit {
   readonly selectedMissionId = signal<string | null>(null);
   readonly workspaceOpen = signal(false);
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
+  readonly availableCodexQuotaUnits = signal(160);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
+  readonly missionDecisionSyncStatus = signal<AdminQualityMissionDecisionSyncStatus>('local');
+  readonly missionDecisionSyncMessage = signal(
+    'Decisions conservees localement jusqu a la synchronisation serveur.',
+  );
   readonly speaking = signal(false);
   private readonly viewStateReady = signal(false);
   readonly actionStateKeys: readonly (keyof AdminQualityActionStateCoverage)[] = [
@@ -119,12 +147,19 @@ export class AdminQualityPage implements OnInit {
   ];
 
   readonly entries = computed(() => this.snapshot()?.entries ?? []);
+  readonly matrixSourceStatus = computed<AdminQualityMatrixSourceStatus | null>(
+    () => this.snapshot()?.sourceStatus ?? null,
+  );
+  readonly matrixSourceMessage = computed(() => this.snapshot()?.sourceMessage ?? null);
   readonly actionRegistry = computed(() => buildActionRegistry(this.entries()));
   readonly undocumentedActions = computed(() => buildUndocumentedDiscoveredActions(this.entries()));
 
   readonly domainOptions = computed(() => {
     const options = new Set(this.entries().map((entry) => entry.domain));
-    return ['all', ...Array.from(options).sort((left, right) => left.localeCompare(right, 'fr-CA'))];
+    return [
+      'all',
+      ...Array.from(options).sort((left, right) => left.localeCompare(right, 'fr-CA')),
+    ];
   });
 
   readonly filteredEntries = computed(() => {
@@ -148,7 +183,13 @@ export class AdminQualityPage implements OnInit {
           return true;
         }
 
-        const haystack = [entry.domain, entry.need, entry.observedGap, entry.nextMove, ...entry.evidence]
+        const haystack = [
+          entry.domain,
+          entry.need,
+          entry.observedGap,
+          entry.nextMove,
+          ...entry.evidence,
+        ]
           .join(' ')
           .toLocaleLowerCase('fr-CA');
 
@@ -158,31 +199,51 @@ export class AdminQualityPage implements OnInit {
   });
 
   readonly totalDomains = computed(() => this.entries().length);
-  readonly provedCount = computed(() => this.entries().filter((entry) => entry.e2eStatus === 'oui').length);
-  readonly filteredProvedCount = computed(() => this.filteredEntries().filter((entry) => entry.e2eStatus === 'oui').length);
+  readonly provedCount = computed(
+    () => this.entries().filter((entry) => entry.e2eStatus === 'oui').length,
+  );
+  readonly filteredProvedCount = computed(
+    () => this.filteredEntries().filter((entry) => entry.e2eStatus === 'oui').length,
+  );
   readonly proofGapCount = computed(
     () =>
       this.entries().filter(
-        (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
-      ).length
+        (entry) =>
+          entry.e2eStatus !== 'oui' &&
+          !entry.needsProductWorkFirst &&
+          entry.managementBucket === 'proof-gap',
+      ).length,
   );
   readonly filteredProofGapCount = computed(
     () =>
       this.filteredEntries().filter(
-        (entry) => entry.e2eStatus !== 'oui' && !entry.needsProductWorkFirst && entry.managementBucket === 'proof-gap'
-      ).length
+        (entry) =>
+          entry.e2eStatus !== 'oui' &&
+          !entry.needsProductWorkFirst &&
+          entry.managementBucket === 'proof-gap',
+      ).length,
   );
   readonly productWorkCount = computed(
-    () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
+    () =>
+      this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst)
+        .length,
   );
   readonly filteredProductWorkCount = computed(
-    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst).length
+    () =>
+      this.filteredEntries().filter(
+        (entry) => entry.e2eStatus !== 'oui' && entry.needsProductWorkFirst,
+      ).length,
   );
   readonly highPriorityGapCount = computed(
-    () => this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
+    () =>
+      this.entries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute')
+        .length,
   );
   readonly filteredHighPriorityGapCount = computed(
-    () => this.filteredEntries().filter((entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute').length
+    () =>
+      this.filteredEntries().filter(
+        (entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute',
+      ).length,
   );
   readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
     activeDomains: this.filteredEntries().length,
@@ -197,7 +258,9 @@ export class AdminQualityPage implements OnInit {
       label: 'Domaines visibles',
       activeValue: this.filteredEntries().length,
       totalValue: this.totalDomains(),
-      detail: this.hasActiveFilters() ? 'Perimetre courant de la console.' : 'Portefeuille complet actuellement visible.',
+      detail: this.hasActiveFilters()
+        ? 'Perimetre courant de la console.'
+        : 'Portefeuille complet actuellement visible.',
       accent: 'slate',
     },
     {
@@ -235,13 +298,15 @@ export class AdminQualityPage implements OnInit {
   ]);
   readonly totalRegisteredActions = computed(() => this.actionRegistry().length);
   readonly provedActionsCount = computed(
-    () => this.actionRegistry().filter((action) => action.status === 'proved').length
+    () => this.actionRegistry().filter((action) => action.status === 'proved').length,
   );
   readonly actionsNeedingCompletionCount = computed(
-    () => this.actionRegistry().filter((action) => action.status === 'needs-completion').length
+    () => this.actionRegistry().filter((action) => action.status === 'needs-completion').length,
   );
   readonly detectedActionsCount = computed(
-    () => this.actionRegistry().filter((action) => action.sourceDetected).length + this.undocumentedActions().length
+    () =>
+      this.actionRegistry().filter((action) => action.sourceDetected).length +
+      this.undocumentedActions().length,
   );
   readonly unmappedActionsCount = computed(() => this.undocumentedActions().length);
 
@@ -251,7 +316,7 @@ export class AdminQualityPage implements OnInit {
       this.selectedDomain() !== 'all' ||
       this.selectedPriority() !== 'all' ||
       this.selectedE2EStatus() !== 'all' ||
-      this.selectedBucket() !== 'all'
+      this.selectedBucket() !== 'all',
   );
   readonly activeFilterChips = computed<readonly AdminQualityActiveFilterChip[]>(() => {
     const chips: AdminQualityActiveFilterChip[] = [];
@@ -296,8 +361,12 @@ export class AdminQualityPage implements OnInit {
     const actions = this.actionRegistry();
     return entry ? actions.filter((action) => action.entryId === entry.id) : [];
   });
-  readonly qaQueuePreviewItems = computed<readonly AdminQualityMatrixEntry[]>(() => this.filteredEntries().slice(0, 3));
-  readonly actionPreviewItems = computed<readonly AdminQualityActionRecord[]>(() => this.selectedEntryActions().slice(0, 2));
+  readonly qaQueuePreviewItems = computed<readonly AdminQualityMatrixEntry[]>(() =>
+    this.filteredEntries().slice(0, 3),
+  );
+  readonly actionPreviewItems = computed<readonly AdminQualityActionRecord[]>(() =>
+    this.selectedEntryActions().slice(0, 2),
+  );
   readonly selectedWorkspaceTitle = computed(() => {
     switch (this.activeWorkspaceSurface()) {
       case 'qaQueue':
@@ -354,8 +423,23 @@ export class AdminQualityPage implements OnInit {
     }
 
     const selectedId = this.selectedMissionId();
-    return recommendations.find((recommendation) => recommendation.id === selectedId) ?? recommendations[0];
+    return (
+      recommendations.find((recommendation) => recommendation.id === selectedId) ??
+      recommendations[0]
+    );
   });
+  readonly selectedMissionTasks = computed<readonly AdminQualityMissionTask[]>(() => {
+    const mission = this.selectedMission();
+    const difficulty = this.selectedDelegation()?.difficulty;
+    return mission && difficulty ? buildMissionTasks(mission, difficulty) : [];
+  });
+  readonly selectedMissionQuotaSummary = computed<AdminQualityMissionQuotaSummary | null>(() => {
+    const tasks = this.selectedMissionTasks();
+    return tasks.length ? summarizeMissionQuota(tasks, this.availableCodexQuotaUnits()) : null;
+  });
+  readonly canStartSelectedMission = computed(
+    () => this.selectedMissionQuotaSummary()?.sufficient ?? false,
+  );
 
   constructor() {
     effect(() => {
@@ -370,6 +454,7 @@ export class AdminQualityPage implements OnInit {
   ngOnInit(): void {
     this.restoreViewState();
     this.restoreMissionDecisions();
+    this.loadMissionDecisionsFromServer();
     this.viewStateReady.set(true);
     this.destroyRef.onDestroy(() => this.stopMissionVoice(false));
 
@@ -383,7 +468,7 @@ export class AdminQualityPage implements OnInit {
           this.error.set(null);
         },
         error: () => {
-          this.error.set("Impossible de charger la matrice QA.");
+          this.error.set('Impossible de charger la matrice QA.');
           this.loading.set(false);
         },
       });
@@ -397,27 +482,32 @@ export class AdminQualityPage implements OnInit {
 
   setDomainFilter(event: Event): void {
     this.stopVoiceForContextChange();
-    this.selectedDomain.set(((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all');
+    this.selectedDomain.set(
+      ((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all',
+    );
   }
 
   setPriorityFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedPriority.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all',
     );
   }
 
   setE2EFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedE2EStatus.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all',
     );
   }
 
   setBucketFilter(event: Event): void {
     this.stopVoiceForContextChange();
     this.selectedBucket.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all'
+      ((event.target as HTMLSelectElement | null)
+        ?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all',
     );
   }
 
@@ -472,7 +562,35 @@ export class AdminQualityPage implements OnInit {
     this.activeWorkspaceSurface.set(surface);
   }
 
+  setAvailableCodexQuotaUnits(event: Event): void {
+    const nextValue = Number(
+      (event.target as HTMLInputElement | null)?.value ?? this.availableCodexQuotaUnits(),
+    );
+    if (!Number.isFinite(nextValue)) {
+      return;
+    }
+
+    this.availableCodexQuotaUnits.set(Math.max(0, Math.round(nextValue)));
+  }
+
   handleMissionAction(event: AdminQualityMissionControlActionEvent): void {
+    const launchesDelegation = event.action === 'auto-delegate';
+
+    if (launchesDelegation) {
+      const quotaSummary = this.quotaSummaryForMission(event.recommendation);
+      if (!quotaSummary.sufficient) {
+        this.notifications.error(
+          this.translate.instant('admin.quality.codex.notifications.insufficientQuota', {
+            required: quotaSummary.requiredUnits,
+            available: quotaSummary.availableUnits,
+            missing: quotaSummary.shortageUnits,
+          }),
+          { source: 'admin-quality' },
+        );
+        return;
+      }
+    }
+
     const resolution = resolveMissionAction(event.action, event.recommendation);
     if (!resolution) {
       return;
@@ -486,6 +604,58 @@ export class AdminQualityPage implements OnInit {
     }
 
     this.updateMissionStatus(event.recommendation, resolution.status, resolution.message);
+
+    if (launchesDelegation && resolution.status === 'in-progress') {
+      void this.openCodexOpsPrefill(event.recommendation);
+    }
+  }
+
+  matrixSourceLabel(status: AdminQualityMatrixSourceStatus): string {
+    switch (status) {
+      case 'fallback':
+        return 'Fallback';
+      case 'stale':
+        return 'A verifier';
+      default:
+        return 'A jour';
+    }
+  }
+
+  matrixSourceClasses(status: AdminQualityMatrixSourceStatus): string {
+    switch (status) {
+      case 'fallback':
+        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+      case 'stale':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+      default:
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+    }
+  }
+
+  missionDecisionSyncLabel(status: AdminQualityMissionDecisionSyncStatus): string {
+    switch (status) {
+      case 'server':
+        return 'Missions serveur';
+      case 'syncing':
+        return 'Sync missions...';
+      case 'unavailable':
+        return 'Missions locales';
+      default:
+        return 'Missions locales';
+    }
+  }
+
+  missionDecisionSyncClasses(status: AdminQualityMissionDecisionSyncStatus): string {
+    switch (status) {
+      case 'server':
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+      case 'syncing':
+        return 'border-sky-300/25 bg-sky-400/12 text-sky-100';
+      case 'unavailable':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+      default:
+        return 'border-white/12 bg-white/[0.05] text-slate-100';
+    }
   }
 
   actionStatusLabel(status: AdminQualityActionStatus): string {
@@ -601,12 +771,15 @@ export class AdminQualityPage implements OnInit {
     delete next[recommendation.id];
     this.missionDecisions.set(next);
     this.persistMissionDecisions();
+    this.deleteMissionDecisionFromServer(recommendation);
     this.notifications.info(message, { source: 'admin-quality' });
   }
 
   async speakMissionControl(state: AdminQualityMissionControlState): Promise<void> {
     if (!this.isBrowser || typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      this.notifications.info('Synthese vocale indisponible dans ce navigateur.', { source: 'admin-quality' });
+      this.notifications.info('Synthese vocale indisponible dans ce navigateur.', {
+        source: 'admin-quality',
+      });
       return;
     }
 
@@ -623,7 +796,7 @@ export class AdminQualityPage implements OnInit {
     window.speechSynthesis.cancel();
     this.speaking.set(true);
     window.speechSynthesis.speak(utterance);
-    this.notifications.info("Analyse AI lue a voix haute.", { source: 'admin-quality' });
+    this.notifications.info('Analyse AI lue a voix haute.', { source: 'admin-quality' });
   }
 
   stopMissionVoice(notify = true): void {
@@ -770,7 +943,7 @@ export class AdminQualityPage implements OnInit {
   private updateMissionStatus(
     recommendation: AdminQualityMissionRecommendation,
     status: AdminQualityMissionStatus,
-    message: string
+    message: string,
   ): void {
     this.missionDecisions.set({
       ...this.missionDecisions(),
@@ -778,7 +951,114 @@ export class AdminQualityPage implements OnInit {
     });
     this.persistMissionDecisions();
     this.selectedMissionId.set(recommendation.id);
+    this.saveMissionDecisionToServer(recommendation, status, message);
     this.notifications.success(message, { source: 'admin-quality' });
+  }
+
+  private loadMissionDecisionsFromServer(): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation des decisions de mission...');
+
+    this.missionDecisionService
+      .loadDecisions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (snapshot) => {
+          const next: Record<string, AdminQualityMissionStatus> = {};
+          for (const decision of snapshot.decisions) {
+            if (decision.recommendationId && this.isMissionStatus(decision.status)) {
+              next[decision.recommendationId] = decision.status;
+            }
+          }
+
+          this.missionDecisions.set(next);
+          this.persistMissionDecisions();
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set(
+            `${snapshot.decisions.length} decision(s) de mission synchronisee(s).`,
+          );
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Serveur mission indisponible; les decisions restent conservees localement.',
+          );
+        },
+      });
+  }
+
+  private saveMissionDecisionToServer(
+    recommendation: AdminQualityMissionRecommendation,
+    status: AdminQualityMissionStatus,
+    message: string,
+  ): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation de la decision de mission...');
+
+    this.missionDecisionService
+      .saveDecision({
+        recommendationId: recommendation.id,
+        entryId: this.recommendationEntryId(recommendation),
+        kind: recommendation.kind,
+        status,
+        title: recommendation.title,
+        message,
+        operatorPrompt: recommendation.operatorPrompt,
+        metadata: {
+          confidence: recommendation.confidence,
+          impact: recommendation.impact,
+          suggestedOwner: recommendation.suggestedOwner,
+          targetFiles: recommendation.targetFiles,
+          validationCommands: recommendation.validationCommands,
+        },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set('Decision de mission synchronisee cote serveur.');
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Decision sauvegardee localement; synchronisation serveur impossible.',
+          );
+          this.notifications.info('Decision gardee localement; serveur mission indisponible.', {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  private deleteMissionDecisionFromServer(recommendation: AdminQualityMissionRecommendation): void {
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation de la reinitialisation de mission...');
+
+    this.missionDecisionService
+      .deleteDecision(recommendation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set('Mission reinitialisee cote serveur.');
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Mission reinitialisee localement; synchronisation serveur impossible.',
+          );
+          this.notifications.info(
+            'Mission reinitialisee localement; serveur mission indisponible.',
+            {
+              source: 'admin-quality',
+            },
+          );
+        },
+      });
+  }
+
+  private recommendationEntryId(recommendation: AdminQualityMissionRecommendation): string {
+    return recommendation.id.split('::')[0] ?? recommendation.id;
   }
 
   private async copyText(value: string, successMessage: string): Promise<void> {
@@ -798,7 +1078,9 @@ export class AdminQualityPage implements OnInit {
         this.legacyCopy(value);
         this.notifications.success(successMessage, { source: 'admin-quality' });
       } catch {
-        this.notifications.error("Impossible de copier l'action de delegation.", { source: 'admin-quality' });
+        this.notifications.error("Impossible de copier l'action de delegation.", {
+          source: 'admin-quality',
+        });
       }
     }
   }
@@ -857,7 +1139,9 @@ export class AdminQualityPage implements OnInit {
     try {
       localStorage.setItem(MISSION_CONTROL_STORAGE_KEY, JSON.stringify(this.missionDecisions()));
     } catch {
-      this.notifications.error('Impossible de persister le pilotage local des missions.', { source: 'admin-quality' });
+      this.notifications.error('Impossible de persister le pilotage local des missions.', {
+        source: 'admin-quality',
+      });
     }
   }
 
@@ -880,7 +1164,10 @@ export class AdminQualityPage implements OnInit {
     }
 
     const selectedDomain = this.selectedDomain();
-    if (selectedDomain !== 'all' && !this.entries().some((entry) => entry.domain === selectedDomain)) {
+    if (
+      selectedDomain !== 'all' &&
+      !this.entries().some((entry) => entry.domain === selectedDomain)
+    ) {
       this.selectedDomain.set('all');
       return;
     }
@@ -948,6 +1235,12 @@ export class AdminQualityPage implements OnInit {
       if (parsed.selectedMissionId === null || typeof parsed.selectedMissionId === 'string') {
         this.selectedMissionId.set(parsed.selectedMissionId);
       }
+      if (
+        typeof parsed.availableCodexQuotaUnits === 'number' &&
+        Number.isFinite(parsed.availableCodexQuotaUnits)
+      ) {
+        this.availableCodexQuotaUnits.set(Math.max(0, Math.round(parsed.availableCodexQuotaUnits)));
+      }
       if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
         this.activeWorkspaceSurface.set(parsed.activeWorkspaceSurface);
       } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
@@ -973,6 +1266,7 @@ export class AdminQualityPage implements OnInit {
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),
       activeWorkspaceSurface: this.activeWorkspaceSurface(),
+      availableCodexQuotaUnits: this.availableCodexQuotaUnits(),
     };
 
     try {
@@ -987,11 +1281,23 @@ export class AdminQualityPage implements OnInit {
   }
 
   private isStatusFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixStatus> {
-    return value === 'all' || value === 'oui' || value === 'partiel' || value === 'non' || value === 'hors MVP';
+    return (
+      value === 'all' ||
+      value === 'oui' ||
+      value === 'partiel' ||
+      value === 'non' ||
+      value === 'hors MVP'
+    );
   }
 
   private isBucketFilterValue(value: unknown): value is FilterValue<AdminQualityMatrixBucket> {
-    return value === 'all' || value === 'covered' || value === 'proof-gap' || value === 'product-gap' || value === 'scope-limit';
+    return (
+      value === 'all' ||
+      value === 'covered' ||
+      value === 'proof-gap' ||
+      value === 'product-gap' ||
+      value === 'scope-limit'
+    );
   }
 
   private isWorkspaceSurface(value: unknown): value is AdminQualityWorkspaceSurface {
@@ -1000,5 +1306,42 @@ export class AdminQualityPage implements OnInit {
 
   private isLegacyInspectionSurface(value: unknown): value is AdminQualityLegacyInspectionSurface {
     return value === 'delegation' || value === 'actions';
+  }
+
+  private quotaSummaryForMission(
+    recommendation: AdminQualityMissionRecommendation,
+  ): AdminQualityMissionQuotaSummary {
+    const difficulty = this.selectedDelegation()?.difficulty ?? 'Medium';
+    const tasks = buildMissionTasks(recommendation, difficulty);
+    return summarizeMissionQuota(tasks, this.availableCodexQuotaUnits());
+  }
+
+  private openCodexOpsPrefill(recommendation: AdminQualityMissionRecommendation): Promise<boolean> {
+    return this.router.navigate(['/admin/ops'], {
+      queryParams: {
+        codexTask: recommendation.operatorPrompt,
+        codexScope: this.resolveCodexScope(recommendation.targetFiles),
+        codexBaseBranch: 'main',
+        codexDraftPr: 'true',
+        codexSource: 'admin-quality',
+        codexMissionId: recommendation.id,
+      },
+    });
+  }
+
+  private resolveCodexScope(targetFiles: readonly string[]): string {
+    if (targetFiles.length && targetFiles.every((file) => file.startsWith('strapi/'))) {
+      return 'strapi';
+    }
+    if (targetFiles.some((file) => file.startsWith('packages/contracts/'))) {
+      return 'packages-contracts';
+    }
+    if (targetFiles.some((file) => file.startsWith('packages/tooling/'))) {
+      return 'packages-tooling';
+    }
+    if (targetFiles.some((file) => file.startsWith('openg7-org/'))) {
+      return 'openg7-org';
+    }
+    return 'repository-root';
   }
 }

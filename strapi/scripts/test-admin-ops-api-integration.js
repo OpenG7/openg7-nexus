@@ -12,6 +12,7 @@ const OPS_ACTIONS = [
   'api::admin-ops.admin-ops.backups',
   'api::admin-ops.admin-ops.imports',
   'api::admin-ops.admin-ops.security',
+  'api::admin-ops.admin-ops.dispatchCodexWorkflow',
 ];
 
 function applyTestEnvironment() {
@@ -30,6 +31,15 @@ function applyTestEnvironment() {
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'admin-ops-test-jwt-secret';
   process.env.ENCRYPTION_KEY =
     process.env.ENCRYPTION_KEY || 'admin-ops-test-encryption-key-123456789';
+  process.env.OPS_CODEX_DISPATCH_ENABLED = 'true';
+  process.env.OPS_CODEX_GITHUB_TOKEN = 'ghs_admin_ops_test_token';
+  process.env.OPS_CODEX_GITHUB_OWNER = 'OpenG7';
+  process.env.OPS_CODEX_GITHUB_REPO = 'openg7-platform';
+  process.env.OPS_CODEX_GITHUB_WORKFLOW = 'codex-pr.yml';
+  process.env.OPS_CODEX_GITHUB_REF = 'main';
+  process.env.OPS_CODEX_ALLOWED_SCOPES = 'openg7-org,strapi';
+  process.env.OPS_CODEX_ALLOWED_BASE_BRANCHES = 'main,develop';
+  process.env.OPS_CODEX_GITHUB_API_URL = 'https://api.github.test';
 }
 
 async function cleanupDatabase() {
@@ -167,6 +177,20 @@ async function run() {
   applyTestEnvironment();
   await cleanupDatabase();
 
+  const originalFetch = global.fetch.bind(global);
+  const workflowDispatchCalls = [];
+  global.fetch = async (input, init) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    if (
+      url ===
+      'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/codex-pr.yml/dispatches'
+    ) {
+      workflowDispatchCalls.push({ url, init });
+      return new Response(null, { status: 204 });
+    }
+    return originalFetch(input, init);
+  };
+
   const appContext = await compileStrapi();
   const app = await createStrapi(appContext).load();
 
@@ -228,6 +252,42 @@ async function run() {
       'Expected upload mime type list.'
     );
 
+    const invalidCodexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
+      method: 'POST',
+      headers: authHeaders(adminUser.jwt),
+      body: JSON.stringify({
+        task: 'Try an invalid scope.',
+        scope: 'repository-root',
+        baseBranch: 'main',
+        draftPr: true,
+      }),
+    });
+    assert.equal(invalidCodexDispatch.status, 400, 'Expected invalid codex scope to be rejected.');
+
+    const codexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
+      method: 'POST',
+      headers: authHeaders(adminUser.jwt),
+      body: JSON.stringify({
+        task: 'Fix the login empty state and add a focused test.',
+        scope: 'openg7-org',
+        baseBranch: 'main',
+        draftPr: true,
+        model: 'gpt-5.4',
+        effort: 'medium',
+      }),
+    });
+    assert.equal(codexDispatch.status, 200, 'Expected codex dispatch endpoint access.');
+    assert.equal(codexDispatch.body?.data?.queued, true, 'Expected queued dispatch response.');
+    assert.equal(workflowDispatchCalls.length, 1, 'Expected one GitHub workflow dispatch call.');
+
+    const dispatchedPayload = JSON.parse(String(workflowDispatchCalls[0]?.init?.body ?? '{}'));
+    assert.equal(dispatchedPayload.ref, 'main', 'Expected configured GitHub ref.');
+    assert.equal(dispatchedPayload.inputs?.scope, 'openg7-org', 'Expected forwarded codex scope.');
+    assert.equal(dispatchedPayload.inputs?.base_branch, 'main', 'Expected forwarded base branch.');
+    assert.equal(dispatchedPayload.inputs?.draft_pr, 'true', 'Expected forwarded draft PR flag.');
+    assert.equal(dispatchedPayload.inputs?.model, 'gpt-5.4', 'Expected forwarded model.');
+    assert.equal(dispatchedPayload.inputs?.effort, 'medium', 'Expected forwarded effort.');
+
     const ownerHealth = await requestJson(`${baseUrl}/api/admin/ops/health`, {
       headers: authHeaders(ownerUser.jwt),
     });
@@ -236,6 +296,7 @@ async function run() {
 
     console.log('Admin ops integration tests passed.');
   } finally {
+    global.fetch = originalFetch;
     await app.destroy();
     await cleanupDatabase();
   }

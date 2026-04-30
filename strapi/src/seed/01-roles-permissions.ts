@@ -92,30 +92,54 @@ export default async () => {
       backups: true,
       imports: true,
       security: true,
+      dispatchCodexWorkflow: true,
+    },
+    'api::admin-quality-mission-decision.admin-quality-mission-decision': {
+      list: true,
+      upsert: true,
+      delete: true,
     },
   };
 
   const authenticatedRole = await ensureRole('Authenticated');
-  await setRolePermissions(authenticatedRole.id, mergePermissions(baseReadPermissions, authenticatedExtra));
+  await setRolePermissions(
+    authenticatedRole.id,
+    mergePermissions(baseReadPermissions, authenticatedExtra),
+  );
 
   const proRole = await ensureRole('Pro');
-  await setRolePermissions(proRole.id, mergePermissions(baseReadPermissions, authenticatedExtra, proExtra));
+  await setRolePermissions(
+    proRole.id,
+    mergePermissions(baseReadPermissions, authenticatedExtra, proExtra),
+  );
 
   const provinceRole = await ensureRole('Province');
   await setRolePermissions(
     provinceRole.id,
-    mergePermissions(baseReadPermissions, authenticatedExtra, provinceExtra)
+    mergePermissions(baseReadPermissions, authenticatedExtra, provinceExtra),
   );
 
   const adminRole = await ensureRole('Admin');
   await setRolePermissions(
     adminRole.id,
-    mergePermissions(baseReadPermissions, authenticatedExtra, proExtra, provinceExtra, adminOpsExtra)
+    mergePermissions(
+      baseReadPermissions,
+      authenticatedExtra,
+      proExtra,
+      provinceExtra,
+      adminOpsExtra,
+    ),
   );
 
   const ownerRole = await ensureRole('Owner');
   await setRolePermissions(
     ownerRole.id,
-    mergePermissions(baseReadPermissions, authenticatedExtra, proExtra, provinceExtra, adminOpsExtra)
+    mergePermissions(
+      baseReadPermissions,
+      authenticatedExtra,
+      proExtra,
+      provinceExtra,
+      adminOpsExtra,
+    ),
   );
 };

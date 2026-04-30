@@ -12,8 +12,9 @@ const outputFile = path.join(
   'domains',
   'admin',
   'pages',
-  'admin-quality-action-discovery.generated.ts'
+  'admin-quality-action-discovery.generated.ts',
 );
+const checkOnly = process.argv.includes('--check');
 
 function walkFiles(rootDir, matcher) {
   const results = [];
@@ -119,7 +120,9 @@ function collectDiscoveredActions() {
       }
     }
 
-    action.sourceFiles.sort((left, right) => left.file.localeCompare(right.file) || left.line - right.line);
+    action.sourceFiles.sort(
+      (left, right) => left.file.localeCompare(right.file) || left.line - right.line,
+    );
     action.specFiles.sort((left, right) => left.localeCompare(right));
     action.e2eFiles.sort((left, right) => left.localeCompare(right));
   }
@@ -153,8 +156,23 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = ${JSON.stringify(actions
 
 function main() {
   const actions = collectDiscoveredActions();
+  const renderedModule = renderGeneratedModule(actions);
+
+  if (checkOnly) {
+    const existingModule = readFileSync(outputFile, 'utf8');
+    if (existingModule !== renderedModule) {
+      process.stderr.write(
+        'admin-quality action discovery is out of date. Run yarn generate:quality-actions and commit the generated file.\n',
+      );
+      process.exitCode = 1;
+      return;
+    }
+    process.stdout.write(`Verified ${actions.length} discovered admin-quality actions\n`);
+    return;
+  }
+
   mkdirSync(path.dirname(outputFile), { recursive: true });
-  writeFileSync(outputFile, renderGeneratedModule(actions), 'utf8');
+  writeFileSync(outputFile, renderedModule, 'utf8');
   const relativeOutput = toPosixRelative(outputFile);
   process.stdout.write(`Generated ${actions.length} discovered actions in ${relativeOutput}\n`);
 }

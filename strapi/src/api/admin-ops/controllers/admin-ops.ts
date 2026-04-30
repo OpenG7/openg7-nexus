@@ -16,6 +16,18 @@ const DEFAULT_UPLOAD_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/web
 const DEFAULT_IMPORT_SCAN_LIMIT = 2000;
 const DEFAULT_SECURITY_SESSION_SCAN_LIMIT = 250;
 const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 12 * 60 * 60 * 1000;
+const DEFAULT_CODEX_GITHUB_API_URL = 'https://api.github.com';
+const DEFAULT_CODEX_GITHUB_WORKFLOW = 'codex-pr.yml';
+const DEFAULT_CODEX_GITHUB_REF = 'main';
+const DEFAULT_CODEX_TIMEOUT_MS = 10_000;
+const DEFAULT_CODEX_ALLOWED_SCOPES = [
+  'openg7-org',
+  'strapi',
+  'packages-contracts',
+  'packages-tooling',
+  'repository-root',
+] as const;
+const DEFAULT_CODEX_ALLOWED_BASE_BRANCHES = ['main'] as const;
 
 interface BackupFileEntry {
   readonly name: string;
@@ -40,6 +52,29 @@ interface ImportedCompanyLike {
   readonly updatedAt?: unknown;
 }
 
+interface CodexDispatchConfig {
+  readonly enabled: boolean;
+  readonly configured: boolean;
+  readonly apiUrl: string;
+  readonly owner: string | null;
+  readonly repo: string | null;
+  readonly workflow: string;
+  readonly ref: string;
+  readonly token: string | null;
+  readonly timeoutMs: number;
+  readonly allowedScopes: string[];
+  readonly allowedBaseBranches: string[];
+}
+
+interface CodexDispatchInput {
+  readonly task: string;
+  readonly scope: string;
+  readonly baseBranch: string;
+  readonly draftPr: boolean;
+  readonly model: string | null;
+  readonly effort: string | null;
+}
+
 function normalizeString(value: unknown, maxLength = 320): string | null {
   if (typeof value !== 'string') {
     return null;
@@ -49,6 +84,28 @@ function normalizeString(value: unknown, maxLength = 320): string | null {
     return null;
   }
   return normalized.slice(0, maxLength);
+}
+
+function normalizeText(value: unknown, maxLength = 320): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+  return normalized.slice(0, maxLength);
+}
+
+function normalizeWorkflowToken(value: unknown, maxLength = 160): string | null {
+  const normalized = normalizeText(value, maxLength);
+  if (!normalized) {
+    return null;
+  }
+  if (!/^[A-Za-z0-9._/-]+$/.test(normalized)) {
+    return null;
+  }
+  return normalized;
 }
 
 function normalizeInteger(value: unknown): number | null {
@@ -89,6 +146,40 @@ function parseBoolean(value: unknown, fallback: boolean): boolean {
     return false;
   }
   return fallback;
+}
+
+function parseDelimitedLowerStrings(value: unknown): string[] {
+  if (typeof value !== 'string') {
+    return [];
+  }
+  const unique = new Set<string>();
+  const entries = value
+    .split(/[\s,;]+/)
+    .map((entry) => normalizeString(entry, 120))
+    .filter((entry): entry is string => Boolean(entry));
+
+  for (const entry of entries) {
+    unique.add(entry);
+  }
+
+  return Array.from(unique);
+}
+
+function parseDelimitedWorkflowTokens(value: unknown): string[] {
+  if (typeof value !== 'string') {
+    return [];
+  }
+  const unique = new Set<string>();
+  const entries = value
+    .split(/[\s,;]+/)
+    .map((entry) => normalizeWorkflowToken(entry, 160))
+    .filter((entry): entry is string => Boolean(entry));
+
+  for (const entry of entries) {
+    unique.add(entry);
+  }
+
+  return Array.from(unique);
 }
 
 function normalizeIsoDate(value: unknown): string | null {
@@ -153,6 +244,170 @@ function parseSessionIdleTimeoutMs(value: unknown): number | null {
 
 function toErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function respondHttpError(ctx: Context, status: number, name: string, message: string): void {
+  ctx.status = status;
+  ctx.body = {
+    data: null,
+    error: {
+      status,
+      name,
+      message,
+    },
+  };
+}
+
+function getCodexDispatchConfig(): CodexDispatchConfig {
+  const allowedScopes = parseDelimitedLowerStrings(process.env.OPS_CODEX_ALLOWED_SCOPES);
+  const allowedBaseBranches = parseDelimitedWorkflowTokens(
+    process.env.OPS_CODEX_ALLOWED_BASE_BRANCHES,
+  );
+  const token = normalizeText(process.env.OPS_CODEX_GITHUB_TOKEN, 500);
+  const owner = normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_OWNER, 120);
+  const repo = normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_REPO, 120);
+
+  return {
+    enabled: parseBoolean(process.env.OPS_CODEX_DISPATCH_ENABLED, false),
+    configured: Boolean(token && owner && repo),
+    apiUrl:
+      normalizeText(process.env.OPS_CODEX_GITHUB_API_URL, 500)?.replace(/\/+$/, '') ??
+      DEFAULT_CODEX_GITHUB_API_URL,
+    owner,
+    repo,
+    workflow:
+      normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_WORKFLOW, 160) ??
+      DEFAULT_CODEX_GITHUB_WORKFLOW,
+    ref: normalizeWorkflowToken(process.env.OPS_CODEX_GITHUB_REF, 160) ?? DEFAULT_CODEX_GITHUB_REF,
+    token,
+    timeoutMs: parsePositiveInteger(process.env.OPS_CODEX_TIMEOUT_MS, DEFAULT_CODEX_TIMEOUT_MS),
+    allowedScopes:
+      allowedScopes.length > 0 ? allowedScopes : Array.from(DEFAULT_CODEX_ALLOWED_SCOPES),
+    allowedBaseBranches:
+      allowedBaseBranches.length > 0
+        ? allowedBaseBranches
+        : Array.from(DEFAULT_CODEX_ALLOWED_BASE_BRANCHES),
+  };
+}
+
+function validateCodexDispatchInput(
+  body: unknown,
+  config: CodexDispatchConfig,
+): { input: CodexDispatchInput | null; error: string | null } {
+  const record =
+    body && typeof body === 'object' && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : null;
+
+  if (!record) {
+    return {
+      input: null,
+      error: 'owner.ops.codex.payload.invalid',
+    };
+  }
+
+  const task = normalizeText(record.task, 2_000);
+  if (!task) {
+    return {
+      input: null,
+      error: 'owner.ops.codex.task.required',
+    };
+  }
+
+  const scope = normalizeString(record.scope, 80);
+  if (!scope || !config.allowedScopes.includes(scope)) {
+    return {
+      input: null,
+      error: 'owner.ops.codex.scope.invalid',
+    };
+  }
+
+  const baseBranch = normalizeWorkflowToken(record.baseBranch ?? record.base_branch, 160);
+  if (!baseBranch || !config.allowedBaseBranches.includes(baseBranch)) {
+    return {
+      input: null,
+      error: 'owner.ops.codex.base_branch.invalid',
+    };
+  }
+
+  return {
+    input: {
+      task,
+      scope,
+      baseBranch,
+      draftPr: parseBoolean(record.draftPr ?? record.draft_pr, true),
+      model: normalizeText(record.model, 120),
+      effort: normalizeText(record.effort, 80),
+    },
+    error: null,
+  };
+}
+
+async function dispatchCodexWorkflow(
+  config: CodexDispatchConfig,
+  input: CodexDispatchInput,
+): Promise<Record<string, unknown>> {
+  if (!config.token || !config.owner || !config.repo) {
+    throw new Error('Codex GitHub dispatch is not configured.');
+  }
+
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), config.timeoutMs);
+  const endpoint = `${config.apiUrl}/repos/${encodeURIComponent(
+    config.owner,
+  )}/${encodeURIComponent(config.repo)}/actions/workflows/${encodeURIComponent(
+    config.workflow,
+  )}/dispatches`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      signal: abortController.signal,
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${config.token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'OpenG7-Strapi-AdminOps',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      body: JSON.stringify({
+        ref: config.ref,
+        inputs: {
+          task: input.task,
+          scope: input.scope,
+          base_branch: input.baseBranch,
+          draft_pr: input.draftPr ? 'true' : 'false',
+          model: input.model ?? '',
+          effort: input.effort ?? '',
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`HTTP ${response.status}: ${text || 'GitHub workflow dispatch failed'}`);
+    }
+
+    return {
+      queued: true,
+      provider: 'github-actions',
+      owner: config.owner,
+      repo: config.repo,
+      workflow: config.workflow,
+      ref: config.ref,
+      requestedAt: new Date().toISOString(),
+      request: {
+        scope: input.scope,
+        baseBranch: input.baseBranch,
+        draftPr: input.draftPr,
+        model: input.model,
+        effort: input.effort,
+        taskLength: input.task.length,
+      },
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function buildHealthSnapshot(strapi: Core.Strapi) {
@@ -247,11 +502,10 @@ async function listBackupFiles(backupDir: string, maxFiles: number): Promise<Bac
 async function buildBackupsSnapshot(strapi: Core.Strapi) {
   const enabled = parseBoolean(process.env.OPS_BACKUP_ENABLED, true);
   const backupDir =
-    normalizeString(process.env.OPS_BACKUP_DIR, 500) ??
-    path.join(strapi.dirs.app.root, 'backups');
+    normalizeString(process.env.OPS_BACKUP_DIR, 500) ?? path.join(strapi.dirs.app.root, 'backups');
   const retentionDays = parsePositiveInteger(
     process.env.OPS_BACKUP_RETENTION_DAYS,
-    DEFAULT_BACKUP_RETENTION_DAYS
+    DEFAULT_BACKUP_RETENTION_DAYS,
   );
   const schedule = normalizeString(process.env.OPS_BACKUP_SCHEDULE, 120);
   const maxFiles = parsePositiveInteger(process.env.OPS_BACKUP_MAX_FILES, DEFAULT_BACKUP_MAX_FILES);
@@ -278,7 +532,10 @@ async function buildBackupsSnapshot(strapi: Core.Strapi) {
   };
 }
 
-function extractImportMetadata(value: unknown): { source: string | null; importedAt: string | null } {
+function extractImportMetadata(value: unknown): {
+  source: string | null;
+  importedAt: string | null;
+} {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return { source: null, importedAt: null };
   }
@@ -290,7 +547,10 @@ function extractImportMetadata(value: unknown): { source: string | null; importe
 }
 
 async function buildImportsSnapshot(strapi: Core.Strapi) {
-  const importScanLimit = parsePositiveInteger(process.env.OPS_IMPORT_SCAN_LIMIT, DEFAULT_IMPORT_SCAN_LIMIT);
+  const importScanLimit = parsePositiveInteger(
+    process.env.OPS_IMPORT_SCAN_LIMIT,
+    DEFAULT_IMPORT_SCAN_LIMIT,
+  );
   const now = Date.now();
   const dayAgo = now - 24 * 60 * 60 * 1000;
 
@@ -302,7 +562,7 @@ async function buildImportsSnapshot(strapi: Core.Strapi) {
       publicationState: 'preview',
       sort: ['updatedAt:desc', 'id:desc'],
       limit: importScanLimit,
-    })) as ImportedCompanyLike[] | ImportedCompanyLike | null
+    })) as ImportedCompanyLike[] | ImportedCompanyLike | null,
   );
 
   let importedCompanies = 0;
@@ -428,14 +688,14 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
 
   const sessionScanLimit = parsePositiveInteger(
     process.env.OPS_SECURITY_SESSION_SCAN_LIMIT,
-    DEFAULT_SECURITY_SESSION_SCAN_LIMIT
+    DEFAULT_SECURITY_SESSION_SCAN_LIMIT,
   );
   const usersForSessionScan = normalizeFindManyResult(
     (await userQuery.findMany({
       select: ['id'],
       orderBy: [{ updatedAt: 'desc' }],
       limit: sessionScanLimit,
-    })) as Array<{ id?: number | string }> | { id?: number | string } | null
+    })) as Array<{ id?: number | string }> | { id?: number | string } | null,
   );
 
   let activeSessions = 0;
@@ -467,7 +727,7 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
   const uploadSafetyEnabled = parseBoolean(process.env.UPLOAD_SAFETY_ENABLED, true);
   const maxFileSizeBytes = parsePositiveInteger(
     process.env.UPLOAD_MAX_FILE_SIZE_BYTES,
-    DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES
+    DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES,
   );
   const allowedMimeTypes = (() => {
     const fromEnv = parseMimeTypeEnv(process.env.UPLOAD_ALLOWED_MIME_TYPES);
@@ -540,6 +800,34 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     } catch (error: unknown) {
       strapi.log.error(`[ops] Failed to build security snapshot: ${toErrorMessage(error)}`);
       ctx.internalServerError('owner.ops.security.failed');
+    }
+  },
+
+  async dispatchCodexWorkflow(ctx: Context) {
+    const config = getCodexDispatchConfig();
+
+    if (!config.enabled || !config.configured) {
+      strapi.log.warn('[ops] Codex workflow dispatch requested while integration is disabled.');
+      respondHttpError(ctx, 503, 'ServiceUnavailableError', 'owner.ops.codex.disabled');
+      return;
+    }
+
+    const { input, error } = validateCodexDispatchInput(
+      (ctx.request as Context['request']).body,
+      config,
+    );
+    if (error || !input) {
+      ctx.badRequest(error ?? 'owner.ops.codex.payload.invalid');
+      return;
+    }
+
+    try {
+      ctx.body = {
+        data: await dispatchCodexWorkflow(config, input),
+      };
+    } catch (error: unknown) {
+      strapi.log.error(`[ops] Failed to dispatch Codex workflow: ${toErrorMessage(error)}`);
+      respondHttpError(ctx, 502, 'BadGatewayError', 'owner.ops.codex.dispatch.failed');
     }
   },
 });
