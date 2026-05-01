@@ -995,6 +995,13 @@ export class AdminQualityMissionControlComponent {
     this.missionAction.emit({ action, recommendation });
   }
 
+  isMissionActionDisabled(
+    action: AdminQualityMissionControlAction,
+    recommendation: AdminQualityMissionRecommendation,
+  ): boolean {
+    return this.isMissionActionBlocked(action, recommendation) && action !== 'auto-delegate';
+  }
+
   quotaStatusClasses(sufficient: boolean): string {
     return sufficient
       ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'

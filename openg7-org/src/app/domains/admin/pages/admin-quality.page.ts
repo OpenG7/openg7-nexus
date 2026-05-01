@@ -2588,9 +2588,26 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private selectedAiDispatchBlockedMessage(): string {
     const provider = this.selectedAiProviderLabel();
     const status = this.selectedAiDispatchStatusLabel();
+    const module = this.selectedAiOpsModule();
 
     if (this.aiOpsSecurityStatus() === 'unavailable') {
       return `Impossible de verifier l'etat Ops avant de lancer ${provider}. Ouvrez Ops et retentez apres verification.`;
+    }
+
+    if (!module) {
+      return `${provider} n'est pas pret pour le dispatch: ${status}. Aucun module Ops n'est detecte pour ce provider.`;
+    }
+
+    if (!module.dispatchEnabled) {
+      return `${provider} est bloque: activez le flag de dispatch dans strapi/.env (${module.provider === 'codex' ? 'OPS_CODEX_DISPATCH_ENABLED=true' : `OPS_AI_${module.provider.toUpperCase()}_DISPATCH_ENABLED=true`}) puis redemarrez Strapi.`;
+    }
+
+    if (module.keyInserted && module.state === 'offline') {
+      return `${provider} voit seulement une cle locale. Ajoutez aussi le secret GitHub ${module.secretName ?? 'requis'} et un token GitHub de dispatch dans strapi/.env avant de relancer ${module.workflow}.`;
+    }
+
+    if (!module.keyInserted) {
+      return `${provider} n'est pas pret pour le dispatch: ${status}. Ajoutez ${module.secretName ?? 'la cle provider'} puis reessayez.`;
     }
 
     return `${provider} n'est pas pret pour le dispatch: ${status}. Verifiez la cle et le flag dans Ops.`;

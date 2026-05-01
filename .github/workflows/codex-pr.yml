@@ -51,12 +51,19 @@ jobs:
   codex-pr:
     name: Run Codex and open PR
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.base_branch }}
           fetch-depth: 0
+
+      - name: Install Codex sandbox prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
 
       - name: Resolve allowed working directory
         id: scope
@@ -89,7 +96,7 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
           cache: 'yarn'
@@ -134,15 +141,39 @@ jobs:
             Validation: commands run and results
             Risks: only if material risks remain
 
+      - name: Prepare pull request metadata
+        id: pr_metadata
+        shell: bash
+        env:
+          TASK: ${{ github.event.inputs.task }}
+        run: |
+          normalized="$(
+            printf '%s' "$TASK" \
+              | tr '\r\n\t' '   ' \
+              | sed -E 's/[[:space:]]+/ /g; s/^ //; s/ $//'
+          )"
+          if [ -z "$normalized" ]; then
+            normalized="Codex update"
+          fi
+
+          max_subject=220
+          subject="$normalized"
+          if [ "${#subject}" -gt "$max_subject" ]; then
+            subject="${subject:0:$((max_subject - 3))}..."
+          fi
+
+          echo "title=Codex: $subject" >> "$GITHUB_OUTPUT"
+          echo "commit_message=chore(codex): $subject" >> "$GITHUB_OUTPUT"
+
       - name: Create pull request from Codex changes
         id: create_pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           base: ${{ github.event.inputs.base_branch }}
           branch: ${{ steps.scope.outputs.branch }}
-          commit-message: 'chore(codex): ${{ github.event.inputs.task }}'
-          title: 'Codex: ${{ github.event.inputs.task }}'
+          commit-message: ${{ steps.pr_metadata.outputs.commit_message }}
+          title: ${{ steps.pr_metadata.outputs.title }}
           draft: ${{ github.event.inputs.draft_pr }}
           delete-branch: true
           body: |

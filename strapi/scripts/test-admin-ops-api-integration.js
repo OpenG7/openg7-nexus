@@ -538,7 +538,11 @@ async function run() {
 
     const dispatchedPayload = JSON.parse(String(workflowDispatchCalls[0]?.init?.body ?? '{}'));
     assert.equal(dispatchedPayload.ref, 'main', 'Expected configured GitHub ref.');
-    assert.equal(dispatchedPayload.inputs?.provider, 'copilot', 'Expected forwarded provider.');
+    assert.equal(
+      dispatchedPayload.inputs?.provider,
+      undefined,
+      'Expected provider to stay backend-only.',
+    );
     assert.equal(dispatchedPayload.inputs?.scope, 'openg7-org', 'Expected forwarded codex scope.');
     assert.equal(dispatchedPayload.inputs?.base_branch, 'main', 'Expected forwarded base branch.');
     assert.equal(dispatchedPayload.inputs?.draft_pr, 'true', 'Expected forwarded draft PR flag.');

@@ -1412,7 +1412,8 @@ describe('AdminQualityPage', () => {
 
     expect(fixture.componentInstance.selectedAiDispatchReady()).toBeFalse();
     expect(quotaStatus?.textContent).toContain('Ops blocked');
-    expect(delegateButton?.disabled).toBeTrue();
+    expect(delegateButton?.disabled).toBeFalse();
+    expect(delegateButton?.getAttribute('aria-disabled')).toBe('true');
 
     delegateButton?.click();
     fixture.detectChanges();
@@ -1420,7 +1421,10 @@ describe('AdminQualityPage', () => {
     expect(root.textContent).toContain(
       'Dispatch is blocked until Ops reports an enabled workflow and inserted key.',
     );
-    expect(notifications.error).not.toHaveBeenCalled();
+    expect(notifications.error).toHaveBeenCalledWith(
+      jasmine.stringContaining('OPS_CODEX_DISPATCH_ENABLED=true'),
+      jasmine.objectContaining({ source: 'admin-quality' }),
+    );
     expect(opsService.dispatchCodexWorkflow).not.toHaveBeenCalled();
     expect(fixture.componentInstance.selectedMission()?.status).toBe('proposed');
   });

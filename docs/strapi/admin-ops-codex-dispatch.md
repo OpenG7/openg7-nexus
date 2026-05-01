@@ -83,6 +83,7 @@ States are intentionally coarse:
 ## Validation rules
 
 - `provider` accepts `codex`, `copilot`, `claude`, or `gemini`. Omit it to keep the legacy `codex` default.
+- `provider` is used by Strapi to select the target workflow and is not forwarded to GitHub Actions.
 - `task` is required and trimmed to 2000 characters.
 - `scope` must belong to the allowlist resolved for the selected provider.
 - `baseBranch` must belong to the branch allowlist resolved for the selected provider.
@@ -137,6 +138,21 @@ In practice:
 - repository secret `OPENAI_API_KEY` in GitHub Actions -> required for `.github/workflows/codex-pr.yml`
 
 The same split applies to Claude and Gemini.
+
+## Minimal local launch checklist
+
+Seeing `OPENAI_API_KEY` in the cockpit is not enough to launch a remote Codex workflow from `/admin/quality`.
+
+Minimum local setup:
+
+- `OPENAI_API_KEY` in `strapi/.env` so the workstation detects a local Codex key
+- `OPS_CODEX_DISPATCH_ENABLED=true` in `strapi/.env`
+- `OPS_CODEX_GITHUB_TOKEN` in `strapi/.env` so Strapi can call the GitHub Actions API
+- `OPS_CODEX_GITHUB_OWNER=OpenG7`
+- `OPS_CODEX_GITHUB_REPO=openg7-nexus`
+- repository GitHub Actions secret `OPENAI_API_KEY` present for `.github/workflows/codex-pr.yml`
+
+If the flag is still `false`, `/api/admin/ops/ai/dispatch` returns `503 owner.ops.ai.disabled` and Mission Control should stay blocked.
 
 ## Kubernetes wiring
 

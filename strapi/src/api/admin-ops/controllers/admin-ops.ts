@@ -997,7 +997,6 @@ async function dispatchAiWorkflow(
       body: JSON.stringify({
         ref: config.ref,
         inputs: {
-          provider: input.provider,
           task: input.task,
           scope: input.scope,
           base_branch: input.baseBranch,

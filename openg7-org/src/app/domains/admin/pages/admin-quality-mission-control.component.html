@@ -469,7 +469,7 @@
                 <button
                   type="button"
                   [class]="actionClasses(action.tone, 'hero')"
-                  [disabled]="isMissionActionBlocked(action.action, missionItem)"
+                  [disabled]="isMissionActionDisabled(action.action, missionItem)"
                   [attr.aria-disabled]="isMissionActionBlocked(action.action, missionItem)"
                   [attr.title]="
                     isMissionActionBlocked(action.action, missionItem)
@@ -879,8 +879,13 @@
                 <button
                   type="button"
                   [class]="actionClasses(action.tone, 'card')"
-                  [disabled]="isMissionActionBlocked(action.action, recommendation)"
+                  [disabled]="isMissionActionDisabled(action.action, recommendation)"
                   [attr.aria-disabled]="isMissionActionBlocked(action.action, recommendation)"
+                  [attr.title]="
+                    isMissionActionBlocked(action.action, recommendation)
+                      ? aiDispatchStatusDetail()
+                      : null
+                  "
                   (click)="emitMissionAction(action.action, recommendation)"
                   data-og7="action"
                   [attr.data-og7-id]="action.hookId ?? null"
