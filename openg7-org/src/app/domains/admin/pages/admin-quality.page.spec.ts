@@ -1540,6 +1540,34 @@ describe('AdminQualityPage', () => {
     ).toBe('pending');
   });
 
+  it('selects the next mission after closing the current one', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const currentMission = component.selectedMission();
+
+    expect(currentMission?.id).toBe('advanced-discovery::core');
+
+    component.handleMissionAction({
+      action: 'complete',
+      recommendation: {
+        ...currentMission!,
+        status: 'proof-returned',
+      },
+    });
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::safety-net');
+    expect(component.selectedMission()?.status).toBe('proposed');
+    expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        recommendationId: 'advanced-discovery::core',
+        status: 'done',
+      }),
+    );
+  });
+
   it('renders the compact actions list in the workspace drawer and updates it on row change', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();

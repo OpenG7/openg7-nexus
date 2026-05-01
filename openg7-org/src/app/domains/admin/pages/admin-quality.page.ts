@@ -2438,9 +2438,42 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       [recommendation.id]: status,
     });
     this.persistMissionDecisions();
-    this.selectedMissionId.set(recommendation.id);
+    this.selectedMissionId.set(this.resolveMissionSelectionAfterStatusChange(recommendation.id, status));
     this.saveMissionDecisionToServer(recommendation, status, message);
     this.notifications.success(message, { source: 'admin-quality' });
+  }
+
+  private resolveMissionSelectionAfterStatusChange(
+    recommendationId: string,
+    status: AdminQualityMissionStatus,
+  ): string {
+    if (status !== 'done') {
+      return recommendationId;
+    }
+
+    const recommendations = this.missionControl()?.recommendations ?? [];
+    if (!recommendations.length) {
+      return recommendationId;
+    }
+
+    const currentIndex = recommendations.findIndex(
+      (recommendation) => recommendation.id === recommendationId,
+    );
+    if (currentIndex === -1) {
+      return recommendationId;
+    }
+
+    const nextOpenRecommendation = recommendations
+      .slice(currentIndex + 1)
+      .find((recommendation) => recommendation.status !== 'done');
+    if (nextOpenRecommendation) {
+      return nextOpenRecommendation.id;
+    }
+
+    const previousOpenRecommendation = recommendations
+      .slice(0, currentIndex)
+      .find((recommendation) => recommendation.status !== 'done');
+    return previousOpenRecommendation?.id ?? recommendationId;
   }
 
   private loadAiDispatchReadiness(silent: boolean): void {
