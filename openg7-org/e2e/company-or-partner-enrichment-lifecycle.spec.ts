@@ -55,6 +55,8 @@ interface MutableTrustCompany {
   trustHistory: TrustRecord[];
 }
 
+const COMPANY_APPROVED_LIFECYCLE_LABEL = 'Company approved for partner directory';
+
 function json(body: unknown, status = 200) {
   return {
     status,
@@ -126,6 +128,7 @@ function mapPartnerProfile(company: MutableTrustCompany) {
           en: 'Public trust surface synchronized from admin data.',
         },
         highlights: ['Cross-province resilience operator'],
+        status: company.status,
         verificationStatus: company.verificationStatus,
         trustScore: company.trustScore,
         verificationSources: company.verificationSources,
@@ -172,6 +175,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
     if (method === 'PUT' && companyId === company.id) {
       const payload = (request.postDataJSON?.() ?? {}) as {
         data?: {
+          status?: MutableTrustCompany['status'];
           verificationStatus?: VerificationStatus;
           verificationSources?: VerificationSource[];
           trustHistory?: TrustRecord[];
@@ -179,6 +183,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
       };
 
       const next = payload.data ?? {};
+      company.status = next.status ?? company.status;
       company.verificationStatus = next.verificationStatus ?? company.verificationStatus;
       company.verificationSources = Array.isArray(next.verificationSources)
         ? next.verificationSources.map((entry, index) => ({
@@ -328,6 +333,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     const sourceCard = page.locator('li').filter({ hasText: 'Independent Audit Desk' }).first();
     await sourceCard.locator('select').nth(1).selectOption('validated');
+    await page.locator('[data-og7-id="admin-trust-company-status"]').selectOption('approved');
     await page.locator('[data-og7-id="admin-trust-quick-verify"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
@@ -346,6 +352,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     const approvalPayload = approvalRequest.postDataJSON() as {
       data?: {
+        status?: MutableTrustCompany['status'];
         verificationStatus?: VerificationStatus;
         verificationSources?: Array<{ name?: string; status?: string }>;
         trustHistory?: Array<{ label?: string; notes?: string }>;
@@ -353,6 +360,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
     };
 
     expect(approvalResponse.status()).toBe(200);
+    expect(approvalPayload.data?.status).toBe('approved');
     expect(approvalPayload.data?.verificationStatus).toBe('verified');
     expect(approvalPayload.data?.verificationSources).toEqual(
       expect.arrayContaining([
@@ -365,32 +373,56 @@ test.describe('Company or partner enrichment lifecycle', () => {
     expect(approvalPayload.data?.trustHistory).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          label: COMPANY_APPROVED_LIFECYCLE_LABEL,
+          notes: 'Renewed evidence package approved after corrective review.',
+        }),
+        expect.objectContaining({
           label: 'Verification approved',
           notes: 'Renewed evidence package approved after corrective review.',
         }),
       ])
     );
 
+    await page.reload();
+    await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7-id="admin-trust-company-status"]')).toHaveValue('approved');
+    await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText(
+      'Approved for directory'
+    );
+
     await page.goto('/partners/1001?role=supplier');
+    const lifecyclePanel = page.locator('[data-og7="partner-lifecycle"]');
+    const lifecycleStatus = page.locator('[data-og7-id="partner-lifecycle-status"]');
+    const lifecycleEvent = page.locator('[data-og7="partner-lifecycle-event"]');
     const trustPanel = page.locator('[data-og7="partner-trust"]');
-    const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
+    const trustStatusBadge = page.locator('[data-og7-id="partner-trust-status"]');
     const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
 
+    await expect(lifecyclePanel).toBeVisible();
+    await expect(lifecycleStatus).toHaveAttribute('data-og7-state', 'approved');
+    await expect(lifecycleEvent).toContainText(COMPANY_APPROVED_LIFECYCLE_LABEL);
+    await expect(lifecycleEvent).toContainText('Renewed evidence package approved after corrective review.');
     await expect(trustPanel).toBeVisible();
-    await expect(statusBadge).toHaveAttribute('data-og7-state', 'verified');
+    await expect(trustStatusBadge).toHaveAttribute('data-og7-state', 'verified');
     await expect(trustPanel).toContainText('88%');
     await expect(reviewDecision).toContainText('Verification approved');
     await expect(reviewDecision).toContainText('Renewed evidence package approved after corrective review.');
     await expect(page.locator('[data-og7="partner-trust-source-item"]').filter({ hasText: 'Independent Audit Desk' })).toContainText(
       'Validated'
     );
+    await expect(page.locator('[data-og7="partner-trust-history-item"]').filter({ hasText: COMPANY_APPROVED_LIFECYCLE_LABEL })).toBeVisible();
     await expect(page.locator('[data-og7="partner-trust-history-item"]').filter({ hasText: 'Corrective action review' })).toBeVisible();
     await expect(page.locator('[data-og7="partner-trust-history-item"]').filter({ hasText: 'Verification approved' })).toBeVisible();
 
     await page.reload();
 
+    await expect(lifecyclePanel).toBeVisible();
+    await expect(lifecycleStatus).toHaveAttribute('data-og7-state', 'approved');
+    await expect(lifecycleEvent).toContainText(COMPANY_APPROVED_LIFECYCLE_LABEL);
+    await expect(lifecycleEvent).toContainText('Renewed evidence package approved after corrective review.');
     await expect(trustPanel).toBeVisible();
-    await expect(statusBadge).toHaveAttribute('data-og7-state', 'verified');
+    await expect(trustStatusBadge).toHaveAttribute('data-og7-state', 'verified');
     await expect(reviewDecision).toContainText('Verification approved');
     await expect(reviewDecision).toContainText('Renewed evidence package approved after corrective review.');
     await expect(page.locator('[data-og7="partner-trust-source-item"]').filter({ hasText: 'Independent Audit Desk' })).toContainText(

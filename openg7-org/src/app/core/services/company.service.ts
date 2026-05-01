@@ -264,12 +264,16 @@ export class CompanyService {
   updateVerification(
     id: number,
     payload: {
+      status?: CompanyStatus;
       verificationStatus?: CompanyVerificationStatus;
       verificationSources?: ReadonlyArray<CompanyVerificationSource>;
       trustHistory?: ReadonlyArray<CompanyTrustRecord>;
     }
   ): Observable<CompanyRecord> {
     const data: Record<string, unknown> = {};
+    if (payload.status) {
+      data['status'] = payload.status;
+    }
     if (payload.verificationStatus) {
       data['verificationStatus'] = payload.verificationStatus;
     }

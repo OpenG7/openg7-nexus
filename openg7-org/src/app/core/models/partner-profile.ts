@@ -43,6 +43,8 @@ export interface LeadershipContact {
   readonly phone?: string;
 }
 
+export type PartnerLifecycleStatus = 'pending' | 'approved' | 'suspended';
+
 export type PartnerVerificationStatus =
   | 'unverified'
   | 'pending'
@@ -100,6 +102,7 @@ export interface PartnerProfile {
   readonly leadership?: readonly LeadershipContact[];
   readonly mission?: LocalizedText | null;
   readonly highlights?: readonly string[];
+  readonly status?: PartnerLifecycleStatus;
   readonly verificationStatus?: PartnerVerificationStatus;
   readonly trustScore?: number | null;
   readonly verificationSources?: readonly PartnerVerificationSource[];

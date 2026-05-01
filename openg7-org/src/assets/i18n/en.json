@@ -4451,6 +4451,17 @@
         "compliance": "Compliance checklist",
         "scheduler": "Meeting scheduler"
       },
+      "lifecycle": {
+        "title": "Company lifecycle",
+        "statusHelp": "Directory status shows whether this partner can remain published across OpenG7 partner surfaces.",
+        "latestEventTitle": "Latest lifecycle update",
+        "eventDate": "Updated {{ value }}",
+        "status": {
+          "pending": "Pending publication",
+          "approved": "Approved for directory",
+          "suspended": "Publication suspended"
+        }
+      },
       "missionPlaceholder": "Add a mission statement to spotlight this partner.",
       "ctaPlaceholder": "Configure the introduction rail to expose curated actions for this partner.",
       "pipelinePlaceholder": "Live pipeline analytics update automatically as the introduction advances.",

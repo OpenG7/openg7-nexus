@@ -61,6 +61,12 @@ const SOCIAL_ICON_MAP: Record<SocialLinkType, IconDefinition> = {
   },
 };
 
+const PARTNER_LIFECYCLE_ENTRY_LABELS = new Set([
+  'Company intake reopened',
+  'Company approved for partner directory',
+  'Company publication suspended',
+]);
+
 @Component({
   selector: 'og7-partner-details-card',
   standalone: true,
@@ -128,8 +134,13 @@ export class Og7PartnerDetailsCardComponent {
     () => {
       const reviewTrail = [...(this.profile()?.trustHistory ?? [])].reverse();
       return (
-        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
-        reviewTrail.find((record) => record.type === 'evaluation') ??
+        reviewTrail.find(
+          (record) =>
+            record.type === 'evaluation' &&
+            !this.isLifecycleRecord(record) &&
+            Boolean(record.notes?.trim())
+        ) ??
+        reviewTrail.find((record) => record.type === 'evaluation' && !this.isLifecycleRecord(record)) ??
         null
       );
     }
@@ -185,6 +196,10 @@ export class Og7PartnerDetailsCardComponent {
 
   protected historyDirectionKey(direction: PartnerTrustRecord['direction']): string {
     return `partner.panel.verification.history.direction.${direction ?? 'inbound'}`;
+  }
+
+  private isLifecycleRecord(record: Pick<PartnerTrustRecord, 'label'>): boolean {
+    return PARTNER_LIFECYCLE_ENTRY_LABELS.has(record.label?.trim() ?? '');
   }
 
   protected formatHistoryDate(value: string): string {

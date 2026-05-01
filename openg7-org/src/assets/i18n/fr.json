@@ -4595,6 +4595,17 @@
   },
   "partner": {
     "panel": {
+      "lifecycle": {
+        "title": "Cycle de vie entreprise",
+        "statusHelp": "Le statut de diffusion indique si ce partenaire reste publie sur les surfaces partenaires OpenG7.",
+        "latestEventTitle": "Derniere mise a jour du cycle",
+        "eventDate": "Mis a jour le {{ value }}",
+        "status": {
+          "pending": "Publication en attente",
+          "approved": "Approuve pour l annuaire",
+          "suspended": "Publication suspendue"
+        }
+      },
       "verification": {
         "status": {
           "unverified": "Non vérifié",

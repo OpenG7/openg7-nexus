@@ -135,6 +135,7 @@ export class PartnerProfileService {
       leadership: attributes.leadership?.map((leader) => ({ ...leader })) ?? undefined,
       mission: attributes.mission ?? null,
       highlights: attributes.highlights ? [...attributes.highlights] : undefined,
+      status: this.normalizeLifecycleStatus(attributes.status),
       verificationStatus: this.normalizeVerificationStatus(attributes.verificationStatus),
       trustScore: attributes.trustScore ?? null,
       verificationSources: attributes.verificationSources?.map((item) => ({ ...item })) ?? undefined,
@@ -144,6 +145,15 @@ export class PartnerProfileService {
 
   private normalizeRole(role?: PartnerProfile['role'] | null): PartnerProfile['role'] {
     return role === 'buyer' ? 'buyer' : 'supplier';
+  }
+
+  private normalizeLifecycleStatus(
+    value: PartnerProfile['status'] | null | undefined
+  ): PartnerProfile['status'] {
+    if (value === 'approved' || value === 'suspended' || value === 'pending') {
+      return value;
+    }
+    return undefined;
   }
 
   private normalizeVerificationStatus(
@@ -206,6 +216,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         en: 'Accelerate hydrogen integration for Quebec’s large-scale industrial projects.',
       },
       highlights: ['500 M$ investis dans l’hydrogène vert', 'Plateforme de conformité ESG dédiée'],
+      status: 'approved',
       verificationStatus: 'verified',
       trustScore: 88,
       verificationSources: [
@@ -283,6 +294,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         en: 'Deliver modular electrolyzers built for Canada’s harsh climates.',
       },
       highlights: ['Production 100 % alimentée en énergie renouvelable', 'Certification CSA et ISO 14001'],
+      status: 'approved',
       verificationStatus: 'verified',
       trustScore: 92,
       verificationSources: [
@@ -352,6 +364,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         en: 'Decarbonize coastal logistics corridors with data-driven solutions.',
       },
       highlights: ['Réseau de 180 membres coopératifs', 'Programme carbone neutre 2030'],
+      status: 'pending',
       verificationStatus: 'pending',
       trustScore: 74,
       verificationSources: [
@@ -408,6 +421,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         en: 'Deploy high-density solid-state batteries for heavy mobility fleets.',
       },
       highlights: ['4 lignes de production en Ontario', 'Programme pilote avec BC Ferries'],
+      status: 'suspended',
       verificationStatus: 'suspended',
       trustScore: 61,
       verificationSources: [

@@ -3,8 +3,10 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
+  COMPANY_STATUSES,
   CompanyRecord,
   CompanyService,
+  CompanyStatus,
   CompanyTrustDirection,
   CompanyTrustRecord,
   CompanyTrustRecordType,
@@ -21,6 +23,12 @@ const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   correctionRequested: 'Correction requested',
   rejected: 'Rejected',
   suspended: 'Suspended',
+};
+
+const COMPANY_STATUS_LABELS: Record<CompanyStatus, string> = {
+  pending: 'Pending publication',
+  approved: 'Approved for directory',
+  suspended: 'Publication suspended',
 };
 
 const SOURCE_STATUS_LABELS: Record<CompanyVerificationSourceStatus, string> = {
@@ -44,6 +52,12 @@ const HISTORY_TYPE_LABELS: Record<CompanyTrustRecordType, string> = {
 const HISTORY_DIRECTION_LABELS: Record<CompanyTrustDirection, string> = {
   inbound: 'Inbound',
   outbound: 'Outbound',
+};
+
+const COMPANY_LIFECYCLE_ENTRY_LABELS: Record<CompanyStatus, string> = {
+  pending: 'Company intake reopened',
+  approved: 'Company approved for partner directory',
+  suspended: 'Company publication suspended',
 };
 
 @Component({
@@ -73,11 +87,15 @@ export class AdminTrustPage implements OnInit {
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
   protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
+  protected readonly companyStatusControl = this.fb.control<CompanyStatus>('pending', {
+    nonNullable: true,
+  });
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
   });
 
+  protected readonly companyStatuses = COMPANY_STATUSES;
   protected readonly verificationStatuses = [
     'unverified',
     'pending',
@@ -154,10 +172,15 @@ export class AdminTrustPage implements OnInit {
 
   selectCompany(company: CompanyRecord): void {
     this.selectedCompany.set(company);
+    this.companyStatusControl.setValue(company.status);
     this.statusControl.setValue(company.verificationStatus);
     this.sources.set(company.verificationSources.slice());
     this.history.set(company.trustHistory.slice());
     this.reviewNoteControl.setValue('');
+  }
+
+  companyStatusLabel(status: CompanyStatus): string {
+    return COMPANY_STATUS_LABELS[status] ?? status;
   }
 
   statusLabel(status: CompanyVerificationStatus): string {
@@ -196,7 +219,9 @@ export class AdminTrustPage implements OnInit {
   reviewSummary(company: CompanyRecord): string {
     switch (company.verificationStatus) {
       case 'verified':
-        return 'Verified and synced publicly.';
+        return company.status === 'approved'
+          ? 'Verified and synced publicly.'
+          : 'Verified evidence is ready, but company publication is not active yet.';
       case 'correctionRequested':
         return 'Waiting on partner corrections before approval.';
       case 'rejected':
@@ -232,8 +257,17 @@ export class AdminTrustPage implements OnInit {
     if (!history.some((record) => record.type === 'evaluation')) {
       reasons.push('No formal evaluation has been logged for this company.');
     }
+    if (company.status !== this.companyStatusControl.value) {
+      reasons.push(`Company lifecycle will move to ${this.companyStatusLabel(this.companyStatusControl.value)}.`);
+    }
     if (company.verificationStatus !== nextStatus) {
       reasons.push(`Pending decision: ${this.statusLabel(nextStatus)}.`);
+    }
+    if (this.companyStatusControl.value === 'approved') {
+      reasons.push('Approved companies remain visible across partner and directory surfaces.');
+    }
+    if (this.companyStatusControl.value === 'suspended') {
+      reasons.push('Partner publication is paused until the lifecycle is reopened.');
     }
     if (nextStatus === 'correctionRequested') {
       reasons.push('The partner must submit corrected evidence before verification resumes.');
@@ -404,24 +438,31 @@ export class AdminTrustPage implements OnInit {
       return;
     }
 
+    const nextCompanyStatus = this.companyStatusControl.value;
     const nextStatus = this.statusControl.value;
-    const decisionEntry = this.buildReviewEntry(company, nextStatus);
-    const trustHistory = decisionEntry ? [...this.history(), decisionEntry] : this.history();
+    const decisionEntry = this.buildReviewEntry(company, nextStatus, nextCompanyStatus);
+    const lifecycleEntry = this.buildLifecycleEntry(company, nextCompanyStatus);
+    const appendedEntries = [decisionEntry, lifecycleEntry].filter(
+      (entry): entry is CompanyTrustRecord => entry !== null
+    );
+    const trustHistory = appendedEntries.length ? [...this.history(), ...appendedEntries] : this.history();
 
     this.saving.set(true);
     this.companiesService
       .updateVerification(company.id, {
+        status: nextCompanyStatus,
         verificationStatus: nextStatus,
         verificationSources: this.sources(),
         trustHistory,
       })
       .subscribe({
         next: (updated) => {
-          this.notifications.success('Verification data updated.', {
+          this.notifications.success('Trust and lifecycle data updated.', {
             source: 'admin-trust',
             metadata: { companyId: updated.id },
           });
           this.selectedCompany.set(updated);
+          this.companyStatusControl.setValue(updated.status);
           this.statusControl.setValue(updated.verificationStatus);
           this.sources.set(updated.verificationSources.slice());
           this.history.set(updated.trustHistory.slice());
@@ -429,7 +470,7 @@ export class AdminTrustPage implements OnInit {
           this.saving.set(false);
         },
         error: () => {
-          this.notifications.error('Failed to update verification data.', {
+          this.notifications.error('Failed to update trust and lifecycle data.', {
             source: 'admin-trust',
             metadata: { companyId: company.id },
           });
@@ -483,9 +524,13 @@ export class AdminTrustPage implements OnInit {
 
   private buildReviewEntry(
     company: CompanyRecord,
-    nextStatus: CompanyVerificationStatus
+    nextStatus: CompanyVerificationStatus,
+    nextCompanyStatus: CompanyStatus
   ): CompanyTrustRecord | null {
     const reviewNote = this.reviewNoteControl.value.trim();
+    if (company.verificationStatus === nextStatus && company.status !== nextCompanyStatus) {
+      return null;
+    }
     if (!reviewNote && company.verificationStatus === nextStatus) {
       return null;
     }
@@ -498,6 +543,23 @@ export class AdminTrustPage implements OnInit {
       occurredAt: this.today(),
       score: null,
       notes: reviewNote || this.defaultReviewNote(nextStatus),
+    };
+  }
+
+  private buildLifecycleEntry(company: CompanyRecord, nextStatus: CompanyStatus): CompanyTrustRecord | null {
+    if (company.status === nextStatus) {
+      return null;
+    }
+
+    const reviewNote = this.reviewNoteControl.value.trim();
+    return {
+      id: null,
+      label: this.lifecycleEntryLabel(nextStatus),
+      type: 'evaluation',
+      direction: 'inbound',
+      occurredAt: this.today(),
+      score: null,
+      notes: reviewNote || this.defaultLifecycleNote(nextStatus),
     };
   }
 
@@ -518,6 +580,10 @@ export class AdminTrustPage implements OnInit {
     }
   }
 
+  private lifecycleEntryLabel(status: CompanyStatus): string {
+    return COMPANY_LIFECYCLE_ENTRY_LABELS[status] ?? 'Company lifecycle updated';
+  }
+
   private defaultReviewNote(status: CompanyVerificationStatus): string {
     switch (status) {
       case 'verified':
@@ -532,6 +598,17 @@ export class AdminTrustPage implements OnInit {
         return 'Verification remains in the active review queue.';
       default:
         return 'Verification package was reset to an unverified state.';
+    }
+  }
+
+  private defaultLifecycleNote(status: CompanyStatus): string {
+    switch (status) {
+      case 'approved':
+        return 'Company publication is approved across partner and directory surfaces.';
+      case 'suspended':
+        return 'Company publication is suspended while a follow-up review is completed.';
+      default:
+        return 'Company publication returned to intake review until the package is complete.';
     }
   }
 

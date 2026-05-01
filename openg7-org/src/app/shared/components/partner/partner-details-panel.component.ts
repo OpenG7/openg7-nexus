@@ -19,6 +19,7 @@ import { OpportunityMatch, normalizeConfidencePercent } from '@app/core/models/o
 import {
   FinancingBanner,
   PartnerAddress,
+  PartnerLifecycleStatus,
   PartnerProfile,
   PartnerTrustRecord,
   PartnerVerificationSource,
@@ -34,6 +35,12 @@ import { of, switchMap } from 'rxjs';
 import { Og7DualQrPanelComponent } from '../qr/og7-dual-qr-panel.component';
 type PartnerDetailsTab = 'details' | 'collaboration' | 'qr';
 let nextPanelId = 0;
+
+const PARTNER_LIFECYCLE_ENTRY_LABELS = new Set([
+  'Company intake reopened',
+  'Company approved for partner directory',
+  'Company publication suspended',
+]);
 
 @Component({
   selector: 'og7-partner-details-panel',
@@ -179,6 +186,14 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerLeadership = computed(() => this.selectedPartner()?.leadership ?? []);
   protected readonly partnerSocials = computed(() => this.selectedPartner()?.socials ?? []);
   protected readonly partnerAddress = computed<PartnerAddress | null>(() => this.selectedPartner()?.address ?? null);
+  protected readonly partnerLifecycleStatus = computed<PartnerLifecycleStatus | null>(() => {
+    const status = this.selectedPartner()?.status;
+    return status === 'approved' || status === 'suspended' || status === 'pending' ? status : null;
+  });
+  protected readonly partnerLifecycleStatusKey = computed(() => {
+    const status = this.partnerLifecycleStatus();
+    return status ? `partner.panel.lifecycle.status.${status}` : null;
+  });
   protected readonly partnerVerificationStatus = computed<PartnerVerificationStatus>(() => {
     const status = this.selectedPartner()?.verificationStatus;
     return status === 'verified' ||
@@ -227,12 +242,21 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerTrustHistoryHasMore = computed(
     () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length
   );
+  protected readonly partnerLatestLifecycleEntry = computed(() => {
+    const lifecycleTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+    return lifecycleTrail.find((record) => this.isLifecycleRecord(record)) ?? null;
+  });
   protected readonly partnerLatestReviewEntry = computed(
     () => {
       const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
       return (
-        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
-        reviewTrail.find((record) => record.type === 'evaluation') ??
+        reviewTrail.find(
+          (record) =>
+            record.type === 'evaluation' &&
+            !this.isLifecycleRecord(record) &&
+            Boolean(record.notes?.trim())
+        ) ??
+        reviewTrail.find((record) => record.type === 'evaluation' && !this.isLifecycleRecord(record)) ??
         null
       );
     }
@@ -495,6 +519,17 @@ export class PartnerDetailsPanelComponent {
     }
   }
 
+  protected lifecycleStatusClass(status: PartnerLifecycleStatus): string {
+    switch (status) {
+      case 'approved':
+        return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
+      case 'suspended':
+        return 'bg-rose-500/15 text-rose-700 border border-rose-200';
+      default:
+        return 'bg-amber-500/15 text-amber-700 border border-amber-200';
+    }
+  }
+
   protected verificationSourceStatusClass(status: PartnerVerificationSource['status']): string {
     switch (status) {
       case 'validated':
@@ -516,6 +551,10 @@ export class PartnerDetailsPanelComponent {
 
   protected trustHistoryDirectionKey(direction: PartnerTrustRecord['direction']): string {
     return `partner.panel.verification.history.direction.${direction ?? 'inbound'}`;
+  }
+
+  private isLifecycleRecord(record: Pick<PartnerTrustRecord, 'label'>): boolean {
+    return PARTNER_LIFECYCLE_ENTRY_LABELS.has(record.label?.trim() ?? '');
   }
 
   protected formatDate(value: string | null | undefined): string | null {

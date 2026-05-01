@@ -63,6 +63,9 @@
                 <div>
                   <p class="font-semibold text-slate-900">{{ company.name }}</p>
                   <p class="text-xs text-slate-500">{{ statusLabel(company.verificationStatus) }}</p>
+                  <p class="text-[0.7rem] leading-relaxed text-slate-500">
+                    Lifecycle: {{ companyStatusLabel(company.status) }}
+                  </p>
                   <p class="mt-1 text-[0.7rem] leading-relaxed text-slate-500">{{ reviewSummary(company) }}</p>
                 </div>
                 <span class="text-xs font-semibold text-emerald-600">{{ company.trustScore }}%</span>
@@ -81,12 +84,13 @@
             <h2 class="text-xl font-semibold text-slate-900">{{ company.name }}</h2>
             <p class="text-sm text-slate-500">
               Current verification status: <strong>{{ statusLabel(company.verificationStatus) }}</strong>
+              · Company lifecycle: <strong>{{ companyStatusLabel(company.status) }}</strong>
               · Trust score: <strong>{{ company.trustScore }}%</strong>
             </p>
             <p class="text-sm text-slate-500">{{ reviewSummary(company) }}</p>
           </div>
 
-          <div class="grid gap-4 lg:grid-cols-2">
+          <div class="grid gap-4 lg:grid-cols-3">
             <label class="flex flex-col gap-2 text-sm">
               <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Verification badge</span>
               <select
@@ -100,8 +104,22 @@
               </select>
             </label>
 
+            <label class="flex flex-col gap-2 text-sm">
+              <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Company lifecycle</span>
+              <select
+                class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                [formControl]="companyStatusControl"
+                data-og7-id="admin-trust-company-status"
+              >
+                @for (status of companyStatuses; track status) {
+                  <option [value]="status">{{ companyStatusLabel(status) }}</option>
+                }
+              </select>
+            </label>
+
             <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
               <p>Latest trust score: <strong>{{ company.trustScore }}%</strong></p>
+              <p>Directory lifecycle: <strong>{{ companyStatusLabel(companyStatusControl.value) }}</strong></p>
               <p>Total badges: <strong>{{ sources().length }}</strong></p>
               <p>Recorded events: <strong>{{ history().length }}</strong></p>
             </div>

@@ -190,6 +190,50 @@
           </div>
         </header>
         <div class="og7-partner-panel__section-body space-y-4">
+          @if (partnerLifecycleStatus(); as lifecycleStatus) {
+          <div
+            class="og7-partner-panel__info-card space-y-3 rounded-3xl p-4 shadow-sm ring-1 ring-[color:rgba(16,185,129,0.2)]"
+            data-og7="partner-lifecycle">
+            <div class="space-y-1">
+              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                {{ 'partner.panel.lifecycle.title' | translate }}
+              </h4>
+              <p class="text-xs leading-relaxed text-subtle">
+                {{ 'partner.panel.lifecycle.statusHelp' | translate }}
+              </p>
+            </div>
+            <span
+              class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+              [ngClass]="lifecycleStatusClass(lifecycleStatus)"
+              data-og7-id="partner-lifecycle-status"
+              [attr.data-og7-state]="lifecycleStatus">
+              {{ partnerLifecycleStatusKey() | translate }}
+            </span>
+
+            @if (partnerLatestLifecycleEntry(); as lifecycleEntry) {
+            <div
+              class="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+              data-og7="partner-lifecycle-event"
+              [attr.data-og7-state]="lifecycleStatus">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="space-y-1">
+                  <p class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                    {{ 'partner.panel.lifecycle.latestEventTitle' | translate }}
+                  </p>
+                  <p class="text-sm font-semibold text-title">{{ lifecycleEntry.label }}</p>
+                </div>
+                <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                  {{ 'partner.panel.lifecycle.eventDate' | translate:{ value: formatDate(lifecycleEntry.occurredAt) ?? lifecycleEntry.occurredAt } }}
+                </span>
+              </div>
+              @if (lifecycleEntry.notes) {
+              <p class="mt-3 text-xs leading-relaxed text-body">{{ lifecycleEntry.notes }}</p>
+              }
+            </div>
+            }
+          </div>
+          }
+
           <div
             class="og7-partner-panel__info-card space-y-3 rounded-3xl p-4 shadow-sm ring-1 ring-[color:rgba(34,211,238,0.3)]">
             <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
