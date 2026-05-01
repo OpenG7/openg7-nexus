@@ -33,6 +33,7 @@ import { of, switchMap } from 'rxjs';
 
 import { Og7DualQrPanelComponent } from '../qr/og7-dual-qr-panel.component';
 type PartnerDetailsTab = 'details' | 'collaboration' | 'qr';
+const PUBLICATION_HISTORY_PREFIX = 'Publication ';
 let nextPanelId = 0;
 
 @Component({
@@ -192,6 +193,18 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerVerificationStatusKey = computed(
     () => `partner.panel.verification.status.${this.partnerVerificationStatus()}`
   );
+  protected readonly partnerPublicationStatus = computed(() => {
+    const status = this.selectedPartner()?.status;
+    return status === 'approved' || status === 'pending' || status === 'suspended' ? status : null;
+  });
+  protected readonly partnerPublicationStatusKey = computed(() => {
+    const status = this.partnerPublicationStatus();
+    return status ? `partner.panel.publication.status.${status}` : null;
+  });
+  protected readonly partnerPublicationSummaryKey = computed(() => {
+    const status = this.partnerPublicationStatus();
+    return status ? `partner.panel.publication.summary.${status}` : null;
+  });
   protected readonly partnerTrustScore = computed(() => {
     const score = this.selectedPartner()?.trustScore;
     if (score == null) {
@@ -227,12 +240,21 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerTrustHistoryHasMore = computed(
     () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length
   );
+  protected readonly partnerLatestPublicationEntry = computed(() => {
+    const publicationTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+    return publicationTrail.find((record) => this.isPublicationHistoryEntry(record)) ?? null;
+  });
   protected readonly partnerLatestReviewEntry = computed(
     () => {
       const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
       return (
-        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
-        reviewTrail.find((record) => record.type === 'evaluation') ??
+        reviewTrail.find(
+          (record) =>
+            record.type === 'evaluation' &&
+            !this.isPublicationHistoryEntry(record) &&
+            Boolean(record.notes?.trim())
+        ) ??
+        reviewTrail.find((record) => record.type === 'evaluation' && !this.isPublicationHistoryEntry(record)) ??
         null
       );
     }
@@ -495,6 +517,17 @@ export class PartnerDetailsPanelComponent {
     }
   }
 
+  protected publicationStatusClass(status: NonNullable<PartnerProfile['status']>): string {
+    switch (status) {
+      case 'approved':
+        return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
+      case 'suspended':
+        return 'bg-rose-500/15 text-rose-700 border border-rose-200';
+      default:
+        return 'bg-sky-500/15 text-sky-700 border border-sky-200';
+    }
+  }
+
   protected verificationSourceStatusClass(status: PartnerVerificationSource['status']): string {
     switch (status) {
       case 'validated':
@@ -546,6 +579,10 @@ export class PartnerDetailsPanelComponent {
       return words[0].slice(0, 2).toUpperCase();
     }
     return `${words[0].charAt(0)}${words[words.length - 1].charAt(0)}`.toUpperCase();
+  }
+
+  private isPublicationHistoryEntry(record: PartnerTrustRecord | null | undefined): boolean {
+    return Boolean(record?.label?.startsWith(PUBLICATION_HISTORY_PREFIX));
   }
 
   protected close(): void {

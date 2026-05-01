@@ -5,6 +5,7 @@ import { injectNotificationStore } from '@app/core/observability/notification.st
 import {
   CompanyRecord,
   CompanyService,
+  CompanyStatus,
   CompanyTrustDirection,
   CompanyTrustRecord,
   CompanyTrustRecordType,
@@ -20,6 +21,12 @@ const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   verified: 'Verified',
   correctionRequested: 'Correction requested',
   rejected: 'Rejected',
+  suspended: 'Suspended',
+};
+
+const PUBLICATION_STATUS_LABELS: Record<CompanyStatus, string> = {
+  pending: 'Pending publication',
+  approved: 'Published',
   suspended: 'Suspended',
 };
 
@@ -77,6 +84,9 @@ export class AdminTrustPage implements OnInit {
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
   });
+  protected readonly publicationStatusControl = this.fb.control<CompanyStatus>('pending', {
+    nonNullable: true,
+  });
 
   protected readonly verificationStatuses = [
     'unverified',
@@ -86,6 +96,7 @@ export class AdminTrustPage implements OnInit {
     'rejected',
     'suspended',
   ] as const;
+  protected readonly publicationStatuses = ['pending', 'approved', 'suspended'] as const;
   protected readonly sourceTypes = ['registry', 'chamber', 'audit', 'other'] as const;
   protected readonly sourceStatuses = ['pending', 'validated', 'revoked'] as const;
   protected readonly historyTypes = ['transaction', 'evaluation'] as const;
@@ -155,6 +166,7 @@ export class AdminTrustPage implements OnInit {
   selectCompany(company: CompanyRecord): void {
     this.selectedCompany.set(company);
     this.statusControl.setValue(company.verificationStatus);
+    this.publicationStatusControl.setValue(company.status);
     this.sources.set(company.verificationSources.slice());
     this.history.set(company.trustHistory.slice());
     this.reviewNoteControl.setValue('');
@@ -162,6 +174,10 @@ export class AdminTrustPage implements OnInit {
 
   statusLabel(status: CompanyVerificationStatus): string {
     return VERIFICATION_STATUS_LABELS[status] ?? status;
+  }
+
+  publicationStatusLabel(status: CompanyStatus): string {
+    return PUBLICATION_STATUS_LABELS[status] ?? status;
   }
 
   reviewToneClass(tone: 'amber' | 'orange' | 'emerald' | 'rose'): string {
@@ -219,6 +235,7 @@ export class AdminTrustPage implements OnInit {
     }
 
     const nextStatus = this.statusControl.value;
+    const nextPublicationStatus = this.publicationStatusControl.value;
     const sources = this.sources();
     const history = this.history();
     const reasons: string[] = [];
@@ -235,11 +252,20 @@ export class AdminTrustPage implements OnInit {
     if (company.verificationStatus !== nextStatus) {
       reasons.push(`Pending decision: ${this.statusLabel(nextStatus)}.`);
     }
+    if (company.status !== nextPublicationStatus) {
+      reasons.push(`Publication lifecycle: ${this.publicationStatusLabel(nextPublicationStatus)}.`);
+    }
     if (nextStatus === 'correctionRequested') {
       reasons.push('The partner must submit corrected evidence before verification resumes.');
     }
     if (nextStatus === 'rejected') {
       reasons.push('The current proof package is blocked until a new submission is created.');
+    }
+    if (nextPublicationStatus === 'approved') {
+      reasons.push('The partner profile becomes visible across public discovery and partner surfaces.');
+    }
+    if (nextPublicationStatus === 'suspended') {
+      reasons.push('The partner profile is removed from public discovery until publication resumes.');
     }
     if (!reasons.length) {
       reasons.push('Current verification package is internally consistent.');
@@ -252,6 +278,13 @@ export class AdminTrustPage implements OnInit {
     this.statusControl.setValue(status);
     if (!this.reviewNoteControl.value.trim()) {
       this.reviewNoteControl.setValue(this.defaultReviewNote(status));
+    }
+  }
+
+  applyPublicationDecision(status: CompanyStatus): void {
+    this.publicationStatusControl.setValue(status);
+    if (!this.reviewNoteControl.value.trim()) {
+      this.reviewNoteControl.setValue(this.defaultPublicationNote(status));
     }
   }
 
@@ -405,31 +438,40 @@ export class AdminTrustPage implements OnInit {
     }
 
     const nextStatus = this.statusControl.value;
-    const decisionEntry = this.buildReviewEntry(company, nextStatus);
-    const trustHistory = decisionEntry ? [...this.history(), decisionEntry] : this.history();
+    const nextPublicationStatus = this.publicationStatusControl.value;
+    const publicationStatusChanged = company.status !== nextPublicationStatus;
+    const publicationEntry = this.buildPublicationEntry(company, nextPublicationStatus);
+    const decisionEntry = this.buildReviewEntry(company, nextStatus, publicationStatusChanged);
+    const trustHistory = [
+      ...this.history(),
+      ...(publicationEntry ? [publicationEntry] : []),
+      ...(decisionEntry ? [decisionEntry] : []),
+    ];
 
     this.saving.set(true);
     this.companiesService
       .updateVerification(company.id, {
+        status: nextPublicationStatus,
         verificationStatus: nextStatus,
         verificationSources: this.sources(),
         trustHistory,
       })
       .subscribe({
         next: (updated) => {
-          this.notifications.success('Verification data updated.', {
+          this.notifications.success('Trust and publication data updated.', {
             source: 'admin-trust',
             metadata: { companyId: updated.id },
           });
           this.selectedCompany.set(updated);
           this.statusControl.setValue(updated.verificationStatus);
+          this.publicationStatusControl.setValue(updated.status);
           this.sources.set(updated.verificationSources.slice());
           this.history.set(updated.trustHistory.slice());
           this.reviewNoteControl.setValue('');
           this.saving.set(false);
         },
         error: () => {
-          this.notifications.error('Failed to update verification data.', {
+          this.notifications.error('Failed to update trust and publication data.', {
             source: 'admin-trust',
             metadata: { companyId: company.id },
           });
@@ -483,11 +525,14 @@ export class AdminTrustPage implements OnInit {
 
   private buildReviewEntry(
     company: CompanyRecord,
-    nextStatus: CompanyVerificationStatus
+    nextStatus: CompanyVerificationStatus,
+    publicationStatusChanged = false
   ): CompanyTrustRecord | null {
     const reviewNote = this.reviewNoteControl.value.trim();
-    if (!reviewNote && company.verificationStatus === nextStatus) {
-      return null;
+    if (company.verificationStatus === nextStatus) {
+      if (!reviewNote || publicationStatusChanged) {
+        return null;
+      }
     }
 
     return {
@@ -498,6 +543,23 @@ export class AdminTrustPage implements OnInit {
       occurredAt: this.today(),
       score: null,
       notes: reviewNote || this.defaultReviewNote(nextStatus),
+    };
+  }
+
+  private buildPublicationEntry(company: CompanyRecord, nextStatus: CompanyStatus): CompanyTrustRecord | null {
+    if (company.status === nextStatus) {
+      return null;
+    }
+
+    const reviewNote = this.reviewNoteControl.value.trim();
+    return {
+      id: null,
+      label: this.publicationEntryLabel(nextStatus),
+      type: 'evaluation',
+      direction: 'inbound',
+      occurredAt: this.today(),
+      score: null,
+      notes: reviewNote || this.defaultPublicationNote(nextStatus),
     };
   }
 
@@ -518,6 +580,17 @@ export class AdminTrustPage implements OnInit {
     }
   }
 
+  private publicationEntryLabel(status: CompanyStatus): string {
+    switch (status) {
+      case 'approved':
+        return 'Publication approved';
+      case 'suspended':
+        return 'Publication suspended';
+      default:
+        return 'Publication queued';
+    }
+  }
+
   private defaultReviewNote(status: CompanyVerificationStatus): string {
     switch (status) {
       case 'verified':
@@ -532,6 +605,17 @@ export class AdminTrustPage implements OnInit {
         return 'Verification remains in the active review queue.';
       default:
         return 'Verification package was reset to an unverified state.';
+    }
+  }
+
+  private defaultPublicationNote(status: CompanyStatus): string {
+    switch (status) {
+      case 'approved':
+        return 'Profile is now visible on public discovery and partner surfaces.';
+      case 'suspended':
+        return 'Profile has been removed from public discovery pending follow-up.';
+      default:
+        return 'Profile remains queued until publication checks are complete.';
     }
   }
 

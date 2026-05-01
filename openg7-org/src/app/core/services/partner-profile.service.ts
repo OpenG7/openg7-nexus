@@ -123,6 +123,7 @@ export class PartnerProfileService {
       role: this.normalizeRole(attributes.role),
       legalName,
       displayName: attributes.displayName ?? undefined,
+      status: this.normalizePublicationStatus(attributes.status),
       sector: normalizeSectorType(attributes.sector ?? null) ?? undefined,
       province: attributes.province ?? undefined,
       logoUrl: attributes.logoUrl ?? null,
@@ -161,6 +162,15 @@ export class PartnerProfileService {
     return 'unverified';
   }
 
+  private normalizePublicationStatus(
+    value: PartnerProfile['status'] | null | undefined
+  ): PartnerProfile['status'] | undefined {
+    if (value === 'approved' || value === 'pending' || value === 'suspended') {
+      return value;
+    }
+    return undefined;
+  }
+
   private demoFallback(id: string, role?: PartnerProfile['role']): PartnerProfile | null {
     const base = DEMO_PARTNER_PROFILES.get(id);
     if (!base) {
@@ -179,6 +189,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
       role: 'buyer',
       legalName: 'Hydro Québec Transition',
       displayName: 'HQ Transition',
+      status: 'approved',
       sector: 'energy',
       province: 'QC',
       logoUrl: 'assets/home.png',
@@ -256,6 +267,7 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
       id: 301,
       role: 'supplier',
       legalName: 'Prairie Electrolyzers Inc.',
+      status: 'pending',
       sector: 'manufacturing',
       province: 'AB',
       logoUrl: 'assets/logo-openg7-souverainete-en-action.png',

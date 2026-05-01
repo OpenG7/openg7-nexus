@@ -4607,6 +4607,22 @@
         "statusHelp": "Les badges validés par des institutions de confiance peuvent être approuvés, tandis que les décisions de correction ou de rejet restent visibles pour les partenaires.",
         "reviewDecisionTitle": "Dernière décision de revue",
         "reviewDecisionDate": "Revu le {{ value }}"
+      },
+      "publication": {
+        "title": "Cycle de publication public",
+        "statusHelp": "Suit si ce profil partenaire est en attente, publié ou temporairement retiré de la découverte.",
+        "status": {
+          "pending": "En attente de publication",
+          "approved": "Publié",
+          "suspended": "Suspendu"
+        },
+        "summary": {
+          "pending": "Ce profil reste en attente tant que les contrôles de publication ne sont pas terminés.",
+          "approved": "Ce profil est visible sur les surfaces de découverte publique et partenaire.",
+          "suspended": "Ce profil est retiré de la découverte publique jusqu'à reprise de la publication."
+        },
+        "latestTitle": "Dernière mise à jour de publication",
+        "latestDate": "Mis à jour le {{ value }}"
       }
     }
   },
