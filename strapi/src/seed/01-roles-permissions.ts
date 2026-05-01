@@ -92,6 +92,7 @@ export default async () => {
       backups: true,
       imports: true,
       security: true,
+      proofs: true,
       dispatchCodexWorkflow: true,
     },
     'api::admin-quality-mission-decision.admin-quality-mission-decision': {

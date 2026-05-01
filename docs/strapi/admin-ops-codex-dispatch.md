@@ -28,7 +28,7 @@ This guide documents the Strapi backend endpoint used to trigger provider-specif
         "run": {
           "id": 501,
           "number": 51,
-          "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501",
+          "url": "https://github.com/OpenG7/openg7-nexus/actions/runs/501",
           "status": "completed",
           "conclusion": "success",
           "branch": "codex/qa-proof-501",
@@ -41,13 +41,13 @@ This guide documents the Strapi backend endpoint used to trigger provider-specif
             "name": "playwright-report",
             "sizeBytes": 2048,
             "expired": false,
-            "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts"
+            "url": "https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts"
           }
         ],
         "pullRequest": {
           "number": 321,
           "title": "Codex QA proof package",
-          "url": "https://github.com/OpenG7/openg7-platform/pull/321",
+          "url": "https://github.com/OpenG7/openg7-nexus/pull/321",
           "state": "open",
           "merged": false,
           "branch": "codex/qa-proof-501"
@@ -155,7 +155,7 @@ Successful responses return a small queue acknowledgement:
     "provider": "github-actions",
     "selectedProvider": "copilot",
     "owner": "OpenG7",
-    "repo": "openg7-platform",
+    "repo": "openg7-nexus",
     "workflow": "copilot-pr.yml",
     "ref": "main",
     "requestedAt": "2026-04-25T12:00:00.000Z",

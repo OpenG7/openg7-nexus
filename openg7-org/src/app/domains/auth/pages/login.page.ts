@@ -19,7 +19,7 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { SocialAuthButtonsComponent } from '@app/shared/components/auth/social-auth-buttons.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
+import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -149,6 +149,7 @@ export class LoginPage implements AfterViewInit, OnInit {
 
   private async completeSuccessfulLogin(): Promise<void> {
     await this.auth.ensureSessionPersisted();
+    await firstValueFrom(this.auth.getProfile().pipe(catchError(() => of(null))));
     this.notifications.success(this.translate.instant('auth.login.success'), {
       source: 'auth',
       metadata: { action: 'login' },

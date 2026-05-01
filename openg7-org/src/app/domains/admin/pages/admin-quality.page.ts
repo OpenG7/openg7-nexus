@@ -707,7 +707,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       return 'Awaiting refresh cadence.';
     }
 
-    return `Last sync ${this.formatAiTelemetryRelative(lastRefreshAt)}. Next sweep in ${this.aiOpsRefreshCountdownSeconds()}s.`;
+    const countdownSeconds = this.aiOpsRefreshCountdownSeconds();
+    if (countdownSeconds === 0) {
+      return `Last sync ${this.formatAiTelemetryRelative(lastRefreshAt)}. Next sweep pending...`;
+    }
+
+    return `Last sync ${this.formatAiTelemetryRelative(lastRefreshAt)}. Next sweep in ${countdownSeconds}s.`;
   });
   readonly missionHudSectionLabel = computed(() => {
     const section = this.missionHudSectionOptions.find(

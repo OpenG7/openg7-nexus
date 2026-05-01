@@ -39,7 +39,7 @@ Le workflow associe est dans [.github/workflows/codex-pr.yml](../../.github/work
 Exemple REST GitHub pour declencher le workflow :
 
 ```http
-POST /repos/OpenG7/openg7-platform/actions/workflows/codex-pr.yml/dispatches
+POST /repos/OpenG7/openg7-nexus/actions/workflows/codex-pr.yml/dispatches
 Authorization: Bearer <github-app-token-ou-pat>
 Accept: application/vnd.github+json
 Content-Type: application/json

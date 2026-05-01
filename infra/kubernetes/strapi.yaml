@@ -97,7 +97,7 @@ data:
   STRAPI_SEED_AUTO: 'false'
   OPS_CODEX_DISPATCH_ENABLED: 'false'
   OPS_CODEX_GITHUB_OWNER: OpenG7
-  OPS_CODEX_GITHUB_REPO: openg7-platform
+  OPS_CODEX_GITHUB_REPO: openg7-nexus
   OPS_CODEX_GITHUB_WORKFLOW: codex-pr.yml
   OPS_CODEX_GITHUB_REF: main
   OPS_CODEX_GITHUB_API_URL: https://api.github.com
@@ -105,7 +105,7 @@ data:
   OPS_CODEX_ALLOWED_BASE_BRANCHES: main
   OPS_CODEX_TIMEOUT_MS: '10000'
   OPS_AI_GITHUB_OWNER: OpenG7
-  OPS_AI_GITHUB_REPO: openg7-platform
+  OPS_AI_GITHUB_REPO: openg7-nexus
   OPS_AI_GITHUB_API_URL: https://api.github.com
   OPS_AI_ALLOWED_SCOPES: openg7-org,strapi,packages-contracts,packages-tooling,repository-root
   OPS_AI_ALLOWED_BASE_BRANCHES: main

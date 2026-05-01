@@ -192,7 +192,7 @@ class AdminOpsServiceMock {
           run: {
             id: 501,
             number: 51,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501',
             status: 'completed',
             conclusion: 'success',
             branch: 'codex/qa-proof-501',
@@ -205,20 +205,20 @@ class AdminOpsServiceMock {
               name: 'playwright-report',
               sizeBytes: 2048,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts',
             },
             {
               id: 9002,
               name: 'logs',
               sizeBytes: 1024,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts',
             },
           ],
           pullRequest: {
             number: 321,
             title: 'Codex QA proof package',
-            url: 'https://github.com/OpenG7/openg7-platform/pull/321',
+            url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
             state: 'open',
             merged: false,
             branch: 'codex/qa-proof-501',
@@ -233,7 +233,7 @@ class AdminOpsServiceMock {
           run: {
             id: 701,
             number: 7,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/701',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/701',
             status: 'completed',
             conclusion: 'failure',
             branch: 'copilot/placeholder-701',
@@ -252,7 +252,7 @@ class AdminOpsServiceMock {
           run: {
             id: 601,
             number: 18,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/601',
             status: 'in_progress',
             conclusion: null,
             branch: 'claude/qa-proof-601',
@@ -265,13 +265,13 @@ class AdminOpsServiceMock {
               name: 'draft-proof',
               sizeBytes: 512,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/601#artifacts',
             },
           ],
           pullRequest: {
             number: 322,
             title: 'Claude draft improvements',
-            url: 'https://github.com/OpenG7/openg7-platform/pull/322',
+            url: 'https://github.com/OpenG7/openg7-nexus/pull/322',
             state: 'open',
             merged: false,
             branch: 'claude/qa-proof-601',
@@ -298,7 +298,7 @@ class AdminOpsServiceMock {
         provider: 'github-actions' as const,
         selectedProvider: payload.provider,
         owner: 'OpenG7',
-        repo: 'openg7-platform',
+        repo: 'openg7-nexus',
         workflow: `${payload.provider}-pr.yml`,
         ref: 'main',
         requestedAt: '2026-04-30T00:00:00.000Z',
@@ -1147,6 +1147,21 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7-id="admin-quality-hud-summary"]')?.textContent).toContain(
       'Ops pret',
     );
+  });
+
+  it('avoids exposing a 0s telemetry sweep boundary', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.aiOpsSecurityStatus.set('ready');
+    component.aiOpsSecurityRefreshing.set(false);
+    component.aiOpsSecurityDegraded.set(false);
+    component.aiOpsLastSuccessfulRefreshAt.set(1_000);
+    component.aiOpsLiveNow.set(31_000);
+
+    expect(component.selectedAiTelemetryDetail()).toContain('Next sweep pending');
+    expect(component.selectedAiTelemetryDetail()).not.toContain('Next sweep in 0s');
   });
 
   it('surfaces an explicit local AI key note in the sticky mission HUD', () => {

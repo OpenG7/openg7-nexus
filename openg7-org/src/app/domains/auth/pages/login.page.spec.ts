@@ -42,6 +42,7 @@ describe('LoginPage', () => {
   beforeEach(async () => {
     auth = jasmine.createSpyObj<AuthService>('AuthService', [
       'login',
+      'getProfile',
       'sendEmailConfirmation',
       'ensureSessionPersisted',
       'ensureSessionRestored',
@@ -50,6 +51,9 @@ describe('LoginPage', () => {
     auth.ensureSessionPersisted.and.resolveTo();
     auth.ensureSessionRestored.and.resolveTo();
     auth.isAuthenticated.and.returnValue(false);
+    auth.getProfile.and.returnValue(
+      of({ id: '1', email: 'user@example.com', roles: ['user'] } as any)
+    );
     authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', [
       'captureRedirectParam',
       'peekRedirectUrl',
@@ -151,8 +155,34 @@ describe('LoginPage', () => {
     await fixture.whenStable();
 
     expect(auth.login).toHaveBeenCalledWith(credentials);
+    expect(auth.getProfile).toHaveBeenCalled();
     expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');
     expect(navigateByUrlSpy).toHaveBeenCalledWith('/profile');
+  });
+
+  it('hydrates the enriched profile before navigating to an admin redirect target', async () => {
+    const redirectTarget = '/admin/quality';
+    const credentials = { email: 'admin.local@example.test', password: 'secret' };
+    activatedRouteMock.snapshot.queryParamMap = convertToParamMap({ redirect: redirectTarget });
+    authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
+    authRedirect.consumeRedirectUrl.and.returnValue(redirectTarget);
+    auth.login.and.returnValue(
+      of({ jwt: 'token', user: { id: '2', email: credentials.email, roles: [] } })
+    );
+    auth.getProfile.and.returnValue(
+      of({ id: '2', email: credentials.email, roles: ['owner'] } as any)
+    );
+
+    const redirectFixture = TestBed.createComponent(LoginPage);
+    redirectFixture.detectChanges();
+    const redirectComponent = redirectFixture.componentInstance as any;
+    redirectComponent.form.setValue(credentials);
+
+    redirectComponent.onSubmit();
+    await redirectFixture.whenStable();
+
+    expect(auth.getProfile).toHaveBeenCalled();
+    expect(navigateByUrlSpy).toHaveBeenCalledWith(redirectTarget);
   });
 
   it('disables the form while submission is in progress', () => {

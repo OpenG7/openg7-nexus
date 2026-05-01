@@ -35,7 +35,7 @@ function applyTestEnvironment() {
   process.env.OPS_CODEX_DISPATCH_ENABLED = 'true';
   process.env.OPS_CODEX_GITHUB_TOKEN = 'ghs_admin_ops_test_token';
   process.env.OPS_CODEX_GITHUB_OWNER = 'OpenG7';
-  process.env.OPS_CODEX_GITHUB_REPO = 'openg7-platform';
+  process.env.OPS_CODEX_GITHUB_REPO = 'openg7-nexus';
   process.env.OPS_CODEX_GITHUB_WORKFLOW = 'codex-pr.yml';
   process.env.OPS_CODEX_GITHUB_REF = 'main';
   process.env.OPS_CODEX_ALLOWED_SCOPES = 'openg7-org,strapi';
@@ -43,7 +43,7 @@ function applyTestEnvironment() {
   process.env.OPS_CODEX_GITHUB_API_URL = 'https://api.github.test';
   process.env.OPS_AI_GITHUB_TOKEN = 'ghs_admin_ops_test_token';
   process.env.OPS_AI_GITHUB_OWNER = 'OpenG7';
-  process.env.OPS_AI_GITHUB_REPO = 'openg7-platform';
+  process.env.OPS_AI_GITHUB_REPO = 'openg7-nexus';
   process.env.OPS_AI_GITHUB_API_URL = 'https://api.github.test';
   process.env.OPS_AI_ALLOWED_SCOPES = 'openg7-org,strapi';
   process.env.OPS_AI_ALLOWED_BASE_BRANCHES = 'main,develop';
@@ -191,7 +191,7 @@ async function run() {
   global.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     const parsedUrl = new URL(url);
-    if (url === 'https://api.github.test/repos/OpenG7/openg7-platform/actions/secrets?per_page=100') {
+    if (url === 'https://api.github.test/repos/OpenG7/openg7-nexus/actions/secrets?per_page=100') {
       return new Response(
         JSON.stringify({
           total_count: 2,
@@ -211,7 +211,7 @@ async function run() {
             {
               id: 501,
               run_number: 51,
-              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501',
+              html_url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501',
               status: 'completed',
               conclusion: 'success',
               head_branch: 'codex/qa-proof-501',
@@ -234,7 +234,7 @@ async function run() {
             {
               id: 601,
               run_number: 18,
-              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601',
+              html_url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/601',
               status: 'in_progress',
               conclusion: null,
               head_branch: 'claude/qa-proof-601',
@@ -266,7 +266,7 @@ async function run() {
             {
               id: 701,
               run_number: 7,
-              html_url: 'https://github.com/OpenG7/openg7-platform/actions/runs/701',
+              html_url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/701',
               status: 'completed',
               conclusion: 'failure',
               head_branch: 'copilot/placeholder-701',
@@ -342,7 +342,7 @@ async function run() {
             {
               number: 321,
               title: 'Codex QA proof package',
-              html_url: 'https://github.com/OpenG7/openg7-platform/pull/321',
+              html_url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
               state: 'open',
               merged_at: null,
             },
@@ -359,7 +359,7 @@ async function run() {
             {
               number: 322,
               title: 'Claude draft improvements',
-              html_url: 'https://github.com/OpenG7/openg7-platform/pull/322',
+              html_url: 'https://github.com/OpenG7/openg7-nexus/pull/322',
               state: 'open',
               merged_at: null,
             },
@@ -377,9 +377,9 @@ async function run() {
     }
     if (
       url ===
-        'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/codex-pr.yml/dispatches' ||
+        'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/codex-pr.yml/dispatches' ||
       url ===
-        'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/copilot-pr.yml/dispatches'
+        'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/copilot-pr.yml/dispatches'
     ) {
       workflowDispatchCalls.push({ url, init });
       return new Response(null, { status: 204 });
@@ -546,7 +546,7 @@ async function run() {
     assert.equal(dispatchedPayload.inputs?.effort, 'medium', 'Expected forwarded effort.');
     assert.equal(
       workflowDispatchCalls[0]?.url,
-      'https://api.github.test/repos/OpenG7/openg7-platform/actions/workflows/copilot-pr.yml/dispatches',
+        'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/copilot-pr.yml/dispatches',
       'Expected the copilot workflow to be selected.',
     );
 
