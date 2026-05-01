@@ -143,7 +143,7 @@ class AdminOpsServiceMock {
         provider: 'github-actions',
         selectedProvider: payload.provider,
         owner: 'OpenG7',
-        repo: 'openg7-platform',
+        repo: 'openg7-nexus',
         workflow: 'codex-pr.yml',
         ref: 'main',
         requestedAt: '2026-04-26T00:00:00.000Z',

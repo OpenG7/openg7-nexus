@@ -28,7 +28,7 @@ This guide documents the Strapi backend endpoint used to trigger provider-specif
         "run": {
           "id": 501,
           "number": 51,
-          "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501",
+          "url": "https://github.com/OpenG7/openg7-nexus/actions/runs/501",
           "status": "completed",
           "conclusion": "success",
           "branch": "codex/qa-proof-501",
@@ -41,13 +41,13 @@ This guide documents the Strapi backend endpoint used to trigger provider-specif
             "name": "playwright-report",
             "sizeBytes": 2048,
             "expired": false,
-            "url": "https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts"
+            "url": "https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts"
           }
         ],
         "pullRequest": {
           "number": 321,
           "title": "Codex QA proof package",
-          "url": "https://github.com/OpenG7/openg7-platform/pull/321",
+          "url": "https://github.com/OpenG7/openg7-nexus/pull/321",
           "state": "open",
           "merged": false,
           "branch": "codex/qa-proof-501"
@@ -83,6 +83,7 @@ States are intentionally coarse:
 ## Validation rules
 
 - `provider` accepts `codex`, `copilot`, `claude`, or `gemini`. Omit it to keep the legacy `codex` default.
+- `provider` is used by Strapi to select the target workflow and is not forwarded to GitHub Actions.
 - `task` is required and trimmed to 2000 characters.
 - `scope` must belong to the allowlist resolved for the selected provider.
 - `baseBranch` must belong to the branch allowlist resolved for the selected provider.
@@ -121,6 +122,38 @@ Optional multi-provider overrides use the `OPS_AI_*` namespace:
 
 The Claude and Gemini workflows mirror the existing Codex flow: checkout the requested base branch, constrain the prompt to the selected scope, let the provider edit the repo, then open a PR with `peter-evans/create-pull-request`.
 
+## Local development keys
+
+For local development, each developer may place their own provider key in `strapi/.env`:
+
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `GEMINI_API_KEY`
+
+This local key is meant to unblock local platform development and to let the admin cockpit surface that a provider key is available on the workstation. It does not replace the repository GitHub Actions secret required by the remote branch-and-PR workflows.
+
+In practice:
+
+- local `OPENAI_API_KEY` in `strapi/.env` -> local development key detected for Codex
+- repository secret `OPENAI_API_KEY` in GitHub Actions -> required for `.github/workflows/codex-pr.yml`
+
+The same split applies to Claude and Gemini.
+
+## Minimal local launch checklist
+
+Seeing `OPENAI_API_KEY` in the cockpit is not enough to launch a remote Codex workflow from `/admin/quality`.
+
+Minimum local setup:
+
+- `OPENAI_API_KEY` in `strapi/.env` so the workstation detects a local Codex key
+- `OPS_CODEX_DISPATCH_ENABLED=true` in `strapi/.env`
+- `OPS_CODEX_GITHUB_TOKEN` in `strapi/.env` so Strapi can call the GitHub Actions API
+- `OPS_CODEX_GITHUB_OWNER=OpenG7`
+- `OPS_CODEX_GITHUB_REPO=openg7-nexus`
+- repository GitHub Actions secret `OPENAI_API_KEY` present for `.github/workflows/codex-pr.yml`
+
+If the flag is still `false`, `/api/admin/ops/ai/dispatch` returns `503 owner.ops.ai.disabled` and Mission Control should stay blocked.
+
 ## Kubernetes wiring
 
 The production manifest now exposes the non-secret settings through the shared Strapi `ConfigMap` and expects the GitHub token from the Kubernetes secret `strapi-github-actions` under the key `codex-github-token`.
@@ -138,7 +171,7 @@ Successful responses return a small queue acknowledgement:
     "provider": "github-actions",
     "selectedProvider": "copilot",
     "owner": "OpenG7",
-    "repo": "openg7-platform",
+    "repo": "openg7-nexus",
     "workflow": "copilot-pr.yml",
     "ref": "main",
     "requestedAt": "2026-04-25T12:00:00.000Z",

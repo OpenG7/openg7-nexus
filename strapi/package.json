@@ -10,6 +10,7 @@
     "start": "strapi start",
     "strapi": "strapi",
     "seed:dev": "ts-node scripts/seed.ts",
+    "pretest:integration:admin-ops": "yarn build",
     "test:unit:company-import-bulk": "node scripts/test-company-import-bulk-unit.js",
     "test:integration:admin-ops": "node scripts/test-admin-ops-api-integration.js",
     "test:integration:connections": "node scripts/test-connections-api-integration.js",

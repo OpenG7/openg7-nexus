@@ -192,7 +192,7 @@ class AdminOpsServiceMock {
           run: {
             id: 501,
             number: 51,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501',
             status: 'completed',
             conclusion: 'success',
             branch: 'codex/qa-proof-501',
@@ -205,20 +205,20 @@ class AdminOpsServiceMock {
               name: 'playwright-report',
               sizeBytes: 2048,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts',
             },
             {
               id: 9002,
               name: 'logs',
               sizeBytes: 1024,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/501#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/501#artifacts',
             },
           ],
           pullRequest: {
             number: 321,
             title: 'Codex QA proof package',
-            url: 'https://github.com/OpenG7/openg7-platform/pull/321',
+            url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
             state: 'open',
             merged: false,
             branch: 'codex/qa-proof-501',
@@ -233,7 +233,7 @@ class AdminOpsServiceMock {
           run: {
             id: 701,
             number: 7,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/701',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/701',
             status: 'completed',
             conclusion: 'failure',
             branch: 'copilot/placeholder-701',
@@ -252,7 +252,7 @@ class AdminOpsServiceMock {
           run: {
             id: 601,
             number: 18,
-            url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601',
+            url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/601',
             status: 'in_progress',
             conclusion: null,
             branch: 'claude/qa-proof-601',
@@ -265,13 +265,13 @@ class AdminOpsServiceMock {
               name: 'draft-proof',
               sizeBytes: 512,
               expired: false,
-              url: 'https://github.com/OpenG7/openg7-platform/actions/runs/601#artifacts',
+              url: 'https://github.com/OpenG7/openg7-nexus/actions/runs/601#artifacts',
             },
           ],
           pullRequest: {
             number: 322,
             title: 'Claude draft improvements',
-            url: 'https://github.com/OpenG7/openg7-platform/pull/322',
+            url: 'https://github.com/OpenG7/openg7-nexus/pull/322',
             state: 'open',
             merged: false,
             branch: 'claude/qa-proof-601',
@@ -298,7 +298,7 @@ class AdminOpsServiceMock {
         provider: 'github-actions' as const,
         selectedProvider: payload.provider,
         owner: 'OpenG7',
-        repo: 'openg7-platform',
+        repo: 'openg7-nexus',
         workflow: `${payload.provider}-pr.yml`,
         ref: 'main',
         requestedAt: '2026-04-30T00:00:00.000Z',
@@ -1150,6 +1150,109 @@ describe('AdminQualityPage', () => {
     );
   });
 
+  it('avoids exposing a 0s telemetry sweep boundary', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    component.aiOpsSecurityStatus.set('ready');
+    component.aiOpsSecurityRefreshing.set(false);
+    component.aiOpsSecurityDegraded.set(false);
+    component.aiOpsLastSuccessfulRefreshAt.set(1_000);
+    component.aiOpsLiveNow.set(31_000);
+
+    expect(component.selectedAiTelemetryDetail()).toContain('Next sweep pending');
+    expect(component.selectedAiTelemetryDetail()).not.toContain('Next sweep in 0s');
+  });
+
+  it('surfaces an explicit local AI key note in the sticky mission HUD', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    const adminOps = TestBed.inject(AdminOpsService) as unknown as AdminOpsServiceMock;
+
+    adminOps.getSecurity.and.returnValue(
+      of({
+        generatedAt: '2026-04-30T00:00:00.000Z',
+        users: {
+          total: 3,
+          blocked: 0,
+          registrationsLast7d: 1,
+        },
+        sessions: {
+          scannedUsers: 3,
+          truncated: false,
+          active: 1,
+          revoked: 0,
+          usersWithActiveSessions: 1,
+        },
+        uploads: {
+          safetyEnabled: true,
+          maxFileSizeBytes: 5242880,
+          allowedMimeTypes: ['image/png'],
+        },
+        auth: {
+          sessionIdleTimeoutMs: 43200000,
+        },
+        aiKeys: [
+          {
+            provider: 'codex',
+            label: 'Codex',
+            workflow: 'codex-pr.yml',
+            secretName: 'OPENAI_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: true,
+            state: 'offline',
+            note: 'Local OPENAI_API_KEY detected in Strapi env for development, but GitHub dispatch still requires the repository secret OPENAI_API_KEY.',
+          },
+          {
+            provider: 'copilot',
+            label: 'GitHub Copilot',
+            workflow: 'copilot-pr.yml',
+            secretName: null,
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'unsupported',
+            note: 'No stable ignition key is wired for this console yet.',
+          },
+          {
+            provider: 'claude',
+            label: 'Claude',
+            workflow: 'claude-pr.yml',
+            secretName: 'ANTHROPIC_API_KEY',
+            dispatchEnabled: true,
+            keyInserted: true,
+            state: 'ready',
+            note: 'Key detected in GitHub Actions secrets. The engine bay is armed and ready for dispatch.',
+          },
+          {
+            provider: 'gemini',
+            label: 'Gemini',
+            workflow: 'gemini-pr.yml',
+            secretName: 'GEMINI_API_KEY',
+            dispatchEnabled: false,
+            keyInserted: false,
+            state: 'offline',
+            note: 'Insert GEMINI_API_KEY into GitHub Actions secrets to power this module. For local development, you can also set GEMINI_API_KEY in strapi/.env.',
+          },
+        ],
+        moderation: {
+          pendingCompanies: 0,
+          suspendedCompanies: 0,
+        },
+      }),
+    );
+
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-status"]')?.textContent).toContain(
+      'Cle locale',
+    );
+    expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-detail"]')?.textContent).toContain(
+      'Local OPENAI_API_KEY detected in Strapi env for development',
+    );
+  });
+
   it('opens the workspace directly from the sticky mission HUD actions', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
@@ -1310,7 +1413,8 @@ describe('AdminQualityPage', () => {
 
     expect(fixture.componentInstance.selectedAiDispatchReady()).toBeFalse();
     expect(quotaStatus?.textContent).toContain('Ops blocked');
-    expect(delegateButton?.disabled).toBeTrue();
+    expect(delegateButton?.disabled).toBeFalse();
+    expect(delegateButton?.getAttribute('aria-disabled')).toBe('true');
 
     delegateButton?.click();
     fixture.detectChanges();
@@ -1318,7 +1422,10 @@ describe('AdminQualityPage', () => {
     expect(root.textContent).toContain(
       'Dispatch is blocked until Ops reports an enabled workflow and inserted key.',
     );
-    expect(notifications.error).not.toHaveBeenCalled();
+    expect(notifications.error).toHaveBeenCalledWith(
+      jasmine.stringContaining('OPS_CODEX_DISPATCH_ENABLED=true'),
+      jasmine.objectContaining({ source: 'admin-quality' }),
+    );
     expect(opsService.dispatchCodexWorkflow).not.toHaveBeenCalled();
     expect(fixture.componentInstance.selectedMission()?.status).toBe('proposed');
   });

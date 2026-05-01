@@ -15,6 +15,7 @@ interface AdminConfigWithSecrets extends Core.Config.Admin {
   secrets: {
     encryptionKey: string;
   };
+  watchIgnoreFiles?: string[];
 }
 
 export default ({ env }: ConfigContext) => ({
@@ -47,4 +48,11 @@ export default ({ env }: ConfigContext) => ({
   secrets: {
     encryptionKey: env('ADMIN_ENCRYPTION_KEY', 'change-me-admin-encryption-key'),
   },
+
+  watchIgnoreFiles: [
+    '**/data/**/*.sqlite',
+    '**/data/**/*.sqlite-*',
+    '**/data/**/*.db',
+    '**/data/**/*.db-*',
+  ],
 }) satisfies AdminConfigWithSecrets;
