@@ -172,6 +172,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
     if (method === 'PUT' && companyId === company.id) {
       const payload = (request.postDataJSON?.() ?? {}) as {
         data?: {
+          status?: MutableTrustCompany['status'];
           verificationStatus?: VerificationStatus;
           verificationSources?: VerificationSource[];
           trustHistory?: TrustRecord[];
@@ -179,6 +180,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
       };
 
       const next = payload.data ?? {};
+      company.status = next.status ?? company.status;
       company.verificationStatus = next.verificationStatus ?? company.verificationStatus;
       company.verificationSources = Array.isArray(next.verificationSources)
         ? next.verificationSources.map((entry, index) => ({
@@ -207,7 +209,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
 }
 
 test.describe('Company or partner enrichment lifecycle', () => {
-  test('persists a richer trust-enrichment lifecycle across admin reload and partner reopen', async ({ page }) => {
+  test('persists a richer trust and publication lifecycle across admin reload and partner reopen', async ({ page }) => {
     const company: MutableTrustCompany = {
       id: 1001,
       name: 'Northern Grid Systems',
@@ -252,6 +254,8 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
 
     await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7-id="admin-trust-publication-status"]')).toHaveValue('pending');
+    await page.locator('[data-og7-id="admin-trust-publication-status"]').selectOption('suspended');
     await page.locator('[data-og7-id="admin-trust-quick-correction"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
@@ -287,6 +291,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     const correctionPayload = correctionRequest.postDataJSON() as {
       data?: {
+        status?: MutableTrustCompany['status'];
         verificationStatus?: VerificationStatus;
         verificationSources?: Array<{ name?: string; status?: string; referenceId?: string }>;
         trustHistory?: Array<{ label?: string; notes?: string; occurredAt?: string }>;
@@ -294,6 +299,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
     };
 
     expect(correctionResponse.status()).toBe(200);
+    expect(correctionPayload.data?.status).toBe('suspended');
     expect(correctionPayload.data?.verificationStatus).toBe('correctionRequested');
     expect(correctionPayload.data?.verificationSources).toEqual(
       expect.arrayContaining([
@@ -322,12 +328,15 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
     await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
 
+    await expect(page.locator('[data-og7-id="admin-trust-publication-status"]')).toHaveValue('suspended');
     await expect(page.locator('[data-og7-id="admin-trust-status"]')).toHaveValue('correctionRequested');
     await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText('Correction requested');
+    await expect(page.locator('[data-og7-id="admin-trust-company-publication-1001"]')).toContainText('Suspended');
     await expect(page.locator('text=Independent Audit Desk')).toBeVisible();
 
     const sourceCard = page.locator('li').filter({ hasText: 'Independent Audit Desk' }).first();
     await sourceCard.locator('select').nth(1).selectOption('validated');
+    await page.locator('[data-og7-id="admin-trust-publication-status"]').selectOption('approved');
     await page.locator('[data-og7-id="admin-trust-quick-verify"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
@@ -346,6 +355,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     const approvalPayload = approvalRequest.postDataJSON() as {
       data?: {
+        status?: MutableTrustCompany['status'];
         verificationStatus?: VerificationStatus;
         verificationSources?: Array<{ name?: string; status?: string }>;
         trustHistory?: Array<{ label?: string; notes?: string }>;
@@ -353,6 +363,7 @@ test.describe('Company or partner enrichment lifecycle', () => {
     };
 
     expect(approvalResponse.status()).toBe(200);
+    expect(approvalPayload.data?.status).toBe('approved');
     expect(approvalPayload.data?.verificationStatus).toBe('verified');
     expect(approvalPayload.data?.verificationSources).toEqual(
       expect.arrayContaining([
@@ -370,6 +381,13 @@ test.describe('Company or partner enrichment lifecycle', () => {
         }),
       ])
     );
+
+    await page.reload();
+    await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7-id="admin-trust-publication-status"]')).toHaveValue('approved');
+    await expect(page.locator('[data-og7-id="admin-trust-company-publication-1001"]')).toContainText('Approved');
+    await expect(page.locator('[data-og7-id="admin-trust-status"]')).toHaveValue('verified');
 
     await page.goto('/partners/1001?role=supplier');
     const trustPanel = page.locator('[data-og7="partner-trust"]');

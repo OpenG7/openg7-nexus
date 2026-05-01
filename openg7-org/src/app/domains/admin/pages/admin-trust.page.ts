@@ -3,8 +3,10 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
+  COMPANY_STATUSES,
   CompanyRecord,
   CompanyService,
+  CompanyStatus,
   CompanyTrustDirection,
   CompanyTrustRecord,
   CompanyTrustRecordType,
@@ -13,6 +15,12 @@ import {
   CompanyVerificationSourceType,
   CompanyVerificationStatus,
 } from '@app/core/services/company.service';
+
+const COMPANY_STATUS_LABELS: Record<CompanyStatus, string> = {
+  pending: 'Pending review',
+  approved: 'Approved',
+  suspended: 'Suspended',
+};
 
 const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   unverified: 'Unverified',
@@ -73,11 +81,15 @@ export class AdminTrustPage implements OnInit {
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
   protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
+  protected readonly publicationStatusControl = this.fb.control<CompanyStatus>('pending', {
+    nonNullable: true,
+  });
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
   });
 
+  protected readonly publicationStatuses = COMPANY_STATUSES;
   protected readonly verificationStatuses = [
     'unverified',
     'pending',
@@ -154,10 +166,15 @@ export class AdminTrustPage implements OnInit {
 
   selectCompany(company: CompanyRecord): void {
     this.selectedCompany.set(company);
+    this.publicationStatusControl.setValue(company.status);
     this.statusControl.setValue(company.verificationStatus);
     this.sources.set(company.verificationSources.slice());
     this.history.set(company.trustHistory.slice());
     this.reviewNoteControl.setValue('');
+  }
+
+  companyStatusLabel(status: CompanyStatus): string {
+    return COMPANY_STATUS_LABELS[status] ?? status;
   }
 
   statusLabel(status: CompanyVerificationStatus): string {
@@ -193,6 +210,17 @@ export class AdminTrustPage implements OnInit {
     return HISTORY_DIRECTION_LABELS[direction] ?? direction;
   }
 
+  publicationStatusSummary(status: CompanyStatus): string {
+    switch (status) {
+      case 'approved':
+        return 'Visible on marketplace and partner discovery surfaces.';
+      case 'suspended':
+        return 'Hidden from public discovery until publication is re-enabled.';
+      default:
+        return 'Held from public discovery until moderation is complete.';
+    }
+  }
+
   reviewSummary(company: CompanyRecord): string {
     switch (company.verificationStatus) {
       case 'verified':
@@ -219,10 +247,14 @@ export class AdminTrustPage implements OnInit {
     }
 
     const nextStatus = this.statusControl.value;
+    const nextPublicationStatus = this.publicationStatusControl.value;
     const sources = this.sources();
     const history = this.history();
     const reasons: string[] = [];
 
+    if (company.status !== nextPublicationStatus) {
+      reasons.push(`Marketplace publication will move to ${this.companyStatusLabel(nextPublicationStatus)}.`);
+    }
     if (!this.hasValidatedSource(sources)) {
       reasons.push('No validated evidence source is attached yet.');
     }
@@ -240,6 +272,9 @@ export class AdminTrustPage implements OnInit {
     }
     if (nextStatus === 'rejected') {
       reasons.push('The current proof package is blocked until a new submission is created.');
+    }
+    if (nextPublicationStatus === 'suspended') {
+      reasons.push('The company will be hidden from discovery until publication resumes.');
     }
     if (!reasons.length) {
       reasons.push('Current verification package is internally consistent.');
@@ -405,12 +440,14 @@ export class AdminTrustPage implements OnInit {
     }
 
     const nextStatus = this.statusControl.value;
+    const nextPublicationStatus = this.publicationStatusControl.value;
     const decisionEntry = this.buildReviewEntry(company, nextStatus);
     const trustHistory = decisionEntry ? [...this.history(), decisionEntry] : this.history();
 
     this.saving.set(true);
     this.companiesService
       .updateVerification(company.id, {
+        status: nextPublicationStatus,
         verificationStatus: nextStatus,
         verificationSources: this.sources(),
         trustHistory,
@@ -422,6 +459,7 @@ export class AdminTrustPage implements OnInit {
             metadata: { companyId: updated.id },
           });
           this.selectedCompany.set(updated);
+          this.publicationStatusControl.setValue(updated.status);
           this.statusControl.setValue(updated.verificationStatus);
           this.sources.set(updated.verificationSources.slice());
           this.history.set(updated.trustHistory.slice());
