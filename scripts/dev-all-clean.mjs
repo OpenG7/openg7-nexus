@@ -1,16 +1,11 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'node:child_process';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const DEFAULT_PORTS = [1337, 4200];
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has('--dry-run');
 const noStart = args.has('--no-start');
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..').toLowerCase();
 
 function runCommand(command, commandArgs, options = {}) {
   const result = spawnSync(command, commandArgs, {
@@ -146,7 +141,7 @@ function describePid(pid) {
     const result = runCommand('powershell', [
       '-NoProfile',
       '-Command',
-      `Get-CimInstance Win32_Process -Filter \"ProcessId = ${escapedPid}\" | Select-Object -ExpandProperty CommandLine`,
+      `Get-CimInstance Win32_Process -Filter "ProcessId = ${escapedPid}" | Select-Object -ExpandProperty CommandLine`,
     ]);
     return result.status === 0 ? result.stdout.trim() : '';
   }
@@ -173,27 +168,6 @@ function processName(pid) {
 
   const result = runCommand('ps', ['-p', String(pid), '-o', 'comm=']);
   return result.status === 0 ? result.stdout.trim().toLowerCase() : '';
-}
-
-function isManagedDevProcess(port, commandLine, name) {
-  const normalized = commandLine.toLowerCase().replace(/\s+/g, ' ');
-  const normalizedName = name.toLowerCase();
-
-  return (
-    normalized.includes(rootDir) ||
-    normalized.includes('strapi.js') ||
-    normalized.includes('node_modules\\@strapi\\strapi') ||
-    normalized.includes('ng.js') ||
-    normalized.includes('ng serve') ||
-    ((port === 1337 || port === 4200) && (normalizedName === 'node.exe' || normalizedName === 'node'))
-  );
-}
-
-function formatPortOwners(portOwners) {
-  return DEFAULT_PORTS.map((port) => {
-    const owners = Array.from(portOwners.get(port) ?? []).sort((left, right) => left - right);
-    return owners.length > 0 ? `${port}:${owners.join(',')}` : `${port}:free`;
-  }).join(' ');
 }
 
 function startDevAllHttps() {
