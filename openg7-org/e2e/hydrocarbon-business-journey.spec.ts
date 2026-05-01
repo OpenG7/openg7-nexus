@@ -98,17 +98,55 @@ const hydrocarbonItem = {
   },
 } as const;
 
-async function mockHydrocarbonValueApis(page: Page): Promise<{
-  readonly feedRequests: Array<Record<string, string | null>>;
-  readonly signalRequests: Array<Record<string, string | null>>;
-}> {
+const priorityIndicatorItem = {
+  id: 'indicator-001',
+  createdAt: '2026-03-25T09:30:00.000Z',
+  updatedAt: '2026-03-25T12:15:00.000Z',
+  type: 'INDICATOR',
+  sectorId: 'energy',
+  title: 'Essential services dependency tightens on the QC -> ON corridor',
+  summary: 'Ontario essential services depend on Quebec balancing support and Alberta hydrocarbon continuity.',
+  fromProvinceId: 'qc',
+  toProvinceId: 'on',
+  mode: 'BOTH',
+  urgency: 3,
+  credibility: 3,
+  tags: ['essential-services', 'corridor', 'hydrocarbon'],
+  source: {
+    kind: 'GOV',
+    label: 'OpenG7 Corridor Desk',
+  },
+  metadata: {
+    extensions: {
+      decisionTitle: 'Protect Ontario essential services before non-critical exports',
+      decisionSummary:
+        'Ontario heating, utilities and emergency fleets depend on Quebec balancing support while Alberta barrels cover the refinery shortfall.',
+      decisionProtectedServices: 'Heating, utilities, municipal fleets',
+      decisionPrioritySector: 'Energy continuity',
+      decisionInterprovincialDependency: 'Quebec reserve imports plus Alberta hydrocarbon rerouting',
+      decisionCapacitySignal: 'QC -> ON corridor under constrained headroom',
+      decisionSteps: [
+        'Reserve the corridor for essential services before discretionary industrial draws.',
+        'Coordinate Quebec balancing support with Alberta supply continuity.',
+        'Open the Alberta -> Ontario hydrocarbon release and confirm the barrel window.',
+      ],
+      decisionActionItemId: hydrocarbonItem.id,
+      decisionActionLabel: 'Open Alberta -> Ontario hydrocarbon window',
+      decisionActionRoute: 'opportunities',
+    },
+  },
+} as const;
+
+async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
   const json = (body: unknown, status = 200) => ({
     status,
     contentType: 'application/json',
     body: JSON.stringify(body),
   });
-  const feedRequests: Array<Record<string, string | null>> = [];
-  const signalRequests: Array<Record<string, string | null>> = [];
+  const itemsById = new Map<string, typeof hydrocarbonItem | typeof priorityIndicatorItem>([
+    [hydrocarbonItem.id, hydrocarbonItem],
+    [priorityIndicatorItem.id, priorityIndicatorItem],
+  ]);
 
   await page.route('**/runtime-config.js', async (route) => {
     await route.fulfill({
@@ -139,6 +177,7 @@ async function mockHydrocarbonValueApis(page: Page): Promise<{
       json({
         data: [
           { id: 'ab', name: 'Alberta' },
+          { id: 'qc', name: 'Quebec' },
           { id: 'sk', name: 'Saskatchewan' },
           { id: 'mb', name: 'Manitoba' },
           { id: 'on', name: 'Ontario' },
@@ -222,23 +261,14 @@ async function mockHydrocarbonValueApis(page: Page): Promise<{
     });
   });
 
-  await page.route(/\/api\/hydrocarbon-signals(?:\?.*)?$/i, async (route) => {
-    const url = new URL(route.request().url());
-    signalRequests.push({
-      originProvinceId: url.searchParams.get('originProvinceId'),
-      targetProvinceId: url.searchParams.get('targetProvinceId'),
-      limit: url.searchParams.get('limit'),
-    });
-    await route.fulfill(json({ data: [hydrocarbonSignal], meta: {} }));
-  });
-
   await page.route(/\/api\/feed\/[^/?]+(?:\?.*)?$/i, async (route) => {
     if (route.request().method().toUpperCase() !== 'GET') {
       await route.fallback();
       return;
     }
 
-    await route.fulfill(json({ data: hydrocarbonItem }));
+    const itemId = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop() ?? '');
+    await route.fulfill(json({ data: itemsById.get(itemId) ?? hydrocarbonItem }));
   });
 
   await page.route(/\/api\/feed(?:\?.*)?$/i, async (route) => {
@@ -247,15 +277,6 @@ async function mockHydrocarbonValueApis(page: Page): Promise<{
       return;
     }
 
-    const url = new URL(route.request().url());
-    feedRequests.push({
-      sector: url.searchParams.get('sector'),
-      formKey: url.searchParams.get('formKey'),
-      fromProvince: url.searchParams.get('fromProvince'),
-      type: url.searchParams.get('type'),
-      mode: url.searchParams.get('mode'),
-    });
-
     await route.fulfill(
       json({
         data: [hydrocarbonItem],
@@ -263,76 +284,52 @@ async function mockHydrocarbonValueApis(page: Page): Promise<{
       })
     );
   });
-
-  return {
-    feedRequests,
-    signalRequests,
-  };
 }
 
 test.describe('Hydrocarbon business journey', () => {
-  test('proves a structured hydrocarbon signal flows into the filtered feed and detail page', async ({
+  test('proves the essential-services priority path becomes a decision flow that opens the hydrocarbon action', async ({
     page,
   }) => {
-    const apiRequests = await mockHydrocarbonValueApis(page);
+    await mockHydrocarbonDecisionApis(page);
     await seedAuthenticatedSession(page, PROFILE);
 
-    await page.goto('/feed/hydrocarbons');
+    await page.goto('/');
 
-    await expect(page).toHaveURL(/\/feed\/hydrocarbons(?:\?.*)?$/);
-    await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-view-context"]')).toBeVisible();
+    const priorityPath = page.locator(
+      '[data-og7="corridor-priority-path"][data-og7-corridor-id="essential-services"]'
+    );
+    await expect(priorityPath).toBeVisible();
+    await expect(priorityPath.locator('[data-og7-id="priority-services"]')).toBeVisible();
+    await expect(priorityPath.locator('[data-og7-id="priority-sector"]')).toBeVisible();
+    await expect(priorityPath.locator('[data-og7-id="priority-dependencies"]')).toBeVisible();
+    await expect(priorityPath.locator('[data-og7-id="priority-capacity"]')).toBeVisible();
 
-    await expect(page.locator('[data-og7="feed-active-filters"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toContainText('Alberta');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText('Energy');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="formKey"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
+    await priorityPath.locator('[data-og7-id="open-priority-path"]').click();
 
-    const signalItem = page.locator(
-      '[data-og7="hydrocarbon-signal-item"][data-og7-signal-id="signal-hydrocarbon-001"]'
+    await expect(page).toHaveURL(/\/feed\/indicators\/indicator-001(?:\?.*)?$/);
+    await expect(page.locator('[data-og7="indicator-detail-page"]')).toBeVisible();
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('source'))
+      .toBe('corridors-realtime');
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('corridorId'))
+      .toBe('essential-services');
+
+    const decisionFlow = page.locator('[data-og7="indicator-decision-flow"]');
+    await expect(decisionFlow).toBeVisible();
+    await expect(decisionFlow).toContainText('Protect Ontario essential services before non-critical exports');
+    await expect(decisionFlow).toContainText('Quebec reserve imports plus Alberta hydrocarbon rerouting');
+    await expect(decisionFlow.locator('[data-og7-id="decision-step-3"]')).toContainText(
+      'Open the Alberta -> Ontario hydrocarbon release'
     );
 
-    await expect(signalItem).toBeVisible();
-    await expect(signalItem).toHaveAttribute('data-og7-feed-item-id', 'hydrocarbon-opportunity-001');
-    await expect(signalItem).toHaveAttribute('data-og7-state', 'active');
-    await expect(signalItem).toHaveAttribute('data-og7-publication-type', 'slowdown');
-    await expect(signalItem).toContainText('Northern Prairie Energy');
-    await expect(signalItem).toContainText('48000 bbl');
-
-    await expect
-      .poll(() =>
-        apiRequests.signalRequests.some(
-          (request) => request.originProvinceId === 'ab' && request.limit === '3'
-        )
-      )
-      .toBe(true);
-    await expect
-      .poll(() =>
-        apiRequests.feedRequests.some(
-          (request) =>
-            request.sector === 'energy' &&
-            request.formKey === 'hydrocarbon-surplus-offer' &&
-            request.fromProvince === 'ab' &&
-            request.type === 'OFFER' &&
-            request.mode === 'EXPORT'
-        )
-      )
-      .toBe(true);
-
-    await expect.poll(() => page.locator('[data-feed-item-id]').count()).toBe(1);
-
-    const feedCard = page.locator('[data-feed-item-id="hydrocarbon-opportunity-001"]');
-    await expect(feedCard).toBeVisible();
-    await expect(feedCard).toContainText('48,000 barrels available after Alberta corridor slowdown');
-    await expect(feedCard).toContainText('Northern Prairie Energy');
-    await expect(feedCard).toContainText('48000 bbl');
-
-    await feedCard.locator('[data-og7-id="feed-open-item"]').click();
+    await decisionFlow.locator('[data-og7-id="indicator-decision-open-target"]').click();
 
     await expect(page).toHaveURL(/\/feed\/opportunities\/hydrocarbon-opportunity-001(?:\?.*)?$/);
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('corridorId'))
+      .toBe('essential-services');
 
     const hydrocarbonDetail = page.locator('[data-og7="hydrocarbon-detail-card"]');
     await expect(hydrocarbonDetail).toBeVisible();

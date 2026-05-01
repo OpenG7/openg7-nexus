@@ -143,6 +143,73 @@
       </div>
     </div>
 
+    @if (priorityPath(); as priorityPath) {
+      <section
+        class="og7-corridors-realtime__priority-path"
+        data-og7="corridor-priority-path"
+        [attr.data-og7-corridor-id]="priorityPath.corridorId"
+      >
+        <div class="og7-corridors-realtime__priority-copy">
+          <p class="og7-corridors-realtime__priority-kicker">
+            {{ 'home.corridorsRealtime.priorityPath.kicker' | translate }}
+          </p>
+          <h3 class="og7-corridors-realtime__priority-title">
+            {{ 'home.corridorsRealtime.priorityPath.title' | translate }}
+          </h3>
+          <p class="og7-corridors-realtime__priority-summary">
+            {{ 'home.corridorsRealtime.priorityPath.summary' | translate }}
+          </p>
+        </div>
+
+        <div class="og7-corridors-realtime__priority-grid">
+          <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-services">
+            <span>{{ 'home.corridorsRealtime.priorityPath.cards.services.label' | translate }}</span>
+            <strong>{{ 'home.corridorsRealtime.priorityPath.cards.services.value' | translate }}</strong>
+          </article>
+
+          <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-sector">
+            <span>{{ 'home.corridorsRealtime.priorityPath.cards.sector.label' | translate }}</span>
+            <strong>{{ 'home.corridorsRealtime.priorityPath.cards.sector.value' | translate }}</strong>
+          </article>
+
+          <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-dependencies">
+            <span>{{ 'home.corridorsRealtime.priorityPath.cards.dependencies.label' | translate }}</span>
+            <strong>
+              @if (priorityPath.routeLabel; as routeLabel) {
+                {{ 'home.corridorsRealtime.priorityPath.cards.dependencies.value' | translate }}
+                <em>{{ routeLabel }}</em>
+              } @else if (priorityPath.routeLabelKey; as routeLabelKey) {
+                {{ 'home.corridorsRealtime.priorityPath.cards.dependencies.value' | translate }}
+                <em>{{ routeLabelKey | translate }}</em>
+              } @else {
+                {{ 'home.corridorsRealtime.priorityPath.cards.dependencies.value' | translate }}
+              }
+            </strong>
+          </article>
+
+          <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-capacity">
+            <span>{{ 'home.corridorsRealtime.priorityPath.cards.capacity.label' | translate }}</span>
+            <strong>
+              @if (priorityPath.capacityLabel; as capacityLabel) {
+                {{ capacityLabel }}
+              } @else {
+                {{ (priorityPath.capacityLabelKey ?? 'home.corridorsRealtime.status.monitoring') | translate }}
+              }
+            </strong>
+          </article>
+        </div>
+
+        <button
+          type="button"
+          class="og7-corridors-realtime__priority-action"
+          data-og7-id="open-priority-path"
+          (click)="openPriorityPath()"
+        >
+          {{ 'home.corridorsRealtime.priorityPath.cta' | translate }}
+        </button>
+      </section>
+    }
+
     @if (error()) {
       <p class="mt-3 text-xs text-rose-200">
         {{ error() | translate }}

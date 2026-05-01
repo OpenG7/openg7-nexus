@@ -1354,6 +1354,29 @@
           "factors": "Increase drivers",
           "secondaryStat": "Current statistics"
         },
+        "decision": {
+          "kicker": "Business priority path",
+          "cards": {
+            "protectedServices": "Protected services",
+            "prioritySector": "Priority sector",
+            "interprovincialDependency": "Interprovincial dependency",
+            "capacitySignal": "Capacity signal"
+          },
+          "actions": {
+            "openTarget": "Open recommended opportunity"
+          },
+          "fallback": {
+            "title": "Protect essential services before discretionary flows",
+            "summary": "Use this indicator as a decision rail: sequence protection for essential services, rebalance the interprovincial dependency, then open the next operational action.",
+            "protectedServices": "Utilities, heating, municipal fleets",
+            "prioritySector": "Energy continuity",
+            "interprovincialDependency": "Ontario relies on neighbouring supply support when corridor headroom tightens.",
+            "capacitySignal": "{{ route }} under active capacity pressure",
+            "step1": "Reserve corridor headroom for essential-service demand before non-critical flows.",
+            "step2": "Rebalance the interprovincial dependency with neighbouring supply support and shared capacity.",
+            "step3": "Open the best available opportunity and convert the signal into an operational decision."
+          }
+        },
         "related": {
           "alerts": "Related alerts",
           "opportunities": "Associated opportunities",
@@ -3908,6 +3931,29 @@
         "essentialServices": "MIN Essential services",
         "qcOn": "QC → ON",
         "stepLive": "Live step-by-step staging"
+      },
+      "priorityPath": {
+        "kicker": "Business priority path",
+        "title": "Prioritize essential services before discretionary flows",
+        "summary": "Read the corridor as a decision: protect essential-service demand, surface the interprovincial dependency, then open the next operational move.",
+        "cards": {
+          "services": {
+            "label": "Protected services",
+            "value": "Utilities, heating, municipal fleets"
+          },
+          "sector": {
+            "label": "Priority sector",
+            "value": "Energy continuity"
+          },
+          "dependencies": {
+            "label": "Interprovincial dependency",
+            "value": "Priority balancing on"
+          },
+          "capacity": {
+            "label": "Capacity signal"
+          }
+        },
+        "cta": "Open decision path"
       }
     },
     "inputs": {

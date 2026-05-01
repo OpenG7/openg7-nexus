@@ -170,6 +170,7 @@ describe('FeedIndicatorDetailPage', () => {
   let notifications: { success: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let routeParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let routeQueryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let authState: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
@@ -191,9 +192,14 @@ describe('FeedIndicatorDetailPage', () => {
     });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'indicator-spot-ontario' }));
-    const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
+    routeQueryParamMap$ = new BehaviorSubject(convertToParamMap({}));
+    const routeStub: Pick<ActivatedRoute, 'paramMap' | 'queryParamMap' | 'snapshot'> = {
       paramMap: routeParamMap$.asObservable(),
-      snapshot: { paramMap: convertToParamMap({ itemId: 'indicator-spot-ontario' }) } as ActivatedRoute['snapshot'],
+      queryParamMap: routeQueryParamMap$.asObservable(),
+      snapshot: {
+        paramMap: convertToParamMap({ itemId: 'indicator-spot-ontario' }),
+        queryParamMap: convertToParamMap({}),
+      } as ActivatedRoute['snapshot'],
     };
 
     const indicator = createIndicatorItem('indicator-spot-ontario');
@@ -256,6 +262,35 @@ describe('FeedIndicatorDetailPage', () => {
     const series7d = component.series();
     expect(component.windowHours()).toBe(168);
     expect(series7d.length).toBe(168);
+  });
+
+  it('exposes a decision flow and opens the recommended opportunity when corridor context is present', async () => {
+    const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
+    routeQueryParamMap$.next(convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      decisionFlowVm: () => {
+        title: string;
+        actionItemId: string | null;
+        actionRoute: string;
+      } | null;
+      openDecisionTarget: () => void;
+    };
+
+    const decision = component.decisionFlowVm();
+    expect(decision).not.toBeNull();
+    expect(decision?.title).toContain('feed.indicator.detail.decision.fallback.title');
+    expect(decision?.actionItemId).toBe('request-001');
+    expect(decision?.actionRoute).toBe('opportunities');
+
+    component.openDecisionTarget();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/feed', 'opportunities', 'request-001'], {
+      queryParamsHandling: 'merge',
+    });
   });
 
   it('resamples chart series when granularity changes between hour, 15m, and day', async () => {

@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,6 +11,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import {
   CreateIndicatorAlertRulePayload,
   IndicatorAlertRuleRecord,
@@ -42,6 +44,21 @@ import { IndicatorAlertDraftsService } from '../services/indicator-alert-drafts.
 
 import { FeedDetailPageBase } from './feed-detail-page.base';
 
+type IndicatorDecisionActionRoute = 'opportunities' | 'alerts' | 'indicators';
+
+interface IndicatorDecisionFlowVm {
+  readonly title: string;
+  readonly summary: string;
+  readonly protectedServices: string;
+  readonly prioritySector: string;
+  readonly interprovincialDependency: string;
+  readonly capacitySignal: string;
+  readonly steps: readonly string[];
+  readonly actionLabel: string;
+  readonly actionItemId: string | null;
+  readonly actionRoute: IndicatorDecisionActionRoute;
+}
+
 @Component({
   selector: 'og7-feed-indicator-detail-page',
   standalone: true,
@@ -66,6 +83,9 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   private readonly notifications = injectNotificationStore();
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly indicatorAlertDrafts = inject(IndicatorAlertDraftsService);
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
   protected readonly pendingAlertDraft = signal<IndicatorAlertDraft | null>(null);
   private alertStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -85,6 +105,67 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
       return null;
     }
     return this.buildDetailVm(item);
+  });
+  protected readonly decisionFlowVm = computed<IndicatorDecisionFlowVm | null>(() => {
+    const detail = this.detailVm();
+    if (!detail) {
+      return null;
+    }
+
+    const extensions = this.metadataExtensions(detail.item);
+    const corridorContext = resolveCorridorContext(this.normalizeQueryParam(this.queryParamMap().get('corridorId')));
+    const metadataSteps = this.stringListExtension(extensions['decisionSteps']);
+    const metadataDriven = Boolean(
+      this.stringExtension(extensions['decisionTitle']) ||
+        this.stringExtension(extensions['decisionSummary']) ||
+        this.stringExtension(extensions['decisionActionItemId']) ||
+        metadataSteps.length
+    );
+
+    if (!metadataDriven && corridorContext?.id !== 'essential-services') {
+      return null;
+    }
+
+    const actionItemId =
+      this.stringExtension(extensions['decisionActionItemId']) ??
+      (corridorContext?.id === 'essential-services' ? 'request-001' : this.firstRelatedOpportunityId(detail));
+    const routeLabel = corridorContext?.routeKey ? this.translate.instant(corridorContext.routeKey) : detail.provinceLabel;
+
+    return {
+      title:
+        this.stringExtension(extensions['decisionTitle']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.title'),
+      summary:
+        this.stringExtension(extensions['decisionSummary']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.summary'),
+      protectedServices:
+        this.stringExtension(extensions['decisionProtectedServices']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.protectedServices'),
+      prioritySector:
+        this.stringExtension(extensions['decisionPrioritySector']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.prioritySector'),
+      interprovincialDependency:
+        this.stringExtension(extensions['decisionInterprovincialDependency']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.interprovincialDependency'),
+      capacitySignal:
+        this.stringExtension(extensions['decisionCapacitySignal']) ??
+        this.translate.instant('feed.indicator.detail.decision.fallback.capacitySignal', {
+          route: routeLabel,
+        }),
+      steps:
+        metadataSteps.length > 0
+          ? metadataSteps
+          : [
+              this.translate.instant('feed.indicator.detail.decision.fallback.step1'),
+              this.translate.instant('feed.indicator.detail.decision.fallback.step2'),
+              this.translate.instant('feed.indicator.detail.decision.fallback.step3'),
+            ],
+      actionLabel:
+        this.stringExtension(extensions['decisionActionLabel']) ??
+        this.translate.instant('feed.indicator.detail.decision.actions.openTarget'),
+      actionItemId,
+      actionRoute: this.actionRouteExtension(extensions['decisionActionRoute']) ?? 'opportunities',
+    };
   });
   protected readonly activeAlertRule = computed<IndicatorAlertRuleRecord | null>(() => {
     const detail = this.detailVm();
@@ -497,6 +578,17 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     }
   }
 
+  protected openDecisionTarget(): void {
+    const decision = this.decisionFlowVm();
+    if (!decision?.actionItemId) {
+      return;
+    }
+
+    void this.router.navigate(['/feed', decision.actionRoute, decision.actionItemId], {
+      queryParamsHandling: 'merge',
+    });
+  }
+
   protected retry(): void {
     this.feed.reload();
     this.triggerDetailReload();
@@ -797,6 +889,45 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     return this.sectorNameMap().get(id) ?? id;
   }
 
+  private metadataExtensions(item: FeedItem): Record<string, unknown> {
+    const value = item.metadata?.extensions;
+    return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+  }
+
+  private stringExtension(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+    return normalized.length ? normalized : null;
+  }
+
+  private stringListExtension(value: unknown): readonly string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter((entry): entry is string => entry.length > 0);
+  }
+
+  private actionRouteExtension(value: unknown): IndicatorDecisionActionRoute | null {
+    switch (value) {
+      case 'opportunities':
+      case 'alerts':
+      case 'indicators':
+        return value;
+      default:
+        return null;
+    }
+  }
+
+  private firstRelatedOpportunityId(detail: IndicatorDetailVm): string | null {
+    return detail.relatedOpportunities.find(entry => typeof entry.id === 'string' && entry.id.trim().length > 0)?.id ?? null;
+  }
+
   private composeRouteLabel(item: FeedItem): string {
     const from = this.resolveProvinceLabel(item.fromProvinceId);
     const to = this.resolveProvinceLabel(item.toProvinceId);
@@ -838,6 +969,15 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
       return false;
     }
     return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+  }
+
+  private normalizeQueryParam(value: string | null): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+    return normalized.length ? normalized : null;
   }
 
   private currentUrl(): string {
