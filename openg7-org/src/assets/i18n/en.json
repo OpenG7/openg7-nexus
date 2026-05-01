@@ -4507,6 +4507,22 @@
             "outbound": "Outbound"
           }
         }
+      },
+      "publication": {
+        "title": "Public profile lifecycle",
+        "statusHelp": "Track whether this partner profile is queued, published, or temporarily hidden from discovery.",
+        "status": {
+          "pending": "Pending publication",
+          "approved": "Published",
+          "suspended": "Suspended"
+        },
+        "summary": {
+          "pending": "This profile stays queued until publication checks are complete.",
+          "approved": "This profile is visible across public discovery and partner surfaces.",
+          "suspended": "This profile is hidden from public discovery until publication resumes."
+        },
+        "latestTitle": "Latest publication update",
+        "latestDate": "Updated {{ value }}"
       }
     },
     "profilePage": {

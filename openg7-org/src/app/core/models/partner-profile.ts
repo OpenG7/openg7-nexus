@@ -88,6 +88,7 @@ export interface PartnerProfile {
   readonly role: 'buyer' | 'supplier';
   readonly legalName: string;
   readonly displayName?: string;
+  readonly status?: 'pending' | 'approved' | 'suspended';
   readonly sector?: SectorType;
   readonly province?: ProvinceCode;
   readonly logoUrl?: string | null;

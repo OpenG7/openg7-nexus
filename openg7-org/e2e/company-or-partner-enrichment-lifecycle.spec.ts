@@ -118,6 +118,7 @@ function mapPartnerProfile(company: MutableTrustCompany) {
         legalName: company.name,
         displayName: company.name,
         role: 'supplier',
+        status: company.status,
         sector: mapSector(company.sector.name),
         province: company.province.code,
         website: company.website,
@@ -172,6 +173,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
     if (method === 'PUT' && companyId === company.id) {
       const payload = (request.postDataJSON?.() ?? {}) as {
         data?: {
+          status?: MutableTrustCompany['status'];
           verificationStatus?: VerificationStatus;
           verificationSources?: VerificationSource[];
           trustHistory?: TrustRecord[];
@@ -179,6 +181,7 @@ async function mockAdminTrustLifecycleApis(page: Parameters<typeof test>[0]['pag
       };
 
       const next = payload.data ?? {};
+      company.status = next.status ?? company.status;
       company.verificationStatus = next.verificationStatus ?? company.verificationStatus;
       company.verificationSources = Array.isArray(next.verificationSources)
         ? next.verificationSources.map((entry, index) => ({
@@ -371,12 +374,62 @@ test.describe('Company or partner enrichment lifecycle', () => {
       ])
     );
 
+    await page.locator('[data-og7-id="admin-trust-quick-publish"]').click();
+    await page
+      .locator('[data-og7-id="admin-trust-review-note"]')
+      .fill('Profile approved for public discovery after trust verification cleared.');
+
+    const [publicationRequest, publicationResponse] = await Promise.all([
+      page.waitForRequest(
+        (request) => request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/companies/1001')
+      ),
+      page.locator('[data-og7-id="admin-trust-save"]').click(),
+    ]);
+
+    const publicationPayload = publicationRequest.postDataJSON() as {
+      data?: {
+        status?: MutableTrustCompany['status'];
+        trustHistory?: Array<{ label?: string; notes?: string }>;
+      };
+    };
+
+    expect(publicationResponse.status()).toBe(200);
+    expect(publicationPayload.data?.status).toBe('approved');
+    expect(publicationPayload.data?.trustHistory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Publication approved',
+          notes: 'Profile approved for public discovery after trust verification cleared.',
+        }),
+      ])
+    );
+
+    await page.reload();
+    await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7-id="admin-trust-publication-status"]')).toHaveValue('approved');
+    await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText('Published');
+
     await page.goto('/partners/1001?role=supplier');
     const trustPanel = page.locator('[data-og7="partner-trust"]');
+    const publicationLifecycle = page.locator('[data-og7="partner-publication-lifecycle"]');
+    const publicationStatus = page.locator('[data-og7-id="partner-publication-status"]');
+    const publicationTrace = page.locator('[data-og7="partner-publication-trace"]');
     const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
     const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
 
     await expect(trustPanel).toBeVisible();
+    await expect(publicationLifecycle).toBeVisible();
+    await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
+    await expect(page.locator('[data-og7-id="partner-publication-summary"]')).toContainText(
+      'visible across public discovery and partner surfaces'
+    );
+    await expect(publicationTrace).toContainText('Publication approved');
+    await expect(publicationTrace).toContainText('Profile approved for public discovery after trust verification cleared.');
     await expect(statusBadge).toHaveAttribute('data-og7-state', 'verified');
     await expect(trustPanel).toContainText('88%');
     await expect(reviewDecision).toContainText('Verification approved');
@@ -390,6 +443,9 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await page.reload();
 
     await expect(trustPanel).toBeVisible();
+    await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
+    await expect(publicationTrace).toContainText('Publication approved');
+    await expect(publicationTrace).toContainText('Profile approved for public discovery after trust verification cleared.');
     await expect(statusBadge).toHaveAttribute('data-og7-state', 'verified');
     await expect(reviewDecision).toContainText('Verification approved');
     await expect(reviewDecision).toContainText('Renewed evidence package approved after corrective review.');

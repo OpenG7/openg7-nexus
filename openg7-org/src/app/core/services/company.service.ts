@@ -255,21 +255,25 @@ export class CompanyService {
   }
 
   /**
-   * Contexte : Used by trust & safety tooling to adjust verification metadata for a company.
-   * Raison d’être : Serialises structured verification payloads and persists them in Strapi.
+   * Contexte : Used by trust & safety tooling to adjust verification and publication metadata for a company.
+   * Raison d’être : Serialises structured lifecycle payloads and persists them in Strapi.
    * @param id Identifier of the company to update.
-   * @param payload Verification-related fields to persist.
+   * @param payload Verification-related fields and publication status to persist.
    * @returns Observable emitting the updated record.
    */
   updateVerification(
     id: number,
     payload: {
+      status?: CompanyStatus;
       verificationStatus?: CompanyVerificationStatus;
       verificationSources?: ReadonlyArray<CompanyVerificationSource>;
       trustHistory?: ReadonlyArray<CompanyTrustRecord>;
     }
   ): Observable<CompanyRecord> {
     const data: Record<string, unknown> = {};
+    if (payload.status) {
+      data['status'] = payload.status;
+    }
     if (payload.verificationStatus) {
       data['verificationStatus'] = payload.verificationStatus;
     }
