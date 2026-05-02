@@ -39,6 +39,60 @@
           (retry)="retry()"
         ></og7-indicator-chart>
 
+        <section
+          class="feed-indicator-detail__decision"
+          *ngIf="decisionFlowVm() as decision"
+          data-og7="indicator-decision-flow"
+        >
+          <div class="feed-indicator-detail__decision-header">
+            <p class="feed-indicator-detail__decision-kicker">
+              {{ 'feed.indicator.detail.decision.kicker' | translate }}
+            </p>
+            <h2>{{ decision.title }}</h2>
+            <p>{{ decision.summary }}</p>
+          </div>
+
+          <div class="feed-indicator-detail__decision-grid">
+            <article class="feed-indicator-detail__decision-card" data-og7-id="protected-services">
+              <span>{{ 'feed.indicator.detail.decision.cards.protectedServices' | translate }}</span>
+              <strong>{{ decision.protectedServices }}</strong>
+            </article>
+
+            <article class="feed-indicator-detail__decision-card" data-og7-id="priority-sector">
+              <span>{{ 'feed.indicator.detail.decision.cards.prioritySector' | translate }}</span>
+              <strong>{{ decision.prioritySector }}</strong>
+            </article>
+
+            <article class="feed-indicator-detail__decision-card" data-og7-id="interprovincial-dependency">
+              <span>{{ 'feed.indicator.detail.decision.cards.interprovincialDependency' | translate }}</span>
+              <strong>{{ decision.interprovincialDependency }}</strong>
+            </article>
+
+            <article class="feed-indicator-detail__decision-card" data-og7-id="capacity-signal">
+              <span>{{ 'feed.indicator.detail.decision.cards.capacitySignal' | translate }}</span>
+              <strong>{{ decision.capacitySignal }}</strong>
+            </article>
+          </div>
+
+          <ol class="feed-indicator-detail__decision-steps">
+            <li *ngFor="let step of decision.steps; let index = index" [attr.data-og7-id]="'decision-step-' + (index + 1)">
+              <span>{{ index + 1 }}</span>
+              <p>{{ step }}</p>
+            </li>
+          </ol>
+
+          <button
+            *ngIf="decision.actionItemId"
+            type="button"
+            class="feed-indicator-detail__decision-action"
+            data-og7="action"
+            data-og7-id="indicator-decision-open-target"
+            (click)="openDecisionTarget()"
+          >
+            {{ decision.actionLabel }}
+          </button>
+        </section>
+
         <og7-indicator-key-data
           [currentValueLabel]="keyCurrentValueLabel()"
           [variationLabel]="keyVariationLabel()"

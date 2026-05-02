@@ -1243,6 +1243,29 @@
           "factors": "Facteurs d'augmentation",
           "secondaryStat": "Statistiques (actuel)"
         },
+        "decision": {
+          "kicker": "Parcours de priorisation",
+          "cards": {
+            "protectedServices": "Services proteges",
+            "prioritySector": "Secteur prioritaire",
+            "interprovincialDependency": "Dependance interprovinciale",
+            "capacitySignal": "Signal de capacite"
+          },
+          "actions": {
+            "openTarget": "Ouvrir l'opportunite recommandee"
+          },
+          "fallback": {
+            "title": "Prioriser les services essentiels avant les flux discretionnaires",
+            "summary": "Utiliser cet indicateur comme rail de decision : proteger d'abord les services essentiels, reequilibrer la dependance interprovinciale, puis ouvrir la prochaine action operationnelle.",
+            "protectedServices": "Services publics, chauffage, flottes municipales",
+            "prioritySector": "Continuite energetique",
+            "interprovincialDependency": "L'Ontario depend d'un soutien d'approvisionnement voisin quand la marge du corridor se resserre.",
+            "capacitySignal": "{{ route }} sous pression de capacite active",
+            "step1": "Reserver la marge du corridor a la demande des services essentiels avant les flux non critiques.",
+            "step2": "Reequilibrer la dependance interprovinciale avec l'appui des provinces voisines et une capacite partagee.",
+            "step3": "Ouvrir la meilleure opportunite disponible et convertir le signal en decision operationnelle."
+          }
+        },
         "related": {
           "alerts": "Alertes liees",
           "opportunities": "Opportunites associees",
@@ -3795,6 +3818,29 @@
         "essentialServices": "MIN Services essentiels",
         "qcOn": "QC → ON",
         "stepLive": "Étape temps réel par stalle"
+      },
+      "priorityPath": {
+        "kicker": "Parcours de priorisation",
+        "title": "Prioriser les services essentiels avant les flux discretionnaires",
+        "summary": "Lire le corridor comme une decision : proteger la demande essentielle, rendre la dependance interprovinciale explicite, puis ouvrir la prochaine action operationnelle.",
+        "cards": {
+          "services": {
+            "label": "Services proteges",
+            "value": "Services publics, chauffage, flottes municipales"
+          },
+          "sector": {
+            "label": "Secteur prioritaire",
+            "value": "Continuite energetique"
+          },
+          "dependencies": {
+            "label": "Dependance interprovinciale",
+            "value": "Arbitrage prioritaire sur"
+          },
+          "capacity": {
+            "label": "Signal de capacite"
+          }
+        },
+        "cta": "Ouvrir le parcours de decision"
       }
     },
     "inputs": {

@@ -27,6 +27,20 @@ const FALLBACK_SNAPSHOT: CorridorsRealtimeSnapshot = {
   cta: { labelKey: 'home.corridorsRealtime.cta.viewMap' },
 };
 
+const ESSENTIAL_SERVICES_PRIORITY_PATH = {
+  corridorId: 'essential-services',
+  indicatorItemId: 'indicator-001',
+} as const;
+
+interface CorridorPriorityPathVm {
+  readonly corridorId: string;
+  readonly indicatorItemId: string;
+  readonly routeLabel?: string;
+  readonly routeLabelKey?: string;
+  readonly capacityLabel?: string;
+  readonly capacityLabelKey?: string;
+}
+
 @Component({
   selector: 'og7-home-corridors-realtime',
   standalone: true,
@@ -64,6 +78,24 @@ export class HomeCorridorsRealtimeComponent {
 
   protected readonly items = computed(() => this.snapshot().items ?? []);
   protected readonly status = computed<CorridorsRealtimeStatus>(() => this.snapshot().status ?? FALLBACK_SNAPSHOT.status);
+  protected readonly priorityPath = computed<CorridorPriorityPathVm | null>(() => {
+    const item = this.items().find(
+      (entry) => resolveCorridorContext(entry.id)?.id === ESSENTIAL_SERVICES_PRIORITY_PATH.corridorId
+    );
+    const corridor = item ? resolveCorridorContext(item.id) : null;
+    if (!item || !corridor) {
+      return null;
+    }
+
+    return {
+      corridorId: corridor.id,
+      indicatorItemId: ESSENTIAL_SERVICES_PRIORITY_PATH.indicatorItemId,
+      routeLabel: item.route ?? undefined,
+      routeLabelKey: item.routeKey ?? corridor.routeKey ?? undefined,
+      capacityLabel: this.status().label ?? undefined,
+      capacityLabelKey: this.status().labelKey ?? undefined,
+    };
+  });
 
   protected readonly formattedTime = computed(() => {
     const value = this.snapshot().timestamp;
@@ -171,6 +203,20 @@ export class HomeCorridorsRealtimeComponent {
       queryParams['corridorId'] = item.id;
     }
     void this.router.navigate(['/feed'], { queryParams });
+  }
+
+  protected openPriorityPath(): void {
+    const priorityPath = this.priorityPath();
+    if (!priorityPath) {
+      return;
+    }
+
+    void this.router.navigate(['/feed', 'indicators', priorityPath.indicatorItemId], {
+      queryParams: {
+        source: 'corridors-realtime',
+        corridorId: priorityPath.corridorId,
+      },
+    });
   }
 
   protected trackItem(index: number, item: CorridorsRealtimeItem): string {
