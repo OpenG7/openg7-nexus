@@ -1540,6 +1540,41 @@ describe('AdminQualityPage', () => {
     ).toBe('pending');
   });
 
+  it('marks a matrix row as refresh-required when a completed mission is newer than the last review', () => {
+    missionDecisions.loadDecisions.and.returnValue(
+      of<AdminQualityMissionDecisionSnapshot>({
+        generatedAt: '2026-05-02T12:00:00.000Z',
+        decisions: [
+          {
+            recommendationId: 'trust-validation::governance',
+            entryId: 'trust-validation',
+            kind: 'governance',
+            status: 'done',
+            title: 'Boucler la gouvernance de mission',
+            message: 'Mission cloturee apres merge sur main.',
+            operatorPrompt: 'Refresh matrix after merge.',
+            metadata: {},
+            decidedByUserId: '42',
+            createdAt: '2026-05-02T11:00:00.000Z',
+            updatedAt: '2026-05-02T12:00:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const trustEntry = component.entries().find((entry) => entry.id === 'trust-validation');
+
+    expect(trustEntry).toBeTruthy();
+    expect(component.entryNeedsMatrixRefresh(trustEntry!)).toBeTrue();
+    expect(component.readinessLabel(trustEntry!)).toBe('Refresh matrice');
+    expect(root.textContent).toContain('Refresh matrice');
+  });
+
   it('selects the next mission after closing the current one', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
