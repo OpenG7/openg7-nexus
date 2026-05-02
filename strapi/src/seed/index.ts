@@ -24,6 +24,7 @@ const seeds: SeedDefinition[] = [
   { name: '13-auth-settings', run: require('./13-auth-settings').default },
   { name: '14-importation', run: require('./14-importation').default },
   { name: '15-hydrocarbon-signals', run: require('./15-hydrocarbon-signals').default },
+  { name: '16-admin-quality-matrix', run: require('./16-admin-quality-matrix').default },
 ];
 
 export default async function runSeeds() {

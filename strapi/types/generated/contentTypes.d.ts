@@ -373,6 +373,65 @@ export interface ApiAccountProfileAccountProfile extends Struct.CollectionTypeSc
   };
 }
 
+export interface ApiAdminQualityMatrixAdminQualityMatrixEntry extends Struct.CollectionTypeSchema {
+  collectionName: 'admin_quality_matrix_entries';
+  info: {
+    displayName: 'Admin Quality Matrix Entry';
+    pluralName: 'admin-quality-matrix-entries';
+    singularName: 'admin-quality-matrix-entry';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    businessStatus: Schema.Attribute.Enumeration<['oui', 'partiel', 'non', 'hors MVP']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'non'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    domain: Schema.Attribute.String & Schema.Attribute.Required;
+    e2eStatus: Schema.Attribute.Enumeration<['oui', 'partiel', 'non', 'hors MVP']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'non'>;
+    entryId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Unique;
+    evidence: Schema.Attribute.JSON;
+    implementationStatus: Schema.Attribute.Enumeration<['oui', 'partiel', 'non', 'hors MVP']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'non'>;
+    lastRepoSignalAt: Schema.Attribute.DateTime;
+    lastRepoSignalCommit: Schema.Attribute.String;
+    lastRepoSignalSource: Schema.Attribute.String;
+    lastRepoSignalSummary: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::admin-quality-matrix.admin-quality-matrix-entry'
+    > &
+      Schema.Attribute.Private;
+    managementBucket: Schema.Attribute.Enumeration<
+      ['covered', 'proof-gap', 'product-gap', 'scope-limit']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'proof-gap'>;
+    need: Schema.Attribute.Text & Schema.Attribute.Required;
+    needsProductWorkFirst: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    nextMove: Schema.Attribute.Text;
+    observedGap: Schema.Attribute.Text;
+    priority: Schema.Attribute.Enumeration<['basse', 'moyenne', 'haute']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'moyenne'>;
+    publishedAt: Schema.Attribute.DateTime;
+    reviewedAt: Schema.Attribute.Date & Schema.Attribute.Required;
+    summaryStatus: Schema.Attribute.Enumeration<['oui', 'partiel', 'non', 'hors MVP']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'non'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+  };
+}
+
 export interface ApiAdminQualityMissionDecisionAdminQualityMissionDecision
   extends Struct.CollectionTypeSchema {
   collectionName: 'admin_quality_mission_decisions';
@@ -1626,6 +1685,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::account-profile.account-profile': ApiAccountProfileAccountProfile;
+      'api::admin-quality-matrix.admin-quality-matrix-entry': ApiAdminQualityMatrixAdminQualityMatrixEntry;
       'api::admin-quality-mission-decision.admin-quality-mission-decision': ApiAdminQualityMissionDecisionAdminQualityMissionDecision;
       'api::company.company': ApiCompanyCompany;
       'api::connection.connection': ApiConnectionConnection;

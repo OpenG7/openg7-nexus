@@ -42,6 +42,10 @@ class AdminQualityMatrixServiceMock {
           nextMove: 'Ajouter une chaine map vers feed.',
           evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
           reviewedAt: '2026-04-07',
+          repoSignalAt: null,
+          repoSignalCommit: null,
+          repoSignalSource: null,
+          repoSignalSummary: null,
         },
         {
           id: 'trust-validation',
@@ -58,6 +62,10 @@ class AdminQualityMatrixServiceMock {
           nextMove: 'Maintenir la regression existante.',
           evidence: ['e2e/admin-trust-visibility.spec.ts'],
           reviewedAt: '2026-04-07',
+          repoSignalAt: null,
+          repoSignalCommit: null,
+          repoSignalSource: null,
+          repoSignalSummary: null,
         },
         {
           id: 'observability',
@@ -74,6 +82,10 @@ class AdminQualityMatrixServiceMock {
           nextMove: "Exposer une trace d'action sensible.",
           evidence: ['e2e/admin-ops-provenance-trail.spec.ts'],
           reviewedAt: '2026-04-07',
+          repoSignalAt: null,
+          repoSignalCommit: null,
+          repoSignalSource: null,
+          repoSignalSummary: null,
         },
       ],
     }),
@@ -1539,6 +1551,113 @@ describe('AdminQualityPage', () => {
         .querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="proof"]')
         ?.getAttribute('data-og7-status'),
     ).toBe('pending');
+  });
+
+  it('marks a matrix row as refresh-required when a completed mission is newer than the last review', () => {
+    missionDecisions.loadDecisions.and.returnValue(
+      of<AdminQualityMissionDecisionSnapshot>({
+        generatedAt: '2026-05-02T12:00:00.000Z',
+        decisions: [
+          {
+            recommendationId: 'trust-validation::governance',
+            entryId: 'trust-validation',
+            kind: 'governance',
+            status: 'done',
+            title: 'Boucler la gouvernance de mission',
+            message: 'Mission cloturee apres merge sur main.',
+            operatorPrompt: 'Refresh matrix after merge.',
+            metadata: {},
+            decidedByUserId: '42',
+            createdAt: '2026-05-02T11:00:00.000Z',
+            updatedAt: '2026-05-02T12:00:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const trustEntry = component.entries().find((entry) => entry.id === 'trust-validation');
+
+    expect(trustEntry).toBeTruthy();
+    expect(component.entryNeedsMatrixRefresh(trustEntry!)).toBeTrue();
+    expect(component.readinessLabel(trustEntry!)).toBe('Refresh matrice');
+    expect(root.textContent).toContain('Refresh matrice');
+  });
+
+  it('marks a matrix row as refresh-required when a merge signal is newer than the last review', () => {
+    service.loadMatrix.and.returnValue(
+      of<AdminQualityMatrixSnapshot>({
+        generatedAt: '2026-05-02T12:00:00.000Z',
+        sourceStatus: 'fresh',
+        sourceMessage: null,
+        entries: [
+          {
+            id: 'trust-validation',
+            domain: 'Trust et validation',
+            need: 'Historiser les decisions de confiance.',
+            summaryStatus: 'oui',
+            businessStatus: 'oui',
+            implementationStatus: 'oui',
+            e2eStatus: 'oui',
+            priority: 'moyenne',
+            managementBucket: 'covered',
+            needsProductWorkFirst: false,
+            observedGap: 'Le flux critique est deja prouve.',
+            nextMove: 'Maintenir la regression existante.',
+            evidence: ['e2e/admin-trust-visibility.spec.ts'],
+            reviewedAt: '2026-04-07',
+            repoSignalAt: '2026-05-02T12:00:00.000Z',
+            repoSignalCommit: 'abc123def456',
+            repoSignalSource: 'github-actions',
+            repoSignalSummary: 'targeted sync after merge to main',
+          },
+        ],
+      }),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const trustEntry = component.entries().find((entry) => entry.id === 'trust-validation');
+
+    expect(trustEntry).toBeTruthy();
+    expect(component.entryNeedsMatrixRefresh(trustEntry!)).toBeTrue();
+    expect(component.readinessLabel(trustEntry!)).toBe('Refresh matrice');
+    expect(root.textContent).toContain('Refresh matrice');
+  });
+
+  it('selects the next mission after closing the current one', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const currentMission = component.selectedMission();
+
+    expect(currentMission?.id).toBe('advanced-discovery::core');
+
+    component.handleMissionAction({
+      action: 'complete',
+      recommendation: {
+        ...currentMission!,
+        status: 'proof-returned',
+      },
+    });
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::safety-net');
+    expect(component.selectedMission()?.status).toBe('proposed');
+    expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        recommendationId: 'advanced-discovery::core',
+        status: 'done',
+      }),
+    );
   });
 
   it('renders the compact actions list in the workspace drawer and updates it on row change', () => {

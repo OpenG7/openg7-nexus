@@ -40,6 +40,7 @@ The seed process expects several environment variables to be defined before runn
 | `STRAPI_WEB_ADMIN_ROLE`                                                                                                                        | Optional. Users-permissions role assigned to the mirrored web account for `STRAPI_ADMIN_EMAIL` (default: `Owner`).          |
 | `STRAPI_SEED_ADMIN_ALLOWED`                                                                                                                    | Must be `true` to allow creation of the bootstrap admin account.                                                            |
 | `STRAPI_API_READONLY_TOKEN`                                                                                                                    | Token string that will be used to create the read-only API access key.                                                      |
+| `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`                                                                                                             | Shared secret used by the post-merge GitHub workflow to notify Strapi that `main` changed a matrix-relevant surface.        |
 | `STRAPI_SEED_AUTO`                                                                                                                             | Optional flag. Set to `false` to skip automatic seeding from bootstrap, `true` to force it.                                 |
 | `OPS_CODEX_DISPATCH_ENABLED`, `OPS_CODEX_GITHUB_*`, `OPS_CODEX_ALLOWED_*`, `OPS_CODEX_TIMEOUT_MS`                                              | Optional. Enables the owner/admin endpoint that dispatches `.github/workflows/codex-pr.yml` through the GitHub Actions API. |
 | `APP_KEYS` / `SESSION_KEYS`                                                                                                                    | Comma separated secrets used by Koa for cookie signing and session encryption.                                              |
@@ -52,6 +53,22 @@ The seed process expects several environment variables to be defined before runn
 | `SMTP_DEFAULT_FROM`, `SMTP_DEFAULT_REPLY_TO`                                                                                                   | Default sender and reply-to headers used by transactional emails.                                                           |
 
 Ensure these variables are exported in your shell (or defined in a `.env` file that Strapi loads) before running the development commands above.
+
+## Admin-quality matrix secrets
+
+The admin-quality matrix refresh loop now depends on one Strapi secret and two GitHub repository secrets.
+
+- `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`
+  Set this in the Strapi runtime environment. The backend expects it as a bearer token on `POST /api/admin/quality/matrix/ingest` and rejects the call if it is missing or incorrect.
+- `ADMIN_QUALITY_MATRIX_INGEST_URL`
+  Set this in GitHub Actions secrets. It should point to the deployed ingest endpoint, for example `https://cms.openg7.org/api/admin/quality/matrix/ingest`.
+- `ADMIN_QUALITY_MATRIX_INGEST_TOKEN`
+  Set this in GitHub Actions secrets. Its value must exactly match `STRAPI_ADMIN_QUALITY_INGEST_TOKEN` in the target Strapi environment.
+
+Operational rule:
+- rotate `STRAPI_ADMIN_QUALITY_INGEST_TOKEN` and `ADMIN_QUALITY_MATRIX_INGEST_TOKEN` together;
+- keep `ADMIN_QUALITY_MATRIX_INGEST_URL` environment-specific so preprod and prod do not cross-signal each other;
+- if either GitHub secret is absent, `.github/workflows/admin-quality-matrix-sync.yml` skips publication instead of failing unrelated merges.
 
 ## SMTP (HostPapa)
 

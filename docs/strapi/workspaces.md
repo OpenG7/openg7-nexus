@@ -18,9 +18,11 @@ This document summarizes the scope and operational expectations for the official
 
 1. All new collections/components are implemented directly in `strapi`; the legacy workspace has been archived.
 2. Keep the `.env.example` template up to date with any new environment variable so on-call engineers can bootstrap environments quickly (especially `STRAPI_API_READONLY_TOKEN` and `PREVIEW_TOKEN` used by the front).
-3. Seeds must remain idempotent. Use `yarn workspace @openg7/strapi seed:dev` to replay them after schema or content-model changes.
-4. Before promoting to staging/production, run `yarn predeploy:cms-cache` from the monorepo root with the target environment variables loaded; this validates cache warming, read-only token presence and feature-flag defaults expected by the front-end.
-5. Always commit the updated `packages/contracts/spec/openapi.json` when Strapi content-types evolve so codegen stays in sync with the deployed API.
+3. Keep the admin-quality matrix secrets aligned across Strapi and GitHub Actions:
+	`STRAPI_ADMIN_QUALITY_INGEST_TOKEN` in the CMS runtime must match the repository secret `ADMIN_QUALITY_MATRIX_INGEST_TOKEN`, and `ADMIN_QUALITY_MATRIX_INGEST_URL` must target the correct environment endpoint.
+4. Seeds must remain idempotent. Use `yarn workspace @openg7/strapi seed:dev` to replay them after schema or content-model changes.
+5. Before promoting to staging/production, run `yarn predeploy:cms-cache` from the monorepo root with the target environment variables loaded; this validates cache warming, read-only token presence and feature-flag defaults expected by the front-end.
+6. Always commit the updated `packages/contracts/spec/openapi.json` when Strapi content-types evolve so codegen stays in sync with the deployed API.
 
 ## Next steps
 

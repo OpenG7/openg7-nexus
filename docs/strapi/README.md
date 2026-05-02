@@ -7,6 +7,7 @@ This folder centralizes technical notes, migrations, and operating conventions f
 - `database-scaling.md` - database strategy (SQLite <-> Postgres), multi-instance deployment, and container notes.
 - `realtime-apis.md` - backend API contract for feed, highlights, stream, realtime corridors, and persistent connections.
 - `admin-ops-codex-dispatch.md` - owner/admin endpoint that validates and dispatches the Codex GitHub workflow from Strapi.
+- `admin-quality-matrix-sync.md` - secrets, workflow wiring, rotation, and diagnostics for the post-merge matrix refresh signal.
 - `hydrocarbon-signal-api-contract.md` - proposed Strapi/feed contract for the `hydrocarbon-surplus-offer` publication flow.
 
 Add new guides here whenever you introduce an API, seed flow, or plugin configuration change.

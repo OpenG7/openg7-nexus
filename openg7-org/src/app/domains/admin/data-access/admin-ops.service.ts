@@ -109,6 +109,16 @@ export interface AdminOpsSecuritySnapshot {
     state: 'ready' | 'offline' | 'scan-unavailable' | 'unsupported';
     note: string;
   }>;
+  controlPlaneKeys: Array<{
+    id: 'matrix-ingest-strapi' | 'matrix-ingest-url' | 'matrix-ingest-token';
+    label: string;
+    secretName: string;
+    channel: 'strapi-env' | 'github-actions';
+    target: string;
+    keyInserted: boolean;
+    state: 'ready' | 'offline' | 'scan-unavailable';
+    note: string;
+  }>;
   moderation: {
     pendingCompanies: number;
     suspendedCompanies: number;

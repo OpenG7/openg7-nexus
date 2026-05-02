@@ -308,6 +308,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 export class AdminQualityCoverageMatrixComponent {
   readonly entries = input<readonly AdminQualityMatrixEntry[]>([]);
   readonly selectedEntryId = input<string | null>(null);
+  readonly refreshRequiredEntryIds = input<readonly string[]>([]);
 
   readonly entrySelected = output<AdminQualityMatrixEntry>();
   readonly legendOpen = signal(true);
@@ -331,6 +332,10 @@ export class AdminQualityCoverageMatrixComponent {
   selectedEntry(): AdminQualityMatrixEntry | null {
     const selectedId = this.selectedEntryId();
     return this.entries().find((entry) => entry.id === selectedId) ?? this.entries()[0] ?? null;
+  }
+
+  refreshRequired(entry: AdminQualityMatrixEntry): boolean {
+    return this.refreshRequiredEntryIds().includes(entry.id);
   }
 
   signalsFor(entry: AdminQualityMatrixEntry): readonly CoverageSignal[] {
@@ -381,10 +386,16 @@ export class AdminQualityCoverageMatrixComponent {
   }
 
   summaryLine(entry: AdminQualityMatrixEntry): string {
+    if (this.refreshRequired(entry)) {
+      return `Refresh matrice | ${this.bucketLabel(entry)}`;
+    }
     return `${this.statusLabel(entry.e2eStatus)} | ${this.bucketLabel(entry)}`;
   }
 
   ariaSummary(entry: AdminQualityMatrixEntry): string {
+    if (this.refreshRequired(entry)) {
+      return `${entry.domain}. Refresh matrice requis. E2E ${this.statusLabel(entry.e2eStatus)}. ${this.bucketLabel(entry)}. Priorite ${this.priorityLabel(entry.priority)}.`; 
+    }
     return `${entry.domain}. E2E ${this.statusLabel(entry.e2eStatus)}. ${this.bucketLabel(entry)}. Priorite ${this.priorityLabel(entry.priority)}.`;
   }
 
@@ -601,6 +612,9 @@ export class AdminQualityCoverageMatrixComponent {
   }
 
   private readinessTone(entry: AdminQualityMatrixEntry): CoverageSignalTone {
+    if (this.refreshRequired(entry)) {
+      return 'rose';
+    }
     if (entry.e2eStatus === 'oui') {
       return 'emerald';
     }
@@ -625,6 +639,9 @@ export class AdminQualityCoverageMatrixComponent {
   }
 
   private readinessNeedsAttention(entry: AdminQualityMatrixEntry): boolean {
+    if (this.refreshRequired(entry)) {
+      return true;
+    }
     return entry.e2eStatus !== 'oui' && entry.managementBucket !== 'scope-limit';
   }
 
@@ -633,6 +650,9 @@ export class AdminQualityCoverageMatrixComponent {
   }
 
   private bucketLabel(entry: AdminQualityMatrixEntry): string {
+    if (this.refreshRequired(entry)) {
+      return 'Refresh matrice';
+    }
     if (entry.e2eStatus === 'oui') {
       return 'Prouve';
     }

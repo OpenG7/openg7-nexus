@@ -39,6 +39,8 @@ jobs:
         run: yarn checklist:verify
       - name: Validate Playwright selectors
         run: yarn validate:selectors
+      - name: Validate admin-quality matrix ingest
+        run: yarn --cwd strapi test:integration:admin-quality-matrix
       - name: Validate sitemap
         run: yarn workspace @openg7/web validate:sitemap
       - name: Prebuild web (contracts codegen + tests)

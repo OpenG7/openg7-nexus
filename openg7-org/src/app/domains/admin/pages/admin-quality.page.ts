@@ -42,7 +42,10 @@ import {
   AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
-import { AdminQualityMissionDecisionsService } from '../data-access/admin-quality-mission-decisions.service';
+import {
+  AdminQualityMissionDecisionRecord,
+  AdminQualityMissionDecisionsService,
+} from '../data-access/admin-quality-mission-decisions.service';
 import {
   AdminQualityWorkspaceDrawerComponent,
   AdminQualityWorkspaceSurface,
@@ -482,6 +485,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly aiOpsLastSuccessfulRefreshAt = signal<number | null>(null);
   readonly aiDispatchingMissionId = signal<string | null>(null);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
+  readonly missionDecisionRecords = signal<readonly AdminQualityMissionDecisionRecord[]>([]);
   readonly missionDecisionSyncStatus = signal<AdminQualityMissionDecisionSyncStatus>('local');
   readonly missionDecisionSyncMessage = signal(
     'Decisions conservees localement jusqu a la synchronisation serveur.',
@@ -1070,6 +1074,34 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         (entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute',
       ).length,
   );
+  readonly latestCompletedMissionDecisionByEntryId = computed(() => {
+    const latestByEntryId = new Map<string, AdminQualityMissionDecisionRecord>();
+
+    for (const decision of this.missionDecisionRecords()) {
+      if (decision.status !== 'done' || !decision.entryId) {
+        continue;
+      }
+
+      const current = latestByEntryId.get(decision.entryId);
+      const nextTimestamp = this.missionDecisionUpdatedAt(decision);
+      const currentTimestamp = current ? this.missionDecisionUpdatedAt(current) : null;
+
+      if (!current || (nextTimestamp ?? 0) > (currentTimestamp ?? 0)) {
+        latestByEntryId.set(decision.entryId, decision);
+      }
+    }
+
+    return latestByEntryId;
+  });
+  readonly matrixRefreshRequiredEntryIds = computed<readonly string[]>(() =>
+    this.entries()
+      .filter((entry) => this.entryNeedsMatrixRefresh(entry))
+      .map((entry) => entry.id),
+  );
+  readonly matrixRefreshRequiredCount = computed(() => this.matrixRefreshRequiredEntryIds().length);
+  readonly filteredMatrixRefreshRequiredCount = computed(
+    () => this.filteredEntries().filter((entry) => this.entryNeedsMatrixRefresh(entry)).length,
+  );
   readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
     activeDomains: this.filteredEntries().length,
     totalDomains: this.totalDomains(),
@@ -1110,6 +1142,14 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       activeValue: this.filteredProductWorkCount(),
       totalValue: this.productWorkCount(),
       detail: 'Doit gagner une surface avant la preuve QA.',
+      accent: 'indigo',
+    },
+    {
+      id: 'matrix-refresh-domains',
+      label: 'Matrice a relire',
+      activeValue: this.filteredMatrixRefreshRequiredCount(),
+      totalValue: this.matrixRefreshRequiredCount(),
+      detail: 'Missions cloturees apres la derniere revue de matrice.',
       accent: 'indigo',
     },
     {
@@ -2376,6 +2416,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   readinessLabel(entry: AdminQualityMatrixEntry): string {
+    if (this.entryNeedsMatrixRefresh(entry)) {
+      return 'Refresh matrice';
+    }
     if (entry.e2eStatus === 'oui') {
       return 'Prouve';
     }
@@ -2386,6 +2429,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   readinessClasses(entry: AdminQualityMatrixEntry): string {
+    if (this.entryNeedsMatrixRefresh(entry)) {
+      return 'border-rose-200 bg-rose-50 text-rose-700';
+    }
     if (entry.e2eStatus === 'oui') {
       return 'border-emerald-200 bg-emerald-50 text-emerald-700';
     }
@@ -2397,11 +2443,36 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   private compareEntries(left: AdminQualityMatrixEntry, right: AdminQualityMatrixEntry): number {
     return (
+      Number(this.entryNeedsMatrixRefresh(right)) - Number(this.entryNeedsMatrixRefresh(left)) ||
       this.priorityRank(right.priority) - this.priorityRank(left.priority) ||
       this.statusRank(left.e2eStatus) - this.statusRank(right.e2eStatus) ||
       left.domain.localeCompare(right.domain, 'fr-CA') ||
       left.need.localeCompare(right.need, 'fr-CA')
     );
+  }
+
+  entryNeedsMatrixRefresh(entry: AdminQualityMatrixEntry): boolean {
+    const reviewedAtDeadline = Date.parse(`${entry.reviewedAt}T23:59:59.999Z`);
+    if (Number.isNaN(reviewedAtDeadline)) {
+      return true;
+    }
+
+    const repoSignalTimestamp = entry.repoSignalAt ? Date.parse(entry.repoSignalAt) : Number.NaN;
+    if (Number.isFinite(repoSignalTimestamp) && repoSignalTimestamp > reviewedAtDeadline) {
+      return true;
+    }
+
+    const latestCompletedDecision = this.latestCompletedMissionDecisionByEntryId().get(entry.id);
+    if (!latestCompletedDecision) {
+      return false;
+    }
+
+    const decisionTimestamp = this.missionDecisionUpdatedAt(latestCompletedDecision);
+    if (decisionTimestamp == null) {
+      return false;
+    }
+
+    return decisionTimestamp > reviewedAtDeadline;
   }
 
   private priorityRank(priority: AdminQualityMatrixPriority): number {
@@ -2437,10 +2508,44 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       ...this.missionDecisions(),
       [recommendation.id]: status,
     });
+    this.upsertMissionDecisionRecord(this.buildMissionDecisionRecord(recommendation, status, message));
     this.persistMissionDecisions();
-    this.selectedMissionId.set(recommendation.id);
+    this.selectedMissionId.set(this.resolveMissionSelectionAfterStatusChange(recommendation.id, status));
     this.saveMissionDecisionToServer(recommendation, status, message);
     this.notifications.success(message, { source: 'admin-quality' });
+  }
+
+  private resolveMissionSelectionAfterStatusChange(
+    recommendationId: string,
+    status: AdminQualityMissionStatus,
+  ): string {
+    if (status !== 'done') {
+      return recommendationId;
+    }
+
+    const recommendations = this.missionControl()?.recommendations ?? [];
+    if (!recommendations.length) {
+      return recommendationId;
+    }
+
+    const currentIndex = recommendations.findIndex(
+      (recommendation) => recommendation.id === recommendationId,
+    );
+    if (currentIndex === -1) {
+      return recommendationId;
+    }
+
+    const nextOpenRecommendation = recommendations
+      .slice(currentIndex + 1)
+      .find((recommendation) => recommendation.status !== 'done');
+    if (nextOpenRecommendation) {
+      return nextOpenRecommendation.id;
+    }
+
+    const previousOpenRecommendation = recommendations
+      .slice(0, currentIndex)
+      .find((recommendation) => recommendation.status !== 'done');
+    return previousOpenRecommendation?.id ?? recommendationId;
   }
 
   private loadAiDispatchReadiness(silent: boolean): void {
@@ -2674,6 +2779,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           }
 
           this.missionDecisions.set(next);
+          this.missionDecisionRecords.set(snapshot.decisions);
           this.persistMissionDecisions();
           this.missionDecisionSyncStatus.set('server');
           this.missionDecisionSyncMessage.set(
@@ -2716,7 +2822,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (record) => {
+          this.upsertMissionDecisionRecord(record);
           this.missionDecisionSyncStatus.set('server');
           this.missionDecisionSyncMessage.set('Decision de mission synchronisee cote serveur.');
         },
@@ -2741,6 +2848,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
+          this.removeMissionDecisionRecord(recommendation.id);
           this.missionDecisionSyncStatus.set('server');
           this.missionDecisionSyncMessage.set('Mission reinitialisee cote serveur.');
         },
@@ -2761,6 +2869,54 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   private recommendationEntryId(recommendation: AdminQualityMissionRecommendation): string {
     return recommendation.id.split('::')[0] ?? recommendation.id;
+  }
+
+  private buildMissionDecisionRecord(
+    recommendation: AdminQualityMissionRecommendation,
+    status: AdminQualityMissionStatus,
+    message: string,
+  ): AdminQualityMissionDecisionRecord {
+    const now = new Date().toISOString();
+
+    return {
+      recommendationId: recommendation.id,
+      entryId: this.recommendationEntryId(recommendation),
+      kind: recommendation.kind,
+      status,
+      title: recommendation.title,
+      message,
+      operatorPrompt: recommendation.operatorPrompt,
+      metadata: {
+        confidence: recommendation.confidence,
+        impact: recommendation.impact,
+        suggestedOwner: recommendation.suggestedOwner,
+        targetFiles: recommendation.targetFiles,
+        validationCommands: recommendation.validationCommands,
+      },
+      decidedByUserId: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  private upsertMissionDecisionRecord(record: AdminQualityMissionDecisionRecord): void {
+    this.missionDecisionRecords.update((records) => {
+      const next = records.filter(
+        (existingRecord) => existingRecord.recommendationId !== record.recommendationId,
+      );
+      return [record, ...next];
+    });
+  }
+
+  private removeMissionDecisionRecord(recommendationId: string): void {
+    this.missionDecisionRecords.update((records) =>
+      records.filter((record) => record.recommendationId !== recommendationId),
+    );
+  }
+
+  private missionDecisionUpdatedAt(record: AdminQualityMissionDecisionRecord): number | null {
+    const timestamp = Date.parse(record.updatedAt ?? record.createdAt ?? '');
+    return Number.isNaN(timestamp) ? null : timestamp;
   }
 
   private async copyText(value: string, successMessage: string): Promise<void> {

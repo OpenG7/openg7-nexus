@@ -592,6 +592,7 @@
         <og7-admin-quality-coverage-matrix
           [entries]="filteredEntries()"
           [selectedEntryId]="selectedEntry()?.id ?? null"
+          [refreshRequiredEntryIds]="matrixRefreshRequiredEntryIds()"
           (entrySelected)="selectEntry($event)"
         />
       </div>
@@ -675,7 +676,19 @@
                           <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
                           <div class="min-w-0">
                             <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
-                            <p class="mt-1 text-xs text-slate-500">Revu le {{ entry.reviewedAt }}</p>
+                            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                              <p>Revu le {{ entry.reviewedAt }}</p>
+                              @if (entryNeedsMatrixRefresh(entry)) {
+                              <span
+                                class="inline-flex rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700"
+                                data-og7="admin-quality-row-refresh-required"
+                                [attr.data-og7-id]="entry.id"
+                                title="Une mission cloturee est plus recente que la derniere revue de matrice."
+                              >
+                                Refresh matrice
+                              </span>
+                              }
+                            </div>
                           </div>
                         </div>
                       </button>

@@ -1,0 +1,97 @@
+name: Admin Quality Matrix Sync
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  publish-matrix-signal:
+    name: Publish matrix refresh signal
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check ingest configuration
+        id: config
+        env:
+          INGEST_URL: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_URL }}
+          INGEST_TOKEN: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$INGEST_URL" ] || [ -z "$INGEST_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Admin quality ingest secrets are not configured; skipping publish."
+            exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+
+      - name: Collect changed files
+        if: ${{ steps.config.outputs.configured == 'true' }}
+        id: changed
+        shell: bash
+        run: |
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            git diff-tree --no-commit-id --name-only -r "$after" > changed-files.txt
+          else
+            git diff --name-only "$before" "$after" > changed-files.txt
+          fi
+          echo "count=$(wc -l < changed-files.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve impacted matrix entries
+        if: ${{ steps.config.outputs.configured == 'true' }}
+        id: impact
+        shell: bash
+        run: |
+          export MATRIX_CHANGED_FILES="$(cat changed-files.txt)"
+          node scripts/resolve-admin-quality-matrix-impact.mjs > impact.json
+          echo "payload=$(tr -d '\n' < impact.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish merge signal to Strapi
+        if: ${{ steps.config.outputs.configured == 'true' && steps.changed.outputs.count != '0' }}
+        env:
+          INGEST_URL: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_URL }}
+          INGEST_TOKEN: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_TOKEN }}
+          IMPACT_JSON: ${{ steps.impact.outputs.payload }}
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const impact = JSON.parse(process.env.IMPACT_JSON);
+          const payload = {
+            mergedAt: new Date().toISOString(),
+            commitSha: process.env.GITHUB_SHA,
+            source: 'github-actions',
+            workflow: process.env.GITHUB_WORKFLOW,
+            branch: process.env.GITHUB_REF_NAME,
+            summary: `${impact.mode} sync after merge to main`,
+            changedFiles: impact.changedFiles,
+            impactedEntryIds: impact.entryIds,
+          };
+
+          fetch(process.env.INGEST_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.INGEST_TOKEN}`,
+            },
+            body: JSON.stringify(payload),
+          })
+            .then(async (response) => {
+              const text = await response.text();
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${text}`);
+              }
+              process.stdout.write(text);
+            })
+            .catch((error) => {
+              console.error(error.message);
+              process.exit(1);
+            });
+          NODE
