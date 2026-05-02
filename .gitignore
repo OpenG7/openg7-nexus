@@ -81,6 +81,7 @@ strapi/data/db.sqlite
 **/build/
 **/coverage/
 **/*.js
+!strapi/scripts/test-*.js
 **/*.js.map
 *.tsbuildinfo
 docs/reference/
