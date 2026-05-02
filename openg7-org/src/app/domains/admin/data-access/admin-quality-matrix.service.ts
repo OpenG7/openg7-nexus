@@ -1,9 +1,9 @@
-import { HttpContext } from '@angular/common/http';
+import { HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 export type AdminQualityMatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
@@ -74,9 +74,18 @@ export class AdminQualityMatrixService {
         this.silentOptions,
       )
       .pipe(
-      map((response) => this.normalizeSnapshot(response.data)),
-      catchError(() => of(EMPTY_SNAPSHOT)),
-    );
+        map((response) => this.normalizeSnapshot(response.data)),
+        catchError((error: unknown) => {
+          if (
+            error instanceof HttpErrorResponse &&
+            (error.status === 401 || error.status === 403)
+          ) {
+            return throwError(() => error);
+          }
+
+          return of(EMPTY_SNAPSHOT);
+        }),
+      );
   }
 
   private normalizeSnapshot(

@@ -1396,11 +1396,37 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.loading.set(false);
           this.error.set(null);
         },
-        error: () => {
-          this.error.set('Impossible de charger la matrice QA.');
+        error: (error: unknown) => {
+          this.error.set(this.resolveMatrixLoadError(error));
           this.loading.set(false);
         },
       });
+  }
+
+  private resolveMatrixLoadError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401 || error.status === 403) {
+        return "Acces refuse a la matrice QA. Connectez-vous avec un compte web Owner ou Admin.";
+      }
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return error.error;
+      }
+      if (error.error && typeof error.error === 'object') {
+        const message = (error.error as { message?: unknown }).message;
+        if (typeof message === 'string' && message.trim()) {
+          return message;
+        }
+      }
+      if (typeof error.message === 'string' && error.message.trim()) {
+        return error.message;
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return 'Impossible de charger la matrice QA.';
   }
 
   ngAfterViewInit(): void {

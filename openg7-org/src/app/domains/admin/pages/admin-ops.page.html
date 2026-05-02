@@ -1,8 +1,35 @@
-<section class="mx-auto flex w-full max-w-6xl flex-col gap-6" data-og7="admin-ops">
-  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+<section
+  class="relative mx-auto flex w-full max-w-384 flex-col gap-6 overflow-hidden px-1 pb-8 text-slate-100 xl:px-0"
+  data-og7="admin-ops"
+>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_42%),radial-gradient(circle_at_84%_10%,rgba(59,130,246,0.14),transparent_28%),linear-gradient(180deg,rgba(15,23,42,0.18),rgba(15,23,42,0))]"
+  ></div>
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0))]"
+  ></div>
+
+  <header
+    class="relative overflow-hidden rounded-[34px] border border-sky-500/30 bg-[linear-gradient(180deg,rgba(3,10,26,0.98),rgba(4,14,34,0.96)_52%,rgba(2,8,22,0.98))] px-5 py-5 shadow-[0_42px_120px_-64px_rgba(37,99,235,0.92)] sm:px-6"
+  >
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(37,99,235,0.2),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"
+    ></div>
+    <div
+      class="pointer-events-none absolute right-4 bottom-0 h-28 w-[38%] rounded-tl-[3rem] bg-[radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.34),transparent_48%)]"
+    ></div>
+    <div
+      class="pointer-events-none absolute right-8 bottom-4 h-24 w-[32%] bg-[radial-gradient(circle,rgba(59,130,246,0.9)_1px,transparent_1.7px)] bg-size-[12px_12px] mask-[linear-gradient(90deg,transparent,rgba(255,255,255,0.85)_26%,rgba(255,255,255,0.95))] opacity-60"
+    ></div>
+    <div class="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div class="space-y-2">
-      <h1 class="text-2xl font-semibold text-slate-900">Owner Ops Dashboard</h1>
-      <p class="text-sm text-slate-600">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-300/95">
+        Pilotage operations
+      </p>
+      <h1 class="text-3xl font-semibold tracking-tight text-white xl:text-[2.4rem]">
+        Owner Ops Dashboard
+      </h1>
+      <p class="max-w-3xl text-sm leading-7 text-slate-300">
         Monitor platform health, backups, import throughput and security indicators in one place.
       </p>
       <div class="flex flex-wrap items-center gap-3 text-xs">
@@ -16,9 +43,9 @@
           [class.border-amber-200]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
           [class.bg-amber-50]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
           [class.text-amber-700]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
-          [class.border-slate-200]="isLiveTelemetry('offline')"
-          [class.bg-slate-50]="isLiveTelemetry('offline')"
-          [class.text-slate-600]="isLiveTelemetry('offline')"
+          [class.border-slate-500/40]="isLiveTelemetry('offline')"
+          [class.bg-slate-800/80]="isLiveTelemetry('offline')"
+          [class.text-slate-200]="isLiveTelemetry('offline')"
         >
           <span
             class="h-2.5 w-2.5 rounded-full"
@@ -31,12 +58,12 @@
           ></span>
           {{ liveTelemetryLabel() }}
         </span>
-        <span class="text-slate-500" data-og7-id="admin-ops-live-detail">
+        <span class="text-slate-200" data-og7-id="admin-ops-live-detail">
           {{ liveTelemetryDetail() }}
         </span>
       </div>
       @if (lastUpdated(); as timestamp) {
-      <p class="text-xs text-slate-500" data-og7-id="admin-ops-last-updated">
+      <p class="text-xs text-slate-300/85" data-og7-id="admin-ops-last-updated">
         Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
       </p>
       }
@@ -44,24 +71,25 @@
     <button
       type="button"
       data-og7-id="admin-ops-refresh"
-      class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+      class="inline-flex items-center justify-center rounded-2xl border border-white/14 bg-[#10192b] px-5 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-60"
       (click)="refresh()"
       [disabled]="loading() || refreshing()"
     >
       @if (refreshing()) { Refreshing... } @else { Refresh }
     </button>
+    </div>
   </header>
 
   @if (error(); as message) {
   <p
-    class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+    class="rounded-[20px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 shadow-[0_18px_40px_-32px_rgba(244,63,94,0.85)]"
     data-og7-id="admin-ops-error"
   >
     {{ message }}
   </p>
   } @if (loading()) {
   <p
-    class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600"
+    class="rounded-[20px] border border-white/12 bg-[#0b1528]/92 px-4 py-3 text-sm text-slate-200 shadow-[0_18px_40px_-32px_rgba(14,165,233,0.8)]"
     data-og7-id="admin-ops-loading"
   >
     Loading operations data...

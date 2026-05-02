@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -5,7 +6,7 @@ import {
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { AdminOpsService } from '../data-access/admin-ops.service';
 import {
@@ -529,6 +530,30 @@ describe('AdminQualityPage', () => {
         '[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]',
       ),
     ).not.toBeNull();
+  });
+
+  it('shows an explicit access denied message when the matrix endpoint returns 403', () => {
+    service.loadMatrix.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            statusText: 'Forbidden',
+            error: { message: 'Forbidden' },
+          }),
+      ),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const errorBanner = root.querySelector('[data-og7-id="admin-quality-error"]');
+
+    expect(errorBanner).not.toBeNull();
+    expect(errorBanner?.textContent).toContain(
+      'Acces refuse a la matrice QA. Connectez-vous avec un compte web Owner ou Admin.',
+    );
   });
 
   it('renders a compact workspace bar and opens the drawer on demand', () => {
