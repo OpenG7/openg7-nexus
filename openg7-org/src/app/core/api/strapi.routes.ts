@@ -30,6 +30,7 @@ export const STRAPI_ROUTES = {
     opsAiProofs: '/api/admin/ops/ai/proofs',
     opsAiDispatch: '/api/admin/ops/ai/dispatch',
     opsCodexDispatch: '/api/admin/ops/codex/dispatch',
+    qualityMatrix: '/api/admin/quality/matrix',
     qualityMissionDecisions: '/api/admin/quality/mission-decisions',
   },
 } as const;

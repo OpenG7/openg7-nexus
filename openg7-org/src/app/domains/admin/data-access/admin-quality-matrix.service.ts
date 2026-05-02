@@ -1,5 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
+import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
+import { HttpClientService } from '@app/core/http/http-client.service';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -34,7 +37,13 @@ export interface AdminQualityMatrixSnapshot {
 
 interface AdminQualityMatrixResponse {
   readonly generatedAt?: string | null;
+  readonly sourceStatus?: AdminQualityMatrixSourceStatus | null;
+  readonly sourceMessage?: string | null;
   readonly entries?: readonly Partial<AdminQualityMatrixEntry>[] | null;
+}
+
+interface StrapiDataResponse<T> {
+  readonly data: T;
 }
 
 const EMPTY_SNAPSHOT: AdminQualityMatrixSnapshot = {
@@ -49,11 +58,19 @@ const MS_PER_DAY = 86_400_000;
 
 @Injectable({ providedIn: 'root' })
 export class AdminQualityMatrixService {
-  private readonly http = inject(HttpClient);
+  private readonly http = inject(HttpClientService);
+  private readonly silentOptions = {
+    context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+  };
 
   loadMatrix(): Observable<AdminQualityMatrixSnapshot> {
-    return this.http.get<AdminQualityMatrixResponse>('assets/data/admin-quality-matrix.json').pipe(
-      map((response) => this.normalizeSnapshot(response)),
+    return this.http
+      .get<StrapiDataResponse<AdminQualityMatrixResponse>>(
+        STRAPI_ROUTES.admin.qualityMatrix,
+        this.silentOptions,
+      )
+      .pipe(
+      map((response) => this.normalizeSnapshot(response.data)),
       catchError(() => of(EMPTY_SNAPSHOT)),
     );
   }
@@ -74,8 +91,16 @@ export class AdminQualityMatrixService {
 
     return {
       generatedAt,
-      sourceStatus: this.resolveSourceStatus(generatedAt),
-      sourceMessage: this.resolveSourceMessage(generatedAt),
+      sourceStatus:
+        response?.sourceStatus === 'fresh' ||
+        response?.sourceStatus === 'stale' ||
+        response?.sourceStatus === 'fallback'
+          ? response.sourceStatus
+          : this.resolveSourceStatus(generatedAt),
+      sourceMessage:
+        typeof response?.sourceMessage === 'string' || response?.sourceMessage === null
+          ? response.sourceMessage
+          : this.resolveSourceMessage(generatedAt),
       entries,
     };
   }

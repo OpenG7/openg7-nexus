@@ -151,7 +151,8 @@ function buildRecommendations(
       ],
       validationCommands: ['Verifier issue, PR, logs de validation et mise a jour de matrice avant cloture.'],
       targetFiles: [
-        'openg7-org/src/assets/data/admin-quality-matrix.json',
+        'strapi/src/api/admin-quality-matrix/controllers/admin-quality-matrix.ts',
+        'openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.ts',
         'openg7-org/src/app/domains/admin/pages/admin-quality.page.ts',
       ],
       dependencies: ['Un resultat de mission existe et peut etre relu humainement.'],
@@ -374,7 +375,8 @@ function safetyNetValidationCommands(plan: AdminQualityDelegationPlan): readonly
 
 function safetyNetTargetFiles(plan: AdminQualityDelegationPlan): readonly string[] {
   const files = new Set<string>(plan.targetFiles);
-  files.add('openg7-org/src/assets/data/admin-quality-matrix.json');
+  files.add('strapi/src/api/admin-quality-matrix/controllers/admin-quality-matrix.ts');
+  files.add('openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.ts');
   return Array.from(files);
 }
 
