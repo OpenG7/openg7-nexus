@@ -54,6 +54,7 @@ const ADMIN_AI_PROVIDER_LABELS: Readonly<Record<AdminAiProvider, string>> = {
 
 type AiIgnitionState = 'ready' | 'offline' | 'scan-unavailable' | 'unsupported';
 type AiProofState = 'queued' | 'in-progress' | 'completed' | 'failed' | 'unavailable';
+type ControlPlaneKeyState = 'ready' | 'offline' | 'scan-unavailable';
 
 interface BackupFileEntry {
   readonly name: string;
@@ -111,6 +112,17 @@ interface AiIgnitionModuleSnapshot {
   readonly dispatchEnabled: boolean;
   readonly keyInserted: boolean;
   readonly state: AiIgnitionState;
+  readonly note: string;
+}
+
+interface ControlPlaneKeySnapshot {
+  readonly id: 'matrix-ingest-strapi' | 'matrix-ingest-url' | 'matrix-ingest-token';
+  readonly label: string;
+  readonly secretName: string;
+  readonly channel: 'strapi-env' | 'github-actions';
+  readonly target: string;
+  readonly keyInserted: boolean;
+  readonly state: ControlPlaneKeyState;
   readonly note: string;
 }
 
@@ -733,6 +745,63 @@ async function buildAiIgnitionModules(): Promise<AiIgnitionModuleSnapshot[]> {
       note,
     };
   });
+}
+
+async function buildControlPlaneKeys(): Promise<ControlPlaneKeySnapshot[]> {
+  const repoSecretNames = await fetchGitHubActionsSecretNames();
+  const repoSecretScanUnavailable = repoSecretNames == null;
+  const strapiMatrixTokenInserted = Boolean(process.env.STRAPI_ADMIN_QUALITY_INGEST_TOKEN?.trim());
+  const githubMatrixUrlInserted = Boolean(repoSecretNames?.has('ADMIN_QUALITY_MATRIX_INGEST_URL'));
+  const githubMatrixTokenInserted = Boolean(
+    repoSecretNames?.has('ADMIN_QUALITY_MATRIX_INGEST_TOKEN'),
+  );
+
+  return [
+    {
+      id: 'matrix-ingest-strapi',
+      label: 'Matrix ingest token',
+      secretName: 'STRAPI_ADMIN_QUALITY_INGEST_TOKEN',
+      channel: 'strapi-env',
+      target: '/api/admin/quality/matrix/ingest',
+      keyInserted: strapiMatrixTokenInserted,
+      state: strapiMatrixTokenInserted ? 'ready' : 'offline',
+      note: strapiMatrixTokenInserted
+        ? 'Strapi can accept post-merge matrix signals on the ingest endpoint.'
+        : 'Insert STRAPI_ADMIN_QUALITY_INGEST_TOKEN into the Strapi runtime before relying on merge ingestion.',
+    },
+    {
+      id: 'matrix-ingest-url',
+      label: 'Matrix ingest URL',
+      secretName: 'ADMIN_QUALITY_MATRIX_INGEST_URL',
+      channel: 'github-actions',
+      target: '.github/workflows/admin-quality-matrix-sync.yml',
+      keyInserted: githubMatrixUrlInserted,
+      state: repoSecretScanUnavailable ? 'scan-unavailable' : githubMatrixUrlInserted ? 'ready' : 'offline',
+      note: repoSecretScanUnavailable
+        ? 'The control plane could not verify whether GitHub stores ADMIN_QUALITY_MATRIX_INGEST_URL.'
+        : githubMatrixUrlInserted
+          ? 'GitHub Actions can resolve the target ingest endpoint for matrix refresh publication.'
+          : 'Insert ADMIN_QUALITY_MATRIX_INGEST_URL into GitHub Actions secrets to point the matrix sync workflow at Strapi.',
+    },
+    {
+      id: 'matrix-ingest-token',
+      label: 'Matrix ingest token',
+      secretName: 'ADMIN_QUALITY_MATRIX_INGEST_TOKEN',
+      channel: 'github-actions',
+      target: '.github/workflows/admin-quality-matrix-sync.yml',
+      keyInserted: githubMatrixTokenInserted,
+      state: repoSecretScanUnavailable
+        ? 'scan-unavailable'
+        : githubMatrixTokenInserted
+          ? 'ready'
+          : 'offline',
+      note: repoSecretScanUnavailable
+        ? 'The control plane could not verify whether GitHub stores ADMIN_QUALITY_MATRIX_INGEST_TOKEN.'
+        : githubMatrixTokenInserted
+          ? 'GitHub Actions stores a bearer token for post-merge matrix publication. Equality with Strapi is still a runtime/operator concern.'
+          : 'Insert ADMIN_QUALITY_MATRIX_INGEST_TOKEN into GitHub Actions secrets and keep it aligned with STRAPI_ADMIN_QUALITY_INGEST_TOKEN.',
+    },
+  ];
 }
 
 function normalizeIsoDate(value: unknown): string | null {
@@ -1363,6 +1432,7 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
     return DEFAULT_UPLOAD_ALLOWED_MIME_TYPES;
   })();
   const aiKeys = await buildAiIgnitionModules();
+  const controlPlaneKeys = await buildControlPlaneKeys();
 
   return {
     generatedAt: new Date().toISOString(),
@@ -1387,6 +1457,7 @@ async function buildSecuritySnapshot(strapi: Core.Strapi) {
       sessionIdleTimeoutMs: parseSessionIdleTimeoutMs(process.env.AUTH_SESSION_IDLE_TIMEOUT_MS),
     },
     aiKeys,
+    controlPlaneKeys,
     moderation: {
       pendingCompanies,
       suspendedCompanies,

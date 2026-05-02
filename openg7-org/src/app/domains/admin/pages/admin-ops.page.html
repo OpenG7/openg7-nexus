@@ -303,6 +303,51 @@
         </div>
       </section>
       }
+
+      @if (controlPlaneKeys().length > 0) {
+      <section
+        class="mt-4 rounded-[24px] border border-white/10 bg-black/15 p-4"
+        data-og7="admin-ops-control-plane-keys"
+      >
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Pilot keys
+            </p>
+            <h4 class="mt-2 text-base font-semibold text-white">Control-plane key ledger</h4>
+            <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+              These sockets represent the post-merge matrix sync chain. The cockpit shows presence,
+              channel and target, never the secret value itself.
+            </p>
+          </div>
+          <span class="inline-flex rounded-full border border-cyan-300/15 bg-cyan-400/8 px-3 py-1 text-[11px] font-semibold text-cyan-100">
+            {{ controlPlaneKeys().length }} key lanes tracked
+          </span>
+        </div>
+
+        <div class="mt-4 grid gap-3 lg:grid-cols-3">
+          @for (key of controlPlaneKeys(); track trackControlPlaneKey($index, key)) {
+          <article
+            class="rounded-[18px] border p-3"
+            data-og7="admin-ops-control-plane-key"
+            [attr.data-og7-id]="key.id"
+            [class]="controlPlaneKeyClasses(key)"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] opacity-80">
+              {{ key.label }}
+            </p>
+            <p class="mt-2 text-sm font-semibold">{{ key.secretName }}</p>
+            <p class="mt-2 text-[11px] uppercase tracking-[0.18em] opacity-80">
+              {{ key.channel === 'strapi-env' ? 'Strapi runtime' : 'GitHub Actions' }}
+            </p>
+            <p class="mt-2 text-xs text-slate-200/90">Target: {{ key.target }}</p>
+            <p class="mt-2 text-xs text-slate-200/90">State: {{ key.state }}</p>
+            <p class="mt-3 text-xs leading-5 opacity-90">{{ key.note }}</p>
+          </article>
+          }
+        </div>
+      </section>
+      }
     </div>
 
     <div class="mt-4 grid gap-4 lg:grid-cols-[2fr_1fr]">

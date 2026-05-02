@@ -49,6 +49,7 @@ function applyTestEnvironment() {
   process.env.OPS_AI_ALLOWED_BASE_BRANCHES = 'main,develop';
   process.env.OPS_AI_COPILOT_DISPATCH_ENABLED = 'true';
   process.env.OPS_AI_COPILOT_GITHUB_WORKFLOW = 'copilot-pr.yml';
+  process.env.STRAPI_ADMIN_QUALITY_INGEST_TOKEN = 'admin-quality-ingest-test-token';
 }
 
 async function cleanupDatabase() {
@@ -194,8 +195,13 @@ async function run() {
     if (url === 'https://api.github.test/repos/OpenG7/openg7-nexus/actions/secrets?per_page=100') {
       return new Response(
         JSON.stringify({
-          total_count: 2,
-          secrets: [{ name: 'OPENAI_API_KEY' }, { name: 'ANTHROPIC_API_KEY' }],
+          total_count: 4,
+          secrets: [
+            { name: 'OPENAI_API_KEY' },
+            { name: 'ANTHROPIC_API_KEY' },
+            { name: 'ADMIN_QUALITY_MATRIX_INGEST_URL' },
+            { name: 'ADMIN_QUALITY_MATRIX_INGEST_TOKEN' },
+          ],
         }),
         {
           status: 200,
@@ -467,6 +473,28 @@ async function run() {
       security.body?.data?.aiKeys?.find((entry) => entry.provider === 'copilot')?.state,
       'unsupported',
       'Expected Copilot bay to stay inactive until a stable key socket exists.',
+    );
+    assert.ok(
+      Array.isArray(security.body?.data?.controlPlaneKeys),
+      'Expected control-plane key registry for the pilot cockpit.',
+    );
+    assert.equal(
+      security.body?.data?.controlPlaneKeys?.find((entry) => entry.id === 'matrix-ingest-strapi')
+        ?.state,
+      'ready',
+      'Expected Strapi matrix ingest token to be visible as ready in the control plane.',
+    );
+    assert.equal(
+      security.body?.data?.controlPlaneKeys?.find((entry) => entry.id === 'matrix-ingest-url')
+        ?.state,
+      'ready',
+      'Expected GitHub ingest URL secret to be visible as ready in the control plane.',
+    );
+    assert.equal(
+      security.body?.data?.controlPlaneKeys?.find((entry) => entry.id === 'matrix-ingest-token')
+        ?.state,
+      'ready',
+      'Expected GitHub ingest token secret to be visible as ready in the control plane.',
     );
 
     const proofs = await requestJson(`${baseUrl}/api/admin/ops/ai/proofs`, {

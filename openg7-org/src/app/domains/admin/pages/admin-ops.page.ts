@@ -45,6 +45,7 @@ interface AdminOpsDiagnosticItem {
 }
 
 type AdminOpsAiIgnitionModule = AdminOpsSecuritySnapshot['aiKeys'][number];
+type AdminOpsControlPlaneKey = AdminOpsSecuritySnapshot['controlPlaneKeys'][number];
 
 const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
   readonly id: AdminOpsProvenanceId;
@@ -365,6 +366,9 @@ export class AdminOpsPage implements OnInit {
   readonly aiIgnitionModules = computed<readonly AdminOpsAiIgnitionModule[]>(() => {
     return this.snapshot()?.security.aiKeys ?? [];
   });
+  readonly controlPlaneKeys = computed<readonly AdminOpsControlPlaneKey[]>(() => {
+    return this.snapshot()?.security.controlPlaneKeys ?? [];
+  });
   readonly selectedAiDiagnosticModule = computed<AdminOpsAiIgnitionModule | null>(() => {
     return (
       this.aiIgnitionModules().find((module) => module.provider === this.dispatchProvider()) ?? null
@@ -665,6 +669,7 @@ export class AdminOpsPage implements OnInit {
   trackProvenanceEntry = (_: number, item: AdminOpsProvenanceEntry) => item.id;
   trackAiIgnitionModule = (_: number, module: AdminOpsAiIgnitionModule) =>
     `${module.provider}:${module.secretName ?? 'socket'}`;
+  trackControlPlaneKey = (_: number, key: AdminOpsControlPlaneKey) => key.id;
 
   aiIgnitionRevealDelay(index: number): number {
     return 90 + index * 110;
@@ -688,6 +693,17 @@ export class AdminOpsPage implements OnInit {
 
   isAiDiagnosticSelected(module: AdminOpsAiIgnitionModule): boolean {
     return this.selectedAiDiagnosticModule()?.provider === module.provider;
+  }
+
+  controlPlaneKeyClasses(key: AdminOpsControlPlaneKey): string {
+    switch (key.state) {
+      case 'ready':
+        return 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100';
+      case 'scan-unavailable':
+        return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
+      default:
+        return 'border-slate-300/20 bg-slate-900/70 text-slate-100';
+    }
   }
 
   diagnosticToneClasses(tone: AdminOpsDiagnosticItem['tone']): string {

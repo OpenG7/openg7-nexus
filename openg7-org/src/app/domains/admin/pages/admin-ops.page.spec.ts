@@ -127,6 +127,38 @@ class AdminOpsServiceMock {
             note: 'No stable ignition key is wired for this console yet.',
           },
         ],
+        controlPlaneKeys: [
+          {
+            id: 'matrix-ingest-strapi',
+            label: 'Matrix ingest token',
+            secretName: 'STRAPI_ADMIN_QUALITY_INGEST_TOKEN',
+            channel: 'strapi-env',
+            target: '/api/admin/quality/matrix/ingest',
+            keyInserted: true,
+            state: 'ready',
+            note: 'Strapi can accept post-merge matrix signals on the ingest endpoint.',
+          },
+          {
+            id: 'matrix-ingest-url',
+            label: 'Matrix ingest URL',
+            secretName: 'ADMIN_QUALITY_MATRIX_INGEST_URL',
+            channel: 'github-actions',
+            target: '.github/workflows/admin-quality-matrix-sync.yml',
+            keyInserted: true,
+            state: 'ready',
+            note: 'GitHub Actions can resolve the target ingest endpoint for matrix refresh publication.',
+          },
+          {
+            id: 'matrix-ingest-token',
+            label: 'Matrix ingest token',
+            secretName: 'ADMIN_QUALITY_MATRIX_INGEST_TOKEN',
+            channel: 'github-actions',
+            target: '.github/workflows/admin-quality-matrix-sync.yml',
+            keyInserted: false,
+            state: 'offline',
+            note: 'Insert ADMIN_QUALITY_MATRIX_INGEST_TOKEN into GitHub Actions secrets and keep it aligned with STRAPI_ADMIN_QUALITY_INGEST_TOKEN.',
+          },
+        ],
         moderation: {
           pendingCompanies: 1,
           suspendedCompanies: 0,
@@ -297,6 +329,29 @@ describe('AdminOpsPage', () => {
     expect(liveStatus?.getAttribute('data-og7-state')).toBe('live');
     expect(liveDetail?.textContent).toContain('Next sweep in');
     expect(root.textContent).toContain('ANTHROPIC_API_KEY');
+  });
+
+  it('renders matrix sync key lanes in the pilot cockpit without exposing secret values', () => {
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const strapiLane = root.querySelector(
+      '[data-og7="admin-ops-control-plane-key"][data-og7-id="matrix-ingest-strapi"]',
+    );
+    const urlLane = root.querySelector(
+      '[data-og7="admin-ops-control-plane-key"][data-og7-id="matrix-ingest-url"]',
+    );
+    const tokenLane = root.querySelector(
+      '[data-og7="admin-ops-control-plane-key"][data-og7-id="matrix-ingest-token"]',
+    );
+
+    expect(root.querySelector('[data-og7="admin-ops-control-plane-keys"]')).not.toBeNull();
+    expect(strapiLane?.textContent).toContain('STRAPI_ADMIN_QUALITY_INGEST_TOKEN');
+    expect(strapiLane?.textContent).toContain('/api/admin/quality/matrix/ingest');
+    expect(urlLane?.textContent).toContain('ADMIN_QUALITY_MATRIX_INGEST_URL');
+    expect(tokenLane?.textContent).toContain('ADMIN_QUALITY_MATRIX_INGEST_TOKEN');
+    expect(tokenLane?.textContent).toContain('offline');
   });
 
   it('shows provider diagnostics and updates the panel when another bay is inspected', () => {
