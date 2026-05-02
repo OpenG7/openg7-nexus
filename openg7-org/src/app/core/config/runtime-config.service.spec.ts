@@ -99,4 +99,28 @@ describe('RuntimeConfigService', () => {
       })
     );
   });
+
+  it('uses SSR_API_URL for server-side rendering without changing the browser manifest contract', () => {
+    if (!processRef.process) {
+      Object.defineProperty(processRef, 'process', {
+        value: { env: {} as Record<string, string | undefined> },
+        writable: true,
+        configurable: true,
+      });
+    }
+
+    processRef.process!.env = {
+      ...(originalEnv ?? {}),
+      API_URL: 'https://browser-public.example/api',
+      SSR_API_URL: 'http://strapi:1337',
+    };
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: PLATFORM_ID, useValue: 'server' }, RuntimeConfigService],
+    });
+
+    const service = TestBed.inject(RuntimeConfigService);
+
+    expect(service.apiUrl()).toBe('http://strapi:1337');
+  });
 });

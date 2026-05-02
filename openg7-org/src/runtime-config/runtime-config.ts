@@ -501,6 +501,11 @@ export function readRuntimeConfigFromProcessEnv(
     }
   }
 
+  const ssrApiUrl = sourceEnv['SSR_API_URL']?.trim();
+  if (ssrApiUrl) {
+    overrides.API_URL = ssrApiUrl;
+  }
+
   if (overrides.CONTENT_SECURITY_POLICY === undefined) {
     const cspFromEnv = buildContentSecurityPolicyFromEnv(sourceEnv);
     if (cspFromEnv) {
