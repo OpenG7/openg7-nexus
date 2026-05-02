@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { of } from 'rxjs';
-
 import {
   CorridorsRealtimeSnapshot,
   HomeCorridorsRealtimeService,
 } from '@app/domains/home/services/home-corridors-realtime.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { HomeCorridorsRealtimeComponent } from './home-corridors-realtime.component';
 
