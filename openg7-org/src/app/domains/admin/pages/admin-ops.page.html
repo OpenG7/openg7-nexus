@@ -104,7 +104,7 @@
     </div>
 
     <div
-      class="mt-4 overflow-hidden rounded-[28px] border border-slate-800 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_36%),linear-gradient(160deg,_#07111f_0%,_#091a2d_52%,_#050b15_100%)] p-4 text-white shadow-[0_22px_60px_rgba(2,6,23,0.38)]"
+      class="mt-4 overflow-hidden rounded-[28px] border border-slate-800 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.16),transparent_36%),linear-gradient(160deg,#07111f_0%,#091a2d_52%,#050b15_100%)] p-4 text-white shadow-[0_22px_60px_rgba(2,6,23,0.38)]"
       data-og7="admin-ops-ai-key-console"
     >
       <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -151,7 +151,7 @@
                 class="relative h-16 w-24 rounded-[20px] border border-white/10 bg-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
               >
                 <div
-                  class="absolute left-4 top-1/2 h-[2px] w-8 -translate-y-1/2 rounded-full bg-slate-700"
+                  class="absolute left-4 top-1/2 h-0.5 w-8 -translate-y-1/2 rounded-full bg-slate-700"
                 ></div>
                 <div
                   class="absolute right-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border transition"
@@ -247,7 +247,7 @@
 
       @if (selectedAiDiagnosticModule(); as module) {
       <section
-        class="mt-4 rounded-[24px] border border-white/10 bg-black/15 p-4"
+        class="mt-4 rounded-3xl border border-white/10 bg-black/15 p-4"
         data-og7="admin-ops-ai-diagnostics"
         [attr.data-og7-id]="'admin-ops-ai-diagnostics-' + module.provider"
       >
@@ -306,7 +306,7 @@
 
       @if (controlPlaneKeys().length > 0) {
       <section
-        class="mt-4 rounded-[24px] border border-white/10 bg-black/15 p-4"
+        class="mt-4 rounded-3xl border border-white/10 bg-black/15 p-4"
         data-og7="admin-ops-control-plane-keys"
       >
         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
