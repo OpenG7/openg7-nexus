@@ -8,5 +8,13 @@ export default {
         policies: ['global::owner-admin-ops'],
       },
     },
+    {
+      method: 'POST',
+      path: '/admin/quality/matrix/ingest',
+      handler: 'admin-quality-matrix.ingest',
+      config: {
+        auth: false,
+      },
+    },
   ],
 };

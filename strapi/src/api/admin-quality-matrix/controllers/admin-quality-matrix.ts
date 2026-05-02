@@ -27,17 +27,32 @@ interface MatrixEntryEntity {
   readonly nextMove?: unknown;
   readonly evidence?: unknown;
   readonly reviewedAt?: unknown;
+  readonly lastRepoSignalAt?: unknown;
+  readonly lastRepoSignalCommit?: unknown;
+  readonly lastRepoSignalSource?: unknown;
+  readonly lastRepoSignalSummary?: unknown;
   readonly createdAt?: unknown;
   readonly updatedAt?: unknown;
 }
 
-function normalizeString(value: unknown): string | null {
+interface MatrixIngestPayload {
+  readonly mergedAt: string;
+  readonly commitSha: string;
+  readonly source: string;
+  readonly workflow: string | null;
+  readonly branch: string | null;
+  readonly summary: string | null;
+  readonly changedFiles: readonly string[];
+  readonly impactedEntryIds: readonly string[];
+}
+
+function normalizeString(value: unknown, maxLength = 1000): string | null {
   if (typeof value !== 'string') {
     return null;
   }
 
   const normalized = value.trim();
-  return normalized ? normalized : null;
+  return normalized ? normalized.slice(0, maxLength) : null;
 }
 
 function normalizeStatus(value: unknown): MatrixStatus {
@@ -80,6 +95,14 @@ function normalizeEvidence(value: unknown): string[] {
   return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
 }
 
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+}
+
 function normalizeFindManyResult<T>(value: T | T[] | null | undefined): T[] {
   if (!value) {
     return [];
@@ -103,7 +126,79 @@ function toMatrixEntryResponse(entity: MatrixEntryEntity) {
     nextMove: normalizeString(entity.nextMove) ?? '',
     evidence: normalizeEvidence(entity.evidence),
     reviewedAt: normalizeDate(entity.reviewedAt)?.slice(0, 10) ?? EMPTY_GENERATED_AT.slice(0, 10),
+    repoSignalAt: normalizeDate(entity.lastRepoSignalAt),
+    repoSignalCommit: normalizeString(entity.lastRepoSignalCommit),
+    repoSignalSource: normalizeString(entity.lastRepoSignalSource),
+    repoSignalSummary: normalizeString(entity.lastRepoSignalSummary),
   };
+}
+
+function parseBearerToken(ctx: Context): string | null {
+  const header = ctx.request.header.authorization;
+  if (typeof header !== 'string') {
+    return null;
+  }
+
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match?.[1]?.trim() || null;
+}
+
+function requireIngestToken(ctx: Context): boolean {
+  const configuredToken = process.env.STRAPI_ADMIN_QUALITY_INGEST_TOKEN?.trim();
+  if (!configuredToken) {
+    ctx.internalServerError('admin.quality.matrix.ingest.token-missing');
+    return false;
+  }
+
+  const receivedToken = parseBearerToken(ctx);
+  if (!receivedToken || receivedToken !== configuredToken) {
+    ctx.unauthorized();
+    return false;
+  }
+
+  return true;
+}
+
+function sanitizeIngestPayload(body: unknown): MatrixIngestPayload {
+  const record = body && typeof body === 'object' && !Array.isArray(body)
+    ? (body as Record<string, unknown>)
+    : {};
+
+  const mergedAt = normalizeDate(record.mergedAt) ?? new Date().toISOString();
+  const commitSha = normalizeString(record.commitSha) ?? '';
+  const source = normalizeString(record.source) ?? 'github-actions';
+  const workflow = normalizeString(record.workflow);
+  const branch = normalizeString(record.branch);
+  const summary = normalizeString(record.summary, 1000);
+  const changedFiles = normalizeStringArray(record.changedFiles);
+  const impactedEntryIds = Array.from(new Set(normalizeStringArray(record.impactedEntryIds)));
+
+  if (!commitSha) {
+    throw new Error('commitSha is required.');
+  }
+
+  return {
+    mergedAt,
+    commitSha,
+    source,
+    workflow,
+    branch,
+    summary,
+    changedFiles,
+    impactedEntryIds,
+  };
+}
+
+async function findEntryByEntryId(
+  strapi: Core.Strapi,
+  entryId: string,
+): Promise<MatrixEntryEntity | null> {
+  const existing = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
+    filters: { entryId },
+    limit: 1,
+  });
+
+  return (normalizeFindManyResult(existing)[0] as MatrixEntryEntity | undefined) ?? null;
 }
 
 function sourceStatusFor(generatedAt: string): MatrixSourceStatus {
@@ -162,5 +257,54 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         entries: entries.map((entry) => toMatrixEntryResponse(entry)),
       },
     };
+  },
+
+  async ingest(ctx: Context) {
+    if (!requireIngestToken(ctx)) {
+      return;
+    }
+
+    try {
+      const payload = sanitizeIngestPayload(ctx.request.body);
+      const updatedEntryIds: string[] = [];
+      const signalSummary = [
+        payload.summary,
+        payload.workflow ? `workflow=${payload.workflow}` : null,
+        payload.branch ? `branch=${payload.branch}` : null,
+        payload.changedFiles.length ? `${payload.changedFiles.length} fichiers modifies` : null,
+      ]
+        .filter((value): value is string => Boolean(value))
+        .join(' | ')
+        .slice(0, 1000);
+
+      for (const entryId of payload.impactedEntryIds) {
+        const existing = await findEntryByEntryId(strapi, entryId);
+        if (!existing?.id) {
+          continue;
+        }
+
+        await strapi.entityService.update(MATRIX_ENTRY_UID, existing.id, {
+          data: {
+            lastRepoSignalAt: payload.mergedAt,
+            lastRepoSignalCommit: payload.commitSha,
+            lastRepoSignalSource: payload.source,
+            lastRepoSignalSummary: signalSummary,
+          } as any,
+        });
+        updatedEntryIds.push(entryId);
+      }
+
+      ctx.body = {
+        data: {
+          mergedAt: payload.mergedAt,
+          commitSha: payload.commitSha,
+          updatedEntryIds,
+          ignoredEntryIds: payload.impactedEntryIds.filter((entryId) => !updatedEntryIds.includes(entryId)),
+        },
+      };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Invalid admin quality matrix ingest payload.';
+      ctx.badRequest(message);
+    }
   },
 });

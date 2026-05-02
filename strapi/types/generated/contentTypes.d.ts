@@ -398,6 +398,10 @@ export interface ApiAdminQualityMatrixAdminQualityMatrixEntry extends Struct.Col
     implementationStatus: Schema.Attribute.Enumeration<['oui', 'partiel', 'non', 'hors MVP']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'non'>;
+    lastRepoSignalAt: Schema.Attribute.DateTime;
+    lastRepoSignalCommit: Schema.Attribute.String;
+    lastRepoSignalSource: Schema.Attribute.String;
+    lastRepoSignalSummary: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

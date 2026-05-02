@@ -87,6 +87,18 @@ const schema = {
       type: 'date',
       required: true,
     },
+    lastRepoSignalAt: {
+      type: 'datetime',
+    },
+    lastRepoSignalCommit: {
+      type: 'string',
+    },
+    lastRepoSignalSource: {
+      type: 'string',
+    },
+    lastRepoSignalSummary: {
+      type: 'text',
+    },
   },
 } as unknown as Struct.CollectionTypeSchema;
 

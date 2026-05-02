@@ -2452,6 +2452,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   entryNeedsMatrixRefresh(entry: AdminQualityMatrixEntry): boolean {
+    const reviewedAtDeadline = Date.parse(`${entry.reviewedAt}T23:59:59.999Z`);
+    if (Number.isNaN(reviewedAtDeadline)) {
+      return true;
+    }
+
+    const repoSignalTimestamp = entry.repoSignalAt ? Date.parse(entry.repoSignalAt) : Number.NaN;
+    if (Number.isFinite(repoSignalTimestamp) && repoSignalTimestamp > reviewedAtDeadline) {
+      return true;
+    }
+
     const latestCompletedDecision = this.latestCompletedMissionDecisionByEntryId().get(entry.id);
     if (!latestCompletedDecision) {
       return false;
@@ -2460,11 +2470,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     const decisionTimestamp = this.missionDecisionUpdatedAt(latestCompletedDecision);
     if (decisionTimestamp == null) {
       return false;
-    }
-
-    const reviewedAtDeadline = Date.parse(`${entry.reviewedAt}T23:59:59.999Z`);
-    if (Number.isNaN(reviewedAtDeadline)) {
-      return true;
     }
 
     return decisionTimestamp > reviewedAtDeadline;

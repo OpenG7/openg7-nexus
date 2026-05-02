@@ -26,6 +26,10 @@ export interface AdminQualityMatrixEntry {
   readonly nextMove: string;
   readonly evidence: readonly string[];
   readonly reviewedAt: string;
+  readonly repoSignalAt: string | null;
+  readonly repoSignalCommit: string | null;
+  readonly repoSignalSource: string | null;
+  readonly repoSignalSummary: string | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -137,6 +141,22 @@ export class AdminQualityMatrixService {
         typeof entry.reviewedAt === 'string' && entry.reviewedAt.trim()
           ? entry.reviewedAt
           : EMPTY_SNAPSHOT.generatedAt.slice(0, 10),
+      repoSignalAt:
+        typeof entry.repoSignalAt === 'string' && entry.repoSignalAt.trim()
+          ? entry.repoSignalAt
+          : null,
+      repoSignalCommit:
+        typeof entry.repoSignalCommit === 'string' && entry.repoSignalCommit.trim()
+          ? entry.repoSignalCommit
+          : null,
+      repoSignalSource:
+        typeof entry.repoSignalSource === 'string' && entry.repoSignalSource.trim()
+          ? entry.repoSignalSource
+          : null,
+      repoSignalSummary:
+        typeof entry.repoSignalSummary === 'string' && entry.repoSignalSummary.trim()
+          ? entry.repoSignalSummary
+          : null,
     };
   }
 
