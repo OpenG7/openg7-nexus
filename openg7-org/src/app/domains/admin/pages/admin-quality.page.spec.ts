@@ -10,6 +10,7 @@ import { of, throwError } from 'rxjs';
 
 import { AdminOpsService } from '../data-access/admin-ops.service';
 import {
+  AdminQualityMatrixRecalculationSnapshot,
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
 } from '../data-access/admin-quality-matrix.service';
@@ -89,6 +90,107 @@ class AdminQualityMatrixServiceMock {
           repoSignalSummary: null,
         },
       ],
+    }),
+  );
+  readonly recalculateMatrix = jasmine.createSpy('recalculateMatrix').and.returnValue(
+    of<AdminQualityMatrixRecalculationSnapshot>({
+      generatedAt: '2026-05-02T20:00:00.000Z',
+      scope: 'refresh-required',
+      summary: {
+        analyzedCount: 1,
+        proposalCount: 1,
+        unchangedCount: 0,
+        blockedCount: 0,
+      },
+      entries: [
+        {
+          entryId: 'advanced-discovery',
+          domain: 'Recherche et decouverte profonde',
+          result: 'proposal-review-required',
+          confidence: 'high',
+          current: {
+            summaryStatus: 'non',
+            businessStatus: 'oui',
+            implementationStatus: 'partiel',
+            e2eStatus: 'partiel',
+            managementBucket: 'proof-gap',
+            needsProductWorkFirst: false,
+          },
+          proposed: {
+            summaryStatus: 'partiel',
+            businessStatus: 'oui',
+            implementationStatus: 'oui',
+            e2eStatus: 'oui',
+            managementBucket: 'covered',
+            needsProductWorkFirst: false,
+          },
+          reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
+          evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+          factualSignals: {
+            reviewedAt: '2026-04-07',
+            repoSignalAt: '2026-05-02T12:00:00.000Z',
+            repoSignalCommit: 'abc123def456',
+            repoSignalSource: 'github-actions',
+            latestDecisionAt: '2026-05-02T19:59:00.000Z',
+          },
+        },
+      ],
+    }),
+  );
+  readonly applyMatrixProposal = jasmine.createSpy('applyMatrixProposal').and.returnValue(
+    of({
+      appliedAt: '2026-05-02T20:05:00.000Z',
+      entry: {
+        id: 'advanced-discovery',
+        domain: 'Recherche et decouverte profonde',
+        need: 'Conserver le contexte entre le feed et le detail.',
+        summaryStatus: 'partiel',
+        businessStatus: 'oui',
+        implementationStatus: 'oui',
+        e2eStatus: 'oui',
+        priority: 'haute',
+        managementBucket: 'covered',
+        needsProductWorkFirst: false,
+        observedGap: 'Une chaine cross-surface reste absente.',
+        nextMove: 'Ajouter une chaine map vers feed.',
+        evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        reviewedAt: '2026-05-02',
+        repoSignalAt: '2026-05-02T12:00:00.000Z',
+        repoSignalCommit: 'abc123def456',
+        repoSignalSource: 'github-actions',
+        repoSignalSummary: null,
+      },
+      proposal: {
+        entryId: 'advanced-discovery',
+        domain: 'Recherche et decouverte profonde',
+        result: 'proposal-review-required' as const,
+        confidence: 'high' as const,
+        current: {
+          summaryStatus: 'non' as const,
+          businessStatus: 'oui' as const,
+          implementationStatus: 'partiel' as const,
+          e2eStatus: 'partiel' as const,
+          managementBucket: 'proof-gap' as const,
+          needsProductWorkFirst: false,
+        },
+        proposed: {
+          summaryStatus: 'partiel' as const,
+          businessStatus: 'oui' as const,
+          implementationStatus: 'oui' as const,
+          e2eStatus: 'oui' as const,
+          managementBucket: 'covered' as const,
+          needsProductWorkFirst: false,
+        },
+        reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
+        evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        factualSignals: {
+          reviewedAt: '2026-04-07',
+          repoSignalAt: '2026-05-02T12:00:00.000Z',
+          repoSignalCommit: 'abc123def456',
+          repoSignalSource: 'github-actions',
+          latestDecisionAt: '2026-05-02T19:59:00.000Z',
+        },
+      },
     }),
   );
 }
@@ -440,6 +542,35 @@ describe('AdminQualityPage', () => {
                 },
                 acceptanceCount: '{{ count }} item(s)',
                 executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
+              },
+              recalculation: {
+                kicker: 'Matrix recalculation',
+                current: 'Current state',
+                proposed: 'Proposed state',
+                reasons: 'Reasons',
+                evidence: 'Evidence',
+                result: {
+                  proposal: 'Proposal',
+                  insufficientProof: 'Insufficient proof',
+                  conflictingSignals: 'Conflicting signals',
+                  unchanged: 'Unchanged',
+                },
+                confidence: {
+                  high: 'High confidence',
+                  medium: 'Medium confidence',
+                  low: 'Low confidence',
+                },
+                factual: {
+                  reviewedAt: 'Last review',
+                  repoSignalAt: 'Repo signal',
+                  repoSignalCommit: 'Commit',
+                  repoSignalSource: 'Source',
+                  latestDecisionAt: 'Mission decision',
+                },
+                buttons: {
+                  apply: 'Apply proposal',
+                  applying: 'Applying proposal...',
+                },
               },
               actions: {
                 kicker: 'Actions',
@@ -1305,6 +1436,84 @@ describe('AdminQualityPage', () => {
     expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
     expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('actions');
     expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).not.toBeNull();
+  });
+
+  it('recalculates the matrix, reloads the snapshot, and renders the focus summary', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const button = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    button.click();
+    fixture.detectChanges();
+
+    const summary = root.querySelector(
+      '[data-og7="admin-quality-matrix-recalculation-summary"]',
+    );
+    const focus = root.querySelector(
+      '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="advanced-discovery"]',
+    );
+
+    expect(service.loadMatrix).toHaveBeenCalledTimes(2);
+    expect(service.recalculateMatrix).toHaveBeenCalledWith('refresh-required', null);
+    expect(summary?.textContent).toContain('Recalcul matrice');
+    expect(summary?.textContent).toContain('Propositions');
+    expect(focus?.textContent).toContain('Implementation');
+    expect(focus?.textContent).toContain('partiel -> oui');
+    expect(notifications.success).toHaveBeenCalledWith(
+      'Recalcul termine: 1 proposition(s), 0 blocage(s).',
+      { source: 'admin-quality' },
+    );
+  });
+
+  it('recalculates the selected entry when the scoped selector targets the active row', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const scopeSelect = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-scope"]',
+    ) as HTMLSelectElement;
+    const button = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    scopeSelect.value = 'selected-entry';
+    scopeSelect.dispatchEvent(new Event('change'));
+    button.click();
+
+    expect(service.recalculateMatrix).toHaveBeenCalledWith('selected-entry', 'advanced-discovery');
+  });
+
+  it('applies the selected recalculation proposal from the workspace drawer and reruns the recalculation silently', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const recalcButton = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    recalcButton.click();
+    fixture.componentInstance.openWorkspace('delegation');
+    fixture.detectChanges();
+
+    const applyButton = root.querySelector(
+      '[data-og7-id="admin-quality-apply-proposal"]',
+    ) as HTMLButtonElement;
+
+    applyButton.click();
+
+    expect(service.applyMatrixProposal).toHaveBeenCalledWith('advanced-discovery');
+    expect(service.loadMatrix).toHaveBeenCalledTimes(3);
+    expect(service.recalculateMatrix).toHaveBeenCalledTimes(2);
+    expect(notifications.success).toHaveBeenCalledWith(
+      'Proposition appliquee pour Recherche et decouverte profonde.',
+      { source: 'admin-quality' },
+    );
   });
 
   it('opens the delegation drawer from a clicked coverage signal, lets the operator edit the brief, and records the delegation trace', () => {

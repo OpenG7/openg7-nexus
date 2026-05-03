@@ -97,6 +97,34 @@
           </span>
         </div>
 
+        <label
+          class="relative inline-flex min-h-12 min-w-[14rem] items-center rounded-[16px] border border-white/10 bg-[#10192b] px-3.5 py-3 text-sm text-slate-100"
+        >
+          <span class="sr-only">Portee du recalcul</span>
+          <select
+            class="w-full appearance-none bg-transparent pr-7 text-sm text-white outline-none"
+            [value]="matrixRecalculationScope()"
+            (change)="setMatrixRecalculationScope($event)"
+            data-og7-id="admin-quality-recalculate-scope"
+          >
+            @for (option of matrixRecalculationScopeOptions; track option.id) {
+            <option [value]="option.id">{{ option.label }}</option>
+            }
+          </select>
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
+        </label>
+
+        <button
+          type="button"
+          class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-[16px] border border-cyan-300/30 bg-[#10192b] px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-60"
+          (click)="recalculateMatrix()"
+          [disabled]="loading() || recalculatingMatrix()"
+          data-og7-id="admin-quality-recalculate-matrix"
+        >
+          <span aria-hidden="true">R</span>
+          <span>{{ recalculatingMatrix() ? 'Recalcul en cours...' : 'Recalculer la matrice' }}</span>
+        </button>
+
         <a
           routerLink="/admin"
           class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-[16px] border border-white/14 bg-[#10192b] px-6 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]"
@@ -134,6 +162,83 @@
   >
     {{ sourceMessage }}
   </p>
+  } @if (matrixRecalculation(); as recalculation) {
+  <section
+    class="rounded-[22px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(6,18,34,0.9))] px-4 py-4 text-sm text-slate-100 shadow-[0_26px_70px_-48px_rgba(34,211,238,0.4)]"
+    data-og7="admin-quality-matrix-recalculation-summary"
+  >
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div class="space-y-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-300">Recalcul matrice</span>
+          <span
+            class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100"
+            data-og7-id="admin-quality-matrix-recalculation-scope"
+          >
+            {{ matrixRecalculationScopeLabel(recalculation.scope) }}
+          </span>
+        </div>
+        <p class="text-sm text-slate-300">
+          Dernier recalcul le {{ recalculation.generatedAt | date: 'yyyy-MM-dd HH:mm' }}.
+        </p>
+      </div>
+
+      <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        @for (item of matrixRecalculationHighlights(); track item.label) {
+        <div class="rounded-[16px] border border-white/10 bg-white/[0.04] px-3 py-2.5">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{{ item.label }}</p>
+          <p class="mt-1 text-lg font-semibold text-white">{{ item.value }}</p>
+        </div>
+        }
+      </div>
+    </div>
+
+    @if (selectedMatrixRecalculationEntry(); as focus) {
+    <div
+      class="mt-4 rounded-[18px] border border-white/10 bg-[#091627] px-4 py-3"
+      data-og7="admin-quality-matrix-recalculation-focus"
+      [attr.data-og7-id]="focus.entryId"
+    >
+      <div class="flex flex-wrap items-center gap-2">
+        <span
+          class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+          [class]="matrixRecalculationResultClasses(focus.result)"
+        >
+          {{ matrixRecalculationResultLabel(focus.result) }}
+        </span>
+        <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+          {{ matrixRecalculationConfidenceLabel(focus.confidence) }}
+        </span>
+        <span class="text-sm text-slate-300">{{ focus.domain }}</span>
+      </div>
+
+      @if (focus.proposed) {
+      <div class="mt-3 grid gap-2 lg:grid-cols-3">
+        <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Implementation</p>
+          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.implementationStatus, focus.proposed.implementationStatus) }}</p>
+        </div>
+        <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">E2E</p>
+          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.e2eStatus, focus.proposed.e2eStatus) }}</p>
+        </div>
+        <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Gestion</p>
+          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.managementBucket, focus.proposed.managementBucket) }}</p>
+        </div>
+      </div>
+      }
+
+      @if (focus.reasons.length) {
+      <ul class="mt-3 space-y-1 text-sm text-slate-300" data-og7-id="admin-quality-matrix-recalculation-reasons">
+        @for (reason of focus.reasons; track reason) {
+        <li>• {{ reason }}</li>
+        }
+      </ul>
+      }
+    </div>
+    }
+  </section>
   } @if (snapshot()) {
 
   <section
@@ -1263,18 +1368,22 @@
     [activeSurface]="activeWorkspaceSurface()"
     [selectedEntry]="selectedEntry()"
     [selectedSignalContext]="selectedSignalContext()"
+    [selectedRecalculationEntry]="selectedMatrixRecalculationEntry()"
     [delegationPlan]="selectedDelegation()"
     [editableCodexPrompt]="selectedSignalDraftPrompt()"
     [dispatchProviderLabel]="selectedAiProviderLabel()"
     [dispatchReady]="selectedAiDispatchReady()"
     [dispatchSubmitting]="aiDispatchingSelectedSignal()"
     [dispatchBlockedMessage]="selectedSignalDispatchBlockedMessage()"
+    [applyProposalReady]="selectedMatrixProposalApplyReady()"
+    [applyProposalSubmitting]="applyingMatrixProposal()"
     [qaQueueCount]="filteredEntries().length"
     [delegationCount]="selectedDelegation() ? 1 : 0"
     [actionsCount]="selectedEntryActions().length"
     [qaQueueItems]="qaQueuePreviewItems()"
     [actionItems]="actionPreviewItems()"
     (closeRequested)="closeWorkspace()"
+    (applyProposalRequested)="applySelectedMatrixProposal()"
     (codexPromptChanged)="updateSelectedSignalPrompt($event)"
     (codexLaunchRequested)="dispatchSelectedSignalFromWorkspace()"
     (surfaceChanged)="setActiveWorkspaceSurface($event)"

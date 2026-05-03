@@ -643,6 +643,35 @@
           "acceptanceCount": "{{ count }} item(s)",
           "executionCount": "{{ files }} file(s) · {{ commands }} command(s)"
         },
+        "recalculation": {
+          "kicker": "Matrix recalculation",
+          "current": "Current state",
+          "proposed": "Proposed state",
+          "reasons": "Reasons",
+          "evidence": "Evidence",
+          "result": {
+            "proposal": "Proposal",
+            "insufficientProof": "Insufficient proof",
+            "conflictingSignals": "Conflicting signals",
+            "unchanged": "Unchanged"
+          },
+          "confidence": {
+            "high": "High confidence",
+            "medium": "Medium confidence",
+            "low": "Low confidence"
+          },
+          "factual": {
+            "reviewedAt": "Last review",
+            "repoSignalAt": "Repo signal",
+            "repoSignalCommit": "Commit",
+            "repoSignalSource": "Source",
+            "latestDecisionAt": "Mission decision"
+          },
+          "buttons": {
+            "apply": "Apply proposal",
+            "applying": "Applying proposal..."
+          }
+        },
         "actions": {
           "kicker": "Actions",
           "title": "Actions",

@@ -37,6 +37,10 @@ import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
   AdminQualityMatrixPriority,
+  AdminQualityMatrixRecalculationScope,
+  AdminQualityMatrixRecalculationEntry,
+  AdminQualityMatrixRecalculationResult,
+  AdminQualityMatrixRecalculationSnapshot,
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
   AdminQualityMatrixSourceStatus,
@@ -183,6 +187,22 @@ interface AdminQualityWorkspaceSignalContext {
   readonly recommendedAction: string;
   readonly attention: boolean;
 }
+
+interface AdminQualityMatrixRecalculationHighlight {
+  readonly label: string;
+  readonly value: string;
+}
+
+interface AdminQualityMatrixRecalculationScopeOption {
+  readonly id: AdminQualityMatrixRecalculationScope;
+  readonly label: string;
+}
+
+const MATRIX_RECALCULATION_SCOPE_OPTIONS: readonly AdminQualityMatrixRecalculationScopeOption[] = [
+  { id: 'refresh-required', label: 'Entrees a revoir' },
+  { id: 'selected-entry', label: 'Entree active' },
+  { id: 'all', label: 'Toute la matrice' },
+];
 
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
 const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
@@ -474,6 +494,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly snapshot = signal<AdminQualityMatrixSnapshot | null>(null);
+  readonly recalculatingMatrix = signal(false);
+  readonly applyingMatrixProposal = signal(false);
+  readonly matrixRecalculation = signal<AdminQualityMatrixRecalculationSnapshot | null>(null);
+  readonly matrixRecalculationScope = signal<AdminQualityMatrixRecalculationScope>('refresh-required');
 
   readonly search = signal('');
   readonly selectedDomain = signal<FilterValue<string>>('all');
@@ -1122,6 +1146,48 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly filteredMatrixRefreshRequiredCount = computed(
     () => this.filteredEntries().filter((entry) => this.entryNeedsMatrixRefresh(entry)).length,
   );
+  readonly matrixRecalculationScopeOptions = MATRIX_RECALCULATION_SCOPE_OPTIONS;
+  readonly selectedMatrixRecalculationEntry = computed<AdminQualityMatrixRecalculationEntry | null>(() => {
+    const entry = this.selectedEntry();
+    const recalculation = this.matrixRecalculation();
+    if (!entry || !recalculation) {
+      return null;
+    }
+
+    return recalculation.entries.find((item) => item.entryId === entry.id) ?? null;
+  });
+  readonly matrixRecalculationHighlights = computed<readonly AdminQualityMatrixRecalculationHighlight[]>(() => {
+    const recalculation = this.matrixRecalculation();
+    if (!recalculation) {
+      return [];
+    }
+
+    return [
+      {
+        label: 'Analysees',
+        value: String(recalculation.summary.analyzedCount),
+      },
+      {
+        label: 'Propositions',
+        value: String(recalculation.summary.proposalCount),
+      },
+      {
+        label: 'Bloquees',
+        value: String(recalculation.summary.blockedCount),
+      },
+      {
+        label: 'Sans changement',
+        value: String(recalculation.summary.unchangedCount),
+      },
+    ];
+  });
+  readonly selectedMatrixProposalApplyReady = computed(
+    () =>
+      Boolean(
+        this.selectedMatrixRecalculationEntry()?.result === 'proposal-review-required' &&
+          this.selectedMatrixRecalculationEntry()?.proposed,
+      ),
+  );
   readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
     activeDomains: this.filteredEntries().length,
     totalDomains: this.totalDomains(),
@@ -1417,6 +1483,102 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         clearTimeout(this.missionHudProofPulseTimer);
       }
     });
+
+    this.loadMatrixSnapshot();
+  }
+
+  recalculateMatrix(): void {
+    this.requestMatrixRecalculation(this.matrixRecalculationScope(), true);
+  }
+
+  setMatrixRecalculationScope(event: Event): void {
+    const value = (event.target as HTMLSelectElement | null)?.value;
+    if (value === 'refresh-required' || value === 'selected-entry' || value === 'all') {
+      this.matrixRecalculationScope.set(value);
+    }
+  }
+
+  applySelectedMatrixProposal(): void {
+    const recalculationEntry = this.selectedMatrixRecalculationEntry();
+    if (
+      !recalculationEntry ||
+      recalculationEntry.result !== 'proposal-review-required' ||
+      !recalculationEntry.proposed ||
+      this.applyingMatrixProposal()
+    ) {
+      return;
+    }
+
+    this.applyingMatrixProposal.set(true);
+    this.service
+      .applyMatrixProposal(recalculationEntry.entryId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.applyingMatrixProposal.set(false)),
+      )
+      .subscribe({
+        next: (result) => {
+          this.notifications.success(
+            `Proposition appliquee pour ${result.entry.domain}.`,
+            { source: 'admin-quality' },
+          );
+          this.loadMatrixSnapshot(false);
+          this.requestMatrixRecalculation(this.matrixRecalculationScope(), false);
+        },
+        error: (error: unknown) => {
+          this.notifications.error(this.resolveMatrixLoadError(error), {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  private requestMatrixRecalculation(
+    scope: AdminQualityMatrixRecalculationScope,
+    notify = true,
+  ): void {
+    if (this.loading() || this.recalculatingMatrix()) {
+      return;
+    }
+
+    const entryId = scope === 'selected-entry' ? this.selectedEntry()?.id ?? null : null;
+    if (scope === 'selected-entry' && !entryId) {
+      this.notifications.error('Aucune entree active a recalculer.', {
+        source: 'admin-quality',
+      });
+      return;
+    }
+
+    this.recalculatingMatrix.set(true);
+    this.service
+      .recalculateMatrix(scope, entryId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.recalculatingMatrix.set(false)),
+      )
+      .subscribe({
+        next: (result) => {
+          this.matrixRecalculation.set(result);
+          if (notify) {
+            this.notifications.success(
+              `Recalcul termine: ${result.summary.proposalCount} proposition(s), ${result.summary.blockedCount} blocage(s).`,
+              { source: 'admin-quality' },
+            );
+            this.loadMatrixSnapshot(false);
+          }
+        },
+        error: (error: unknown) => {
+          this.notifications.error(this.resolveMatrixLoadError(error), {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  private loadMatrixSnapshot(markLoading = true): void {
+    if (markLoading) {
+      this.loading.set(true);
+    }
 
     this.service
       .loadMatrix()
@@ -1714,6 +1876,77 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       default:
         return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
     }
+  }
+
+  matrixRecalculationResultLabel(result: AdminQualityMatrixRecalculationResult): string {
+    switch (result) {
+      case 'proposal-review-required':
+        return 'Proposition';
+      case 'blocked-insufficient-proof':
+        return 'Preuve insuffisante';
+      case 'blocked-conflicting-signals':
+        return 'Signaux en conflit';
+      default:
+        return 'Sans changement';
+    }
+  }
+
+  matrixRecalculationResultClasses(result: AdminQualityMatrixRecalculationResult): string {
+    switch (result) {
+      case 'proposal-review-required':
+        return 'border-sky-300/25 bg-sky-400/12 text-sky-100';
+      case 'blocked-insufficient-proof':
+      case 'blocked-conflicting-signals':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-50';
+      default:
+        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+    }
+  }
+
+  matrixRecalculationConfidenceLabel(confidence: 'low' | 'medium' | 'high'): string {
+    switch (confidence) {
+      case 'high':
+        return 'Confiance haute';
+      case 'medium':
+        return 'Confiance moyenne';
+      default:
+        return 'Confiance basse';
+    }
+  }
+
+  matrixRecalculationScopeLabel(scope: 'refresh-required' | 'selected-entry' | 'all'): string {
+    switch (scope) {
+      case 'all':
+        return 'Portee complete';
+      case 'selected-entry':
+        return 'Entree ciblee';
+      default:
+        return 'Entrees a revoir';
+    }
+  }
+
+  matrixRecalculationFactualLabel(
+    label: keyof AdminQualityMatrixRecalculationEntry['factualSignals'],
+  ): string {
+    switch (label) {
+      case 'reviewedAt':
+        return 'Derniere revue';
+      case 'repoSignalAt':
+        return 'Signal repo';
+      case 'repoSignalCommit':
+        return 'Commit';
+      case 'repoSignalSource':
+        return 'Source';
+      default:
+        return 'Decision mission';
+    }
+  }
+
+  matrixCoverageDeltaLabel(
+    current: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
+    proposed: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
+  ): string {
+    return current === proposed ? String(current) : `${current} -> ${proposed}`;
   }
 
   missionDecisionSyncLabel(status: AdminQualityMissionDecisionSyncStatus): string {

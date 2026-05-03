@@ -8,7 +8,13 @@ const { compileStrapi, createStrapi } = require('@strapi/strapi');
 const TEST_DB_FILENAME = `db.admin-quality-matrix.integration.${process.pid}.${Date.now()}.sqlite`;
 const MATRIX_ENTRY_UID = 'api::admin-quality-matrix.admin-quality-matrix-entry';
 const TEST_PASSWORD = 'S3cureAdminQuality!123';
-const MATRIX_ACTIONS = ['api::admin-quality-matrix.admin-quality-matrix.snapshot'];
+const MATRIX_ACTIONS = [
+  'api::admin-quality-matrix.admin-quality-matrix.snapshot',
+  'api::admin-quality-matrix.admin-quality-matrix.recalculate',
+  'api::admin-quality-matrix.admin-quality-matrix.applyProposal',
+];
+const MISSION_DECISION_UID =
+  'api::admin-quality-mission-decision.admin-quality-mission-decision';
 
 function applyTestEnvironment() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -145,15 +151,15 @@ async function createMatrixEntry(strapi, entryId) {
       entryId,
       domain: 'Trust et validation',
       need: 'Historiser les decisions de confiance.',
-      summaryStatus: 'oui',
+      summaryStatus: 'partiel',
       businessStatus: 'oui',
-      implementationStatus: 'oui',
-      e2eStatus: 'oui',
+      implementationStatus: 'partiel',
+      e2eStatus: 'partiel',
       priority: 'moyenne',
-      managementBucket: 'covered',
+      managementBucket: 'proof-gap',
       needsProductWorkFirst: false,
-      observedGap: 'Le flux critique est deja prouve.',
-      nextMove: 'Maintenir la regression existante.',
+      observedGap: 'Une validation complementaire reste attendue.',
+      nextMove: 'Rejouer la revue apres retour de mission.',
       evidence: ['e2e/admin-trust-visibility.spec.ts'],
       reviewedAt: '2026-04-07',
     },
@@ -174,6 +180,24 @@ async function findMatrixEntryByEntryId(strapi, entryId) {
   );
 
   return entries[0] ?? null;
+}
+
+async function createMissionDecision(strapi, entryId) {
+  return strapi.entityService.create(MISSION_DECISION_UID, {
+    data: {
+      recommendationId: `recalc-${entryId}`,
+      entryId,
+      kind: 'core',
+      status: 'done',
+      title: 'Decision completee',
+      message: 'La mission a ramene une preuve exploitable.',
+      operatorPrompt: 'Verifier la promotion implementation/e2e.',
+      metadata: {
+        source: 'integration-test',
+      },
+      decidedByUserId: '1',
+    },
+  });
 }
 
 async function run() {
@@ -205,6 +229,13 @@ async function run() {
     });
     assert.equal(snapshotAllowed.status, 200, 'Expected owner user to access matrix snapshot.');
     assert.equal(snapshotAllowed.body?.data?.entries?.length, 1, 'Expected matrix snapshot payload.');
+
+    const recalcDenied = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
+      body: JSON.stringify({ scope: 'refresh-required' }),
+    });
+    assert.equal(recalcDenied.status, 403, 'Expected standard authenticated user to be denied recalculation.');
 
     const unauthorized = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
       method: 'POST',
@@ -253,7 +284,53 @@ async function run() {
     assert.equal(updated.lastRepoSignalAt, '2026-05-02T12:00:00.000Z');
     assert.match(updated.lastRepoSignalSummary, /targeted sync after merge to main/i);
 
-    console.log('Admin quality matrix ingest integration test passed.');
+    await createMissionDecision(app, 'trust-validation');
+
+    const recalcOk = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+      body: JSON.stringify({ scope: 'refresh-required' }),
+    });
+    assert.equal(recalcOk.status, 200, 'Expected recalculation request to succeed for owner.');
+    assert.equal(recalcOk.body?.data?.summary?.analyzedCount, 1);
+    assert.equal(recalcOk.body?.data?.summary?.proposalCount, 1);
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.entryId, 'trust-validation');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.result, 'proposal-review-required');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.implementationStatus, 'oui');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.e2eStatus, 'oui');
+
+    const applyDenied = await requestJson(`${baseUrl}/api/admin/quality/matrix/apply-proposal`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
+      body: JSON.stringify({ entryId: 'trust-validation' }),
+    });
+    assert.equal(applyDenied.status, 403, 'Expected standard authenticated user to be denied proposal application.');
+
+    const applyOk = await requestJson(`${baseUrl}/api/admin/quality/matrix/apply-proposal`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+      body: JSON.stringify({ entryId: 'trust-validation' }),
+    });
+    assert.equal(applyOk.status, 200, 'Expected proposal application to succeed for owner.');
+    assert.equal(applyOk.body?.data?.entry?.implementationStatus, 'oui');
+    assert.equal(applyOk.body?.data?.entry?.e2eStatus, 'oui');
+    assert.equal(applyOk.body?.data?.entry?.managementBucket, 'covered');
+
+    const applied = await findMatrixEntryByEntryId(app, 'trust-validation');
+    assert.equal(applied.implementationStatus, 'oui');
+    assert.equal(applied.e2eStatus, 'oui');
+    assert.equal(applied.managementBucket, 'covered');
+    assert.equal(applied.reviewedAt, new Date().toISOString().slice(0, 10));
+
+    const recalcAfterApply = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+      body: JSON.stringify({ scope: 'refresh-required' }),
+    });
+    assert.equal(recalcAfterApply.status, 200, 'Expected recalculation after apply to succeed.');
+    assert.equal(recalcAfterApply.body?.data?.summary?.proposalCount, 0);
+
+    console.log('Admin quality matrix snapshot, ingest, and recalculation integration test passed.');
   } finally {
     await app.destroy();
     await cleanupDatabase();

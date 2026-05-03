@@ -161,6 +161,35 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                 acceptanceCount: '{{ count }} item(s)',
                 executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
               },
+              recalculation: {
+                kicker: 'Matrix recalculation',
+                current: 'Current state',
+                proposed: 'Proposed state',
+                reasons: 'Reasons',
+                evidence: 'Evidence',
+                result: {
+                  proposal: 'Proposal',
+                  insufficientProof: 'Insufficient proof',
+                  conflictingSignals: 'Conflicting signals',
+                  unchanged: 'Unchanged',
+                },
+                confidence: {
+                  high: 'High confidence',
+                  medium: 'Medium confidence',
+                  low: 'Low confidence',
+                },
+                factual: {
+                  reviewedAt: 'Last review',
+                  repoSignalAt: 'Repo signal',
+                  repoSignalCommit: 'Commit',
+                  repoSignalSource: 'Source',
+                  latestDecisionAt: 'Mission decision',
+                },
+                buttons: {
+                  apply: 'Apply proposal',
+                  applying: 'Applying proposal...',
+                },
+              },
               actions: {
                 kicker: 'Actions',
                 title: 'Actions',
@@ -377,5 +406,62 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
 
     expect(promptChangedSpy).toHaveBeenCalledWith('Adjusted brief');
     expect(launchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders recalculation evidence and emits applyProposalRequested', () => {
+    const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
+    const applySpy = jasmine.createSpy('applyProposalRequested');
+    fixture.componentInstance.applyProposalRequested.subscribe(applySpy);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('activeSurface', 'delegation');
+    fixture.componentRef.setInput('applyProposalReady', true);
+    fixture.componentRef.setInput('selectedRecalculationEntry', {
+      entryId: 'advanced-discovery',
+      domain: 'Deep discovery',
+      result: 'proposal-review-required',
+      confidence: 'high',
+      current: {
+        summaryStatus: 'non',
+        businessStatus: 'oui',
+        implementationStatus: 'partiel',
+        e2eStatus: 'partiel',
+        managementBucket: 'proof-gap',
+        needsProductWorkFirst: false,
+      },
+      proposed: {
+        summaryStatus: 'partiel',
+        businessStatus: 'oui',
+        implementationStatus: 'oui',
+        e2eStatus: 'oui',
+        managementBucket: 'covered',
+        needsProductWorkFirst: false,
+      },
+      reasons: ['Latest mission decision is newer than the last review.'],
+      evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+      factualSignals: {
+        reviewedAt: '2026-04-07',
+        repoSignalAt: '2026-05-02T12:00:00.000Z',
+        repoSignalCommit: 'abc123def456',
+        repoSignalSource: 'github-actions',
+        latestDecisionAt: '2026-05-02T19:59:00.000Z',
+      },
+    });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const recalculationCard = root.querySelector(
+      '[data-og7="admin-quality-workspace-recalculation"][data-og7-id="advanced-discovery"]',
+    );
+    const applyButton = root.querySelector(
+      '[data-og7-id="admin-quality-apply-proposal"]',
+    ) as HTMLButtonElement;
+
+    expect(recalculationCard?.textContent).toContain('Matrix recalculation');
+    expect(recalculationCard?.textContent).toContain('Reasons');
+    expect(recalculationCard?.textContent).toContain('Evidence');
+
+    applyButton.click();
+
+    expect(applySpy).toHaveBeenCalledTimes(1);
   });
 });

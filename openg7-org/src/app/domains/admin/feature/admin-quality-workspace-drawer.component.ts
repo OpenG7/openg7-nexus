@@ -16,7 +16,13 @@ import {
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { AdminQualityMatrixEntry, AdminQualityMatrixStatus } from '../data-access/admin-quality-matrix.service';
+import {
+  AdminQualityMatrixBucket,
+  AdminQualityMatrixEntry,
+  AdminQualityMatrixRecalculationEntry,
+  AdminQualityMatrixRecalculationResult,
+  AdminQualityMatrixStatus,
+} from '../data-access/admin-quality-matrix.service';
 import { AdminQualityActionRecord, AdminQualityActionStatus } from '../pages/admin-quality-action-registry';
 import { AdminQualityDelegationPlan, AdminQualityDelegationMode } from '../pages/admin-quality-delegation';
 
@@ -54,12 +60,15 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly activeSurface = input<AdminQualityWorkspaceSurface>('delegation');
   readonly selectedEntry = input<AdminQualityMatrixEntry | null>(null);
   readonly selectedSignalContext = input<AdminQualityWorkspaceSignalContext | null>(null);
+  readonly selectedRecalculationEntry = input<AdminQualityMatrixRecalculationEntry | null>(null);
   readonly delegationPlan = input<AdminQualityDelegationPlan | null>(null);
   readonly editableCodexPrompt = input('');
   readonly dispatchProviderLabel = input('Codex');
   readonly dispatchReady = input(false);
   readonly dispatchSubmitting = input(false);
   readonly dispatchBlockedMessage = input<string | null>(null);
+  readonly applyProposalReady = input(false);
+  readonly applyProposalSubmitting = input(false);
   readonly qaQueueCount = input(0);
   readonly delegationCount = input(0);
   readonly actionsCount = input(0);
@@ -67,6 +76,7 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly actionItems = input<readonly AdminQualityActionRecord[]>([]);
 
   readonly closeRequested = output<void>();
+  readonly applyProposalRequested = output<void>();
   readonly codexPromptChanged = output<string>();
   readonly codexLaunchRequested = output<void>();
   readonly surfaceChanged = output<AdminQualityWorkspaceSurface>();
@@ -159,6 +169,10 @@ export class AdminQualityWorkspaceDrawerComponent {
 
   protected requestCodexLaunch(): void {
     this.codexLaunchRequested.emit();
+  }
+
+  protected requestApplyProposal(): void {
+    this.applyProposalRequested.emit();
   }
 
   protected updateCodexPrompt(event: Event): void {
@@ -257,6 +271,76 @@ export class AdminQualityWorkspaceDrawerComponent {
       default:
         return 'border-sky-300/20 bg-sky-400/12 text-sky-100';
     }
+  }
+
+  protected recalculationResultKey(result: AdminQualityMatrixRecalculationResult): string {
+    switch (result) {
+      case 'proposal-review-required':
+        return 'admin.quality.workspace.recalculation.result.proposal';
+      case 'blocked-insufficient-proof':
+        return 'admin.quality.workspace.recalculation.result.insufficientProof';
+      case 'blocked-conflicting-signals':
+        return 'admin.quality.workspace.recalculation.result.conflictingSignals';
+      default:
+        return 'admin.quality.workspace.recalculation.result.unchanged';
+    }
+  }
+
+  protected recalculationResultClasses(result: AdminQualityMatrixRecalculationResult): string {
+    switch (result) {
+      case 'proposal-review-required':
+        return 'border-sky-300/20 bg-sky-400/12 text-sky-100';
+      case 'blocked-insufficient-proof':
+      case 'blocked-conflicting-signals':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+      default:
+        return 'border-emerald-300/20 bg-emerald-400/12 text-emerald-100';
+    }
+  }
+
+  protected recalculationConfidenceKey(confidence: 'low' | 'medium' | 'high'): string {
+    switch (confidence) {
+      case 'high':
+        return 'admin.quality.workspace.recalculation.confidence.high';
+      case 'medium':
+        return 'admin.quality.workspace.recalculation.confidence.medium';
+      default:
+        return 'admin.quality.workspace.recalculation.confidence.low';
+    }
+  }
+
+  protected recalculationFactualEntries(
+    entry: AdminQualityMatrixRecalculationEntry,
+  ): Array<{ readonly label: string; readonly value: string }> {
+    return [
+      {
+        label: this.translate.instant('admin.quality.workspace.recalculation.factual.reviewedAt'),
+        value: entry.factualSignals.reviewedAt ?? 'n/a',
+      },
+      {
+        label: this.translate.instant('admin.quality.workspace.recalculation.factual.repoSignalAt'),
+        value: entry.factualSignals.repoSignalAt ?? 'n/a',
+      },
+      {
+        label: this.translate.instant('admin.quality.workspace.recalculation.factual.repoSignalCommit'),
+        value: entry.factualSignals.repoSignalCommit ?? 'n/a',
+      },
+      {
+        label: this.translate.instant('admin.quality.workspace.recalculation.factual.repoSignalSource'),
+        value: entry.factualSignals.repoSignalSource ?? 'n/a',
+      },
+      {
+        label: this.translate.instant('admin.quality.workspace.recalculation.factual.latestDecisionAt'),
+        value: entry.factualSignals.latestDecisionAt ?? 'n/a',
+      },
+    ];
+  }
+
+  protected coverageDeltaLabel(
+    current: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
+    proposed: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
+  ): string {
+    return current === proposed ? String(current) : `${current} -> ${proposed}`;
   }
 
   protected hasGitHubIssueUrl(plan: AdminQualityDelegationPlan | null): boolean {
