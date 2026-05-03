@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import type { AuthUser } from '@app/core/auth/auth.types';
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { FiltersService, TradeModeFilter } from '@app/core/filters.service';
@@ -114,6 +115,9 @@ interface FlowContextVm {
   readonly sectorLabel: string;
   readonly tradeValue: string;
   readonly tradeMode: 'import' | 'export';
+  readonly sectorId: string | null;
+  readonly partner: string | null;
+  readonly pinned: boolean;
 }
 
 interface LayerFlowFeatureProperties {
@@ -187,6 +191,7 @@ export class TradeMapComponent {
   readonly showBasemapToggle = input(false);
 
   private readonly store = inject(Store<AppState>);
+  private readonly router = inject(Router);
   private readonly filters = inject(FiltersService);
   private readonly featureFlags = inject(FEATURE_FLAGS, { optional: true });
   private readonly mapInstance = signal<MapCameraApi | null>(null);
@@ -201,6 +206,7 @@ export class TradeMapComponent {
   private readonly userProfile = this.store.selectSignal(selectUserProfile);
   private readonly flows = this.store.selectSignal(selectFilteredFlows);
   private readonly kpis = this.store.selectSignal(selectMapKpis);
+  protected readonly hasPinnedFlow = computed(() => this.pinnedFlowId() !== null);
   private readonly activeFlowId = computed(() => this.pinnedFlowId() ?? this.hoveredFlowId());
   protected readonly activeFlowContext = computed<FlowContextVm | null>(() => {
     const flowId = this.activeFlowId();
@@ -221,6 +227,9 @@ export class TradeMapComponent {
       sectorLabel,
       tradeValue: this.formatFlowValue(flow),
       tradeMode: flow.tradeMode ?? 'export',
+      sectorId,
+      partner: flow.partner ?? null,
+      pinned: this.pinnedFlowId() === flow.id,
     };
   });
 
@@ -269,6 +278,18 @@ export class TradeMapComponent {
     'line-width': 5.5,
     'line-opacity': 0.95,
     'line-blur': 0.6,
+  } as const;
+  protected readonly focusedFlowLayerPaint = {
+    'line-color': '#f8fafc',
+    'line-width': 6.8,
+    'line-opacity': 1,
+    'line-blur': 0.15,
+  } as const;
+  protected readonly focusedFlowGlowPaint = {
+    'line-color': '#22d3ee',
+    'line-width': 10.5,
+    'line-opacity': 0.55,
+    'line-blur': 1.8,
   } as const;
   protected readonly markerLayerPaint = {
     'circle-radius': 6,
@@ -329,7 +350,22 @@ export class TradeMapComponent {
     return this.createFlowCollection(flows, this.tariffedSectors()).collection;
   });
 
+  protected readonly focusedFlowSource = computed<MapFlowFeatureCollection>(() => {
+    const flowId = this.activeFlowId();
+    if (!flowId) {
+      return EMPTY_FLOW_COLLECTION;
+    }
+
+    const flows = this.filteredFlows().filter((flow) => flow.id === flowId);
+    if (!flows.length) {
+      return EMPTY_FLOW_COLLECTION;
+    }
+
+    return this.createFlowCollection(flows, this.tariffedSectors()).collection;
+  });
+
   protected readonly hasHighlight = computed(() => this.highlightSource().features.length > 0);
+  protected readonly hasFocusedFlow = computed(() => this.focusedFlowSource().features.length > 0);
 
   private readonly hasTariffImpact = computed(() => this.flowCollectionState().hasTariffImpact);
 
@@ -647,15 +683,39 @@ export class TradeMapComponent {
     }
 
     const flowId = properties.id ?? null;
-    this.pinnedFlowId.update((current) => (current === flowId ? null : flowId));
+    const isTogglingOff = this.pinnedFlowId() === flowId;
+    this.pinnedFlowId.set(isTogglingOff ? null : flowId);
+    this.hoveredFlowId.set(null);
 
     const sectorId = properties.sectorId ?? properties.sectorIds?.[0] ?? null;
+    if (isTogglingOff) {
+      this.filters.activeSector.set(null);
+      this.store.dispatch(MapActions.activeSectorSelected({ sectorId: null }));
+      return;
+    }
+
     if (!sectorId) {
       return;
     }
 
     this.filters.activeSector.set(sectorId as SectorType);
     this.store.dispatch(MapActions.activeSectorSelected({ sectorId }));
+  }
+
+  protected openPinnedFlowContext(): void {
+    const context = this.activeFlowContext();
+    if (!context?.pinned || !context.sectorId) {
+      return;
+    }
+
+    void this.router.navigate(['/feed'], {
+      queryParams: {
+        source: 'trade-map',
+        sector: context.sectorId,
+        corridorId: context.id,
+        partner: context.partner,
+      },
+    });
   }
 
   /**

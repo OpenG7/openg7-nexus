@@ -77,6 +77,29 @@
         ></mgl-layer>
       </mgl-geojson-source>
     }
+
+    @if (hasFocusedFlow()) {
+      <mgl-geojson-source id="focused-flow" [data]="focusedFlowSource()" [lineMetrics]="true">
+        <mgl-layer
+          id="focused-flow-glow"
+          type="line"
+          source="focused-flow"
+          [layout]="highlightLayerLayout"
+          [paint]="focusedFlowGlowPaint"
+          data-og7="map-layer"
+          data-og7-layer="highlight"
+        ></mgl-layer>
+        <mgl-layer
+          id="focused-flow-layer"
+          type="line"
+          source="focused-flow"
+          [layout]="highlightLayerLayout"
+          [paint]="focusedFlowLayerPaint"
+          data-og7="map-layer"
+          data-og7-layer="highlight"
+        ></mgl-layer>
+      </mgl-geojson-source>
+    }
   </mgl-map>
 </div>
 
@@ -98,13 +121,20 @@
   >
     @if (activeFlowContext(); as context) {
       <section
-        class="ml-auto max-w-[18rem] rounded-[1.35rem] border border-cyan-200/20 bg-slate-950/86 px-4 py-3 text-white shadow-[0_16px_45px_rgba(15,23,42,0.4)] backdrop-blur"
+        class="pointer-events-auto ml-auto max-w-76 rounded-[1.35rem] border border-cyan-200/20 bg-slate-950/86 px-4 py-3 text-white shadow-[0_16px_45px_rgba(15,23,42,0.4)] backdrop-blur"
         data-og7="map-flow-context"
         aria-live="polite"
       >
-        <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/70">
-          {{ 'home.map.decision.selected' | translate }}
-        </p>
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/70">
+            {{ 'home.map.decision.selected' | translate }}
+          </p>
+          @if (context.pinned) {
+            <span class="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80">
+              {{ context.id }}
+            </span>
+          }
+        </div>
         <h3 class="mt-1 text-base font-semibold text-white">
           {{ context.sectorLabel }}
         </h3>
@@ -118,6 +148,18 @@
             <dd class="font-semibold text-cyan-100">{{ ('map.filters.tradeMode.' + context.tradeMode) | translate }}</dd>
           </div>
         </dl>
+
+        @if (context.pinned) {
+          <button
+            type="button"
+            class="mt-4 inline-flex w-full items-center justify-center rounded-2xl border border-emerald-200/35 bg-emerald-300/15 px-4 py-3 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-300/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+            data-og7="action"
+            data-og7-id="map-open-flow-feed"
+            (click)="openPinnedFlowContext()"
+          >
+            {{ 'home.map.decision.openFeed' | translate }}
+          </button>
+        }
       </section>
     }
   </div>
