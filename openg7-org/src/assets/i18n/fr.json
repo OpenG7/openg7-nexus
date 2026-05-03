@@ -834,7 +834,8 @@
     },
     "context": {
       "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil.",
-      "corridorFocus": "Corridor suivi :"
+      "corridorFocus": "Corridor suivi :",
+      "tradeMap": "Contexte conserve depuis la carte des echanges."
     },
     "views": {
       "hydrocarbons": {
@@ -3872,7 +3873,18 @@
     "map": {
       "kicker": "Carte des échanges",
       "title": "Tracer les corridors interprovinciaux du G7",
-      "description": "Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne."
+      "description": "Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne.",
+      "decision": {
+        "kicker": "Drilldowns de decision",
+        "title": "Pousser la carte vers le prochain fil de demandes",
+        "description": "Selectionnez un secteur cartographie pour surligner ses flux, puis ouvrez le contexte downstream dans le fil sans reconstruire les filtres a la main.",
+        "prompt": "Selectionnez un secteur cartographie pour activer le contexte downstream et le fil de demandes.",
+        "empty": "Les drilldowns carte apparaissent des que le jeu de flux courant est disponible.",
+        "selected": "Secteur selectionne",
+        "mappedValue": "Valeur cartographiee",
+        "mappedFlows": "Flux cartographies",
+        "openFeed": "Ouvrir le fil de demandes"
+      }
     },
     "feed": {
       "tabs": {

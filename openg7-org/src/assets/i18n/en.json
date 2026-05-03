@@ -945,7 +945,8 @@
     },
     "context": {
       "homeFeedPanels": "Context preserved from the home feed panels.",
-      "corridorFocus": "Focused corridor:"
+      "corridorFocus": "Focused corridor:",
+      "tradeMap": "Context preserved from the trade map."
     },
     "views": {
       "hydrocarbons": {
@@ -3985,7 +3986,18 @@
     "map": {
       "kicker": "Trade map",
       "title": "Navigate G7 interprovincial corridors",
-      "description": "Explore logistics routes, energy hubs and industrial partnerships shaping Canada’s economy."
+      "description": "Explore logistics routes, energy hubs and industrial partnerships shaping Canada’s economy.",
+      "decision": {
+        "kicker": "Decision drilldowns",
+        "title": "Push the map into the next request feed",
+        "description": "Select a mapped sector to highlight its flows, then open the downstream request context without rebuilding the filters by hand.",
+        "prompt": "Select a mapped sector to activate the downstream context and request feed.",
+        "empty": "Map drilldowns appear as soon as the current flow set is available.",
+        "selected": "Selected sector",
+        "mappedValue": "Mapped value",
+        "mappedFlows": "Mapped flows",
+        "openFeed": "Open request feed"
+      }
     },
     "feed": {
       "tabs": {

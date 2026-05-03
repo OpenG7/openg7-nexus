@@ -19,10 +19,119 @@
       </p>
     </header>
 
-    <div class="relative">
-      <og7-map-frame class="block h-[420px] w-full sm:h-[520px] lg:h-[600px]">
-        <og7-map-trade></og7-map-trade>
-      </og7-map-frame>
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)] xl:items-stretch">
+      <div class="relative">
+        <og7-map-frame class="block h-[420px] w-full sm:h-[520px] lg:h-[600px]">
+          <og7-map-trade></og7-map-trade>
+        </og7-map-frame>
+      </div>
+
+      <aside
+        class="flex h-full flex-col gap-5 rounded-[2rem] border border-cyan-400/15 bg-[linear-gradient(180deg,rgba(8,47,73,0.55),rgba(15,23,42,0.9))] p-6 text-white shadow-[0_24px_70px_rgba(2,6,23,0.45)] backdrop-blur"
+        data-og7="map-decision-panel"
+        aria-labelledby="home-map-decision-heading"
+      >
+        <div class="space-y-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-cyan-200/75">
+            {{ 'home.map.decision.kicker' | translate }}
+          </p>
+          <h3 id="home-map-decision-heading" class="text-2xl font-semibold tracking-tight">
+            {{ 'home.map.decision.title' | translate }}
+          </h3>
+          <p class="text-sm leading-relaxed text-cyan-100/80">
+            {{ 'home.map.decision.description' | translate }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2" role="toolbar" [attr.aria-label]="'home.map.decision.title' | translate">
+          @for (drilldown of decisionDrilldowns(); track drilldown.sectorId) {
+            <button
+              type="button"
+              class="inline-flex min-w-[10rem] flex-1 flex-col items-start gap-1 rounded-2xl border px-4 py-3 text-left transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+              [ngClass]="
+                isSelected(drilldown.sectorId)
+                  ? 'border-cyan-200/60 bg-cyan-300/15 text-white shadow-[0_14px_30px_rgba(34,211,238,0.18)]'
+                  : 'border-white/10 bg-slate-950/55 text-slate-200 hover:border-cyan-200/30 hover:bg-cyan-300/10'
+              "
+              data-og7="map-drilldown"
+              [attr.data-og7-id]="drilldown.sectorId"
+              [attr.aria-pressed]="isSelected(drilldown.sectorId)"
+              (click)="selectDrilldown(drilldown.sectorId)"
+            >
+              <span class="text-sm font-semibold">{{ drilldown.label }}</span>
+              <span class="text-xs text-cyan-100/70">{{ formatTradeValue(drilldown) }}</span>
+            </button>
+          } @empty {
+            <p
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-300"
+              data-og7="map-decision-empty"
+            >
+              {{ 'home.map.decision.empty' | translate }}
+            </p>
+          }
+        </div>
+
+        @if (selectedDecisionDrilldown(); as drilldown) {
+          <section
+            class="mt-auto rounded-[1.75rem] border border-emerald-300/20 bg-slate-950/75 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+            data-og7="map-decision-context"
+            aria-live="polite"
+          >
+            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-200/75">
+              {{ 'home.map.decision.selected' | translate }}
+            </p>
+            <h4 class="mt-2 text-2xl font-semibold text-white">
+              {{ drilldown.label }}
+            </h4>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <article class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+                  {{ 'home.map.decision.mappedValue' | translate }}
+                </span>
+                <strong class="mt-2 block text-lg font-semibold text-white">
+                  {{ formatTradeValue(drilldown) }}
+                </strong>
+              </article>
+              <article class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+                  {{ 'home.map.decision.mappedFlows' | translate }}
+                </span>
+                <strong class="mt-2 block text-lg font-semibold text-white">
+                  {{ drilldown.flowCount }}
+                </strong>
+              </article>
+            </div>
+            <button
+              type="button"
+              class="mt-5 inline-flex w-full items-center justify-center rounded-2xl border border-emerald-200/35 bg-emerald-300/15 px-4 py-3 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-300/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+              data-og7="action"
+              data-og7-id="map-open-feed"
+              (click)="openSelectedDrilldown()"
+            >
+              {{ 'home.map.decision.openFeed' | translate }}
+            </button>
+          </section>
+        } @else {
+          <section
+            class="mt-auto rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-5"
+            data-og7="map-decision-prompt"
+            aria-live="polite"
+          >
+            <p class="text-sm leading-relaxed text-slate-300">
+              {{ 'home.map.decision.prompt' | translate }}
+            </p>
+            <button
+              type="button"
+              class="mt-5 inline-flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-400"
+              data-og7="action"
+              data-og7-id="map-open-feed"
+              [disabled]="true"
+            >
+              {{ 'home.map.decision.openFeed' | translate }}
+            </button>
+          </section>
+        }
+      </aside>
     </div>
   </div>
 </section>

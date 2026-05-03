@@ -315,6 +315,7 @@ describe('FeedPage', () => {
           context: {
             homeFeedPanels: 'Context preserved from the home feed panels.',
             corridorFocus: 'Focused corridor:',
+            tradeMap: 'Context preserved from the trade map.',
           },
         },
         home: {
@@ -399,6 +400,20 @@ describe('FeedPage', () => {
     expect(context.textContent).toContain('Focused corridor:');
     expect(context.textContent).toContain('Essential services');
     expect(context.textContent).toContain('QC -> ON');
+  });
+
+  it('shows map context when the feed is opened from a trade map drilldown', () => {
+    queryParamMap$.next(convertToParamMap({ source: 'trade-map', sector: 'energy', type: 'REQUEST' }));
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const context = fixture.nativeElement.querySelector('[data-og7="feed-source-context"]') as HTMLElement;
+
+    expect(stream.highlightedItemId()).toBeNull();
+    expect(context).toBeTruthy();
+    expect(context.textContent).toContain('Context preserved from the trade map.');
   });
 
   it('mirrors active feed filters into URL query params', () => {

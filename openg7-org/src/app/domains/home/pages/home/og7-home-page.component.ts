@@ -9,6 +9,7 @@ import { FeedItem, FeedItemType } from '@app/domains/feed/feature/models/feed.mo
 import { OpportunityEngagementService } from '@app/domains/feed/feature/services/opportunity-engagement.service';
 import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
+import { HomeMapSectionComponent } from '@app/domains/home/feature/home-map-section/home-map-section.component';
 import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
 import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
 import { selectFilteredFlows, selectMapKpis } from '@app/state';
@@ -30,6 +31,7 @@ const DEFAULT_HOME_FEED_PANEL_LIMITS = {
   selector: 'og7-home-page',
   imports: [
     HomeHeroSectionComponent,
+    HomeMapSectionComponent,
   ],
   templateUrl: './og7-home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -331,4 +333,3 @@ export class Og7HomePageComponent {
     });
   }
 }
-

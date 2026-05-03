@@ -90,7 +90,14 @@ export class FeedPage {
     return this.normalizeQueryParam(this.queryParamMap().get('source'));
   });
   readonly sourceContextKey = computed(() => {
-    return this.sourceContext() === 'home-feed-panels' ? 'feed.context.homeFeedPanels' : null;
+    switch (this.sourceContext()) {
+      case 'home-feed-panels':
+        return 'feed.context.homeFeedPanels';
+      case 'trade-map':
+        return 'feed.context.tradeMap';
+      default:
+        return null;
+    }
   });
   readonly corridorContext = computed(() => {
     if (this.sourceContext() !== 'corridors-realtime') {

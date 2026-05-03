@@ -5,6 +5,7 @@
     [zoom]="[mapZoom]"
     [renderWorldCopies]="false"
     [projection]="globeEnabled ? { type: 'globe' } : undefined"
+    (mapLoad)="onMapLoad()"
     
     [style.display]="'block'"
     [style.height.%]="100"
