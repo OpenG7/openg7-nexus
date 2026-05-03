@@ -76,6 +76,10 @@ Conclusion pratique:
 
 ## Direction produit recommandee
 
+### Boussole
+
+Le Wow doit venir de la clarte decisionnelle, pas de la complexite visuelle.
+
 ### Principe 1 - Divulgation progressive
 
 Ne pas afficher toute l'aide a la decision des le chargement.
@@ -196,6 +200,54 @@ Proposition:
 - panneau contexte en bottom sheet apres interaction
 - legende compacte ou repliable par defaut
 
+Regle mobile:
+
+Sur mobile, la carte doit devenir encore plus decisionnelle. L'objectif n'est pas de reproduire toute l'experience desktop, mais de permettre une selection rapide: secteur, province, corridor prioritaire. La carte peut etre accompagnee d'une liste compacte de corridors, ou chaque item recentre la carte et revele le contexte utile.
+
+Le mobile doit donc etre pense comme une experience "selectionner -> comprendre -> agir", pas comme une experience de navigation geographique complete.
+
+### R8. Ajouter des criteres de performance mesurables
+
+Objectif:
+
+Eviter une refonte visuellement seduisante mais plus lourde a l'usage.
+
+Proposition:
+
+- chargement initial plus rapide que la version globe
+- interactions fluides lors du survol ou de la selection d'un corridor
+- animations courtes, interruptibles et non bloquantes
+- aucun effet visuel ne doit retarder la comprehension du corridor selectionne
+
+Regle:
+
+Le Wow ne doit pas venir de la complexite graphique, mais de la clarte immediate.
+
+### R9. Renforcer l'accessibilite et la lisibilite
+
+Objectif:
+
+Conserver une lecture claire meme sans s'appuyer uniquement sur la couleur ou l'animation.
+
+Proposition:
+
+- chaque corridor important doit avoir un libelle ou un contexte textuel clair
+- les etats actifs ne doivent pas dependre uniquement de la couleur
+- le panneau de contexte doit fournir une alternative textuelle utile a la lecture carte
+- l'experience doit rester compréhensible si les animations sont reduites ou desactivees
+
+### R10. Garder une implementation signal-first locale
+
+Objectif:
+
+Eviter que la refonte transforme la carte en surface pilotee excessivement par l'etat global.
+
+Proposition:
+
+- garder dans le composant carte les `signal()` locaux pour le mode de vue, le corridor selectionne, la province active, l'etat du panneau et les transitions visuelles
+- reserver le store NgRx aux donnees vraiment globales: corridors disponibles, filtres persistants, secteur actif partage, pont avec le feed
+- faire decider localement a la carte de son rendu puis publier au store uniquement les selections significatives
+
 ## Priorites de travail
 
 ### Niveau 1 - Quick wins
@@ -274,6 +326,18 @@ Raison:
 - le risque technique reste limite
 - cela permet de mesurer si la densite percue baisse reellement avant d'engager une refonte plus lourde
 
+## Decision produit
+
+Decision finale: la homepage OpenG7 doit etre concue comme une surface de lecture operationnelle, pas comme une demonstration cartographique.
+
+La carte doit repondre a trois questions:
+
+1. Quel corridor merite mon attention?
+2. Pourquoi ce corridor est important?
+3. Quelle action puis-je prendre ensuite?
+
+Tout element qui n'aide pas directement a repondre a ces trois questions doit etre secondaire, contextuel ou retire de la premiere lecture. Le globe peut rester dans l'ecosysteme OpenG7, mais il ne doit plus dicter l'experience principale de `src/app/.../home-map-section.component.html`.
+
 ## Taches proposees pour la prochaine session
 
 1. Revalider ensemble la cible UX souhaitee: home plus editoriale ou home plus exploratoire.
@@ -298,3 +362,14 @@ On pourra considerer que la section est amelioree si:
 - les etats interactifs sont plus clairs
 - la carte semble plus utile et moins decorative
 - la densite percue baisse sans appauvrir la valeur produit
+
+## Criteres d'acceptation produit
+
+La refonte est reussie si:
+
+- l'utilisateur comprend en moins de quelques secondes qu'il regarde des corridors economiques canadiens
+- une selection de corridor produit immediatement un cadrage, un highlight et un contexte utile
+- le panneau d'information complete la carte sans la surcharger
+- le CTA apparait au bon moment, apres une intention claire
+- le globe n'est plus necessaire pour comprendre la valeur de la section
+- l'experience reste fluide sur desktop, tablette et mobile
