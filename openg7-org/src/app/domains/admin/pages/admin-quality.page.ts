@@ -65,7 +65,12 @@ import {
   AdminQualityCommandScopeSummary,
   AdminQualityCommandRailComponent,
 } from './admin-quality-command-rail.component';
-import { AdminQualityCoverageMatrixComponent } from './admin-quality-coverage-matrix.component';
+import {
+  AdminQualityCoverageMatrixComponent,
+  AdminQualityCoverageSignalId,
+  AdminQualityCoverageSignalSelection,
+  AdminQualityCoverageSignalTrace,
+} from './admin-quality-coverage-matrix.component';
 import { AdminQualityDelegationPlan, buildDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
@@ -166,6 +171,17 @@ interface AdminQualityPersistedViewState {
   readonly selectedAiProvider?: AdminAiProvider;
   readonly missionHudExpanded?: boolean;
   readonly inspectionSurface?: AdminQualityLegacyInspectionSurface;
+  readonly signalDelegationTraces?: Record<string, AdminQualityCoverageSignalTrace>;
+}
+
+interface AdminQualityWorkspaceSignalContext {
+  readonly signalId: AdminQualityCoverageSignalId;
+  readonly shortLabel: string;
+  readonly label: string;
+  readonly headline: string;
+  readonly detail: string;
+  readonly recommendedAction: string;
+  readonly attention: boolean;
 }
 
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
@@ -467,6 +483,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
+  readonly selectedSignalContext = signal<AdminQualityWorkspaceSignalContext | null>(null);
+  readonly selectedSignalDraftPrompt = signal('');
+  readonly signalDelegationTraces = signal<Record<string, AdminQualityCoverageSignalTrace>>({});
   readonly workspaceOpen = signal(false);
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
   readonly selectedAiProvider = signal<AdminAiProvider>('codex');
@@ -484,6 +503,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly aiOpsLiveNow = signal(Date.now());
   readonly aiOpsLastSuccessfulRefreshAt = signal<number | null>(null);
   readonly aiDispatchingMissionId = signal<string | null>(null);
+  readonly aiDispatchingSelectedSignal = signal(false);
   readonly missionDecisions = signal<AdminQualityMissionDecisionMap>({});
   readonly missionDecisionRecords = signal<readonly AdminQualityMissionDecisionRecord[]>([]);
   readonly missionDecisionSyncStatus = signal<AdminQualityMissionDecisionSyncStatus>('local');
@@ -1221,6 +1241,17 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     const entry = this.selectedEntry();
     return entry ? buildDelegationPlan(entry) : null;
   });
+  readonly selectedSignalDelegationTrace = computed<AdminQualityCoverageSignalTrace | null>(() => {
+    const entry = this.selectedEntry();
+    return entry ? this.signalDelegationTraces()[entry.id] ?? null : null;
+  });
+  readonly selectedSignalDispatchBlockedMessage = computed(() => {
+    if (!this.selectedSignalContext() || this.selectedAiDispatchReady()) {
+      return null;
+    }
+
+    return this.selectedAiDispatchBlockedMessage();
+  });
   readonly selectedEntryActions = computed<readonly AdminQualityActionRecord[]>(() => {
     const entry = this.selectedEntry();
     const actions = this.actionRegistry();
@@ -1494,6 +1525,24 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedEntryId.set(entry.id);
     this.selectedActionId.set(null);
     this.selectedMissionId.set(null);
+    this.selectedSignalContext.set(null);
+    this.selectedSignalDraftPrompt.set('');
+  }
+
+  selectCoverageSignal(selection: AdminQualityCoverageSignalSelection): void {
+    this.stopVoiceForContextChange();
+    const signalContext = this.buildWorkspaceSignalContext(selection);
+    const plan = buildDelegationPlan(selection.entry);
+    this.selectedEntryId.set(selection.entry.id);
+    this.selectedActionId.set(null);
+    this.selectedMissionId.set(null);
+    this.selectedSignalContext.set(signalContext);
+    this.selectedSignalDraftPrompt.set(
+      this.buildSignalDispatchTask(selection.entry, plan, signalContext),
+    );
+    this.activeWorkspaceSurface.set('delegation');
+    this.workspaceOpen.set(true);
+    this.setMissionHudSection('workspace', 'manual-targeting');
   }
 
   isSelected(entry: AdminQualityMatrixEntry): boolean {
@@ -1503,6 +1552,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   selectAction(action: AdminQualityActionRecord): void {
     this.stopVoiceForContextChange();
     this.selectedActionId.set(action.id);
+    this.selectedSignalContext.set(null);
+    this.selectedSignalDraftPrompt.set('');
     this.activeWorkspaceSurface.set('actions');
     this.workspaceOpen.set(true);
   }
@@ -1530,6 +1581,60 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   setActiveWorkspaceSurface(surface: AdminQualityWorkspaceSurface): void {
     this.stopVoiceForContextChange();
     this.activeWorkspaceSurface.set(surface);
+  }
+
+  updateSelectedSignalPrompt(value: string): void {
+    this.selectedSignalDraftPrompt.set(value);
+  }
+
+  dispatchSelectedSignalFromWorkspace(): void {
+    const signalContext = this.selectedSignalContext();
+    const entry = this.selectedEntry();
+    const plan = this.selectedDelegation();
+    if (!signalContext || !entry || !plan) {
+      return;
+    }
+
+    if (!this.selectedAiDispatchReady()) {
+      this.notifications.error(this.selectedAiDispatchBlockedMessage(), {
+        source: 'admin-quality',
+      });
+      return;
+    }
+
+    this.aiDispatchingSelectedSignal.set(true);
+
+    this.opsService
+      .dispatchCodexWorkflow({
+        provider: this.selectedAiProvider(),
+        task:
+          this.selectedSignalDraftPrompt().trim() ||
+          this.buildSignalDispatchTask(entry, plan, signalContext),
+        scope: this.resolveCodexScope(plan.targetFiles),
+        baseBranch: 'main',
+        draftPr: true,
+        model: this.selectedAiProviderModel(),
+        effort: null,
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.aiDispatchingSelectedSignal.set(false)),
+      )
+      .subscribe({
+        next: (result) => {
+          this.recordSignalDelegationTrace(entry.id, signalContext);
+          this.notifications.info(
+            `${this.selectedAiProviderLabel()} queued via ${result.workflow} on ${result.ref}.`,
+            { source: 'admin-quality' },
+          );
+          this.loadAiDispatchReadiness(true);
+        },
+        error: (error: unknown) => {
+          this.notifications.error(this.resolveOpsDispatchError(error), {
+            source: 'admin-quality',
+          });
+        },
+      });
   }
 
   toggleMissionHud(): void {
@@ -2773,6 +2878,124 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     return `${this.selectedAiProviderLabel()} dispatch failed. Review Ops before retrying.`;
   }
 
+  private buildWorkspaceSignalContext(
+    selection: AdminQualityCoverageSignalSelection,
+  ): AdminQualityWorkspaceSignalContext {
+    const entry = selection.entry;
+
+    switch (selection.signalId) {
+      case 'summary':
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: `Synthese ${this.statusLabel(entry.summaryStatus).toLowerCase()} sur ${entry.domain}.`,
+          detail: entry.observedGap || entry.need,
+          recommendedAction: entry.nextMove || 'Clarifier la prochaine preuve attendue avant delegation.',
+          attention: selection.attention,
+        };
+      case 'business':
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: `Couverture metier ${this.statusLabel(entry.businessStatus).toLowerCase()}.`,
+          detail: `Besoin suivi: ${entry.need}`,
+          recommendedAction:
+            'Verifier que la delegation preserve bien le parcours metier cible et sa valeur produit.',
+          attention: selection.attention,
+        };
+      case 'implementation':
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: `Implementation ${this.statusLabel(entry.implementationStatus).toLowerCase()}.`,
+          detail:
+            `Le correctif doit cibler la surface code et les hooks de preuve relies a ${entry.domain}.`,
+          recommendedAction:
+            'Concentrer Codex sur les fichiers du plan et une validation etroite de la surface touchee.',
+          attention: selection.attention,
+        };
+      case 'e2e':
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: `Preuve E2E ${this.statusLabel(entry.e2eStatus).toLowerCase()}.`,
+          detail: entry.evidence.length
+            ? `Preuves actuelles: ${entry.evidence.join(', ')}`
+            : 'Aucune preuve E2E n est encore rattachee a cette entree.',
+          recommendedAction:
+            'Demander une preuve executable ou une regression ciblee avant arbitrage final.',
+          attention: selection.attention,
+        };
+      case 'readiness':
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: this.entryNeedsMatrixRefresh(entry)
+            ? 'Refresh matrice requis avant delegation.'
+            : `Gestion actuelle: ${this.bucketLabel(entry.managementBucket)}.`,
+          detail: this.entryNeedsMatrixRefresh(entry)
+            ? `La derniere revue (${entry.reviewedAt}) ne couvre plus l etat courant de cette surface.`
+            : `Bucket courant: ${this.bucketLabel(entry.managementBucket)}.`,
+          recommendedAction: this.entryNeedsMatrixRefresh(entry)
+            ? 'Rafraichir la preuve ou la decision QA puis deleguer sur une base stabilisee.'
+            : 'Confirmer que la delegation correspond bien au bucket de gestion avant lancement.',
+          attention: selection.attention,
+        };
+      case 'priority':
+      default:
+        return {
+          signalId: selection.signalId,
+          shortLabel: selection.shortLabel,
+          label: selection.label,
+          headline: `Priorite ${this.priorityLabel(entry.priority).toLowerCase()}.`,
+          detail: `Action suivante: ${entry.nextMove}`,
+          recommendedAction:
+            'Utiliser ce signal pour confirmer l ordre de delegation et le niveau de preuve attendu.',
+          attention: selection.attention,
+        };
+    }
+  }
+
+  private buildSignalDispatchTask(
+    entry: AdminQualityMatrixEntry,
+    plan: AdminQualityDelegationPlan,
+    signalContext: AdminQualityWorkspaceSignalContext,
+  ): string {
+    return [
+      plan.codexPrompt,
+      '',
+      `Signal focus: ${signalContext.shortLabel} - ${signalContext.label}`,
+      `Headline: ${signalContext.headline}`,
+      `Detail: ${signalContext.detail}`,
+      `Recommended action: ${signalContext.recommendedAction}`,
+      `Observed gap: ${entry.observedGap}`,
+      `Next move: ${entry.nextMove}`,
+    ].join('\n');
+  }
+
+  private recordSignalDelegationTrace(
+    entryId: string,
+    signalContext: AdminQualityWorkspaceSignalContext,
+  ): void {
+    const trace: AdminQualityCoverageSignalTrace = {
+      signalId: signalContext.signalId,
+      shortLabel: signalContext.shortLabel,
+      label: signalContext.label,
+      provider: this.selectedAiProviderLabel(),
+      requestedAt: new Date().toISOString(),
+    };
+
+    this.signalDelegationTraces.update((current) => ({
+      ...current,
+      [entryId]: trace,
+    }));
+  }
+
   private aiProofStateLabel(state: AdminQualityAiProofModule['state']): string {
     switch (state) {
       case 'completed':
@@ -3061,6 +3284,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.selectedEntryId.set(entryId);
       this.selectedActionId.set(null);
       this.selectedMissionId.set(null);
+      this.selectedSignalContext.set(null);
+      this.selectedSignalDraftPrompt.set('');
       return;
     }
 
@@ -3130,6 +3355,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
         this.activeWorkspaceSurface.set(parsed.inspectionSurface);
       }
+      if (parsed.signalDelegationTraces && typeof parsed.signalDelegationTraces === 'object') {
+        this.signalDelegationTraces.set(parsed.signalDelegationTraces);
+      }
     } catch {
       localStorage.removeItem(VIEW_STATE_STORAGE_KEY);
     }
@@ -3152,6 +3380,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       activeWorkspaceSurface: this.activeWorkspaceSurface(),
       selectedAiProvider: this.selectedAiProvider(),
       missionHudExpanded: this.missionHudExpanded(),
+      signalDelegationTraces: this.signalDelegationTraces(),
     };
 
     try {

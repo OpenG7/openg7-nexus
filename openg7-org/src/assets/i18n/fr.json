@@ -4747,6 +4747,9 @@
             "execution": "Plan d execution probable",
             "files": "Fichiers",
             "validation": "Validation",
+            "signalFocus": "Contexte du voyant",
+            "signalAttention": "Attention requise",
+            "recommendedAction": "Action recommandee",
             "brief": "Brief Codex",
             "briefBody": "Prompt pret a copier, relire ou deleguer rapidement.",
             "issue": "Issue GitHub",
@@ -4755,7 +4758,9 @@
           "buttons": {
             "copyBrief": "Copier le brief",
             "copyIssue": "Copier l issue",
-            "openGithub": "Ouvrir sur GitHub"
+            "openGithub": "Ouvrir sur GitHub",
+            "confirmDispatch": "Confirmer et lancer {{ provider }}",
+            "launching": "Mise en file de {{ provider }}..."
           },
           "acceptanceCount": "{{ count }} element(s)",
           "executionCount": "{{ files }} fichier(s) · {{ commands }} commande(s)"

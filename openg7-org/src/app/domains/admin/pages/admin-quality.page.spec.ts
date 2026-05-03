@@ -1307,6 +1307,65 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).not.toBeNull();
   });
 
+  it('opens the delegation drawer from a clicked coverage signal, lets the operator edit the brief, and records the delegation trace', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const row = root.querySelector(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]',
+    ) as HTMLElement;
+    const e2eSignal = row.querySelector(
+      '[data-og7="admin-quality-coverage-signal"][data-og7-id="e2e"]',
+    ) as HTMLElement;
+
+    e2eSignal.click();
+    fixture.detectChanges();
+
+    const drawer = root.querySelector('[data-og7="admin-quality-workspace-drawer"]');
+    const signalContext = root.querySelector(
+      '[data-og7="admin-quality-workspace-signal-context"][data-og7-id="e2e"]',
+    );
+    const promptEditor = root.querySelector(
+      '[data-og7-id="admin-quality-codex-prompt-editor"]',
+    ) as HTMLTextAreaElement;
+    const launchButton = root.querySelector(
+      '[data-og7-id="admin-quality-confirm-dispatch"]',
+    ) as HTMLButtonElement;
+
+    expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('delegation');
+    expect(fixture.componentInstance.selectedSignalContext()?.signalId).toBe('e2e');
+    expect(drawer).not.toBeNull();
+    expect(signalContext).not.toBeNull();
+    expect(promptEditor.value).toContain('Signal focus: E - End-to-end');
+
+    promptEditor.value = 'Operator override brief';
+    promptEditor.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    launchButton.click();
+    fixture.detectChanges();
+
+    expect(opsService.dispatchCodexWorkflow).toHaveBeenCalledWith({
+      provider: 'codex',
+      task: 'Operator override brief',
+      scope: 'openg7-org',
+      baseBranch: 'main',
+      draftPr: true,
+      model: 'gpt-5.4',
+      effort: null,
+    });
+    expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
+      source: 'admin-quality',
+    });
+    expect(
+      root.querySelector(
+        '[data-og7="admin-quality-coverage-delegation-trace"][data-og7-id="advanced-discovery"]',
+      )?.textContent,
+    ).toContain('Derniere delegation: E via Codex');
+  });
+
   it('updates the sticky mission HUD active section when a section chip is selected', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();

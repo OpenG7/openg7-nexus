@@ -7,6 +7,8 @@ const { compileStrapi, createStrapi } = require('@strapi/strapi');
 
 const TEST_DB_FILENAME = `db.admin-quality-matrix.integration.${process.pid}.${Date.now()}.sqlite`;
 const MATRIX_ENTRY_UID = 'api::admin-quality-matrix.admin-quality-matrix-entry';
+const TEST_PASSWORD = 'S3cureAdminQuality!123';
+const MATRIX_ACTIONS = ['api::admin-quality-matrix.admin-quality-matrix.snapshot'];
 
 function applyTestEnvironment() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -70,6 +72,73 @@ function normalizeFindManyResult(value) {
   return [value];
 }
 
+async function ensureRoleWithPermissions(strapi, roleType, roleName, actions) {
+  const roleQuery = strapi.db.query('plugin::users-permissions.role');
+  const permissionQuery = strapi.db.query('plugin::users-permissions.permission');
+  let role = await roleQuery.findOne({
+    where: { type: roleType },
+  });
+
+  if (!role) {
+    role = await roleQuery.create({
+      data: {
+        name: roleName,
+        type: roleType,
+      },
+    });
+  }
+
+  for (const action of actions) {
+    const existing = await permissionQuery.findOne({
+      where: {
+        role: role.id,
+        action,
+      },
+    });
+
+    if (!existing) {
+      await permissionQuery.create({
+        data: {
+          role: role.id,
+          action,
+        },
+      });
+    }
+  }
+
+  return role;
+}
+
+async function createAuthenticatedUser(baseUrl, suffix) {
+  const email = `admin.quality.matrix.${Date.now()}.${suffix}@example.test`;
+  const register = await requestJson(`${baseUrl}/api/auth/local/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: email,
+      email,
+      password: TEST_PASSWORD,
+    }),
+  });
+
+  assert.equal(register.status, 200, 'Expected register to succeed.');
+  assert.ok(register.body?.jwt, 'Expected JWT from register.');
+  assert.ok(register.body?.user?.id, 'Expected user id from register.');
+
+  return {
+    jwt: register.body.jwt,
+    userId: register.body.user.id,
+  };
+}
+
+async function assignRoleToUser(strapi, userId, roleId) {
+  const userQuery = strapi.db.query('plugin::users-permissions.user');
+  await userQuery.update({
+    where: { id: userId },
+    data: { role: roleId },
+  });
+}
+
 async function createMatrixEntry(strapi, entryId) {
   return strapi.entityService.create(MATRIX_ENTRY_UID, {
     data: {
@@ -121,6 +190,21 @@ async function run() {
     const address = app.server.httpServer.address();
     const port = typeof address === 'object' && address ? address.port : 1337;
     const baseUrl = `http://127.0.0.1:${port}`;
+    const ownerRole = await ensureRoleWithPermissions(app, 'owner', 'Owner', MATRIX_ACTIONS);
+    const standardUser = await createAuthenticatedUser(baseUrl, 'standard');
+    const ownerUser = await createAuthenticatedUser(baseUrl, 'owner');
+    await assignRoleToUser(app, ownerUser.userId, ownerRole.id);
+
+    const snapshotDenied = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
+    });
+    assert.equal(snapshotDenied.status, 403, 'Expected standard authenticated user to be denied.');
+
+    const snapshotAllowed = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(snapshotAllowed.status, 200, 'Expected owner user to access matrix snapshot.');
+    assert.equal(snapshotAllowed.body?.data?.entries?.length, 1, 'Expected matrix snapshot payload.');
 
     const unauthorized = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
       method: 'POST',

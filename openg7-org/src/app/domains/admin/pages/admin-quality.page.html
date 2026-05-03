@@ -592,8 +592,11 @@
         <og7-admin-quality-coverage-matrix
           [entries]="filteredEntries()"
           [selectedEntryId]="selectedEntry()?.id ?? null"
+          [selectedSignalId]="selectedSignalContext()?.signalId ?? null"
           [refreshRequiredEntryIds]="matrixRefreshRequiredEntryIds()"
+          [delegationTraceByEntryId]="signalDelegationTraces()"
           (entrySelected)="selectEntry($event)"
+          (signalSelected)="selectCoverageSignal($event)"
         />
       </div>
 
@@ -1259,13 +1262,21 @@
     [open]="workspaceOpen()"
     [activeSurface]="activeWorkspaceSurface()"
     [selectedEntry]="selectedEntry()"
+    [selectedSignalContext]="selectedSignalContext()"
     [delegationPlan]="selectedDelegation()"
+    [editableCodexPrompt]="selectedSignalDraftPrompt()"
+    [dispatchProviderLabel]="selectedAiProviderLabel()"
+    [dispatchReady]="selectedAiDispatchReady()"
+    [dispatchSubmitting]="aiDispatchingSelectedSignal()"
+    [dispatchBlockedMessage]="selectedSignalDispatchBlockedMessage()"
     [qaQueueCount]="filteredEntries().length"
     [delegationCount]="selectedDelegation() ? 1 : 0"
     [actionsCount]="selectedEntryActions().length"
     [qaQueueItems]="qaQueuePreviewItems()"
     [actionItems]="actionPreviewItems()"
     (closeRequested)="closeWorkspace()"
+    (codexPromptChanged)="updateSelectedSignalPrompt($event)"
+    (codexLaunchRequested)="dispatchSelectedSignalFromWorkspace()"
     (surfaceChanged)="setActiveWorkspaceSurface($event)"
   />
 

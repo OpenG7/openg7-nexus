@@ -22,6 +22,16 @@ import { AdminQualityDelegationPlan, AdminQualityDelegationMode } from '../pages
 
 export type AdminQualityWorkspaceSurface = 'qaQueue' | 'delegation' | 'actions';
 
+interface AdminQualityWorkspaceSignalContext {
+  readonly signalId: string;
+  readonly shortLabel: string;
+  readonly label: string;
+  readonly headline: string;
+  readonly detail: string;
+  readonly recommendedAction: string;
+  readonly attention: boolean;
+}
+
 const WORKSPACE_SURFACES: readonly AdminQualityWorkspaceSurface[] = ['qaQueue', 'delegation', 'actions'];
 
 @Component({
@@ -43,7 +53,13 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly open = input(false);
   readonly activeSurface = input<AdminQualityWorkspaceSurface>('delegation');
   readonly selectedEntry = input<AdminQualityMatrixEntry | null>(null);
+  readonly selectedSignalContext = input<AdminQualityWorkspaceSignalContext | null>(null);
   readonly delegationPlan = input<AdminQualityDelegationPlan | null>(null);
+  readonly editableCodexPrompt = input('');
+  readonly dispatchProviderLabel = input('Codex');
+  readonly dispatchReady = input(false);
+  readonly dispatchSubmitting = input(false);
+  readonly dispatchBlockedMessage = input<string | null>(null);
   readonly qaQueueCount = input(0);
   readonly delegationCount = input(0);
   readonly actionsCount = input(0);
@@ -51,6 +67,8 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly actionItems = input<readonly AdminQualityActionRecord[]>([]);
 
   readonly closeRequested = output<void>();
+  readonly codexPromptChanged = output<string>();
+  readonly codexLaunchRequested = output<void>();
   readonly surfaceChanged = output<AdminQualityWorkspaceSurface>();
 
   protected readonly surfaces = WORKSPACE_SURFACES;
@@ -137,6 +155,15 @@ export class AdminQualityWorkspaceDrawerComponent {
 
   protected requestClose(): void {
     this.closeRequested.emit();
+  }
+
+  protected requestCodexLaunch(): void {
+    this.codexLaunchRequested.emit();
+  }
+
+  protected updateCodexPrompt(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement | null)?.value ?? '';
+    this.codexPromptChanged.emit(value);
   }
 
   protected selectSurface(surface: AdminQualityWorkspaceSurface): void {

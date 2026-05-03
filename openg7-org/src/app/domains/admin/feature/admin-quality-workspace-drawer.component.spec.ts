@@ -143,6 +143,9 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                   execution: 'Likely execution plan',
                   files: 'Files',
                   validation: 'Validation',
+                  signalFocus: 'Signal context',
+                  signalAttention: 'Requires attention',
+                  recommendedAction: 'Recommended action',
                   brief: 'Codex brief',
                   briefBody: 'Prompt ready to copy, review, or delegate quickly.',
                   issue: 'GitHub issue',
@@ -152,6 +155,8 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                   copyBrief: 'Copy brief',
                   copyIssue: 'Copy issue',
                   openGithub: 'Open on GitHub',
+                  confirmDispatch: 'Confirm and launch {{ provider }}',
+                  launching: 'Queueing {{ provider }}...',
                 },
                 acceptanceCount: '{{ count }} item(s)',
                 executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
@@ -324,5 +329,53 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     expect(root.textContent).toContain('Open GitHub issue');
     expect(root.textContent).toContain('Needs completion');
     expect(root.textContent).toContain('Proved');
+  });
+
+  it('renders the selected signal context, lets the brief be edited, and emits codexLaunchRequested', () => {
+    const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
+    const launchSpy = jasmine.createSpy('codexLaunchRequested');
+    const promptChangedSpy = jasmine.createSpy('codexPromptChanged');
+    fixture.componentInstance.codexLaunchRequested.subscribe(launchSpy);
+    fixture.componentInstance.codexPromptChanged.subscribe(promptChangedSpy);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('activeSurface', 'delegation');
+    fixture.componentRef.setInput('delegationPlan', buildDelegationPlan());
+    fixture.componentRef.setInput('dispatchProviderLabel', 'Codex');
+    fixture.componentRef.setInput('dispatchReady', true);
+    fixture.componentRef.setInput('editableCodexPrompt', 'Original brief');
+    fixture.componentRef.setInput('selectedSignalContext', {
+      signalId: 'e2e',
+      shortLabel: 'E',
+      label: 'End-to-end',
+      headline: 'E2E proof is partial.',
+      detail: 'Current proof only covers one branch.',
+      recommendedAction: 'Request a stronger regression before final review.',
+      attention: true,
+    });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const signalContext = root.querySelector(
+      '[data-og7="admin-quality-workspace-signal-context"][data-og7-id="e2e"]',
+    );
+    const promptEditor = root.querySelector(
+      '[data-og7-id="admin-quality-codex-prompt-editor"]',
+    ) as HTMLTextAreaElement;
+    const launchButton = root.querySelector(
+      '[data-og7-id="admin-quality-confirm-dispatch"]',
+    ) as HTMLButtonElement;
+
+    expect(signalContext?.textContent).toContain('Signal context');
+    expect(signalContext?.textContent).toContain('E2E proof is partial.');
+    expect(signalContext?.textContent).toContain('Request a stronger regression before final review.');
+    expect(promptEditor.value).toBe('Original brief');
+
+    promptEditor.value = 'Adjusted brief';
+    promptEditor.dispatchEvent(new Event('input'));
+
+    launchButton.click();
+
+    expect(promptChangedSpy).toHaveBeenCalledWith('Adjusted brief');
+    expect(launchSpy).toHaveBeenCalledTimes(1);
   });
 });

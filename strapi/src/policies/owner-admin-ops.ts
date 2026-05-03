@@ -24,6 +24,11 @@ interface UserLike {
   readonly role?: UserRoleLike | null;
 }
 
+interface ResolvedRoleLike {
+  readonly roleType: string | null;
+  readonly roleName: string | null;
+}
+
 function normalizeString(value: unknown, maxLength = 120): string | null {
   if (typeof value !== 'string') {
     return null;
@@ -37,6 +42,48 @@ function normalizeString(value: unknown, maxLength = 120): string | null {
 
 function isOwnerOrAdminRole(roleType: string | null, roleName: string | null): boolean {
   return roleType === 'admin' || roleType === 'owner' || roleName === 'admin' || roleName === 'owner';
+}
+
+async function resolveUserRole(
+  strapi: Core.Strapi,
+  userId: number | string,
+): Promise<ResolvedRoleLike> {
+  const userQuery = strapi.db.query(USER_UID as any);
+  const user = (await userQuery.findOne({
+    where: { id: userId },
+    populate: ['role'],
+  })) as UserLike | null;
+
+  const hydratedRoleType = normalizeString(user?.role?.type, 80);
+  const hydratedRoleName = normalizeString(user?.role?.name, 120);
+  if (hydratedRoleType || hydratedRoleName) {
+    return {
+      roleType: hydratedRoleType,
+      roleName: hydratedRoleName,
+    };
+  }
+
+  const linkedRoles = await strapi.db
+    .connection('up_users_role_lnk as userRoleLink')
+    .leftJoin('up_roles as role', 'role.id', 'userRoleLink.role_id')
+    .select({
+      roleType: 'role.type',
+      roleName: 'role.name',
+    })
+    .where('userRoleLink.user_id', userId);
+
+  for (const linkedRole of linkedRoles as Array<{ roleType?: unknown; roleName?: unknown }>) {
+    const roleType = normalizeString(linkedRole.roleType, 80);
+    const roleName = normalizeString(linkedRole.roleName, 120);
+    if (roleType || roleName) {
+      return { roleType, roleName };
+    }
+  }
+
+  return {
+    roleType: null,
+    roleName: null,
+  };
 }
 
 export default async (
@@ -55,7 +102,6 @@ export default async (
   const userQuery = strapi.db.query(USER_UID as any);
   const user = (await userQuery.findOne({
     where: { id: userId },
-    populate: ['role'],
   })) as UserLike | null;
 
   if (!user) {
@@ -65,8 +111,7 @@ export default async (
     return false;
   }
 
-  const roleType = normalizeString(user.role?.type, 80);
-  const roleName = normalizeString(user.role?.name, 120);
+  const { roleType, roleName } = await resolveUserRole(strapi, userId);
   if (isOwnerOrAdminRole(roleType, roleName)) {
     return true;
   }

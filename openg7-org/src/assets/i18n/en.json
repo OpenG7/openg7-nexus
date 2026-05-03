@@ -625,6 +625,9 @@
             "execution": "Likely execution plan",
             "files": "Files",
             "validation": "Validation",
+            "signalFocus": "Signal context",
+            "signalAttention": "Requires attention",
+            "recommendedAction": "Recommended action",
             "brief": "Codex brief",
             "briefBody": "Prompt ready to copy, review, or delegate quickly.",
             "issue": "GitHub issue",
@@ -633,7 +636,9 @@
           "buttons": {
             "copyBrief": "Copy brief",
             "copyIssue": "Copy issue",
-            "openGithub": "Open on GitHub"
+            "openGithub": "Open on GitHub",
+            "confirmDispatch": "Confirm and launch {{ provider }}",
+            "launching": "Queueing {{ provider }}..."
           },
           "acceptanceCount": "{{ count }} item(s)",
           "executionCount": "{{ files }} file(s) · {{ commands }} command(s)"
