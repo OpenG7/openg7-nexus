@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import type { AuthUser } from '@app/core/auth/auth.types';
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { FiltersService, TradeModeFilter } from '@app/core/filters.service';
+import type { SectorType } from '@app/core/models/opportunity';
 import {
   MapFlowFeature,
   MapFlowFeatureCollection,
@@ -28,6 +29,7 @@ import { AppState } from '@app/state/app.state';
 import { selectUserProfile } from '@app/state/user/user.selectors';
 import { NgxMapLibreGLModule } from '@maplibre/ngx-maplibre-gl';
 import { Store } from '@ngrx/store';
+import { TranslateModule } from '@ngx-translate/core';
 import type {
   ColorSpecification,
   DataDrivenPropertyValueSpecification,
@@ -107,6 +109,36 @@ interface FlowCollectionState {
   readonly hasTariffImpact: boolean;
 }
 
+interface FlowContextVm {
+  readonly id: string;
+  readonly sectorLabel: string;
+  readonly tradeValue: string;
+  readonly tradeMode: 'import' | 'export';
+}
+
+interface LayerFlowFeatureProperties {
+  readonly id?: string;
+  readonly tradeMode?: 'import' | 'export';
+  readonly value?: number;
+  readonly currency?: string;
+  readonly sectorId?: string;
+  readonly sectorIds?: readonly string[];
+}
+
+interface LayerPointerEventLike {
+  readonly features?: ReadonlyArray<{
+    readonly properties?: LayerFlowFeatureProperties;
+  }>;
+}
+
+interface MapCameraApi {
+  fitBounds(
+    bounds: [[number, number], [number, number]],
+    options?: { padding?: number; duration?: number; maxZoom?: number; essential?: boolean }
+  ): void;
+  easeTo(options: { center: Coordinates; zoom: number; duration?: number; essential?: boolean }): void;
+}
+
 const DEFAULT_FLOW_LAYER_PAINT: LinePaint = {
   'line-color': '#2563eb',
   'line-width': 2.8,
@@ -127,6 +159,7 @@ const DEFAULT_FLOW_GLOW_PAINT: LinePaint = {
   imports: [
     CommonModule,
     NgxMapLibreGLModule,
+    TranslateModule,
     MapLegendComponent,
     //MapKpiBadgesComponent,
     MapSectorChipsComponent,
@@ -147,24 +180,56 @@ const DEFAULT_FLOW_GLOW_PAINT: LinePaint = {
  * @returns TradeMapComponent gérée par le framework.
  */
 export class TradeMapComponent {
+  readonly enableGlobeProjection = input(false);
+  readonly showGlobeControl = input(false);
+  readonly showLegend = input(true);
+  readonly showSectorChips = input(false);
+  readonly showBasemapToggle = input(false);
+
   private readonly store = inject(Store<AppState>);
   private readonly filters = inject(FiltersService);
   private readonly featureFlags = inject(FEATURE_FLAGS, { optional: true });
+  private readonly mapInstance = signal<MapCameraApi | null>(null);
+  private lastCameraTarget: string | null = null;
 
   private readonly geojson = inject(MapGeojsonService);
   private readonly tariffQuery = inject(TariffQueryService);
+  private readonly hoveredFlowId = signal<string | null>(null);
+  private readonly pinnedFlowId = signal<string | null>(null);
 
   protected readonly ready = this.store.selectSignal(selectMapReady);
   private readonly userProfile = this.store.selectSignal(selectUserProfile);
   private readonly flows = this.store.selectSignal(selectFilteredFlows);
   private readonly kpis = this.store.selectSignal(selectMapKpis);
+  private readonly activeFlowId = computed(() => this.pinnedFlowId() ?? this.hoveredFlowId());
+  protected readonly activeFlowContext = computed<FlowContextVm | null>(() => {
+    const flowId = this.activeFlowId();
+    if (!flowId) {
+      return null;
+    }
+
+    const flow = this.filteredFlows().find((entry) => entry.id === flowId);
+    if (!flow) {
+      return null;
+    }
+
+    const sectorId = flow.sectorId ?? flow.sectorIds?.[0] ?? null;
+    const sectorLabel = sectorId ? this.resolveSectorLabel(sectorId) : flow.partner ?? flow.id;
+
+    return {
+      id: flow.id,
+      sectorLabel,
+      tradeValue: this.formatFlowValue(flow),
+      tradeMode: flow.tradeMode ?? 'export',
+    };
+  });
 
   readonly mapStyle = (this.featureFlags?.['mapNight'] ?? false)
     ? MAP_STYLE_NIGHT_LIGHTS_URL
     : MAP_STYLE_URL;
   protected readonly mapCenter = computed(() => this.resolveMapCenter());
   protected readonly mapZoom = MAP_ZOOM;
-  readonly globeEnabled = this.featureFlags?.['mapGlobe'] ?? false;
+  protected readonly globeEnabled = computed(() => this.enableGlobeProjection() && (this.featureFlags?.['mapGlobe'] ?? false));
 
   protected readonly provinceSource = this.geojson.provinceCollection;
   private readonly provinceBboxes = computed(() => this.buildProvinceBboxes(this.provinceSource()));
@@ -267,6 +332,45 @@ export class TradeMapComponent {
   protected readonly hasHighlight = computed(() => this.highlightSource().features.length > 0);
 
   private readonly hasTariffImpact = computed(() => this.flowCollectionState().hasTariffImpact);
+
+  constructor() {
+    effect(() => {
+      const map = this.mapInstance();
+      if (!map) {
+        return;
+      }
+
+      const sectorId = this.filters.activeSector();
+      const highlightCollection = this.highlightSource();
+      const cameraTarget = sectorId ?? '__default__';
+
+      if (this.lastCameraTarget === cameraTarget) {
+        return;
+      }
+
+      if (sectorId && highlightCollection.features.length > 0) {
+        const bounds = this.computeCollectionBounds(highlightCollection);
+        if (bounds) {
+          map.fitBounds(bounds, {
+            padding: 80,
+            duration: 800,
+            maxZoom: 4.4,
+            essential: true,
+          });
+          this.lastCameraTarget = cameraTarget;
+          return;
+        }
+      }
+
+      map.easeTo({
+        center: this.mapCenter(),
+        zoom: this.mapZoom,
+        duration: 600,
+        essential: true,
+      });
+      this.lastCameraTarget = cameraTarget;
+    });
+  }
 
   private resolveMapCenter(): Coordinates {
     const profile = this.userProfile();
@@ -415,6 +519,33 @@ export class TradeMapComponent {
     return coordinates;
   }
 
+  private computeCollectionBounds(
+    collection: MapFlowFeatureCollection
+  ): [[number, number], [number, number]] | null {
+    let minLng = Number.POSITIVE_INFINITY;
+    let maxLng = Number.NEGATIVE_INFINITY;
+    let minLat = Number.POSITIVE_INFINITY;
+    let maxLat = Number.NEGATIVE_INFINITY;
+
+    for (const feature of collection.features) {
+      for (const [lng, lat] of this.getFlowCoordinates(feature)) {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      }
+    }
+
+    if (![minLng, maxLng, minLat, maxLat].every(Number.isFinite)) {
+      return null;
+    }
+
+    return [
+      [minLng, minLat],
+      [maxLng, maxLat],
+    ];
+  }
+
   private readonly tariffImpactExpression = computed<Expression>(() => [
     'boolean',
     ['get', 'tariffImpacted'],
@@ -493,10 +624,38 @@ export class TradeMapComponent {
    * The readiness flag is only emitted once to avoid redundant state updates
    * when the component receives additional load events from MapLibre.
    */
-  onMapLoad(): void {
+  onMapLoad(map: MapCameraApi): void {
+    this.mapInstance.set(map);
     if (!this.ready()) {
       this.store.dispatch(MapActions.mapLoaded());
     }
+  }
+
+  protected handleFlowMouseMove(event: unknown): void {
+    const flowId = this.extractFlowIdFromLayerEvent(event);
+    this.hoveredFlowId.set(flowId);
+  }
+
+  protected handleFlowMouseLeave(): void {
+    this.hoveredFlowId.set(null);
+  }
+
+  protected handleFlowClick(event: unknown): void {
+    const properties = this.extractFlowPropertiesFromLayerEvent(event);
+    if (!properties) {
+      return;
+    }
+
+    const flowId = properties.id ?? null;
+    this.pinnedFlowId.update((current) => (current === flowId ? null : flowId));
+
+    const sectorId = properties.sectorId ?? properties.sectorIds?.[0] ?? null;
+    if (!sectorId) {
+      return;
+    }
+
+    this.filters.activeSector.set(sectorId as SectorType);
+    this.store.dispatch(MapActions.activeSectorSelected({ sectorId }));
   }
 
   /**
@@ -610,6 +769,17 @@ export class TradeMapComponent {
       return featureId;
     }
     return null;
+  }
+
+  private extractFlowPropertiesFromLayerEvent(event: unknown): LayerFlowFeatureProperties | null {
+    const pointerEvent = event as LayerPointerEventLike | null;
+    const feature = pointerEvent?.features?.[0];
+    return feature?.properties ?? null;
+  }
+
+  private extractFlowIdFromLayerEvent(event: unknown): string | null {
+    const properties = this.extractFlowPropertiesFromLayerEvent(event);
+    return properties?.id ?? null;
   }
 
   private decorateHubFeature(base: MapHubFeature, snapshot: MapKpiComputed): MapHubFeature {
@@ -768,5 +938,22 @@ export class TradeMapComponent {
       return dictionary[partner];
     }
     return dictionary.default;
+  }
+
+  private resolveSectorLabel(sectorId: string): string {
+    return sectorId
+      .split('-')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
+
+  private formatFlowValue(flow: Flow): string {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: flow.currency ?? 'CAD',
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(flow.value ?? 0);
   }
 }

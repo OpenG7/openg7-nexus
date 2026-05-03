@@ -4,14 +4,14 @@
     [center]="mapCenter()"
     [zoom]="[mapZoom]"
     [renderWorldCopies]="false"
-    [projection]="globeEnabled ? { type: 'globe' } : undefined"
-    (mapLoad)="onMapLoad()"
+    [projection]="globeEnabled() ? { type: 'globe' } : undefined"
+    (mapLoad)="onMapLoad($event)"
     
     [style.display]="'block'"
     [style.height.%]="100"
     [style.width.%]="100"
   >
-    @if (globeEnabled) {
+    @if (globeEnabled() && showGlobeControl()) {
       <mgl-control mglGlobe position="top-right"></mgl-control>
     }
     <mgl-geojson-source id="provinces" [data]="provinceSource()">
@@ -45,6 +45,9 @@
         source="flows"
         [layout]="flowLayerLayout"
         [paint]="flowLayerPaint()"
+        (layerMouseMove)="handleFlowMouseMove($event)"
+        (layerMouseLeave)="handleFlowMouseLeave()"
+        (layerClick)="handleFlowClick($event)"
         data-og7="map-layer"
         data-og7-layer="flows"
       ></mgl-layer>
@@ -78,15 +81,46 @@
 </div>
 
 @if (ready()) {
-  <og7-map-legend data-og7="map-legend"></og7-map-legend>
+  @if (showLegend()) {
+    <og7-map-legend data-og7="map-legend"></og7-map-legend>
+  }
   <!-- <og7-map-kpi-badges data-og7="map-kpi-badges"></og7-map-kpi-badges> -->
-  <og7-map-sector-chips data-og7="map-sector-chips"></og7-map-sector-chips>
-  <og7-map-basemap-toggle data-og7="map-basemap-toggle"></og7-map-basemap-toggle>
+  @if (showSectorChips()) {
+    <og7-map-sector-chips data-og7="map-sector-chips"></og7-map-sector-chips>
+  }
+  @if (showBasemapToggle()) {
+    <og7-map-basemap-toggle data-og7="map-basemap-toggle"></og7-map-basemap-toggle>
+  }
   <og7-map-zoom-control data-og7="map-zoom-control"></og7-map-zoom-control>
   <div
     data-og7="map-tooltip"
-    style="position:absolute; right:1.5rem; bottom:1.5rem; min-width:12rem; pointer-events:none;"
-  ></div>
+    style="position:absolute; left:1rem; right:1rem; bottom:1rem; pointer-events:none;"
+  >
+    @if (activeFlowContext(); as context) {
+      <section
+        class="ml-auto max-w-[18rem] rounded-[1.35rem] border border-cyan-200/20 bg-slate-950/86 px-4 py-3 text-white shadow-[0_16px_45px_rgba(15,23,42,0.4)] backdrop-blur"
+        data-og7="map-flow-context"
+        aria-live="polite"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/70">
+          {{ 'home.map.decision.selected' | translate }}
+        </p>
+        <h3 class="mt-1 text-base font-semibold text-white">
+          {{ context.sectorLabel }}
+        </h3>
+        <dl class="mt-3 grid gap-2 text-sm">
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-slate-400">{{ 'home.map.decision.mappedValue' | translate }}</dt>
+            <dd class="font-semibold text-cyan-50">{{ context.tradeValue }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-slate-400">{{ 'map.filters.tradeMode.label' | translate }}</dt>
+            <dd class="font-semibold text-cyan-100">{{ ('map.filters.tradeMode.' + context.tradeMode) | translate }}</dd>
+          </div>
+        </dl>
+      </section>
+    }
+  </div>
 }
 <div
   data-og7="map-aria-live"
