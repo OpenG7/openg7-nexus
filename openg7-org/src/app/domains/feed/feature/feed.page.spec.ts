@@ -416,6 +416,34 @@ describe('FeedPage', () => {
     expect(context.textContent).toContain('Context preserved from the trade map.');
   });
 
+  it('highlights the first matching item when the feed is opened from a pinned trade-map corridor', () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'trade-map',
+        sector: 'energy',
+        partner: 'Grid Ops',
+        corridorId: 'flow-energy',
+        type: 'REQUEST',
+      }),
+    );
+
+    feed.items.set([
+      createFeedItem('REQUEST', 'request-001', {
+        source: { kind: 'PARTNER', label: 'Grid Ops' },
+      }),
+      createFeedItem('REQUEST', 'request-002', {
+        source: { kind: 'PARTNER', label: 'Another Partner' },
+      }),
+    ]);
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+
+    expect(stream.highlightedItemId()).toBe('request-001');
+  });
+
   it('mirrors active feed filters into URL query params', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();

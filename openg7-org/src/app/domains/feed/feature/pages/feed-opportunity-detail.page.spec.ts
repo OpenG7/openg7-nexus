@@ -394,6 +394,42 @@ describe('FeedOpportunityDetailPage', () => {
     });
   });
 
+  it('exposes trade-map context when a pinned corridor query is preserved into the detail page', async () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        sector: 'energy',
+        partner: 'Hydro Export',
+      }),
+    );
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as unknown as {
+      tradeMapContext: () => {
+        corridorId: string;
+        headline: string;
+        sectorLabel: string | null;
+        routeLabel: string | null;
+        partner: string | null;
+      } | null;
+    };
+
+    expect(component.tradeMapContext()).toEqual(
+      jasmine.objectContaining({
+        corridorId: 'flow-energy',
+        headline: 'Energy · Quebec -> Ontario',
+        sectorLabel: 'Energy',
+        routeLabel: 'Quebec -> Ontario',
+        partner: 'Hydro Export',
+      }),
+    );
+  });
+
   it('surfaces an error toast when offer publication fails', async () => {
     feed.publishDraft.and.resolveTo({
       status: 'request-error',

@@ -50,10 +50,6 @@
 
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.9fr)_minmax(300px,0.8fr)] xl:items-stretch">
       <div class="relative space-y-4">
-        <og7-map-frame class="block h-105 w-full sm:h-130 lg:h-150">
-          <og7-map-trade></og7-map-trade>
-        </og7-map-frame>
-
         @if (selectedDecisionDrilldown(); as drilldown) {
           <section
             class="rounded-3xl border border-cyan-300/15 bg-slate-950/75 p-4 text-white xl:hidden"
@@ -80,6 +76,10 @@
             </div>
           </section>
         }
+
+        <og7-map-frame class="block h-105 w-full sm:h-130 lg:h-150">
+          <og7-map-trade></og7-map-trade>
+        </og7-map-frame>
       </div>
 
       <aside

@@ -105,9 +105,17 @@ export class FeedPage {
     }
     return resolveCorridorContext(this.normalizeQueryParam(this.queryParamMap().get('corridorId')));
   });
-  readonly highlightedItemId = computed(() =>
-    this.sourceContext() === 'home-feed-panels' ? this.normalizeQueryParam(this.queryParamMap().get('feedItemId')) : null
-  );
+  readonly highlightedItemId = computed(() => {
+    if (this.sourceContext() === 'home-feed-panels') {
+      return this.normalizeQueryParam(this.queryParamMap().get('feedItemId'));
+    }
+
+    if (this.sourceContext() === 'trade-map') {
+      return this.resolveTradeMapHighlightedItemId();
+    }
+
+    return null;
+  });
   readonly pageView = computed(() => {
     const view = this.routeData()?.['feedView'];
     return view && typeof view === 'object'
@@ -403,6 +411,35 @@ export class FeedPage {
     const navigation = this.router.getCurrentNavigation();
     const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
+  }
+
+  private resolveTradeMapHighlightedItemId(): string | null {
+    const corridorId = this.normalizeQueryParam(this.queryParamMap().get('corridorId'));
+    if (!corridorId) {
+      return null;
+    }
+
+    const sectorId =
+      this.normalizeQueryParam(this.queryParamMap().get('sector')) ??
+      this.normalizeQueryParam(this.queryParamMap().get('sectorId'));
+    const partner = this.normalizeQueryParam(this.queryParamMap().get('partner'));
+
+    const item = this.items().find((entry) => this.matchesTradeMapItem(entry, sectorId, partner));
+    return item?.id ?? null;
+  }
+
+  private matchesTradeMapItem(item: FeedItem, sectorId: string | null, partner: string | null): boolean {
+    if (sectorId && item.sectorId !== sectorId) {
+      return false;
+    }
+
+    if (!partner) {
+      return true;
+    }
+
+    const normalizedPartner = partner.trim().toLowerCase();
+    const sourceLabel = item.source.label.trim().toLowerCase();
+    return sourceLabel === normalizedPartner || sourceLabel.includes(normalizedPartner);
   }
 
   private normalizeQueryParam(value: string | null): string | null {
