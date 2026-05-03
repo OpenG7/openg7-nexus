@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:20-bullseye-slim AS builder
+FROM node:22-bookworm AS builder
 ENV NODE_ENV=development
 WORKDIR /workspace
 
@@ -13,23 +13,27 @@ RUN corepack enable \
   && yarn install --immutable
 
 # Copy sources and build artefacts
-COPY . .
+COPY packages/contracts ./packages/contracts
+COPY strapi ./strapi
 RUN yarn workspace @openg7/contracts build \
   && yarn workspace @openg7/strapi build \
   && yarn workspaces focus --production @openg7/strapi
 
-FROM node:20-bullseye-slim AS runner
+FROM node:22-bookworm-slim AS runner
 ENV NODE_ENV=production
 ENV PORT=1337
 ENV STRAPI_TELEMETRY_DISABLED=true
 WORKDIR /srv/app
 
 COPY --from=builder /workspace/node_modules ./node_modules
+COPY --from=builder /workspace/packages ./packages
 COPY --from=builder /workspace/strapi ./strapi
 COPY --from=builder /workspace/strapi/node_modules ./strapi/node_modules
 COPY --from=builder /workspace/package.json ./package.json
 COPY --from=builder /workspace/yarn.lock ./yarn.lock
+COPY --from=builder /workspace/.yarn ./.yarn
 COPY --from=builder /workspace/.yarnrc.yml ./.yarnrc.yml
+RUN corepack enable
 
 WORKDIR /srv/app/strapi
 VOLUME ["/srv/app/strapi/public/uploads"]

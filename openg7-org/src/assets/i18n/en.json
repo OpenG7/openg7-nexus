@@ -625,6 +625,13 @@
             "execution": "Likely execution plan",
             "files": "Files",
             "validation": "Validation",
+            "signalFocus": "Signal context",
+            "signalAttention": "Requires attention",
+            "recommendedAction": "Recommended action",
+            "observedGap": "Observed gap",
+            "nextMove": "Next move",
+            "recommendations": "Recommendations",
+            "recommendationsBody": "One recommendation per line. These recommendations are included in the Codex brief and saved as the validated operator trace when dispatch is launched.",
             "brief": "Codex brief",
             "briefBody": "Prompt ready to copy, review, or delegate quickly.",
             "issue": "GitHub issue",
@@ -633,10 +640,42 @@
           "buttons": {
             "copyBrief": "Copy brief",
             "copyIssue": "Copy issue",
-            "openGithub": "Open on GitHub"
+            "openGithub": "Open on GitHub",
+            "confirmDispatch": "Confirm and launch {{ provider }}",
+            "launching": "Queueing {{ provider }}..."
           },
           "acceptanceCount": "{{ count }} item(s)",
           "executionCount": "{{ files }} file(s) · {{ commands }} command(s)"
+        },
+        "recalculation": {
+          "kicker": "Matrix recalculation",
+          "current": "Current state",
+          "proposed": "Proposed state",
+          "recommendations": "Recommendations",
+          "reasons": "Reasons",
+          "evidence": "Evidence",
+          "result": {
+            "proposal": "Proposal",
+            "insufficientProof": "Insufficient proof",
+            "conflictingSignals": "Conflicting signals",
+            "unchanged": "Unchanged"
+          },
+          "confidence": {
+            "high": "High confidence",
+            "medium": "Medium confidence",
+            "low": "Low confidence"
+          },
+          "factual": {
+            "reviewedAt": "Last review",
+            "repoSignalAt": "Repo signal",
+            "repoSignalCommit": "Commit",
+            "repoSignalSource": "Source",
+            "latestDecisionAt": "Mission decision"
+          },
+          "buttons": {
+            "apply": "Apply proposal",
+            "applying": "Applying proposal..."
+          }
         },
         "actions": {
           "kicker": "Actions",

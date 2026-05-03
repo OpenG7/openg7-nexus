@@ -140,6 +140,7 @@ interface AiProofPullRequestSnapshot {
   readonly url: string | null;
   readonly state: string;
   readonly merged: boolean;
+  readonly mergedAt: string | null;
   readonly branch: string | null;
 }
 
@@ -579,6 +580,7 @@ async function fetchPullRequestForBranch(
     url: normalizeUrl(pull.html_url),
     state: normalizeText(pull.state, 40) ?? 'unknown',
     merged: Boolean(pull.merged_at),
+    mergedAt: normalizeIsoDate(pull.merged_at),
     branch,
   };
 }

@@ -143,6 +143,13 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                   execution: 'Likely execution plan',
                   files: 'Files',
                   validation: 'Validation',
+                  signalFocus: 'Signal context',
+                  signalAttention: 'Requires attention',
+                  recommendedAction: 'Recommended action',
+                  observedGap: 'Observed gap',
+                  nextMove: 'Next move',
+                  recommendations: 'Recommendations',
+                  recommendationsBody: 'One recommendation per line.',
                   brief: 'Codex brief',
                   briefBody: 'Prompt ready to copy, review, or delegate quickly.',
                   issue: 'GitHub issue',
@@ -152,9 +159,41 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                   copyBrief: 'Copy brief',
                   copyIssue: 'Copy issue',
                   openGithub: 'Open on GitHub',
+                  confirmDispatch: 'Confirm and launch {{ provider }}',
+                  launching: 'Queueing {{ provider }}...',
                 },
                 acceptanceCount: '{{ count }} item(s)',
                 executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
+              },
+              recalculation: {
+                kicker: 'Matrix recalculation',
+                current: 'Current state',
+                proposed: 'Proposed state',
+                recommendations: 'Recommendations',
+                reasons: 'Reasons',
+                evidence: 'Evidence',
+                result: {
+                  proposal: 'Proposal',
+                  insufficientProof: 'Insufficient proof',
+                  conflictingSignals: 'Conflicting signals',
+                  unchanged: 'Unchanged',
+                },
+                confidence: {
+                  high: 'High confidence',
+                  medium: 'Medium confidence',
+                  low: 'Low confidence',
+                },
+                factual: {
+                  reviewedAt: 'Last review',
+                  repoSignalAt: 'Repo signal',
+                  repoSignalCommit: 'Commit',
+                  repoSignalSource: 'Source',
+                  latestDecisionAt: 'Mission decision',
+                },
+                buttons: {
+                  apply: 'Apply proposal',
+                  applying: 'Applying proposal...',
+                },
               },
               actions: {
                 kicker: 'Actions',
@@ -203,6 +242,7 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
       nextMove: 'Expose a durable lifecycle on company or partner editing.',
       evidence: ['e2e/opportunity-enrichment-lifecycle.spec.ts'],
       reviewedAt: '2026-04-21',
+      signalDispatch: {},
     });
     fixture.componentRef.setInput('delegationCount', 1);
     fixture.detectChanges();
@@ -324,5 +364,136 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     expect(root.textContent).toContain('Open GitHub issue');
     expect(root.textContent).toContain('Needs completion');
     expect(root.textContent).toContain('Proved');
+  });
+
+  it('renders the selected signal context, lets the brief be edited, and emits codexLaunchRequested', () => {
+    const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
+    const launchSpy = jasmine.createSpy('codexLaunchRequested');
+    const promptChangedSpy = jasmine.createSpy('codexPromptChanged');
+    const recommendationsChangedSpy = jasmine.createSpy('signalRecommendationsChanged');
+    fixture.componentInstance.codexLaunchRequested.subscribe(launchSpy);
+    fixture.componentInstance.codexPromptChanged.subscribe(promptChangedSpy);
+    fixture.componentInstance.signalRecommendationsChanged.subscribe(recommendationsChangedSpy);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('activeSurface', 'delegation');
+    fixture.componentRef.setInput('delegationPlan', buildDelegationPlan());
+    fixture.componentRef.setInput('dispatchProviderLabel', 'Codex');
+    fixture.componentRef.setInput('dispatchReady', true);
+    fixture.componentRef.setInput('editableCodexPrompt', 'Original brief');
+    fixture.componentRef.setInput(
+      'editableSignalRecommendationsText',
+      'Keep the matrix partial until stronger proof exists.\nWait until the product scope expands.',
+    );
+    fixture.componentRef.setInput('selectedSignalContext', {
+      signalId: 'e2e',
+      shortLabel: 'E',
+      label: 'End-to-end',
+      headline: 'E2E proof is partial.',
+      detail: 'Current proof only covers one branch.',
+      observedGap: 'Rich branches remain outside strong proof.',
+      nextMove: 'Wait until the product scope expands past the MVP.',
+      recommendedAction: 'Request a stronger regression before final review.',
+      recommendations: [
+        'You should keep the matrix partial until stronger proof exists.',
+        'You should avoid forcing more proof if rich branches are still outside MVP.',
+      ],
+      attention: true,
+    });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const signalContext = root.querySelector(
+      '[data-og7="admin-quality-workspace-signal-context"][data-og7-id="e2e"]',
+    );
+    const promptEditor = root.querySelector(
+      '[data-og7-id="admin-quality-codex-prompt-editor"]',
+    ) as HTMLTextAreaElement;
+    const recommendationsEditor = root.querySelector(
+      '[data-og7-id="admin-quality-recommendations-editor"]',
+    ) as HTMLTextAreaElement;
+    const launchButton = root.querySelector(
+      '[data-og7-id="admin-quality-confirm-dispatch"]',
+    ) as HTMLButtonElement;
+
+    expect(signalContext?.textContent).toContain('Signal context');
+    expect(signalContext?.textContent).toContain('E2E proof is partial.');
+    expect(signalContext?.textContent).toContain('Request a stronger regression before final review.');
+    expect(promptEditor.value).toBe('Original brief');
+    expect(recommendationsEditor.value).toContain('Keep the matrix partial until stronger proof exists.');
+
+    promptEditor.value = 'Adjusted brief';
+    promptEditor.dispatchEvent(new Event('input'));
+
+    recommendationsEditor.value = 'Validate the evidence before escalation.';
+    recommendationsEditor.dispatchEvent(new Event('input'));
+
+    launchButton.click();
+
+    expect(promptChangedSpy).toHaveBeenCalledWith('Adjusted brief');
+    expect(recommendationsChangedSpy).toHaveBeenCalledWith('Validate the evidence before escalation.');
+    expect(launchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders recalculation evidence and emits applyProposalRequested', () => {
+    const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
+    const applySpy = jasmine.createSpy('applyProposalRequested');
+    fixture.componentInstance.applyProposalRequested.subscribe(applySpy);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('activeSurface', 'delegation');
+    fixture.componentRef.setInput('applyProposalReady', true);
+    fixture.componentRef.setInput('selectedRecalculationEntry', {
+      entryId: 'advanced-discovery',
+      domain: 'Deep discovery',
+      result: 'proposal-review-required',
+      confidence: 'high',
+      current: {
+        summaryStatus: 'non',
+        businessStatus: 'oui',
+        implementationStatus: 'partiel',
+        e2eStatus: 'partiel',
+        managementBucket: 'proof-gap',
+        needsProductWorkFirst: false,
+      },
+      proposed: {
+        summaryStatus: 'partiel',
+        businessStatus: 'oui',
+        implementationStatus: 'oui',
+        e2eStatus: 'oui',
+        managementBucket: 'covered',
+        needsProductWorkFirst: false,
+      },
+      reasons: ['Latest mission decision is newer than the last review.'],
+      evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+      factualSignals: {
+        reviewedAt: '2026-04-07',
+        repoSignalAt: '2026-05-02T12:00:00.000Z',
+        repoSignalCommit: 'abc123def456',
+        repoSignalSource: 'github-actions',
+        latestDecisionAt: '2026-05-02T19:59:00.000Z',
+      },
+    });
+    fixture.componentRef.setInput('selectedRecalculationRecommendations', [
+      'Keep the matrix partial until stronger proof exists.',
+      'Apply the proposal only after the new executable proof is confirmed.',
+    ]);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const recalculationCard = root.querySelector(
+      '[data-og7="admin-quality-workspace-recalculation"][data-og7-id="advanced-discovery"]',
+    );
+    const applyButton = root.querySelector(
+      '[data-og7-id="admin-quality-apply-proposal"]',
+    ) as HTMLButtonElement;
+
+    expect(recalculationCard?.textContent).toContain('Matrix recalculation');
+    expect(recalculationCard?.textContent).toContain('Recommendations');
+    expect(recalculationCard?.textContent).toContain('Apply the proposal only after the new executable proof is confirmed.');
+    expect(recalculationCard?.textContent).toContain('Reasons');
+    expect(recalculationCard?.textContent).toContain('Evidence');
+
+    applyButton.click();
+
+    expect(applySpy).toHaveBeenCalledTimes(1);
   });
 });

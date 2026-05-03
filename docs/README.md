@@ -5,6 +5,7 @@ Ce dossier regroupe les guides fonctionnels et techniques du projet, organisés 
 - `frontend/` — notes pour l'application Angular (`openg7-org`).
 - `strapi/` — documentation liée au CMS Strapi (`strapi`).
 - `tooling/` — références transverses (scripts, configuration CI/CD, conventions partagées).
+- `docker-compose.md` — stack locale conteneurisee pour valider Angular SSR, Strapi et les services dependants.
 
 ## Guides transverses
 

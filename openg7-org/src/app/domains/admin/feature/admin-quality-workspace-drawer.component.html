@@ -171,7 +171,230 @@
                 data-og7="admin-quality-workspace-panel"
                 data-og7-id="delegation"
               >
+                @if (selectedRecalculationEntry(); as recalculation) {
+                  <article
+                    class="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 shadow-[0_24px_72px_-58px_rgba(14,165,233,0.28)]"
+                    data-og7="admin-quality-workspace-recalculation"
+                    [attr.data-og7-id]="recalculation.entryId"
+                  >
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                          {{ 'admin.quality.workspace.recalculation.kicker' | translate }}
+                        </p>
+                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                          <span
+                            class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold"
+                            [class]="recalculationResultClasses(recalculation.result)"
+                          >
+                            {{ recalculationResultKey(recalculation.result) | translate }}
+                          </span>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-semibold text-slate-100">
+                            {{ recalculationConfidenceKey(recalculation.confidence) | translate }}
+                          </span>
+                        </div>
+                      </div>
+
+                      @if (applyProposalReady()) {
+                        <button
+                          type="button"
+                          class="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-emerald-400/12 px-4 py-2.5 text-sm font-semibold text-emerald-50 transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:opacity-60"
+                          (click)="requestApplyProposal()"
+                          [disabled]="applyProposalSubmitting()"
+                          [attr.aria-disabled]="applyProposalSubmitting()"
+                          data-og7="action"
+                          data-og7-id="admin-quality-apply-proposal"
+                        >
+                          @if (applyProposalSubmitting()) {
+                            {{ 'admin.quality.workspace.recalculation.buttons.applying' | translate }}
+                          } @else {
+                            {{ 'admin.quality.workspace.recalculation.buttons.apply' | translate }}
+                          }
+                        </button>
+                      }
+                    </div>
+
+                    <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                      @for (fact of recalculationFactualEntries(recalculation); track fact.label) {
+                        <article class="rounded-[20px] border border-white/10 bg-slate-950/55 px-4 py-3">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">{{ fact.label }}</p>
+                          <p class="mt-2 text-sm font-semibold text-white">{{ fact.value }}</p>
+                        </article>
+                      }
+                    </div>
+
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                      <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          {{ 'admin.quality.workspace.recalculation.current' | translate }}
+                        </p>
+                        <dl class="mt-3 space-y-2 text-sm text-slate-300">
+                          <div class="flex items-center justify-between gap-3"><dt>Summary</dt><dd>{{ recalculation.current.summaryStatus }}</dd></div>
+                          <div class="flex items-center justify-between gap-3"><dt>Business</dt><dd>{{ recalculation.current.businessStatus }}</dd></div>
+                          <div class="flex items-center justify-between gap-3"><dt>Implementation</dt><dd>{{ recalculation.current.implementationStatus }}</dd></div>
+                          <div class="flex items-center justify-between gap-3"><dt>E2E</dt><dd>{{ recalculation.current.e2eStatus }}</dd></div>
+                          <div class="flex items-center justify-between gap-3"><dt>Bucket</dt><dd>{{ recalculation.current.managementBucket }}</dd></div>
+                        </dl>
+                      </article>
+
+                      @if (recalculation.proposed; as proposed) {
+                        <article class="rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
+                            {{ 'admin.quality.workspace.recalculation.proposed' | translate }}
+                          </p>
+                          <dl class="mt-3 space-y-2 text-sm text-emerald-50">
+                            <div class="flex items-center justify-between gap-3"><dt>Summary</dt><dd>{{ coverageDeltaLabel(recalculation.current.summaryStatus, proposed.summaryStatus) }}</dd></div>
+                            <div class="flex items-center justify-between gap-3"><dt>Business</dt><dd>{{ coverageDeltaLabel(recalculation.current.businessStatus, proposed.businessStatus) }}</dd></div>
+                            <div class="flex items-center justify-between gap-3"><dt>Implementation</dt><dd>{{ coverageDeltaLabel(recalculation.current.implementationStatus, proposed.implementationStatus) }}</dd></div>
+                            <div class="flex items-center justify-between gap-3"><dt>E2E</dt><dd>{{ coverageDeltaLabel(recalculation.current.e2eStatus, proposed.e2eStatus) }}</dd></div>
+                            <div class="flex items-center justify-between gap-3"><dt>Bucket</dt><dd>{{ coverageDeltaLabel(recalculation.current.managementBucket, proposed.managementBucket) }}</dd></div>
+                          </dl>
+                        </article>
+                      }
+                    </div>
+
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                      <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            {{ 'admin.quality.workspace.recalculation.reasons' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                            {{ recalculation.reasons.length }}
+                          </span>
+                        </div>
+                        <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                          @for (item of recalculation.reasons; track $index) {
+                            <li>{{ item }}</li>
+                          }
+                        </ul>
+                      </article>
+
+                      <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            {{ 'admin.quality.workspace.recalculation.evidence' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                            {{ recalculation.evidence.length }}
+                          </span>
+                        </div>
+                        <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
+                          @for (item of recalculation.evidence; track $index) {
+                            <li>{{ item }}</li>
+                          }
+                        </ul>
+                      </article>
+                    </div>
+
+                    @if (recalculationRecommendations().length) {
+                      <article class="mt-5 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
+                            {{ 'admin.quality.workspace.recalculation.recommendations' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                            {{ recalculationRecommendations().length }}
+                          </span>
+                        </div>
+                        <ul class="mt-3 space-y-2 text-sm leading-6 text-emerald-50">
+                          @for (item of recalculationRecommendations(); track item) {
+                            <li>{{ item }}</li>
+                          }
+                        </ul>
+                      </article>
+                    }
+                  </article>
+                }
+
                 @if (delegationPlan(); as plan) {
+                  @if (selectedSignalContext(); as signalContext) {
+                    <article
+                      class="rounded-[28px] border border-cyan-300/20 bg-cyan-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(56,189,248,0.8)]"
+                      data-og7="admin-quality-workspace-signal-context"
+                      [attr.data-og7-id]="signalContext.signalId"
+                    >
+                      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="min-w-0">
+                          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                            {{ 'admin.quality.workspace.delegation.cards.signalFocus' | translate }}
+                          </p>
+                          <div class="mt-3 flex flex-wrap items-center gap-2">
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-300/25 bg-cyan-400/12 text-sm font-semibold text-cyan-100">
+                              {{ signalContext.shortLabel }}
+                            </span>
+                            <span class="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-sm font-semibold text-white">
+                              {{ signalContext.label }}
+                            </span>
+                            @if (signalContext.attention) {
+                              <span class="rounded-full border border-amber-300/25 bg-amber-400/12 px-3 py-1 text-sm font-semibold text-amber-100">
+                                {{ 'admin.quality.workspace.delegation.cards.signalAttention' | translate }}
+                              </span>
+                            }
+                          </div>
+                          <p class="mt-4 text-base font-semibold leading-7 text-white">
+                            {{ signalContext.headline }}
+                          </p>
+                          <p class="mt-3 text-sm leading-7 text-slate-300">
+                            {{ signalContext.detail }}
+                          </p>
+                        </div>
+
+                        <div class="min-w-0 rounded-[22px] border border-white/10 bg-slate-950/55 p-4 lg:max-w-[18rem]">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.recommendedAction' | translate }}
+                          </p>
+                          <p class="mt-3 text-sm leading-6 text-slate-200">
+                            {{ signalContext.recommendedAction }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.observedGap' | translate }}
+                          </p>
+                          <p class="mt-3 text-sm leading-6 text-slate-200">
+                            {{ signalObservedGap(signalContext) }}
+                          </p>
+                        </article>
+
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.nextMove' | translate }}
+                          </p>
+                          <p class="mt-3 text-sm leading-6 text-slate-200">
+                            {{ signalNextMove(signalContext) }}
+                          </p>
+                        </article>
+                      </div>
+
+                      @if (signalRecommendations(signalContext).length) {
+                        <article class="mt-4 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                          <div class="flex items-center justify-between gap-3">
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
+                              {{ 'admin.quality.workspace.delegation.cards.recommendations' | translate }}
+                            </p>
+                            <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                              {{ signalRecommendations(signalContext).length }}
+                            </span>
+                          </div>
+                          <p class="mt-2 text-sm leading-6 text-emerald-50/80">
+                            {{ 'admin.quality.workspace.delegation.cards.recommendationsBody' | translate }}
+                          </p>
+                          <textarea
+                            class="mt-3 min-h-[8rem] w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
+                            [value]="editableSignalRecommendationsText()"
+                            (input)="updateSignalRecommendations($event)"
+                            data-og7="admin-quality-signal-recommendations-editor"
+                            data-og7-id="admin-quality-recommendations-editor"
+                          ></textarea>
+                        </article>
+                      }
+                    </article>
+                  }
+
                   <article class="rounded-[30px] border border-white/10 bg-white/[0.04] p-5 shadow-[0_28px_84px_-58px_rgba(15,23,42,0.9)]">
                     <div class="flex flex-col gap-4 border-b border-white/10 pb-5">
                       <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -289,17 +512,54 @@
                               {{ 'admin.quality.workspace.delegation.cards.briefBody' | translate }}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            class="rounded-2xl border border-cyan-300/25 bg-cyan-400/12 px-3.5 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-400/18"
-                            (click)="copyBrief(plan)"
-                            data-og7="action"
-                            data-og7-id="admin-quality-copy-codex"
-                          >
-                            {{ 'admin.quality.workspace.delegation.buttons.copyBrief' | translate }}
-                          </button>
+                          <div class="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              class="rounded-2xl border border-cyan-300/25 bg-cyan-400/12 px-3.5 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-400/18"
+                              (click)="copyBrief(plan)"
+                              data-og7="action"
+                              data-og7-id="admin-quality-copy-codex"
+                            >
+                              {{ 'admin.quality.workspace.delegation.buttons.copyBrief' | translate }}
+                            </button>
+                            @if (selectedSignalContext()) {
+                              <button
+                                type="button"
+                                class="rounded-2xl border border-emerald-300/25 bg-emerald-400/12 px-3.5 py-2 text-sm font-medium text-emerald-50 transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:opacity-60"
+                                (click)="requestCodexLaunch()"
+                                [disabled]="!dispatchReady() || dispatchSubmitting()"
+                                [attr.aria-disabled]="!dispatchReady() || dispatchSubmitting()"
+                                data-og7="action"
+                                data-og7-id="admin-quality-confirm-dispatch"
+                              >
+                                @if (dispatchSubmitting()) {
+                                  {{ 'admin.quality.workspace.delegation.buttons.launching' | translate: { provider: dispatchProviderLabel() } }}
+                                } @else {
+                                  {{ 'admin.quality.workspace.delegation.buttons.confirmDispatch' | translate: { provider: dispatchProviderLabel() } }}
+                                }
+                              </button>
+                            }
+                          </div>
                         </div>
-                        <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                        @if (selectedSignalContext() && dispatchBlockedMessage(); as blockedMessage) {
+                          <p
+                            class="mt-4 rounded-[18px] border border-amber-300/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50"
+                            data-og7-id="admin-quality-dispatch-blocked"
+                          >
+                            {{ blockedMessage }}
+                          </p>
+                        }
+                        @if (selectedSignalContext()) {
+                          <textarea
+                            class="mt-4 min-h-[14rem] w-full rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-200 outline-none transition focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/20"
+                            [value]="editableCodexPrompt()"
+                            (input)="updateCodexPrompt($event)"
+                            data-og7="admin-quality-delegation-codex-editor"
+                            data-og7-id="admin-quality-codex-prompt-editor"
+                          ></textarea>
+                        } @else {
+                          <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                        }
                       </article>
 
                       <article class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4" data-og7="admin-quality-delegation-issue">
@@ -431,6 +691,21 @@
 
             <div class="flex flex-wrap gap-2">
               @if (activeSurface() === 'delegation') {
+                @if (applyProposalReady()) {
+                  <button
+                    type="button"
+                    class="rounded-2xl border border-emerald-300/25 bg-emerald-400/12 px-3.5 py-2 text-sm font-medium text-emerald-50 transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:opacity-60"
+                    (click)="requestApplyProposal()"
+                    [disabled]="applyProposalSubmitting()"
+                    [attr.aria-disabled]="applyProposalSubmitting()"
+                  >
+                    @if (applyProposalSubmitting()) {
+                      {{ 'admin.quality.workspace.recalculation.buttons.applying' | translate }}
+                    } @else {
+                      {{ 'admin.quality.workspace.recalculation.buttons.apply' | translate }}
+                    }
+                  </button>
+                }
                 @if (delegationPlan(); as plan) {
                   <button
                     type="button"

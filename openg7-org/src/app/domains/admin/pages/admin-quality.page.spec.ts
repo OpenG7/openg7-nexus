@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -5,10 +6,11 @@ import {
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { AdminOpsService } from '../data-access/admin-ops.service';
 import {
+  AdminQualityMatrixRecalculationSnapshot,
   AdminQualityMatrixService,
   AdminQualityMatrixSnapshot,
 } from '../data-access/admin-quality-matrix.service';
@@ -46,6 +48,7 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
         {
           id: 'trust-validation',
@@ -66,6 +69,7 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
         {
           id: 'observability',
@@ -86,8 +90,111 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
       ],
+    }),
+  );
+  readonly recalculateMatrix = jasmine.createSpy('recalculateMatrix').and.returnValue(
+    of<AdminQualityMatrixRecalculationSnapshot>({
+      generatedAt: '2026-05-02T20:00:00.000Z',
+      scope: 'refresh-required',
+      summary: {
+        analyzedCount: 1,
+        proposalCount: 1,
+        unchangedCount: 0,
+        blockedCount: 0,
+      },
+      entries: [
+        {
+          entryId: 'advanced-discovery',
+          domain: 'Recherche et decouverte profonde',
+          result: 'proposal-review-required',
+          confidence: 'high',
+          current: {
+            summaryStatus: 'non',
+            businessStatus: 'oui',
+            implementationStatus: 'partiel',
+            e2eStatus: 'partiel',
+            managementBucket: 'proof-gap',
+            needsProductWorkFirst: false,
+          },
+          proposed: {
+            summaryStatus: 'partiel',
+            businessStatus: 'oui',
+            implementationStatus: 'oui',
+            e2eStatus: 'oui',
+            managementBucket: 'covered',
+            needsProductWorkFirst: false,
+          },
+          reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
+          evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+          factualSignals: {
+            reviewedAt: '2026-04-07',
+            repoSignalAt: '2026-05-02T12:00:00.000Z',
+            repoSignalCommit: 'abc123def456',
+            repoSignalSource: 'github-actions',
+            latestDecisionAt: '2026-05-02T19:59:00.000Z',
+          },
+        },
+      ],
+    }),
+  );
+  readonly applyMatrixProposal = jasmine.createSpy('applyMatrixProposal').and.returnValue(
+    of({
+      appliedAt: '2026-05-02T20:05:00.000Z',
+      entry: {
+        id: 'advanced-discovery',
+        domain: 'Recherche et decouverte profonde',
+        need: 'Conserver le contexte entre le feed et le detail.',
+        summaryStatus: 'partiel',
+        businessStatus: 'oui',
+        implementationStatus: 'oui',
+        e2eStatus: 'oui',
+        priority: 'haute',
+        managementBucket: 'covered',
+        needsProductWorkFirst: false,
+        observedGap: 'Une chaine cross-surface reste absente.',
+        nextMove: 'Ajouter une chaine map vers feed.',
+        evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        reviewedAt: '2026-05-02',
+        repoSignalAt: '2026-05-02T12:00:00.000Z',
+        repoSignalCommit: 'abc123def456',
+        repoSignalSource: 'github-actions',
+        repoSignalSummary: null,
+        signalDispatch: {},
+      },
+      proposal: {
+        entryId: 'advanced-discovery',
+        domain: 'Recherche et decouverte profonde',
+        result: 'proposal-review-required' as const,
+        confidence: 'high' as const,
+        current: {
+          summaryStatus: 'non' as const,
+          businessStatus: 'oui' as const,
+          implementationStatus: 'partiel' as const,
+          e2eStatus: 'partiel' as const,
+          managementBucket: 'proof-gap' as const,
+          needsProductWorkFirst: false,
+        },
+        proposed: {
+          summaryStatus: 'partiel' as const,
+          businessStatus: 'oui' as const,
+          implementationStatus: 'oui' as const,
+          e2eStatus: 'oui' as const,
+          managementBucket: 'covered' as const,
+          needsProductWorkFirst: false,
+        },
+        reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
+        evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        factualSignals: {
+          reviewedAt: '2026-04-07',
+          repoSignalAt: '2026-05-02T12:00:00.000Z',
+          repoSignalCommit: 'abc123def456',
+          repoSignalSource: 'github-actions',
+          latestDecisionAt: '2026-05-02T19:59:00.000Z',
+        },
+      },
     }),
   );
 }
@@ -233,6 +340,7 @@ class AdminOpsServiceMock {
             url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
             state: 'open',
             merged: false,
+            mergedAt: null,
             branch: 'codex/qa-proof-501',
           },
         },
@@ -286,6 +394,7 @@ class AdminOpsServiceMock {
             url: 'https://github.com/OpenG7/openg7-nexus/pull/322',
             state: 'open',
             merged: false,
+            mergedAt: null,
             branch: 'claude/qa-proof-601',
           },
         },
@@ -427,6 +536,13 @@ describe('AdminQualityPage', () => {
                   execution: 'Likely execution plan',
                   files: 'Files',
                   validation: 'Validation',
+                  signalFocus: 'Signal context',
+                  signalAttention: 'Requires attention',
+                  recommendedAction: 'Recommended action',
+                  observedGap: 'Observed gap',
+                  nextMove: 'Next move',
+                  recommendations: 'Recommendations',
+                  recommendationsBody: 'One recommendation per line.',
                   brief: 'Codex brief',
                   briefBody: 'Prompt ready to copy, review, or delegate quickly.',
                   issue: 'GitHub issue',
@@ -439,6 +555,36 @@ describe('AdminQualityPage', () => {
                 },
                 acceptanceCount: '{{ count }} item(s)',
                 executionCount: '{{ files }} file(s) · {{ commands }} command(s)',
+              },
+              recalculation: {
+                kicker: 'Matrix recalculation',
+                current: 'Current state',
+                proposed: 'Proposed state',
+                recommendations: 'Recommendations',
+                reasons: 'Reasons',
+                evidence: 'Evidence',
+                result: {
+                  proposal: 'Proposal',
+                  insufficientProof: 'Insufficient proof',
+                  conflictingSignals: 'Conflicting signals',
+                  unchanged: 'Unchanged',
+                },
+                confidence: {
+                  high: 'High confidence',
+                  medium: 'Medium confidence',
+                  low: 'Low confidence',
+                },
+                factual: {
+                  reviewedAt: 'Last review',
+                  repoSignalAt: 'Repo signal',
+                  repoSignalCommit: 'Commit',
+                  repoSignalSource: 'Source',
+                  latestDecisionAt: 'Mission decision',
+                },
+                buttons: {
+                  apply: 'Apply proposal',
+                  applying: 'Applying proposal...',
+                },
               },
               actions: {
                 kicker: 'Actions',
@@ -529,6 +675,30 @@ describe('AdminQualityPage', () => {
         '[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]',
       ),
     ).not.toBeNull();
+  });
+
+  it('shows an explicit access denied message when the matrix endpoint returns 403', () => {
+    service.loadMatrix.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            statusText: 'Forbidden',
+            error: { message: 'Forbidden' },
+          }),
+      ),
+    );
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const errorBanner = root.querySelector('[data-og7-id="admin-quality-error"]');
+
+    expect(errorBanner).not.toBeNull();
+    expect(errorBanner?.textContent).toContain(
+      'Acces refuse a la matrice QA. Connectez-vous avec un compte web Owner ou Admin.',
+    );
   });
 
   it('renders a compact workspace bar and opens the drawer on demand', () => {
@@ -1282,6 +1452,171 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).not.toBeNull();
   });
 
+  it('recalculates the matrix, reloads the snapshot, and renders the focus summary', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const button = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    button.click();
+    fixture.detectChanges();
+
+    const summary = root.querySelector(
+      '[data-og7="admin-quality-matrix-recalculation-summary"]',
+    );
+    const focus = root.querySelector(
+      '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="advanced-discovery"]',
+    );
+
+    expect(service.loadMatrix).toHaveBeenCalledTimes(2);
+    expect(service.recalculateMatrix).toHaveBeenCalledWith('refresh-required', null);
+    expect(summary?.textContent).toContain('Recalcul matrice');
+    expect(summary?.textContent).toContain('Propositions');
+    expect(focus?.textContent).toContain('Implementation');
+    expect(focus?.textContent).toContain('partiel -> oui');
+    expect(focus?.textContent).toContain('Recommandations');
+    expect(notifications.success).toHaveBeenCalledWith(
+      'Recalcul termine: 1 proposition(s), 0 blocage(s).',
+      { source: 'admin-quality' },
+    );
+  });
+
+  it('recalculates the selected entry when the scoped selector targets the active row', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const scopeSelect = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-scope"]',
+    ) as HTMLSelectElement;
+    const button = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    scopeSelect.value = 'selected-entry';
+    scopeSelect.dispatchEvent(new Event('change'));
+    button.click();
+
+    expect(service.recalculateMatrix).toHaveBeenCalledWith('selected-entry', 'advanced-discovery');
+  });
+
+  it('applies the selected recalculation proposal from the workspace drawer and reruns the recalculation silently', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const recalcButton = root.querySelector(
+      '[data-og7-id="admin-quality-recalculate-matrix"]',
+    ) as HTMLButtonElement;
+
+    recalcButton.click();
+    fixture.componentInstance.openWorkspace('delegation');
+    fixture.detectChanges();
+
+    const applyButton = root.querySelector(
+      '[data-og7-id="admin-quality-apply-proposal"]',
+    ) as HTMLButtonElement;
+
+    applyButton.click();
+
+    expect(service.applyMatrixProposal).toHaveBeenCalledWith('advanced-discovery');
+    expect(service.loadMatrix).toHaveBeenCalledTimes(3);
+    expect(service.recalculateMatrix).toHaveBeenCalledTimes(2);
+    expect(notifications.success).toHaveBeenCalledWith(
+      'Proposition appliquee pour Recherche et decouverte profonde.',
+      { source: 'admin-quality' },
+    );
+  });
+
+  it('opens the delegation drawer from a clicked coverage signal, lets the operator edit the brief, and records the delegation trace', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const row = root.querySelector(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]',
+    ) as HTMLElement;
+    const e2eSignal = row.querySelector(
+      '[data-og7="admin-quality-coverage-signal"][data-og7-id="e2e"]',
+    ) as HTMLElement;
+
+    e2eSignal.click();
+    fixture.detectChanges();
+
+    const drawer = root.querySelector('[data-og7="admin-quality-workspace-drawer"]');
+    const signalContext = root.querySelector(
+      '[data-og7="admin-quality-workspace-signal-context"][data-og7-id="e2e"]',
+    );
+    const promptEditor = root.querySelector(
+      '[data-og7-id="admin-quality-codex-prompt-editor"]',
+    ) as HTMLTextAreaElement;
+    const recommendationsEditor = root.querySelector(
+      '[data-og7-id="admin-quality-recommendations-editor"]',
+    ) as HTMLTextAreaElement;
+    const launchButton = root.querySelector(
+      '[data-og7-id="admin-quality-confirm-dispatch"]',
+    ) as HTMLButtonElement;
+
+    expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('delegation');
+    expect(fixture.componentInstance.selectedSignalContext()?.signalId).toBe('e2e');
+    expect(drawer).not.toBeNull();
+    expect(signalContext).not.toBeNull();
+    expect(promptEditor.value).toContain('Signal focus: E - End-to-end');
+    expect(recommendationsEditor.value).toContain('Tu devrais demander une preuve executable');
+
+    recommendationsEditor.value =
+      'Keep the matrix partial until stronger proof exists.\nWait until the product scope expands.';
+    recommendationsEditor.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    promptEditor.value = 'Operator override brief';
+    promptEditor.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    launchButton.click();
+    fixture.detectChanges();
+
+    expect(opsService.dispatchCodexWorkflow).toHaveBeenCalledWith({
+      provider: 'codex',
+      task: 'Operator override brief',
+      scope: 'openg7-org',
+      baseBranch: 'main',
+      draftPr: true,
+      model: 'gpt-5.4',
+      effort: null,
+    });
+    expect(launchButton.disabled).toBeTrue();
+    expect(fixture.componentInstance.selectedSignalDispatchReady()).toBeFalse();
+    expect(root.querySelector('[data-og7-id="admin-quality-dispatch-blocked"]')?.textContent).toContain(
+      'Le bouton reste verrouille jusqu\'a reception d\'une confirmation serveur plus recente',
+    );
+    expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
+      source: 'admin-quality',
+    });
+    expect(missionDecisions.saveDecision).toHaveBeenCalled();
+    const signalGuidanceCall = missionDecisions.saveDecision.calls
+      .allArgs()
+      .map(([input]) => input)
+      .find(
+        (input) =>
+          input.recommendationId === 'advanced-discovery::signal-guidance::e2e' &&
+          Array.isArray(input.metadata.recommendations),
+      );
+    expect(signalGuidanceCall?.metadata.recommendations).toEqual([
+      'Keep the matrix partial until stronger proof exists.',
+      'Wait until the product scope expands.',
+    ]);
+    expect(
+      root.querySelector(
+        '[data-og7="admin-quality-coverage-delegation-trace"][data-og7-id="advanced-discovery"]',
+      )?.textContent,
+    ).toContain('Derniere delegation: E via Codex');
+  });
+
   it('updates the sticky mission HUD active section when a section chip is selected', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
@@ -1614,6 +1949,7 @@ describe('AdminQualityPage', () => {
             repoSignalCommit: 'abc123def456',
             repoSignalSource: 'github-actions',
             repoSignalSummary: 'targeted sync after merge to main',
+            signalDispatch: {},
           },
         ],
       }),
