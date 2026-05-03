@@ -236,6 +236,17 @@
         }
       </ul>
       }
+
+      @if (selectedMatrixRecalculationRecommendations().length) {
+      <div class="mt-3 rounded-[18px] border border-emerald-300/20 bg-emerald-400/8 px-4 py-3" data-og7-id="admin-quality-matrix-recalculation-recommendations">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/90">Recommandations</p>
+        <ul class="mt-2 space-y-1 text-sm text-emerald-50">
+          @for (item of selectedMatrixRecalculationRecommendations(); track item) {
+          <li>• {{ item }}</li>
+          }
+        </ul>
+      </div>
+      }
     </div>
     }
   </section>
@@ -1369,8 +1380,10 @@
     [selectedEntry]="selectedEntry()"
     [selectedSignalContext]="selectedSignalContext()"
     [selectedRecalculationEntry]="selectedMatrixRecalculationEntry()"
+    [selectedRecalculationRecommendations]="selectedMatrixRecalculationRecommendations()"
     [delegationPlan]="selectedDelegation()"
     [editableCodexPrompt]="selectedSignalDraftPrompt()"
+    [editableSignalRecommendationsText]="selectedSignalRecommendationsDraft()"
     [dispatchProviderLabel]="selectedAiProviderLabel()"
     [dispatchReady]="selectedAiDispatchReady()"
     [dispatchSubmitting]="aiDispatchingSelectedSignal()"
@@ -1385,6 +1398,7 @@
     (closeRequested)="closeWorkspace()"
     (applyProposalRequested)="applySelectedMatrixProposal()"
     (codexPromptChanged)="updateSelectedSignalPrompt($event)"
+    (signalRecommendationsChanged)="updateSelectedSignalRecommendations($event)"
     (codexLaunchRequested)="dispatchSelectedSignalFromWorkspace()"
     (surfaceChanged)="setActiveWorkspaceSurface($event)"
   />

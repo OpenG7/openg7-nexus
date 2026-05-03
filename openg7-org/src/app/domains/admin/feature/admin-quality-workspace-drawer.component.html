@@ -286,6 +286,24 @@
                         </ul>
                       </article>
                     </div>
+
+                    @if (recalculationRecommendations().length) {
+                      <article class="mt-5 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
+                            {{ 'admin.quality.workspace.recalculation.recommendations' | translate }}
+                          </h4>
+                          <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                            {{ recalculationRecommendations().length }}
+                          </span>
+                        </div>
+                        <ul class="mt-3 space-y-2 text-sm leading-6 text-emerald-50">
+                          @for (item of recalculationRecommendations(); track item) {
+                            <li>{{ item }}</li>
+                          }
+                        </ul>
+                      </article>
+                    }
                   </article>
                 }
 
@@ -331,6 +349,49 @@
                           </p>
                         </div>
                       </div>
+
+                      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.observedGap' | translate }}
+                          </p>
+                          <p class="mt-3 text-sm leading-6 text-slate-200">
+                            {{ signalObservedGap(signalContext) }}
+                          </p>
+                        </article>
+
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            {{ 'admin.quality.workspace.delegation.cards.nextMove' | translate }}
+                          </p>
+                          <p class="mt-3 text-sm leading-6 text-slate-200">
+                            {{ signalNextMove(signalContext) }}
+                          </p>
+                        </article>
+                      </div>
+
+                      @if (signalRecommendations(signalContext).length) {
+                        <article class="mt-4 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                          <div class="flex items-center justify-between gap-3">
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
+                              {{ 'admin.quality.workspace.delegation.cards.recommendations' | translate }}
+                            </p>
+                            <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                              {{ signalRecommendations(signalContext).length }}
+                            </span>
+                          </div>
+                          <p class="mt-2 text-sm leading-6 text-emerald-50/80">
+                            {{ 'admin.quality.workspace.delegation.cards.recommendationsBody' | translate }}
+                          </p>
+                          <textarea
+                            class="mt-3 min-h-[8rem] w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
+                            [value]="editableSignalRecommendationsText()"
+                            (input)="updateSignalRecommendations($event)"
+                            data-og7="admin-quality-signal-recommendations-editor"
+                            data-og7-id="admin-quality-recommendations-editor"
+                          ></textarea>
+                        </article>
+                      }
                     </article>
                   }
 

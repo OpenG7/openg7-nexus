@@ -184,7 +184,10 @@ interface AdminQualityWorkspaceSignalContext {
   readonly label: string;
   readonly headline: string;
   readonly detail: string;
+  readonly observedGap: string;
+  readonly nextMove: string;
   readonly recommendedAction: string;
+  readonly recommendations: readonly string[];
   readonly attention: boolean;
 }
 
@@ -509,6 +512,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedMissionId = signal<string | null>(null);
   readonly selectedSignalContext = signal<AdminQualityWorkspaceSignalContext | null>(null);
   readonly selectedSignalDraftPrompt = signal('');
+  readonly selectedSignalRecommendationsDraft = signal('');
   readonly signalDelegationTraces = signal<Record<string, AdminQualityCoverageSignalTrace>>({});
   readonly workspaceOpen = signal(false);
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
@@ -1188,6 +1192,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.selectedMatrixRecalculationEntry()?.proposed,
       ),
   );
+  readonly selectedMatrixRecalculationRecommendations = computed<readonly string[]>(() => {
+    const entry = this.selectedMatrixRecalculationEntry();
+    return entry ? this.matrixRecalculationRecommendations(entry) : [];
+  });
   readonly commandScopeSummary = computed<AdminQualityCommandScopeSummary>(() => ({
     activeDomains: this.filteredEntries().length,
     totalDomains: this.totalDomains(),
@@ -1689,6 +1697,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedMissionId.set(null);
     this.selectedSignalContext.set(null);
     this.selectedSignalDraftPrompt.set('');
+    this.selectedSignalRecommendationsDraft.set('');
   }
 
   selectCoverageSignal(selection: AdminQualityCoverageSignalSelection): void {
@@ -1699,6 +1708,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedActionId.set(null);
     this.selectedMissionId.set(null);
     this.selectedSignalContext.set(signalContext);
+    this.selectedSignalRecommendationsDraft.set(signalContext.recommendations.join('\n'));
     this.selectedSignalDraftPrompt.set(
       this.buildSignalDispatchTask(selection.entry, plan, signalContext),
     );
@@ -1716,6 +1726,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedActionId.set(action.id);
     this.selectedSignalContext.set(null);
     this.selectedSignalDraftPrompt.set('');
+    this.selectedSignalRecommendationsDraft.set('');
     this.activeWorkspaceSurface.set('actions');
     this.workspaceOpen.set(true);
   }
@@ -1747,6 +1758,28 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   updateSelectedSignalPrompt(value: string): void {
     this.selectedSignalDraftPrompt.set(value);
+  }
+
+  updateSelectedSignalRecommendations(value: string): void {
+    this.selectedSignalRecommendationsDraft.set(value);
+
+    const signalContext = this.selectedSignalContext();
+    const entry = this.selectedEntry();
+    const plan = this.selectedDelegation();
+    if (!signalContext) {
+      return;
+    }
+
+    const nextContext: AdminQualityWorkspaceSignalContext = {
+      ...signalContext,
+      recommendations: this.parseRecommendationDraft(value),
+    };
+
+    this.selectedSignalContext.set(nextContext);
+
+    if (entry && plan) {
+      this.selectedSignalDraftPrompt.set(this.buildSignalDispatchTask(entry, plan, nextContext));
+    }
   }
 
   dispatchSelectedSignalFromWorkspace(): void {
@@ -1784,6 +1817,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (result) => {
+          this.persistSignalRecommendationTrace(entry, plan, signalContext, result.workflow, result.ref);
           this.recordSignalDelegationTrace(entry.id, signalContext);
           this.notifications.info(
             `${this.selectedAiProviderLabel()} queued via ${result.workflow} on ${result.ref}.`,
@@ -1947,6 +1981,38 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     proposed: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
   ): string {
     return current === proposed ? String(current) : `${current} -> ${proposed}`;
+  }
+
+  matrixRecalculationRecommendations(
+    entry: AdminQualityMatrixRecalculationEntry,
+  ): readonly string[] {
+    switch (entry.result) {
+      case 'proposal-review-required':
+        return [
+          'Tu devrais garder la matrice en etat courant tant qu un humain n a pas valide la proposition.',
+          entry.proposed?.needsProductWorkFirst
+            ? 'Tu devrais laisser la matrice en partiel ou etat voisin tant que le produit n etend pas officiellement le scope attendu.'
+            : 'Tu devrais appliquer la proposition seulement si le signal repo et la decision mission confirment vraiment cette promotion.',
+          'Tu devrais relancer le recalcul apres application pour verifier qu il ne reste plus de proposition ouverte.',
+        ];
+      case 'blocked-insufficient-proof':
+        return [
+          'Tu devrais laisser la matrice au niveau courant tant qu il n existe pas de preuve executable ou de validation humaine plus recente.',
+          'Tu ne devrais pas promouvoir la couverture sur la seule base d un merge ou d un signal repo.',
+          'Tu devrais demander une preuve ciblee avant toute promotion de statut.',
+        ];
+      case 'blocked-conflicting-signals':
+        return [
+          'Tu devrais arbitrer manuellement les signaux avant toute application.',
+          'Tu devrais garder la matrice dans son etat actuel tant que les preuves se contredisent.',
+          'Tu devrais ouvrir une revue operateur pour clarifier quelle preuve fait foi.',
+        ];
+      default:
+        return [
+          'Tu devrais conserver la matrice en l etat tant qu aucun signal plus fort ne justifie une promotion.',
+          'Tu peux traiter ce point comme stable pour le scope actuellement prouve.',
+        ];
+    }
   }
 
   missionDecisionSyncLabel(status: AdminQualityMissionDecisionSyncStatus): string {
@@ -3115,6 +3181,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     selection: AdminQualityCoverageSignalSelection,
   ): AdminQualityWorkspaceSignalContext {
     const entry = selection.entry;
+    const observedGap = entry.observedGap || entry.need;
+    const nextMove = entry.nextMove || 'Clarifier la prochaine preuve attendue avant delegation.';
 
     switch (selection.signalId) {
       case 'summary':
@@ -3123,8 +3191,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           shortLabel: selection.shortLabel,
           label: selection.label,
           headline: `Synthese ${this.statusLabel(entry.summaryStatus).toLowerCase()} sur ${entry.domain}.`,
-          detail: entry.observedGap || entry.need,
-          recommendedAction: entry.nextMove || 'Clarifier la prochaine preuve attendue avant delegation.',
+          detail: observedGap,
+          observedGap,
+          nextMove,
+          recommendedAction: nextMove,
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
       case 'business':
@@ -3134,8 +3205,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           label: selection.label,
           headline: `Couverture metier ${this.statusLabel(entry.businessStatus).toLowerCase()}.`,
           detail: `Besoin suivi: ${entry.need}`,
+          observedGap,
+          nextMove,
           recommendedAction:
             'Verifier que la delegation preserve bien le parcours metier cible et sa valeur produit.',
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
       case 'implementation':
@@ -3146,8 +3220,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           headline: `Implementation ${this.statusLabel(entry.implementationStatus).toLowerCase()}.`,
           detail:
             `Le correctif doit cibler la surface code et les hooks de preuve relies a ${entry.domain}.`,
+          observedGap,
+          nextMove,
           recommendedAction:
             'Concentrer Codex sur les fichiers du plan et une validation etroite de la surface touchee.',
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
       case 'e2e':
@@ -3159,8 +3236,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           detail: entry.evidence.length
             ? `Preuves actuelles: ${entry.evidence.join(', ')}`
             : 'Aucune preuve E2E n est encore rattachee a cette entree.',
+          observedGap,
+          nextMove,
           recommendedAction:
             'Demander une preuve executable ou une regression ciblee avant arbitrage final.',
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
       case 'readiness':
@@ -3174,9 +3254,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           detail: this.entryNeedsMatrixRefresh(entry)
             ? `La derniere revue (${entry.reviewedAt}) ne couvre plus l etat courant de cette surface.`
             : `Bucket courant: ${this.bucketLabel(entry.managementBucket)}.`,
+          observedGap,
+          nextMove,
           recommendedAction: this.entryNeedsMatrixRefresh(entry)
             ? 'Rafraichir la preuve ou la decision QA puis deleguer sur une base stabilisee.'
             : 'Confirmer que la delegation correspond bien au bucket de gestion avant lancement.',
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
       case 'priority':
@@ -3187,10 +3270,66 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           label: selection.label,
           headline: `Priorite ${this.priorityLabel(entry.priority).toLowerCase()}.`,
           detail: `Action suivante: ${entry.nextMove}`,
+          observedGap,
+          nextMove,
           recommendedAction:
             'Utiliser ce signal pour confirmer l ordre de delegation et le niveau de preuve attendu.',
+          recommendations: this.buildSignalRecommendations(selection.signalId, entry, observedGap, nextMove),
           attention: selection.attention,
         };
+    }
+  }
+
+  private buildSignalRecommendations(
+    signalId: AdminQualityCoverageSignalId,
+    entry: AdminQualityMatrixEntry,
+    observedGap: string,
+    nextMove: string,
+  ): readonly string[] {
+    const scopeGuard = entry.needsProductWorkFirst
+      ? 'Tu devrais laisser la matrice en etat partiel ou voisin tant que le scope produit n annonce pas officiellement cette extension.'
+      : 'Tu devrais laisser la matrice a son niveau courant tant qu une preuve executable ou une decision plus recente n existe pas.';
+
+    switch (signalId) {
+      case 'summary':
+        return [
+          scopeGuard,
+          `Tu devrais traiter ce point comme un ecart encadre: ${observedGap}.`,
+          `Tu devrais utiliser ce prochain mouvement comme condition de sortie: ${nextMove}.`,
+        ];
+      case 'business':
+        return [
+          'Tu devrais verifier que le besoin metier cible reste bien dans le perimetre officiellement attendu.',
+          'Tu devrais eviter de demander plus de preuve si les branches riches ne sont pas encore exigees par le produit.',
+          `Tu devrais garder comme cap operateur: ${nextMove}.`,
+        ];
+      case 'implementation':
+        return [
+          'Tu devrais limiter la delegation aux fichiers et hooks de preuve relies a la surface touchee.',
+          'Tu ne devrais pas promouvoir l implementation sans validation etroite du slice modifie.',
+          `Tu devrais resorber d abord l ecart observe: ${observedGap}.`,
+        ];
+      case 'e2e':
+        return [
+          'Tu devrais demander une preuve executable avant de promouvoir la couverture E2E.',
+          'Tu devrais laisser la matrice en partiel si seules des branches secondaires restent sans preuve forte.',
+          `Tu devrais aligner la prochaine preuve attendue sur: ${nextMove}.`,
+        ];
+      case 'readiness':
+        return [
+          this.entryNeedsMatrixRefresh(entry)
+            ? 'Tu devrais rafraichir la preuve ou la decision avant de lancer une nouvelle delegation.'
+            : 'Tu devrais verifier que le bucket de gestion correspond toujours a la realite du domaine.',
+          'Tu devrais eviter de recalculer ou deleguer sur une base stale.',
+          `Tu devrais garder la prochaine action visible: ${nextMove}.`,
+        ];
+      case 'priority':
+      default:
+        return [
+          'Tu devrais utiliser cette priorite pour ordonner le traitement, pas pour sur-promouvoir la couverture.',
+          scopeGuard,
+          `Tu devrais garder l action suivante comme reference operateur: ${nextMove}.`,
+        ];
     }
   }
 
@@ -3205,10 +3344,95 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       `Signal focus: ${signalContext.shortLabel} - ${signalContext.label}`,
       `Headline: ${signalContext.headline}`,
       `Detail: ${signalContext.detail}`,
+      `Observed gap: ${signalContext.observedGap}`,
+      `Next move: ${signalContext.nextMove}`,
       `Recommended action: ${signalContext.recommendedAction}`,
-      `Observed gap: ${entry.observedGap}`,
-      `Next move: ${entry.nextMove}`,
+      `Recommendations:`,
+      ...signalContext.recommendations.map((item, index) => `${index + 1}. ${item}`),
     ].join('\n');
+  }
+
+  private persistSignalRecommendationTrace(
+    entry: AdminQualityMatrixEntry,
+    plan: AdminQualityDelegationPlan,
+    signalContext: AdminQualityWorkspaceSignalContext,
+    workflow: string,
+    ref: string,
+  ): void {
+    const task =
+      this.selectedSignalDraftPrompt().trim() || this.buildSignalDispatchTask(entry, plan, signalContext);
+    const recommendationId = `${entry.id}::signal-guidance::${signalContext.signalId}`;
+    const message = `Recommendations validated for ${signalContext.label}; dispatch queued via ${workflow} on ${ref}.`;
+    const now = new Date().toISOString();
+
+    const record: AdminQualityMissionDecisionRecord = {
+      recommendationId,
+      entryId: entry.id,
+      kind: 'governance',
+      status: 'approved',
+      title: `Signal guidance validated - ${entry.domain}`,
+      message,
+      operatorPrompt: task,
+      metadata: {
+        traceType: 'signal-guidance',
+        signalId: signalContext.signalId,
+        signalLabel: signalContext.label,
+        shortLabel: signalContext.shortLabel,
+        observedGap: signalContext.observedGap,
+        nextMove: signalContext.nextMove,
+        recommendedAction: signalContext.recommendedAction,
+        recommendations: signalContext.recommendations,
+        provider: this.selectedAiProvider(),
+        workflow,
+        ref,
+        targetFiles: plan.targetFiles,
+        validationCommands: plan.commands,
+      },
+      decidedByUserId: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.upsertMissionDecisionRecord(record);
+    this.missionDecisionSyncStatus.set('syncing');
+    this.missionDecisionSyncMessage.set('Synchronisation de la validation des recommandations...');
+
+    this.missionDecisionService
+      .saveDecision({
+        recommendationId,
+        entryId: entry.id,
+        kind: 'governance',
+        status: 'approved',
+        title: record.title ?? '',
+        message,
+        operatorPrompt: task,
+        metadata: record.metadata,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (saved) => {
+          this.upsertMissionDecisionRecord(saved);
+          this.missionDecisionSyncStatus.set('server');
+          this.missionDecisionSyncMessage.set('Validation des recommandations synchronisee cote serveur.');
+        },
+        error: () => {
+          this.missionDecisionSyncStatus.set('unavailable');
+          this.missionDecisionSyncMessage.set(
+            'Validation des recommandations conservee localement; synchronisation serveur impossible.',
+          );
+          this.notifications.info(
+            'Recommandations validees gardees localement; serveur mission indisponible.',
+            { source: 'admin-quality' },
+          );
+        },
+      });
+  }
+
+  private parseRecommendationDraft(value: string): readonly string[] {
+    return value
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
   }
 
   private recordSignalDelegationTrace(

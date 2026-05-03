@@ -4750,6 +4750,10 @@
             "signalFocus": "Contexte du voyant",
             "signalAttention": "Attention requise",
             "recommendedAction": "Action recommandee",
+            "observedGap": "Ecart observe",
+            "nextMove": "Prochain mouvement",
+            "recommendations": "Recommandations",
+            "recommendationsBody": "Une recommandation par ligne. Ces recommandations sont injectees dans le brief Codex et sauvees comme trace operateur validee au lancement.",
             "brief": "Brief Codex",
             "briefBody": "Prompt pret a copier, relire ou deleguer rapidement.",
             "issue": "Issue GitHub",
@@ -4769,6 +4773,7 @@
           "kicker": "Recalcul matrice",
           "current": "Etat courant",
           "proposed": "Etat propose",
+          "recommendations": "Recommandations",
           "reasons": "Raisons",
           "evidence": "Preuves",
           "result": {

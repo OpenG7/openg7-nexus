@@ -146,6 +146,10 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                   signalFocus: 'Signal context',
                   signalAttention: 'Requires attention',
                   recommendedAction: 'Recommended action',
+                  observedGap: 'Observed gap',
+                  nextMove: 'Next move',
+                  recommendations: 'Recommendations',
+                  recommendationsBody: 'One recommendation per line.',
                   brief: 'Codex brief',
                   briefBody: 'Prompt ready to copy, review, or delegate quickly.',
                   issue: 'GitHub issue',
@@ -165,6 +169,7 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                 kicker: 'Matrix recalculation',
                 current: 'Current state',
                 proposed: 'Proposed state',
+                recommendations: 'Recommendations',
                 reasons: 'Reasons',
                 evidence: 'Evidence',
                 result: {
@@ -364,21 +369,33 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
     const launchSpy = jasmine.createSpy('codexLaunchRequested');
     const promptChangedSpy = jasmine.createSpy('codexPromptChanged');
+    const recommendationsChangedSpy = jasmine.createSpy('signalRecommendationsChanged');
     fixture.componentInstance.codexLaunchRequested.subscribe(launchSpy);
     fixture.componentInstance.codexPromptChanged.subscribe(promptChangedSpy);
+    fixture.componentInstance.signalRecommendationsChanged.subscribe(recommendationsChangedSpy);
     fixture.componentRef.setInput('open', true);
     fixture.componentRef.setInput('activeSurface', 'delegation');
     fixture.componentRef.setInput('delegationPlan', buildDelegationPlan());
     fixture.componentRef.setInput('dispatchProviderLabel', 'Codex');
     fixture.componentRef.setInput('dispatchReady', true);
     fixture.componentRef.setInput('editableCodexPrompt', 'Original brief');
+    fixture.componentRef.setInput(
+      'editableSignalRecommendationsText',
+      'Keep the matrix partial until stronger proof exists.\nWait until the product scope expands.',
+    );
     fixture.componentRef.setInput('selectedSignalContext', {
       signalId: 'e2e',
       shortLabel: 'E',
       label: 'End-to-end',
       headline: 'E2E proof is partial.',
       detail: 'Current proof only covers one branch.',
+      observedGap: 'Rich branches remain outside strong proof.',
+      nextMove: 'Wait until the product scope expands past the MVP.',
       recommendedAction: 'Request a stronger regression before final review.',
+      recommendations: [
+        'You should keep the matrix partial until stronger proof exists.',
+        'You should avoid forcing more proof if rich branches are still outside MVP.',
+      ],
       attention: true,
     });
     fixture.detectChanges();
@@ -390,6 +407,9 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     const promptEditor = root.querySelector(
       '[data-og7-id="admin-quality-codex-prompt-editor"]',
     ) as HTMLTextAreaElement;
+    const recommendationsEditor = root.querySelector(
+      '[data-og7-id="admin-quality-recommendations-editor"]',
+    ) as HTMLTextAreaElement;
     const launchButton = root.querySelector(
       '[data-og7-id="admin-quality-confirm-dispatch"]',
     ) as HTMLButtonElement;
@@ -398,13 +418,18 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     expect(signalContext?.textContent).toContain('E2E proof is partial.');
     expect(signalContext?.textContent).toContain('Request a stronger regression before final review.');
     expect(promptEditor.value).toBe('Original brief');
+    expect(recommendationsEditor.value).toContain('Keep the matrix partial until stronger proof exists.');
 
     promptEditor.value = 'Adjusted brief';
     promptEditor.dispatchEvent(new Event('input'));
 
+    recommendationsEditor.value = 'Validate the evidence before escalation.';
+    recommendationsEditor.dispatchEvent(new Event('input'));
+
     launchButton.click();
 
     expect(promptChangedSpy).toHaveBeenCalledWith('Adjusted brief');
+    expect(recommendationsChangedSpy).toHaveBeenCalledWith('Validate the evidence before escalation.');
     expect(launchSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -446,6 +471,10 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
         latestDecisionAt: '2026-05-02T19:59:00.000Z',
       },
     });
+    fixture.componentRef.setInput('selectedRecalculationRecommendations', [
+      'Keep the matrix partial until stronger proof exists.',
+      'Apply the proposal only after the new executable proof is confirmed.',
+    ]);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
@@ -457,6 +486,8 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     ) as HTMLButtonElement;
 
     expect(recalculationCard?.textContent).toContain('Matrix recalculation');
+    expect(recalculationCard?.textContent).toContain('Recommendations');
+    expect(recalculationCard?.textContent).toContain('Apply the proposal only after the new executable proof is confirmed.');
     expect(recalculationCard?.textContent).toContain('Reasons');
     expect(recalculationCard?.textContent).toContain('Evidence');
 

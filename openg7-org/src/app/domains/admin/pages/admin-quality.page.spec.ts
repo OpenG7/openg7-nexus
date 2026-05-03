@@ -530,6 +530,13 @@ describe('AdminQualityPage', () => {
                   execution: 'Likely execution plan',
                   files: 'Files',
                   validation: 'Validation',
+                  signalFocus: 'Signal context',
+                  signalAttention: 'Requires attention',
+                  recommendedAction: 'Recommended action',
+                  observedGap: 'Observed gap',
+                  nextMove: 'Next move',
+                  recommendations: 'Recommendations',
+                  recommendationsBody: 'One recommendation per line.',
                   brief: 'Codex brief',
                   briefBody: 'Prompt ready to copy, review, or delegate quickly.',
                   issue: 'GitHub issue',
@@ -547,6 +554,7 @@ describe('AdminQualityPage', () => {
                 kicker: 'Matrix recalculation',
                 current: 'Current state',
                 proposed: 'Proposed state',
+                recommendations: 'Recommendations',
                 reasons: 'Reasons',
                 evidence: 'Evidence',
                 result: {
@@ -1463,6 +1471,7 @@ describe('AdminQualityPage', () => {
     expect(summary?.textContent).toContain('Propositions');
     expect(focus?.textContent).toContain('Implementation');
     expect(focus?.textContent).toContain('partiel -> oui');
+    expect(focus?.textContent).toContain('Recommandations');
     expect(notifications.success).toHaveBeenCalledWith(
       'Recalcul termine: 1 proposition(s), 0 blocage(s).',
       { source: 'admin-quality' },
@@ -1538,6 +1547,9 @@ describe('AdminQualityPage', () => {
     const promptEditor = root.querySelector(
       '[data-og7-id="admin-quality-codex-prompt-editor"]',
     ) as HTMLTextAreaElement;
+    const recommendationsEditor = root.querySelector(
+      '[data-og7-id="admin-quality-recommendations-editor"]',
+    ) as HTMLTextAreaElement;
     const launchButton = root.querySelector(
       '[data-og7-id="admin-quality-confirm-dispatch"]',
     ) as HTMLButtonElement;
@@ -1548,6 +1560,12 @@ describe('AdminQualityPage', () => {
     expect(drawer).not.toBeNull();
     expect(signalContext).not.toBeNull();
     expect(promptEditor.value).toContain('Signal focus: E - End-to-end');
+    expect(recommendationsEditor.value).toContain('Tu devrais demander une preuve executable');
+
+    recommendationsEditor.value =
+      'Keep the matrix partial until stronger proof exists.\nWait until the product scope expands.';
+    recommendationsEditor.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
 
     promptEditor.value = 'Operator override brief';
     promptEditor.dispatchEvent(new Event('input'));
@@ -1568,6 +1586,11 @@ describe('AdminQualityPage', () => {
     expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
       source: 'admin-quality',
     });
+    expect(missionDecisions.saveDecision).toHaveBeenCalled();
+    expect(missionDecisions.saveDecision.calls.mostRecent().args[0].metadata.recommendations).toEqual([
+      'Keep the matrix partial until stronger proof exists.',
+      'Wait until the product scope expands.',
+    ]);
     expect(
       root.querySelector(
         '[data-og7="admin-quality-coverage-delegation-trace"][data-og7-id="advanced-discovery"]',

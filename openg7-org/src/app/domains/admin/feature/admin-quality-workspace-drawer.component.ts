@@ -34,7 +34,10 @@ interface AdminQualityWorkspaceSignalContext {
   readonly label: string;
   readonly headline: string;
   readonly detail: string;
+  readonly observedGap: string;
+  readonly nextMove: string;
   readonly recommendedAction: string;
+  readonly recommendations: readonly string[];
   readonly attention: boolean;
 }
 
@@ -61,8 +64,10 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly selectedEntry = input<AdminQualityMatrixEntry | null>(null);
   readonly selectedSignalContext = input<AdminQualityWorkspaceSignalContext | null>(null);
   readonly selectedRecalculationEntry = input<AdminQualityMatrixRecalculationEntry | null>(null);
+  readonly selectedRecalculationRecommendations = input<readonly string[]>([]);
   readonly delegationPlan = input<AdminQualityDelegationPlan | null>(null);
   readonly editableCodexPrompt = input('');
+  readonly editableSignalRecommendationsText = input('');
   readonly dispatchProviderLabel = input('Codex');
   readonly dispatchReady = input(false);
   readonly dispatchSubmitting = input(false);
@@ -78,6 +83,7 @@ export class AdminQualityWorkspaceDrawerComponent {
   readonly closeRequested = output<void>();
   readonly applyProposalRequested = output<void>();
   readonly codexPromptChanged = output<string>();
+  readonly signalRecommendationsChanged = output<string>();
   readonly codexLaunchRequested = output<void>();
   readonly surfaceChanged = output<AdminQualityWorkspaceSurface>();
 
@@ -178,6 +184,11 @@ export class AdminQualityWorkspaceDrawerComponent {
   protected updateCodexPrompt(event: Event): void {
     const value = (event.target as HTMLTextAreaElement | null)?.value ?? '';
     this.codexPromptChanged.emit(value);
+  }
+
+  protected updateSignalRecommendations(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement | null)?.value ?? '';
+    this.signalRecommendationsChanged.emit(value);
   }
 
   protected selectSurface(surface: AdminQualityWorkspaceSurface): void {
@@ -341,6 +352,22 @@ export class AdminQualityWorkspaceDrawerComponent {
     proposed: AdminQualityMatrixStatus | AdminQualityMatrixBucket,
   ): string {
     return current === proposed ? String(current) : `${current} -> ${proposed}`;
+  }
+
+  protected recalculationRecommendations(): readonly string[] {
+    return this.selectedRecalculationRecommendations();
+  }
+
+  protected signalObservedGap(context: AdminQualityWorkspaceSignalContext): string {
+    return context.observedGap ?? context.detail;
+  }
+
+  protected signalNextMove(context: AdminQualityWorkspaceSignalContext): string {
+    return context.nextMove ?? context.recommendedAction;
+  }
+
+  protected signalRecommendations(context: AdminQualityWorkspaceSignalContext): readonly string[] {
+    return context.recommendations ?? [];
   }
 
   protected hasGitHubIssueUrl(plan: AdminQualityDelegationPlan | null): boolean {
