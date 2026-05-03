@@ -139,6 +139,7 @@ export interface AdminOpsAiProofPullRequest {
   url: string | null;
   state: string;
   merged: boolean;
+  mergedAt: string | null;
   branch: string | null;
 }
 

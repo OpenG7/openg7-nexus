@@ -12,6 +12,29 @@ type MatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
+type MatrixSignalId =
+  | 'summary'
+  | 'business'
+  | 'implementation'
+  | 'e2e'
+  | 'readiness'
+  | 'priority';
+type MatrixSignalConfirmationSource =
+  | 'repo-signal'
+  | 'proof-returned'
+  | 'done'
+  | 'pull-request-merged';
+
+interface MatrixSignalDispatchState {
+  readonly pending: boolean;
+  readonly requestedAt: string | null;
+  readonly confirmedAt: string | null;
+  readonly confirmationSource: MatrixSignalConfirmationSource | null;
+  readonly workflow: string | null;
+  readonly ref: string | null;
+}
+
+type MatrixSignalDispatchSnapshot = Partial<Record<MatrixSignalId, MatrixSignalDispatchState>>;
 
 interface MatrixEntryEntity {
   readonly id?: number | string;
@@ -64,6 +87,7 @@ interface MissionDecisionEntity {
   readonly title?: unknown;
   readonly message?: unknown;
   readonly operatorPrompt?: unknown;
+  readonly metadata?: unknown;
   readonly createdAt?: unknown;
   readonly updatedAt?: unknown;
 }
@@ -126,6 +150,19 @@ function normalizeDate(value: unknown): string | null {
   return parsed.toISOString();
 }
 
+function normalizeInteger(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.trunc(value);
+  }
+
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  return null;
+}
+
 function normalizeEvidence(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -142,8 +179,27 @@ function normalizeStringArray(value: unknown): string[] {
   return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
 }
 
+function normalizeObject(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  return value as Record<string, unknown>;
+}
+
 function normalizeBoolean(value: unknown): boolean {
   return Boolean(value);
+}
+
+function normalizeSignalId(value: unknown): MatrixSignalId | null {
+  return value === 'summary' ||
+    value === 'business' ||
+    value === 'implementation' ||
+    value === 'e2e' ||
+    value === 'readiness' ||
+    value === 'priority'
+    ? value
+    : null;
 }
 
 function normalizeFindManyResult<T>(value: T | T[] | null | undefined): T[] {
@@ -153,7 +209,10 @@ function normalizeFindManyResult<T>(value: T | T[] | null | undefined): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
-function toMatrixEntryResponse(entity: MatrixEntryEntity) {
+function toMatrixEntryResponse(
+  entity: MatrixEntryEntity,
+  signalDispatch: MatrixSignalDispatchSnapshot = {},
+) {
   return {
     id: normalizeString(entity.entryId) ?? '',
     domain: normalizeString(entity.domain) ?? '',
@@ -173,6 +232,7 @@ function toMatrixEntryResponse(entity: MatrixEntryEntity) {
     repoSignalCommit: normalizeString(entity.lastRepoSignalCommit),
     repoSignalSource: normalizeString(entity.lastRepoSignalSource),
     repoSignalSummary: normalizeString(entity.lastRepoSignalSummary),
+    signalDispatch,
   };
 }
 
@@ -393,6 +453,141 @@ function buildLatestCompletedDecisionByEntryId(
   }
 
   return latestByEntryId;
+}
+
+function buildLatestSignalGuidanceByEntryId(
+  decisions: readonly MissionDecisionEntity[],
+): Map<string, Map<MatrixSignalId, MissionDecisionEntity>> {
+  const latestByEntryId = new Map<string, Map<MatrixSignalId, MissionDecisionEntity>>();
+
+  for (const decision of decisions) {
+    const entryId = normalizeString(decision.entryId, 180);
+    if (!entryId) {
+      continue;
+    }
+
+    const metadata = normalizeObject(decision.metadata);
+    if (normalizeString(metadata.traceType, 80) !== 'signal-guidance') {
+      continue;
+    }
+
+    const signalId = normalizeSignalId(metadata.signalId);
+    if (!signalId) {
+      continue;
+    }
+
+    const existingBySignal = latestByEntryId.get(entryId) ?? new Map<MatrixSignalId, MissionDecisionEntity>();
+    const current = existingBySignal.get(signalId);
+    const currentTimestamp = missionDecisionTimestamp(current);
+    const nextTimestamp = missionDecisionTimestamp(decision);
+    if (!current || (nextTimestamp ?? 0) > (currentTimestamp ?? 0)) {
+      existingBySignal.set(signalId, decision);
+    }
+    latestByEntryId.set(entryId, existingBySignal);
+  }
+
+  return latestByEntryId;
+}
+
+function buildLatestServerConfirmationByEntryId(
+  decisions: readonly MissionDecisionEntity[],
+): Map<string, MissionDecisionEntity> {
+  const latestByEntryId = new Map<string, MissionDecisionEntity>();
+
+  for (const decision of decisions) {
+    const entryId = normalizeString(decision.entryId, 180);
+    const status = normalizeString(decision.status, 40);
+    if (!entryId || (status !== 'proof-returned' && status !== 'done')) {
+      continue;
+    }
+
+    const current = latestByEntryId.get(entryId);
+    const currentTimestamp = missionDecisionTimestamp(current);
+    const nextTimestamp = missionDecisionTimestamp(decision);
+    if (!current || (nextTimestamp ?? 0) > (currentTimestamp ?? 0)) {
+      latestByEntryId.set(entryId, decision);
+    }
+  }
+
+  return latestByEntryId;
+}
+
+function resolveSignalDispatchSnapshot(
+  entry: MatrixEntryEntity,
+  latestSignalGuidanceBySignal: Map<MatrixSignalId, MissionDecisionEntity> | undefined,
+  latestServerConfirmation: MissionDecisionEntity | null | undefined,
+): MatrixSignalDispatchSnapshot {
+  if (!latestSignalGuidanceBySignal?.size) {
+    return {};
+  }
+
+  const repoSignalAt = normalizeDate(entry.lastRepoSignalAt);
+  const repoSignalTimestamp = repoSignalAt ? new Date(repoSignalAt).getTime() : null;
+  const confirmationDecisionTimestamp = missionDecisionTimestamp(latestServerConfirmation);
+  const confirmationDecisionStatus = normalizeString(latestServerConfirmation?.status, 40);
+  const snapshot: MatrixSignalDispatchSnapshot = {};
+
+  for (const [signalId, decision] of latestSignalGuidanceBySignal.entries()) {
+    const requestedTimestamp = missionDecisionTimestamp(decision);
+    const requestedAt = requestedTimestamp == null ? null : new Date(requestedTimestamp).toISOString();
+    const metadata = normalizeObject(decision.metadata);
+    const trackedPullRequestNumber = normalizeInteger(metadata.proofPullRequestNumber);
+    const trackedProofBranch =
+      normalizeString(metadata.proofPullRequestBranch, 200) ??
+      normalizeString(metadata.proofBranch, 200);
+    const trackedPullRequestMergedAt = normalizeDate(metadata.proofPullRequestMergedAt);
+    const trackedPullRequestMergedTimestamp = trackedPullRequestMergedAt
+      ? new Date(trackedPullRequestMergedAt).getTime()
+      : null;
+    const hasExactPullRequestTracking =
+      trackedPullRequestNumber != null || (trackedProofBranch != null && trackedProofBranch.length > 0);
+
+    let confirmedAt: string | null = null;
+    let confirmationSource: MatrixSignalConfirmationSource | null = null;
+
+    if (
+      requestedTimestamp != null &&
+      trackedPullRequestMergedTimestamp != null &&
+      trackedPullRequestMergedTimestamp > requestedTimestamp
+    ) {
+      confirmedAt = new Date(trackedPullRequestMergedTimestamp).toISOString();
+      confirmationSource = 'pull-request-merged';
+    }
+
+    if (
+      !hasExactPullRequestTracking &&
+      requestedTimestamp != null &&
+      repoSignalTimestamp != null &&
+      Number.isFinite(repoSignalTimestamp) &&
+      repoSignalTimestamp > requestedTimestamp
+    ) {
+      confirmedAt = new Date(repoSignalTimestamp).toISOString();
+      confirmationSource = 'repo-signal';
+    }
+
+    if (
+      requestedTimestamp != null &&
+      confirmationDecisionTimestamp != null &&
+      confirmationDecisionTimestamp > requestedTimestamp
+    ) {
+      const nextConfirmedAt = new Date(confirmationDecisionTimestamp).toISOString();
+      if (!confirmedAt || confirmationDecisionTimestamp > new Date(confirmedAt).getTime()) {
+        confirmedAt = nextConfirmedAt;
+        confirmationSource = confirmationDecisionStatus === 'proof-returned' ? 'proof-returned' : 'done';
+      }
+    }
+
+    snapshot[signalId] = {
+      pending: !confirmedAt,
+      requestedAt,
+      confirmedAt,
+      confirmationSource,
+      workflow: normalizeString(metadata.workflow, 160),
+      ref: normalizeString(metadata.ref, 160),
+    };
+  }
+
+  return snapshot;
 }
 
 function entryNeedsRecalculation(
@@ -616,8 +811,15 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       sort: ['priority:desc', 'domain:asc'],
       limit: 500,
     });
+    const rawDecisions = await strapi.entityService.findMany(MISSION_DECISION_UID, {
+      sort: ['updatedAt:desc'],
+      limit: 1_000,
+    });
 
     const entries = normalizeFindManyResult(rawEntries) as MatrixEntryEntity[];
+    const decisions = normalizeFindManyResult(rawDecisions) as MissionDecisionEntity[];
+    const latestSignalGuidanceByEntryId = buildLatestSignalGuidanceByEntryId(decisions);
+    const latestServerConfirmationByEntryId = buildLatestServerConfirmationByEntryId(decisions);
     const generatedAt = resolveGeneratedAt(entries);
 
     ctx.body = {
@@ -625,7 +827,17 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         generatedAt,
         sourceStatus: sourceStatusFor(generatedAt),
         sourceMessage: sourceMessageFor(generatedAt),
-        entries: entries.map((entry) => toMatrixEntryResponse(entry)),
+        entries: entries.map((entry) => {
+          const entryId = normalizeString(entry.entryId, 180) ?? '';
+          return toMatrixEntryResponse(
+            entry,
+            resolveSignalDispatchSnapshot(
+              entry,
+              latestSignalGuidanceByEntryId.get(entryId),
+              latestServerConfirmationByEntryId.get(entryId),
+            ),
+          );
+        }),
       },
     };
   },

@@ -28,6 +28,7 @@ import {
   resolveAdminAiProviderOption,
 } from '../data-access/admin-ai-providers';
 import {
+  AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
   AdminOpsAiProofSnapshot,
   AdminOpsSecuritySnapshot,
@@ -37,6 +38,7 @@ import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
   AdminQualityMatrixPriority,
+  AdminQualityMatrixSignalDispatchState,
   AdminQualityMatrixRecalculationScope,
   AdminQualityMatrixRecalculationEntry,
   AdminQualityMatrixRecalculationResult,
@@ -478,6 +480,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private aiOpsRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private liveTickTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly syncingSignalGuidanceTrackingIds = new Set<string>();
   private missionHudSectionObserver: IntersectionObserver | null = null;
   private missionHudSectionPulseTimer: ReturnType<typeof setTimeout> | null = null;
   private missionHudProofPulseTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1319,8 +1322,45 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     const entry = this.selectedEntry();
     return entry ? this.signalDelegationTraces()[entry.id] ?? null : null;
   });
+  readonly selectedSignalServerDispatchState = computed<AdminQualityMatrixSignalDispatchState | null>(() => {
+    const entry = this.selectedEntry();
+    const signalContext = this.selectedSignalContext();
+    if (!entry || !signalContext) {
+      return null;
+    }
+
+    return entry.signalDispatch[signalContext.signalId] ?? null;
+  });
+  readonly selectedSignalDispatchReady = computed(() => {
+    if (!this.selectedAiDispatchReady()) {
+      return false;
+    }
+
+    const serverState = this.selectedSignalServerDispatchState();
+    const trace = this.selectedSignalDelegationTrace();
+    if (serverState?.pending) {
+      return false;
+    }
+
+    return !this.isOptimisticSignalConfirmationPending(serverState, trace);
+  });
   readonly selectedSignalDispatchBlockedMessage = computed(() => {
-    if (!this.selectedSignalContext() || this.selectedAiDispatchReady()) {
+    const signalContext = this.selectedSignalContext();
+    if (!signalContext) {
+      return null;
+    }
+
+    if (!this.selectedAiDispatchReady()) {
+      return this.selectedAiDispatchBlockedMessage();
+    }
+
+    const serverState = this.selectedSignalServerDispatchState();
+    const trace = this.selectedSignalDelegationTrace();
+    if (serverState?.pending || this.isOptimisticSignalConfirmationPending(serverState, trace)) {
+      return `${signalContext.label} est deja delegue a ${trace?.provider ?? this.selectedAiProviderLabel()}. Le bouton reste verrouille jusqu'a reception d'une confirmation serveur plus recente (merge, preuve retournee ou cloture).`;
+    }
+
+    if (this.selectedSignalDispatchReady()) {
       return null;
     }
 
@@ -1790,8 +1830,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.selectedAiDispatchReady()) {
-      this.notifications.error(this.selectedAiDispatchBlockedMessage(), {
+    if (!this.selectedSignalDispatchReady()) {
+      this.notifications.error(this.selectedSignalDispatchBlockedMessage() ?? this.selectedAiDispatchBlockedMessage(), {
         source: 'admin-quality',
       });
       return;
@@ -1817,7 +1857,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (result) => {
-          this.persistSignalRecommendationTrace(entry, plan, signalContext, result.workflow, result.ref);
+          this.persistSignalRecommendationTrace(entry, plan, signalContext, result);
           this.recordSignalDelegationTrace(entry.id, signalContext);
           this.notifications.info(
             `${this.selectedAiProviderLabel()} queued via ${result.workflow} on ${result.ref}.`,
@@ -3010,6 +3050,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           if (proofs) {
             this.aiOpsProofs.set(proofs);
             this.aiOpsProofStatus.set('ready');
+            this.syncSignalGuidanceTrackingFromProofs();
           } else if (!this.aiOpsProofs()) {
             this.aiOpsProofStatus.set('unavailable');
           }
@@ -3356,13 +3397,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     entry: AdminQualityMatrixEntry,
     plan: AdminQualityDelegationPlan,
     signalContext: AdminQualityWorkspaceSignalContext,
-    workflow: string,
-    ref: string,
+    dispatch: AdminOpsCodexDispatchResponse,
   ): void {
     const task =
       this.selectedSignalDraftPrompt().trim() || this.buildSignalDispatchTask(entry, plan, signalContext);
     const recommendationId = `${entry.id}::signal-guidance::${signalContext.signalId}`;
-    const message = `Recommendations validated for ${signalContext.label}; dispatch queued via ${workflow} on ${ref}.`;
+    const message = `Recommendations validated for ${signalContext.label}; dispatch queued via ${dispatch.workflow} on ${dispatch.ref}.`;
     const now = new Date().toISOString();
 
     const record: AdminQualityMissionDecisionRecord = {
@@ -3382,9 +3422,13 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         nextMove: signalContext.nextMove,
         recommendedAction: signalContext.recommendedAction,
         recommendations: signalContext.recommendations,
-        provider: this.selectedAiProvider(),
-        workflow,
-        ref,
+        provider: dispatch.selectedProvider,
+        workflow: dispatch.workflow,
+        ref: dispatch.ref,
+        owner: dispatch.owner,
+        repo: dispatch.repo,
+        baseBranch: dispatch.request.baseBranch,
+        dispatchRequestedAt: dispatch.requestedAt,
         targetFiles: plan.targetFiles,
         validationCommands: plan.commands,
       },
@@ -3414,6 +3458,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.upsertMissionDecisionRecord(saved);
           this.missionDecisionSyncStatus.set('server');
           this.missionDecisionSyncMessage.set('Validation des recommandations synchronisee cote serveur.');
+          this.loadMatrixSnapshot(false);
         },
         error: () => {
           this.missionDecisionSyncStatus.set('unavailable');
@@ -3426,6 +3471,201 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           );
         },
       });
+  }
+
+  private syncSignalGuidanceTrackingFromProofs(): void {
+    const proofs = this.aiOpsProofs();
+    if (!proofs?.providers.length) {
+      return;
+    }
+
+    for (const record of this.missionDecisionRecords()) {
+      const metadata = record.metadata ?? {};
+      if (metadata['traceType'] !== 'signal-guidance') {
+        continue;
+      }
+
+      if (this.syncingSignalGuidanceTrackingIds.has(record.recommendationId)) {
+        continue;
+      }
+
+      const provider = isAdminAiProvider(metadata['provider']) ? metadata['provider'] : null;
+      const workflow =
+        typeof metadata['workflow'] === 'string' && metadata['workflow'].trim()
+          ? metadata['workflow']
+          : null;
+      if (!provider || !workflow) {
+        continue;
+      }
+
+      const proof = proofs.providers.find(
+        (candidate) => candidate.provider === provider && candidate.workflow === workflow,
+      );
+      if (!proof) {
+        continue;
+      }
+
+      const nextMetadata = this.buildSignalGuidanceProofTrackingMetadata(record, proof);
+      if (!nextMetadata) {
+        continue;
+      }
+
+      this.syncingSignalGuidanceTrackingIds.add(record.recommendationId);
+      this.missionDecisionService
+        .saveDecision({
+          recommendationId: record.recommendationId,
+          entryId: record.entryId,
+          kind: record.kind,
+          status: record.status,
+          title: record.title ?? '',
+          message: record.message ?? '',
+          operatorPrompt: record.operatorPrompt ?? '',
+          metadata: nextMetadata,
+        })
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => this.syncingSignalGuidanceTrackingIds.delete(record.recommendationId)),
+        )
+        .subscribe({
+          next: (saved) => {
+            this.upsertMissionDecisionRecord(saved);
+            this.persistMissionDecisions();
+            this.loadMatrixSnapshot(false);
+          },
+          error: () => undefined,
+        });
+    }
+  }
+
+  private buildSignalGuidanceProofTrackingMetadata(
+    record: AdminQualityMissionDecisionRecord,
+    proof: AdminQualityAiProofModule,
+  ): Record<string, unknown> | null {
+    const metadata = record.metadata ?? {};
+    const requestedAt = this.signalGuidanceMetadataString(metadata, 'dispatchRequestedAt') ?? record.updatedAt;
+    const requestedTimestamp = this.parseTimestamp(requestedAt);
+    const proofRunUpdatedTimestamp = this.parseTimestamp(proof.run?.updatedAt ?? null);
+    const proofMergedTimestamp = this.parseTimestamp(proof.pullRequest?.mergedAt ?? null);
+
+    if (
+      requestedTimestamp != null &&
+      proofRunUpdatedTimestamp != null &&
+      proofRunUpdatedTimestamp <= requestedTimestamp &&
+      proofMergedTimestamp != null &&
+      proofMergedTimestamp <= requestedTimestamp
+    ) {
+      return null;
+    }
+
+    const currentProofBranch = this.signalGuidanceMetadataString(metadata, 'proofBranch');
+    const currentPullRequestNumber = this.signalGuidanceMetadataNumber(
+      metadata,
+      'proofPullRequestNumber',
+    );
+    const nextProofBranch = proof.pullRequest?.branch ?? proof.run?.branch ?? currentProofBranch;
+    const nextPullRequestNumber = proof.pullRequest?.number ?? currentPullRequestNumber;
+
+    if (currentProofBranch && nextProofBranch && currentProofBranch !== nextProofBranch) {
+      return null;
+    }
+
+    if (
+      currentPullRequestNumber != null &&
+      nextPullRequestNumber != null &&
+      currentPullRequestNumber !== nextPullRequestNumber
+    ) {
+      return null;
+    }
+
+    if (
+      requestedTimestamp != null &&
+      proofRunUpdatedTimestamp != null &&
+      proofRunUpdatedTimestamp <= requestedTimestamp &&
+      proofMergedTimestamp == null
+    ) {
+      return null;
+    }
+
+    const nextMetadata: Record<string, unknown> = {
+      ...metadata,
+      dispatchRequestedAt: requestedAt,
+      proofProvider: proof.provider,
+      proofWorkflow: proof.workflow,
+      proofBranch: nextProofBranch,
+      proofRunId: proof.run?.id ?? null,
+      proofRunNumber: proof.run?.number ?? null,
+      proofRunBranch: proof.run?.branch ?? null,
+      proofRunStatus: proof.run?.status ?? null,
+      proofRunConclusion: proof.run?.conclusion ?? null,
+      proofRunCreatedAt: proof.run?.createdAt ?? null,
+      proofRunUpdatedAt: proof.run?.updatedAt ?? null,
+      proofPullRequestNumber: nextPullRequestNumber,
+      proofPullRequestUrl: proof.pullRequest?.url ?? null,
+      proofPullRequestState: proof.pullRequest?.state ?? null,
+      proofPullRequestBranch: proof.pullRequest?.branch ?? nextProofBranch,
+      proofPullRequestMerged: Boolean(proof.pullRequest?.merged),
+      proofPullRequestMergedAt: proof.pullRequest?.mergedAt ?? null,
+    };
+
+    return this.signalGuidanceProofTrackingSignature(metadata) ===
+      this.signalGuidanceProofTrackingSignature(nextMetadata)
+      ? null
+      : nextMetadata;
+  }
+
+  private signalGuidanceProofTrackingSignature(metadata: Record<string, unknown>): string {
+    return JSON.stringify({
+      dispatchRequestedAt: this.signalGuidanceMetadataString(metadata, 'dispatchRequestedAt'),
+      proofProvider: this.signalGuidanceMetadataString(metadata, 'proofProvider'),
+      proofWorkflow: this.signalGuidanceMetadataString(metadata, 'proofWorkflow'),
+      proofBranch: this.signalGuidanceMetadataString(metadata, 'proofBranch'),
+      proofRunId: this.signalGuidanceMetadataNumber(metadata, 'proofRunId'),
+      proofRunNumber: this.signalGuidanceMetadataNumber(metadata, 'proofRunNumber'),
+      proofRunBranch: this.signalGuidanceMetadataString(metadata, 'proofRunBranch'),
+      proofRunStatus: this.signalGuidanceMetadataString(metadata, 'proofRunStatus'),
+      proofRunConclusion: this.signalGuidanceMetadataString(metadata, 'proofRunConclusion'),
+      proofRunCreatedAt: this.signalGuidanceMetadataString(metadata, 'proofRunCreatedAt'),
+      proofRunUpdatedAt: this.signalGuidanceMetadataString(metadata, 'proofRunUpdatedAt'),
+      proofPullRequestNumber: this.signalGuidanceMetadataNumber(metadata, 'proofPullRequestNumber'),
+      proofPullRequestUrl: this.signalGuidanceMetadataString(metadata, 'proofPullRequestUrl'),
+      proofPullRequestState: this.signalGuidanceMetadataString(metadata, 'proofPullRequestState'),
+      proofPullRequestBranch: this.signalGuidanceMetadataString(metadata, 'proofPullRequestBranch'),
+      proofPullRequestMerged: this.signalGuidanceMetadataBoolean(metadata, 'proofPullRequestMerged'),
+      proofPullRequestMergedAt: this.signalGuidanceMetadataString(metadata, 'proofPullRequestMergedAt'),
+    });
+  }
+
+  private signalGuidanceMetadataString(
+    metadata: Record<string, unknown>,
+    key: string,
+  ): string | null {
+    const value = metadata[key];
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
+  }
+
+  private signalGuidanceMetadataNumber(
+    metadata: Record<string, unknown>,
+    key: string,
+  ): number | null {
+    const value = metadata[key];
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
+  private signalGuidanceMetadataBoolean(
+    metadata: Record<string, unknown>,
+    key: string,
+  ): boolean | null {
+    const value = metadata[key];
+    return typeof value === 'boolean' ? value : null;
+  }
+
+  private parseTimestamp(value: string | null | undefined): number | null {
+    if (!value) {
+      return null;
+    }
+
+    const timestamp = Date.parse(value);
+    return Number.isNaN(timestamp) ? null : timestamp;
   }
 
   private parseRecommendationDraft(value: string): readonly string[] {
@@ -3451,6 +3691,31 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       ...current,
       [entryId]: trace,
     }));
+  }
+
+  private isOptimisticSignalConfirmationPending(
+    serverState: AdminQualityMatrixSignalDispatchState | null,
+    trace: AdminQualityCoverageSignalTrace | null,
+  ): boolean {
+    if (!trace) {
+      return false;
+    }
+
+    if (!serverState) {
+      return true;
+    }
+
+    if (serverState.pending) {
+      return true;
+    }
+
+    const localRequestedAt = Date.parse(trace.requestedAt);
+    const serverRequestedAt = serverState.requestedAt ? Date.parse(serverState.requestedAt) : Number.NaN;
+    if (Number.isFinite(localRequestedAt) && (!Number.isFinite(serverRequestedAt) || localRequestedAt > serverRequestedAt)) {
+      return true;
+    }
+
+    return false;
   }
 
   private aiProofStateLabel(state: AdminQualityAiProofModule['state']): string {
@@ -3487,6 +3752,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.missionDecisions.set(next);
           this.missionDecisionRecords.set(snapshot.decisions);
           this.persistMissionDecisions();
+          this.syncSignalGuidanceTrackingFromProofs();
           this.missionDecisionSyncStatus.set('server');
           this.missionDecisionSyncMessage.set(
             `${snapshot.decisions.length} decision(s) de mission synchronisee(s).`,

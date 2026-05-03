@@ -25,6 +25,7 @@ describe('AdminQualityCoverageMatrixComponent', () => {
       repoSignalCommit: null,
       repoSignalSource: null,
       repoSignalSummary: null,
+      signalDispatch: {},
       ...overrides,
     };
   }

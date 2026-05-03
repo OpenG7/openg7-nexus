@@ -10,6 +10,27 @@ export type AdminQualityMatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 export type AdminQualityMatrixPriority = 'basse' | 'moyenne' | 'haute';
 export type AdminQualityMatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 export type AdminQualityMatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
+export type AdminQualityMatrixSignalId =
+  | 'summary'
+  | 'business'
+  | 'implementation'
+  | 'e2e'
+  | 'readiness'
+  | 'priority';
+export type AdminQualityMatrixSignalConfirmationSource =
+  | 'repo-signal'
+  | 'proof-returned'
+  | 'done'
+  | 'pull-request-merged';
+
+export interface AdminQualityMatrixSignalDispatchState {
+  readonly pending: boolean;
+  readonly requestedAt: string | null;
+  readonly confirmedAt: string | null;
+  readonly confirmationSource: AdminQualityMatrixSignalConfirmationSource | null;
+  readonly workflow: string | null;
+  readonly ref: string | null;
+}
 
 export interface AdminQualityMatrixEntry {
   readonly id: string;
@@ -30,6 +51,9 @@ export interface AdminQualityMatrixEntry {
   readonly repoSignalCommit: string | null;
   readonly repoSignalSource: string | null;
   readonly repoSignalSummary: string | null;
+  readonly signalDispatch: Partial<
+    Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
+  >;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -298,7 +322,57 @@ export class AdminQualityMatrixService {
         typeof entry.repoSignalSummary === 'string' && entry.repoSignalSummary.trim()
           ? entry.repoSignalSummary
           : null,
+      signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
     };
+  }
+
+  private normalizeSignalDispatch(
+    value: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> | null | undefined,
+  ): Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return {};
+    }
+
+    const normalized: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> = {};
+    const signalIds: readonly AdminQualityMatrixSignalId[] = [
+      'summary',
+      'business',
+      'implementation',
+      'e2e',
+      'readiness',
+      'priority',
+    ];
+
+    for (const signalId of signalIds) {
+      const state = value[signalId];
+      if (!state || typeof state !== 'object') {
+        continue;
+      }
+
+      normalized[signalId] = {
+        pending: Boolean(state.pending),
+        requestedAt:
+          typeof state.requestedAt === 'string' && state.requestedAt.trim()
+            ? state.requestedAt
+            : null,
+        confirmedAt:
+          typeof state.confirmedAt === 'string' && state.confirmedAt.trim()
+            ? state.confirmedAt
+            : null,
+        confirmationSource:
+          state.confirmationSource === 'repo-signal' ||
+          state.confirmationSource === 'proof-returned' ||
+          state.confirmationSource === 'done' ||
+          state.confirmationSource === 'pull-request-merged'
+            ? state.confirmationSource
+            : null,
+        workflow:
+          typeof state.workflow === 'string' && state.workflow.trim() ? state.workflow : null,
+        ref: typeof state.ref === 'string' && state.ref.trim() ? state.ref : null,
+      };
+    }
+
+    return normalized;
   }
 
   private normalizeCoverageProposal(

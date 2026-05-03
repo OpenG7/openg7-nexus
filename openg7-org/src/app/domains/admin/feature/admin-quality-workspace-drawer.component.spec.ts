@@ -242,6 +242,7 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
       nextMove: 'Expose a durable lifecycle on company or partner editing.',
       evidence: ['e2e/opportunity-enrichment-lifecycle.spec.ts'],
       reviewedAt: '2026-04-21',
+      signalDispatch: {},
     });
     fixture.componentRef.setInput('delegationCount', 1);
     fixture.detectChanges();

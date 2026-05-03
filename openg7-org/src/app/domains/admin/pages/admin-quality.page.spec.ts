@@ -48,6 +48,7 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
         {
           id: 'trust-validation',
@@ -68,6 +69,7 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
         {
           id: 'observability',
@@ -88,6 +90,7 @@ class AdminQualityMatrixServiceMock {
           repoSignalCommit: null,
           repoSignalSource: null,
           repoSignalSummary: null,
+          signalDispatch: {},
         },
       ],
     }),
@@ -159,6 +162,7 @@ class AdminQualityMatrixServiceMock {
         repoSignalCommit: 'abc123def456',
         repoSignalSource: 'github-actions',
         repoSignalSummary: null,
+        signalDispatch: {},
       },
       proposal: {
         entryId: 'advanced-discovery',
@@ -336,6 +340,7 @@ class AdminOpsServiceMock {
             url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
             state: 'open',
             merged: false,
+            mergedAt: null,
             branch: 'codex/qa-proof-501',
           },
         },
@@ -389,6 +394,7 @@ class AdminOpsServiceMock {
             url: 'https://github.com/OpenG7/openg7-nexus/pull/322',
             state: 'open',
             merged: false,
+            mergedAt: null,
             branch: 'claude/qa-proof-601',
           },
         },
@@ -1583,11 +1589,24 @@ describe('AdminQualityPage', () => {
       model: 'gpt-5.4',
       effort: null,
     });
+    expect(launchButton.disabled).toBeTrue();
+    expect(fixture.componentInstance.selectedSignalDispatchReady()).toBeFalse();
+    expect(root.querySelector('[data-og7-id="admin-quality-dispatch-blocked"]')?.textContent).toContain(
+      'Le bouton reste verrouille jusqu\'a reception d\'une confirmation serveur plus recente',
+    );
     expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
       source: 'admin-quality',
     });
     expect(missionDecisions.saveDecision).toHaveBeenCalled();
-    expect(missionDecisions.saveDecision.calls.mostRecent().args[0].metadata.recommendations).toEqual([
+    const signalGuidanceCall = missionDecisions.saveDecision.calls
+      .allArgs()
+      .map(([input]) => input)
+      .find(
+        (input) =>
+          input.recommendationId === 'advanced-discovery::signal-guidance::e2e' &&
+          Array.isArray(input.metadata.recommendations),
+      );
+    expect(signalGuidanceCall?.metadata.recommendations).toEqual([
       'Keep the matrix partial until stronger proof exists.',
       'Wait until the product scope expands.',
     ]);
@@ -1930,6 +1949,7 @@ describe('AdminQualityPage', () => {
             repoSignalCommit: 'abc123def456',
             repoSignalSource: 'github-actions',
             repoSignalSummary: 'targeted sync after merge to main',
+            signalDispatch: {},
           },
         ],
       }),

@@ -200,6 +200,28 @@ async function createMissionDecision(strapi, entryId) {
   });
 }
 
+async function createSignalGuidanceDecision(strapi, entryId, signalId, metadataOverrides = {}) {
+  return strapi.entityService.create(MISSION_DECISION_UID, {
+    data: {
+      recommendationId: `${entryId}::signal-guidance::${signalId}`,
+      entryId,
+      kind: 'governance',
+      status: 'approved',
+      title: 'Signal guidance validated',
+      message: 'Codex dispatch queued and waiting for implementation confirmation.',
+      operatorPrompt: 'Wait for merge or proof-returned before reopening dispatch.',
+      metadata: {
+        traceType: 'signal-guidance',
+        signalId,
+        workflow: 'codex-pr.yml',
+        ref: 'main',
+        ...metadataOverrides,
+      },
+      decidedByUserId: '1',
+    },
+  });
+}
+
 async function run() {
   applyTestEnvironment();
   await cleanupDatabase();
@@ -229,6 +251,27 @@ async function run() {
     });
     assert.equal(snapshotAllowed.status, 200, 'Expected owner user to access matrix snapshot.');
     assert.equal(snapshotAllowed.body?.data?.entries?.length, 1, 'Expected matrix snapshot payload.');
+    assert.deepEqual(
+      snapshotAllowed.body?.data?.entries?.[0]?.signalDispatch ?? {},
+      {},
+      'Expected no signal dispatch lock before any guidance is recorded.',
+    );
+
+    const repoMergedAt = new Date(Date.now() + 30_000).toISOString();
+    const exactPullRequestMergedAt = new Date(Date.now() + 60_000).toISOString();
+    const signalGuidanceDecision = await createSignalGuidanceDecision(app, 'trust-validation', 'e2e', {
+      proofPullRequestNumber: 321,
+      proofBranch: 'codex/qa-proof-501',
+    });
+
+    const snapshotWithPendingGuidance = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(
+      snapshotWithPendingGuidance.body?.data?.entries?.[0]?.signalDispatch?.e2e?.pending,
+      true,
+      'Expected the e2e signal to remain pending before any merge or proof-returned confirmation.',
+    );
 
     const recalcDenied = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
       method: 'POST',
@@ -241,7 +284,7 @@ async function run() {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
-        mergedAt: '2026-05-02T12:00:00.000Z',
+        mergedAt: repoMergedAt,
         commitSha: 'abc123',
         source: 'github-actions',
         impactedEntryIds: ['trust-validation'],
@@ -253,7 +296,7 @@ async function run() {
       method: 'POST',
       headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
       body: JSON.stringify({
-        mergedAt: '2026-05-02T12:00:00.000Z',
+        mergedAt: repoMergedAt,
         impactedEntryIds: ['trust-validation'],
       }),
     });
@@ -263,7 +306,7 @@ async function run() {
       method: 'POST',
       headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
       body: JSON.stringify({
-        mergedAt: '2026-05-02T12:00:00.000Z',
+        mergedAt: repoMergedAt,
         commitSha: 'abc123def456',
         source: 'github-actions',
         workflow: 'Admin Quality Matrix Sync',
@@ -281,8 +324,45 @@ async function run() {
     assert.ok(updated, 'Expected matrix entry to still exist after ingest.');
     assert.equal(updated.lastRepoSignalCommit, 'abc123def456');
     assert.equal(updated.lastRepoSignalSource, 'github-actions');
-    assert.equal(updated.lastRepoSignalAt, '2026-05-02T12:00:00.000Z');
+    assert.equal(updated.lastRepoSignalAt, repoMergedAt);
     assert.match(updated.lastRepoSignalSummary, /targeted sync after merge to main/i);
+
+    const snapshotAfterRepoIngest = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(
+      snapshotAfterRepoIngest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.pending,
+      true,
+      'Expected generic repo ingest to stay pending when the signal is already bound to an exact pull request.',
+    );
+    assert.equal(
+      snapshotAfterRepoIngest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
+      null,
+    );
+
+    await app.entityService.update(MISSION_DECISION_UID, signalGuidanceDecision.id, {
+      data: {
+        metadata: {
+          ...signalGuidanceDecision.metadata,
+          proofPullRequestNumber: 321,
+          proofBranch: 'codex/qa-proof-501',
+          proofPullRequestMergedAt: exactPullRequestMergedAt,
+        },
+      },
+    });
+
+    const snapshotAfterExactPullRequestMerge = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(
+      snapshotAfterExactPullRequestMerge.body?.data?.entries?.[0]?.signalDispatch?.e2e?.pending,
+      false,
+      'Expected the saved exact pull request merge to confirm the e2e signal server-side.',
+    );
+    assert.equal(
+      snapshotAfterExactPullRequestMerge.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
+      'pull-request-merged',
+    );
 
     await createMissionDecision(app, 'trust-validation');
 
