@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { RouterTestingModule } from '@angular/router/testing';
 import { FiltersService } from '@app/core/filters.service';
 import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { MapGeojsonService, MapFlowFeatureCollection, MapHubFeatureCollection, MapProvinceFeatureCollection } from '@app/core/services/map-geojson.service';
@@ -6,7 +7,6 @@ import { selectFilteredFlows, selectMapKpis, selectMapReady } from '@app/state';
 import { selectSectors } from '@app/state/catalog/catalog.selectors';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
 

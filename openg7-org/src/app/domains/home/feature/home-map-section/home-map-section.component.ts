@@ -3,11 +3,11 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { Router } from '@angular/router';
 import { FiltersService } from '@app/core/filters.service';
 import type { SectorType } from '@app/core/models/opportunity';
-import { AppState } from '@app/state/app.state';
-import { Flow, MapActions, selectFilteredFlows } from '@app/state';
-import { selectSectors } from '@app/state/catalog/catalog.selectors';
 import { TradeMapComponent } from '@app/shared/components/map/trade-map.component';
 import { Og7MapFrameComponent } from '@app/shared/components/map-frame/og7-map-frame.component';
+import { Flow, MapActions, selectFilteredFlows } from '@app/state';
+import { AppState } from '@app/state/app.state';
+import { selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
