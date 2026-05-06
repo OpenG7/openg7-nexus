@@ -36,6 +36,7 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Carte & data viz | og7-map-legend | og7-map-legend | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok | Selector Angular alignÃ© (og7-map-legend). |
 | Carte & data viz | og7-map-kpi-badges | og7-map-kpi-badges | MapKpiBadgesComponent | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts | ok | Selector Angular alignÃ© (og7-map-kpi-badges). |
 | Carte & data viz | og7-map-sector-chips | og7-map-sector-chips | MapSectorChipsComponent | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts | ok | Selector Angular alignÃ© (og7-map-sector-chips). |
+| Carte & data viz | og7-openlayers-demo-page | og7-openlayers-demo-page | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Page de demonstration OL avec donnees mock et interactions corridor-first. |
 | Carte & data viz | og7-map-frame | og7-map-frame | Og7MapFrameComponent | openg7-org/src/app/shared/components/map-frame/og7-map-frame.component.ts | ok |  |
 | Carte & data viz | og7-home-map-section | og7-home-map-section | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.ts | ok |  |
 | Carte & data viz | og7-home-corridors-realtime | og7-home-corridors-realtime | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts | ok |  |
@@ -120,6 +121,8 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Hero & marketing | [data-og7="home-inputs"] | HomeInputsSectionComponent | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts | ok |  |
 | Hero & marketing | [data-og7="announcement-bar"] | â€” | â€” | planned | Doublon volontaire pour lâ€™UI marketing (pas encore utilisÃ©). |
 | Carte & data viz | [data-og7="trade-map"] | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.ts | ok |  |
+| Carte & data viz | [data-og7="ol-demo-page"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Racine de la page de demonstration OpenLayers. |
+| Carte & data viz | [data-og7="ol-demo-map"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Surface cartographique OL alimentee par donnees mock. |
 | Carte & data viz | [data-og7="map-basemap-toggle"] | BasemapToggleComponent | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-zoom-control"] | ZoomControlComponent | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-legend"] | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok |  |

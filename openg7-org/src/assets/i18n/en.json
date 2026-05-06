@@ -550,115 +550,6 @@
     "clear": "Clear",
     "info": "Information"
   },
-  "admin": {
-    "quality": {
-      "workspace": {
-        "compact": {
-          "label": "Workspace",
-          "title": "Active workspace",
-          "subtitle": "QA, delegation, and actions are available in the side panel.",
-          "open": "Open workspace",
-          "primarySurface": "Primary surface: {{ surface }}",
-          "domains": "{{ count }} domain(s)",
-          "actions": "{{ count }} action(s)",
-          "activeSurface": "Active surface: {{ surface }}",
-          "activePanel": "Active panel",
-          "activePanelCount": "{{ count }} item(s)"
-        },
-        "drawer": {
-          "label": "Workspace",
-          "activeSurface": "Active surface",
-          "selectedCount": "{{ count }} item(s)",
-          "close": "Close workspace",
-          "closeAction": "Close",
-          "backdropLabel": "Close workspace",
-          "tabsLabel": "Workspace surfaces"
-        },
-        "tabs": {
-          "qaQueue": "QA Queue",
-          "delegation": "Delegation",
-          "actions": "Actions"
-        },
-        "surfaces": {
-          "qaQueue": {
-            "title": "QA Queue",
-            "subtitle": "Requirements and coverage review"
-          },
-          "delegation": {
-            "title": "Delegation",
-            "subtitle": "Automatic delegation plan"
-          },
-          "actions": {
-            "title": "Actions",
-            "subtitle": "Action registry and instrumentation"
-          }
-        },
-        "qaQueue": {
-          "kicker": "QA Queue",
-          "title": "QA Queue",
-          "subtitle": "Requirements and coverage review",
-          "emptyTitle": "QA Queue pending",
-          "emptyBody": "The QA queue will connect to the detailed matrix once structured data is available.",
-          "status": {
-            "yes": "Proved",
-            "partial": "Partial",
-            "no": "To cover",
-            "outOfScope": "Out of MVP"
-          }
-        },
-        "delegation": {
-          "header": "Delegation",
-          "emptyTitle": "Delegation unavailable",
-          "missing": "No delegation plan is available for the current selection.",
-          "modes": {
-            "qaProof": "QA proof",
-            "productClosure": "Product closure",
-            "hardening": "Hardening",
-            "scopeCadrage": "Scope framing"
-          },
-          "cards": {
-            "action": "Action",
-            "projectStatus": "Project status",
-            "repos": "Repos",
-            "labels": "Labels",
-            "acceptance": "Acceptance criteria",
-            "execution": "Likely execution plan",
-            "files": "Files",
-            "validation": "Validation",
-            "brief": "Codex brief",
-            "briefBody": "Prompt ready to copy, review, or delegate quickly.",
-            "issue": "GitHub issue",
-            "issueBody": "Precomposed issue for delegation or follow-up."
-          },
-          "buttons": {
-            "copyBrief": "Copy brief",
-            "copyIssue": "Copy issue",
-            "openGithub": "Open on GitHub"
-          },
-          "acceptanceCount": "{{ count }} item(s)",
-          "executionCount": "{{ files }} file(s) · {{ commands }} command(s)"
-        },
-        "actions": {
-          "kicker": "Actions",
-          "title": "Actions",
-          "subtitle": "Action registry and instrumentation",
-          "emptyTitle": "Actions pending",
-          "emptyBody": "The action registry will appear here once the active domain exposes structured instrumentation.",
-          "status": {
-            "proved": "Proved",
-            "documented": "Documented",
-            "needsCompletion": "Needs completion"
-          }
-        },
-        "notifications": {
-          "briefCopied": "AI brief copied.",
-          "issueCopied": "GitHub issue copied.",
-          "copyFailed": "Unable to copy the workspace item.",
-          "githubUnavailable": "No GitHub URL is available for this delegation."
-        }
-      }
-    }
-  },
   "search": {
     "quick": {
       "kicker": "Command palette",
@@ -1652,6 +1543,54 @@
     }
   },
   "pages": {
+    "olDemo": {
+      "kicker": "OPENLAYERS LAB",
+      "title": "OpenLayers demonstration for corridor-first reading",
+      "subtitle": "This page wires mock data straight into ol to show a business-facing command surface: provinces, hubs, corridors, and click-driven focus.",
+      "kpis": {
+        "totalVolume": "Mock monthly volume",
+        "averageReliability": "Average reliability",
+        "routesCount": "Tracked corridors"
+      },
+      "map": {
+        "heading": "Interactive ol map"
+      },
+      "actions": {
+        "resetView": "Reset view",
+        "clearFocus": "Clear focus",
+        "backHome": "Back to home"
+      },
+      "status": {
+        "idle": "Hover or click a corridor to test selection, dynamic styling, and camera focus.",
+        "selected": "Active corridor: {{ route }} with {{ partner }}."
+      },
+      "legend": {
+        "title": "Legend",
+        "activeCorridor": "Active or hovered corridor",
+        "secondaryCorridor": "Secondary corridor",
+        "province": "Province aligned with the active corridor",
+        "hub": "Logistics hub"
+      },
+      "brief": {
+        "title": "Corridor brief",
+        "partner": "Partner",
+        "sector": "Sector",
+        "monthlyValue": "Monthly value",
+        "reliability": "Reliability",
+        "risk": "Risk",
+        "empty": "No active corridor yet. Use the list or the map to display a detailed corridor brief."
+      },
+      "routes": {
+        "heading": "Mock scenarios",
+        "copy": "Each action applies a business focus: camera fit, highlight, and corridor summary."
+      },
+      "notes": {
+        "heading": "Why this demo matters",
+        "item1": "It shows how ol handles business features without forcing a Mapbox-style rendering model.",
+        "item2": "Hover, selection, and focus states remain driven by Angular and its signals.",
+        "item3": "The mock payload can later be replaced by Strapi flows or NgRx-backed state."
+      }
+    },
     "credits": {
       "kicker": "FOUNDING CREDITS",
       "title": "OpenG7 starts with one builder",

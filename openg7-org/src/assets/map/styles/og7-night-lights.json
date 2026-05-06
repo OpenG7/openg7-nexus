@@ -15,7 +15,7 @@
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "#031019"
+        "background-color": "#030914"
       }
     },
     {
@@ -24,7 +24,7 @@
       "source": "openmaptiles",
       "source-layer": "water",
       "paint": {
-        "fill-color": "#04141d",
+        "fill-color": "#04101a",
         "fill-opacity": 0.98
       }
     },
@@ -34,8 +34,8 @@
       "source": "openmaptiles",
       "source-layer": "landcover",
       "paint": {
-        "fill-color": "#4e7d78",
-        "fill-opacity": 0.72
+        "fill-color": "#18323a",
+        "fill-opacity": 0.34
       }
     },
     {
@@ -44,8 +44,8 @@
       "source": "openmaptiles",
       "source-layer": "landuse",
       "paint": {
-        "fill-color": "#5f948b",
-        "fill-opacity": 0.72
+        "fill-color": "#24414a",
+        "fill-opacity": 0.26
       }
     },
     {
@@ -54,9 +54,9 @@
       "source": "openmaptiles",
       "source-layer": "water",
       "paint": {
-        "line-color": "#1c4e5a",
-        "line-width": 1.4,
-        "line-opacity": 0.75
+        "line-color": "#32515e",
+        "line-width": 1.2,
+        "line-opacity": 0.42
       }
     },
     {

@@ -25,6 +25,7 @@
     "02": "yarn db:reset:strapi",
     "03": "yarn dev:all:clean",
     "dev:web": "yarn workspace @openg7/web start",
+    "dev:web:fast": "yarn workspace @openg7/web start:fast",
     "dev:web:https": "yarn workspace @openg7/web start:https",
     "dev:web:trace": "yarn workspace @openg7/web start:trace",
     "dev:cms": "yarn workspace @openg7/strapi dev",
@@ -80,7 +81,7 @@
     "globals": "^15.9.0",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.10",
+    "typedoc": "^0.28.19",
     "typescript": "^5.6.2"
   },
   "packageManager": "yarn@4.9.4"

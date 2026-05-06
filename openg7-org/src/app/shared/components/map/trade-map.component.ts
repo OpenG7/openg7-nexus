@@ -144,17 +144,17 @@ interface MapCameraApi {
 }
 
 const DEFAULT_FLOW_LAYER_PAINT: LinePaint = {
-  'line-color': '#2563eb',
+  'line-color': '#68a9c7',
   'line-width': 2.8,
-  'line-opacity': 0.85,
-  'line-blur': 0.3,
+  'line-opacity': 0.74,
+  'line-blur': 0.24,
 };
 
 const DEFAULT_FLOW_GLOW_PAINT: LinePaint = {
-  'line-color': '#ffffff',
-  'line-width': 4.6,
-  'line-opacity': 0.55,
-  'line-blur': 1.2,
+  'line-color': '#bfe7f5',
+  'line-width': 4.4,
+  'line-opacity': 0.28,
+  'line-blur': 1.1,
 };
 
 @Component({
@@ -247,25 +247,25 @@ export class TradeMapComponent {
     const active = Array.from(this.activeProvinces());
     if (!active.length) {
       const paint: FillPaint = {
-        'fill-color': '#7fc4b5',
-        'fill-opacity': 0.18,
-        'fill-outline-color': '#a1bcbe',
+        'fill-color': '#365f70',
+        'fill-opacity': 0.14,
+        'fill-outline-color': '#6c8b98',
       };
       return paint;
     }
 
     const isActive: ExpressionSpecification = ['in', ['get', 'code'], ['literal', active]];
     const paint: FillPaint = {
-      'fill-color': ['case', isActive, '#7fc4b5', '#334e50'],
-      'fill-opacity': ['case', isActive, 0.78, 0.16],
-      'fill-outline-color': '#a1bcbe',
+      'fill-color': ['case', isActive, '#56849b', '#223845'],
+      'fill-opacity': ['case', isActive, 0.34, 0.1],
+      'fill-outline-color': '#6c8b98',
     };
     return paint;
   });
   protected readonly provinceOutlinePaint: LinePaintStyle = {
-    'line-color': '#d7f2f2',
+    'line-color': '#7694a0',
     'line-width': ['interpolate', ['linear'], ['zoom'], 2, 0.6, 6, 1.2, 10, 2],
-    'line-opacity': 0.7,
+    'line-opacity': 0.42,
   };
 
   protected readonly flowLayerLayout = {
@@ -274,29 +274,29 @@ export class TradeMapComponent {
   } as const;
   protected readonly highlightLayerLayout = this.flowLayerLayout;
   protected readonly highlightLayerPaint = {
-    'line-color': '#f59e0b',
+    'line-color': '#d9a441',
     'line-width': 5.5,
-    'line-opacity': 0.95,
-    'line-blur': 0.6,
+    'line-opacity': 0.82,
+    'line-blur': 0.5,
   } as const;
   protected readonly focusedFlowLayerPaint = {
-    'line-color': '#f8fafc',
-    'line-width': 6.8,
-    'line-opacity': 1,
+    'line-color': '#f3f7fb',
+    'line-width': 6.2,
+    'line-opacity': 0.96,
     'line-blur': 0.15,
   } as const;
   protected readonly focusedFlowGlowPaint = {
-    'line-color': '#22d3ee',
-    'line-width': 10.5,
-    'line-opacity': 0.55,
-    'line-blur': 1.8,
+    'line-color': '#7dc7dd',
+    'line-width': 9.6,
+    'line-opacity': 0.34,
+    'line-blur': 1.45,
   } as const;
   protected readonly markerLayerPaint = {
     'circle-radius': 6,
-    'circle-color': '#0f172a',
-    'circle-opacity': 0.95,
+    'circle-color': '#0f1c2f',
+    'circle-opacity': 0.92,
     'circle-stroke-width': 2,
-    'circle-stroke-color': '#e2e8f0',
+    'circle-stroke-color': '#c7d6e2',
   } as const;
 
   private readonly flowGeometryById = computed(() =>
@@ -594,10 +594,10 @@ export class TradeMapComponent {
     }
     const impact = this.tariffImpactExpression();
     return {
-      'line-color': ['case', impact, '#dc2626', '#94a3b8'],
+      'line-color': ['case', impact, '#df6e55', '#5f7f91'],
       'line-width': ['case', impact, 3.2, 2.2],
-      'line-opacity': ['case', impact, 0.95, 0.25],
-      'line-blur': ['case', impact, 0.5, 0.15],
+      'line-opacity': ['case', impact, 0.86, 0.22],
+      'line-blur': ['case', impact, 0.42, 0.12],
     } as LinePaint;
   });
 
@@ -607,10 +607,10 @@ export class TradeMapComponent {
     }
     const impact = this.tariffImpactExpression();
     return {
-      'line-color': ['case', impact, '#fecaca', '#e2e8f0'],
-      'line-width': ['case', impact, 5.2, 3.6],
-      'line-opacity': ['case', impact, 0.7, 0.15],
-      'line-blur': ['case', impact, 1.4, 0.7],
+      'line-color': ['case', impact, '#f4b8a7', '#c4d4de'],
+      'line-width': ['case', impact, 4.8, 3.4],
+      'line-opacity': ['case', impact, 0.36, 0.1],
+      'line-blur': ['case', impact, 1.15, 0.58],
     } as LinePaint;
   });
 

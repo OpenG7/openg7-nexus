@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:fast": "ng serve --configuration development",
     "start:https": "node ./scripts/ensure-localhost-cert.mjs && ng serve --configuration https-local",
     "start:verbose": "ng serve --verbose",
     "cert:localhost": "node ./scripts/ensure-localhost-cert.mjs",
@@ -57,6 +58,7 @@
     "express": "^4.18.2",
     "maplibre-gl": "^5.17.0",
     "ogl": "^1.0.11",
+    "ol": "^10.9.0",
     "prom-client": "^15.1.3",
     "qrcode": "^1.5.4",
     "rxjs": "^7.8.1",
