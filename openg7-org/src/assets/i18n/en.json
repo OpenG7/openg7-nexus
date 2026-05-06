@@ -3926,6 +3926,94 @@
       "kicker": "Trade map",
       "title": "Navigate G7 interprovincial corridors",
       "description": "Explore logistics routes, energy hubs and industrial partnerships shaping Canada’s economy.",
+      "overlay": {
+        "sectors": "Strategic sectors",
+        "briefing": "Corridor briefing",
+        "networkPulse": "Network pulse",
+        "liveCorridors": "Live corridors",
+        "liveHubs": "Connected hubs",
+        "priority": "Priority corridor",
+        "hubSpotlight": "Tracked hub",
+        "hubRole": "Hub role",
+        "monitoredCorridors": "Tracked corridors",
+        "hubPrompt": "Click a hub on the map to open its mini operational brief.",
+        "dismiss": "Dismiss",
+        "signal": "Signal",
+        "provinces": "Territories",
+        "hubs": "Hubs",
+        "checkpoints": "Checkpoints",
+        "commitment": "Corridor commitment",
+        "monitoringWindow": "Monitoring window {{hours}} h",
+        "routeBeatsTitle": "Corridor sequence",
+        "cinematicStatusLabel": "Idle mode",
+        "reset": "Reset focus",
+        "hideStats": "Hide stats",
+        "showStats": "Show stats",
+        "legendProvince": "Context province",
+        "legendCorridor": "Active corridor",
+        "legendHub": "Energy / industry hub",
+        "corridorsCount": "corridors",
+        "cinematicStatus": {
+          "standby": "Waiting for the next focus cue",
+          "active": "Automatic framing active",
+          "paused": "Animations paused"
+        },
+        "stage": {
+          "activeWatch": "Active watch",
+          "synchronized": "Synchronized chain",
+          "exportBridge": "Export bridge"
+        },
+        "corridorLabels": {
+          "flowEnergy": "Quebec to Ontario",
+          "flowBattery": "Alberta to Ontario",
+          "flowFood": "British Columbia to Ontario",
+          "flowQcUsne": "Quebec to US Northeast"
+        },
+        "hubBriefs": {
+          "quebecCity": "Quebec City drives dispatch arbitrage and grid continuity for the energy block.",
+          "montreal": "Montreal concentrates trading flow, contracting and fast external-market exits.",
+          "ottawa": "Ottawa acts as the regulatory and interprovincial coordination node.",
+          "toronto": "Toronto absorbs downstream demand, industrial buyers and market signals across priority corridors.",
+          "calgary": "Calgary secures upstream extraction and material intelligence for the battery chain.",
+          "winnipeg": "Winnipeg synchronizes logistics crossing and stabilizes continuity at the corridor midpoint.",
+          "vancouver": "Vancouver holds the Pacific gateway and upstream loads for the agri-food corridor.",
+          "boston": "Boston materializes the export outlet and fast demand node of the Northeast corridor."
+        },
+        "hubRoles": {
+          "dispatch": "Energy dispatch",
+          "trade": "Trading node",
+          "governance": "Public coordination",
+          "market": "Downstream demand",
+          "extraction": "Material origin",
+          "sync": "Logistics synchronization",
+          "gateway": "Pacific gateway",
+          "export": "Export outlet"
+        },
+        "corridorBriefs": {
+          "flowEnergy": "The Quebec–Ontario power corridor concentrates the highest-value downstream capacity and grid support decisions.",
+          "flowBattery": "The battery chain stretches from the West to Central Canada to align extraction, processing and assembly around one manufacturing flow.",
+          "flowFood": "The agri-food corridor connects production, processing and distribution through a long but stable logistics spine.",
+          "flowQcUsne": "The Quebec–US Northeast export bridge provides a fast outlet for energy and highly reliable cross-border partnerships."
+        },
+        "corridorBeats": {
+          "energyDispatch": "Quebec dispatch",
+          "energyTrade": "Montreal trading",
+          "energyDemand": "Toronto demand",
+          "batteryOrigin": "Calgary origin",
+          "batterySync": "Winnipeg relay",
+          "batteryAssembly": "Toronto assembly",
+          "foodGateway": "Vancouver gateway",
+          "foodSync": "Winnipeg transit",
+          "foodDemand": "Toronto distribution",
+          "exportOrigin": "Montreal departure",
+          "exportGateway": "Boston outlet"
+        },
+        "sectorsList": {
+          "energy": "Energy",
+          "manufacturing": "Battery chain",
+          "agriFood": "Agri-food"
+        }
+      },
       "decision": {
         "kicker": "Decision drilldowns",
         "title": "Push the map into the next request feed",

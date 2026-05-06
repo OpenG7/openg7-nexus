@@ -67,7 +67,7 @@ const DELEGATION_OVERRIDES: Record<string, DelegationOverride> = {
   geospatial: {
     labels: ['map', 'feed', 'qa', 'product-gap'],
     targetFiles: [
-      'openg7-org/src/app/shared/components/map/trade-map.component.ts',
+      'openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts',
       'openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.ts',
       'openg7-org/e2e/map.spec.ts',
     ],

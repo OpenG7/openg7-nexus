@@ -3813,6 +3813,94 @@
       "kicker": "Carte des échanges",
       "title": "Tracer les corridors interprovinciaux du G7",
       "description": "Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne.",
+      "overlay": {
+        "sectors": "Secteurs stratégiques",
+        "briefing": "Briefing corridor",
+        "networkPulse": "Pulse réseau",
+        "liveCorridors": "Corridors actifs",
+        "liveHubs": "Hubs connectés",
+        "priority": "Corridor prioritaire",
+        "hubSpotlight": "Hub suivi",
+        "hubRole": "Rôle hub",
+        "monitoredCorridors": "Corridors suivis",
+        "hubPrompt": "Cliquez un hub sur la carte pour ouvrir sa mini-fiche opérationnelle.",
+        "dismiss": "Fermer",
+        "signal": "Signal",
+        "provinces": "Territoires",
+        "hubs": "Hubs",
+        "checkpoints": "Points de passage",
+        "commitment": "Engagement corridor",
+        "monitoringWindow": "Fenêtre de surveillance {{hours}} h",
+        "routeBeatsTitle": "Séquence corridor",
+        "cinematicStatusLabel": "Mode veille",
+        "reset": "Réinitialiser le focus",
+        "hideStats": "Masquer les stats",
+        "showStats": "Afficher les stats",
+        "legendProvince": "Province de contexte",
+        "legendCorridor": "Corridor actif",
+        "legendHub": "Hub énergie / industrie",
+        "corridorsCount": "corridors",
+        "cinematicStatus": {
+          "standby": "En attente d'un prochain focus",
+          "active": "Cadrage automatique actif",
+          "paused": "Animations en pause"
+        },
+        "stage": {
+          "activeWatch": "Surveillance active",
+          "synchronized": "Chaîne synchronisée",
+          "exportBridge": "Pont export"
+        },
+        "corridorLabels": {
+          "flowEnergy": "Québec vers Ontario",
+          "flowBattery": "Alberta vers Ontario",
+          "flowFood": "Colombie-Britannique vers Ontario",
+          "flowQcUsne": "Québec vers Nord-Est américain"
+        },
+        "hubBriefs": {
+          "quebecCity": "Québec pilote les arbitrages de dispatch et de continuité réseau pour le bloc énergétique.",
+          "montreal": "Montréal concentre les flux de trading, de contractualisation et de sortie rapide vers les marchés externes.",
+          "ottawa": "Ottawa sert de nœud d’alignement réglementaire et de coordination interprovinciale.",
+          "toronto": "Toronto absorbe la demande aval, les acheteurs industriels et les signaux marché des corridors prioritaires.",
+          "calgary": "Calgary verrouille l’amont extraction et l’intelligence matière pour la chaîne batterie.",
+          "winnipeg": "Winnipeg synchronise la traversée logistique et stabilise la continuité au milieu du corridor.",
+          "vancouver": "Vancouver tient la porte d’entrée Pacifique et les charges amont du corridor agroalimentaire.",
+          "boston": "Boston matérialise le point de sortie export et la demande rapide du corridor Nord-Est."
+        },
+        "hubRoles": {
+          "dispatch": "Dispatch énergétique",
+          "trade": "Nœud de trading",
+          "governance": "Coordination publique",
+          "market": "Demande aval",
+          "extraction": "Origine matière",
+          "sync": "Synchronisation logistique",
+          "gateway": "Porte d’entrée Pacifique",
+          "export": "Sortie export"
+        },
+        "corridorBriefs": {
+          "flowEnergy": "Le corridor électrique Québec-Ontario concentre les arbitrages de capacité et les appuis réseau à plus forte valeur downstream.",
+          "flowBattery": "La chaîne batterie traverse l’Ouest et le Centre pour aligner extraction, transformation et assemblage autour d’un flux manufacturier unique.",
+          "flowFood": "Le corridor agroalimentaire relie production, transformation et distribution avec un profil logistique long mais stable.",
+          "flowQcUsne": "Le pont export Québec–Nord-Est américain sert de sortie rapide pour l’énergie et les partenariats transfrontaliers à forte fiabilité."
+        },
+        "corridorBeats": {
+          "energyDispatch": "Dispatch Québec",
+          "energyTrade": "Trading Montréal",
+          "energyDemand": "Demande Toronto",
+          "batteryOrigin": "Origine Calgary",
+          "batterySync": "Relais Winnipeg",
+          "batteryAssembly": "Assemblage Toronto",
+          "foodGateway": "Entrée Vancouver",
+          "foodSync": "Transit Winnipeg",
+          "foodDemand": "Distribution Toronto",
+          "exportOrigin": "Départ Montréal",
+          "exportGateway": "Sortie Boston"
+        },
+        "sectorsList": {
+          "energy": "Énergie",
+          "manufacturing": "Chaîne batterie",
+          "agriFood": "Agroalimentaire"
+        }
+      },
       "decision": {
         "kicker": "Drilldowns de decision",
         "title": "Pousser la carte vers le prochain fil de demandes",

@@ -108,7 +108,13 @@ describe('HomeMapSectionComponent', () => {
     expect(section?.getAttribute('id')).toBe('map');
     const heading: HTMLElement | null = fixture.nativeElement.querySelector('#home-map-heading');
     expect(heading?.textContent).toContain('Navigate');
-    expect(fixture.nativeElement.querySelector('og7-map-trade[data-og7="trade-map"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="trade-map"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-overlay"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-sector-rail"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-cinematic-status"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-corridor-card"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-corridor-beat"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-hub-prompt"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="map-decision-panel"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="map-drilldown"][data-og7-id="energy"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="map-drilldown"][data-og7-id="agri-food"]')).toBeTruthy();
