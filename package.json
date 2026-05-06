@@ -25,7 +25,6 @@
     "02": "yarn db:reset:strapi",
     "03": "yarn dev:all:clean",
     "dev:web": "yarn workspace @openg7/web start",
-    "dev:web:fast": "yarn workspace @openg7/web start:fast",
     "dev:web:https": "yarn workspace @openg7/web start:https",
     "dev:web:trace": "yarn workspace @openg7/web start:trace",
     "dev:cms": "yarn workspace @openg7/strapi dev",

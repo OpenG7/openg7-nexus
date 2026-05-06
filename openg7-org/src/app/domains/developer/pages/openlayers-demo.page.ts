@@ -27,6 +27,7 @@ import Feature from 'ol/Feature.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import TopoJSON from 'ol/format/TopoJSON.js';
 import type Geometry from 'ol/geom/Geometry.js';
+import OLPoint from 'ol/geom/Point.js';
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
 import { createEmpty, extend as extendExtent } from 'ol/extent.js';
@@ -290,8 +291,8 @@ const MAPLIBRE_DEFAULT_CENTER: [number, number] = [-95, 54];
 const MAPLIBRE_DEFAULT_ZOOM = 3.15;
 const MAPLIBRE_FALLBACK_BOUNDS: [[number, number], [number, number]] = [[-139, 41.7], [-57, 62.8]];
 const BOUNDARY_TOPOJSON_URLS = [
-  '/assets/geo/boundaries/canada-adm1.simplified.topojson',
-  '/assets/geo/boundaries/usa-adm1.simplified.topojson',
+  '/assets/geo/boundaries/canada-adm1.json',
+  '/assets/geo/boundaries/usa-adm1.json',
 ] as const;
 const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us-ny', 'us-ri', 'us-vt']);
 
@@ -999,6 +1000,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
 
   private map: Map | null = null;
   private provinceLayer: VectorLayer<VectorSource> | null = null;
+  private provinceLabelLayer: VectorLayer<VectorSource> | null = null;
   private corridorLayer: VectorLayer<VectorSource> | null = null;
   private hubLayer: VectorLayer<VectorSource> | null = null;
   private interactionKeys: unknown[] = [];
@@ -1066,6 +1068,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     }
 
     const provinceSource = new VectorSource();
+    const provinceLabelSource = new VectorSource();
     const corridorSource = new VectorSource({
       features: this.geoJson.readFeatures(DEMO_FLOWS, { featureProjection: 'EPSG:3857' }),
     });
@@ -1076,6 +1079,10 @@ export class OpenlayersDemoPage implements AfterViewInit {
     this.provinceLayer = new VectorLayer({
       source: provinceSource,
       style: feature => this.buildProvinceStyle(feature as Feature<Geometry>),
+    });
+    this.provinceLabelLayer = new VectorLayer({
+      source: provinceLabelSource,
+      style: feature => this.buildProvinceLabelStyle(feature as Feature<Geometry>),
     });
     this.corridorLayer = new VectorLayer({
       source: corridorSource,
@@ -1089,7 +1096,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     this.map = new Map({
       target: this.mapHost.nativeElement,
       controls: [],
-      layers: [this.provinceLayer, this.corridorLayer, this.hubLayer],
+      layers: [this.provinceLayer, this.corridorLayer, this.provinceLabelLayer, this.hubLayer],
       view: new View({
         center: fromLonLat([-95, 54]),
         zoom: 3.45,
@@ -1099,7 +1106,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     });
 
     this.resetView();
-    void this.loadBoundaryFeatures(provinceSource);
+    void this.loadBoundaryFeatures(provinceSource, provinceLabelSource);
 
     this.interactionKeys = [
       this.map.on('pointermove', event => {
@@ -1126,7 +1133,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     void this.initializeMaplibreDirectMap();
   }
 
-  private async loadBoundaryFeatures(source: VectorSource): Promise<void> {
+  private async loadBoundaryFeatures(source: VectorSource, labelSource: VectorSource): Promise<void> {
     try {
       const responses = await Promise.all(
         BOUNDARY_TOPOJSON_URLS.map(async url => {
@@ -1142,17 +1149,26 @@ export class OpenlayersDemoPage implements AfterViewInit {
         .flatMap(payload => this.topoJson.readFeatures(payload, { featureProjection: 'EPSG:3857' }) as Feature<Geometry>[])
         .filter(feature => this.normalizeBoundaryFeature(feature));
 
-      source.clear();
-      source.addFeatures(features);
-      this.refreshMapStyles();
-      this.resetView();
+      this.updateBoundarySources(source, labelSource, features);
     } catch (error) {
       console.error('Failed to load geoBoundaries TopoJSON assets', error);
-      source.clear();
-      source.addFeatures(this.geoJson.readFeatures(DEMO_PROVINCES, { featureProjection: 'EPSG:3857' }) as Feature<Geometry>[]);
-      this.refreshMapStyles();
-      this.resetView();
+      this.updateBoundarySources(
+        source,
+        labelSource,
+        this.geoJson.readFeatures(DEMO_PROVINCES, { featureProjection: 'EPSG:3857' }) as Feature<Geometry>[]
+      );
     }
+  }
+
+  private updateBoundarySources(source: VectorSource, labelSource: VectorSource, features: Feature<Geometry>[]): void {
+    source.clear();
+    source.addFeatures(features);
+
+    labelSource.clear();
+    labelSource.addFeatures(this.createBoundaryLabelFeatures(features));
+
+    this.refreshMapStyles();
+    this.resetView();
   }
 
   private normalizeBoundaryFeature(feature: Feature<Geometry>): boolean {
@@ -1170,6 +1186,23 @@ export class OpenlayersDemoPage implements AfterViewInit {
     feature.set('provinceId', provinceId);
     feature.set('label', this.getBoundaryLabel(provinceId, shapeName));
     return true;
+  }
+
+  private createBoundaryLabelFeatures(features: Feature<Geometry>[]): Feature<Geometry>[] {
+    return features.flatMap(feature => {
+      const provinceId = feature.get('provinceId') as string | undefined;
+      const label = feature.get('label') as string | undefined;
+      const geometry = feature.getGeometry();
+      if (!provinceId || !label || !geometry) {
+        return [];
+      }
+
+      const [minX, minY, maxX, maxY] = geometry.getExtent();
+      const labelFeature = new Feature(new OLPoint([(minX + maxX) / 2, (minY + maxY) / 2]));
+      labelFeature.set('provinceId', provinceId);
+      labelFeature.set('label', label);
+      return [labelFeature as Feature<Geometry>];
+    });
   }
 
   private readBoundaryString(feature: Feature<Geometry>, key: string): string | null {
@@ -1388,7 +1421,6 @@ export class OpenlayersDemoPage implements AfterViewInit {
 
   private buildProvinceStyle(feature: Feature<Geometry>): Style[] {
     const provinceId = feature.get('provinceId') as string | undefined;
-    const label = feature.get('label') as string | undefined;
     const activeCorridor = this.activeCorridor();
     const provinceIsActive = activeCorridor
       ? this.getCorridorProvinceIds(activeCorridor.id).includes(provinceId ?? '')
@@ -1406,10 +1438,21 @@ export class OpenlayersDemoPage implements AfterViewInit {
         fill: new Fill({ color: provinceIsActive ? this.getProvinceFillColor(provinceId) : 'rgba(15, 23, 42, 0.2)' }),
         stroke: new Stroke({ color: provinceIsActive ? accentColor : 'rgba(100, 116, 139, 0.72)', width: provinceIsActive ? 2.8 : 1.1 }),
       }),
+    ];
+  }
+
+  private buildProvinceLabelStyle(feature: Feature<Geometry>): Style[] {
+    const provinceId = feature.get('provinceId') as string | undefined;
+    const label = feature.get('label') as string | undefined;
+    const activeCorridor = this.activeCorridor();
+    const provinceIsActive = activeCorridor
+      ? this.getCorridorProvinceIds(activeCorridor.id).includes(provinceId ?? '')
+      : false;
+
+    return [
       new Style({
         text: new Text({
           text: label ?? '',
-          overflow: true,
           font: provinceIsActive ? '700 14px ui-sans-serif' : '600 12px ui-sans-serif',
           fill: new Fill({ color: provinceIsActive ? '#f8fafc' : '#cbd5e1' }),
           stroke: new Stroke({ color: 'rgba(2, 6, 23, 0.95)', width: 4 }),
@@ -1585,6 +1628,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
 
   private refreshMapStyles(): void {
     this.provinceLayer?.changed();
+    this.provinceLabelLayer?.changed();
     this.corridorLayer?.changed();
     this.hubLayer?.changed();
   }
