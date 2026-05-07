@@ -1727,17 +1727,18 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   private resolveMatrixLoadError(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
-      if (error.status === 401 || error.status === 403) {
+      const explicitMessage = this.extractHttpErrorMessage(error);
+      if (error.status === 401) {
+        return 'Session admin expiree. Reconnectez-vous puis relancez le recalcul de la matrice QA.';
+      }
+      if (error.status === 403) {
+        if (explicitMessage && !['forbidden', 'owner.ops.forbidden'].includes(explicitMessage.toLowerCase())) {
+          return explicitMessage;
+        }
         return "Acces refuse a la matrice QA. Connectez-vous avec un compte web Owner ou Admin.";
       }
-      if (typeof error.error === 'string' && error.error.trim()) {
-        return error.error;
-      }
-      if (error.error && typeof error.error === 'object') {
-        const message = (error.error as { message?: unknown }).message;
-        if (typeof message === 'string' && message.trim()) {
-          return message;
-        }
+      if (explicitMessage) {
+        return explicitMessage;
       }
       if (typeof error.message === 'string' && error.message.trim()) {
         return error.message;
@@ -1749,6 +1750,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
 
     return 'Impossible de charger la matrice QA.';
+  }
+
+  private extractHttpErrorMessage(error: HttpErrorResponse): string | null {
+    if (typeof error.error === 'string' && error.error.trim()) {
+      return error.error.trim();
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      const message = (error.error as { message?: unknown }).message;
+      if (typeof message === 'string' && message.trim()) {
+        return message.trim();
+      }
+    }
+
+    return null;
   }
 
   ngAfterViewInit(): void {

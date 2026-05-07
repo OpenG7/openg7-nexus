@@ -723,6 +723,29 @@ describe('AdminQualityPage', () => {
     );
   });
 
+  it('shows a reconnect message when the matrix endpoint returns 401', () => {
+    service.loadMatrix.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            statusText: 'Unauthorized',
+            error: { message: 'Unauthorized' },
+          }),
+      ),
+    );
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const errorBanner = root.querySelector('[data-og7-id="admin-quality-error"]');
+
+    expect(errorBanner).not.toBeNull();
+    expect(errorBanner?.textContent).toContain(
+      'Session admin expiree. Reconnectez-vous puis relancez le recalcul de la matrice QA.',
+    );
+  });
+
   it('renders a compact workspace bar and opens the drawer on demand', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();

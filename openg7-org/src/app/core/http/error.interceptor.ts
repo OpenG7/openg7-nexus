@@ -25,13 +25,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authRedirect = inject(AuthRedirectService);
   const platformId = inject(PLATFORM_ID);
   const auth = inject(AuthService);
+  const suppressToast = req.context.get(SUPPRESS_ERROR_TOAST);
 
   return next(req).pipe(
     catchError((err: HttpErrorResponse) => {
-      if (req.context.get(SUPPRESS_ERROR_TOAST)) {
-        return throwError(() => err);
-      }
-
       if (err.status === 401 && auth.handleUnauthorizedSession()) {
         const key = 'auth.sessionExpired';
         const sessionExpired =
@@ -55,11 +52,17 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           }
         }
 
-        notifications.info(sessionExpired, {
-          source: 'auth',
-          context: { status: err.status, url: err.url, reason: 'session-expired' },
-          metadata: { status: err.status, reason: 'session-expired' },
-        });
+        if (!suppressToast) {
+          notifications.info(sessionExpired, {
+            source: 'auth',
+            context: { status: err.status, url: err.url, reason: 'session-expired' },
+            metadata: { status: err.status, reason: 'session-expired' },
+          });
+        }
+        return throwError(() => err);
+      }
+
+      if (suppressToast) {
         return throwError(() => err);
       }
 
