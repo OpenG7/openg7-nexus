@@ -415,8 +415,7 @@
 
       <div class="h-px bg-white/10"></div>
 
-      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300">
+      <div class="flex flex-wrap items-center gap-3 rounded-[18px] border border-white/10 bg-[#0c1729]/72 px-4 py-3 text-xs text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <span
             class="inline-flex items-center rounded-full px-0 py-0 font-medium text-slate-200"
             data-og7-id="admin-quality-filter-count"
@@ -429,45 +428,6 @@
             Domaine actif : <span class="text-emerald-300">{{ entry.domain }}</span>
           </span>
           }
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3 text-xs">
-          <label
-            class="flex min-w-60 items-center gap-3 rounded-[14px] border border-white/10 bg-[#0c1729] px-3.5 py-2.5 text-sm text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
-          >
-            <span class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80"
-              >AI</span
-            >
-            <select
-              class="min-w-0 flex-1 appearance-none bg-transparent text-sm text-white outline-none"
-              [value]="selectedAiProvider()"
-              (change)="setAiProvider($event)"
-              data-og7="admin-quality-ai-provider"
-              data-og7-id="admin-quality-ai-provider"
-            >
-              @for (provider of aiProviders; track provider.id) {
-              <option [value]="provider.id">{{ provider.label }}</option>
-              }
-            </select>
-          </label>
-          <span
-            class="max-w-88 text-[11px] leading-5 text-slate-400"
-            data-og7-id="admin-quality-ai-provider-caption"
-          >
-            {{ selectedAiProviderCaption() }}
-          </span>
-          @if (hasActiveFilters()) {
-          <span class="inline-flex items-center gap-1 font-medium text-emerald-100">
-            <span class="text-emerald-300" aria-hidden="true">•</span>
-            Filtres actifs : {{ activeFilterChips().length }}
-          </span>
-          } @else {
-          <span class="inline-flex items-center gap-1 font-medium text-slate-400">
-            <span class="text-slate-500" aria-hidden="true">•</span>
-            Aucun filtre actif
-          </span>
-          }
-        </div>
       </div>
 
       @if (selectedMission(); as mission) {
@@ -719,10 +679,289 @@
   </section>
 
   <div
-    class="og7-admin-quality-motion-rise grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(21rem,0.65fr)] xl:items-start"
+    class="og7-admin-quality-motion-rise grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(26rem,0.92fr)] 2xl:grid-cols-[minmax(0,1fr)_minmax(33rem,0.96fr)] xl:items-start"
     style="animation-delay: 280ms"
     data-og7="admin-quality-main-cockpit"
   >
+    <div
+      #missionSection
+      id="admin-quality-mission"
+      class="flex w-full min-w-0 xl:col-span-2"
+      data-og7="admin-quality-scroll-section"
+      data-og7-id="mission"
+    >
+      @if (missionControl(); as mission) {
+      <section
+        class="og7-cockpit-surface og7-radar-lock-focus-shell relative w-full overflow-hidden rounded-4xl border p-4 xl:p-5 transition-[border-color,box-shadow,background] duration-500"
+        [class]="missionControlShellClasses()"
+        data-og7="admin-quality-mission-control-shell"
+        [attr.data-og7-ambient]="missionHudAmbientTone()"
+        [attr.data-og7-provider]="selectedAiProvider()"
+        [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
+        [attr.data-og7-proof-stream]="missionControlProofStreamIntensity()"
+        [attr.data-og7-radar-signal]="missionControlRadarSignalTone()"
+        [attr.data-og7-lock-focus]="missionControlPanelFocused('mission')"
+        [ngStyle]="missionControlShellStyleVars()"
+      >
+      <div
+        class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
+        data-og7="admin-quality-cockpit-sync-band"
+        data-og7-surface="mission"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-0 opacity-90 transition-opacity duration-500"
+        [class]="missionControlRadarClasses()"
+        data-og7="admin-quality-mission-control-radar"
+        [style.opacity]="missionControlRadarOpacity()"
+      ></div>
+      <div
+        class="og7-radar-sweep pointer-events-none absolute inset-0"
+        data-og7="admin-quality-mission-control-radar-sweep"
+        [attr.data-og7-speed]="missionControlRadarSweepSpeed()"
+        [attr.data-og7-mode]="missionControlRadarSweepMode()"
+        [attr.data-og7-signal]="missionControlRadarSignalTone()"
+        [style.opacity]="missionControlRadarSweepOpacity()"
+      ></div>
+      <svg
+        class="pointer-events-none absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        data-og7="admin-quality-mission-control-radar-trails"
+        [style.opacity]="missionControlRadarFieldOpacity()"
+      >
+        @for (point of missionControlRadarEchoPoints(); track point.id) {
+        <line
+          class="og7-radar-trail-line"
+          x1="50"
+          y1="52"
+          [attr.x2]="point.leftPercent"
+          [attr.y2]="point.topPercent"
+          stroke="var(--og7-cockpit-accent-strong)"
+          [attr.stroke-opacity]="missionControlRadarTrailOpacity(point)"
+          [attr.stroke-width]="missionControlRadarTrailWidth(point)"
+          [attr.stroke-dasharray]="missionControlRadarTrailDasharray(point)"
+          stroke-linecap="round"
+          [attr.data-og7-id]="point.id"
+          [attr.data-og7-active]="point.active"
+          [attr.data-og7-pulse]="point.pulsing"
+          [attr.data-og7-intensity]="point.intensity"
+          data-og7="admin-quality-mission-control-radar-trail"
+        />
+        <circle
+          [attr.cx]="point.leftPercent"
+          [attr.cy]="point.topPercent"
+          [attr.r]="missionControlRadarTrailEndpointRadius(point)"
+          fill="var(--og7-cockpit-accent)"
+          [attr.fill-opacity]="missionControlRadarTrailOpacity(point)"
+          [attr.data-og7-id]="point.id"
+          [attr.data-og7-intensity]="point.intensity"
+          data-og7="admin-quality-mission-control-radar-trail-endpoint"
+        />
+        }
+      </svg>
+      <div
+        class="pointer-events-none absolute inset-0"
+        data-og7="admin-quality-mission-control-radar-echo-field"
+        [style.opacity]="missionControlRadarFieldOpacity()"
+      >
+        @for (point of missionControlRadarEchoPoints(); track point.id) {
+        <button
+          type="button"
+          class="pointer-events-auto absolute inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 rounded-full border px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition"
+          [class]="missionControlRadarEchoClasses(point)"
+          [style.left]="point.left"
+          [style.top]="point.top"
+          [attr.data-og7-active]="point.active"
+          [attr.data-og7-pulse]="point.pulsing"
+          [attr.data-og7-id]="point.id"
+          data-og7="admin-quality-mission-control-radar-echo"
+          (click)="scrollMissionHudToSection(point.id)"
+        >
+          <span
+            class="og7-radar-acquisition-ring pointer-events-none absolute inset-[-0.85rem] rounded-full border"
+            [class]="missionControlRadarAcquisitionRingClasses(point)"
+            [attr.data-og7-active]="point.active"
+            [attr.data-og7-pulse]="point.pulsing"
+            [attr.data-og7-id]="point.id"
+            data-og7="admin-quality-mission-control-radar-acquisition-ring"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="pointer-events-none absolute inset-[-0.4rem] rounded-full border transition"
+            [class]="missionControlRadarEchoRingClasses(point)"
+            aria-hidden="true"
+          ></span>
+          <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-(--og7-cockpit-accent-strong)"></span>
+          <span class="relative" [class]="missionControlRadarEchoLabelClasses(point)">
+            {{ point.shortLabel }}
+          </span>
+          <span
+            class="relative text-[9px] font-medium normal-case tracking-normal"
+            [class]="missionControlRadarMetricClasses(point)"
+            data-og7="admin-quality-mission-control-radar-echo-metric"
+          >
+            {{ point.metricLabel }}
+          </span>
+        </button>
+        }
+      </div>
+      <div
+        class="pointer-events-none absolute inset-x-8 top-0 h-24 blur-2xl transition-opacity duration-500"
+        [class]="missionControlProviderLightClasses()"
+        data-og7="admin-quality-mission-control-provider-light"
+      ></div>
+
+      <div class="relative mb-4 grid gap-4 2xl:grid-cols-[minmax(15rem,0.62fr)_minmax(0,1fr)] 2xl:items-start">
+        <div class="space-y-3 rounded-[24px] border border-white/10 bg-slate-950/40 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+            <span>Mission radar</span>
+            <span class="h-px w-10 bg-white/10"></span>
+            <span class="text-slate-400">{{ missionHudAmbientTone() }}</span>
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.18em]"
+              [class]="missionControlContactLogSignalClasses(missionControlDisplaySignalTone())"
+              data-og7="admin-quality-mission-control-cadence"
+            >
+              {{ missionControlRadarCadenceLabel() }}
+            </span>
+          </div>
+
+          <p
+            class="text-[11px] leading-5 text-slate-400"
+            data-og7="admin-quality-mission-control-cadence-detail"
+          >
+            {{ missionControlRadarCadenceDetail() }}
+          </p>
+
+          <div class="flex flex-wrap gap-2">
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
+              [class]="missionControlProviderSignatureClasses()"
+              data-og7="admin-quality-mission-control-signature"
+            >
+              {{ missionControlProviderSignatureLabel() }}
+            </span>
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+              [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
+            >
+              {{ selectedAiTelemetryLabel() }}
+            </span>
+          </div>
+
+          <div
+            class="flex flex-col rounded-[18px] border px-3 py-3 text-left"
+            [class]="missionControlContactLockClasses()"
+            data-og7="admin-quality-mission-control-contact-lock"
+          >
+            <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">
+              {{ missionControlContactLockLabel() }}
+            </span>
+            <span class="mt-1 text-[11px] leading-5 text-slate-300/90">
+              {{ missionControlContactLockDetail() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Verrou radar</p>
+              <p class="mt-1 text-sm font-semibold text-white">Historique recent des prises et preuves</p>
+            </div>
+            <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              {{ missionControlRadarLockLog().length }} evenements
+            </span>
+          </div>
+
+          <div class="grid gap-2" data-og7="admin-quality-mission-control-contact-log">
+            @for (entry of missionControlRadarLockLog(); track entry.sequence; let index = $index) {
+            <button
+              type="button"
+              class="grid gap-2 rounded-[16px] border px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/8 sm:grid-cols-[auto_minmax(0,1fr)]"
+              [class]="missionControlContactLogEntryClasses(index)"
+              [attr.data-og7-age]="missionControlContactLogAge(index)"
+              [attr.data-og7-id]="entry.id"
+              [attr.data-og7-kind]="entry.kind"
+              [attr.data-og7-state]="entry.stateLabel.toLowerCase()"
+              [attr.data-og7-reason]="entry.reason ?? null"
+              [attr.data-og7-signal]="entry.signalTone"
+              data-og7="admin-quality-mission-control-contact-log-entry"
+              (click)="focusMissionControlLockEntry(entry.id)"
+            >
+              <div class="flex flex-wrap items-center gap-2 sm:flex-col sm:items-start sm:justify-start">
+                <span
+                  class="inline-flex rounded-full border px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.18em]"
+                  [class]="missionControlContactLogTimeClasses(index)"
+                  [attr.data-og7-age]="missionControlContactLogAge(index)"
+                  data-og7="admin-quality-mission-control-contact-log-time"
+                >
+                  {{ missionControlTimelineSlotLabel(index) }}
+                </span>
+                <span
+                  class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
+                  [class]="missionControlContactLogSignalClasses(entry.signalTone)"
+                  data-og7="admin-quality-mission-control-contact-log-reason"
+                >
+                  {{ entry.reasonLabel }}
+                </span>
+              </div>
+
+              <div class="min-w-0 space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-semibold uppercase tracking-[0.18em] text-slate-200/80">
+                    {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` : `T-${index} ${entry.kindLabel.toLowerCase()}` }}
+                  </span>
+                  <span class="text-[10px] text-slate-400/90">
+                    {{ missionControlTimelineCadenceLabel(index) }}
+                  </span>
+                </div>
+                <p class="text-[11px] leading-5 text-slate-100/95">{{ entry.detailLabel }}</p>
+                <p class="text-[10px] leading-5 text-slate-400/90">
+                  {{ entry.metricLabel }} · proof {{ entry.proofStream }}
+                </p>
+              </div>
+            </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="relative rounded-[24px] border border-white/10 bg-slate-950/32 p-1.5 xl:p-2">
+        <og7-admin-quality-mission-control
+          [missionControl]="mission"
+          [snapshotLoaded]="!!snapshot()"
+          [totalDomains]="totalDomains()"
+          [selectedDomain]="selectedEntry()?.domain ?? null"
+          [selectedEntry]="selectedEntry()"
+          [selectedDelegation]="selectedDelegation()"
+          [selectedMission]="selectedMission()"
+          [selectedMissionTasks]="selectedMissionTasks()"
+          [selectedMissionQuotaSummary]="selectedMissionQuotaSummary()"
+          [canStartSelectedMission]="canStartSelectedMission()"
+          [selectedAiProviderLabel]="selectedAiProviderLabel()"
+          [selectedAiProviderCaption]="selectedAiProviderCaption()"
+          [aiDispatchReady]="selectedAiDispatchReady()"
+          [aiDispatchStatusLabel]="selectedAiDispatchStatusLabel()"
+          [aiDispatchStatusDetail]="selectedAiDispatchStatusDetail()"
+          [aiDispatchWorkflow]="selectedAiDispatchWorkflow()"
+          [aiTelemetryState]="selectedAiTelemetryState()"
+          [aiTelemetryLabel]="selectedAiTelemetryLabel()"
+          [aiTelemetryDetail]="selectedAiTelemetryDetail()"
+          [aiDispatching]="selectedAiDispatching()"
+          [selectedAiProof]="selectedAiProofDisplay()"
+          [providerComparison]="aiProviderComparison()"
+          [speaking]="speaking()"
+          (missionSelected)="selectMission($event)"
+          (missionAction)="handleMissionAction($event)"
+          (speakRequested)="speakMissionControl(mission)"
+          (stopSpeakingRequested)="stopMissionVoice()"
+        />
+      </div>
+      </section>
+      }
+    </div>
+
     <div
       #coverageSection
       id="admin-quality-coverage"
@@ -915,264 +1154,85 @@
     </div>
 
     <aside
-      class="flex min-w-0 flex-col gap-6 xl:sticky xl:top-62"
+      class="flex min-w-0 flex-col gap-6 xl:sticky xl:top-58"
       data-og7="admin-quality-mission-inspector"
     >
-      <div
-        #missionSection
-        id="admin-quality-mission"
-        class="flex w-full min-w-0"
-        data-og7="admin-quality-scroll-section"
-        data-og7-id="mission"
-      >
-        @if (missionControl(); as mission) {
+      <div class="grid gap-6 xl:grid-cols-[minmax(19rem,0.72fr)_minmax(0,1.28fr)] xl:items-start">
         <section
-          class="og7-cockpit-surface og7-radar-lock-focus-shell relative w-full overflow-hidden rounded-4xl border p-3 transition-[border-color,box-shadow,background] duration-500"
-          [class]="missionControlShellClasses()"
-          data-og7="admin-quality-mission-control-shell"
-          [attr.data-og7-ambient]="missionHudAmbientTone()"
-          [attr.data-og7-provider]="selectedAiProvider()"
-          [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
-          [attr.data-og7-proof-stream]="missionControlProofStreamIntensity()"
-          [attr.data-og7-radar-signal]="missionControlRadarSignalTone()"
-          [attr.data-og7-lock-focus]="missionControlPanelFocused('mission')"
-          [ngStyle]="missionControlShellStyleVars()"
+          class="rounded-[20px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(8,21,39,0.92))] px-4 py-4 shadow-[0_20px_60px_-42px_rgba(34,211,238,0.38)]"
+          data-og7="admin-quality-ai-pilot-block"
         >
-        <div
-          class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
-          data-og7="admin-quality-cockpit-sync-band"
-          data-og7-surface="mission"
-        ></div>
-        <div
-          class="pointer-events-none absolute inset-0 opacity-90 transition-opacity duration-500"
-          [class]="missionControlRadarClasses()"
-          data-og7="admin-quality-mission-control-radar"
-          [style.opacity]="missionControlRadarOpacity()"
-        ></div>
-        <div
-          class="og7-radar-sweep pointer-events-none absolute inset-0"
-          data-og7="admin-quality-mission-control-radar-sweep"
-          [attr.data-og7-speed]="missionControlRadarSweepSpeed()"
-          [attr.data-og7-mode]="missionControlRadarSweepMode()"
-          [attr.data-og7-signal]="missionControlRadarSignalTone()"
-          [style.opacity]="missionControlRadarSweepOpacity()"
-        ></div>
-        <svg
-          class="pointer-events-none absolute inset-0 h-full w-full"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          data-og7="admin-quality-mission-control-radar-trails"
-          [style.opacity]="missionControlRadarFieldOpacity()"
-        >
-          @for (point of missionControlRadarEchoPoints(); track point.id) {
-          <line
-            class="og7-radar-trail-line"
-            x1="50"
-            y1="52"
-            [attr.x2]="point.leftPercent"
-            [attr.y2]="point.topPercent"
-            stroke="var(--og7-cockpit-accent-strong)"
-            [attr.stroke-opacity]="missionControlRadarTrailOpacity(point)"
-            [attr.stroke-width]="missionControlRadarTrailWidth(point)"
-            [attr.stroke-dasharray]="missionControlRadarTrailDasharray(point)"
-            stroke-linecap="round"
-            [attr.data-og7-id]="point.id"
-            [attr.data-og7-active]="point.active"
-            [attr.data-og7-pulse]="point.pulsing"
-            [attr.data-og7-intensity]="point.intensity"
-            data-og7="admin-quality-mission-control-radar-trail"
-          />
-          <circle
-            [attr.cx]="point.leftPercent"
-            [attr.cy]="point.topPercent"
-            [attr.r]="missionControlRadarTrailEndpointRadius(point)"
-            fill="var(--og7-cockpit-accent)"
-            [attr.fill-opacity]="missionControlRadarTrailOpacity(point)"
-            [attr.data-og7-id]="point.id"
-            [attr.data-og7-intensity]="point.intensity"
-            data-og7="admin-quality-mission-control-radar-trail-endpoint"
-          />
-          }
-        </svg>
-        <div
-          class="pointer-events-none absolute inset-0"
-          data-og7="admin-quality-mission-control-radar-echo-field"
-          [style.opacity]="missionControlRadarFieldOpacity()"
-        >
-          @for (point of missionControlRadarEchoPoints(); track point.id) {
-          <button
-            type="button"
-            class="pointer-events-auto absolute inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 rounded-full border px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition"
-            [class]="missionControlRadarEchoClasses(point)"
-            [style.left]="point.left"
-            [style.top]="point.top"
-            [attr.data-og7-active]="point.active"
-            [attr.data-og7-pulse]="point.pulsing"
-            [attr.data-og7-id]="point.id"
-            data-og7="admin-quality-mission-control-radar-echo"
-            (click)="scrollMissionHudToSection(point.id)"
-          >
-            <span
-              class="og7-radar-acquisition-ring pointer-events-none absolute inset-[-0.85rem] rounded-full border"
-              [class]="missionControlRadarAcquisitionRingClasses(point)"
-              [attr.data-og7-active]="point.active"
-              [attr.data-og7-pulse]="point.pulsing"
-              [attr.data-og7-id]="point.id"
-              data-og7="admin-quality-mission-control-radar-acquisition-ring"
-              aria-hidden="true"
-            ></span>
-            <span
-              class="pointer-events-none absolute inset-[-0.4rem] rounded-full border transition"
-              [class]="missionControlRadarEchoRingClasses(point)"
-              aria-hidden="true"
-            ></span>
-            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-(--og7-cockpit-accent-strong)"></span>
-            <span class="relative" [class]="missionControlRadarEchoLabelClasses(point)">
-              {{ point.shortLabel }}
-            </span>
-            <span
-              class="relative text-[9px] font-medium normal-case tracking-normal"
-              [class]="missionControlRadarMetricClasses(point)"
-              data-og7="admin-quality-mission-control-radar-echo-metric"
-            >
-              {{ point.metricLabel }}
-            </span>
-          </button>
-          }
-        </div>
-        <div
-          class="pointer-events-none absolute inset-x-8 top-0 h-24 blur-2xl transition-opacity duration-500"
-          [class]="missionControlProviderLightClasses()"
-          data-og7="admin-quality-mission-control-provider-light"
-        ></div>
+          <div class="flex flex-col gap-3">
+            <div class="min-w-0 space-y-1.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
+                  Pilotage AI
+                </span>
+                <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+                  {{ selectedAiProviderLabel() }}
+                </span>
+              </div>
+              <p class="text-sm font-semibold text-white">Canal operateur actif pour la mission et les preuves</p>
+              <p
+                class="max-w-[36rem] text-[11px] leading-5 text-slate-400"
+                data-og7-id="admin-quality-ai-provider-caption"
+              >
+                {{ selectedAiProviderCaption() }}
+              </p>
+            </div>
 
-        <div class="relative mb-3 flex items-start justify-between gap-3">
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
-              <span>Mission radar</span>
-              <span class="h-px w-10 bg-white/10"></span>
-              <span class="text-slate-400">{{ missionHudAmbientTone() }}</span>
-              <span
-                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.18em]"
-                [class]="missionControlContactLogSignalClasses(missionControlDisplaySignalTone())"
-                data-og7="admin-quality-mission-control-cadence"
-              >
-                {{ missionControlRadarCadenceLabel() }}
-              </span>
-            </div>
-            <p
-              class="text-[10px] font-medium tracking-[0.14em] text-slate-400"
-              data-og7="admin-quality-mission-control-cadence-detail"
+            <label
+              class="flex min-w-0 items-center gap-3 rounded-[16px] border border-white/10 bg-[#0c1729] px-3.5 py-3 text-sm text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
             >
-              {{ missionControlRadarCadenceDetail() }}
-            </p>
-            <div
-              class="inline-flex flex-col rounded-2xl border px-3 py-2 text-left"
-              [class]="missionControlContactLockClasses()"
-              data-og7="admin-quality-mission-control-contact-lock"
-            >
-              <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">
-                {{ missionControlContactLockLabel() }}
-              </span>
-              <span class="mt-1 text-[11px] text-slate-300/90">
-                {{ missionControlContactLockDetail() }}
-              </span>
-            </div>
-            <div class="grid gap-1.5" data-og7="admin-quality-mission-control-contact-log">
-              @for (entry of missionControlRadarLockLog(); track entry.sequence; let index = $index) {
-              <button
-                type="button"
-                class="inline-flex items-center gap-2 rounded-[14px] border px-3 py-2 text-[10px] text-left transition hover:border-white/20 hover:bg-white/8"
-                [class]="missionControlContactLogEntryClasses(index)"
-                [attr.data-og7-age]="missionControlContactLogAge(index)"
-                [attr.data-og7-id]="entry.id"
-                [attr.data-og7-kind]="entry.kind"
-                [attr.data-og7-state]="entry.stateLabel.toLowerCase()"
-                [attr.data-og7-reason]="entry.reason ?? null"
-                [attr.data-og7-signal]="entry.signalTone"
-                data-og7="admin-quality-mission-control-contact-log-entry"
-                (click)="focusMissionControlLockEntry(entry.id)"
+              <span class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80"
+                >AI</span
               >
-                <span
-                  class="inline-flex rounded-full border px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.18em]"
-                  [class]="missionControlContactLogTimeClasses(index)"
-                  [attr.data-og7-age]="missionControlContactLogAge(index)"
-                  data-og7="admin-quality-mission-control-contact-log-time"
-                >
-                  {{ missionControlTimelineSlotLabel(index) }}
-                </span>
-                <span class="font-semibold uppercase tracking-[0.18em] text-slate-200/80">
-                  {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` : `T-${index} ${entry.kindLabel.toLowerCase()}` }}
-                </span>
-                <span
-                  class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
-                  [class]="missionControlContactLogSignalClasses(entry.signalTone)"
-                  data-og7="admin-quality-mission-control-contact-log-reason"
-                >
-                  {{ entry.reasonLabel }}
-                </span>
-                <span class="text-slate-100/95">
-                  {{ entry.detailLabel }}
-                </span>
-                <span class="text-slate-400/90">
-                  {{ missionControlTimelineCadenceLabel(index) }} · {{ entry.metricLabel }} · proof {{ entry.proofStream }}
-                </span>
-              </button>
-              }
-            </div>
+              <select
+                class="min-w-0 flex-1 appearance-none bg-transparent text-sm text-white outline-none"
+                [value]="selectedAiProvider()"
+                (change)="setAiProvider($event)"
+                data-og7="admin-quality-ai-provider"
+                data-og7-id="admin-quality-ai-provider"
+              >
+                @for (provider of aiProviders; track provider.id) {
+                <option [value]="provider.id">{{ provider.label }}</option>
+                }
+              </select>
+            </label>
           </div>
-          <span
-            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
-            [class]="missionControlProviderSignatureClasses()"
-            data-og7="admin-quality-mission-control-signature"
-          >
-            {{ missionControlProviderSignatureLabel() }}
-          </span>
-        </div>
 
-        <div class="relative">
-          <og7-admin-quality-mission-control
-            [missionControl]="mission"
-            [snapshotLoaded]="!!snapshot()"
-            [totalDomains]="totalDomains()"
-            [selectedDomain]="selectedEntry()?.domain ?? null"
-            [selectedEntry]="selectedEntry()"
-            [selectedDelegation]="selectedDelegation()"
-            [selectedMission]="selectedMission()"
-            [selectedMissionTasks]="selectedMissionTasks()"
-            [selectedMissionQuotaSummary]="selectedMissionQuotaSummary()"
-            [canStartSelectedMission]="canStartSelectedMission()"
-            [selectedAiProviderLabel]="selectedAiProviderLabel()"
-            [selectedAiProviderCaption]="selectedAiProviderCaption()"
-            [aiDispatchReady]="selectedAiDispatchReady()"
-            [aiDispatchStatusLabel]="selectedAiDispatchStatusLabel()"
-            [aiDispatchStatusDetail]="selectedAiDispatchStatusDetail()"
-            [aiDispatchWorkflow]="selectedAiDispatchWorkflow()"
-            [aiTelemetryState]="selectedAiTelemetryState()"
-            [aiTelemetryLabel]="selectedAiTelemetryLabel()"
-            [aiTelemetryDetail]="selectedAiTelemetryDetail()"
-            [aiDispatching]="selectedAiDispatching()"
-            [selectedAiProof]="selectedAiProofDisplay()"
-            [providerComparison]="aiProviderComparison()"
-            [speaking]="speaking()"
-            (missionSelected)="selectMission($event)"
-            (missionAction)="handleMissionAction($event)"
-            (speakRequested)="speakMissionControl(mission)"
-            (stopSpeakingRequested)="stopMissionVoice()"
-          />
-        </div>
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-medium text-slate-200">
+              Workflow {{ selectedAiDispatchWorkflow() }}
+            </span>
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 font-medium"
+              [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
+            >
+              {{ selectedAiTelemetryLabel() }}
+            </span>
+            @if (hasActiveFilters()) {
+            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 font-medium text-emerald-100">
+              <span class="text-emerald-300" aria-hidden="true">•</span>
+              Filtres actifs : {{ activeFilterChips().length }}
+            </span>
+            } @else {
+            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 font-medium text-slate-400">
+              <span class="text-slate-500" aria-hidden="true">•</span>
+              Aucun filtre actif
+            </span>
+            }
+          </div>
         </section>
-        }
-      </div>
 
-      <section
-        #workspaceSection
-        id="admin-quality-workspace"
-        class="og7-radar-lock-focus-shell relative overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
-        data-og7="admin-quality-workspace-bar"
-        data-og7-id="workspace"
-        [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
-      >
+        <section
+          #workspaceSection
+          id="admin-quality-workspace"
+          class="og7-radar-lock-focus-shell relative overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
+          data-og7="admin-quality-workspace-bar"
+          data-og7-id="workspace"
+          [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
+        >
         <div
           class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.1),transparent_22%)]"
         ></div>
@@ -1402,8 +1462,9 @@
           >
             {{ 'admin.quality.workspace.compact.open' | translate }}
           </button>
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </aside>
   </div>
 
