@@ -68,6 +68,13 @@ const CAMERA_FOCUS_SETTLE_MS = 180;
 const CAMERA_CORRIDOR_FIT_MS = 760;
 const CAMERA_RESET_FIT_MS = 500;
 const CAMERA_MOTION_WINDOW_MS = CAMERA_CORRIDOR_FIT_MS + CAMERA_FOCUS_SETTLE_MS + 80;
+const MAP_REVEAL_TRANSITION_MS = 900;
+const DEFAULT_RESET_CENTER_OFFSET_MOBILE_PX = 120;
+const DEFAULT_RESET_CENTER_OFFSET_DESKTOP_PX = 180;
+const DEFAULT_RESET_MAX_ZOOM_MOBILE = 4.0;
+const DEFAULT_RESET_MAX_ZOOM_DESKTOP = 4.35;
+const DEFAULT_RESET_PADDING_MOBILE: [number, number, number, number] = [180, 16, 168, 16];
+const DEFAULT_RESET_PADDING_DESKTOP: [number, number, number, number] = [220, 148, 136, 58];
 const PANORAMIC_BASE_CENTER: [number, number] = [-92.4, 50.4];
 const PANORAMIC_BASE_ZOOM = 3.72;
 const MAP_STATS_VISIBILITY_STORAGE_KEY = 'og7:home-map:stats-visible';
@@ -296,7 +303,60 @@ const HOME_HUB_FEATURES: FeatureCollection<Point> = {
     <div class="absolute inset-0 overflow-hidden rounded-4xl bg-slate-950" data-og7="trade-map">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_16%,rgba(34,211,238,0.22),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,#020617_0%,#03111e_46%,#041d2d_100%)]"></div>
       <div class="absolute inset-0 bg-[linear-gradient(rgba(103,232,249,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(103,232,249,0.08)_1px,transparent_1px)] bg-size-[72px_72px] opacity-40"></div>
-      <div #mapHost class="absolute inset-0" data-og7-id="openlayers-home-map"></div>
+      <div
+        #mapHost
+        class="absolute inset-0 transition-[opacity,transform,filter] duration-900 ease-out"
+        [class.opacity-0]="!mapVisualReady()"
+        [class.opacity-100]="mapVisualReady()"
+        [class.scale-[1.035]]="!mapVisualReady()"
+        [class.scale-100]="mapVisualReady()"
+        [class.blur-[2px]]="!mapVisualReady()"
+        [class.blur-0]="mapVisualReady()"
+        data-og7-id="openlayers-home-map"
+      ></div>
+      @if (mapLoadingOverlayVisible()) {
+        <div
+          class="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-4xl transition-[opacity,transform,filter] duration-900 ease-out"
+          [class.bg-slate-950/78]="!mapVisualReady()"
+          [class.bg-slate-950/24]="mapVisualReady()"
+          [class.opacity-100]="!mapVisualReady()"
+          [class.opacity-0]="mapVisualReady()"
+          [class.scale-100]="!mapVisualReady()"
+          [class.scale-[1.02]]="mapVisualReady()"
+          [class.backdrop-blur-[3px]]="!mapVisualReady()"
+          [class.backdrop-blur-0]="mapVisualReady()"
+          aria-hidden="true"
+        >
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(103,232,249,0.26),transparent_28%),radial-gradient(circle_at_82%_20%,rgba(56,189,248,0.18),transparent_26%),radial-gradient(circle_at_50%_78%,rgba(45,212,191,0.14),transparent_34%),linear-gradient(180deg,rgba(2,6,23,0.18)_0%,rgba(2,6,23,0.48)_100%)]"></div>
+          <div class="absolute inset-[-32%] bg-[conic-gradient(from_180deg_at_50%_50%,rgba(34,211,238,0)_0deg,rgba(34,211,238,0.2)_72deg,rgba(14,165,233,0.04)_160deg,rgba(34,211,238,0.12)_248deg,rgba(34,211,238,0)_360deg)] opacity-75 animate-[spin_10s_linear_infinite]"></div>
+          <div class="absolute inset-y-0 left-1/2 w-40 -translate-x-1/2 bg-[linear-gradient(180deg,rgba(103,232,249,0)_0%,rgba(103,232,249,0.12)_18%,rgba(103,232,249,0.22)_50%,rgba(103,232,249,0.08)_82%,rgba(103,232,249,0)_100%)] blur-2xl"></div>
+          <div class="absolute inset-0 bg-[linear-gradient(112deg,transparent_0%,rgba(255,255,255,0.02)_38%,rgba(103,232,249,0.22)_50%,rgba(255,255,255,0.02)_62%,transparent_100%)] animate-[pulse_2.8s_ease-in-out_infinite]"></div>
+
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="relative flex h-44 w-44 items-center justify-center">
+              <div class="absolute h-44 w-44 rounded-full border border-cyan-300/10 bg-cyan-200/5 shadow-[0_0_90px_rgba(34,211,238,0.12)] animate-[ping_3.8s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+              <div class="absolute h-32 w-32 rounded-full border border-cyan-200/16"></div>
+              <div class="absolute h-20 w-20 rounded-full border border-cyan-100/28"></div>
+              <div class="absolute h-12 w-12 rounded-full border border-white/14 bg-white/4 backdrop-blur-sm"></div>
+              <div class="absolute h-3 w-24 rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(103,232,249,0.9),rgba(34,211,238,0))] blur-[1px] animate-[spin_4.2s_linear_infinite]"></div>
+              <div class="h-3.5 w-3.5 rounded-full bg-cyan-100 shadow-[0_0_26px_rgba(103,232,249,0.95)]"></div>
+            </div>
+          </div>
+
+          <div class="absolute inset-x-0 bottom-12 flex justify-center px-6">
+            <div class="w-full max-w-72 rounded-[1.4rem] border border-white/8 bg-slate-900/42 px-4 py-3 shadow-[0_18px_44px_rgba(2,6,23,0.34)] backdrop-blur-md">
+              <div class="flex items-center gap-2.5">
+                <span class="h-1.5 w-1.5 rounded-full bg-cyan-200 shadow-[0_0_14px_rgba(103,232,249,0.8)] animate-pulse"></span>
+                <span class="h-px flex-1 bg-[linear-gradient(90deg,rgba(148,163,184,0.08),rgba(103,232,249,0.42),rgba(148,163,184,0.08))]"></span>
+                <span class="h-1.5 w-1.5 rounded-full bg-cyan-200/80 animate-pulse"></span>
+              </div>
+              <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+                <div class="h-full w-1/2 rounded-full bg-[linear-gradient(90deg,rgba(34,211,238,0.05),rgba(125,211,252,0.95),rgba(45,212,191,0.1))] shadow-[0_0_20px_rgba(103,232,249,0.45)] animate-[pulse_1.6s_ease-in-out_infinite]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
       <div class="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-slate-950 via-slate-950/44 to-transparent"></div>
       <div class="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-linear-to-t from-slate-950 via-slate-950/54 to-transparent"></div>
 
@@ -438,14 +498,18 @@ const HOME_HUB_FEATURES: FeatureCollection<Point> = {
 
             @if (currentHub(); as hub) {
               <section
-                class="pointer-events-auto max-w-64 rounded-[1.2rem] border border-amber-200/18 p-3 text-white shadow-[0_14px_42px_rgba(2,6,23,0.3)]"
+                class="pointer-events-auto relative max-w-64 overflow-hidden rounded-[1.2rem] border border-amber-200/18 p-3 text-white shadow-[0_14px_42px_rgba(2,6,23,0.3)]"
                 [class.bg-slate-950/78]="autoCameraMotionActive()"
                 [class.backdrop-blur-none]="autoCameraMotionActive()"
                 [class.bg-slate-950/54]="!autoCameraMotionActive()"
                 [class.backdrop-blur-md]="!autoCameraMotionActive()"
+                [style.borderColor]="'rgba(251, 191, 36, 0.28)'"
+                [style.boxShadow]="getActiveHubCardShadow()"
                 data-og7="map-hub-card"
                 [attr.data-og7-id]="hub.id"
               >
+                <div class="pointer-events-none absolute inset-x-4 -top-8 h-20 rounded-full blur-2xl" [style.background]="'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, rgba(251, 191, 36, 0) 72%)'"></div>
+                <div class="pointer-events-none absolute inset-x-4 top-0 h-px" [style.background]="'linear-gradient(90deg, rgba(251, 191, 36, 0), rgba(253, 224, 71, 0.92), rgba(251, 191, 36, 0))'"></div>
                 <div class="flex items-start justify-between gap-4">
                   <div>
                     <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-100/70">
@@ -516,14 +580,18 @@ const HOME_HUB_FEATURES: FeatureCollection<Point> = {
         <div class="mb-1 flex flex-col gap-2.5 lg:mb-4 lg:flex-row lg:items-end lg:justify-between xl:mb-5">
           @if (currentCorridor(); as corridor) {
             <section
-              class="pointer-events-auto max-w-92 rounded-[1.45rem] border border-white/10 p-3 text-white shadow-[0_18px_56px_rgba(2,6,23,0.34)] sm:max-w-96 sm:p-3.5"
+              class="pointer-events-auto relative max-w-92 overflow-hidden rounded-[1.45rem] border border-white/10 p-3 text-white shadow-[0_18px_56px_rgba(2,6,23,0.34)] sm:max-w-96 sm:p-3.5"
               [class.bg-slate-950/78]="autoCameraMotionActive()"
               [class.backdrop-blur-none]="autoCameraMotionActive()"
               [class.bg-slate-950/54]="!autoCameraMotionActive()"
               [class.backdrop-blur-md]="!autoCameraMotionActive()"
+              [style.borderColor]="getSectorGlowColor(corridor.sector, 0.34)"
+              [style.boxShadow]="getActiveCorridorCardShadow(corridor.sector)"
               data-og7="map-corridor-card"
               [attr.data-og7-id]="corridor.id"
             >
+              <div class="pointer-events-none absolute inset-x-5 -top-10 h-24 rounded-full blur-3xl" [style.background]="'radial-gradient(circle, ' + getSectorGlowColor(corridor.sector, 0.32) + ' 0%, ' + getSectorGlowColor(corridor.sector, 0) + ' 72%)'"></div>
+              <div class="pointer-events-none absolute inset-x-4 top-0 h-px" [style.background]="'linear-gradient(90deg, ' + getSectorGlowColor(corridor.sector, 0) + ', ' + getSectorColor(corridor.sector, true) + ', ' + getSectorGlowColor(corridor.sector, 0) + ')' "></div>
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-emerald-200/75">
@@ -694,17 +762,27 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
   private readonly cinematicCorridorId = signal<string | null>(null);
   private readonly flowPulsePhase = signal(0);
   private readonly interactionReady = signal(false);
+  protected readonly mapVisualReady = signal(false);
+  protected readonly mapLoadingOverlayVisible = signal(true);
   private readonly prefersReducedMotion = signal(false);
   private readonly pageHidden = signal(false);
   protected readonly pinnedCorridorId = signal<string | null>(null);
   protected readonly showMapStats = signal(true);
   protected readonly autoCameraMotionActive = signal(false);
   protected readonly activeSector = this.filters.activeSector;
+  protected readonly highlightedSector = computed<HomeSector | null>(() => {
+    const selectedSector = this.activeSector();
+    if (selectedSector) {
+      return selectedSector as HomeSector;
+    }
+
+    return this.findCorridor(this.pinnedCorridorId())?.sector ?? this.findCorridor(this.cinematicCorridorId())?.sector ?? null;
+  });
   protected readonly sectorCards = computed(() =>
     HOME_SECTORS.map((sector) => ({
       ...sector,
       corridorCount: HOME_CORRIDORS.filter((corridor) => corridor.sector === sector.id).length,
-      active: this.activeSector() === sector.id,
+      active: this.highlightedSector() === sector.id,
     })),
   );
   protected readonly visibleCorridors = computed(() => {
@@ -804,6 +882,8 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
   private flowPulseTimer: number | null = null;
   private idleCinematicTimer: number | null = null;
   private autoCameraMotionTimer: number | null = null;
+  private resetCenterOffsetTimer: number | null = null;
+  private mapRevealTimer: number | null = null;
   private lastCameraFocusKey: string | null = null;
   private cinematicCursor = -1;
   private lastUserInteractionAt = Date.now();
@@ -859,6 +939,16 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
       this.autoCameraMotionTimer = null;
     }
 
+    if (this.resetCenterOffsetTimer !== null) {
+      clearTimeout(this.resetCenterOffsetTimer);
+      this.resetCenterOffsetTimer = null;
+    }
+
+    if (this.mapRevealTimer !== null) {
+      clearTimeout(this.mapRevealTimer);
+      this.mapRevealTimer = null;
+    }
+
     if (this.isBrowser) {
       if (this.reducedMotionQuery) {
         this.reducedMotionQuery.removeEventListener('change', this.handleReducedMotionChange);
@@ -881,6 +971,13 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
   private initializeMap(): void {
     if (this.map || !this.mapHost?.nativeElement.isConnected) {
       return;
+    }
+
+    this.mapVisualReady.set(false);
+    this.mapLoadingOverlayVisible.set(true);
+    if (this.mapRevealTimer !== null) {
+      clearTimeout(this.mapRevealTimer);
+      this.mapRevealTimer = null;
     }
 
     const provinceSource = new VectorSource();
@@ -920,6 +1017,24 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
         maxZoom: 7,
       }),
     });
+
+    const renderReadyKey = this.map.once('rendercomplete', () => {
+      this.ngZone.run(() => {
+        this.mapVisualReady.set(true);
+        if (this.mapRevealTimer !== null) {
+          clearTimeout(this.mapRevealTimer);
+        }
+        this.ngZone.runOutsideAngular(() => {
+          this.mapRevealTimer = window.setTimeout(() => {
+            this.ngZone.run(() => {
+              this.mapLoadingOverlayVisible.set(false);
+              this.mapRevealTimer = null;
+            });
+          }, MAP_REVEAL_TRANSITION_MS);
+        });
+      });
+    });
+    this.interactionKeys.push(renderReadyKey);
 
     void this.loadBoundaryFeatures(provinceSource, provinceLabelSource);
     this.resetView();
@@ -1615,9 +1730,42 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
     view.cancelAnimations();
     this.markAutoCameraMotionWindow();
     view.fit(extent, {
-      padding: compactLayout ? [34, 16, 168, 16] : [42, 148, 136, 58],
-      maxZoom: compactLayout ? 4.35 : 4.7,
+      padding: compactLayout ? DEFAULT_RESET_PADDING_MOBILE : DEFAULT_RESET_PADDING_DESKTOP,
+      maxZoom: compactLayout ? DEFAULT_RESET_MAX_ZOOM_MOBILE : DEFAULT_RESET_MAX_ZOOM_DESKTOP,
       duration: CAMERA_RESET_FIT_MS,
+    });
+    this.scheduleResetCenterOffset(compactLayout ? DEFAULT_RESET_CENTER_OFFSET_MOBILE_PX : DEFAULT_RESET_CENTER_OFFSET_DESKTOP_PX);
+  }
+
+  private scheduleResetCenterOffset(offsetPx: number): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
+    if (this.resetCenterOffsetTimer !== null) {
+      clearTimeout(this.resetCenterOffsetTimer);
+      this.resetCenterOffsetTimer = null;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.resetCenterOffsetTimer = window.setTimeout(() => {
+        this.ngZone.run(() => {
+          if (!this.map) {
+            this.resetCenterOffsetTimer = null;
+            return;
+          }
+
+          const size = this.map.getSize();
+          const center = this.map.getView().getCenter();
+          if (!size || !center) {
+            this.resetCenterOffsetTimer = null;
+            return;
+          }
+
+          this.map.getView().centerOn(center, size, [size[0] / 2, size[1] / 2 + offsetPx]);
+          this.resetCenterOffsetTimer = null;
+        });
+      }, CAMERA_RESET_FIT_MS + 24);
     });
   }
 
@@ -1776,6 +1924,24 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
       return `rgba(245, 158, 11, ${opacity})`;
     }
     return `rgba(52, 211, 153, ${opacity})`;
+  }
+
+  protected getActiveCorridorCardShadow(sector: HomeSector): string {
+    return [
+      `0 0 0 1px ${this.getSectorGlowColor(sector, 0.16)}`,
+      `0 22px 56px -24px ${this.getSectorGlowColor(sector, 0.6)}`,
+      `0 0 56px -28px ${this.getSectorGlowColor(sector, 0.44)}`,
+      '0 18px 56px rgba(2,6,23,0.34)',
+    ].join(', ');
+  }
+
+  protected getActiveHubCardShadow(): string {
+    return [
+      '0 0 0 1px rgba(251, 191, 36, 0.18)',
+      '0 20px 48px -22px rgba(245, 158, 11, 0.45)',
+      '0 0 52px -28px rgba(251, 191, 36, 0.34)',
+      '0 14px 42px rgba(2,6,23,0.3)',
+    ].join(', ');
   }
 
   private getProvinceAccentColor(provinceId: string | undefined): string {
