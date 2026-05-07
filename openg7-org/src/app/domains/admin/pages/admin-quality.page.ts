@@ -92,6 +92,7 @@ import {
   buildMissionTasks,
   summarizeMissionQuota,
 } from './admin-quality-mission-task-planner';
+import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
@@ -180,6 +181,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     CommonModule,
     RouterLink,
     TranslateModule,
+    AdminNavigationPillsComponent,
     AdminQualityCommandRailComponent,
     AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
@@ -218,6 +220,62 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         transition:
           box-shadow 420ms ease,
           opacity 420ms ease;
+      }
+
+      .og7-admin-quality-shell::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.18), transparent 22%),
+          radial-gradient(circle at 84% 16%, rgba(14, 165, 233, 0.16), transparent 18%),
+          radial-gradient(circle at 74% 82%, rgba(34, 197, 94, 0.12), transparent 22%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 44%);
+        pointer-events: none;
+      }
+
+      .og7-admin-quality-shell::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          inset 0 -120px 160px rgba(2, 6, 23, 0.18);
+        pointer-events: none;
+      }
+
+      .og7-admin-quality-surface {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+        box-shadow: 0 22px 56px -42px rgba(15, 23, 42, 0.22);
+      }
+
+      .og7-admin-quality-surface::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0));
+        pointer-events: none;
+      }
+
+      .og7-admin-quality-surface::after {
+        content: '';
+        position: absolute;
+        inset: auto 1.5rem 0 1.5rem;
+        height: 3.75rem;
+        background: radial-gradient(circle at center, rgba(34, 197, 94, 0.08), transparent 68%);
+        filter: blur(18px);
+        pointer-events: none;
+      }
+
+      .og7-admin-quality-motion-rise {
+        opacity: 0;
+        transform: translateY(12px) scale(0.985);
+        animation: og7-admin-quality-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
 
       .og7-cockpit-sync-band {
@@ -279,6 +337,18 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
 
         to {
           transform: rotate(360deg);
+        }
+      }
+
+      @keyframes og7-admin-quality-rise {
+        0% {
+          opacity: 0;
+          transform: translateY(12px) scale(0.985);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
         }
       }
 
@@ -500,6 +570,17 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     'permission',
   ];
   readonly aiProviders = ADMIN_AI_PROVIDER_OPTIONS;
+  readonly adminCircuitItems: readonly AdminNavigationPillItem[] = [
+    { id: 'moderation', label: 'Moderation', routerLink: '/admin' },
+    { id: 'ops', label: 'Owner Ops', routerLink: '/admin/ops' },
+    { id: 'quality', label: 'QA Matrix', routerLink: '/admin/quality', active: true },
+  ];
+  readonly sectionNavItems: readonly AdminNavigationPillItem[] = [
+    { id: 'filters', label: 'Filters', href: '#admin-quality-filters', active: true },
+    { id: 'coverage', label: 'Coverage', href: '#admin-quality-coverage' },
+    { id: 'mission', label: 'Mission control', href: '#admin-quality-mission' },
+    { id: 'workspace', label: 'Workspace', href: '#admin-quality-workspace' },
+  ];
   readonly selectedAiProviderOption = computed(() =>
     resolveAdminAiProviderOption(this.selectedAiProvider()),
   );
@@ -1577,11 +1658,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   matrixSourceClasses(status: AdminQualityMatrixSourceStatus): string {
     switch (status) {
       case 'fallback':
-        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+        return 'border-rose-300/32 bg-rose-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'stale':
-        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+        return 'border-amber-300/32 bg-amber-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       default:
-        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+        return 'border-emerald-300/32 bg-emerald-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
     }
   }
 
@@ -1601,13 +1682,13 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   missionDecisionSyncClasses(status: AdminQualityMissionDecisionSyncStatus): string {
     switch (status) {
       case 'server':
-        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+        return 'border-emerald-300/32 bg-emerald-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'syncing':
-        return 'border-sky-300/25 bg-sky-400/12 text-sky-100';
+        return 'border-sky-300/32 bg-sky-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'unavailable':
-        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
+        return 'border-amber-300/32 bg-amber-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       default:
-        return 'border-white/12 bg-white/[0.05] text-slate-100';
+        return 'border-white/16 bg-white/8 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
     }
   }
 
@@ -1635,19 +1716,19 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   missionHudStatusClasses(status: AdminQualityMissionStatus): string {
     switch (status) {
       case 'approved':
-        return 'border-sky-400/25 bg-sky-400/12 text-sky-100';
+        return 'border-sky-300/32 bg-sky-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'in-progress':
-        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
+        return 'border-emerald-300/32 bg-emerald-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'proof-returned':
-        return 'border-amber-400/25 bg-amber-400/12 text-amber-100';
+        return 'border-amber-300/32 bg-amber-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'done':
       case 'deferred':
-        return 'border-white/12 bg-white/5 text-slate-100';
+        return 'border-white/16 bg-white/8 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       case 'rejected':
       case 'blocked':
-        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+        return 'border-rose-300/32 bg-rose-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
       default:
-        return 'border-violet-400/25 bg-violet-400/12 text-violet-100';
+        return 'border-violet-300/32 bg-violet-300/18 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]';
     }
   }
 

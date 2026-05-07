@@ -531,6 +531,28 @@ describe('AdminQualityPage', () => {
     ).not.toBeNull();
   });
 
+  it('keeps the hero status pills high contrast on the QA cockpit shell', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const generatedAt = root.querySelector('[data-og7-id="admin-quality-generated-at"]') as HTMLElement;
+    const sourceStatus = root.querySelector('[data-og7-id="admin-quality-source-status"]') as HTMLElement;
+    const missionSync = root.querySelector('[data-og7-id="admin-quality-mission-sync"]') as HTMLElement;
+    const missionSyncStatus = root.querySelector(
+      '[data-og7-id="admin-quality-mission-sync-status"]',
+    ) as HTMLElement;
+
+    expect(generatedAt.className).toContain('bg-slate-950/56');
+    expect(generatedAt.className).toContain('text-white');
+    expect(sourceStatus.className).toContain('text-white');
+    expect(sourceStatus.className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]');
+    expect(missionSync.className).toContain('bg-slate-950/56');
+    expect(missionSync.className).toContain('text-white');
+    expect(missionSyncStatus.className).toContain('text-white');
+    expect(missionSyncStatus.className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]');
+  });
+
   it('renders a compact workspace bar and opens the drawer on demand', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
