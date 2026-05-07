@@ -31,6 +31,8 @@ export const STRAPI_ROUTES = {
     opsAiDispatch: '/api/admin/ops/ai/dispatch',
     opsCodexDispatch: '/api/admin/ops/codex/dispatch',
     qualityMatrix: '/api/admin/quality/matrix',
+    qualityMatrixRecalculate: '/api/admin/quality/matrix/recalculate',
+    qualityMatrixApplyProposal: '/api/admin/quality/matrix/apply-proposal',
     qualityMissionDecisions: '/api/admin/quality/mission-decisions',
   },
 } as const;

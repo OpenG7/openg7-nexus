@@ -109,10 +109,12 @@ Useful repo-level scripts:
 - `yarn test:e2e:regression`: run the broader regression journey
 - `yarn predeploy:preprod`: run pre-production checks plus the smoke E2E gate
 - `yarn predeploy:preprod:full`: run the same checks plus the full E2E suite
+- `yarn docker:up`: build and start the local Docker Compose stack
 
 Detailed guides live in `docs/`:
 
 - `docs/getting-started.md`: onboarding and local setup details
+- `docs/docker-compose.md`: local Docker stack for Angular SSR, Strapi, Postgres, Redis, Meilisearch, and Minio
 - `docs/frontend/`: Angular architecture, selectors, UX notes
 - `docs/strapi/`: CMS conventions and seed behavior
 - `docs/first-contribution.md`: first PR checklist
@@ -238,10 +240,12 @@ Scripts utiles à la racine :
 - `yarn test:e2e:regression` : lance le parcours de régression plus large
 - `yarn predeploy:preprod` : exécute les vérifications de préproduction puis le garde-fou E2E smoke
 - `yarn predeploy:preprod:full` : exécute les mêmes vérifications puis toute la suite E2E
+- `yarn docker:up` : construit et lance la stack Docker Compose locale
 
 Guides détaillés dans `docs/` :
 
 - `docs/getting-started.md` : onboarding et détails de setup local
+- `docs/docker-compose.md` : stack Docker locale pour Angular SSR, Strapi, Postgres, Redis, Meilisearch et Minio
 - `docs/frontend/` : architecture Angular, sélecteurs, notes UX
 - `docs/strapi/` : conventions CMS et comportement des seeds
 - `docs/first-contribution.md` : checklist de première PR

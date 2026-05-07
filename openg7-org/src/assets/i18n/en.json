@@ -1,4 +1,4 @@
-﻿{
+{
   "announcement": "Welcome to OpenG7",
   "banner": {
     "underConstruction": {
@@ -549,6 +549,154 @@
     "search": "Search",
     "clear": "Clear",
     "info": "Information"
+  },
+  "admin": {
+    "quality": {
+      "workspace": {
+        "compact": {
+          "label": "Workspace",
+          "title": "Active workspace",
+          "subtitle": "QA, delegation, and actions are available in the side panel.",
+          "open": "Open workspace",
+          "primarySurface": "Primary surface: {{ surface }}",
+          "domains": "{{ count }} domain(s)",
+          "actions": "{{ count }} action(s)",
+          "activeSurface": "Active surface: {{ surface }}",
+          "activePanel": "Active panel",
+          "activePanelCount": "{{ count }} item(s)"
+        },
+        "drawer": {
+          "label": "Workspace",
+          "activeSurface": "Active surface",
+          "selectedCount": "{{ count }} item(s)",
+          "close": "Close workspace",
+          "closeAction": "Close",
+          "backdropLabel": "Close workspace",
+          "tabsLabel": "Workspace surfaces"
+        },
+        "tabs": {
+          "qaQueue": "QA Queue",
+          "delegation": "Delegation",
+          "actions": "Actions"
+        },
+        "surfaces": {
+          "qaQueue": {
+            "title": "QA Queue",
+            "subtitle": "Requirements and coverage review"
+          },
+          "delegation": {
+            "title": "Delegation",
+            "subtitle": "Automatic delegation plan"
+          },
+          "actions": {
+            "title": "Actions",
+            "subtitle": "Action registry and instrumentation"
+          }
+        },
+        "qaQueue": {
+          "kicker": "QA Queue",
+          "title": "QA Queue",
+          "subtitle": "Requirements and coverage review",
+          "emptyTitle": "QA Queue pending",
+          "emptyBody": "The QA queue will connect to the detailed matrix once structured data is available.",
+          "status": {
+            "yes": "Proved",
+            "partial": "Partial",
+            "no": "To cover",
+            "outOfScope": "Out of MVP"
+          }
+        },
+        "delegation": {
+          "header": "Delegation",
+          "emptyTitle": "Delegation unavailable",
+          "missing": "No delegation plan is available for the current selection.",
+          "modes": {
+            "qaProof": "QA proof",
+            "productClosure": "Product closure",
+            "hardening": "Hardening",
+            "scopeCadrage": "Scope framing"
+          },
+          "cards": {
+            "action": "Action",
+            "projectStatus": "Project status",
+            "repos": "Repos",
+            "labels": "Labels",
+            "acceptance": "Acceptance criteria",
+            "execution": "Likely execution plan",
+            "files": "Files",
+            "validation": "Validation",
+            "signalFocus": "Signal context",
+            "signalAttention": "Requires attention",
+            "recommendedAction": "Recommended action",
+            "observedGap": "Observed gap",
+            "nextMove": "Next move",
+            "recommendations": "Recommendations",
+            "recommendationsBody": "One recommendation per line. These recommendations are included in the Codex brief and saved as the validated operator trace when dispatch is launched.",
+            "brief": "Codex brief",
+            "briefBody": "Prompt ready to copy, review, or delegate quickly.",
+            "issue": "GitHub issue",
+            "issueBody": "Precomposed issue for delegation or follow-up."
+          },
+          "buttons": {
+            "copyBrief": "Copy brief",
+            "copyIssue": "Copy issue",
+            "openGithub": "Open on GitHub",
+            "confirmDispatch": "Confirm and launch {{ provider }}",
+            "launching": "Queueing {{ provider }}..."
+          },
+          "acceptanceCount": "{{ count }} item(s)",
+          "executionCount": "{{ files }} file(s) · {{ commands }} command(s)"
+        },
+        "recalculation": {
+          "kicker": "Matrix recalculation",
+          "current": "Current state",
+          "proposed": "Proposed state",
+          "recommendations": "Recommendations",
+          "reasons": "Reasons",
+          "evidence": "Evidence",
+          "result": {
+            "proposal": "Proposal",
+            "insufficientProof": "Insufficient proof",
+            "conflictingSignals": "Conflicting signals",
+            "unchanged": "Unchanged"
+          },
+          "confidence": {
+            "high": "High confidence",
+            "medium": "Medium confidence",
+            "low": "Low confidence"
+          },
+          "factual": {
+            "reviewedAt": "Last review",
+            "repoSignalAt": "Repo signal",
+            "repoSignalCommit": "Commit",
+            "repoSignalSource": "Source",
+            "latestDecisionAt": "Mission decision"
+          },
+          "buttons": {
+            "apply": "Apply proposal",
+            "applying": "Applying proposal..."
+          }
+        },
+        "actions": {
+          "kicker": "Actions",
+          "title": "Actions",
+          "subtitle": "Action registry and instrumentation",
+          "emptyTitle": "Actions pending",
+          "emptyBody": "The action registry will appear here once the active domain exposes structured instrumentation.",
+          "status": {
+            "proved": "Proved",
+            "documented": "Documented",
+            "needsCompletion": "Needs completion"
+          }
+        },
+        "notifications": {
+          "briefCopied": "AI brief copied.",
+          "issueCopied": "GitHub issue copied.",
+          "copyFailed": "Unable to copy the workspace item.",
+          "githubUnavailable": "No GitHub URL is available for this delegation."
+        }
+      }
+    }
   },
   "search": {
     "quick": {
