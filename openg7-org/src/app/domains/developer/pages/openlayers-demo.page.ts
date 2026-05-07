@@ -23,24 +23,24 @@ import type {
   LineLayerSpecification,
   Map as MapLibreMap,
 } from 'maplibre-gl';
+import { createEmpty, extend as extendExtent } from 'ol/extent.js';
+import type { Extent } from 'ol/extent.js';
 import Feature from 'ol/Feature.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import TopoJSON from 'ol/format/TopoJSON.js';
 import type Geometry from 'ol/geom/Geometry.js';
 import OLPoint from 'ol/geom/Point.js';
-import Map from 'ol/Map.js';
-import View from 'ol/View.js';
-import { createEmpty, extend as extendExtent } from 'ol/extent.js';
-import type { Extent } from 'ol/extent.js';
 import VectorLayer from 'ol/layer/Vector.js';
+import Map from 'ol/Map.js';
+import { unByKey } from 'ol/Observable.js';
+import { fromLonLat } from 'ol/proj.js';
 import VectorSource from 'ol/source/Vector.js';
 import { Fill, Circle as CircleStyle, Stroke, Style, Text } from 'ol/style.js';
-import { fromLonLat } from 'ol/proj.js';
-import { unByKey } from 'ol/Observable.js';
+import View from 'ol/View.js';
 
 type DemoSector = 'energy' | 'manufacturing' | 'agri-food';
 
-type DemoCorridor = {
+interface DemoCorridor {
   id: string;
   routeLabel: string;
   sector: DemoSector;
@@ -53,25 +53,25 @@ type DemoCorridor = {
   keyInsight: string;
   recommendation: string;
   risk: 'Low' | 'Medium';
-};
+}
 
-type InteractionState = {
+interface InteractionState {
   key: string;
   params?: Record<string, string>;
-};
+}
 
-type LoadedTranslations = {
+interface LoadedTranslations {
   readonly en: TranslationObject;
   readonly fr: TranslationObject;
-};
+}
 
-type MapLibreLayerEventLike = {
+interface MapLibreLayerEventLike {
   readonly features?: ReadonlyArray<{
     readonly properties?: {
       readonly corridorId?: string;
     };
   }>;
-};
+}
 
 const DEMO_CORRIDORS: readonly DemoCorridor[] = [
   {

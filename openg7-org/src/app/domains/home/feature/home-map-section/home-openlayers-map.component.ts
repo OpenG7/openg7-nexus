@@ -3,24 +3,24 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, PLATFORM_ID,
 import { FiltersService } from '@app/core/filters.service';
 import type { SectorType } from '@app/core/models/opportunity';
 import { TranslateModule } from '@ngx-translate/core';
+import type { FeatureCollection, LineString, Point } from 'geojson';
+import { createEmpty, extend as extendExtent } from 'ol/extent.js';
 import Feature from 'ol/Feature.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import TopoJSON from 'ol/format/TopoJSON.js';
 import type Geometry from 'ol/geom/Geometry.js';
 import OLPoint from 'ol/geom/Point.js';
-import Map from 'ol/Map.js';
-import View from 'ol/View.js';
-import { createEmpty, extend as extendExtent } from 'ol/extent.js';
 import VectorLayer from 'ol/layer/Vector.js';
+import Map from 'ol/Map.js';
 import { unByKey } from 'ol/Observable.js';
 import { fromLonLat } from 'ol/proj.js';
 import VectorSource from 'ol/source/Vector.js';
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style.js';
-import type { FeatureCollection, LineString, Point } from 'geojson';
+import View from 'ol/View.js';
 
 type HomeSector = 'energy' | 'manufacturing' | 'agri-food';
 
-type HomeCorridor = {
+interface HomeCorridor {
   readonly id: string;
   readonly sector: HomeSector;
   readonly routeLabelKey: string;
@@ -31,20 +31,20 @@ type HomeCorridor = {
   readonly checkpointCount: number;
   readonly reliability: number;
   readonly beats: readonly HomeCorridorBeat[];
-};
+}
 
-type HomeCorridorBeat = {
+interface HomeCorridorBeat {
   readonly id: string;
   readonly labelKey: string;
   readonly hubId: string;
-};
+}
 
-type HomeSectorMeta = {
+interface HomeSectorMeta {
   readonly id: HomeSector;
   readonly labelKey: string;
-};
+}
 
-type HomeHub = {
+interface HomeHub {
   readonly id: string;
   readonly label: string;
   readonly provinceId: string;
@@ -52,7 +52,7 @@ type HomeHub = {
   readonly briefKey: string;
   readonly corridorIds: readonly string[];
   readonly coordinates: readonly [number, number];
-};
+}
 
 const BOUNDARY_TOPOJSON_URLS = [
   '/assets/geo/boundaries/canada-adm1.json',
@@ -819,7 +819,7 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
   protected readonly currentHubCorridorLabelKeys = computed(() =>
     this.currentHub()
       ?.corridorIds.map((corridorId) => this.findCorridor(corridorId)?.routeLabelKey)
-      .filter((labelKey): labelKey is string => !!labelKey) ?? [],
+      .filter((labelKey): labelKey is string => Boolean(labelKey)) ?? [],
   );
   protected readonly currentCorridorHubCount = computed(() => {
     const corridorId = this.currentCorridor()?.id;
@@ -1065,7 +1065,7 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
           const preferredCorridor =
             hub?.corridorIds
               .map((corridorId) => this.findCorridor(corridorId))
-              .find((corridor): corridor is HomeCorridor => !!corridor && (!this.activeSector() || corridor.sector === this.activeSector())) ??
+              .find((corridor): corridor is HomeCorridor => Boolean(corridor) && (!this.activeSector() || corridor.sector === this.activeSector())) ??
             (hub?.corridorIds[0] ? this.findCorridor(hub.corridorIds[0]) : null);
 
           this.activeHubId.set(hubId);
@@ -1449,7 +1449,7 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
     return fallbackIds[normalizedName] ?? null;
   }
 
-  private getBoundaryLabel(provinceId: string, shapeName: string | null | undefined): string {
+  private getBoundaryLabel(provinceId: string, _shapeName: string | null | undefined): string {
     return this.getProvinceBadgeLabel(provinceId);
   }
 
@@ -1817,7 +1817,7 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
     const preferredCorridor =
       hub.corridorIds
         .map((corridorId) => this.findCorridor(corridorId))
-        .find((corridor): corridor is HomeCorridor => !!corridor) ?? null;
+        .find((corridor): corridor is HomeCorridor => Boolean(corridor)) ?? null;
 
     if (preferredCorridor) {
       this.animateToCorridor(preferredCorridor, hub);

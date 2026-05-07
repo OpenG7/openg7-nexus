@@ -57,6 +57,7 @@ import {
   AdminQualityWorkspaceSurface,
 } from '../feature/admin-quality-workspace-drawer.component';
 
+import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 import {
   AdminQualityActionIntent,
   AdminQualityActionRecord,
@@ -103,7 +104,6 @@ import {
   buildMissionTasks,
   summarizeMissionQuota,
 } from './admin-quality-mission-task-planner';
-import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';

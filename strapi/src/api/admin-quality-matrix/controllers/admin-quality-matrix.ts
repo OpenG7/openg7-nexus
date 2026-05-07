@@ -911,22 +911,6 @@ function buildRecalculationEntry(
   };
 }
 
-async function findLatestCompletedDecisionForEntry(
-  strapi: Core.Strapi,
-  entryId: string,
-): Promise<MissionDecisionEntity | null> {
-  const decisions = await strapi.entityService.findMany(MISSION_DECISION_UID, {
-    filters: {
-      entryId,
-      status: 'done',
-    },
-    sort: ['updatedAt:desc'],
-    limit: 10,
-  });
-
-  return (normalizeFindManyResult(decisions)[0] as MissionDecisionEntity | undefined) ?? null;
-}
-
 function sourceStatusFor(generatedAt: string): MatrixSourceStatus {
   const generatedTime = new Date(generatedAt).getTime();
   if (!Number.isFinite(generatedTime)) {
