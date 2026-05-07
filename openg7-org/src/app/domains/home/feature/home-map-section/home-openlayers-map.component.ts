@@ -1062,10 +1062,11 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
         const hubId = clickedHub?.get('hubId') as string | undefined;
         if (hubId) {
           const hub = this.findHub(hubId);
+          const activeSector = this.activeSector();
           const preferredCorridor =
             hub?.corridorIds
               .map((corridorId) => this.findCorridor(corridorId))
-              .find((corridor): corridor is HomeCorridor => Boolean(corridor) && (!this.activeSector() || corridor.sector === this.activeSector())) ??
+                .find((corridor): corridor is HomeCorridor => corridor !== null && (!activeSector || corridor.sector === activeSector)) ??
             (hub?.corridorIds[0] ? this.findCorridor(hub.corridorIds[0]) : null);
 
           this.activeHubId.set(hubId);
