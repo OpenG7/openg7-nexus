@@ -232,7 +232,15 @@
       </div>
 
       @if (focus.proposed) {
-      <div class="mt-3 grid gap-2 lg:grid-cols-3">
+      <div class="mt-3 grid gap-2 lg:grid-cols-5">
+        <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Synthese</p>
+          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.summaryStatus, focus.proposed.summaryStatus) }}</p>
+        </div>
+        <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Metier</p>
+          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.businessStatus, focus.proposed.businessStatus) }}</p>
+        </div>
         <div class="rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2">
           <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Implementation</p>
           <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.implementationStatus, focus.proposed.implementationStatus) }}</p>

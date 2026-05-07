@@ -24,6 +24,7 @@ type MatrixSignalConfirmationSource =
   | 'proof-returned'
   | 'done'
   | 'pull-request-merged';
+type MatrixCoverageSignalId = 'summary' | 'business' | 'implementation' | 'e2e';
 
 interface MatrixSignalDispatchState {
   readonly pending: boolean;
@@ -108,6 +109,13 @@ type MatrixRecalculationResult =
   | 'blocked-conflicting-signals';
 
 type MatrixRecalculationConfidence = 'low' | 'medium' | 'high';
+
+const COVERAGE_SIGNAL_IDS: readonly MatrixCoverageSignalId[] = [
+  'summary',
+  'business',
+  'implementation',
+  'e2e',
+];
 
 function normalizeString(value: unknown, maxLength = 1000): string | null {
   if (typeof value !== 'string') {
@@ -433,6 +441,108 @@ function summarizeStatus(state: MatrixCoverageState): MatrixStatus {
   return statusFromRank(Math.min(...ranks));
 }
 
+function coverageSignalLabel(signalId: MatrixCoverageSignalId): string {
+  switch (signalId) {
+    case 'summary':
+      return 'Synthese';
+    case 'business':
+      return 'Metier';
+    case 'implementation':
+      return 'Implementation';
+    default:
+      return 'E2E';
+  }
+}
+
+function signalConfirmedTimestamp(
+  dispatchState: MatrixSignalDispatchState | null | undefined,
+): number | null {
+  if (!dispatchState?.confirmedAt) {
+    return null;
+  }
+
+  const timestamp = new Date(dispatchState.confirmedAt).getTime();
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function signalConfirmedAfterReview(
+  dispatchState: MatrixSignalDispatchState | null | undefined,
+  deadline: number | null,
+): boolean {
+  const timestamp = signalConfirmedTimestamp(dispatchState);
+  if (timestamp == null) {
+    return false;
+  }
+
+  return deadline == null || timestamp > deadline;
+}
+
+function signalEscalationSteps(
+  signalId: MatrixCoverageSignalId,
+  dispatchState: MatrixSignalDispatchState | null | undefined,
+): number {
+  switch (dispatchState?.confirmationSource) {
+    case 'proof-returned':
+    case 'done':
+      return signalId === 'implementation' ? 2 : 1;
+    case 'repo-signal':
+    case 'pull-request-merged':
+      return signalId === 'e2e' ? 0 : 1;
+    default:
+      return 0;
+  }
+}
+
+function statusForSignal(state: MatrixCoverageState, signalId: MatrixCoverageSignalId): MatrixStatus {
+  switch (signalId) {
+    case 'summary':
+      return state.summaryStatus;
+    case 'business':
+      return state.businessStatus;
+    case 'implementation':
+      return state.implementationStatus;
+    default:
+      return state.e2eStatus;
+  }
+}
+
+function setStatusForSignal(
+  state: MatrixCoverageState,
+  signalId: MatrixCoverageSignalId,
+  status: MatrixStatus,
+): MatrixCoverageState {
+  switch (signalId) {
+    case 'summary':
+      return { ...state, summaryStatus: status };
+    case 'business':
+      return { ...state, businessStatus: status };
+    case 'implementation':
+      return { ...state, implementationStatus: status };
+    default:
+      return { ...state, e2eStatus: status };
+  }
+}
+
+function signalConfirmationReason(
+  signalId: MatrixCoverageSignalId,
+  dispatchState: MatrixSignalDispatchState,
+): string {
+  const label = coverageSignalLabel(signalId);
+
+  switch (dispatchState.confirmationSource) {
+    case 'proof-returned':
+      return `${label} confirme par retour de preuve.`;
+    case 'done':
+      return `${label} confirme par mission terminee.`;
+    case 'pull-request-merged':
+      return `${label} confirme par pull request mergee.`;
+    case 'repo-signal':
+      return `${label} confirme par signal repo apres merge.`;
+    default:
+      return `${label} en attente de confirmation.`;
+  }
+}
+
 function buildLatestCompletedDecisionByEntryId(
   decisions: readonly MissionDecisionEntity[],
 ): Map<string, MissionDecisionEntity> {
@@ -593,6 +703,7 @@ function resolveSignalDispatchSnapshot(
 function entryNeedsRecalculation(
   entry: MatrixEntryEntity,
   latestCompletedDecision: MissionDecisionEntity | null | undefined,
+  signalDispatch: MatrixSignalDispatchSnapshot = {},
 ): boolean {
   const deadline = reviewedAtDeadline(entry);
   if (deadline == null) {
@@ -606,7 +717,13 @@ function entryNeedsRecalculation(
   }
 
   const decisionTimestamp = missionDecisionTimestamp(latestCompletedDecision);
-  return decisionTimestamp != null && decisionTimestamp > deadline;
+  if (decisionTimestamp != null && decisionTimestamp > deadline) {
+    return true;
+  }
+
+  return COVERAGE_SIGNAL_IDS.some((signalId) =>
+    signalConfirmedAfterReview(signalDispatch[signalId], deadline),
+  );
 }
 
 function hasCoverageDelta(current: MatrixCoverageState, proposed: MatrixCoverageState): boolean {
@@ -623,6 +740,7 @@ function hasCoverageDelta(current: MatrixCoverageState, proposed: MatrixCoverage
 function buildRecalculationEntry(
   entry: MatrixEntryEntity,
   latestCompletedDecision: MissionDecisionEntity | null | undefined,
+  signalDispatch: MatrixSignalDispatchSnapshot = {},
 ) {
   const current = toCoverageState(entry);
   const deadline = reviewedAtDeadline(entry);
@@ -649,7 +767,20 @@ function buildRecalculationEntry(
     reasons.push('Une mission marquee done est plus recente que la derniere revue.');
   }
 
-  if (!repoSignalNewer && !completedDecisionNewer) {
+  const signalDrivenReasons = COVERAGE_SIGNAL_IDS.flatMap((signalId) => {
+    const dispatchState = signalDispatch[signalId];
+    if (!dispatchState || !signalConfirmedAfterReview(dispatchState, deadline)) {
+      return [];
+    }
+
+    return [signalConfirmationReason(signalId, dispatchState)];
+  });
+
+  if (signalDrivenReasons.length) {
+    reasons.push(...signalDrivenReasons);
+  }
+
+  if (!repoSignalNewer && !completedDecisionNewer && !signalDrivenReasons.length) {
     return {
       entryId: normalizeString(entry.entryId, 180) ?? '',
       domain: normalizeString(entry.domain, 240) ?? '',
@@ -670,7 +801,16 @@ function buildRecalculationEntry(
     };
   }
 
-  if (repoSignalNewer && !completedDecisionNewer) {
+  const hasActionableSignalCoverage = COVERAGE_SIGNAL_IDS.some((signalId) => {
+    const dispatchState = signalDispatch[signalId];
+    return (
+      dispatchState != null &&
+      signalConfirmedAfterReview(dispatchState, deadline) &&
+      signalEscalationSteps(signalId, dispatchState) > 0
+    );
+  });
+
+  if (repoSignalNewer && !completedDecisionNewer && !hasActionableSignalCoverage) {
     return {
       entryId: normalizeString(entry.entryId, 180) ?? '',
       domain: normalizeString(entry.domain, 240) ?? '',
@@ -706,7 +846,7 @@ function buildRecalculationEntry(
     proposedE2EStatus = escalateStatus(current.e2eStatus, 1);
   }
 
-  const proposedBase: MatrixCoverageState = {
+  let proposedBase: MatrixCoverageState = {
     summaryStatus: current.summaryStatus,
     businessStatus: current.businessStatus,
     implementationStatus: proposedImplementationStatus,
@@ -714,6 +854,25 @@ function buildRecalculationEntry(
     managementBucket: current.managementBucket,
     needsProductWorkFirst: current.needsProductWorkFirst,
   };
+
+  for (const signalId of COVERAGE_SIGNAL_IDS) {
+    const dispatchState = signalDispatch[signalId];
+    if (!dispatchState || !signalConfirmedAfterReview(dispatchState, deadline)) {
+      continue;
+    }
+
+    const steps = signalEscalationSteps(signalId, dispatchState);
+    if (steps <= 0) {
+      continue;
+    }
+
+    proposedBase = setStatusForSignal(
+      proposedBase,
+      signalId,
+      escalateStatus(statusForSignal(proposedBase, signalId), steps),
+    );
+  }
+
   const proposedSummaryStatus = summarizeStatus(proposedBase);
   const proposedManagementBucket =
     proposedSummaryStatus === 'oui' && proposedBase.e2eStatus === 'oui'
@@ -733,7 +892,8 @@ function buildRecalculationEntry(
     result: hasCoverageDelta(current, proposed)
       ? ('proposal-review-required' as MatrixRecalculationResult)
       : ('unchanged' as MatrixRecalculationResult),
-    confidence: repoSignalNewer && decisionPrompt ? 'high' : 'medium',
+    confidence:
+      repoSignalNewer && (decisionPrompt || hasActionableSignalCoverage) ? 'high' : 'medium',
     current,
     proposed,
     reasons: decisionPrompt
@@ -855,9 +1015,10 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       });
 
       const entries = normalizeFindManyResult(rawEntries) as MatrixEntryEntity[];
-      const latestCompletedDecisionByEntryId = buildLatestCompletedDecisionByEntryId(
-        normalizeFindManyResult(rawDecisions) as MissionDecisionEntity[],
-      );
+      const decisions = normalizeFindManyResult(rawDecisions) as MissionDecisionEntity[];
+      const latestCompletedDecisionByEntryId = buildLatestCompletedDecisionByEntryId(decisions);
+      const latestSignalGuidanceByEntryId = buildLatestSignalGuidanceByEntryId(decisions);
+      const latestServerConfirmationByEntryId = buildLatestServerConfirmationByEntryId(decisions);
 
       const scopedEntries = entries.filter((entry) => {
         const entryId = normalizeString(entry.entryId, 180);
@@ -873,13 +1034,26 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           return entryId === payload.entryId;
         }
 
-        return entryNeedsRecalculation(entry, latestCompletedDecisionByEntryId.get(entryId));
+        return entryNeedsRecalculation(
+          entry,
+          latestCompletedDecisionByEntryId.get(entryId),
+          resolveSignalDispatchSnapshot(
+            entry,
+            latestSignalGuidanceByEntryId.get(entryId),
+            latestServerConfirmationByEntryId.get(entryId),
+          ),
+        );
       });
 
       const recalculatedEntries = scopedEntries.map((entry) =>
         buildRecalculationEntry(
           entry,
           latestCompletedDecisionByEntryId.get(normalizeString(entry.entryId, 180) ?? ''),
+          resolveSignalDispatchSnapshot(
+            entry,
+            latestSignalGuidanceByEntryId.get(normalizeString(entry.entryId, 180) ?? ''),
+            latestServerConfirmationByEntryId.get(normalizeString(entry.entryId, 180) ?? ''),
+          ),
         ),
       );
 
@@ -918,8 +1092,25 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         return;
       }
 
-      const latestDecision = await findLatestCompletedDecisionForEntry(strapi, payload.entryId);
-      const proposal = buildRecalculationEntry(entry, latestDecision);
+      const decisions = normalizeFindManyResult(
+        await strapi.entityService.findMany(MISSION_DECISION_UID, {
+          filters: {
+            entryId: payload.entryId,
+          },
+          sort: ['updatedAt:desc'],
+          limit: 50,
+        }),
+      ) as MissionDecisionEntity[];
+      const latestDecision = buildLatestCompletedDecisionByEntryId(decisions).get(payload.entryId) ?? null;
+      const proposal = buildRecalculationEntry(
+        entry,
+        latestDecision,
+        resolveSignalDispatchSnapshot(
+          entry,
+          buildLatestSignalGuidanceByEntryId(decisions).get(payload.entryId),
+          buildLatestServerConfirmationByEntryId(decisions).get(payload.entryId),
+        ),
+      );
 
       if (proposal.result !== 'proposal-review-required' || !proposal.proposed) {
         ctx.badRequest('No applicable recalculation proposal is available for this entry.');
