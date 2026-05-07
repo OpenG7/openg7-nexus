@@ -4,7 +4,10 @@ import { Component } from '@angular/core';
   selector: 'og7-map-zoom-control',
   standalone: true,
   templateUrl: './zoom-control.component.html',
-  host: { style: 'display:block;width:1px;height:1px;' },
+  host: {
+    style: 'display:block;width:1px;height:1px;',
+    'data-og7': 'map-zoom-control',
+  },
 })
 /**
  * Contexte : Affichée dans les vues du dossier « shared/components/map/controls » en tant que composant Angular standalone.

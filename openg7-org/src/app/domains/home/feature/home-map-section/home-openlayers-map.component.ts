@@ -300,7 +300,7 @@ const HOME_HUB_FEATURES: FeatureCollection<Point> = {
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
-    <div class="absolute inset-0 overflow-hidden rounded-4xl bg-slate-950" data-og7="trade-map">
+    <div class="absolute inset-0 overflow-hidden rounded-4xl bg-slate-950" data-og7="trade-map" data-og7-layer="flows">
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_16%,rgba(34,211,238,0.22),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,#020617_0%,#03111e_46%,#041d2d_100%)]"></div>
       <div class="absolute inset-0 bg-[linear-gradient(rgba(103,232,249,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(103,232,249,0.08)_1px,transparent_1px)] bg-size-[72px_72px] opacity-40"></div>
       <div
