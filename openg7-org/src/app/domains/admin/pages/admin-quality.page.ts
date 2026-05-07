@@ -37,6 +37,9 @@ import {
 import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
+  AdminQualityMatrixPilotActionType,
+  AdminQualityMatrixPilotBucket,
+  AdminQualityMatrixPilotPriority,
   AdminQualityMatrixPriority,
   AdminQualityMatrixSignalDispatchState,
   AdminQualityMatrixRecalculationScope,
@@ -205,7 +208,7 @@ interface AdminQualityMatrixRecalculationScopeOption {
 }
 
 const MATRIX_RECALCULATION_SCOPE_OPTIONS: readonly AdminQualityMatrixRecalculationScopeOption[] = [
-  { id: 'refresh-required', label: 'Entrees a revoir' },
+  { id: 'refresh-required', label: 'Entrees a piloter' },
   { id: 'selected-entry', label: 'Entree active' },
   { id: 'all', label: 'Toute la matrice' },
 ];
@@ -1267,7 +1270,33 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         label: 'Sans changement',
         value: String(recalculation.summary.unchangedCount),
       },
+      {
+        label: 'A piloter',
+        value: String(
+          recalculation.entries.filter((entry) => this.isMatrixPilotActionable(entry)).length,
+        ),
+      },
     ];
+  });
+  readonly matrixPilotBacklogEntries = computed<readonly AdminQualityMatrixRecalculationEntry[]>(() => {
+    const recalculation = this.matrixRecalculation();
+    if (!recalculation) {
+      return [];
+    }
+
+    return [...recalculation.entries]
+      .filter((entry) => entry.pilot.priority !== 'later')
+      .sort((left, right) => {
+        const priorityDelta =
+          this.matrixPilotPriorityRank(right.pilot.priority) -
+          this.matrixPilotPriorityRank(left.pilot.priority);
+        if (priorityDelta !== 0) {
+          return priorityDelta;
+        }
+
+        return right.pilot.score - left.pilot.score;
+      })
+      .slice(0, 6);
   });
   readonly selectedMatrixProposalApplyReady = computed(
     () =>
@@ -1690,7 +1719,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.matrixRecalculation.set(result);
           if (notify) {
             this.notifications.success(
-              `Recalcul termine: ${result.summary.proposalCount} proposition(s), ${result.summary.blockedCount} blocage(s).`,
+              this.matrixRecalculationSuccessMessage(result),
               { source: 'admin-quality' },
             );
             this.loadMatrixSnapshot(false);
@@ -1702,6 +1731,31 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           });
         },
       });
+  }
+
+  private isMatrixPilotActionable(entry: AdminQualityMatrixRecalculationEntry): boolean {
+    return entry.pilot.priority !== 'later';
+  }
+
+  private matrixPilotPriorityRank(priority: AdminQualityMatrixPilotPriority): number {
+    switch (priority) {
+      case 'now':
+        return 4;
+      case 'blocked':
+        return 3;
+      case 'next':
+        return 2;
+      default:
+        return 1;
+    }
+  }
+
+  private matrixRecalculationSuccessMessage(
+    result: AdminQualityMatrixRecalculationSnapshot,
+  ): string {
+    const pilotCount = result.entries.filter((entry) => this.isMatrixPilotActionable(entry)).length;
+
+    return `Plan QA genere: ${result.summary.analyzedCount} entree(s) analysee(s), ${pilotCount} a piloter, ${result.summary.proposalCount} proposition(s), ${result.summary.blockedCount} blocage(s).`;
   }
 
   private loadMatrixSnapshot(markLoading = true): void {
@@ -1835,6 +1889,13 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedSignalContext.set(null);
     this.selectedSignalDraftPrompt.set('');
     this.selectedSignalRecommendationsDraft.set('');
+  }
+
+  selectMatrixEntry(entryId: string): void {
+    const entry = this.entries().find((candidate) => candidate.id === entryId);
+    if (entry) {
+      this.selectEntry(entry);
+    }
   }
 
   selectCoverageSignal(selection: AdminQualityCoverageSignalSelection): void {
@@ -2092,7 +2153,67 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       case 'selected-entry':
         return 'Entree ciblee';
       default:
-        return 'Entrees a revoir';
+        return 'Entrees a piloter';
+    }
+  }
+
+  matrixPilotPriorityLabel(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'A lancer maintenant';
+      case 'next':
+        return 'Prochain lot';
+      case 'blocked':
+        return 'Bloque';
+      default:
+        return 'Plus tard';
+    }
+  }
+
+  matrixPilotBucketLabel(bucket: AdminQualityMatrixPilotBucket): string {
+    switch (bucket) {
+      case 'ready-to-close':
+        return 'Pret a cloturer';
+      case 'needs-proof':
+        return 'Preuve requise';
+      case 'needs-product-call':
+        return 'Decision produit';
+      case 'blocked-by-api':
+        return 'Contrat API';
+      default:
+        return 'Pret a developper';
+    }
+  }
+
+  matrixPilotActionLabel(actionType: AdminQualityMatrixPilotActionType): string {
+    switch (actionType) {
+      case 'implement-feature':
+        return 'Implementer';
+      case 'add-test':
+        return 'Ajouter une preuve';
+      case 'fix-proof-gap':
+        return 'Combler la preuve';
+      case 'update-contract':
+        return 'Mettre a jour le contrat';
+      case 'review-product-scope':
+        return 'Arbitrer le scope';
+      case 'close-entry':
+        return 'Cloturer la ligne';
+      default:
+        return 'Valider';
+    }
+  }
+
+  matrixPilotPriorityClasses(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'border-emerald-300/25 bg-emerald-400/12 text-emerald-50';
+      case 'blocked':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-50';
+      case 'next':
+        return 'border-cyan-300/25 bg-cyan-400/12 text-cyan-50';
+      default:
+        return 'border-white/10 bg-white/[0.05] text-slate-200';
     }
   }
 

@@ -129,6 +129,22 @@ class AdminQualityMatrixServiceMock {
           },
           reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
           evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+          pilot: {
+            score: 100,
+            bucket: 'ready-to-close',
+            priority: 'now',
+            actionType: 'close-entry',
+            rationale: ['Une mission marquee done est plus recente que la derniere revue.'],
+            targetFiles: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+            acceptanceCriteria: [
+              'La proposition QA est appliquee par un Owner apres verification humaine.',
+            ],
+            suggestedCommands: [
+              'yarn workspace @openg7/strapi test:integration:admin-quality-matrix',
+            ],
+            expectedEvidence: ['Matrice mise a jour', 'Recalcul sans nouvelle proposition'],
+            blockingReason: null,
+          },
           factualSignals: {
             reviewedAt: '2026-04-07',
             repoSignalAt: '2026-05-02T12:00:00.000Z',
@@ -187,6 +203,22 @@ class AdminQualityMatrixServiceMock {
         },
         reasons: ['Une mission marquee done est plus recente que la derniere revue.'],
         evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        pilot: {
+          score: 100,
+          bucket: 'ready-to-close',
+          priority: 'now',
+          actionType: 'close-entry',
+          rationale: ['Une mission marquee done est plus recente que la derniere revue.'],
+          targetFiles: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+          acceptanceCriteria: [
+            'La proposition QA est appliquee par un Owner apres verification humaine.',
+          ],
+          suggestedCommands: [
+            'yarn workspace @openg7/strapi test:integration:admin-quality-matrix',
+          ],
+          expectedEvidence: ['Matrice mise a jour', 'Recalcul sans nouvelle proposition'],
+          blockingReason: null,
+        },
         factualSignals: {
           reviewedAt: '2026-04-07',
           repoSignalAt: '2026-05-02T12:00:00.000Z',
@@ -1515,19 +1547,27 @@ describe('AdminQualityPage', () => {
     const focus = root.querySelector(
       '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="advanced-discovery"]',
     );
+    const backlog = root.querySelector('[data-og7="admin-quality-matrix-pilot-backlog"]');
 
     expect(service.loadMatrix).toHaveBeenCalledTimes(2);
     expect(service.recalculateMatrix).toHaveBeenCalledWith('refresh-required', null);
     expect(summary?.textContent).toContain('Recalcul matrice');
     expect(summary?.textContent).toContain('Propositions');
+    expect(backlog?.textContent).toContain('Backlog pilote par la matrice');
+    expect(backlog?.textContent).toContain('Recherche et decouverte profonde');
+    expect(backlog?.textContent).toContain('Cloturer la ligne');
     expect(focus?.textContent).toContain('Synthese');
     expect(focus?.textContent).toContain('Metier');
     expect(focus?.textContent).toContain('non -> oui');
     expect(focus?.textContent).toContain('partiel -> oui');
     expect(focus?.textContent).toContain('Implementation');
+    expect(focus?.textContent).toContain('Pilotage developpement');
+    expect(focus?.textContent).toContain('A lancer maintenant');
+    expect(focus?.textContent).toContain('Score 100/100');
+    expect(focus?.textContent).toContain('Cloturer la ligne');
     expect(focus?.textContent).toContain('Recommandations');
     expect(notifications.success).toHaveBeenCalledWith(
-      'Recalcul termine: 1 proposition(s), 0 blocage(s).',
+      'Plan QA genere: 1 entree(s) analysee(s), 1 a piloter, 1 proposition(s), 0 blocage(s).',
       { source: 'admin-quality' },
     );
   });

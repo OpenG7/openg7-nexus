@@ -75,6 +75,34 @@ export type AdminQualityMatrixRecalculationResult =
   | 'blocked-conflicting-signals';
 
 export type AdminQualityMatrixRecalculationConfidence = 'low' | 'medium' | 'high';
+export type AdminQualityMatrixPilotPriority = 'now' | 'next' | 'later' | 'blocked';
+export type AdminQualityMatrixPilotBucket =
+  | 'ready-to-build'
+  | 'needs-proof'
+  | 'needs-product-call'
+  | 'blocked-by-api'
+  | 'ready-to-close';
+export type AdminQualityMatrixPilotActionType =
+  | 'implement-feature'
+  | 'add-test'
+  | 'fix-proof-gap'
+  | 'update-contract'
+  | 'run-validation'
+  | 'review-product-scope'
+  | 'close-entry';
+
+export interface AdminQualityMatrixDevelopmentCommand {
+  readonly score: number;
+  readonly bucket: AdminQualityMatrixPilotBucket;
+  readonly priority: AdminQualityMatrixPilotPriority;
+  readonly actionType: AdminQualityMatrixPilotActionType;
+  readonly rationale: readonly string[];
+  readonly targetFiles: readonly string[];
+  readonly acceptanceCriteria: readonly string[];
+  readonly suggestedCommands: readonly string[];
+  readonly expectedEvidence: readonly string[];
+  readonly blockingReason: string | null;
+}
 
 export interface AdminQualityMatrixCoverageProposal {
   readonly summaryStatus: AdminQualityMatrixStatus;
@@ -94,6 +122,7 @@ export interface AdminQualityMatrixRecalculationEntry {
   readonly proposed: AdminQualityMatrixCoverageProposal | null;
   readonly reasons: readonly string[];
   readonly evidence: readonly string[];
+  readonly pilot: AdminQualityMatrixDevelopmentCommand;
   readonly factualSignals: {
     readonly reviewedAt: string | null;
     readonly repoSignalAt: string | null;
@@ -137,6 +166,7 @@ interface AdminQualityMatrixRecalculationEntryResponse {
   readonly proposed?: Partial<AdminQualityMatrixCoverageProposal> | null;
   readonly reasons?: readonly string[] | null;
   readonly evidence?: readonly string[] | null;
+  readonly pilot?: Partial<AdminQualityMatrixDevelopmentCommand> | null;
   readonly factualSignals?: {
     readonly reviewedAt?: string | null;
     readonly repoSignalAt?: string | null;
@@ -429,6 +459,7 @@ export class AdminQualityMatrixService {
           evidence: Array.isArray(entry.evidence)
             ? entry.evidence.filter((value: unknown): value is string => typeof value === 'string')
             : [],
+          pilot: this.normalizeDevelopmentCommand(entry.pilot, entry.result),
           factualSignals: {
             reviewedAt:
               typeof entry.factualSignals?.reviewedAt === 'string'
@@ -515,6 +546,7 @@ export class AdminQualityMatrixService {
       evidence: Array.isArray(entry.evidence)
         ? entry.evidence.filter((value: unknown): value is string => typeof value === 'string')
         : [],
+      pilot: this.normalizeDevelopmentCommand(entry.pilot, entry.result),
       factualSignals: {
         reviewedAt:
           typeof entry.factualSignals?.reviewedAt === 'string'
@@ -558,6 +590,103 @@ export class AdminQualityMatrixService {
       entry,
       proposal,
     };
+  }
+
+  private normalizeDevelopmentCommand(
+    value: Partial<AdminQualityMatrixDevelopmentCommand> | null | undefined,
+    result: AdminQualityMatrixRecalculationResult | null | undefined,
+  ): AdminQualityMatrixDevelopmentCommand {
+    const bucket = this.normalizePilotBucket(value?.bucket, result);
+
+    return {
+      score: this.clampScore(value?.score),
+      bucket,
+      priority: this.normalizePilotPriority(value?.priority, bucket),
+      actionType: this.normalizePilotActionType(value?.actionType, result),
+      rationale: this.normalizeStringList(value?.rationale),
+      targetFiles: this.normalizeStringList(value?.targetFiles),
+      acceptanceCriteria: this.normalizeStringList(value?.acceptanceCriteria),
+      suggestedCommands: this.normalizeStringList(value?.suggestedCommands),
+      expectedEvidence: this.normalizeStringList(value?.expectedEvidence),
+      blockingReason:
+        typeof value?.blockingReason === 'string' && value.blockingReason.trim()
+          ? value.blockingReason
+          : null,
+    };
+  }
+
+  private normalizePilotBucket(
+    value: unknown,
+    result: AdminQualityMatrixRecalculationResult | null | undefined,
+  ): AdminQualityMatrixPilotBucket {
+    if (
+      value === 'ready-to-build' ||
+      value === 'needs-proof' ||
+      value === 'needs-product-call' ||
+      value === 'blocked-by-api' ||
+      value === 'ready-to-close'
+    ) {
+      return value;
+    }
+
+    if (result === 'proposal-review-required') {
+      return 'ready-to-close';
+    }
+
+    if (result?.startsWith('blocked-')) {
+      return 'needs-proof';
+    }
+
+    return 'ready-to-build';
+  }
+
+  private normalizePilotPriority(
+    value: unknown,
+    bucket: AdminQualityMatrixPilotBucket,
+  ): AdminQualityMatrixPilotPriority {
+    if (value === 'now' || value === 'next' || value === 'later' || value === 'blocked') {
+      return value;
+    }
+
+    return bucket === 'blocked-by-api' || bucket === 'needs-product-call' ? 'blocked' : 'next';
+  }
+
+  private normalizePilotActionType(
+    value: unknown,
+    result: AdminQualityMatrixRecalculationResult | null | undefined,
+  ): AdminQualityMatrixPilotActionType {
+    if (
+      value === 'implement-feature' ||
+      value === 'add-test' ||
+      value === 'fix-proof-gap' ||
+      value === 'update-contract' ||
+      value === 'run-validation' ||
+      value === 'review-product-scope' ||
+      value === 'close-entry'
+    ) {
+      return value;
+    }
+
+    if (result === 'proposal-review-required') {
+      return 'close-entry';
+    }
+
+    if (result?.startsWith('blocked-')) {
+      return 'fix-proof-gap';
+    }
+
+    return 'run-validation';
+  }
+
+  private normalizeStringList(value: unknown): readonly string[] {
+    return Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      : [];
+  }
+
+  private clampScore(value: unknown): number {
+    const numeric = typeof value === 'number' && Number.isFinite(value) ? value : 0;
+    return Math.max(0, Math.min(100, Math.round(numeric)));
   }
 
   private normalizeStatus(

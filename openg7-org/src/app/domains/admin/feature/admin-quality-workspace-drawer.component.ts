@@ -19,6 +19,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
+  AdminQualityMatrixPilotActionType,
+  AdminQualityMatrixPilotBucket,
+  AdminQualityMatrixPilotPriority,
   AdminQualityMatrixRecalculationEntry,
   AdminQualityMatrixRecalculationResult,
   AdminQualityMatrixStatus,
@@ -317,6 +320,66 @@ export class AdminQualityWorkspaceDrawerComponent {
         return 'admin.quality.workspace.recalculation.confidence.medium';
       default:
         return 'admin.quality.workspace.recalculation.confidence.low';
+    }
+  }
+
+  protected pilotPriorityLabel(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'A lancer maintenant';
+      case 'next':
+        return 'Prochain lot';
+      case 'blocked':
+        return 'Bloque';
+      default:
+        return 'Plus tard';
+    }
+  }
+
+  protected pilotPriorityClasses(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'border-emerald-300/25 bg-emerald-400/12 text-emerald-50';
+      case 'blocked':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-50';
+      case 'next':
+        return 'border-cyan-300/25 bg-cyan-400/12 text-cyan-50';
+      default:
+        return 'border-white/10 bg-white/[0.05] text-slate-200';
+    }
+  }
+
+  protected pilotBucketLabel(bucket: AdminQualityMatrixPilotBucket): string {
+    switch (bucket) {
+      case 'ready-to-close':
+        return 'Pret a cloturer';
+      case 'needs-proof':
+        return 'Preuve requise';
+      case 'needs-product-call':
+        return 'Decision produit';
+      case 'blocked-by-api':
+        return 'Contrat API';
+      default:
+        return 'Pret a developper';
+    }
+  }
+
+  protected pilotActionLabel(actionType: AdminQualityMatrixPilotActionType): string {
+    switch (actionType) {
+      case 'implement-feature':
+        return 'Implementer';
+      case 'add-test':
+        return 'Ajouter une preuve';
+      case 'fix-proof-gap':
+        return 'Combler la preuve';
+      case 'update-contract':
+        return 'Mettre a jour le contrat';
+      case 'review-product-scope':
+        return 'Arbitrer le scope';
+      case 'close-entry':
+        return 'Cloturer la ligne';
+      default:
+        return 'Valider';
     }
   }
 

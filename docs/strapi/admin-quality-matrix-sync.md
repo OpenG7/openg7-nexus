@@ -1,5 +1,7 @@
 # Admin-Quality Matrix Sync
 
+Pour le mode operateur complet de la page `/admin/quality`, voir aussi [`../frontend/admin-quality-matrix-manual.md`](../frontend/admin-quality-matrix-manual.md).
+
 Ce guide couvre le signal post-merge qui maintient la console `admin/quality` en etat `Refresh matrice` lorsqu'un merge sur `main` touche une surface suivie par la matrice.
 
 ## Vue d'ensemble
@@ -11,6 +13,8 @@ La chaine repose sur trois maillons:
 3. Le front marque une ligne `Refresh matrice` quand `repoSignalAt` ou une mission cloturee est plus recente que `reviewedAt`.
 
 Le workflow ne reecrit pas directement les colonnes metier. Il publie un fait horodate qui force une relecture humaine de la ligne impactee.
+
+L'endpoint d'ingestion accepte des `impactedEntryIds` explicites, mais peut aussi les deduire depuis `changedFiles`. La reponse expose `impactMode`, `impactReason`, `providedEntryIds`, `derivedEntryIds` et `resolvedEntryIds` pour diagnostiquer le mapping applique.
 
 ## Secrets requis
 
@@ -117,6 +121,6 @@ En CI:
 
 ## Limites actuelles
 
-- le mapping fichier -> domaine reste heuristique
+- le mapping fichier -> domaine reste heuristique et doit rester aligne entre le script CI et Strapi
 - le workflow signale qu'une ligne doit etre relue, mais ne modifie pas automatiquement les statuts metier
 - la revue finale reste volontairement humaine

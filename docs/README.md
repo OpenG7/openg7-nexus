@@ -11,6 +11,8 @@ Ce dossier regroupe les guides fonctionnels et techniques du projet, organisés 
 
 - [`cas-d-usage-en-langage-courant.md`](./cas-d-usage-en-langage-courant.md) — point de départ simple pour décrire un besoin métier avant de le décliner en specs produit ou techniques.
 - [`getting-started.md`](./getting-started.md) — parcours d'installation rapide du monorepo et liens vers les workspaces.
+- [`frontend/admin-quality-matrix-manual.md`](./frontend/admin-quality-matrix-manual.md) — manuel d'utilisation de la matrice QA admin, des voyants et du plan QA.
+- [`frontend/admin-quality-matrix-automation-tasks.md`](./frontend/admin-quality-matrix-automation-tasks.md) — lots d'automatisation pour reduire les operations manuelles de la matrice QA.
 
 ## Ajouter un nouveau guide
 
