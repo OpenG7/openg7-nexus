@@ -550,115 +550,6 @@
     "clear": "Effacer",
     "info": "Informations"
   },
-  "admin": {
-    "quality": {
-      "workspace": {
-        "compact": {
-          "label": "Workspace",
-          "title": "Workspace actif",
-          "subtitle": "QA, delegation et actions disponibles dans le panneau lateral.",
-          "open": "Ouvrir le workspace",
-          "primarySurface": "Surface principale : {{ surface }}",
-          "domains": "{{ count }} domaine(s)",
-          "actions": "{{ count }} action(s)",
-          "activeSurface": "Surface active : {{ surface }}",
-          "activePanel": "Panneau actif",
-          "activePanelCount": "{{ count }} element(s)"
-        },
-        "drawer": {
-          "label": "Workspace",
-          "activeSurface": "Surface active",
-          "selectedCount": "{{ count }} element(s)",
-          "close": "Fermer le workspace",
-          "closeAction": "Fermer",
-          "backdropLabel": "Fermer le workspace",
-          "tabsLabel": "Surfaces du workspace"
-        },
-        "tabs": {
-          "qaQueue": "QA Queue",
-          "delegation": "Delegation",
-          "actions": "Actions"
-        },
-        "surfaces": {
-          "qaQueue": {
-            "title": "QA Queue",
-            "subtitle": "Revue des besoins et couverture"
-          },
-          "delegation": {
-            "title": "Delegation",
-            "subtitle": "Plan de delegation automatique"
-          },
-          "actions": {
-            "title": "Actions",
-            "subtitle": "Registre des actions et instrumentation"
-          }
-        },
-        "qaQueue": {
-          "kicker": "QA Queue",
-          "title": "QA Queue",
-          "subtitle": "Revue des besoins et couverture",
-          "emptyTitle": "QA Queue en attente",
-          "emptyBody": "La file QA sera connectee a la matrice detaillee quand une source structuree sera disponible.",
-          "status": {
-            "yes": "Prouve",
-            "partial": "Partiel",
-            "no": "A couvrir",
-            "outOfScope": "Hors MVP"
-          }
-        },
-        "delegation": {
-          "header": "Delegation",
-          "emptyTitle": "Delegation indisponible",
-          "missing": "Aucun plan de delegation n est disponible avec la selection courante.",
-          "modes": {
-            "qaProof": "QA proof",
-            "productClosure": "Product closure",
-            "hardening": "Hardening",
-            "scopeCadrage": "Scope cadrage"
-          },
-          "cards": {
-            "action": "Action",
-            "projectStatus": "Etat projet",
-            "repos": "Repos",
-            "labels": "Labels",
-            "acceptance": "Criteres d acceptation",
-            "execution": "Plan d execution probable",
-            "files": "Fichiers",
-            "validation": "Validation",
-            "brief": "Brief AI",
-            "briefBody": "Prompt pret a copier, relire ou deleguer rapidement.",
-            "issue": "Issue GitHub",
-            "issueBody": "Issue precomposee pour delegation ou suivi."
-          },
-          "buttons": {
-            "copyBrief": "Copier le brief",
-            "copyIssue": "Copier l issue",
-            "openGithub": "Ouvrir sur GitHub"
-          },
-          "acceptanceCount": "{{ count }} item(s)",
-          "executionCount": "{{ files }} fichier(s) · {{ commands }} commande(s)"
-        },
-        "actions": {
-          "kicker": "Actions",
-          "title": "Actions",
-          "subtitle": "Registre des actions et instrumentation",
-          "emptyTitle": "Actions en attente",
-          "emptyBody": "Le registre d actions apparaitra ici quand le domaine actif exposera une instrumentation structuree.",
-          "status": {
-            "proved": "Prouvee",
-            "documented": "Documentee",
-            "needsCompletion": "A completer"
-          }
-        },
-        "notifications": {
-          "briefCopied": "Brief AI copie.",
-          "issueCopied": "Issue GitHub copiee.",
-          "copyFailed": "Impossible de copier l element du workspace.",
-          "githubUnavailable": "Aucune URL GitHub n est disponible pour cette delegation."
-        }
-      }
-    }
-  },
   "feed": {
     "title": "Fil des echanges",
     "subtitle": "Offres, demandes et signaux economiques entre provinces canadiennes.",
@@ -834,7 +725,8 @@
     },
     "context": {
       "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil.",
-      "corridorFocus": "Corridor suivi :"
+      "corridorFocus": "Corridor suivi :",
+      "tradeMap": "Contexte conserve depuis la carte des echanges."
     },
     "views": {
       "hydrocarbons": {
@@ -1540,6 +1432,54 @@
     }
   },
   "pages": {
+    "olDemo": {
+      "kicker": "LAB OPENLAYERS",
+      "title": "Demonstration OpenLayers pour une lecture corridor-first",
+      "subtitle": "Cette page branche des donnees mock directement dans ol pour montrer un poste de commande metier: provinces, hubs, corridors et focalisation par clic.",
+      "kpis": {
+        "totalVolume": "Volume mensuel mock",
+        "averageReliability": "Fiabilite moyenne",
+        "routesCount": "Corridors suivis"
+      },
+      "map": {
+        "heading": "Carte interactive ol"
+      },
+      "actions": {
+        "resetView": "Recentrer la vue",
+        "clearFocus": "Effacer le focus",
+        "backHome": "Retour a l'accueil"
+      },
+      "status": {
+        "idle": "Survolez ou cliquez un corridor pour tester la selection, le style dynamique et le recentrage.",
+        "selected": "Corridor actif : {{ route }} avec {{ partner }}."
+      },
+      "legend": {
+        "title": "Legende",
+        "activeCorridor": "Corridor actif ou survole",
+        "secondaryCorridor": "Corridor secondaire",
+        "province": "Province alignee sur le corridor actif",
+        "hub": "Hub logistique"
+      },
+      "brief": {
+        "title": "Brief corridor",
+        "partner": "Partenaire",
+        "sector": "Secteur",
+        "monthlyValue": "Valeur mensuelle",
+        "reliability": "Fiabilite",
+        "risk": "Risque",
+        "empty": "Aucun corridor actif. Utilisez la liste ou la carte pour afficher un brief detaille."
+      },
+      "routes": {
+        "heading": "Scenarios mock",
+        "copy": "Chaque action applique un focus metier: recentrage, surbrillance et resume de corridor."
+      },
+      "notes": {
+        "heading": "Pourquoi cette demo est utile",
+        "item1": "Elle montre comment ol gere des features metier sans imposer un style mapbox-like.",
+        "item2": "Les etats hover, selection et focus restent pilotables par Angular et ses signals.",
+        "item3": "Les donnees mock peuvent ensuite etre remplacees par vos flux Strapi ou store NgRx."
+      }
+    },
     "credits": {
       "kicker": "CRÉDITS FONDATEURS",
       "title": "OpenG7 commence avec une seule bâtisseuse",
@@ -3872,7 +3812,106 @@
     "map": {
       "kicker": "Carte des échanges",
       "title": "Tracer les corridors interprovinciaux du G7",
-      "description": "Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne."
+      "description": "Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne.",
+      "overlay": {
+        "sectors": "Secteurs stratégiques",
+        "briefing": "Briefing corridor",
+        "networkPulse": "Pulse réseau",
+        "liveCorridors": "Corridors actifs",
+        "liveHubs": "Hubs connectés",
+        "priority": "Corridor prioritaire",
+        "hubSpotlight": "Hub suivi",
+        "hubRole": "Rôle hub",
+        "monitoredCorridors": "Corridors suivis",
+        "hubPrompt": "Cliquez un hub sur la carte pour ouvrir sa mini-fiche opérationnelle.",
+        "dismiss": "Fermer",
+        "signal": "Signal",
+        "provinces": "Territoires",
+        "hubs": "Hubs",
+        "checkpoints": "Points de passage",
+        "commitment": "Engagement corridor",
+        "monitoringWindow": "Fenêtre de surveillance {{hours}} h",
+        "routeBeatsTitle": "Séquence corridor",
+        "cinematicStatusLabel": "Mode veille",
+        "reset": "Réinitialiser le focus",
+        "hideStats": "Masquer les stats",
+        "showStats": "Afficher les stats",
+        "legendProvince": "Province de contexte",
+        "legendCorridor": "Corridor actif",
+        "legendHub": "Hub énergie / industrie",
+        "corridorsCount": "corridors",
+        "cinematicStatus": {
+          "standby": "En attente d'un prochain focus",
+          "active": "Cadrage automatique actif",
+          "paused": "Animations en pause"
+        },
+        "stage": {
+          "activeWatch": "Surveillance active",
+          "synchronized": "Chaîne synchronisée",
+          "exportBridge": "Pont export"
+        },
+        "corridorLabels": {
+          "flowEnergy": "Québec vers Ontario",
+          "flowBattery": "Alberta vers Ontario",
+          "flowFood": "Colombie-Britannique vers Ontario",
+          "flowQcUsne": "Québec vers Nord-Est américain"
+        },
+        "hubBriefs": {
+          "quebecCity": "Québec pilote les arbitrages de dispatch et de continuité réseau pour le bloc énergétique.",
+          "montreal": "Montréal concentre les flux de trading, de contractualisation et de sortie rapide vers les marchés externes.",
+          "ottawa": "Ottawa sert de nœud d’alignement réglementaire et de coordination interprovinciale.",
+          "toronto": "Toronto absorbe la demande aval, les acheteurs industriels et les signaux marché des corridors prioritaires.",
+          "calgary": "Calgary verrouille l’amont extraction et l’intelligence matière pour la chaîne batterie.",
+          "winnipeg": "Winnipeg synchronise la traversée logistique et stabilise la continuité au milieu du corridor.",
+          "vancouver": "Vancouver tient la porte d’entrée Pacifique et les charges amont du corridor agroalimentaire.",
+          "boston": "Boston matérialise le point de sortie export et la demande rapide du corridor Nord-Est."
+        },
+        "hubRoles": {
+          "dispatch": "Dispatch énergétique",
+          "trade": "Nœud de trading",
+          "governance": "Coordination publique",
+          "market": "Demande aval",
+          "extraction": "Origine matière",
+          "sync": "Synchronisation logistique",
+          "gateway": "Porte d’entrée Pacifique",
+          "export": "Sortie export"
+        },
+        "corridorBriefs": {
+          "flowEnergy": "Le corridor électrique Québec-Ontario concentre les arbitrages de capacité et les appuis réseau à plus forte valeur downstream.",
+          "flowBattery": "La chaîne batterie traverse l’Ouest et le Centre pour aligner extraction, transformation et assemblage autour d’un flux manufacturier unique.",
+          "flowFood": "Le corridor agroalimentaire relie production, transformation et distribution avec un profil logistique long mais stable.",
+          "flowQcUsne": "Le pont export Québec–Nord-Est américain sert de sortie rapide pour l’énergie et les partenariats transfrontaliers à forte fiabilité."
+        },
+        "corridorBeats": {
+          "energyDispatch": "Dispatch Québec",
+          "energyTrade": "Trading Montréal",
+          "energyDemand": "Demande Toronto",
+          "batteryOrigin": "Origine Calgary",
+          "batterySync": "Relais Winnipeg",
+          "batteryAssembly": "Assemblage Toronto",
+          "foodGateway": "Entrée Vancouver",
+          "foodSync": "Transit Winnipeg",
+          "foodDemand": "Distribution Toronto",
+          "exportOrigin": "Départ Montréal",
+          "exportGateway": "Sortie Boston"
+        },
+        "sectorsList": {
+          "energy": "Énergie",
+          "manufacturing": "Chaîne batterie",
+          "agriFood": "Agroalimentaire"
+        }
+      },
+      "decision": {
+        "kicker": "Drilldowns de decision",
+        "title": "Pousser la carte vers le prochain fil de demandes",
+        "description": "Selectionnez un secteur cartographie pour surligner ses flux, puis ouvrez le contexte downstream dans le fil sans reconstruire les filtres a la main.",
+        "prompt": "Selectionnez un secteur cartographie pour activer le contexte downstream et le fil de demandes.",
+        "empty": "Les drilldowns carte apparaissent des que le jeu de flux courant est disponible.",
+        "selected": "Secteur selectionne",
+        "mappedValue": "Valeur cartographiee",
+        "mappedFlows": "Flux cartographies",
+        "openFeed": "Ouvrir le fil de demandes"
+      }
     },
     "feed": {
       "tabs": {

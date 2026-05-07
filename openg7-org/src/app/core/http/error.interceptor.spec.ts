@@ -86,6 +86,37 @@ describe('errorInterceptor', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
+  it('still clears the session for suppressed 401 responses without showing a toast', () => {
+    spyOn(notifications, 'error');
+    spyOn(notifications, 'info');
+    auth.handleUnauthorizedSession.and.returnValue(true);
+
+    const req = new HttpRequest('POST', '/admin/quality/matrix/recalculate', null, {
+      context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+    });
+    const handler = () =>
+      throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
+
+    TestBed.runInInjectionContext(() =>
+      errorInterceptor(req, handler).subscribe({ error: () => {} })
+    );
+
+    expect(auth.handleUnauthorizedSession).toHaveBeenCalled();
+    expect(authRedirect.setRedirectUrl).toHaveBeenCalledWith('/profile');
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/login'],
+      jasmine.objectContaining({
+        queryParams: jasmine.objectContaining({
+          reason: 'session-expired',
+          redirect: '/profile',
+        }),
+        replaceUrl: true,
+      })
+    );
+    expect(notifications.info).not.toHaveBeenCalled();
+    expect(notifications.error).not.toHaveBeenCalled();
+  });
+
   it('clears session and emits a dedicated toast when authenticated requests return 401', () => {
     spyOn(notifications, 'error');
     spyOn(notifications, 'info');

@@ -30,14 +30,15 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Hero & marketing | og7-dual-qr-panel | og7-dual-qr-panel | Og7DualQrPanelComponent | openg7-org/src/app/shared/components/qr/og7-dual-qr-panel.component.ts | ok |  |
 | Hero & marketing | og7-intro-billboard-content | og7-intro-billboard-content | Og7IntroBillboardContentComponent | openg7-org/src/app/domains/matchmaking/sections/og7-intro-billboard-content.component.ts | ok |  |
 | Hero & marketing | og7-home-page | og7-home-page | Og7HomePageComponent | openg7-org/src/app/domains/home/pages/home/og7-home-page.component.ts | ok |  |
-| Carte & data viz | og7-map-trade | og7-map-trade | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.ts | ok | Selector Angular alignÃ© (og7-map-trade). |
 | Carte & data viz | og7-map-basemap-toggle | og7-map-basemap-toggle | BasemapToggleComponent | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts | ok | Selector Angular alignÃ© (og7-map-basemap-toggle). |
 | Carte & data viz | og7-map-zoom-control | og7-map-zoom-control | ZoomControlComponent | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts | ok | Selector Angular alignÃ© (og7-map-zoom-control). |
 | Carte & data viz | og7-map-legend | og7-map-legend | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok | Selector Angular alignÃ© (og7-map-legend). |
 | Carte & data viz | og7-map-kpi-badges | og7-map-kpi-badges | MapKpiBadgesComponent | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts | ok | Selector Angular alignÃ© (og7-map-kpi-badges). |
 | Carte & data viz | og7-map-sector-chips | og7-map-sector-chips | MapSectorChipsComponent | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts | ok | Selector Angular alignÃ© (og7-map-sector-chips). |
+| Carte & data viz | og7-openlayers-demo-page | og7-openlayers-demo-page | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Page de demonstration OL avec donnees mock et interactions corridor-first. |
 | Carte & data viz | og7-map-frame | og7-map-frame | Og7MapFrameComponent | openg7-org/src/app/shared/components/map-frame/og7-map-frame.component.ts | ok |  |
 | Carte & data viz | og7-home-map-section | og7-home-map-section | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.ts | ok |  |
+| Carte & data viz | og7-home-openlayers-map | og7-home-openlayers-map | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Carte OpenLayers embarquee dans la section home map, exportee via le barrel du module home-map-section. |
 | Carte & data viz | og7-home-corridors-realtime | og7-home-corridors-realtime | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts | ok |  |
 | Carte & data viz | og7-importation-flow-map-panel | og7-importation-flow-map-panel | ImportationFlowMapPanelComponent | openg7-org/src/app/domains/importation/components/flow-map-panel/importation-flow-map-panel.component.ts | ok |  |
 | Carte & data viz | og7-opportunity-mini-map | og7-opportunity-mini-map | OpportunityMiniMapComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-mini-map/opportunity-mini-map.component.ts | ok |  |
@@ -119,15 +120,26 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Hero & marketing | [data-og7="hero-ctas"] | HeroCtasComponent | openg7-org/src/app/shared/components/hero/hero-ctas/hero-ctas.component.ts | ok |  |
 | Hero & marketing | [data-og7="home-inputs"] | HomeInputsSectionComponent | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts | ok |  |
 | Hero & marketing | [data-og7="announcement-bar"] | â€” | â€” | planned | Doublon volontaire pour lâ€™UI marketing (pas encore utilisÃ©). |
-| Carte & data viz | [data-og7="trade-map"] | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.ts | ok |  |
+| Carte & data viz | [data-og7="trade-map"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Surface OpenLayers home qui remplace l'ancien composant shared. |
+| Carte & data viz | [data-og7="ol-demo-page"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Racine de la page de demonstration OpenLayers. |
+| Carte & data viz | [data-og7="ol-demo-map"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Surface cartographique OL alimentee par donnees mock. |
 | Carte & data viz | [data-og7="map-basemap-toggle"] | BasemapToggleComponent | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-zoom-control"] | ZoomControlComponent | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-legend"] | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-kpi-badges"] | MapKpiBadgesComponent | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts | ok |  |
 | Carte & data viz | [data-og7="map-sector-chips"] | MapSectorChipsComponent | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts | ok |  |
-| Carte & data viz | [data-og7="map-layer"] | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.html | ok | Kebab-case + suffixe explicite, couplÃ© Ã  `data-og7-layer="flows|markers|highlight"`. |
-| Carte & data viz | [data-og7="map-tooltip"] | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.html | ok | Kebab-case, alignÃ© sur le hook dâ€™instrumentation prÃ©vu pour la carte. |
-| Carte & data viz | [data-og7="map-aria-live"] | TradeMapComponent | openg7-org/src/app/shared/components/map/trade-map.component.html | ok | Kebab-case + rÃ´le ARIA, conforme Ã  la convention. |
+| Carte & data viz | [data-og7="home-map"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Racine de la section carte de la page d'accueil. |
+| Carte & data viz | [data-og7="map-mobile-picks"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Rail mobile des drilldowns par secteur. |
+| Carte & data viz | [data-og7="map-decision-panel"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Panneau desktop de decision downstream vers le feed. |
+| Carte & data viz | [data-og7="map-overlay"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Overlay fonctionnel de la carte OpenLayers home. |
+| Carte & data viz | [data-og7="map-sector-rail"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Controle des secteurs affiches sur la carte OpenLayers home. |
+| Carte & data viz | [data-og7="map-pulse-panel"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Indicateurs corridors/hubs visibles. |
+| Carte & data viz | [data-og7="action"][data-og7-id="map-toggle-stats"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Toggle pour masquer ou retablir les statistiques de surcouche de la carte home. |
+| Carte & data viz | [data-og7="map-corridor-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Carte resume du corridor courant. |
+| Carte & data viz | [data-og7="map-cinematic-status"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etat du mode idle/cadrage automatique de la carte home. |
+| Carte & data viz | [data-og7="map-corridor-beat"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etapes narratives cliquables du corridor courant. |
+| Carte & data viz | [data-og7="map-hub-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Mini-fiche ouverte apres clic sur un hub de la carte. |
+| Carte & data viz | [data-og7="map-hub-prompt"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Indication de decouverte pour l'ouverture des mini-fiches hub. |
 | Carte & data viz | [data-og7="corridors-realtime"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok |  |
 | Carte & data viz | [data-og7="corridors-realtime"] [data-og7-id="fullscreen"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok |  |
 | Carte & data viz | [data-og7="corridors-realtime"] [data-og7-id="view-map"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok | CTA voir sur la carte (inactif pour l'instant). |
@@ -249,8 +261,8 @@ IntÃ©grer la carte (Leaflet) et ses contrÃ´les (basemap-toggle, zoom-control
 
 - **Carte de commerce**  
   - Selector : `[data-og7="trade-map"]`  
-  - Composant : `TradeMapComponent`  
-  - Fichier : `openg7-org/src/app/components/map/trade-map.component.ts`
+  - Composant : `HomeOpenlayersMapComponent`  
+  - Fichier : `openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts`
 - **Basemap toggle**  
   - Selector : `[data-og7="map-basemap-toggle"]`  
   - Composant : `BasemapToggleComponent`  
@@ -273,14 +285,15 @@ IntÃ©grer la carte (Leaflet) et ses contrÃ´les (basemap-toggle, zoom-control
   - Fichier : `openg7-org/src/app/components/map/filters/map-sector-chips.component.ts`
 - **Bouton â€œplusâ€ (chips)**  
   - Selector : `[data-og7="map-sector-chips"] [data-og7-id="more"]`
-- **Couches / Layers**  
-  - Ã‰changes : `[data-og7="map-layer"] [data-og7-id="flows"]`  
-  - Marqueurs : `[data-og7="map-layer"] [data-og7-id="markers"]`  
-  - Mise en Ã©vidence : `[data-og7="map-layer"] [data-og7-id="highlight"]`
-- **Tooltip dynamique**  
-  - Selector : `[data-og7="map-tooltip"]`
-- **Zone ARIA live (a11y)**  
-  - Selector : `[data-og7="map-aria-live"]`
+- **Carte decisionnelle home**  
+  - Overlay : `[data-og7="map-overlay"]`  
+  - Rail secteurs : `[data-og7="map-sector-rail"]`  
+  - Pulse panel : `[data-og7="map-pulse-panel"]`  
+  - Toggle stats : `[data-og7="action"] [data-og7-id="map-toggle-stats"]`  
+  - Fiche corridor : `[data-og7="map-corridor-card"]`  
+  - Etat cinematic : `[data-og7="map-cinematic-status"]`  
+  - Etapes corridor : `[data-og7="map-corridor-beat"]`  
+  - Fiche hub : `[data-og7="map-hub-card"]`
 
 ### 1.4 â€” Filtres & rÃ©sultats
 
@@ -397,7 +410,6 @@ openg7-org/src/app/
 â”‚  â”‚  â”œâ”€ hero-copy.component.ts
 â”‚  â”‚  â””â”€ hero-ctas.component.ts
 â”‚  â”œâ”€ map/
-â”‚  â”‚  â”œâ”€ trade-map.component.ts
 â”‚  â”‚  â”œâ”€ legend/map-legend.component.ts
 â”‚  â”‚  â”œâ”€ kpi/map-kpi-badges.component.ts
 â”‚  â”‚  â”œâ”€ filters/map-sector-chips.component.ts

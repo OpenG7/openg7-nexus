@@ -42,6 +42,7 @@ interface TradeModeOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display:block;position:absolute;top:1.5rem;left:1.5rem;right:1.5rem;z-index:0;',
+    'data-og7': 'map-kpi-badges',
   },
   animations: [
     trigger('badgePulse', [

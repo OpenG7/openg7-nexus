@@ -196,6 +196,10 @@ export class AdminQualityMatrixService {
   private readonly silentOptions = {
     context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
   };
+  private readonly silentMutationOptions = {
+    context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+    withCredentials: false,
+  };
 
   loadMatrix(): Observable<AdminQualityMatrixSnapshot> {
     return this.http
@@ -229,7 +233,7 @@ export class AdminQualityMatrixService {
           scope,
           entryId: entryId ?? null,
         },
-        this.silentOptions,
+        this.silentMutationOptions,
       )
       .pipe(map((response) => this.normalizeRecalculationSnapshot(response.data)));
   }
@@ -239,7 +243,7 @@ export class AdminQualityMatrixService {
       .post<StrapiDataResponse<AdminQualityMatrixApplyProposalResponse>>(
         STRAPI_ROUTES.admin.qualityMatrixApplyProposal,
         { entryId },
-        this.silentOptions,
+        this.silentMutationOptions,
       )
       .pipe(map((response) => this.normalizeApplyProposalResult(response.data)));
   }

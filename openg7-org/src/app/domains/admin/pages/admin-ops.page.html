@@ -1,5 +1,5 @@
 <section
-  class="relative mx-auto flex w-full max-w-384 flex-col gap-6 overflow-hidden px-1 pb-8 text-slate-100 xl:px-0"
+  class="relative mx-auto flex w-full max-w-384 flex-col gap-8 overflow-hidden px-1 pb-8 xl:px-0"
   data-og7="admin-ops"
 >
   <div
@@ -9,95 +9,288 @@
     class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0))]"
   ></div>
 
+  <section class="mx-auto flex w-full max-w-6xl flex-col gap-8" data-og7="admin-ops">
   <header
-    class="relative overflow-hidden rounded-[34px] border border-sky-500/30 bg-[linear-gradient(180deg,rgba(3,10,26,0.98),rgba(4,14,34,0.96)_52%,rgba(2,8,22,0.98))] px-5 py-5 shadow-[0_42px_120px_-64px_rgba(37,99,235,0.92)] sm:px-6"
+    id="ops-overview"
+    class="og7-admin-ops-hero-shell relative overflow-hidden rounded-4xl border border-white/14 bg-[linear-gradient(145deg,#081225_0%,#10203d_46%,#0a1730_74%,#071121_100%)] shadow-[0_40px_124px_rgba(15,23,42,0.32)]"
   >
-    <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(37,99,235,0.2),transparent_20%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"
-    ></div>
-    <div
-      class="pointer-events-none absolute right-4 bottom-0 h-28 w-[38%] rounded-tl-[3rem] bg-[radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.34),transparent_48%)]"
-    ></div>
-    <div
-      class="pointer-events-none absolute right-8 bottom-4 h-24 w-[32%] bg-[radial-gradient(circle,rgba(59,130,246,0.9)_1px,transparent_1.7px)] bg-size-[12px_12px] mask-[linear-gradient(90deg,transparent,rgba(255,255,255,0.85)_26%,rgba(255,255,255,0.95))] opacity-60"
-    ></div>
-    <div class="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-    <div class="space-y-2">
-      <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-300/95">
-        Pilotage operations
-      </p>
-      <h1 class="text-3xl font-semibold tracking-tight text-white xl:text-[2.4rem]">
-        Owner Ops Dashboard
-      </h1>
-      <p class="max-w-3xl text-sm leading-7 text-slate-300">
-        Monitor platform health, backups, import throughput and security indicators in one place.
-      </p>
-      <div class="flex flex-wrap items-center gap-3 text-xs">
-        <span
-          class="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
-          data-og7-id="admin-ops-live-status"
-          [attr.data-og7-state]="liveTelemetryState()"
-          [class.border-emerald-200]="isLiveTelemetry('live')"
-          [class.bg-emerald-50]="isLiveTelemetry('live')"
-          [class.text-emerald-700]="isLiveTelemetry('live')"
-          [class.border-amber-200]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
-          [class.bg-amber-50]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
-          [class.text-amber-700]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
-          [class.border-slate-500/40]="isLiveTelemetry('offline')"
-          [class.bg-slate-800/80]="isLiveTelemetry('offline')"
-          [class.text-slate-200]="isLiveTelemetry('offline')"
-        >
-          <span
-            class="h-2.5 w-2.5 rounded-full"
-            [class.og7-live-heartbeat]="isLiveTelemetry('live')"
-            [class.og7-live-heartbeat--degraded]="isLiveTelemetry('degraded')"
-            [class.og7-live-heartbeat--syncing]="isLiveTelemetry('syncing')"
-            [class.bg-emerald-500]="isLiveTelemetry('live')"
-            [class.bg-amber-500]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
-            [class.bg-slate-400]="isLiveTelemetry('offline')"
-          ></span>
-          {{ liveTelemetryLabel() }}
-        </span>
-        <span class="text-slate-200" data-og7-id="admin-ops-live-detail">
-          {{ liveTelemetryDetail() }}
-        </span>
+    <div class="og7-admin-ops-hero-grid relative p-6 sm:p-8 lg:p-10">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div class="og7-admin-ops-motion-rise max-w-3xl space-y-4 text-white" style="animation-delay: 40ms">
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <span
+              class="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold"
+              data-og7-id="admin-ops-live-status"
+              [attr.data-og7-state]="liveTelemetryState()"
+              [class.border-emerald-300/25]="isLiveTelemetry('live')"
+              [class.bg-emerald-400/10]="isLiveTelemetry('live')"
+              [class.text-emerald-50]="isLiveTelemetry('live')"
+              [class.border-amber-300/25]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+              [class.bg-amber-400/10]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+              [class.text-amber-50]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+              [class.border-slate-300/20]="isLiveTelemetry('offline')"
+              [class.bg-slate-800/60]="isLiveTelemetry('offline')"
+              [class.text-slate-100]="isLiveTelemetry('offline')"
+            >
+              <span
+                class="h-2.5 w-2.5 rounded-full"
+                [class.og7-live-heartbeat]="isLiveTelemetry('live')"
+                [class.og7-live-heartbeat--degraded]="isLiveTelemetry('degraded')"
+                [class.og7-live-heartbeat--syncing]="isLiveTelemetry('syncing')"
+                [class.bg-emerald-400]="isLiveTelemetry('live')"
+                [class.bg-amber-400]="isLiveTelemetry('degraded') || isLiveTelemetry('syncing')"
+                [class.bg-slate-400]="isLiveTelemetry('offline')"
+              ></span>
+              {{ liveTelemetryLabel() }}
+            </span>
+            <span
+              class="rounded-full border border-white/16 bg-slate-950/56 px-3 py-1 font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+              data-og7-id="admin-ops-live-detail"
+            >
+              {{ liveTelemetryDetail() }}
+            </span>
+            @if (lastUpdated(); as timestamp) {
+            <span class="text-slate-300/78" data-og7-id="admin-ops-last-updated">
+              Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
+            </span>
+            }
+          </div>
+
+          <div class="space-y-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.34em] text-cyan-100">
+              Owner command deck
+            </p>
+            <h1 class="max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Owner Ops Dashboard
+            </h1>
+            <p class="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              Run the platform like a command center: establish signal confidence first, surface
+              what needs intervention now, then dispatch owner workflows with full operational
+              context.
+            </p>
+          </div>
+
+          <div class="rounded-[1.4rem] border border-cyan-300/14 bg-white/5 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-100">
+              Recommended next move
+            </p>
+            <p class="mt-2 text-base font-medium leading-7 text-white">
+              {{ heroRecommendation() }}
+            </p>
+          </div>
+        </div>
+
+        <div class="og7-admin-ops-motion-rise flex w-full max-w-xs flex-col gap-3 lg:items-end" style="animation-delay: 120ms">
+          <button
+            type="button"
+            data-og7-id="admin-ops-refresh"
+            class="inline-flex min-w-44 items-center justify-center rounded-xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/14 disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="refresh()"
+            [disabled]="loading() || refreshing()"
+          >
+            @if (refreshing()) { Refreshing... } @else { Refresh cockpit }
+          </button>
+          <og7-admin-navigation-pills
+            [items]="adminCircuitItems"
+            variant="dark"
+            ariaLabel="Admin circuit"
+            dataOg7="admin-circuit-nav"
+          />
+        </div>
       </div>
-      @if (lastUpdated(); as timestamp) {
-      <p class="text-xs text-slate-300/85" data-og7-id="admin-ops-last-updated">
-        Last update: {{ timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
-      </p>
+
+      @if (commandMetrics().length) {
+      <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        @for (metric of commandMetrics(); track metric.id) {
+        <a
+          [href]="'#' + metric.anchor"
+          class="og7-admin-ops-command-card og7-admin-ops-signal-card og7-admin-ops-motion-rise rounded-3xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:brightness-110"
+          [style.animation-delay.ms]="140 + ($index * 70)"
+          [ngClass]="commandMetricClasses(metric.tone)"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/86">
+              {{ metric.label }}
+            </p>
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+              data-og7="admin-ops-command-metric-badge"
+              [attr.data-og7-id]="metric.id"
+              [ngClass]="commandMetricBadgeClasses(metric.tone)"
+            >
+              {{ commandMetricToneLabel(metric.tone) }}
+            </span>
+          </div>
+          <p class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-[2rem]">
+            {{ metric.value }}
+          </p>
+          <p class="mt-3 max-w-[18rem] text-sm leading-6 text-slate-50/92">{{ metric.detail }}</p>
+        </a>
+        }
+      </div>
       }
-    </div>
-    <button
-      type="button"
-      data-og7-id="admin-ops-refresh"
-      class="inline-flex items-center justify-center rounded-2xl border border-white/14 bg-[#10192b] px-5 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-60"
-      (click)="refresh()"
-      [disabled]="loading() || refreshing()"
-    >
-      @if (refreshing()) { Refreshing... } @else { Refresh }
-    </button>
     </div>
   </header>
 
+  <div class="sticky top-4 z-20 rounded-[1.4rem] border border-slate-200 bg-white/90 p-2 shadow-[0_16px_44px_rgba(15,23,42,0.08)] backdrop-blur-md">
+    <og7-admin-navigation-pills
+      [items]="sectionNavItems"
+      ariaLabel="Owner Ops sections"
+      dataOg7="admin-ops-section-nav"
+    />
+  </div>
+
   @if (error(); as message) {
-  <p
-    class="rounded-[20px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100 shadow-[0_18px_40px_-32px_rgba(244,63,94,0.85)]"
+  <div
+    class="rounded-[1.4rem] border border-rose-200 bg-[linear-gradient(135deg,rgba(255,241,242,1),rgba(255,255,255,1))] px-5 py-4 text-sm text-rose-800 shadow-sm"
     data-og7-id="admin-ops-error"
   >
-    {{ message }}
-  </p>
-  } @if (loading()) {
-  <p
-    class="rounded-[20px] border border-white/12 bg-[#0b1528]/92 px-4 py-3 text-sm text-slate-200 shadow-[0_18px_40px_-32px_rgba(14,165,233,0.8)]"
+    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-rose-500">Refresh failed</p>
+    <p class="mt-2 text-sm leading-6">{{ message }}</p>
+  </div>
+  }
+
+  @if (loading()) {
+  <section
+    class="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm"
     data-og7-id="admin-ops-loading"
   >
-    Loading operations data...
-  </p>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+      <div class="h-28 animate-pulse rounded-[1.25rem] bg-slate-100"></div>
+      }
+    </div>
+  </section>
+  }
+
+  @if (attentionItems().length) {
+  <section class="grid gap-4 xl:grid-cols-3" data-og7="admin-ops-attention-rail">
+    @for (item of attentionItems(); track item.id) {
+    <a
+      [href]="'#' + item.anchor"
+      class="og7-admin-ops-attention-card og7-admin-ops-signal-card og7-admin-ops-motion-rise rounded-3xl border p-5 transition duration-200 hover:-translate-y-0.5 hover:brightness-110"
+      [style.animation-delay.ms]="170 + ($index * 80)"
+      [ngClass]="attentionItemClasses(item.tone)"
+    >
+      <div class="pl-3">
+        <span
+          class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          [ngClass]="attentionItemBadgeClasses(item.tone)"
+        >
+          {{ item.eyebrow }}
+        </span>
+      </div>
+      <h2 class="mt-4 pl-3 text-xl font-semibold leading-8 text-white">{{ item.title }}</h2>
+      <p class="mt-2 pl-3 text-sm leading-7 text-slate-50/90">{{ item.body }}</p>
+      <div class="mt-5 pl-3">
+        <span class="inline-flex rounded-full border border-white/16 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+          {{ item.cta }}
+        </span>
+      </div>
+    </a>
+    }
+  </section>
+  }
+
+  @if (snapshot(); as vm) {
+  <section id="ops-overview-signals" class="space-y-4">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+          Operating picture
+        </p>
+        <h2 class="mt-2 text-xl font-semibold text-slate-900">Priority signals before operator action</h2>
+      </div>
+      <p class="max-w-2xl text-sm leading-6 text-slate-600">
+        This layer answers the first three operator questions: Is the platform healthy, is the
+        evidence fresh, and where is the next intervention required?
+      </p>
+    </div>
+
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article
+        class="og7-admin-ops-surface og7-admin-ops-signal-card rounded-[1.6rem] border p-5"
+        [ngClass]="overviewSignalCardClasses(healthSignalTone(vm))"
+        data-og7="admin-ops-summary-health"
+      >
+        <div class="relative flex items-start justify-between gap-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700/75">API health</p>
+          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-ops-overview-badge" data-og7-id="health" [ngClass]="overviewSignalBadgeClasses(healthSignalTone(vm))">
+            {{ overviewSignalToneLabel(healthSignalTone(vm)) }}
+          </span>
+        </div>
+        <p class="relative mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+          {{ vm.health.status === 'ok' ? 'Operational' : 'Degraded' }}
+        </p>
+        <p class="relative mt-3 text-sm leading-6 text-slate-800/90">
+          Uptime: {{ formatDuration(vm.health.runtime.uptimeSeconds) }}
+        </p>
+        <p class="relative mt-3 text-xs font-medium text-slate-700/80">Node {{ vm.health.runtime.nodeVersion }}</p>
+      </article>
+
+      <article
+        class="og7-admin-ops-surface og7-admin-ops-signal-card rounded-[1.6rem] border p-5"
+        [ngClass]="overviewSignalCardClasses(backupSignalTone(vm))"
+        data-og7="admin-ops-summary-backups"
+      >
+        <div class="relative flex items-start justify-between gap-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700/75">Backup posture</p>
+          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-ops-overview-badge" data-og7-id="backups" [ngClass]="overviewSignalBadgeClasses(backupSignalTone(vm))">
+            {{ overviewSignalToneLabel(backupSignalTone(vm)) }}
+          </span>
+        </div>
+        <p class="relative mt-4 text-3xl font-semibold tracking-tight text-slate-950">
+          {{ vm.backups.status | titlecase }}
+        </p>
+        <p class="relative mt-3 text-sm leading-6 text-slate-800/90">
+          Last: {{ vm.backups.lastBackupAt ? (vm.backups.lastBackupAt | date: 'yyyy-MM-dd HH:mm') :
+          'No backup detected' }}
+        </p>
+        <p class="relative mt-3 text-xs font-medium text-slate-700/80">
+          {{ vm.backups.totalFiles }} files, {{ formatBytes(vm.backups.totalSizeBytes) }}
+        </p>
+      </article>
+
+      <article
+        class="og7-admin-ops-surface og7-admin-ops-signal-card rounded-[1.6rem] border p-5"
+        [ngClass]="overviewSignalCardClasses(importSignalTone(vm))"
+        data-og7="admin-ops-summary-imports"
+      >
+        <div class="relative flex items-start justify-between gap-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700/75">Import velocity</p>
+          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-ops-overview-badge" data-og7-id="imports" [ngClass]="overviewSignalBadgeClasses(importSignalTone(vm))">
+            {{ overviewSignalToneLabel(importSignalTone(vm)) }}
+          </span>
+        </div>
+        <p class="relative mt-4 text-3xl font-semibold tracking-tight text-slate-950">{{ vm.imports.importsLast24h }} in 24h</p>
+        <p class="relative mt-3 text-sm leading-6 text-slate-800/90">Imported companies in current scan: {{ vm.imports.importedCompanies }}</p>
+        <p class="relative mt-3 text-xs font-medium text-slate-700/80">{{ vm.imports.lastImportAt ? ('Last import ' + (vm.imports.lastImportAt | date: 'yyyy-MM-dd HH:mm')) : 'No recent import wave detected' }}</p>
+      </article>
+
+      <article
+        class="og7-admin-ops-surface og7-admin-ops-signal-card rounded-[1.6rem] border p-5"
+        [ngClass]="overviewSignalCardClasses(securitySignalTone(vm))"
+        data-og7="admin-ops-summary-security"
+      >
+        <div class="relative flex items-start justify-between gap-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700/75">Security posture</p>
+          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-ops-overview-badge" data-og7-id="security" [ngClass]="overviewSignalBadgeClasses(securitySignalTone(vm))">
+            {{ overviewSignalToneLabel(securitySignalTone(vm)) }}
+          </span>
+        </div>
+        <p class="relative mt-4 text-3xl font-semibold tracking-tight text-slate-950">{{ vm.security.sessions.active }} active sessions</p>
+        <p class="relative mt-3 text-sm leading-6 text-slate-800/90">{{ vm.security.users.blocked }} blocked users</p>
+        <p class="relative mt-3 text-xs font-medium text-slate-700/80">
+          {{ vm.security.moderation.pendingCompanies }} moderation queue · {{ vm.security.users.total }} total users
+        </p>
+      </article>
+    </section>
+  </section>
   }
 
   <article
-    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    id="ops-dispatch"
+    class="og7-admin-ops-surface rounded-[1.6rem] border border-slate-200 p-5"
     data-og7="admin-ops-codex-dispatch"
   >
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -520,7 +713,8 @@
 
   @if (snapshot(); as vm) {
   <article
-    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    id="ops-provenance"
+    class="og7-admin-ops-surface rounded-[1.6rem] border border-slate-200 p-5"
     data-og7="admin-ops-provenance-trail"
   >
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -629,12 +823,96 @@
 
   <section class="grid gap-4 xl:grid-cols-2">
     <article
-      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      id="ops-backups"
+      class="og7-admin-ops-surface rounded-[1.6rem] border border-slate-200 p-4 shadow-sm"
       data-og7="admin-ops-backup-files"
     >
       <div class="mb-3 flex items-center justify-between">
         <h2 class="text-base font-semibold text-slate-900">Backup files</h2>
         <span class="text-xs text-slate-500">Retention: {{ vm.backups.retentionDays }} days</span>
+      </div>
+      <div class="mb-4 grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_auto]">
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+            Backup freshness
+          </p>
+          <div class="mt-2 flex flex-wrap items-center gap-3">
+            <span class="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700" data-og7-id="admin-ops-backup-freshness">
+              {{ backupFreshnessLabel() }}
+            </span>
+            <span class="text-xs text-slate-500">{{ vm.backups.totalFiles }} files · {{ formatBytes(vm.backups.totalSizeBytes) }}</span>
+          </div>
+          <p class="mt-3 text-sm leading-6 text-slate-600">{{ backupOperatorAction() }}</p>
+        </div>
+        <div class="flex flex-wrap gap-2 lg:flex-col lg:items-end">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            (click)="refresh()"
+          >
+            Refresh backup state
+          </button>
+          <a
+            href="#ops-provenance"
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+          >
+            Review provenance
+          </a>
+        </div>
+      </div>
+      <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <span class="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium">
+              {{ backupSummary().visible }} visible
+            </span>
+            @if (backupSummary().stale > 0) {
+            <span class="inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 font-medium text-rose-700">
+              {{ backupSummary().stale }} stale
+            </span>
+            }
+            @if (backupSummary().aging > 0) {
+            <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-medium text-amber-700">
+              {{ backupSummary().aging }} aging
+            </span>
+            }
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+              <span class="font-medium">Search</span>
+              <input
+                type="search"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+                [value]="backupSearch()"
+                (input)="updateBackupSearch($any($event.target).value)"
+                placeholder="backup name"
+                data-og7-id="admin-ops-backup-search"
+              />
+            </label>
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+              <span class="font-medium">Sort</span>
+              <select
+                class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+                [value]="backupSort()"
+                (change)="updateBackupSort($any($event.target).value)"
+                data-og7-id="admin-ops-backup-sort"
+              >
+                <option value="modified-desc">Latest modified</option>
+                <option value="size-desc">Largest size</option>
+                <option value="name-asc">File name</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          (click)="resetBackupFilters()"
+          [disabled]="!hasBackupFilters()"
+          data-og7-id="admin-ops-backup-reset"
+        >
+          Clear controls
+        </button>
       </div>
       @if (!vm.backups.files.length) {
       <p class="text-sm text-slate-500">No backup file found in {{ vm.backups.directory }}.</p>
@@ -644,18 +922,30 @@
           <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th class="px-3 py-2">File</th>
+              <th class="px-3 py-2">Severity</th>
               <th class="px-3 py-2">Size</th>
               <th class="px-3 py-2">Modified</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            @for (file of vm.backups.files; track trackBackupFile($index, file)) {
+            @if (!filteredBackupFiles().length) {
+            <tr>
+              <td colspan="4" class="px-3 py-6 text-center text-sm text-slate-500">
+                No backup file matches the current search.
+              </td>
+            </tr>
+            } @else { @for (file of filteredBackupFiles(); track trackBackupFile($index, file)) {
             <tr>
               <td class="px-3 py-2 font-medium text-slate-800">{{ file.name }}</td>
+              <td class="px-3 py-2">
+                <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [ngClass]="backupFileSeverityClasses(file)">
+                  {{ backupFileSeverityLabel(file) }}
+                </span>
+              </td>
               <td class="px-3 py-2">{{ formatBytes(file.sizeBytes) }}</td>
               <td class="px-3 py-2">{{ file.modifiedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
             </tr>
-            }
+            } }
           </tbody>
         </table>
       </div>
@@ -663,7 +953,8 @@
     </article>
 
     <article
-      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      id="ops-imports"
+      class="og7-admin-ops-surface rounded-[1.6rem] border border-slate-200 p-4 shadow-sm"
       data-og7="admin-ops-import-activity"
     >
       <div class="mb-3 flex items-center justify-between">
@@ -673,33 +964,143 @@
           HH:mm') : 'N/A' }}
         </span>
       </div>
+      <div class="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-3">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Import operator lane</p>
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            Filter the latest import wave by status, confirm source mix, then drill into the entries that still need follow-up.
+          </p>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <span class="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 font-medium">
+              {{ importSummary().visible }} visible
+            </span>
+            @if (importSummary().actionNeeded > 0) {
+            <span class="inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 font-medium text-rose-700">
+              {{ importSummary().actionNeeded }} action needed
+            </span>
+            }
+            @if (importSummary().monitor > 0) {
+            <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-medium text-amber-700">
+              {{ importSummary().monitor }} monitor
+            </span>
+            }
+          </div>
+          <label class="flex items-center gap-2 text-sm text-slate-700">
+            <span class="font-medium">Search</span>
+            <input
+              type="search"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+              [value]="importSearch()"
+              (input)="updateImportSearch($any($event.target).value)"
+              placeholder="name, business id, source"
+              data-og7-id="admin-ops-import-search"
+            />
+          </label>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+          <label class="flex items-center gap-2">
+            <span class="font-medium">Status</span>
+            <select
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+              [value]="selectedImportStatus()"
+              (change)="updateImportStatus($any($event.target).value)"
+              data-og7-id="admin-ops-import-status-filter"
+            >
+              @for (status of importStatusOptions(); track status) {
+              <option [value]="status">{{ status === 'all' ? 'All statuses' : status }}</option>
+              }
+            </select>
+          </label>
+          <label class="flex items-center gap-2">
+            <span class="font-medium">Sort</span>
+            <select
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+              [value]="importSort()"
+              (change)="updateImportSort($any($event.target).value)"
+              data-og7-id="admin-ops-import-sort"
+            >
+              <option value="latest-desc">Latest activity</option>
+              <option value="name-asc">Name</option>
+              <option value="status-asc">Status</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+            (click)="resetImportFilters()"
+            [disabled]="!hasImportFilters()"
+            data-og7-id="admin-ops-import-reset"
+          >
+            Clear controls
+          </button>
+        </div>
+      </div>
       @if (!vm.imports.recent.length) {
       <p class="text-sm text-slate-500">No import records available yet.</p>
       } @else {
+      <div class="mb-4 flex flex-wrap gap-2" data-og7="admin-ops-import-sources">
+        @for (source of vm.imports.sources; track trackSource($index, source)) {
+        <span class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+          {{ source.source }}: {{ source.count }}
+        </span>
+        }
+      </div>
       <ul class="space-y-2">
-        @for (entry of vm.imports.recent; track trackImportEntry($index, entry)) {
+        @if (!filteredSortedImportEntries().length) {
+        <li class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-4 text-sm text-slate-500">
+          No import entries match the current filter.
+        </li>
+        } @else { @for (entry of filteredSortedImportEntries(); track trackImportEntry($index, entry)) {
         <li class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-          <p class="text-sm font-medium text-slate-800">{{ entry.name }}</p>
-          <p class="text-xs text-slate-600">
-            {{ entry.businessId || 'no-business-id' }} - {{ entry.status }}
-            <span *ngIf="entry.source">- {{ entry.source }}</span>
-          </p>
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p class="text-sm font-medium text-slate-800">{{ entry.name }}</p>
+              <p class="text-xs text-slate-600">
+                {{ entry.businessId || 'no-business-id' }} - {{ entry.status }}
+                <span *ngIf="entry.source">- {{ entry.source }}</span>
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                {{ entry.status }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold" [ngClass]="importEntrySeverityClasses(entry)">
+                {{ importEntrySeverityLabel(entry) }}
+              </span>
+            </div>
+          </div>
           <p class="text-xs text-slate-500">
             {{ (entry.importedAt || entry.updatedAt) ? ((entry.importedAt || entry.updatedAt)! |
             date: 'yyyy-MM-dd HH:mm') : 'Unknown timestamp' }}
           </p>
         </li>
-        }
+        } }
       </ul>
       }
     </article>
   </section>
 
   <article
-    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    id="ops-security"
+    class="og7-admin-ops-surface rounded-[1.6rem] border border-slate-200 p-4 shadow-sm"
     data-og7="admin-ops-security-controls"
   >
     <h2 class="mb-3 text-base font-semibold text-slate-900">Security controls</h2>
+    @if (securityActionItems().length) {
+    <div class="mb-4 grid gap-3 lg:grid-cols-3">
+      @for (item of securityActionItems(); track item.id) {
+      <a
+        [href]="item.href"
+        class="rounded-2xl border px-4 py-3 transition hover:-translate-y-0.5"
+        [ngClass]="securityActionClasses(item.tone)"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-75">{{ item.title }}</p>
+        <p class="mt-2 text-sm font-medium leading-6">{{ item.body }}</p>
+        <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] opacity-80">{{ item.cta }}</p>
+      </a>
+      }
+    </div>
+    }
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
         <p class="text-xs uppercase tracking-wide text-slate-500">Users</p>
@@ -754,4 +1155,5 @@
     }
   </article>
   }
+  </section>
 </section>

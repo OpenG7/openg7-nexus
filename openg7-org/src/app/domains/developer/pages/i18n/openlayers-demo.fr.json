@@ -1,0 +1,147 @@
+{
+  "pages": {
+    "olDemo": {
+      "kicker": "CORRIDOR INTELLIGENCE",
+      "title": "Corridor Intelligence Platform",
+      "subtitle": "Cette page utilise OpenLayers comme moteur geospatial pour tester un cockpit decisionnel: carte dominante, corridor actif, brief metier et KPI synchronises.",
+      "nav": {
+        "corridorView": "Vue corridor",
+        "comparison": "Comparaison",
+        "analytics": "Analytics",
+        "reports": "Rapports",
+        "alerts": "Alertes"
+      },
+      "kpis": {
+        "totalVolume": "Volume mensuel mock",
+        "averageReliability": "Fiabilite moyenne",
+        "routesCount": "Corridors suivis"
+      },
+      "map": {
+        "heading": "Carte interactive ol",
+        "activeLabel": "Corridor actif",
+        "activeStatus": "Actif",
+        "updatedAt": "Aujourd'hui, 09:42"
+      },
+      "actions": {
+        "resetView": "Recentrer la vue",
+        "clearFocus": "Effacer le focus",
+        "zoomIn": "Zoom avant",
+        "zoomOut": "Zoom arriere",
+        "backHome": "Retour a l'accueil"
+      },
+      "status": {
+        "idle": "Survolez ou cliquez un corridor pour tester la selection, le style dynamique et le recentrage.",
+        "selected": "Corridor actif : {{ route }} avec {{ partner }}."
+      },
+      "legend": {
+        "title": "Legende",
+        "activeCorridor": "Corridor actif ou survole",
+        "secondaryCorridor": "Corridor secondaire",
+        "province": "Province alignee sur le corridor actif",
+        "hub": "Hub logistique"
+      },
+      "sectors": {
+        "energy": "Energie",
+        "manufacturing": "Manufacturier",
+        "agri-food": "Agroalimentaire"
+      },
+      "risks": {
+        "low": "Faible",
+        "medium": "Moyen"
+      },
+      "corridors": {
+        "flow-energy": {
+          "routeLabel": "Quebec -> Ontario",
+          "origin": "Quebec",
+          "destination": "Ontario",
+          "partner": "Hydro Export",
+          "keyInsight": "La capacite reservee suffit pour la fenetre de demande hivernale prevue.",
+          "recommendation": "Accelerer l'achat de capacite reservee avant les pointes hivernales."
+        },
+        "flow-battery": {
+          "routeLabel": "Alberta -> Ontario",
+          "origin": "Alberta",
+          "destination": "Ontario",
+          "partner": "Battery Corridor Alliance",
+          "keyInsight": "La concentration fournisseurs reste acceptable, mais la fenetre cathode doit etre verrouillee plus tot.",
+          "recommendation": "Verrouiller les fenetres d'approvisionnement cathode pour les douze prochaines semaines."
+        },
+        "flow-food": {
+          "routeLabel": "C.-B. -> Ontario",
+          "origin": "Colombie-Britannique",
+          "destination": "Ontario",
+          "partner": "Pacific Cold Chain",
+          "keyInsight": "La disponibilite de chaine froide est le principal facteur limitant pendant les semaines d'export de pointe.",
+          "recommendation": "Etendre les creneaux de chaine froide pour securiser la distribution vers l'Ontario."
+        },
+        "flow-qc-usne": {
+          "routeLabel": "Quebec -> Nord-Est US",
+          "origin": "Quebec",
+          "destination": "Nord-Est US",
+          "partner": "Atlantic Grid Exchange",
+          "keyInsight": "La demande transfrontaliere progresse plus vite que la fenetre d'interconnexion reservee.",
+          "recommendation": "Pre-reserver la capacite d'interconnexion avant le prochain cycle de prix de pointe."
+        }
+      },
+      "brief": {
+        "title": "Brief corridor",
+        "partner": "Partenaire",
+        "sector": "Secteur",
+        "monthlyValue": "Valeur mensuelle",
+        "reliability": "Fiabilite",
+        "risk": "Risque",
+        "updatedAt": "Derniere mise a jour",
+        "globalScore": "Score global",
+        "reservedCapacity": "Capacite reservee",
+        "optimizationWindow": "Fenetre d'optimisation",
+        "optimizationWindowValue": "{{ days }} jours",
+        "keyInsight": "Insight cle",
+        "empty": "Aucun corridor actif. Utilisez la liste ou la carte pour afficher un brief detaille."
+      },
+      "panel": {
+        "overview": "Apercu",
+        "performance": "Performance",
+        "risks": "Risques",
+        "insights": "Insights"
+      },
+      "scoreboard": {
+        "kicker": "Lecture visuelle alternative",
+        "title": "Version duel provinces + stats centrales",
+        "copy": "Cette variante reprend le corridor actif dans une composition plus editoriale: province de depart, bloc de statistiques au centre, province d'arrivee.",
+        "originLabel": "Province de depart",
+        "originCopy": "Point de sortie principal pour ce scenario mock.",
+        "centerLabel": "Tableau de bord corridor",
+        "destinationLabel": "Province d'arrivee",
+        "destinationCopy": "Marche de destination mis en avant dans cette lecture.",
+        "hint": "Utilisez la carte ou la liste a droite pour changer le corridor qui alimente cette vue."
+      },
+      "maplibre": {
+        "kicker": "Comparatif MapLibre",
+        "title": "maplibre-gl direct vs wrapper Angular ngx",
+        "copy": "Les deux panneaux ci-dessous utilisent le meme GeoJSON mock et le meme corridor actif. La difference porte sur la facon d'integrer MapLibre dans Angular.",
+        "directLabel": "Version imperative",
+        "directTitle": "Carte pilotee en TypeScript avec maplibre-gl",
+        "directCopy": "Ici, la carte est creee et configuree a la main. Vous gardez le controle total sur les sources, les layers, les evenements et le cycle de vie.",
+        "directNote1": "Ideal si vous voulez maitriser finement l'API MapLibre et ses optimisations bas niveau.",
+        "directNote2": "Le cout: plus de glue code pour Angular, le SSR-safe et la synchronisation UI.",
+        "ngxLabel": "Version declarative",
+        "ngxTitle": "Carte declaree en template avec @maplibre/ngx-maplibre-gl",
+        "ngxCopy": "Ici, les sources et les layers restent visibles dans le template Angular. C'est plus lisible pour une equipe front et plus simple a brancher sur des signals.",
+        "ngxNote1": "Ideal si vous voulez rester proche des patterns Angular standalone, template-first et signal-first.",
+        "ngxNote2": "Le cout: une couche d'abstraction supplementaire, utile pour l'UI mais moins brute que l'API directe.",
+        "sharedHint": "Le corridor actif \"{{ route }}\" alimente les deux cartes pour comparer uniquement l'integration, pas les donnees."
+      },
+      "routes": {
+        "heading": "Scenarios mock",
+        "copy": "Chaque action applique un focus metier: recentrage, surbrillance et resume de corridor."
+      },
+      "notes": {
+        "heading": "Pourquoi cette demo est utile",
+        "item1": "Elle montre comment ol gere des features metier sans imposer un style mapbox-like.",
+        "item2": "Les etats hover, selection et focus restent pilotables par Angular et ses signals.",
+        "item3": "Les donnees mock peuvent ensuite etre remplacees par vos flux Strapi ou store NgRx.",
+        "item4": "Limites administratives fournies par geoBoundaries, sous licence CC BY 4.0."
+      }
+    }
+  }
+}

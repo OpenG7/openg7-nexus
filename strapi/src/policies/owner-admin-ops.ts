@@ -21,6 +21,8 @@ interface UserRoleLike {
 }
 
 interface UserLike {
+  readonly email?: unknown;
+  readonly username?: unknown;
   readonly role?: UserRoleLike | null;
 }
 
@@ -42,6 +44,29 @@ function normalizeString(value: unknown, maxLength = 120): string | null {
 
 function isOwnerOrAdminRole(roleType: string | null, roleName: string | null): boolean {
   return roleType === 'admin' || roleType === 'owner' || roleName === 'admin' || roleName === 'owner';
+}
+
+function shouldExposeForbiddenDetails(): boolean {
+  const environment = (process.env.STRAPI_ENV || process.env.NODE_ENV || '').trim().toLowerCase();
+  return environment !== 'production';
+}
+
+function formatResolvedRole(roleType: string | null, roleName: string | null): string {
+  if (roleType && roleName && roleType !== roleName) {
+    return `${roleName} (${roleType})`;
+  }
+
+  return roleName ?? roleType ?? 'none';
+}
+
+function buildForbiddenMessage(
+  user: UserLike | null,
+  roleType: string | null,
+  roleName: string | null,
+): string {
+  const identity = normalizeString(user?.email, 160) ?? normalizeString(user?.username, 160) ?? 'unknown-user';
+  const resolvedRole = formatResolvedRole(roleType, roleName);
+  return `Owner/Admin required. Authenticated as ${identity} with role ${resolvedRole}.`;
 }
 
 async function resolveUserRole(
@@ -117,7 +142,11 @@ export default async (
   }
 
   if (typeof policyContext.forbidden === 'function') {
-    policyContext.forbidden('owner.ops.forbidden');
+    policyContext.forbidden(
+      shouldExposeForbiddenDetails()
+        ? buildForbiddenMessage(user, roleType, roleName)
+        : 'owner.ops.forbidden',
+    );
   }
   return false;
 };

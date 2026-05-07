@@ -1,21 +1,123 @@
 import './setup';
 import { test, expect } from '@playwright/test';
 
-test('map components render', async ({ page }) => {
-  await page.goto('/');
+test.describe('Trade map', () => {
+  test('renders the mounted map surface with decision drilldowns', async ({ page }) => {
+    await page.goto('/');
 
-  const tradeMap = page.locator('[data-og7="trade-map"]');
-  test.skip((await tradeMap.count()) === 0, 'Trade map section is not mounted in the current home composition.');
+    const mapSection = page.locator('[data-og7="home-map"]');
+    const tradeMap = page.locator('[data-og7="trade-map"]');
 
-  await expect(tradeMap).toBeVisible({ timeout: 10000 });
-  await expect(page.locator('[data-og7="map-legend"]')).toBeVisible();
-  await expect(page.locator('[data-og7="map-sector-chips"]')).toBeVisible();
-  await expect(page.locator('[data-og7="map-basemap-toggle"]')).toBeVisible();
-  await expect(page.locator('[data-og7="map-zoom-control"]')).toBeVisible();
-  const layer = (id: string) => page.locator(`[data-og7="map-layer"][data-og7-layer="${id}"]`);
-  await expect(layer('flows')).toBeVisible();
-  await expect(layer('markers')).toBeVisible();
-  await expect(layer('highlight')).toBeVisible();
-  await expect(page.locator('[data-og7="map-tooltip"]')).toBeVisible();
-  await expect(page.locator('[data-og7="map-aria-live"]')).toBeVisible();
+    await mapSection.scrollIntoViewIfNeeded();
+    await expect(tradeMap).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+    await expect(page.locator('[data-og7="map-decision-panel"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="agri-food"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="energy"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="digital-services"]')).toBeVisible();
+
+    await expect(page.locator('[data-og7="map-legend"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-sector-rail"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-pulse-panel"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-corridor-card"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-corridor-beat"]')).toHaveCount(3);
+    await expect(page.locator('[data-og7="map-hub-prompt"]')).toBeVisible();
+  });
+
+  test('opens a hub brief from corridor beats and returns to prompt', async ({ page }) => {
+    await page.goto('/');
+
+    const mapSection = page.locator('[data-og7="home-map"]');
+    const corridorCard = page.locator('[data-og7="map-corridor-card"]');
+
+    await mapSection.scrollIntoViewIfNeeded();
+    await expect(corridorCard).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+    await expect(corridorCard).toHaveAttribute('data-og7-id', 'flow-energy');
+
+    const energyTradeBeat = page.locator('[data-og7="map-corridor-beat"][data-og7-id="energy-trade"]');
+    await energyTradeBeat.dispatchEvent('click');
+    await expect(energyTradeBeat).toHaveAttribute('aria-pressed', 'true');
+
+    const hubCard = page.locator('[data-og7="map-hub-card"]');
+    await expect(hubCard).toBeVisible();
+    await expect(hubCard).toHaveAttribute('data-og7-id', 'montreal');
+    await expect(corridorCard).toHaveAttribute('data-og7-id', 'flow-energy');
+
+    await page.locator('[data-og7="action"][data-og7-id="map-hub-dismiss"]').click();
+
+    await expect(hubCard).toBeHidden();
+    await expect(page.locator('[data-og7="map-hub-prompt"]')).toBeVisible();
+  });
+
+  test('enters cinematic idle mode after inactivity', async ({ page }) => {
+    await page.goto('/');
+
+    const mapSection = page.locator('[data-og7="home-map"]');
+    const corridorCard = page.locator('[data-og7="map-corridor-card"]');
+    const cinematicStatus = page.locator('[data-og7="map-cinematic-status"]');
+
+    await mapSection.scrollIntoViewIfNeeded();
+    await expect(corridorCard).toBeVisible({ timeout: 10000 });
+    await expect(cinematicStatus).toHaveAttribute('data-og7-state', 'ready');
+    await expect(cinematicStatus).toHaveAttribute('data-og7-id', 'standby');
+
+    const initialCorridorId = await corridorCard.getAttribute('data-og7-id');
+    expect(initialCorridorId).not.toBeNull();
+
+    await expect
+      .poll(async () => cinematicStatus.getAttribute('data-og7-id'), { timeout: 12000 })
+      .toBe('active');
+    await expect
+      .poll(async () => corridorCard.getAttribute('data-og7-id'), { timeout: 12000 })
+      .not.toBe(initialCorridorId);
+  });
+
+  test('opens a downstream request feed from a map drilldown', async ({ page }) => {
+    await page.goto('/');
+
+    const mapSection = page.locator('[data-og7="home-map"]');
+    const energyDrilldown = page.locator('[data-og7="map-drilldown"][data-og7-id="energy"]');
+    const openFeed = page.locator('[data-og7="action"][data-og7-id="map-open-feed"]');
+
+    await mapSection.scrollIntoViewIfNeeded();
+    await expect(energyDrilldown).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+
+    await energyDrilldown.dispatchEvent('click');
+
+    await expect(energyDrilldown).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-og7="map-decision-context"]')).toBeVisible();
+    await expect(page.locator('[data-og7="map-decision-context"]')).toContainText(/Energy/i);
+    await expect(page.locator('[data-og7="map-corridor-card"]')).toBeVisible();
+
+    await openFeed.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page).toHaveURL(/\/feed/);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('source'))
+      .toBe('trade-map');
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('sector'))
+      .toBe('energy');
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get('type'))
+      .toBe('REQUEST');
+
+    await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-source-context"]')).toBeVisible();
+    await expect(page.locator('#feed-type')).toHaveValue(/REQUEST$/);
+    await expect(page.locator('#feed-sector')).toHaveValue(/energy$/);
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toBeVisible();
+    await expect
+      .poll(async () =>
+        page
+          .locator('[data-feed-item-id]')
+          .evaluateAll((elements) => elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''))
+      )
+      .toEqual(['request-001', 'request-002', 'request-008']);
+  });
 });

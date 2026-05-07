@@ -253,4 +253,9 @@ export const routes: Routes = [
     loadComponent: () => import('./domains/developer/pages/component-lab.page').then(m => m.ComponentLabPage),
     data: { robots: ROBOTS_NOINDEX },
   },
+  {
+    path: '_dev/ol-demo',
+    loadComponent: () => import('./domains/developer/pages/openlayers-demo.page').then(m => m.OpenlayersDemoPage),
+    data: { robots: ROBOTS_NOINDEX },
+  },
 ];

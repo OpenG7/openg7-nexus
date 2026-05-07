@@ -1,8 +1,10 @@
 import { signal } from '@angular/core';
+import { RouterTestingModule } from '@angular/router/testing';
 import { FiltersService } from '@app/core/filters.service';
 import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
 import { MapGeojsonService, MapFlowFeatureCollection, MapHubFeatureCollection, MapProvinceFeatureCollection } from '@app/core/services/map-geojson.service';
 import { selectFilteredFlows, selectMapKpis, selectMapReady } from '@app/state';
+import { selectSectors } from '@app/state/catalog/catalog.selectors';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { moduleMetadata } from '@storybook/angular';
@@ -21,7 +23,7 @@ const meta: Meta<HomeMapSectionComponent> = {
   component: HomeMapSectionComponent,
   decorators: [
     moduleMetadata({
-      imports: [TranslateModule.forRoot()],
+      imports: [TranslateModule.forRoot(), RouterTestingModule],
       providers: [
         FiltersService,
         ...provideStorybookEnTranslations(),
@@ -29,7 +31,22 @@ const meta: Meta<HomeMapSectionComponent> = {
         provideMockStore({
           selectors: [
             { selector: selectMapReady, value: true },
-            { selector: selectFilteredFlows, value: [] },
+            {
+              selector: selectFilteredFlows,
+              value: [
+                { id: 'flow-agri', sectorId: 'agri-food', value: 2_300_000_000, currency: 'CAD' },
+                { id: 'flow-energy', sectorId: 'energy', value: 1_520_000_000, currency: 'CAD' },
+                { id: 'flow-digital', sectorId: 'digital-services', value: 860_000_000, currency: 'CAD' },
+              ],
+            },
+            {
+              selector: selectSectors,
+              value: [
+                { id: 'agri-food', name: 'Agri-food' },
+                { id: 'energy', name: 'Energy' },
+                { id: 'digital-services', name: 'Digital services' },
+              ],
+            },
             { selector: selectMapKpis, value: { default: {} } },
           ],
         }),

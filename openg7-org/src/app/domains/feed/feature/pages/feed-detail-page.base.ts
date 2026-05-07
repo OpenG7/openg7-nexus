@@ -5,10 +5,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { FeedItem } from '../models/feed.models';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
+
+interface TradeMapDetailContextVm {
+  readonly corridorId: string;
+  readonly headline: string;
+  readonly sectorLabel: string | null;
+  readonly routeLabel: string | null;
+  readonly partner: string | null;
+}
 
 @Directive()
 export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
@@ -22,6 +31,9 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
 
   protected readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
     initialValue: this.route.snapshot.paramMap.get('itemId'),
+  });
+  protected readonly detailQueryParamMap = toSignal(this.route.queryParamMap ?? of(this.route.snapshot.queryParamMap), {
+    initialValue: this.route.snapshot.queryParamMap,
   });
   protected readonly reloadVersion = signal(0);
 
@@ -66,6 +78,39 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
 
     const item = this.feed.items().find(entry => entry.id === id) ?? null;
     return this.isExpectedItem(item) ? item : null;
+  });
+
+  protected readonly tradeMapContext = computed<TradeMapDetailContextVm | null>(() => {
+    const source = this.normalizeDetailQueryParam(this.detailQueryParamMap().get('source'));
+    if (source !== 'trade-map') {
+      return null;
+    }
+
+    const corridorId = this.normalizeDetailQueryParam(this.detailQueryParamMap().get('corridorId'));
+    if (!corridorId) {
+      return null;
+    }
+
+    const item = this.selectedItem();
+    const sectorId =
+      this.normalizeDetailQueryParam(this.detailQueryParamMap().get('sector')) ??
+      this.normalizeDetailQueryParam(this.detailQueryParamMap().get('sectorId')) ??
+      item?.sectorId ??
+      null;
+    const sectorLabel = sectorId ? this.sectorNameMap().get(sectorId) ?? sectorId : null;
+    const routeLabel = this.resolveTradeMapRouteLabel(item);
+    const partner =
+      this.normalizeDetailQueryParam(this.detailQueryParamMap().get('partner')) ??
+      (item?.source.kind === 'PARTNER' ? item.source.label : null);
+    const headline = [sectorLabel, routeLabel].filter((value): value is string => Boolean(value)).join(' · ');
+
+    return {
+      corridorId,
+      headline: headline || corridorId,
+      sectorLabel,
+      routeLabel,
+      partner,
+    };
   });
 
   constructor() {
@@ -172,5 +217,29 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
     }
 
     return this.translate.instant('feed.error.generic');
+  }
+
+  protected normalizeDetailQueryParam(value: string | null): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalized = value.trim();
+    return normalized.length ? normalized : null;
+  }
+
+  private resolveTradeMapRouteLabel(item: FeedItem | null): string | null {
+    if (!item) {
+      return null;
+    }
+
+    const fromLabel = item.fromProvinceId ? this.provinceNameMap().get(item.fromProvinceId) ?? item.fromProvinceId.toUpperCase() : null;
+    const toLabel = item.toProvinceId ? this.provinceNameMap().get(item.toProvinceId) ?? item.toProvinceId.toUpperCase() : null;
+
+    if (fromLabel && toLabel) {
+      return `${fromLabel} -> ${toLabel}`;
+    }
+
+    return fromLabel ?? toLabel ?? null;
   }
 }

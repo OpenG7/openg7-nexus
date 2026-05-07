@@ -113,14 +113,14 @@ class AdminQualityMatrixServiceMock {
           confidence: 'high',
           current: {
             summaryStatus: 'non',
-            businessStatus: 'oui',
+            businessStatus: 'partiel',
             implementationStatus: 'partiel',
             e2eStatus: 'partiel',
             managementBucket: 'proof-gap',
             needsProductWorkFirst: false,
           },
           proposed: {
-            summaryStatus: 'partiel',
+            summaryStatus: 'oui',
             businessStatus: 'oui',
             implementationStatus: 'oui',
             e2eStatus: 'oui',
@@ -147,7 +147,7 @@ class AdminQualityMatrixServiceMock {
         id: 'advanced-discovery',
         domain: 'Recherche et decouverte profonde',
         need: 'Conserver le contexte entre le feed et le detail.',
-        summaryStatus: 'partiel',
+        summaryStatus: 'oui',
         businessStatus: 'oui',
         implementationStatus: 'oui',
         e2eStatus: 'oui',
@@ -171,14 +171,14 @@ class AdminQualityMatrixServiceMock {
         confidence: 'high' as const,
         current: {
           summaryStatus: 'non' as const,
-          businessStatus: 'oui' as const,
+          businessStatus: 'partiel' as const,
           implementationStatus: 'partiel' as const,
           e2eStatus: 'partiel' as const,
           managementBucket: 'proof-gap' as const,
           needsProductWorkFirst: false,
         },
         proposed: {
-          summaryStatus: 'partiel' as const,
+          summaryStatus: 'oui' as const,
           businessStatus: 'oui' as const,
           implementationStatus: 'oui' as const,
           e2eStatus: 'oui' as const,
@@ -677,6 +677,29 @@ describe('AdminQualityPage', () => {
     ).not.toBeNull();
   });
 
+  it('keeps the hero status pills high contrast on the QA cockpit shell', () => {
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const generatedAt = root.querySelector('[data-og7-id="admin-quality-generated-at"]') as HTMLElement;
+    const sourceStatus = root.querySelector('[data-og7-id="admin-quality-source-status"]') as HTMLElement;
+    const missionSync = root.querySelector('[data-og7-id="admin-quality-mission-sync"]') as HTMLElement;
+    const missionSyncStatus = root.querySelector(
+      '[data-og7-id="admin-quality-mission-sync-status"]',
+    ) as HTMLElement;
+
+    expect(generatedAt.className).toContain('bg-slate-950/56');
+    expect(generatedAt.className).toContain('text-white');
+    expect(sourceStatus.className).toContain('text-white');
+    expect(sourceStatus.className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]');
+    expect(missionSync.className).toContain('bg-slate-950/56');
+    expect(missionSync.className).toContain('text-white');
+    expect(missionSyncStatus.className).toContain('text-white');
+    expect(missionSyncStatus.className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]');
+  });
+
   it('shows an explicit access denied message when the matrix endpoint returns 403', () => {
     service.loadMatrix.and.returnValue(
       throwError(
@@ -688,7 +711,6 @@ describe('AdminQualityPage', () => {
           }),
       ),
     );
-
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -698,6 +720,29 @@ describe('AdminQualityPage', () => {
     expect(errorBanner).not.toBeNull();
     expect(errorBanner?.textContent).toContain(
       'Acces refuse a la matrice QA. Connectez-vous avec un compte web Owner ou Admin.',
+    );
+  });
+
+  it('shows a reconnect message when the matrix endpoint returns 401', () => {
+    service.loadMatrix.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 401,
+            statusText: 'Unauthorized',
+            error: { message: 'Unauthorized' },
+          }),
+      ),
+    );
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const errorBanner = root.querySelector('[data-og7-id="admin-quality-error"]');
+
+    expect(errorBanner).not.toBeNull();
+    expect(errorBanner?.textContent).toContain(
+      'Session admin expiree. Reconnectez-vous puis relancez le recalcul de la matrice QA.',
     );
   });
 
@@ -1475,8 +1520,11 @@ describe('AdminQualityPage', () => {
     expect(service.recalculateMatrix).toHaveBeenCalledWith('refresh-required', null);
     expect(summary?.textContent).toContain('Recalcul matrice');
     expect(summary?.textContent).toContain('Propositions');
-    expect(focus?.textContent).toContain('Implementation');
+    expect(focus?.textContent).toContain('Synthese');
+    expect(focus?.textContent).toContain('Metier');
+    expect(focus?.textContent).toContain('non -> oui');
     expect(focus?.textContent).toContain('partiel -> oui');
+    expect(focus?.textContent).toContain('Implementation');
     expect(focus?.textContent).toContain('Recommandations');
     expect(notifications.success).toHaveBeenCalledWith(
       'Recalcul termine: 1 proposition(s), 0 blocage(s).',

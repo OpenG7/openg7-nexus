@@ -152,7 +152,7 @@ async function createMatrixEntry(strapi, entryId) {
       domain: 'Trust et validation',
       need: 'Historiser les decisions de confiance.',
       summaryStatus: 'partiel',
-      businessStatus: 'oui',
+      businessStatus: 'partiel',
       implementationStatus: 'partiel',
       e2eStatus: 'partiel',
       priority: 'moyenne',
@@ -259,6 +259,7 @@ async function run() {
 
     const repoMergedAt = new Date(Date.now() + 30_000).toISOString();
     const exactPullRequestMergedAt = new Date(Date.now() + 60_000).toISOString();
+    await createSignalGuidanceDecision(app, 'trust-validation', 'business');
     const signalGuidanceDecision = await createSignalGuidanceDecision(app, 'trust-validation', 'e2e', {
       proofPullRequestNumber: 321,
       proofBranch: 'codex/qa-proof-501',
@@ -376,6 +377,8 @@ async function run() {
     assert.equal(recalcOk.body?.data?.summary?.proposalCount, 1);
     assert.equal(recalcOk.body?.data?.entries?.[0]?.entryId, 'trust-validation');
     assert.equal(recalcOk.body?.data?.entries?.[0]?.result, 'proposal-review-required');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.summaryStatus, 'oui');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.businessStatus, 'oui');
     assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.implementationStatus, 'oui');
     assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.e2eStatus, 'oui');
 
@@ -392,11 +395,15 @@ async function run() {
       body: JSON.stringify({ entryId: 'trust-validation' }),
     });
     assert.equal(applyOk.status, 200, 'Expected proposal application to succeed for owner.');
+    assert.equal(applyOk.body?.data?.entry?.summaryStatus, 'oui');
+    assert.equal(applyOk.body?.data?.entry?.businessStatus, 'oui');
     assert.equal(applyOk.body?.data?.entry?.implementationStatus, 'oui');
     assert.equal(applyOk.body?.data?.entry?.e2eStatus, 'oui');
     assert.equal(applyOk.body?.data?.entry?.managementBucket, 'covered');
 
     const applied = await findMatrixEntryByEntryId(app, 'trust-validation');
+    assert.equal(applied.summaryStatus, 'oui');
+    assert.equal(applied.businessStatus, 'oui');
     assert.equal(applied.implementationStatus, 'oui');
     assert.equal(applied.e2eStatus, 'oui');
     assert.equal(applied.managementBucket, 'covered');

@@ -1,5 +1,15 @@
 ﻿<section class="feed-opportunity-detail" data-og7="opportunity-detail-page">
   <ng-container *ngIf="detailVm() as detail; else emptyState">
+    <p
+      *ngIf="tradeMapContext() as context"
+      class="mb-4 flex flex-wrap items-center gap-2 rounded-3xl border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-50"
+      data-og7="feed-source-context"
+    >
+      <span>{{ 'feed.context.tradeMap' | translate }}</span>
+      <strong>{{ context.headline }}</strong>
+      <span *ngIf="context.partner">· {{ context.partner }}</span>
+    </p>
+
     <og7-opportunity-detail-header
       [title]="detail.title"
       [breadcrumbType]="detail.item.type"

@@ -4,7 +4,10 @@ import { Component } from '@angular/core';
   selector: 'og7-map-sector-chips',
   standalone: true,
   templateUrl: './map-sector-chips.component.html',
-  host: { style: 'display:block;width:1px;height:1px;' },
+  host: {
+    style: 'display:block;width:1px;height:1px;',
+    'data-og7': 'map-sector-chips',
+  },
 })
 /**
  * Contexte : Affichée dans les vues du dossier « shared/components/map/filters » en tant que composant Angular standalone.

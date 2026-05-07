@@ -331,6 +331,35 @@ describe('AdminOpsPage', () => {
     expect(root.textContent).toContain('ANTHROPIC_API_KEY');
   });
 
+  it('keeps the hero and summary badges high contrast across the ops dashboard', () => {
+    const fixture = TestBed.createComponent(AdminOpsPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const liveStatus = root.querySelector('[data-og7-id="admin-ops-live-status"]') as HTMLElement;
+    const liveDetail = root.querySelector('[data-og7-id="admin-ops-live-detail"]') as HTMLElement;
+    const commandBadges = Array.from(
+      root.querySelectorAll('[data-og7="admin-ops-command-metric-badge"]'),
+    ) as HTMLElement[];
+    const overviewBadges = Array.from(
+      root.querySelectorAll('[data-og7="admin-ops-overview-badge"]'),
+    ) as HTMLElement[];
+
+    expect(liveStatus.className).toContain('text-emerald-50');
+    expect(liveDetail.className).toContain('bg-slate-950/56');
+    expect(liveDetail.className).toContain('text-white');
+    expect(commandBadges.length).toBeGreaterThan(0);
+    expect(overviewBadges.length).toBe(4);
+    for (const badge of commandBadges) {
+      expect(badge.className).toContain('text-white');
+      expect(badge.className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]');
+    }
+    for (const badge of overviewBadges) {
+      expect(badge.className).toMatch(/text-(emerald|amber|rose|sky)-950/);
+      expect(badge.className).toContain('border-');
+    }
+  });
+
   it('renders matrix sync key lanes in the pilot cockpit without exposing secret values', () => {
     const fixture = TestBed.createComponent(AdminOpsPage);
     fixture.detectChanges();

@@ -40,8 +40,10 @@ function readAllFiles(dir) {
 }
 
 function attributeExists(files, attribute, value) {
-  const needle = `${attribute}="${value}"`;
-  return files.some(([, contents]) => contents.includes(needle));
+  const htmlNeedle = `${attribute}="${value}"`;
+  const hostRegex = new RegExp(`['"]${attribute}['"]\\s*:\\s*['"]${value}['"]`);
+
+  return files.some(([, contents]) => contents.includes(htmlNeedle) || hostRegex.test(contents));
 }
 
 function validateSelectors() {
