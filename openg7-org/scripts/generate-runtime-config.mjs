@@ -3,15 +3,21 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import dotenv from 'dotenv';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+try {
+  const dotenv = await import('dotenv');
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+} catch {
+  // Runtime containers receive configuration from the environment and do not need dotenv.
+}
 
 const templatePath = path.resolve(__dirname, '../config/runtime-config.template.json');
-const outputPath = path.resolve(__dirname, '../public/runtime-config.js');
+const configuredOutputPath = process.env.RUNTIME_CONFIG_OUTPUT_PATH?.trim();
+const outputPath = configuredOutputPath
+  ? path.resolve(process.cwd(), configuredOutputPath)
+  : path.resolve(__dirname, '../public/runtime-config.js');
 
 const REQUIRED_STRING_KEYS = ['API_URL'];
 const AUTH_MODE_MAP = new Map([

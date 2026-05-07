@@ -57,13 +57,14 @@ Définissez au minimum les variables suivantes avant de démarrer le conteneur :
 
 | Variable | Rôle |
 | --- | --- |
-| `API_URL` | Base URL du CMS Strapi (consommée par `runtime-config.js`). |
+| `API_URL` | Base URL publique du CMS Strapi (consommée par le navigateur via `runtime-config.js`). |
+| `SSR_API_URL` | Base URL interne optionnelle du CMS Strapi pour le rendu serveur. Utile en Docker/Kubernetes quand le navigateur utilise un domaine public et le serveur SSR un service interne. |
 | `API_TOKEN` | Jeton read-only utilisé par le front pour interroger Strapi. |
 | `HOMEPAGE_PREVIEW_TOKEN` | Token de prévisualisation de la homepage. |
 | `HOME_FEED_PANEL_LIMITS` | Objet JSON optionnel pour surcharger le nombre de cartes affichées dans les panneaux home (`alerts`, `opportunities`, `indicators`). |
 | `PORT` | Port HTTP exposé par le serveur Express (défaut `4000`). |
 
-> Pour propager les valeurs, montez un fichier `.env` ou injectez-les via votre orchestrateur (Kubernetes, ECS, etc.). Le runtime Angular lit `window.__OG7_CONFIG__` côté navigateur et `process.env` côté SSR. 【F:openg7-org/src/server.ts†L1-L126】【F:openg7-org/scripts/generate-runtime-config.mjs†L1-L200】
+> Pour propager les valeurs, montez un fichier `.env` ou injectez-les via votre orchestrateur (Kubernetes, ECS, etc.). Le runtime Angular lit `window.__OG7_CONFIG__` côté navigateur et `process.env` côté SSR. En conteneur, le Dockerfile regenere `dist/openg7-org/browser/runtime-config.js` au demarrage afin d'eviter de figer `API_URL` dans l'image. 【F:openg7-org/src/server.ts†L1-L126】【F:openg7-org/scripts/generate-runtime-config.mjs†L1-L200】
 
 Exemple d'override pour la home :
 

@@ -1,6 +1,11 @@
 .git
 node_modules
 **/node_modules
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
 .yarn/cache
 .yarn/install-state.gz
 .yarn/build-state.yml

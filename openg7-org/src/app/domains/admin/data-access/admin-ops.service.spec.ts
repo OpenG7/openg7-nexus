@@ -137,6 +137,7 @@ describe('AdminOpsService', () => {
               url: 'https://github.com/OpenG7/openg7-nexus/pull/321',
               state: 'open',
               merged: false,
+              mergedAt: null,
               branch: 'codex/qa-proof-501',
             },
           },

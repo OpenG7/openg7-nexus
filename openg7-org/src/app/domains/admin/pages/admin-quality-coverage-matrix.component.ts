@@ -9,12 +9,36 @@ import {
 
 type CoverageSignalTone = 'sky' | 'emerald' | 'lime' | 'amber' | 'orange' | 'rose' | 'violet' | 'slate';
 
+export type AdminQualityCoverageSignalId =
+  | 'summary'
+  | 'business'
+  | 'implementation'
+  | 'e2e'
+  | 'readiness'
+  | 'priority';
+
 interface CoverageSignal {
-  readonly id: string;
+  readonly id: AdminQualityCoverageSignalId;
   readonly shortLabel: string;
   readonly label: string;
   readonly tone: CoverageSignalTone;
   readonly attention?: boolean;
+}
+
+export interface AdminQualityCoverageSignalSelection {
+  readonly entry: AdminQualityMatrixEntry;
+  readonly signalId: AdminQualityCoverageSignalId;
+  readonly shortLabel: string;
+  readonly label: string;
+  readonly attention: boolean;
+}
+
+export interface AdminQualityCoverageSignalTrace {
+  readonly signalId: AdminQualityCoverageSignalId;
+  readonly shortLabel: string;
+  readonly label: string;
+  readonly provider: string;
+  readonly requestedAt: string;
 }
 
 interface CoverageToneLegendItem {
@@ -134,11 +158,13 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 
                 <div class="divide-y divide-white/10">
                   @for (entry of entries(); track entry.id) {
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabindex="0"
                       class="grid w-full grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 px-3 py-3 text-left transition"
                       [ngClass]="rowClasses(entry)"
-                      (click)="entrySelected.emit(entry)"
+                      (click)="handleRowClick(entry, $event)"
+                      (keydown)="handleRowKeydown(entry, $event)"
                       [attr.aria-pressed]="isSelected(entry)"
                       [attr.data-og7-id]="entry.id"
                       [attr.data-og7-state]="entry.e2eStatus"
@@ -167,17 +193,26 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                       </div>
 
                       @for (signal of signalsFor(entry); track signal.id) {
-                        <div class="flex justify-center" aria-hidden="true">
-                          <span
+                        <div class="flex justify-center">
+                          <button
+                            type="button"
                             class="coverage-signal flex h-6 w-6 items-center justify-center rounded-full border"
                             [attr.title]="signal.label"
+                            [attr.aria-label]="signalAriaLabel(entry, signal)"
+                            [attr.aria-pressed]="isSignalSelected(entry, signal.id)"
                             [attr.data-og7-attention]="signal.attention ? 'true' : 'false'"
+                            data-og7="admin-quality-coverage-signal"
+                            [attr.data-og7-id]="signal.id"
                             [ngClass]="signalIndicatorFrameClasses(signal.tone)"
+                            [class.ring-2]="isSignalSelected(entry, signal.id)"
+                            [class.ring-cyan-300/65]="isSignalSelected(entry, signal.id)"
                             [class.coverage-signal--attention]="signal.attention"
                             [style.--coverage-glow]="signalGlowColor(signal.tone)"
+                            (click)="handleSignalClick(entry, signal, $event)"
+                            (keydown)="handleSignalClick(entry, signal, $event)"
                           >
                             <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
-                          </span>
+                          </button>
                         </div>
                       }
 
@@ -192,10 +227,19 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 
                       <div class="min-w-0">
                         <p class="truncate text-sm text-slate-200">{{ resumeText(entry) }}</p>
+                        @if (delegationTrace(entry); as trace) {
+                          <p
+                            class="mt-1 truncate text-xs text-cyan-200/80"
+                            data-og7="admin-quality-coverage-delegation-trace"
+                            [attr.data-og7-id]="entry.id"
+                          >
+                            Derniere delegation: {{ trace.shortLabel }} via {{ trace.provider }} le {{ formatTraceTimestamp(trace.requestedAt) }}
+                          </p>
+                        }
                       </div>
 
                       <span class="sr-only">{{ ariaSummary(entry) }}</span>
-                    </button>
+                    </div>
                   }
                 </div>
               </div>
@@ -224,6 +268,15 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                 >
                   {{ focusBucketLabel(entry) }}
                 </span>
+                @if (delegationTrace(entry); as trace) {
+                  <span
+                    class="inline-flex rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 font-medium text-cyan-100"
+                    data-og7="admin-quality-coverage-focus-trace"
+                    [attr.data-og7-id]="trace.signalId"
+                  >
+                    Derniere delegation: {{ trace.shortLabel }} via {{ trace.provider }}
+                  </span>
+                }
               </div>
 
               <p class="text-sm text-slate-300">{{ entry.nextMove }}</p>
@@ -308,9 +361,12 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 export class AdminQualityCoverageMatrixComponent {
   readonly entries = input<readonly AdminQualityMatrixEntry[]>([]);
   readonly selectedEntryId = input<string | null>(null);
+  readonly selectedSignalId = input<AdminQualityCoverageSignalId | null>(null);
   readonly refreshRequiredEntryIds = input<readonly string[]>([]);
+  readonly delegationTraceByEntryId = input<Record<string, AdminQualityCoverageSignalTrace>>({});
 
   readonly entrySelected = output<AdminQualityMatrixEntry>();
+  readonly signalSelected = output<AdminQualityCoverageSignalSelection>();
   readonly legendOpen = signal(true);
   readonly legend = COVERAGE_SIGNAL_LEGEND;
   readonly toneLegend = COVERAGE_TONE_LEGEND;
@@ -321,6 +377,60 @@ export class AdminQualityCoverageMatrixComponent {
 
   isSelected(entry: AdminQualityMatrixEntry): boolean {
     return this.selectedEntryId() === entry.id;
+  }
+
+  isSignalSelected(entry: AdminQualityMatrixEntry, signalId: AdminQualityCoverageSignalId): boolean {
+    return this.isSelected(entry) && this.selectedSignalId() === signalId;
+  }
+
+  handleRowClick(entry: AdminQualityMatrixEntry, event: Event): void {
+    const target = event.target;
+    if (target instanceof HTMLElement) {
+      const signalElement = target.closest('[data-og7="admin-quality-coverage-signal"]');
+      const signalId = signalElement?.getAttribute('data-og7-id') as AdminQualityCoverageSignalId | null;
+      if (signalId) {
+        const signal = this.signalsFor(entry).find((candidate) => candidate.id === signalId);
+        if (signal) {
+          this.signalSelected.emit({
+            entry,
+            signalId,
+            shortLabel: signal.shortLabel,
+            label: signal.label,
+            attention: Boolean(signal.attention),
+          });
+          return;
+        }
+      }
+    }
+
+    this.entrySelected.emit(entry);
+  }
+
+  handleRowKeydown(entry: AdminQualityMatrixEntry, event: KeyboardEvent): void {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    this.entrySelected.emit(entry);
+  }
+
+  handleSignalClick(entry: AdminQualityMatrixEntry, signal: CoverageSignal, event: Event): void {
+    event.stopPropagation();
+    if (event instanceof KeyboardEvent) {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+    }
+
+    this.signalSelected.emit({
+      entry,
+      signalId: signal.id,
+      shortLabel: signal.shortLabel,
+      label: signal.label,
+      attention: Boolean(signal.attention),
+    });
   }
 
   rowClasses(entry: AdminQualityMatrixEntry): string {
@@ -336,6 +446,29 @@ export class AdminQualityCoverageMatrixComponent {
 
   refreshRequired(entry: AdminQualityMatrixEntry): boolean {
     return this.refreshRequiredEntryIds().includes(entry.id);
+  }
+
+  delegationTrace(entry: AdminQualityMatrixEntry): AdminQualityCoverageSignalTrace | null {
+    return this.delegationTraceByEntryId()[entry.id] ?? null;
+  }
+
+  signalAriaLabel(entry: AdminQualityMatrixEntry, signal: CoverageSignal): string {
+    return `${entry.domain}. ${signal.label}. ${signal.attention ? 'Attention requise.' : 'Etat nominal.'} Ouvrir le panneau lateral pour ce voyant.`;
+  }
+
+  formatTraceTimestamp(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('fr-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   }
 
   signalsFor(entry: AdminQualityMatrixEntry): readonly CoverageSignal[] {

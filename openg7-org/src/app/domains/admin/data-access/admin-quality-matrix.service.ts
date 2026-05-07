@@ -1,15 +1,36 @@
-import { HttpContext } from '@angular/common/http';
+import { HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 export type AdminQualityMatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 export type AdminQualityMatrixPriority = 'basse' | 'moyenne' | 'haute';
 export type AdminQualityMatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 export type AdminQualityMatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
+export type AdminQualityMatrixSignalId =
+  | 'summary'
+  | 'business'
+  | 'implementation'
+  | 'e2e'
+  | 'readiness'
+  | 'priority';
+export type AdminQualityMatrixSignalConfirmationSource =
+  | 'repo-signal'
+  | 'proof-returned'
+  | 'done'
+  | 'pull-request-merged';
+
+export interface AdminQualityMatrixSignalDispatchState {
+  readonly pending: boolean;
+  readonly requestedAt: string | null;
+  readonly confirmedAt: string | null;
+  readonly confirmationSource: AdminQualityMatrixSignalConfirmationSource | null;
+  readonly workflow: string | null;
+  readonly ref: string | null;
+}
 
 export interface AdminQualityMatrixEntry {
   readonly id: string;
@@ -30,6 +51,9 @@ export interface AdminQualityMatrixEntry {
   readonly repoSignalCommit: string | null;
   readonly repoSignalSource: string | null;
   readonly repoSignalSummary: string | null;
+  readonly signalDispatch: Partial<
+    Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
+  >;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -39,11 +63,105 @@ export interface AdminQualityMatrixSnapshot {
   readonly entries: readonly AdminQualityMatrixEntry[];
 }
 
+export type AdminQualityMatrixRecalculationScope =
+  | 'refresh-required'
+  | 'selected-entry'
+  | 'all';
+
+export type AdminQualityMatrixRecalculationResult =
+  | 'unchanged'
+  | 'proposal-review-required'
+  | 'blocked-insufficient-proof'
+  | 'blocked-conflicting-signals';
+
+export type AdminQualityMatrixRecalculationConfidence = 'low' | 'medium' | 'high';
+
+export interface AdminQualityMatrixCoverageProposal {
+  readonly summaryStatus: AdminQualityMatrixStatus;
+  readonly businessStatus: AdminQualityMatrixStatus;
+  readonly implementationStatus: AdminQualityMatrixStatus;
+  readonly e2eStatus: AdminQualityMatrixStatus;
+  readonly managementBucket: AdminQualityMatrixBucket;
+  readonly needsProductWorkFirst: boolean;
+}
+
+export interface AdminQualityMatrixRecalculationEntry {
+  readonly entryId: string;
+  readonly domain: string;
+  readonly result: AdminQualityMatrixRecalculationResult;
+  readonly confidence: AdminQualityMatrixRecalculationConfidence;
+  readonly current: AdminQualityMatrixCoverageProposal;
+  readonly proposed: AdminQualityMatrixCoverageProposal | null;
+  readonly reasons: readonly string[];
+  readonly evidence: readonly string[];
+  readonly factualSignals: {
+    readonly reviewedAt: string | null;
+    readonly repoSignalAt: string | null;
+    readonly repoSignalCommit: string | null;
+    readonly repoSignalSource: string | null;
+    readonly latestDecisionAt: string | null;
+  };
+}
+
+export interface AdminQualityMatrixRecalculationSnapshot {
+  readonly generatedAt: string;
+  readonly scope: AdminQualityMatrixRecalculationScope;
+  readonly summary: {
+    readonly analyzedCount: number;
+    readonly proposalCount: number;
+    readonly unchangedCount: number;
+    readonly blockedCount: number;
+  };
+  readonly entries: readonly AdminQualityMatrixRecalculationEntry[];
+}
+
+export interface AdminQualityMatrixApplyProposalResult {
+  readonly appliedAt: string;
+  readonly entry: AdminQualityMatrixEntry;
+  readonly proposal: AdminQualityMatrixRecalculationEntry;
+}
+
 interface AdminQualityMatrixResponse {
   readonly generatedAt?: string | null;
   readonly sourceStatus?: AdminQualityMatrixSourceStatus | null;
   readonly sourceMessage?: string | null;
   readonly entries?: readonly Partial<AdminQualityMatrixEntry>[] | null;
+}
+
+interface AdminQualityMatrixRecalculationEntryResponse {
+  readonly entryId?: string | null;
+  readonly domain?: string | null;
+  readonly result?: AdminQualityMatrixRecalculationResult | null;
+  readonly confidence?: AdminQualityMatrixRecalculationConfidence | null;
+  readonly current?: Partial<AdminQualityMatrixCoverageProposal> | null;
+  readonly proposed?: Partial<AdminQualityMatrixCoverageProposal> | null;
+  readonly reasons?: readonly string[] | null;
+  readonly evidence?: readonly string[] | null;
+  readonly factualSignals?: {
+    readonly reviewedAt?: string | null;
+    readonly repoSignalAt?: string | null;
+    readonly repoSignalCommit?: string | null;
+    readonly repoSignalSource?: string | null;
+    readonly latestDecisionAt?: string | null;
+  } | null;
+}
+
+interface AdminQualityMatrixRecalculationResponse {
+  readonly generatedAt?: string | null;
+  readonly scope?: AdminQualityMatrixRecalculationScope | null;
+  readonly summary?: {
+    readonly analyzedCount?: number | null;
+    readonly proposalCount?: number | null;
+    readonly unchangedCount?: number | null;
+    readonly blockedCount?: number | null;
+  } | null;
+  readonly entries?: ReadonlyArray<AdminQualityMatrixRecalculationEntryResponse> | null;
+}
+
+interface AdminQualityMatrixApplyProposalResponse {
+  readonly appliedAt?: string | null;
+  readonly entry?: Partial<AdminQualityMatrixEntry> | null;
+  readonly proposal?: AdminQualityMatrixRecalculationEntryResponse | null;
 }
 
 interface StrapiDataResponse<T> {
@@ -54,6 +172,18 @@ const EMPTY_SNAPSHOT: AdminQualityMatrixSnapshot = {
   generatedAt: '2026-04-11T00:00:00.000Z',
   sourceStatus: 'fallback',
   sourceMessage: 'La matrice QA embarquee est indisponible; affichage du fallback vide.',
+  entries: [],
+};
+
+const EMPTY_RECALCULATION_SNAPSHOT: AdminQualityMatrixRecalculationSnapshot = {
+  generatedAt: EMPTY_SNAPSHOT.generatedAt,
+  scope: 'refresh-required',
+  summary: {
+    analyzedCount: 0,
+    proposalCount: 0,
+    unchangedCount: 0,
+    blockedCount: 0,
+  },
   entries: [],
 };
 
@@ -74,9 +204,44 @@ export class AdminQualityMatrixService {
         this.silentOptions,
       )
       .pipe(
-      map((response) => this.normalizeSnapshot(response.data)),
-      catchError(() => of(EMPTY_SNAPSHOT)),
-    );
+        map((response) => this.normalizeSnapshot(response.data)),
+        catchError((error: unknown) => {
+          if (
+            error instanceof HttpErrorResponse &&
+            (error.status === 401 || error.status === 403)
+          ) {
+            return throwError(() => error);
+          }
+
+          return of(EMPTY_SNAPSHOT);
+        }),
+      );
+  }
+
+  recalculateMatrix(
+    scope: AdminQualityMatrixRecalculationScope,
+    entryId?: string | null,
+  ): Observable<AdminQualityMatrixRecalculationSnapshot> {
+    return this.http
+      .post<StrapiDataResponse<AdminQualityMatrixRecalculationResponse>>(
+        STRAPI_ROUTES.admin.qualityMatrixRecalculate,
+        {
+          scope,
+          entryId: entryId ?? null,
+        },
+        this.silentOptions,
+      )
+      .pipe(map((response) => this.normalizeRecalculationSnapshot(response.data)));
+  }
+
+  applyMatrixProposal(entryId: string): Observable<AdminQualityMatrixApplyProposalResult> {
+    return this.http
+      .post<StrapiDataResponse<AdminQualityMatrixApplyProposalResponse>>(
+        STRAPI_ROUTES.admin.qualityMatrixApplyProposal,
+        { entryId },
+        this.silentOptions,
+      )
+      .pipe(map((response) => this.normalizeApplyProposalResult(response.data)));
   }
 
   private normalizeSnapshot(
@@ -157,6 +322,237 @@ export class AdminQualityMatrixService {
         typeof entry.repoSignalSummary === 'string' && entry.repoSignalSummary.trim()
           ? entry.repoSignalSummary
           : null,
+      signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
+    };
+  }
+
+  private normalizeSignalDispatch(
+    value: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> | null | undefined,
+  ): Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return {};
+    }
+
+    const normalized: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> = {};
+    const signalIds: readonly AdminQualityMatrixSignalId[] = [
+      'summary',
+      'business',
+      'implementation',
+      'e2e',
+      'readiness',
+      'priority',
+    ];
+
+    for (const signalId of signalIds) {
+      const state = value[signalId];
+      if (!state || typeof state !== 'object') {
+        continue;
+      }
+
+      normalized[signalId] = {
+        pending: Boolean(state.pending),
+        requestedAt:
+          typeof state.requestedAt === 'string' && state.requestedAt.trim()
+            ? state.requestedAt
+            : null,
+        confirmedAt:
+          typeof state.confirmedAt === 'string' && state.confirmedAt.trim()
+            ? state.confirmedAt
+            : null,
+        confirmationSource:
+          state.confirmationSource === 'repo-signal' ||
+          state.confirmationSource === 'proof-returned' ||
+          state.confirmationSource === 'done' ||
+          state.confirmationSource === 'pull-request-merged'
+            ? state.confirmationSource
+            : null,
+        workflow:
+          typeof state.workflow === 'string' && state.workflow.trim() ? state.workflow : null,
+        ref: typeof state.ref === 'string' && state.ref.trim() ? state.ref : null,
+      };
+    }
+
+    return normalized;
+  }
+
+  private normalizeCoverageProposal(
+    proposal: Partial<AdminQualityMatrixCoverageProposal> | null | undefined,
+  ): AdminQualityMatrixCoverageProposal | null {
+    if (!proposal) {
+      return null;
+    }
+
+    return {
+      summaryStatus: this.normalizeStatus(proposal.summaryStatus),
+      businessStatus: this.normalizeStatus(proposal.businessStatus),
+      implementationStatus: this.normalizeStatus(proposal.implementationStatus),
+      e2eStatus: this.normalizeStatus(proposal.e2eStatus),
+      managementBucket: this.normalizeBucket(proposal.managementBucket),
+      needsProductWorkFirst: Boolean(proposal.needsProductWorkFirst),
+    };
+  }
+
+  private normalizeRecalculationSnapshot(
+    response: AdminQualityMatrixRecalculationResponse | null | undefined,
+  ): AdminQualityMatrixRecalculationSnapshot {
+    const entries: AdminQualityMatrixRecalculationEntry[] = [];
+    if (Array.isArray(response?.entries)) {
+      response.entries.forEach((entry) => {
+        const current = this.normalizeCoverageProposal(entry.current);
+        if (!current || typeof entry.entryId !== 'string' || !entry.entryId.trim()) {
+          return;
+        }
+
+        entries.push({
+          entryId: entry.entryId,
+          domain: typeof entry.domain === 'string' ? entry.domain : '',
+          result:
+            entry.result === 'proposal-review-required' ||
+            entry.result === 'blocked-insufficient-proof' ||
+            entry.result === 'blocked-conflicting-signals' ||
+            entry.result === 'unchanged'
+              ? entry.result
+              : 'unchanged',
+          confidence:
+            entry.confidence === 'high' || entry.confidence === 'medium'
+              ? entry.confidence
+              : 'low',
+          current,
+          proposed: this.normalizeCoverageProposal(entry.proposed),
+          reasons: Array.isArray(entry.reasons)
+            ? entry.reasons.filter((value: unknown): value is string => typeof value === 'string')
+            : [],
+          evidence: Array.isArray(entry.evidence)
+            ? entry.evidence.filter((value: unknown): value is string => typeof value === 'string')
+            : [],
+          factualSignals: {
+            reviewedAt:
+              typeof entry.factualSignals?.reviewedAt === 'string'
+                ? entry.factualSignals.reviewedAt
+                : null,
+            repoSignalAt:
+              typeof entry.factualSignals?.repoSignalAt === 'string'
+                ? entry.factualSignals.repoSignalAt
+                : null,
+            repoSignalCommit:
+              typeof entry.factualSignals?.repoSignalCommit === 'string'
+                ? entry.factualSignals.repoSignalCommit
+                : null,
+            repoSignalSource:
+              typeof entry.factualSignals?.repoSignalSource === 'string'
+                ? entry.factualSignals.repoSignalSource
+                : null,
+            latestDecisionAt:
+              typeof entry.factualSignals?.latestDecisionAt === 'string'
+                ? entry.factualSignals.latestDecisionAt
+                : null,
+          },
+        });
+      });
+    }
+
+    return {
+      generatedAt:
+        typeof response?.generatedAt === 'string' && response.generatedAt.trim()
+          ? response.generatedAt
+          : EMPTY_RECALCULATION_SNAPSHOT.generatedAt,
+      scope:
+        response?.scope === 'selected-entry' ||
+        response?.scope === 'all' ||
+        response?.scope === 'refresh-required'
+          ? response.scope
+          : 'refresh-required',
+      summary: {
+        analyzedCount: Number(response?.summary?.analyzedCount ?? entries.length),
+        proposalCount: Number(
+          response?.summary?.proposalCount ??
+            entries.filter((entry) => entry.result === 'proposal-review-required').length,
+        ),
+        unchangedCount: Number(
+          response?.summary?.unchangedCount ??
+            entries.filter((entry) => entry.result === 'unchanged').length,
+        ),
+        blockedCount: Number(
+          response?.summary?.blockedCount ??
+            entries.filter((entry) => entry.result.startsWith('blocked-')).length,
+        ),
+      },
+      entries,
+    };
+  }
+
+  private normalizeRecalculationEntry(
+    entry: AdminQualityMatrixRecalculationEntryResponse | null | undefined,
+  ): AdminQualityMatrixRecalculationEntry | null {
+    const current = this.normalizeCoverageProposal(entry?.current);
+    if (!current || typeof entry?.entryId !== 'string' || !entry.entryId.trim()) {
+      return null;
+    }
+
+    return {
+      entryId: entry.entryId,
+      domain: typeof entry.domain === 'string' ? entry.domain : '',
+      result:
+        entry.result === 'proposal-review-required' ||
+        entry.result === 'blocked-insufficient-proof' ||
+        entry.result === 'blocked-conflicting-signals' ||
+        entry.result === 'unchanged'
+          ? entry.result
+          : 'unchanged',
+      confidence:
+        entry.confidence === 'high' || entry.confidence === 'medium'
+          ? entry.confidence
+          : 'low',
+      current,
+      proposed: this.normalizeCoverageProposal(entry.proposed),
+      reasons: Array.isArray(entry.reasons)
+        ? entry.reasons.filter((value: unknown): value is string => typeof value === 'string')
+        : [],
+      evidence: Array.isArray(entry.evidence)
+        ? entry.evidence.filter((value: unknown): value is string => typeof value === 'string')
+        : [],
+      factualSignals: {
+        reviewedAt:
+          typeof entry.factualSignals?.reviewedAt === 'string'
+            ? entry.factualSignals.reviewedAt
+            : null,
+        repoSignalAt:
+          typeof entry.factualSignals?.repoSignalAt === 'string'
+            ? entry.factualSignals.repoSignalAt
+            : null,
+        repoSignalCommit:
+          typeof entry.factualSignals?.repoSignalCommit === 'string'
+            ? entry.factualSignals.repoSignalCommit
+            : null,
+        repoSignalSource:
+          typeof entry.factualSignals?.repoSignalSource === 'string'
+            ? entry.factualSignals.repoSignalSource
+            : null,
+        latestDecisionAt:
+          typeof entry.factualSignals?.latestDecisionAt === 'string'
+            ? entry.factualSignals.latestDecisionAt
+            : null,
+      },
+    };
+  }
+
+  private normalizeApplyProposalResult(
+    response: AdminQualityMatrixApplyProposalResponse | null | undefined,
+  ): AdminQualityMatrixApplyProposalResult {
+    const entry = this.normalizeEntry(response?.entry);
+    const proposal = this.normalizeRecalculationEntry(response?.proposal);
+
+    if (!entry || !proposal) {
+      throw new Error('Invalid admin quality matrix apply-proposal response.');
+    }
+
+    return {
+      appliedAt:
+        typeof response?.appliedAt === 'string' && response.appliedAt.trim()
+          ? response.appliedAt
+          : new Date().toISOString(),
+      entry,
+      proposal,
     };
   }
 

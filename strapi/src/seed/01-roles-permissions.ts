@@ -95,6 +95,11 @@ export default async () => {
       proofs: true,
       dispatchCodexWorkflow: true,
     },
+    'api::admin-quality-matrix.admin-quality-matrix': {
+      snapshot: true,
+      recalculate: true,
+      applyProposal: true,
+    },
     'api::admin-quality-mission-decision.admin-quality-mission-decision': {
       list: true,
       upsert: true,
