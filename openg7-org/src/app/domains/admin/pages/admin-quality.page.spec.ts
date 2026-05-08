@@ -1591,6 +1591,79 @@ describe('AdminQualityPage', () => {
     expect(service.recalculateMatrix).toHaveBeenCalledWith('selected-entry', 'advanced-discovery');
   });
 
+  it('renders readable recalculation scope options inside the dark admin shell', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const options = Array.from(
+      root.querySelectorAll<HTMLOptionElement>(
+        '[data-og7-id="admin-quality-recalculate-scope"] option',
+      ),
+    );
+
+    expect(options.map((option) => option.textContent?.trim())).toEqual([
+      'Entrees a piloter',
+      'Entree active',
+      'Toute la matrice',
+    ]);
+    expect(options.every((option) => option.classList.contains('bg-slate-950'))).toBeTrue();
+    expect(options.every((option) => option.classList.contains('text-slate-100'))).toBeTrue();
+  });
+
+  it('surfaces the first construction priorities without filters or search', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const buildNow = root.querySelector('[data-og7="admin-quality-build-now"]');
+    const primary = root.querySelector('[data-og7="admin-quality-next-best-action"]');
+    const groups = root.querySelector('[data-og7="admin-quality-build-now-groups"]');
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-og7="admin-quality-build-now-item"]'));
+
+    expect(buildNow?.textContent).toContain('A construire maintenant');
+    expect(primary?.textContent).toContain('Produire la preuve sur Recherche et decouverte profonde');
+    expect(primary?.textContent).toContain('La matrice recommande de produire la preuve');
+    expect(groups?.textContent).toContain('A construire');
+    expect(groups?.textContent).toContain('A prouver');
+    expect(groups?.textContent).toContain('1');
+    expect(items.length).toBe(2);
+    expect(items[0].dataset['og7Id']).toBe('advanced-discovery');
+    expect(items[0].textContent).toContain('Produire la preuve');
+    expect(items[0].textContent).toContain('Haute priorite');
+    expect(items[0].textContent).toContain('Preuve manquante');
+    expect(items[0].textContent).toContain('Automatisable');
+    expect(items[0].textContent).toContain('Ajouter une chaine map vers feed');
+    expect(items[1].dataset['og7Id']).toBe('observability');
+    expect(items[1].textContent).toContain('Construire la surface');
+    expect(items[1].textContent).toContain('Decision humaine');
+
+    (items[0].querySelector('[data-og7-id="admin-quality-build-now-open"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedEntry()?.id).toBe('advanced-discovery');
+    expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('delegation');
+
+    (items[0].querySelector('[data-og7-id="admin-quality-build-now-plan"]') as HTMLButtonElement).click();
+    expect(fixture.componentInstance.matrixRecalculationScope()).toBe('selected-entry');
+    expect(service.recalculateMatrix).toHaveBeenCalledWith('selected-entry', 'advanced-discovery');
+
+    (items[0].querySelector('[data-og7-id="admin-quality-build-now-create-mission"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.missionDecisions()['advanced-discovery::core']).toBe('approved');
+    expect(fixture.componentInstance.selectedMission()?.id).toBe('advanced-discovery::core');
+    expect(fixture.componentInstance.missionHudActiveSection()).toBe('mission');
+    expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        recommendationId: 'advanced-discovery::core',
+        entryId: 'advanced-discovery',
+        status: 'approved',
+      }),
+    );
+  });
+
   it('applies the selected recalculation proposal from the workspace drawer and reruns the recalculation silently', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
