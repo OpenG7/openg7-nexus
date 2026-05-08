@@ -72,18 +72,18 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-white shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
+      class="relative overflow-hidden rounded-[28px] border border-sky-500/25 bg-[#040d1d]/96 p-3 text-white shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-4"
       data-og7="admin-quality-coverage-matrix"
     >
       <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.22),_transparent_34%),radial-gradient(circle_at_88%_12%,_rgba(14,165,233,0.16),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.28),_rgba(2,6,23,0.06))]"></div>
       <div class="pointer-events-none absolute inset-x-6 top-16 h-px bg-gradient-to-r from-transparent via-sky-300/20 to-transparent"></div>
       <div class="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl"></div>
 
-      <div class="relative space-y-4">
-        <div class="flex flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="relative space-y-3">
+        <div class="flex flex-col gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Decision cockpit</p>
-            <h2 class="mt-2 text-[1.9rem] font-semibold tracking-tight text-white">Coverage Matrix</h2>
+            <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Coverage Matrix</h2>
           </div>
 
           <button
@@ -143,25 +143,27 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
           </div>
         }
 
-        <div class="rounded-[24px] border border-white/10 bg-[#061221]/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <div
+          class="rounded-[22px] border border-white/10 bg-[#061221]/92 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+          data-og7="admin-quality-coverage-data"
+        >
           @if (entries().length) {
-            <div class="overflow-x-auto">
-              <div class="min-w-[42rem]">
-                <div class="grid grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 border-b border-white/10 px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  <span>Domaine</span>
-                  @for (item of legend; track item.id) {
-                    <span class="text-center" [attr.title]="item.label">{{ item.shortLabel }}</span>
-                  }
-                  <span class="text-center">E2E</span>
-                  <span>Resume</span>
-                </div>
+            <div class="grid gap-2">
+              <div
+                class="hidden grid-cols-[minmax(13rem,1fr)_minmax(12rem,0.72fr)_minmax(10rem,0.84fr)] items-center gap-3 px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500 lg:grid"
+                aria-hidden="true"
+              >
+                <span>Domaine</span>
+                <span class="text-center">Signaux</span>
+                <span>Resume</span>
+              </div>
 
-                <div class="divide-y divide-white/10">
+              <div class="grid gap-2">
                   @for (entry of entries(); track entry.id) {
                     <div
                       role="button"
                       tabindex="0"
-                      class="grid w-full grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 px-3 py-3 text-left transition"
+                      class="grid w-full min-w-0 gap-2 rounded-2xl border border-white/10 px-3 py-2.5 text-left transition lg:grid-cols-[minmax(13rem,1fr)_minmax(12rem,0.72fr)_minmax(10rem,0.84fr)] lg:items-center"
                       [ngClass]="rowClasses(entry)"
                       (click)="handleRowClick(entry, $event)"
                       (keydown)="handleRowKeydown(entry, $event)"
@@ -171,10 +173,10 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                       [attr.data-og7-selected]="isSelected(entry) ? 'true' : 'false'"
                       data-og7="admin-quality-coverage-matrix-row"
                     >
-                      <div class="min-w-0 pr-3">
+                      <div class="min-w-0">
                         <div class="flex items-center gap-3">
                           <span
-                            class="coverage-signal flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border"
+                            class="coverage-signal flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border"
                             [ngClass]="statusBadgeClasses(entry.e2eStatus)"
                             [class.coverage-signal--attention]="statusNeedsAttention(entry.e2eStatus)"
                             [style.--coverage-glow]="statusGlowColor(entry.e2eStatus)"
@@ -192,11 +194,11 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                         </div>
                       </div>
 
-                      @for (signal of signalsFor(entry); track signal.id) {
-                        <div class="flex justify-center">
+                      <div class="grid grid-cols-[repeat(6,minmax(1.75rem,1fr))] gap-1.5 lg:justify-items-center">
+                        @for (signal of signalsFor(entry); track signal.id) {
                           <button
                             type="button"
-                            class="coverage-signal flex h-6 w-6 items-center justify-center rounded-full border"
+                            class="coverage-signal flex h-7 w-full min-w-7 items-center justify-center rounded-full border lg:w-7"
                             [attr.title]="signal.label"
                             [attr.aria-label]="signalAriaLabel(entry, signal)"
                             [attr.aria-pressed]="isSignalSelected(entry, signal.id)"
@@ -213,20 +215,19 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                           >
                             <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
                           </button>
-                        </div>
-                      }
-
-                      <div class="flex justify-center">
-                        <span
-                          class="inline-flex min-w-[4.5rem] items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                          [ngClass]="statusChipClasses(entry.e2eStatus)"
-                        >
-                          {{ statusChipLabel(entry.e2eStatus) }}
-                        </span>
+                        }
                       </div>
 
                       <div class="min-w-0">
-                        <p class="truncate text-sm text-slate-200">{{ resumeText(entry) }}</p>
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span
+                            class="inline-flex min-w-[4.5rem] items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                            [ngClass]="statusChipClasses(entry.e2eStatus)"
+                          >
+                            {{ statusChipLabel(entry.e2eStatus) }}
+                          </span>
+                          <p class="min-w-0 flex-1 truncate text-sm text-slate-200">{{ resumeText(entry) }}</p>
+                        </div>
                         @if (delegationTrace(entry); as trace) {
                           <p
                             class="mt-1 truncate text-xs text-cyan-200/80"
@@ -242,7 +243,6 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                     </div>
                   }
                 </div>
-              </div>
             </div>
           } @else {
             <div class="rounded-[18px] border border-dashed border-white/10 bg-slate-900/60 px-4 py-8 text-sm text-slate-400">
@@ -367,7 +367,7 @@ export class AdminQualityCoverageMatrixComponent {
 
   readonly entrySelected = output<AdminQualityMatrixEntry>();
   readonly signalSelected = output<AdminQualityCoverageSignalSelection>();
-  readonly legendOpen = signal(true);
+  readonly legendOpen = signal(false);
   readonly legend = COVERAGE_SIGNAL_LEGEND;
   readonly toneLegend = COVERAGE_TONE_LEGEND;
 
@@ -436,7 +436,7 @@ export class AdminQualityCoverageMatrixComponent {
   rowClasses(entry: AdminQualityMatrixEntry): string {
     return this.isSelected(entry)
       ? 'bg-sky-400/[0.08] shadow-[inset_4px_0_0_rgba(56,189,248,0.95)]'
-      : 'bg-transparent hover:bg-white/[0.03]';
+      : 'bg-slate-950/28 hover:bg-white/[0.04]';
   }
 
   selectedEntry(): AdminQualityMatrixEntry | null {

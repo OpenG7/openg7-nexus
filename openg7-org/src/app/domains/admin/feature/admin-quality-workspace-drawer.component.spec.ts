@@ -464,6 +464,18 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
       },
       reasons: ['Latest mission decision is newer than the last review.'],
       evidence: ['e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+      pilot: {
+        score: 88,
+        bucket: 'ready-to-close',
+        priority: 'next',
+        actionType: 'run-validation',
+        rationale: ['The recalculation proposal needs one human confirmation.'],
+        targetFiles: ['openg7-org/e2e/feed-advanced-discovery-roundtrip.spec.ts'],
+        acceptanceCriteria: ['The updated coverage proposal is reviewed before closing.'],
+        suggestedCommands: ['yarn test:e2e:smoke'],
+        expectedEvidence: ['Smoke E2E remains green.'],
+        blockingReason: null,
+      },
       factualSignals: {
         reviewedAt: '2026-04-07',
         repoSignalAt: '2026-05-02T12:00:00.000Z',

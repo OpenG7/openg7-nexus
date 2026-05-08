@@ -12,6 +12,7 @@ type MatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
+type MatrixImpactMode = 'provided' | 'targeted' | 'global' | 'none';
 type MatrixSignalId =
   | 'summary'
   | 'business'
@@ -81,6 +82,20 @@ interface MatrixApplyProposalPayload {
   readonly entryId: string;
 }
 
+interface MatrixImpactResolution {
+  readonly entryIds: readonly string[];
+  readonly mode: MatrixImpactMode;
+  readonly reason: string;
+}
+
+interface MatrixIngestImpactResolution {
+  readonly providedEntryIds: readonly string[];
+  readonly derivedEntryIds: readonly string[];
+  readonly resolvedEntryIds: readonly string[];
+  readonly impactMode: MatrixImpactMode;
+  readonly impactReason: string;
+}
+
 interface MissionDecisionEntity {
   readonly id?: number | string;
   readonly entryId?: unknown;
@@ -109,12 +124,165 @@ type MatrixRecalculationResult =
   | 'blocked-conflicting-signals';
 
 type MatrixRecalculationConfidence = 'low' | 'medium' | 'high';
+type MatrixPilotPriority = 'now' | 'next' | 'later' | 'blocked';
+type MatrixPilotBucket =
+  | 'ready-to-build'
+  | 'needs-proof'
+  | 'needs-product-call'
+  | 'blocked-by-api'
+  | 'ready-to-close';
+type MatrixPilotActionType =
+  | 'implement-feature'
+  | 'add-test'
+  | 'fix-proof-gap'
+  | 'update-contract'
+  | 'run-validation'
+  | 'review-product-scope'
+  | 'close-entry';
+
+interface MatrixDevelopmentCommand {
+  readonly score: number;
+  readonly bucket: MatrixPilotBucket;
+  readonly priority: MatrixPilotPriority;
+  readonly actionType: MatrixPilotActionType;
+  readonly rationale: readonly string[];
+  readonly targetFiles: readonly string[];
+  readonly acceptanceCriteria: readonly string[];
+  readonly suggestedCommands: readonly string[];
+  readonly expectedEvidence: readonly string[];
+  readonly blockingReason: string | null;
+}
 
 const COVERAGE_SIGNAL_IDS: readonly MatrixCoverageSignalId[] = [
   'summary',
   'business',
   'implementation',
   'e2e',
+];
+
+const MATRIX_IMPACT_RULES: readonly {
+  readonly entryIds: readonly string[];
+  readonly prefixes: readonly string[];
+}[] = [
+  {
+    entryIds: ['public-discovery'],
+    prefixes: [
+      'docs/',
+      'README.md',
+      'index.html',
+      'openg7-org/src/app/domains/home/',
+      'openg7-org/src/app/shared/components/hero/',
+      'openg7-org/src/app/shared/components/layout/site-header',
+    ],
+  },
+  {
+    entryIds: ['advanced-discovery'],
+    prefixes: [
+      'openg7-org/src/app/domains/search/',
+      'openg7-org/src/app/shared/components/filters/',
+      'openg7-org/src/app/shared/components/search/',
+      'openg7-org/src/app/shared/components/company/company-table',
+      'openg7-org/src/app/shared/components/company/company-detail',
+    ],
+  },
+  {
+    entryIds: ['geospatial'],
+    prefixes: [
+      'openg7-org/src/app/shared/components/map/',
+      'openg7-org/src/app/shared/components/map-frame/',
+      'openg7-org/src/app/domains/home/feature/home-map-section/',
+      'openg7-org/src/app/domains/home/feature/home-corridors-realtime/',
+      'strapi/src/api/corridors/',
+      'strapi/src/api/exchange/',
+    ],
+  },
+  {
+    entryIds: ['onboarding-imports'],
+    prefixes: [
+      'openg7-org/src/app/domains/auth/',
+      'openg7-org/src/app/company-registration-form/',
+      'openg7-org/src/app/import/',
+      'strapi/src/api/company-import/',
+    ],
+  },
+  {
+    entryIds: ['importation-analytics'],
+    prefixes: [
+      'openg7-org/src/app/domains/importation/',
+      'docs/frontend/importation-page.md',
+      'strapi/src/api/importation/',
+    ],
+  },
+  {
+    entryIds: ['feed-signals'],
+    prefixes: [
+      'openg7-org/src/app/domains/feed/',
+      'strapi/src/api/feed/',
+      'strapi/src/api/hydrocarbon-signal/',
+    ],
+  },
+  {
+    entryIds: ['business-lifecycle'],
+    prefixes: [
+      'openg7-org/src/app/shared/components/company/',
+      'openg7-org/src/app/shared/components/partner/',
+      'openg7-org/src/app/domains/partners/',
+      'strapi/src/api/company/',
+    ],
+  },
+  {
+    entryIds: ['linkup-workflow'],
+    prefixes: [
+      'openg7-org/src/app/domains/matchmaking/',
+      'openg7-org/src/app/shared/components/connection/',
+      'strapi/src/api/connection/',
+    ],
+  },
+  {
+    entryIds: ['alerts-notifications'],
+    prefixes: [
+      'openg7-org/src/app/shared/components/layout/notification-panel',
+      'openg7-org/src/app/domains/account/pages/alerts',
+      'strapi/src/api/user-alert/',
+    ],
+  },
+  {
+    entryIds: ['account-data'],
+    prefixes: [
+      'openg7-org/src/app/domains/account/',
+      'openg7-org/src/app/core/auth/',
+      'strapi/src/api/account-profile/',
+      'strapi/src/api/saved-search/',
+      'strapi/src/api/user-favorite/',
+    ],
+  },
+  {
+    entryIds: ['rbac'],
+    prefixes: [
+      'openg7-org/src/app/core/auth/',
+      'strapi/src/seed/01-roles-permissions',
+      'strapi/src/extensions/users-permissions/',
+      'strapi/src/policies/',
+    ],
+  },
+  {
+    entryIds: ['trust-validation'],
+    prefixes: [
+      'openg7-org/src/app/domains/admin/pages/admin-trust',
+      'openg7-org/src/app/shared/components/partner/',
+      'strapi/src/api/admin-quality-',
+    ],
+  },
+];
+
+const MATRIX_GLOBAL_IMPACT_PREFIXES: readonly string[] = [
+  'AGENTS.md',
+  'package.json',
+  'openg7-org/src/app/domains/admin/',
+  'openg7-org/src/app/core/api/',
+  'strapi/src/api/admin-quality-matrix/',
+  'packages/contracts/',
+  'packages/tooling/',
 ];
 
 function normalizeString(value: unknown, maxLength = 1000): string | null {
@@ -215,6 +383,93 @@ function normalizeFindManyResult<T>(value: T | T[] | null | undefined): T[] {
     return [];
   }
   return Array.isArray(value) ? value : [value];
+}
+
+function uniqueSorted(values: readonly string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.trim().length > 0))).sort();
+}
+
+function matchesMatrixPrefix(file: string, prefixes: readonly string[]): boolean {
+  return prefixes.some((prefix) => file === prefix || file.startsWith(prefix));
+}
+
+function resolveChangedFileImpact(
+  changedFiles: readonly string[],
+  knownEntryIds: readonly string[],
+): MatrixImpactResolution {
+  if (!changedFiles.length) {
+    return {
+      entryIds: [],
+      mode: 'none',
+      reason: 'No changed file provided.',
+    };
+  }
+
+  const matchedEntryIds = new Set<string>();
+  let requiresGlobalRefresh = false;
+  let touchedProductCode = false;
+
+  for (const file of changedFiles) {
+    if (matchesMatrixPrefix(file, MATRIX_GLOBAL_IMPACT_PREFIXES)) {
+      requiresGlobalRefresh = true;
+    }
+
+    if (file.startsWith('openg7-org/src/') || file.startsWith('strapi/src/')) {
+      touchedProductCode = true;
+    }
+
+    for (const rule of MATRIX_IMPACT_RULES) {
+      if (matchesMatrixPrefix(file, rule.prefixes)) {
+        rule.entryIds.forEach((entryId) => matchedEntryIds.add(entryId));
+      }
+    }
+  }
+
+  if (requiresGlobalRefresh || (touchedProductCode && matchedEntryIds.size === 0)) {
+    return {
+      entryIds: uniqueSorted(knownEntryIds),
+      mode: 'global',
+      reason: requiresGlobalRefresh
+        ? 'Global matrix infrastructure changed.'
+        : 'Product code changed without a specific impact mapping.',
+    };
+  }
+
+  return {
+    entryIds: uniqueSorted(Array.from(matchedEntryIds)),
+    mode: matchedEntryIds.size > 0 ? 'targeted' : 'none',
+    reason: matchedEntryIds.size > 0
+      ? 'Targeted impact map matched changed files.'
+      : 'No matrix-impacting file detected.',
+  };
+}
+
+function resolveIngestImpact(
+  payload: MatrixIngestPayload,
+  knownEntryIds: readonly string[],
+): MatrixIngestImpactResolution {
+  const fileImpact = resolveChangedFileImpact(payload.changedFiles, knownEntryIds);
+  const providedEntryIds = uniqueSorted(payload.impactedEntryIds);
+  const derivedEntryIds = uniqueSorted(fileImpact.entryIds);
+  const resolvedEntryIds = uniqueSorted([...providedEntryIds, ...derivedEntryIds]);
+
+  if (fileImpact.mode === 'none' && providedEntryIds.length) {
+    return {
+      providedEntryIds,
+      derivedEntryIds,
+      resolvedEntryIds,
+      impactMode: 'provided',
+      impactReason: 'Explicit impacted entry ids provided.',
+    };
+  }
+
+  return {
+    providedEntryIds,
+    derivedEntryIds,
+    resolvedEntryIds,
+    impactMode: fileImpact.mode,
+    impactReason: fileImpact.reason,
+  };
 }
 
 function toMatrixEntryResponse(
@@ -356,6 +611,21 @@ async function findEntryByEntryId(
   });
 
   return (normalizeFindManyResult(existing)[0] as MatrixEntryEntity | undefined) ?? null;
+}
+
+async function findKnownEntryIds(strapi: Core.Strapi): Promise<string[]> {
+  const rawEntries = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
+    fields: ['entryId'],
+    publicationState: 'preview',
+    limit: 500,
+  } as any);
+  const entries = normalizeFindManyResult(rawEntries) as MatrixEntryEntity[];
+
+  return uniqueSorted(
+    entries
+      .map((entry) => normalizeString(entry.entryId, 180))
+      .filter((entryId): entryId is string => Boolean(entryId)),
+  );
 }
 
 function reviewedAtDeadline(entry: MatrixEntryEntity): number | null {
@@ -521,6 +791,317 @@ function setStatusForSignal(
     default:
       return { ...state, e2eStatus: status };
   }
+}
+
+function hasApiSignal(entry: MatrixEntryEntity, evidence: readonly string[]): boolean {
+  const haystack = [
+    normalizeString(entry.need, 1_000),
+    normalizeString(entry.observedGap, 1_000),
+    normalizeString(entry.nextMove, 1_000),
+    normalizeString(entry.lastRepoSignalSummary, 1_000),
+    ...evidence,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join(' ')
+    .toLowerCase();
+
+  return /\b(api|endpoint|openapi|contract|contrat|strapi|schema|seed)\b/.test(haystack);
+}
+
+function evidenceTargetFiles(evidence: readonly string[]): string[] {
+  return evidence
+    .filter((item) => /[\\/]/.test(item) && !/^https?:\/\//i.test(item))
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
+function pilotCoverageRationale(current: MatrixCoverageState): string[] {
+  const rationale: string[] = [];
+
+  if (current.summaryStatus !== 'oui') {
+    rationale.push(`La synthese matrice reste ${current.summaryStatus}.`);
+  }
+  if (current.implementationStatus !== 'oui') {
+    rationale.push(`La couverture implementation reste ${current.implementationStatus}.`);
+  }
+  if (current.e2eStatus !== 'oui') {
+    rationale.push(`La preuve E2E reste ${current.e2eStatus}.`);
+  }
+  if (current.managementBucket === 'proof-gap') {
+    rationale.push('La ligne est classee proof-gap: une preuve executable manque encore.');
+  }
+  if (current.managementBucket === 'product-gap' || current.needsProductWorkFirst) {
+    rationale.push('La ligne demande un arbitrage produit avant promotion de couverture.');
+  }
+
+  return rationale;
+}
+
+function resolvePilotActionType(
+  entry: MatrixEntryEntity,
+  current: MatrixCoverageState,
+  result: MatrixRecalculationResult,
+  proposed: MatrixCoverageState | null,
+  evidence: readonly string[],
+): MatrixPilotActionType {
+  if (result === 'blocked-conflicting-signals') {
+    return 'review-product-scope';
+  }
+
+  if (hasApiSignal(entry, evidence) && current.implementationStatus !== 'oui') {
+    return 'update-contract';
+  }
+
+  if (result === 'blocked-insufficient-proof') {
+    return 'fix-proof-gap';
+  }
+
+  if (proposed?.managementBucket === 'covered' && proposed.summaryStatus === 'oui') {
+    return 'close-entry';
+  }
+
+  if (
+    current.summaryStatus !== 'oui' &&
+    current.businessStatus === 'oui' &&
+    current.implementationStatus === 'oui' &&
+    current.e2eStatus === 'oui' &&
+    current.managementBucket === 'covered'
+  ) {
+    return 'close-entry';
+  }
+
+  if (current.needsProductWorkFirst || current.managementBucket === 'product-gap') {
+    return 'review-product-scope';
+  }
+
+  if (current.e2eStatus !== 'oui') {
+    return 'add-test';
+  }
+
+  if (current.implementationStatus !== 'oui') {
+    return 'implement-feature';
+  }
+
+  return 'run-validation';
+}
+
+function resolvePilotBucket(
+  actionType: MatrixPilotActionType,
+  result: MatrixRecalculationResult,
+  apiSignal: boolean,
+): MatrixPilotBucket {
+  if (actionType === 'close-entry') {
+    return 'ready-to-close';
+  }
+
+  if (apiSignal && actionType === 'update-contract') {
+    return 'blocked-by-api';
+  }
+
+  if (actionType === 'review-product-scope') {
+    return 'needs-product-call';
+  }
+
+  if (actionType === 'fix-proof-gap' || actionType === 'add-test' || result.startsWith('blocked-')) {
+    return 'needs-proof';
+  }
+
+  return 'ready-to-build';
+}
+
+function pilotScoreFor(
+  entry: MatrixEntryEntity,
+  current: MatrixCoverageState,
+  result: MatrixRecalculationResult,
+  confidence: MatrixRecalculationConfidence,
+): number {
+  const priority = normalizePriority(entry.priority);
+  let score = priority === 'haute' ? 35 : priority === 'moyenne' ? 25 : 15;
+
+  if (result === 'proposal-review-required') {
+    score += 30;
+  } else if (result.startsWith('blocked-')) {
+    score += 22;
+  } else {
+    score += 8;
+  }
+
+  score += current.summaryStatus === 'non' ? 18 : current.summaryStatus === 'partiel' ? 10 : 0;
+  score += current.implementationStatus === 'non' ? 18 : current.implementationStatus === 'partiel' ? 9 : 0;
+  score += current.e2eStatus === 'non' ? 16 : current.e2eStatus === 'partiel' ? 8 : 0;
+  score += current.managementBucket === 'proof-gap' ? 12 : current.managementBucket === 'product-gap' ? 8 : 0;
+  score += confidence === 'high' ? 10 : confidence === 'medium' ? 5 : 0;
+  score -= current.needsProductWorkFirst ? 6 : 0;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+function pilotPriorityFor(score: number, bucket: MatrixPilotBucket): MatrixPilotPriority {
+  if (bucket === 'needs-product-call' || bucket === 'blocked-by-api') {
+    return 'blocked';
+  }
+
+  if (score >= 75) {
+    return 'now';
+  }
+
+  if (score >= 50) {
+    return 'next';
+  }
+
+  return 'later';
+}
+
+function pilotTargetFiles(actionType: MatrixPilotActionType, evidence: readonly string[]): string[] {
+  const files = evidenceTargetFiles(evidence);
+  if (files.length) {
+    return files;
+  }
+
+  switch (actionType) {
+    case 'update-contract':
+      return ['packages/contracts/spec/openapi.json', 'strapi/src/api', 'openg7-org/src/app/core/api'];
+    case 'add-test':
+    case 'fix-proof-gap':
+      return ['openg7-org/e2e', 'openg7-org/src/app'];
+    case 'implement-feature':
+      return ['openg7-org/src/app', 'strapi/src/api'];
+    case 'close-entry':
+      return ['strapi/src/api/admin-quality-matrix/controllers/admin-quality-matrix.ts'];
+    default:
+      return ['openg7-org/src/app', 'strapi/src/api'];
+  }
+}
+
+function pilotSuggestedCommands(actionType: MatrixPilotActionType): string[] {
+  switch (actionType) {
+    case 'update-contract':
+      return ['yarn codegen', 'yarn test'];
+    case 'add-test':
+    case 'fix-proof-gap':
+      return ['yarn test:e2e:smoke'];
+    case 'close-entry':
+      return ['yarn workspace @openg7/strapi test:integration:admin-quality-matrix'];
+    default:
+      return ['yarn prebuild:web'];
+  }
+}
+
+function pilotAcceptanceCriteria(actionType: MatrixPilotActionType): string[] {
+  switch (actionType) {
+    case 'close-entry':
+      return [
+        'La proposition QA est appliquee par un Owner apres verification humaine.',
+        'Le recalcul suivant ne laisse plus de proposition ouverte pour cette entree.',
+      ];
+    case 'review-product-scope':
+      return [
+        'La decision produit clarifie si le besoin reste dans le MVP.',
+        'La matrice garde une trace de la decision avant toute promotion de statut.',
+      ];
+    case 'update-contract':
+      return [
+        'Le contrat API ou schema source est mis a jour avant le front consommateur.',
+        'La generation de contrats et les tests de forme passent localement.',
+      ];
+    case 'add-test':
+    case 'fix-proof-gap':
+      return [
+        'Une preuve executable couvre le parcours ou le signal mentionne par la matrice.',
+        'La preuve est reliee a cette entree via evidence ou signal de mission.',
+      ];
+    default:
+      return [
+        'Le changement livre le prochain mouvement de la matrice sans regression visible.',
+        'Les validations ciblees passent et produisent une preuve reutilisable.',
+      ];
+  }
+}
+
+function pilotExpectedEvidence(actionType: MatrixPilotActionType): string[] {
+  switch (actionType) {
+    case 'close-entry':
+      return ['Matrice mise a jour', 'Recalcul sans nouvelle proposition'];
+    case 'review-product-scope':
+      return ['Decision mission produit', 'Note de cadrage liee a l entree'];
+    case 'update-contract':
+      return ['OpenAPI ou schema Strapi versionne', 'Types contrats regeneres'];
+    case 'add-test':
+    case 'fix-proof-gap':
+      return ['Spec ou test E2E vert', 'Trace de preuve dans evidence'];
+    default:
+      return ['Build ou test cible vert', 'Signal repo plus recent que la revue'];
+  }
+}
+
+function pilotBlockingReason(bucket: MatrixPilotBucket, result: MatrixRecalculationResult): string | null {
+  if (bucket === 'blocked-by-api') {
+    return 'Le contrat API ou schema doit etre stabilise avant de piloter le developpement applicatif.';
+  }
+
+  if (bucket === 'needs-product-call') {
+    return 'Une decision produit est requise avant toute promotion de couverture.';
+  }
+
+  if (result.startsWith('blocked-')) {
+    return 'La matrice detecte un signal insuffisant pour promouvoir le statut sans preuve supplementaire.';
+  }
+
+  return null;
+}
+
+function buildDevelopmentCommand(
+  entry: MatrixEntryEntity,
+  recalculation: {
+    readonly result: MatrixRecalculationResult;
+    readonly confidence: MatrixRecalculationConfidence;
+    readonly current: MatrixCoverageState;
+    readonly proposed: MatrixCoverageState | null;
+    readonly reasons: readonly string[];
+    readonly evidence: readonly string[];
+  },
+): MatrixDevelopmentCommand {
+  const actionType = resolvePilotActionType(
+    entry,
+    recalculation.current,
+    recalculation.result,
+    recalculation.proposed,
+    recalculation.evidence,
+  );
+  const apiSignal = hasApiSignal(entry, recalculation.evidence);
+  const bucket = resolvePilotBucket(actionType, recalculation.result, apiSignal);
+  const score = pilotScoreFor(entry, recalculation.current, recalculation.result, recalculation.confidence);
+  const rationale = [...recalculation.reasons, ...pilotCoverageRationale(recalculation.current)];
+
+  return {
+    score,
+    bucket,
+    priority: pilotPriorityFor(score, bucket),
+    actionType,
+    rationale: rationale.length
+      ? rationale
+      : ['La matrice ne detecte pas de signal plus fort que la derniere revue.'],
+    targetFiles: pilotTargetFiles(actionType, recalculation.evidence),
+    acceptanceCriteria: pilotAcceptanceCriteria(actionType),
+    suggestedCommands: pilotSuggestedCommands(actionType),
+    expectedEvidence: pilotExpectedEvidence(actionType),
+    blockingReason: pilotBlockingReason(bucket, recalculation.result),
+  };
+}
+
+function withDevelopmentCommand<T extends {
+  readonly result: MatrixRecalculationResult;
+  readonly confidence: MatrixRecalculationConfidence;
+  readonly current: MatrixCoverageState;
+  readonly proposed: MatrixCoverageState | null;
+  readonly reasons: readonly string[];
+  readonly evidence: readonly string[];
+}>(entry: MatrixEntryEntity, recalculation: T): T & { readonly pilot: MatrixDevelopmentCommand } {
+  return {
+    ...recalculation,
+    pilot: buildDevelopmentCommand(entry, recalculation),
+  };
 }
 
 function signalConfirmationReason(
@@ -781,7 +1362,7 @@ function buildRecalculationEntry(
   }
 
   if (!repoSignalNewer && !completedDecisionNewer && !signalDrivenReasons.length) {
-    return {
+    return withDevelopmentCommand(entry, {
       entryId: normalizeString(entry.entryId, 180) ?? '',
       domain: normalizeString(entry.domain, 240) ?? '',
       result: 'unchanged' as MatrixRecalculationResult,
@@ -798,7 +1379,7 @@ function buildRecalculationEntry(
         latestDecisionAt:
           decisionTimestamp == null ? null : new Date(decisionTimestamp).toISOString(),
       },
-    };
+    });
   }
 
   const hasActionableSignalCoverage = COVERAGE_SIGNAL_IDS.some((signalId) => {
@@ -811,7 +1392,7 @@ function buildRecalculationEntry(
   });
 
   if (repoSignalNewer && !completedDecisionNewer && !hasActionableSignalCoverage) {
-    return {
+    return withDevelopmentCommand(entry, {
       entryId: normalizeString(entry.entryId, 180) ?? '',
       domain: normalizeString(entry.domain, 240) ?? '',
       result: 'blocked-insufficient-proof' as MatrixRecalculationResult,
@@ -830,7 +1411,7 @@ function buildRecalculationEntry(
         repoSignalSource: normalizeString(entry.lastRepoSignalSource, 180),
         latestDecisionAt: null,
       },
-    };
+    });
   }
 
   let proposedImplementationStatus = current.implementationStatus;
@@ -886,7 +1467,7 @@ function buildRecalculationEntry(
     managementBucket: proposedManagementBucket,
   };
 
-  return {
+  return withDevelopmentCommand(entry, {
     entryId: normalizeString(entry.entryId, 180) ?? '',
     domain: normalizeString(entry.domain, 240) ?? '',
     result: hasCoverageDelta(current, proposed)
@@ -908,7 +1489,7 @@ function buildRecalculationEntry(
       latestDecisionAt:
         decisionTimestamp == null ? null : new Date(decisionTimestamp).toISOString(),
     },
-  };
+  });
 }
 
 function sourceStatusFor(generatedAt: string): MatrixSourceStatus {
@@ -1137,9 +1718,11 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
 
     try {
       const payload = sanitizeIngestPayload(ctx.request.body);
+      const impact = resolveIngestImpact(payload, await findKnownEntryIds(strapi));
       const updatedEntryIds: string[] = [];
       const signalSummary = [
         payload.summary,
+        `impact=${impact.impactMode}`,
         payload.workflow ? `workflow=${payload.workflow}` : null,
         payload.branch ? `branch=${payload.branch}` : null,
         payload.changedFiles.length ? `${payload.changedFiles.length} fichiers modifies` : null,
@@ -1148,7 +1731,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         .join(' | ')
         .slice(0, 1000);
 
-      for (const entryId of payload.impactedEntryIds) {
+      for (const entryId of impact.resolvedEntryIds) {
         const existing = await findEntryByEntryId(strapi, entryId);
         if (!existing?.id) {
           continue;
@@ -1169,8 +1752,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         data: {
           mergedAt: payload.mergedAt,
           commitSha: payload.commitSha,
+          impactMode: impact.impactMode,
+          impactReason: impact.impactReason,
+          providedEntryIds: impact.providedEntryIds,
+          derivedEntryIds: impact.derivedEntryIds,
+          resolvedEntryIds: impact.resolvedEntryIds,
           updatedEntryIds,
-          ignoredEntryIds: payload.impactedEntryIds.filter((entryId) => !updatedEntryIds.includes(entryId)),
+          ignoredEntryIds: impact.resolvedEntryIds.filter((entryId) => !updatedEntryIds.includes(entryId)),
         },
       };
     } catch (error: unknown) {

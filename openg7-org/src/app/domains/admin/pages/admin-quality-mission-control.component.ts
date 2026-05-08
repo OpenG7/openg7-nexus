@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
@@ -98,7 +99,7 @@ interface AdminQualityMissionEnergyLaneSegment {
 @Component({
   selector: 'og7-admin-quality-mission-control',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './admin-quality-mission-control.component.html',
   styles: [
     `
@@ -337,6 +338,13 @@ export class AdminQualityMissionControlComponent {
   readonly selectedAiProof = input<AdminQualityMissionProofDisplay | null>(null);
   readonly providerComparison = input<readonly AdminQualityMissionProviderComparisonEntry[]>([]);
   readonly speaking = input(false);
+
+  readonly activeProviderOpsSummary = computed<AdminQualityMissionProviderComparisonEntry | null>(
+    () => this.providerComparison().find((entry) => entry.selected) ?? this.providerComparison()[0] ?? null,
+  );
+  readonly armedProviderCount = computed(
+    () => this.providerComparison().filter((entry) => entry.opsState === 'armed').length,
+  );
 
   readonly missionSelected = output<AdminQualityMissionRecommendation>();
   readonly missionAction = output<AdminQualityMissionControlActionEvent>();
@@ -744,6 +752,12 @@ export class AdminQualityMissionControlComponent {
   providerComparisonOpsClasses(
     state: AdminQualityMissionProviderComparisonEntry['opsState'],
   ): string {
+    return this.providerSocketOpsClasses(state);
+  }
+
+  providerSocketOpsClasses(
+    state: AdminQualityMissionProviderComparisonEntry['opsState'],
+  ): string {
     switch (state) {
       case 'armed':
         return 'border-emerald-300/35 bg-emerald-400/18 text-emerald-50';
@@ -933,12 +947,6 @@ export class AdminQualityMissionControlComponent {
       default:
         return 'border-violet-300/40 bg-violet-400/16 text-violet-100';
     }
-  }
-
-  heroActions(
-    recommendation: AdminQualityMissionRecommendation,
-  ): readonly AdminQualityMissionActionDescriptor[] {
-    return missionActionDescriptors(recommendation.status);
   }
 
   cardActions(

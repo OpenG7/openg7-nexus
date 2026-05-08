@@ -195,7 +195,7 @@
                 <label class="flex flex-col gap-2 text-sm">
                   <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Decision note</span>
                   <textarea
-                    class="min-h-[110px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                    class="og7-scrollbar-elegant min-h-27.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
                     [formControl]="reviewNoteControl"
                     data-og7-id="admin-trust-review-note"
                     placeholder="Explain the trust or publication decision that should appear in the lifecycle history."
@@ -315,7 +315,7 @@
                         <label class="flex flex-col gap-1 md:col-span-2">
                           <span>Notes</span>
                           <textarea
-                            class="min-h-[60px] rounded-lg border border-slate-300 px-2 py-1"
+                            class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
                             [value]="source.notes ?? ''"
                             (input)="updateSourceField(i, 'notes', $any($event.target).value)"
                           ></textarea>
@@ -372,7 +372,7 @@
                 </label>
                 <label class="flex flex-col gap-1 text-xs md:col-span-2">
                   <span>Notes</span>
-                  <textarea class="min-h-[60px] rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
+                  <textarea class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
                 </label>
               </div>
               <div class="flex justify-end">
@@ -466,7 +466,7 @@
                         <label class="flex flex-col gap-1 text-xs md:col-span-2">
                           <span>Notes</span>
                           <textarea
-                            class="min-h-[60px] rounded-lg border border-slate-300 px-2 py-1"
+                            class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
                             [value]="record.notes ?? ''"
                             (input)="updateHistoryField(i, 'notes', $any($event.target).value)"
                           ></textarea>
@@ -524,7 +524,7 @@
                 </label>
                 <label class="flex flex-col gap-1 text-xs md:col-span-2">
                   <span>Notes</span>
-                  <textarea class="min-h-[60px] rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
+                  <textarea class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
                 </label>
               </div>
               <div class="flex justify-end">

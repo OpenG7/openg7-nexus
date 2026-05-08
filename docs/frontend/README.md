@@ -15,6 +15,8 @@ Ce dossier centralise les guides et analyses pour l'application Angular :
 - `quick-search-modal.md` — fonctionnement du module de recherche rapide.
 - `search-state-management.md` — stratégie de state management pour la recherche.
 - `api-error-message-localization.md` — clarification de la stratégie i18n pour les messages d'erreur API.
+- `admin-quality-matrix-manual.md` — manuel operateur pour lire les voyants, obtenir les preuves et piloter le plan QA de `/admin/quality`.
+- `admin-quality-matrix-automation-tasks.md` — decoupage des lots pour reduire les operations manuelles de la matrice QA.
 - `reviews/` — retours de revue détaillés (ex. `opportunity-matches-review.md`, `linkup-302.md`).
 - `../openg7-org/docs/ssr-deployment.md` — pipeline SSR Angular + Docker multi-stage.
 

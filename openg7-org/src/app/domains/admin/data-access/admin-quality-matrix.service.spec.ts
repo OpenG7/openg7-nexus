@@ -67,6 +67,70 @@ describe('AdminQualityMatrixService', () => {
     });
   });
 
+  it('normalizes recalculation pilot commands', () => {
+    service.recalculateMatrix('refresh-required', null).subscribe((result) => {
+      const entry = result.entries[0];
+      expect(entry?.pilot.score).toBe(87);
+      expect(entry?.pilot.priority).toBe('now');
+      expect(entry?.pilot.bucket).toBe('needs-proof');
+      expect(entry?.pilot.actionType).toBe('fix-proof-gap');
+      expect(entry?.pilot.targetFiles).toEqual(['openg7-org/e2e/admin-quality.spec.ts']);
+      expect(entry?.pilot.suggestedCommands).toEqual(['yarn test:e2e:smoke']);
+    });
+
+    const req = http.expectOne('/api/api/admin/quality/matrix/recalculate');
+    req.flush({
+      data: {
+        generatedAt: '2026-04-11T00:00:00.000Z',
+        scope: 'refresh-required',
+        summary: {
+          analyzedCount: 1,
+          proposalCount: 0,
+          unchangedCount: 0,
+          blockedCount: 1,
+        },
+        entries: [
+          {
+            entryId: 'admin-quality',
+            domain: 'Pilotage matrice',
+            result: 'blocked-insufficient-proof',
+            confidence: 'medium',
+            current: {
+              summaryStatus: 'partiel',
+              businessStatus: 'oui',
+              implementationStatus: 'partiel',
+              e2eStatus: 'non',
+              managementBucket: 'proof-gap',
+              needsProductWorkFirst: false,
+            },
+            proposed: null,
+            reasons: ['Preuve manquante.'],
+            evidence: ['openg7-org/e2e/admin-quality.spec.ts'],
+            pilot: {
+              score: 87,
+              bucket: 'needs-proof',
+              priority: 'now',
+              actionType: 'fix-proof-gap',
+              rationale: ['Preuve manquante.'],
+              targetFiles: ['openg7-org/e2e/admin-quality.spec.ts'],
+              acceptanceCriteria: ['Ajouter une preuve executable.'],
+              suggestedCommands: ['yarn test:e2e:smoke'],
+              expectedEvidence: ['Spec verte'],
+              blockingReason: 'Preuve requise.',
+            },
+            factualSignals: {
+              reviewedAt: '2026-04-11',
+              repoSignalAt: null,
+              repoSignalCommit: null,
+              repoSignalSource: null,
+              latestDecisionAt: null,
+            },
+          },
+        ],
+      },
+    });
+  });
+
   it('applies a matrix proposal without sending cookie credentials', () => {
     service.applyMatrixProposal('advanced-discovery').subscribe();
 

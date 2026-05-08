@@ -1,5 +1,5 @@
 <section
-  class="relative w-full overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
+  class="relative w-full overflow-hidden rounded-[26px] border border-sky-500/25 bg-[#040d1d]/96 p-3 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-4"
   data-og7="admin-quality-mission-control"
 >
   <div
@@ -9,14 +9,14 @@
     class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"
   ></div>
 
-  <div class="relative space-y-4">
+  <div class="relative space-y-3">
     <div
-      class="flex flex-col gap-3 border-b border-white/10 pb-4 xl:flex-row xl:items-start xl:justify-between"
+      class="flex flex-col gap-2 border-b border-white/10 pb-3 xl:flex-row xl:items-start xl:justify-between"
     >
       <div class="space-y-2">
         <div class="flex items-center gap-3">
           <span
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.2)]"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.2)]"
             aria-hidden="true"
           >
             ~
@@ -26,32 +26,32 @@
             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">
               Pilotage AI
             </p>
-            <h2 class="mt-1 text-[1.9rem] font-semibold tracking-tight text-white">
+            <h2 class="mt-0.5 text-2xl font-semibold tracking-tight text-white">
               AI Mission Control
             </h2>
           </div>
         </div>
 
-        <p class="max-w-2xl text-sm leading-relaxed text-slate-300">
+        <p class="max-w-2xl text-sm leading-5 text-slate-300">
           {{ missionControl().overview }}
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-2 xl:justify-end">
+      <div class="flex flex-wrap gap-1.5 xl:justify-end">
         <span
-          class="inline-flex rounded-full border px-3 py-1.5 text-[11px] font-semibold"
+          class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold"
           [class]="missionPhaseClasses(missionControl().phase)"
         >
           Phase : {{ missionControl().phaseLabel }}
         </span>
         <span
-          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100"
+          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold text-cyan-100"
           data-og7-id="admin-quality-active-ai-provider"
         >
           AI : {{ selectedAiProviderLabel() }}
         </span>
         <span
-          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[11px] font-semibold text-amber-100"
+          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100"
         >
           Cue : {{ missionCueLabel() }}
         </span>
@@ -59,25 +59,29 @@
     </div>
 
     <article
-      class="og7-flight-bay rounded-3xl border border-cyan-400/20 bg-[linear-gradient(145deg,rgba(7,20,38,0.96),rgba(4,14,30,0.92))] p-4 shadow-[0_28px_70px_-48px_rgba(56,189,248,0.58)]"
+      class="og7-flight-bay rounded-3xl border border-cyan-400/20 bg-[linear-gradient(145deg,rgba(7,20,38,0.96),rgba(4,14,30,0.92))] p-3 shadow-[0_24px_58px_-44px_rgba(56,189,248,0.5)]"
       data-og7="admin-quality-ai-bay"
+      data-og7-density="compact"
       [attr.data-og7-state]="providerFlightDeckState()"
     >
-      <div class="pointer-events-none absolute inset-y-5 left-5 w-px bg-white/10"></div>
-      <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_12rem] xl:items-center">
-        <div class="flex items-center gap-4 pl-4">
+      <div class="pointer-events-none absolute inset-y-4 left-4 w-px bg-white/10"></div>
+      <div
+        class="relative grid gap-3 lg:grid-cols-[5rem_minmax(0,1fr)_8.75rem] lg:items-center"
+        data-og7-layout="compact-flight-deck"
+      >
+        <div class="pl-3 lg:pl-4">
           <div
-            class="relative h-16 w-24 rounded-[20px] border border-white/10 bg-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+            class="relative h-12 w-16 rounded-2xl border border-white/10 bg-slate-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
           >
             <div
-              class="absolute left-4 top-1/2 h-0.5 w-8 -translate-y-1/2 rounded-full bg-slate-700"
+              class="absolute left-3 top-1/2 h-0.5 w-6 -translate-y-1/2 rounded-full bg-slate-700"
             ></div>
             <div
-              class="absolute right-3 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full border border-cyan-300/45 bg-cyan-400/10"
+              class="absolute right-2.5 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border border-cyan-300/45 bg-cyan-400/10"
             ></div>
             <svg
               viewBox="0 0 64 64"
-              class="og7-flight-key absolute left-1 top-1/2 h-12 w-12 -translate-y-1/2 text-cyan-200 drop-shadow-[0_0_10px_rgba(56,189,248,0.35)]"
+              class="og7-flight-key absolute left-0.5 top-1/2 h-9 w-9 -translate-y-1/2 text-cyan-200 drop-shadow-[0_0_10px_rgba(56,189,248,0.35)]"
               fill="none"
               stroke="currentColor"
               stroke-linecap="round"
@@ -91,49 +95,51 @@
               <path d="M47 32v4"></path>
             </svg>
           </div>
+        </div>
 
-          <div class="space-y-2">
-            <div class="flex flex-wrap items-center gap-2">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-200/80">
-                Flight deck
-              </p>
-              <span
-                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                [class]="providerFlightDeckStatusClasses()"
-                data-og7-id="admin-quality-ai-bay-status"
-              >
-                {{ providerFlightDeckLabel() }}
-              </span>
-              <span
-                class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                [class]="aiTelemetryClasses()"
-                data-og7-id="admin-quality-ai-telemetry-status"
-                [attr.data-og7-state]="aiTelemetryState()"
-              >
-                <span
-                  class="h-2.5 w-2.5 rounded-full"
-                  [class.og7-flight-telemetry--live]="aiTelemetryState() === 'live'"
-                  [class.og7-flight-telemetry--degraded]="aiTelemetryState() === 'degraded'"
-                  [class.og7-flight-telemetry--syncing]="aiTelemetryState() === 'syncing'"
-                  [class.bg-emerald-400]="aiTelemetryState() === 'live'"
-                  [class.bg-amber-400]="aiTelemetryState() === 'degraded'"
-                  [class.bg-sky-400]="aiTelemetryState() === 'syncing'"
-                  [class.bg-slate-400]="aiTelemetryState() === 'offline'"
-                ></span>
-                {{ aiTelemetryLabel() }}
-              </span>
-            </div>
-            <h3 class="text-lg font-semibold text-white">
-              {{ selectedAiProviderLabel() }} console
-            </h3>
-            <p class="max-w-xl text-sm leading-6 text-slate-300">
-              {{ selectedAiProviderCaption() }}
+        <div class="min-w-0 space-y-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Flight deck
             </p>
-            <p class="max-w-xl text-xs leading-5 text-cyan-100/80">
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+              [class]="providerFlightDeckStatusClasses()"
+              data-og7-id="admin-quality-ai-bay-status"
+            >
+              {{ providerFlightDeckLabel() }}
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+              [class]="aiTelemetryClasses()"
+              data-og7-id="admin-quality-ai-telemetry-status"
+              [attr.data-og7-state]="aiTelemetryState()"
+            >
+              <span
+                class="h-2 w-2 rounded-full"
+                [class.og7-flight-telemetry--live]="aiTelemetryState() === 'live'"
+                [class.og7-flight-telemetry--degraded]="aiTelemetryState() === 'degraded'"
+                [class.og7-flight-telemetry--syncing]="aiTelemetryState() === 'syncing'"
+                [class.bg-emerald-400]="aiTelemetryState() === 'live'"
+                [class.bg-amber-400]="aiTelemetryState() === 'degraded'"
+                [class.bg-sky-400]="aiTelemetryState() === 'syncing'"
+                [class.bg-slate-400]="aiTelemetryState() === 'offline'"
+              ></span>
+              {{ aiTelemetryLabel() }}
+            </span>
+          </div>
+          <h3 class="text-base font-semibold text-white">
+            {{ selectedAiProviderLabel() }} console
+          </h3>
+          <p class="max-w-4xl text-sm leading-5 text-slate-300">
+            {{ selectedAiProviderCaption() }}
+          </p>
+          <div class="grid gap-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <p class="text-[11px] leading-4 text-cyan-100/80">
               {{ providerFlightDeckNote() }}
             </p>
             <p
-              class="max-w-xl text-[11px] leading-5 text-slate-400"
+              class="text-[10px] leading-4 text-slate-400 xl:text-right"
               data-og7-id="admin-quality-ai-telemetry-detail"
             >
               {{ aiTelemetryDetail() }}
@@ -142,21 +148,21 @@
         </div>
 
         <div
-          class="flex items-center justify-between gap-3 rounded-[20px] border border-white/10 bg-white/4 px-4 py-3 xl:flex-col xl:items-end xl:text-right"
+          class="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 lg:flex-col lg:items-end lg:justify-center lg:text-right"
         >
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+            <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               {{ providerFlightDeckMetricLabel() }}
             </p>
-            <p class="mt-2 text-3xl font-semibold" [class]="providerFlightDeckMetricClasses()">
+            <p class="mt-1 text-2xl font-semibold" [class]="providerFlightDeckMetricClasses()">
               {{ providerFlightDeckMetric() }}
             </p>
           </div>
           <span
-            class="h-4 w-4 rounded-full border border-white/20 bg-cyan-400 shadow-[0_0_18px_rgba(56,189,248,0.55)]"
+            class="h-3 w-3 rounded-full border border-white/20 bg-cyan-400 shadow-[0_0_16px_rgba(56,189,248,0.5)]"
             [class.og7-flight-indicator--armed]="providerFlightDeckState() === 'armed'"
             [class.bg-amber-400]="providerFlightDeckState() === 'constrained'"
-            [class.shadow-[0_0_18px_rgba(251,191,36,0.48)]]="
+            [class.shadow-[0_0_16px_rgba(251,191,36,0.44)]]="
               providerFlightDeckState() === 'constrained'
             "
             [class.bg-cyan-400]="providerFlightDeckState() === 'armed'"
@@ -166,95 +172,103 @@
     </article>
 
     <section
-      class="rounded-3xl border border-white/10 bg-[#071426]/90 p-4"
-      data-og7="admin-quality-provider-comparison"
+      class="rounded-2xl border border-cyan-300/15 bg-[#071426]/80 px-3 py-2.5"
+      data-og7="admin-quality-provider-ops-handoff"
+      data-og7-density="micro"
     >
-      <div
-        class="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
-      >
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
-            Provider comparison
-          </p>
-          <h3 class="mt-2 text-base font-semibold text-white">Dispatch lanes at a glance</h3>
-          <p class="mt-2 text-sm text-slate-300">
-            Compare key readiness, workflow lane, and last proof telemetry before switching console.
+      <div class="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Provider sockets
+            </p>
+            @if (activeProviderOpsSummary(); as provider) {
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                [class]="providerSocketOpsClasses(provider.opsState)"
+                data-og7-id="admin-quality-provider-ops-state"
+              >
+                {{ provider.opsLabel }}
+              </span>
+            }
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/4 px-2 py-0.5 text-[10px] text-slate-200"
+              data-og7-id="admin-quality-provider-ops-count"
+            >
+              {{ armedProviderCount() }}/{{ providerComparison().length }} armed
+            </span>
+          </div>
+          <p class="mt-1 wrap-break-word text-xs leading-4 text-slate-300">
+            Keys, sockets, and diagnostics now live in Ops. Quality keeps only the active dispatch signal.
           </p>
         </div>
-        <span
-          class="inline-flex rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-slate-200"
+
+        <a
+          routerLink="/admin/ops"
+          class="inline-flex items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-50 shadow-[0_16px_34px_-28px_rgba(34,211,238,0.7)] transition hover:border-cyan-200/45 hover:bg-cyan-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+          data-og7="action"
+          data-og7-id="admin-quality-open-provider-sockets"
         >
-          {{ providerComparison().length }} providers tracked
-        </span>
+          Open Ops sockets
+        </a>
       </div>
 
-      <div class="mt-4 overflow-x-auto pb-2" data-og7="admin-quality-provider-comparison-rail">
-        <div class="flex min-w-max snap-x snap-mandatory gap-3">
-        @for (entry of providerComparison(); track entry.provider) {
-          <article
-            class="shrink-0 snap-start rounded-[20px] border p-4"
-            style="flex: 0 0 calc((100% - 0.75rem) / 2); min-width: 18rem"
-            data-og7="admin-quality-provider-comparison-card"
-            [attr.data-og7-id]="entry.provider"
-            [attr.data-og7-selected]="entry.selected"
-            [attr.data-og7-proof-state]="entry.proofState"
-            [class]="providerComparisonCardClasses(entry)"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-sm font-semibold text-white">{{ entry.label }}</p>
-                <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">
-                  {{ entry.workflow }}
-                </p>
-              </div>
-              <span
-                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                [class]="providerComparisonOpsClasses(entry.opsState)"
-              >
-                {{ entry.opsLabel }}
-              </span>
-            </div>
+      @if (activeProviderOpsSummary(); as provider) {
+        <div
+          class="mt-2 grid min-w-0 gap-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          data-og7-id="admin-quality-provider-active-socket"
+        >
+          <div class="min-w-0">
+            <p class="wrap-break-word text-sm font-semibold text-white">
+              {{ provider.label }} - {{ provider.workflow }}
+            </p>
+            <p class="mt-0.5 wrap-break-word text-[11px] leading-4 text-slate-300">
+              {{ provider.opsDetail }}
+            </p>
+          </div>
 
-            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.opsDetail }}</p>
-
-            <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
-              <span
-                class="inline-flex rounded-full border px-2.5 py-1"
-                [class]="missionProofStateClasses(entry.proofState)"
-              >
-                {{ entry.proofLabel }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-200"
-              >
-                {{ entry.artifactCount }} artifact(s)
-              </span>
-            </div>
-
-            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.proofDetail }}</p>
-            <p class="mt-2 text-[11px] text-slate-400">{{ entry.pullRequestLabel }}</p>
-          </article>
-        }
+          <div class="flex flex-wrap gap-1.5 sm:justify-end">
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+              [class]="missionProofStateClasses(provider.proofState)"
+              data-og7-id="admin-quality-provider-proof-state"
+            >
+              {{ provider.proofLabel }}
+            </span>
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-slate-200"
+              data-og7-id="admin-quality-provider-artifacts"
+            >
+              {{ provider.artifactCount }} artifact(s)
+            </span>
+          </div>
         </div>
-      </div>
+      } @else {
+        <p
+          class="mt-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 text-xs text-slate-300"
+          data-og7-id="admin-quality-provider-ops-empty"
+        >
+          No provider socket telemetry available yet.
+        </p>
+      }
     </section>
 
     @if (selectedMission(); as missionItem) {
       <section
-        class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4"
+        class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-3"
         data-og7="admin-quality-mission-loop"
       >
         <div
-          class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
+          class="flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
             <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
               Mission loop
             </p>
-            <h3 class="mt-2 text-base font-semibold text-white">
+            <h3 class="mt-1 text-base font-semibold text-white">
               Mission -> dispatch -> proof -> validation
             </h3>
-            <p class="mt-2 text-sm text-slate-300">
+            <p class="mt-1 text-sm text-slate-300">
               Unified operator view for {{ selectedAiProviderLabel() }} through
               {{ aiDispatchWorkflow() }}.
             </p>
@@ -268,23 +282,25 @@
           </span>
         </div>
 
-        <div class="mt-4 overflow-x-auto pb-2" data-og7="admin-quality-mission-loop-rail">
-          <div class="flex min-w-max snap-x snap-mandatory gap-3">
+        <div
+          class="mt-3 grid min-w-0 gap-2 md:grid-cols-2 2xl:grid-cols-4"
+          data-og7="admin-quality-mission-loop-rail"
+          data-og7-layout="responsive-grid"
+        >
           @for (step of missionExecutionLoop(); track step.id) {
             <article
-              class="shrink-0 snap-start rounded-[20px] border p-4"
-              style="flex: 0 0 calc((100% - 0.75rem) / 2); min-width: 18rem"
+              class="min-w-0 rounded-2xl border p-3"
               data-og7="admin-quality-mission-loop-step"
               [attr.data-og7-id]="step.id"
               [attr.data-og7-status]="step.status"
               [class]="missionLoopCardClasses(step.status)"
             >
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div>
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="min-w-0">
                   <p class="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
                     {{ step.label }}
                   </p>
-                  <p class="mt-2 text-sm font-semibold text-white">{{ step.detail }}</p>
+                  <p class="mt-1 wrap-break-word text-sm font-semibold text-white">{{ step.detail }}</p>
                 </div>
                 <span
                   class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
@@ -293,14 +309,13 @@
                   {{ missionLoopStatusLabel(step.status) }}
                 </span>
               </div>
-              <p class="mt-3 text-xs leading-5 text-slate-300">{{ step.support }}</p>
+              <p class="mt-2 wrap-break-word text-xs leading-4 text-slate-300">{{ step.support }}</p>
             </article>
           }
-          </div>
         </div>
 
         <section
-          class="mt-4 rounded-[20px] border border-cyan-300/12 bg-slate-950/45 px-4 py-3"
+          class="mt-3 rounded-[20px] border border-cyan-300/12 bg-slate-950/45 px-3 py-2"
           data-og7="admin-quality-mission-energy-lane"
         >
           <div
@@ -309,7 +324,7 @@
             @for (step of missionExecutionLoop(); track step.id; let index = $index) {
               <div class="flex flex-col items-center gap-1 text-center">
                 <span
-                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  class="inline-flex h-8 w-8 items-center justify-center rounded-full border text-[9px] font-semibold uppercase tracking-[0.16em]"
                   data-og7="admin-quality-mission-energy-node"
                   [attr.data-og7-id]="step.id"
                   [attr.data-og7-status]="step.status"
@@ -352,19 +367,19 @@
 
         @if (selectedAiProof(); as proof) {
           <article
-            class="mt-4 rounded-[20px] border border-white/10 bg-slate-950/55 p-4"
+            class="mt-3 rounded-[20px] border border-white/10 bg-slate-950/55 p-3"
             data-og7="admin-quality-proof-telemetry"
             [attr.data-og7-state]="proof.state"
           >
             <div
-              class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between"
+              class="flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
                   Live proof telemetry
                 </p>
-                <h4 class="mt-2 text-base font-semibold text-white">{{ proof.label }}</h4>
-                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{{ proof.summary }}</p>
+                <h4 class="mt-1 text-base font-semibold text-white">{{ proof.label }}</h4>
+                <p class="mt-1 max-w-3xl text-sm leading-5 text-slate-300">{{ proof.summary }}</p>
               </div>
               <span
                 class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
@@ -374,7 +389,7 @@
               </span>
             </div>
 
-            <div class="mt-4 grid gap-3 lg:grid-cols-3">
+            <div class="mt-3 grid gap-2 lg:grid-cols-3">
               <article class="rounded-[18px] border border-white/10 bg-white/4 p-3">
                 <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                   Last run
@@ -430,19 +445,20 @@
       </section>
 
       <article
-        class="rounded-[24px] border border-white/10 bg-[#071426]/90 p-4 shadow-[0_30px_80px_-50px_rgba(8,47,73,0.95)]"
+        class="rounded-2xl border border-white/10 bg-[#071426]/90 p-3 shadow-[0_22px_60px_-44px_rgba(8,47,73,0.82)]"
         data-og7="admin-quality-mission-hero"
+        data-og7-density="compact"
       >
-        <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_7rem] md:items-start">
-          <div class="space-y-4">
-            <div class="rounded-[18px] border border-emerald-400/25 bg-emerald-400/10 p-4">
-              <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem] lg:items-stretch">
+          <div class="space-y-3">
+            <div class="rounded-2xl border border-emerald-400/25 bg-emerald-400/10 p-3">
+              <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p class="text-sm font-semibold text-emerald-300">Mission active</p>
-                  <h3 class="mt-2 text-[1.8rem] font-semibold leading-tight text-white">
+                  <h3 class="mt-1 text-xl font-semibold leading-tight text-white">
                     {{ missionItem.title }}
                   </h3>
-                  <p class="mt-1 text-sm text-slate-100">
+                  <p class="mt-1 text-sm leading-5 text-slate-100">
                     Type : {{ recommendationKindLabel(missionItem) }}
                   </p>
                 </div>
@@ -456,75 +472,50 @@
               </div>
             </div>
 
-            <div class="grid gap-3 lg:grid-cols-2">
-              <article class="rounded-[18px] border border-rose-500/25 bg-rose-500/10 p-4">
+            <div class="grid gap-2 lg:grid-cols-2">
+              <article class="rounded-2xl border border-rose-500/25 bg-rose-500/10 p-3">
                 <p class="text-sm font-semibold text-rose-200">Gap constate</p>
-                <p class="mt-2 text-sm leading-relaxed text-rose-50/95">{{ missionItem.whyNow }}</p>
+                <p class="mt-1 text-xs leading-5 text-rose-50/95">{{ missionItem.whyNow }}</p>
               </article>
 
-              <article class="rounded-[18px] border border-emerald-500/20 bg-emerald-500/10 p-4">
+              <article class="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3">
                 <p class="text-sm font-semibold text-emerald-200">Mission suggeree</p>
-                <p class="mt-2 text-sm leading-relaxed text-emerald-50/95">
+                <p class="mt-1 text-xs leading-5 text-emerald-50/95">
                   {{ missionItem.summary }}
                 </p>
               </article>
             </div>
-
-            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              @for (action of heroActions(missionItem); track action.action) {
-                <button
-                  type="button"
-                  [class]="actionClasses(action.tone, 'hero')"
-                  [disabled]="isMissionActionDisabled(action.action, missionItem)"
-                  [attr.aria-disabled]="isMissionActionBlocked(action.action, missionItem)"
-                  [attr.title]="
-                    isMissionActionBlocked(action.action, missionItem)
-                      ? aiDispatchStatusDetail()
-                      : null
-                  "
-                  (click)="emitMissionAction(action.action, missionItem)"
-                  data-og7="action"
-                  [attr.data-og7-id]="action.hookId ?? null"
-                >
-                  {{
-                    action.action === 'auto-delegate'
-                      ? aiDispatching()
-                        ? 'Dispatch...'
-                        : 'Lancer ' + selectedAiProviderLabel()
-                      : action.label
-                  }}
-                </button>
-              }
-            </div>
           </div>
 
-          <div class="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+          <div class="flex flex-col justify-center rounded-2xl border border-white/10 bg-white/4 px-3 py-3 text-left">
+            <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Confiance AI
             </p>
             <div
-              class="relative mx-auto mt-4 flex h-20 w-20 items-center justify-center rounded-full shadow-[0_20px_40px_-28px_rgba(14,165,233,0.8)]"
+              class="relative mt-2 flex h-12 w-12 items-center justify-center rounded-full shadow-[0_16px_30px_-24px_rgba(14,165,233,0.8)]"
               [style.background]="confidenceRingBackground(missionItem.confidence)"
             >
-              <div class="absolute inset-[6px] rounded-full bg-[#071120]"></div>
+              <div class="absolute inset-1 rounded-full bg-[#071120]"></div>
               <div class="relative">
-                <p class="text-lg font-semibold text-white">
+                <p class="text-sm font-semibold text-white">
                   {{ confidencePercent(missionItem.confidence) }}%
                 </p>
               </div>
             </div>
-            <span
-              class="mt-3 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
-              [class]="confidenceClasses(missionItem.confidence)"
-            >
-              {{ missionItem.confidence }}
-            </span>
-            <span
-              class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold"
-              [class]="impactClasses(missionItem.impact)"
-            >
-              Impact {{ missionItem.impact }}
-            </span>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                [class]="confidenceClasses(missionItem.confidence)"
+              >
+                {{ missionItem.confidence }}
+              </span>
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                [class]="impactClasses(missionItem.impact)"
+              >
+                Impact {{ missionItem.impact }}
+              </span>
+            </div>
           </div>
         </div>
       </article>
@@ -532,32 +523,33 @@
 
     @if (selectedMission(); as missionItem) {
       @if (selectedMissionQuotaSummary(); as quota) {
-        <section class="grid gap-4">
+        <section class="grid gap-3">
           <article
-            class="rounded-[24px] border border-white/10 bg-[#071426]/90 p-4 shadow-[0_28px_72px_-48px_rgba(14,165,233,0.8)]"
+            class="rounded-2xl border border-white/10 bg-[#071426]/90 p-3 shadow-[0_22px_60px_-44px_rgba(14,165,233,0.68)]"
             data-og7="admin-quality-codex-runway"
+            data-og7-density="compact"
           >
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
                   {{
                     'admin.quality.codex.runway.label'
                       | translate: { provider: selectedAiProviderLabel() }
                   }}
                 </p>
-                <h3 class="mt-2 text-lg font-semibold text-white">
+                <h3 class="mt-1 text-base font-semibold text-white">
                   {{
                     'admin.quality.codex.runway.title'
                       | translate: { provider: selectedAiProviderLabel() }
                   }}
                 </h3>
-                <p class="mt-2 text-sm leading-relaxed text-slate-300">
+                <p class="mt-1 text-sm leading-5 text-slate-300">
                   {{
                     'admin.quality.codex.runway.subtitle'
                       | translate: { provider: selectedAiProviderLabel() }
                   }}
                 </p>
-                <p class="mt-2 text-xs leading-relaxed text-cyan-100/80">
+                <p class="mt-1 text-xs leading-5 text-cyan-100/80">
                   {{ selectedAiProviderCaption() }}
                 </p>
               </div>
@@ -576,45 +568,45 @@
               </span>
             </div>
 
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-              <article class="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+            <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4" data-og7-layout="compact-grid">
+              <article class="rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.tasks' | translate }}
                 </p>
                 <p
-                  class="mt-2 text-2xl font-semibold text-white"
+                  class="mt-1 text-2xl font-semibold text-white"
                   data-og7-id="admin-quality-generated-task-count"
                 >
                   {{ quota.taskCount }}
                 </p>
-                <p class="mt-1 text-xs text-slate-400">
+                <p class="mt-1 text-[11px] leading-4 text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.tasksBody' | translate }}
                 </p>
               </article>
 
-              <article class="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              <article class="rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.required' | translate }}
                 </p>
-                <p class="mt-2 text-2xl font-semibold text-white">
+                <p class="mt-1 text-2xl font-semibold text-white">
                   {{ quota.requiredUnits }}
                 </p>
-                <p class="mt-1 text-xs text-slate-400">
+                <p class="mt-1 text-[11px] leading-4 text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.requiredBody' | translate }}
                 </p>
               </article>
 
-              <article class="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              <article class="rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {{ 'admin.quality.codex.runway.metrics.available' | translate }}
                 </p>
                 <p
-                  class="mt-2 text-lg font-semibold text-white"
+                  class="mt-1 text-lg font-semibold text-white"
                   data-og7-id="admin-quality-codex-ops-status"
                 >
                   {{ aiDispatchStatusLabel() }}
                 </p>
-                <p class="mt-1 text-xs leading-relaxed text-slate-400">
+                <p class="mt-1 text-[11px] leading-4 text-slate-400">
                   {{
                     'admin.quality.codex.runway.metrics.availableBody'
                       | translate: { provider: selectedAiProviderLabel() }
@@ -622,8 +614,8 @@
                 </p>
               </article>
 
-              <article class="rounded-[18px] border border-white/10 bg-white/[0.04] p-3">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              <article class="rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5">
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {{
                     (aiDispatchReady()
                       ? 'admin.quality.codex.runway.metrics.remaining'
@@ -631,10 +623,10 @@
                     ) | translate
                   }}
                 </p>
-                <p class="mt-2 break-all text-lg font-semibold text-white">
+                <p class="mt-1 break-all text-lg font-semibold text-white">
                   {{ aiDispatchWorkflow() }}
                 </p>
-                <p class="mt-1 text-xs leading-relaxed text-slate-400">
+                <p class="mt-1 text-[11px] leading-4 text-slate-400">
                   {{
                     (aiDispatchReady()
                       ? 'admin.quality.codex.runway.metrics.remainingBody'
@@ -645,7 +637,7 @@
               </article>
             </div>
 
-            <p class="mt-4 text-sm text-slate-300">
+            <p class="mt-3 text-sm leading-5 text-slate-300">
               {{
                 (aiDispatchReady()
                   ? 'admin.quality.codex.runway.ready'

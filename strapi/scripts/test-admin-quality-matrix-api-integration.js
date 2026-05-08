@@ -257,7 +257,27 @@ async function run() {
       'Expected no signal dispatch lock before any guidance is recorded.',
     );
 
+    const allPlanBeforeSignals = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+      body: JSON.stringify({ scope: 'all' }),
+    });
+    assert.equal(allPlanBeforeSignals.status, 200, 'Expected all-scope planning to succeed for owner.');
+    assert.equal(allPlanBeforeSignals.body?.data?.summary?.analyzedCount, 1);
+    assert.equal(allPlanBeforeSignals.body?.data?.summary?.proposalCount, 0);
+    assert.equal(allPlanBeforeSignals.body?.data?.entries?.[0]?.result, 'unchanged');
+    assert.equal(allPlanBeforeSignals.body?.data?.entries?.[0]?.pilot?.priority, 'next');
+    assert.equal(allPlanBeforeSignals.body?.data?.entries?.[0]?.pilot?.bucket, 'needs-proof');
+    assert.equal(allPlanBeforeSignals.body?.data?.entries?.[0]?.pilot?.actionType, 'add-test');
+    assert.ok(
+      allPlanBeforeSignals.body?.data?.entries?.[0]?.pilot?.rationale?.some((item) =>
+        /preuve E2E reste partiel|proof-gap/i.test(item),
+      ),
+      'Expected unchanged matrix lines with coverage gaps to expose pilot rationale.',
+    );
+
     const repoMergedAt = new Date(Date.now() + 30_000).toISOString();
+    const derivedRepoMergedAt = new Date(Date.now() + 45_000).toISOString();
     const exactPullRequestMergedAt = new Date(Date.now() + 60_000).toISOString();
     await createSignalGuidanceDecision(app, 'trust-validation', 'business');
     const signalGuidanceDecision = await createSignalGuidanceDecision(app, 'trust-validation', 'e2e', {
@@ -313,11 +333,15 @@ async function run() {
         workflow: 'Admin Quality Matrix Sync',
         branch: 'main',
         summary: 'targeted sync after merge to main',
-        changedFiles: ['openg7-org/src/app/domains/feed/feature/feed.page.ts'],
+        changedFiles: ['strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json'],
         impactedEntryIds: ['trust-validation', 'unknown-entry'],
       }),
     });
     assert.equal(ok.status, 200, 'Expected valid ingest request to succeed.');
+    assert.equal(ok.body?.data?.impactMode, 'targeted');
+    assert.deepEqual(ok.body?.data?.providedEntryIds, ['trust-validation', 'unknown-entry']);
+    assert.deepEqual(ok.body?.data?.derivedEntryIds, ['trust-validation']);
+    assert.deepEqual(ok.body?.data?.resolvedEntryIds, ['trust-validation', 'unknown-entry']);
     assert.deepEqual(ok.body?.data?.updatedEntryIds, ['trust-validation']);
     assert.deepEqual(ok.body?.data?.ignoredEntryIds, ['unknown-entry']);
 
@@ -327,6 +351,34 @@ async function run() {
     assert.equal(updated.lastRepoSignalSource, 'github-actions');
     assert.equal(updated.lastRepoSignalAt, repoMergedAt);
     assert.match(updated.lastRepoSignalSummary, /targeted sync after merge to main/i);
+
+    const derivedOnly = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+      body: JSON.stringify({
+        mergedAt: derivedRepoMergedAt,
+        commitSha: 'def456abc789',
+        source: 'github-actions',
+        workflow: 'Admin Quality Matrix Sync',
+        branch: 'main',
+        summary: 'derived sync after merge to main',
+        changedFiles: ['strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json'],
+      }),
+    });
+    assert.equal(derivedOnly.status, 200, 'Expected ingest to derive impacted entries from changedFiles.');
+    assert.equal(derivedOnly.body?.data?.impactMode, 'targeted');
+    assert.deepEqual(derivedOnly.body?.data?.providedEntryIds, []);
+    assert.deepEqual(derivedOnly.body?.data?.derivedEntryIds, ['trust-validation']);
+    assert.deepEqual(derivedOnly.body?.data?.resolvedEntryIds, ['trust-validation']);
+    assert.deepEqual(derivedOnly.body?.data?.updatedEntryIds, ['trust-validation']);
+    assert.deepEqual(derivedOnly.body?.data?.ignoredEntryIds, []);
+
+    const derivedUpdated = await findMatrixEntryByEntryId(app, 'trust-validation');
+    assert.ok(derivedUpdated, 'Expected matrix entry to still exist after derived ingest.');
+    assert.equal(derivedUpdated.lastRepoSignalCommit, 'def456abc789');
+    assert.equal(derivedUpdated.lastRepoSignalAt, derivedRepoMergedAt);
+    assert.match(derivedUpdated.lastRepoSignalSummary, /impact=targeted/i);
+    assert.match(derivedUpdated.lastRepoSignalSummary, /derived sync after merge to main/i);
 
     const snapshotAfterRepoIngest = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
       headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
@@ -381,6 +433,15 @@ async function run() {
     assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.businessStatus, 'oui');
     assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.implementationStatus, 'oui');
     assert.equal(recalcOk.body?.data?.entries?.[0]?.proposed?.e2eStatus, 'oui');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.pilot?.priority, 'now');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.pilot?.bucket, 'ready-to-close');
+    assert.equal(recalcOk.body?.data?.entries?.[0]?.pilot?.actionType, 'close-entry');
+    assert.ok(
+      recalcOk.body?.data?.entries?.[0]?.pilot?.suggestedCommands?.includes(
+        'yarn workspace @openg7/strapi test:integration:admin-quality-matrix',
+      ),
+      'Expected recalculation to expose a suggested validation command.',
+    );
 
     const applyDenied = await requestJson(`${baseUrl}/api/admin/quality/matrix/apply-proposal`, {
       method: 'POST',

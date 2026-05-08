@@ -37,6 +37,9 @@ import {
 import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
+  AdminQualityMatrixPilotActionType,
+  AdminQualityMatrixPilotBucket,
+  AdminQualityMatrixPilotPriority,
   AdminQualityMatrixPriority,
   AdminQualityMatrixSignalDispatchState,
   AdminQualityMatrixRecalculationScope,
@@ -81,9 +84,11 @@ import {
 import { AdminQualityDelegationPlan, buildDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
+  AdminQualityMissionActionDescriptor,
   AdminQualityMissionActionTone,
   AdminQualityMissionControlAction,
   AdminQualityMissionControlActionEvent,
+  missionActionDescriptors,
   resolveMissionAction,
 } from './admin-quality-mission-actions';
 import {
@@ -118,14 +123,43 @@ type AdminQualityMissionHudAmbientTone = 'nominal' | 'syncing' | 'warning' | 'cr
 type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
 type AdminQualityMissionRadarTimelineKind = 'lock' | 'action' | 'proof';
+type AdminQualityBuildNowTone = 'review' | 'build' | 'proof' | 'blocked';
+type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace';
 type AdminQualityMissionRadarSignalTone =
   | 'manual'
   | 'pulse'
   | 'proof'
   | AdminQualityMissionActionTone;
+interface AdminQualityConsoleSurfaceOption {
+  readonly id: AdminQualityConsoleSurface;
+  readonly label: string;
+  readonly detail: string;
+  readonly iconLabel: string;
+}
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
+}
+interface AdminQualityBuildNowItem {
+  readonly entryId: string;
+  readonly domain: string;
+  readonly actionLabel: string;
+  readonly reasonLabel: string;
+  readonly reasonTags: readonly string[];
+  readonly summarySentence: string;
+  readonly automationLabel: string;
+  readonly automationDetail: string;
+  readonly detail: string;
+  readonly nextMove: string;
+  readonly readinessLabel: string;
+  readonly score: number;
+  readonly tone: AdminQualityBuildNowTone;
+}
+interface AdminQualityBuildNowGroup {
+  readonly tone: AdminQualityBuildNowTone;
+  readonly label: string;
+  readonly count: number;
+  readonly active: boolean;
 }
 interface AdminQualityMissionRadarEchoPoint {
   readonly id: AdminQualityMissionHudSection;
@@ -174,6 +208,7 @@ interface AdminQualityPersistedViewState {
   readonly selectedEntryId?: string | null;
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
+  readonly activeConsoleSurface?: AdminQualityConsoleSurface;
   readonly activeWorkspaceSurface?: AdminQualityWorkspaceSurface;
   readonly selectedAiProvider?: AdminAiProvider;
   readonly missionHudExpanded?: boolean;
@@ -205,7 +240,7 @@ interface AdminQualityMatrixRecalculationScopeOption {
 }
 
 const MATRIX_RECALCULATION_SCOPE_OPTIONS: readonly AdminQualityMatrixRecalculationScopeOption[] = [
-  { id: 'refresh-required', label: 'Entrees a revoir' },
+  { id: 'refresh-required', label: 'Entrees a piloter' },
   { id: 'selected-entry', label: 'Entree active' },
   { id: 'all', label: 'Toute la matrice' },
 ];
@@ -319,6 +354,52 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         animation: og7-admin-quality-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
 
+      .og7-console-map-beacon {
+        --og7-console-beacon-rgb: 34, 211, 238;
+        animation: og7-console-map-heartbeat 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+        filter: saturate(1.08);
+      }
+
+      .og7-console-map-beacon::before,
+      .og7-console-map-beacon::after {
+        content: '';
+        position: absolute;
+        inset: -0.45rem;
+        border-radius: 9999px;
+        background: radial-gradient(
+          circle,
+          rgba(var(--og7-console-beacon-rgb), 0.48) 0%,
+          rgba(var(--og7-console-beacon-rgb), 0.22) 28%,
+          transparent 70%
+        );
+        opacity: 0;
+        transform: scale(0.32);
+        pointer-events: none;
+      }
+
+      .og7-console-map-beacon::before {
+        animation: og7-console-map-heart-glow 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+      }
+
+      .og7-console-map-beacon::after {
+        animation: og7-console-map-heart-glow 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+        animation-delay: 180ms;
+        inset: -0.72rem;
+      }
+
+      .og7-console-map-beacon--emerald {
+        --og7-console-beacon-rgb: 52, 211, 153;
+        animation-delay: 620ms;
+      }
+
+      .og7-console-map-beacon--emerald::before {
+        animation-delay: 620ms;
+      }
+
+      .og7-console-map-beacon--emerald::after {
+        animation-delay: 800ms;
+      }
+
       .og7-cockpit-sync-band {
         background: linear-gradient(
           90deg,
@@ -371,6 +452,27 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
           og7-radar-proof-sweep 1.45s ease-in-out infinite;
       }
 
+      [data-og7-radar-motion='static'] .og7-radar-sweep {
+        animation: none !important;
+        display: none;
+        opacity: 0 !important;
+      }
+
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar'] {
+        background:
+          radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.1), transparent 24%),
+          radial-gradient(circle at 82% 16%, rgba(96, 165, 250, 0.08), transparent 22%),
+          linear-gradient(180deg, rgba(15, 23, 42, 0.16), rgba(2, 6, 23, 0.04)) !important;
+        opacity: 0.48 !important;
+      }
+
+      [data-og7-radar-motion='static'] .og7-radar-trail-line,
+      [data-og7-radar-motion='static'] .og7-radar-acquisition-ring,
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar-echo'],
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar-echo'] span {
+        animation: none !important;
+      }
+
       @keyframes og7-mission-radar-sweep {
         from {
           transform: rotate(0deg);
@@ -390,6 +492,64 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         100% {
           opacity: 1;
           transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes og7-console-map-heartbeat {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: scale(1);
+        }
+
+        10% {
+          opacity: 1;
+          transform: scale(1.95);
+        }
+
+        18% {
+          transform: scale(1.15);
+        }
+
+        28% {
+          opacity: 1;
+          transform: scale(1.62);
+        }
+
+        44% {
+          opacity: 0.78;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes og7-console-map-heart-glow {
+        0%,
+        100% {
+          opacity: 0;
+          transform: scale(0.28);
+        }
+
+        10% {
+          opacity: 0.78;
+          transform: scale(0.72);
+        }
+
+        30% {
+          opacity: 0.34;
+          transform: scale(1.38);
+        }
+
+        52% {
+          opacity: 0;
+          transform: scale(1.74);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .og7-console-map-beacon,
+        .og7-console-map-beacon::before,
+        .og7-console-map-beacon::after {
+          animation: none;
         }
       }
 
@@ -588,6 +748,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedSignalRecommendationsDraft = signal('');
   readonly signalDelegationTraces = signal<Record<string, AdminQualityCoverageSignalTrace>>({});
   readonly workspaceOpen = signal(false);
+  readonly activeConsoleSurface = signal<AdminQualityConsoleSurface>('context');
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
   readonly selectedAiProvider = signal<AdminAiProvider>('codex');
   readonly missionHudExpanded = signal(true);
@@ -632,6 +793,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'mission', label: 'Mission control', href: '#admin-quality-mission' },
     { id: 'workspace', label: 'Workspace', href: '#admin-quality-workspace' },
   ];
+  readonly consoleSurfaceOptions: readonly AdminQualityConsoleSurfaceOption[] = [
+    { id: 'context', label: 'Contexte', detail: 'Domaine actif', iconLabel: 'CX' },
+    { id: 'ai', label: 'IA', detail: 'Pilotage', iconLabel: 'AI' },
+    { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
+    { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
+  ];
+  readonly activeConsoleSurfaceOption = computed(
+    () =>
+      this.consoleSurfaceOptions.find((surface) => surface.id === this.activeConsoleSurface()) ??
+      this.consoleSurfaceOptions[0],
+  );
+  readonly consoleMissionActions = computed<readonly AdminQualityMissionActionDescriptor[]>(() => {
+    const mission = this.selectedMission();
+    return mission ? missionActionDescriptors(mission.status) : [];
+  });
   readonly selectedAiProviderOption = computed(() =>
     resolveAdminAiProviderOption(this.selectedAiProvider()),
   );
@@ -642,10 +818,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     readonly id: AdminQualityMissionHudSection;
     readonly label: string;
     readonly shortLabel: string;
+    readonly iconLabel: string;
   }[] = [
-    { id: 'coverage', label: 'Coverage matrix', shortLabel: 'Coverage' },
-    { id: 'mission', label: 'Mission Control', shortLabel: 'Mission' },
-    { id: 'workspace', label: 'Workspace deck', shortLabel: 'Workspace' },
+    { id: 'coverage', label: 'Coverage matrix', shortLabel: 'Coverage', iconLabel: 'CV' },
+    { id: 'mission', label: 'Mission Control', shortLabel: 'Mission', iconLabel: 'MS' },
+    { id: 'workspace', label: 'Workspace deck', shortLabel: 'Workspace', iconLabel: 'WK' },
   ];
   readonly selectedAiOpsModule = computed<AdminQualityAiOpsModule | null>(
     () =>
@@ -1234,6 +1411,36 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly filteredMatrixRefreshRequiredCount = computed(
     () => this.filteredEntries().filter((entry) => this.entryNeedsMatrixRefresh(entry)).length,
   );
+  readonly buildNowAllItems = computed<readonly AdminQualityBuildNowItem[]>(() =>
+    this.entries()
+      .map((entry) => this.buildNowItem(entry))
+      .filter((item): item is AdminQualityBuildNowItem => item !== null)
+      .sort((left, right) => right.score - left.score || left.domain.localeCompare(right.domain, 'fr-CA')),
+  );
+  readonly buildNowItems = computed<readonly AdminQualityBuildNowItem[]>(() =>
+    this.buildNowAllItems().slice(0, 3),
+  );
+  readonly buildNowPrimaryAction = computed<AdminQualityBuildNowItem | null>(
+    () => this.buildNowItems()[0] ?? null,
+  );
+  readonly buildNowGroups = computed<readonly AdminQualityBuildNowGroup[]>(() => {
+    const items = this.buildNowAllItems();
+    const groups: readonly { readonly tone: AdminQualityBuildNowTone; readonly label: string }[] = [
+      { tone: 'build', label: 'A construire' },
+      { tone: 'proof', label: 'A prouver' },
+      { tone: 'review', label: 'A relire' },
+      { tone: 'blocked', label: 'Bloques' },
+    ];
+
+    return groups.map((group) => {
+      const count = items.filter((item) => item.tone === group.tone).length;
+      return {
+        ...group,
+        count,
+        active: count > 0,
+      };
+    });
+  });
   readonly matrixRecalculationScopeOptions = MATRIX_RECALCULATION_SCOPE_OPTIONS;
   readonly selectedMatrixRecalculationEntry = computed<AdminQualityMatrixRecalculationEntry | null>(() => {
     const entry = this.selectedEntry();
@@ -1267,7 +1474,33 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         label: 'Sans changement',
         value: String(recalculation.summary.unchangedCount),
       },
+      {
+        label: 'A piloter',
+        value: String(
+          recalculation.entries.filter((entry) => this.isMatrixPilotActionable(entry)).length,
+        ),
+      },
     ];
+  });
+  readonly matrixPilotBacklogEntries = computed<readonly AdminQualityMatrixRecalculationEntry[]>(() => {
+    const recalculation = this.matrixRecalculation();
+    if (!recalculation) {
+      return [];
+    }
+
+    return [...recalculation.entries]
+      .filter((entry) => entry.pilot.priority !== 'later')
+      .sort((left, right) => {
+        const priorityDelta =
+          this.matrixPilotPriorityRank(right.pilot.priority) -
+          this.matrixPilotPriorityRank(left.pilot.priority);
+        if (priorityDelta !== 0) {
+          return priorityDelta;
+        }
+
+        return right.pilot.score - left.pilot.score;
+      })
+      .slice(0, 6);
   });
   readonly selectedMatrixProposalApplyReady = computed(
     () =>
@@ -1690,7 +1923,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.matrixRecalculation.set(result);
           if (notify) {
             this.notifications.success(
-              `Recalcul termine: ${result.summary.proposalCount} proposition(s), ${result.summary.blockedCount} blocage(s).`,
+              this.matrixRecalculationSuccessMessage(result),
               { source: 'admin-quality' },
             );
             this.loadMatrixSnapshot(false);
@@ -1702,6 +1935,31 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           });
         },
       });
+  }
+
+  private isMatrixPilotActionable(entry: AdminQualityMatrixRecalculationEntry): boolean {
+    return entry.pilot.priority !== 'later';
+  }
+
+  private matrixPilotPriorityRank(priority: AdminQualityMatrixPilotPriority): number {
+    switch (priority) {
+      case 'now':
+        return 4;
+      case 'blocked':
+        return 3;
+      case 'next':
+        return 2;
+      default:
+        return 1;
+    }
+  }
+
+  private matrixRecalculationSuccessMessage(
+    result: AdminQualityMatrixRecalculationSnapshot,
+  ): string {
+    const pilotCount = result.entries.filter((entry) => this.isMatrixPilotActionable(entry)).length;
+
+    return `Plan QA genere: ${result.summary.analyzedCount} entree(s) analysee(s), ${pilotCount} a piloter, ${result.summary.proposalCount} proposition(s), ${result.summary.blockedCount} blocage(s).`;
   }
 
   private loadMatrixSnapshot(markLoading = true): void {
@@ -1837,6 +2095,63 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedSignalRecommendationsDraft.set('');
   }
 
+  selectMatrixEntry(entryId: string): void {
+    const entry = this.entries().find((candidate) => candidate.id === entryId);
+    if (entry) {
+      this.selectEntry(entry);
+    }
+  }
+
+  selectBuildNowItem(item: AdminQualityBuildNowItem): void {
+    const entry = this.entries().find((candidate) => candidate.id === item.entryId);
+    if (!entry) {
+      return;
+    }
+
+    this.resetFilters();
+    this.selectEntry(entry);
+    this.openWorkspace(item.tone === 'proof' || item.tone === 'review' ? 'delegation' : 'qaQueue');
+  }
+
+  recalculateBuildNowItem(item: AdminQualityBuildNowItem): void {
+    const entry = this.entries().find((candidate) => candidate.id === item.entryId);
+    if (!entry) {
+      return;
+    }
+
+    this.resetFilters();
+    this.selectEntry(entry);
+    this.matrixRecalculationScope.set('selected-entry');
+    this.requestMatrixRecalculation('selected-entry');
+  }
+
+  createBuildNowMission(item: AdminQualityBuildNowItem): void {
+    const entry = this.entries().find((candidate) => candidate.id === item.entryId);
+    if (!entry) {
+      return;
+    }
+
+    this.resetFilters();
+    this.selectEntry(entry);
+
+    const recommendation = this.missionControl()?.recommendations.find(
+      (candidate) => candidate.kind === 'core',
+    );
+    if (!recommendation) {
+      this.notifications.error('Aucune mission principale disponible pour ce chantier.', {
+        source: 'admin-quality',
+      });
+      return;
+    }
+
+    this.updateMissionStatus(
+      recommendation,
+      'approved',
+      `Mission creee pour ${entry.domain}: ${item.actionLabel}.`,
+    );
+    this.setMissionHudSection('mission', 'manual-targeting');
+  }
+
   selectCoverageSignal(selection: AdminQualityCoverageSignalSelection): void {
     this.stopVoiceForContextChange();
     const signalContext = this.buildWorkspaceSignalContext(selection);
@@ -1879,6 +2194,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   openWorkspace(surface: AdminQualityWorkspaceSurface = this.activeWorkspaceSurface()): void {
     this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set('workspace');
     this.activeWorkspaceSurface.set(surface);
     this.workspaceOpen.set(true);
     this.setMissionHudSection('workspace', 'manual-targeting');
@@ -1890,7 +2206,26 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   setActiveWorkspaceSurface(surface: AdminQualityWorkspaceSurface): void {
     this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set('workspace');
     this.activeWorkspaceSurface.set(surface);
+  }
+
+  activateConsoleSurface(
+    surface: AdminQualityConsoleSurface,
+    workspaceSurface?: AdminQualityWorkspaceSurface,
+  ): void {
+    this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set(surface);
+
+    if (workspaceSurface) {
+      this.activeWorkspaceSurface.set(workspaceSurface);
+    } else if (surface === 'queue') {
+      this.activeWorkspaceSurface.set('qaQueue');
+    }
+
+    if (surface === 'workspace') {
+      this.setMissionHudSection('workspace', 'manual-targeting');
+    }
   }
 
   updateSelectedSignalPrompt(value: string): void {
@@ -1980,6 +2315,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   ): void {
     this.pendingMissionControlLockReason = reason;
     this.missionHudActiveSection.set(section);
+    if (section === 'workspace') {
+      this.activeConsoleSurface.set('workspace');
+    }
   }
 
   scrollMissionHudToSection(section: AdminQualityMissionHudSection): void {
@@ -2092,7 +2430,67 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       case 'selected-entry':
         return 'Entree ciblee';
       default:
-        return 'Entrees a revoir';
+        return 'Entrees a piloter';
+    }
+  }
+
+  matrixPilotPriorityLabel(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'A lancer maintenant';
+      case 'next':
+        return 'Prochain lot';
+      case 'blocked':
+        return 'Bloque';
+      default:
+        return 'Plus tard';
+    }
+  }
+
+  matrixPilotBucketLabel(bucket: AdminQualityMatrixPilotBucket): string {
+    switch (bucket) {
+      case 'ready-to-close':
+        return 'Pret a cloturer';
+      case 'needs-proof':
+        return 'Preuve requise';
+      case 'needs-product-call':
+        return 'Decision produit';
+      case 'blocked-by-api':
+        return 'Contrat API';
+      default:
+        return 'Pret a developper';
+    }
+  }
+
+  matrixPilotActionLabel(actionType: AdminQualityMatrixPilotActionType): string {
+    switch (actionType) {
+      case 'implement-feature':
+        return 'Implementer';
+      case 'add-test':
+        return 'Ajouter une preuve';
+      case 'fix-proof-gap':
+        return 'Combler la preuve';
+      case 'update-contract':
+        return 'Mettre a jour le contrat';
+      case 'review-product-scope':
+        return 'Arbitrer le scope';
+      case 'close-entry':
+        return 'Cloturer la ligne';
+      default:
+        return 'Valider';
+    }
+  }
+
+  matrixPilotPriorityClasses(priority: AdminQualityMatrixPilotPriority): string {
+    switch (priority) {
+      case 'now':
+        return 'border-emerald-300/25 bg-emerald-400/12 text-emerald-50';
+      case 'blocked':
+        return 'border-amber-300/25 bg-amber-400/12 text-amber-50';
+      case 'next':
+        return 'border-cyan-300/25 bg-cyan-400/12 text-cyan-50';
+      default:
+        return 'border-white/10 bg-white/[0.05] text-slate-200';
     }
   }
 
@@ -2260,6 +2658,84 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
 
     return 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/8';
+  }
+
+  consoleSurfaceClasses(surface: AdminQualityConsoleSurface): string {
+    if (this.activeConsoleSurface() === surface) {
+      return 'border-cyan-300/35 bg-cyan-400/14 text-cyan-50 shadow-[0_0_0_1px_rgba(34,211,238,0.12)]';
+    }
+
+    return 'border-white/10 bg-white/5 text-slate-300 hover:border-white/18 hover:bg-white/8';
+  }
+
+  consoleMissionActionLabel(action: AdminQualityMissionActionDescriptor): string {
+    if (action.action === 'auto-delegate') {
+      return this.selectedAiDispatching() ? 'Dispatch...' : `Lancer ${this.selectedAiProviderLabel()}`;
+    }
+
+    return action.label;
+  }
+
+  consoleMissionActionClasses(tone: AdminQualityMissionActionTone): string {
+    switch (tone) {
+      case 'primary':
+        return 'border-sky-400/35 bg-sky-400/14 text-sky-50 hover:bg-sky-400/20';
+      case 'secondary':
+        return 'border-amber-400/30 bg-amber-400/12 text-amber-100 hover:bg-amber-400/18';
+      case 'danger':
+        return 'border-rose-400/30 bg-rose-400/12 text-rose-100 hover:bg-rose-400/18';
+      case 'success':
+        return 'border-emerald-400/30 bg-emerald-400/12 text-emerald-100 hover:bg-emerald-400/18';
+      default:
+        return 'border-white/12 bg-white/5 text-slate-100 hover:bg-white/8';
+    }
+  }
+
+  consoleMissionActionIconLabel(action: AdminQualityMissionControlAction): string {
+    switch (action) {
+      case 'approve':
+        return 'OK';
+      case 'auto-delegate':
+        return 'GO';
+      case 'defer':
+        return 'DF';
+      case 'block':
+        return 'BL';
+      case 'reset':
+        return 'RS';
+      case 'return-proof':
+        return 'PF';
+      case 'complete':
+        return 'CL';
+      default:
+        return 'OP';
+    }
+  }
+
+  isConsoleMissionActionBlocked(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): boolean {
+    return (
+      action === 'auto-delegate' &&
+      this.selectedMission()?.id === mission.id &&
+      Boolean(this.selectedMissionQuotaSummary()) &&
+      !this.canStartSelectedMission()
+    );
+  }
+
+  isConsoleMissionActionDisabled(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): boolean {
+    return this.isConsoleMissionActionBlocked(action, mission) && action !== 'auto-delegate';
+  }
+
+  triggerConsoleMissionAction(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): void {
+    this.handleMissionAction({ action, recommendation: mission });
   }
 
   missionHudAmbientOverlayClasses(): string {
@@ -3006,6 +3482,171 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       return 'border-indigo-200 bg-indigo-50 text-indigo-700';
     }
     return 'border-sky-200 bg-sky-50 text-sky-700';
+  }
+
+  buildNowToneClasses(tone: AdminQualityBuildNowTone): string {
+    switch (tone) {
+      case 'review':
+        return 'border-rose-300/35 bg-rose-400/12 text-rose-50';
+      case 'build':
+        return 'border-indigo-300/30 bg-indigo-400/12 text-indigo-50';
+      case 'blocked':
+        return 'border-amber-300/35 bg-amber-400/12 text-amber-50';
+      default:
+        return 'border-sky-300/30 bg-sky-400/12 text-sky-50';
+    }
+  }
+
+  buildNowPulseClasses(tone: AdminQualityBuildNowTone): string {
+    switch (tone) {
+      case 'review':
+        return 'bg-rose-300 shadow-[0_0_22px_rgba(251,113,133,0.38)]';
+      case 'build':
+        return 'bg-indigo-300 shadow-[0_0_22px_rgba(129,140,248,0.36)]';
+      case 'blocked':
+        return 'bg-amber-300 shadow-[0_0_22px_rgba(252,211,77,0.38)]';
+      default:
+        return 'bg-cyan-300 shadow-[0_0_22px_rgba(103,232,249,0.38)]';
+    }
+  }
+
+  buildNowAutomationClasses(item: AdminQualityBuildNowItem): string {
+    switch (item.tone) {
+      case 'proof':
+        return 'border-emerald-300/30 bg-emerald-400/12 text-emerald-50';
+      case 'blocked':
+        return 'border-amber-300/35 bg-amber-400/12 text-amber-50';
+      default:
+        return 'border-white/12 bg-white/7 text-slate-100';
+    }
+  }
+
+  buildNowGroupClasses(group: AdminQualityBuildNowGroup): string {
+    const base = group.active ? this.buildNowToneClasses(group.tone) : 'border-white/10 bg-white/5 text-slate-500';
+    return `${base} ${group.active ? '' : 'opacity-70'}`.trim();
+  }
+
+  private buildNowItem(entry: AdminQualityMatrixEntry): AdminQualityBuildNowItem | null {
+    const refreshRequired = this.entryNeedsMatrixRefresh(entry);
+    const needsConstruction = entry.e2eStatus !== 'oui' || refreshRequired;
+    if (!needsConstruction || entry.managementBucket === 'scope-limit') {
+      return null;
+    }
+
+    const statusGap = 3 - this.statusRank(entry.e2eStatus);
+    const score =
+      (refreshRequired ? 90 : 0) +
+      this.priorityRank(entry.priority) * 18 +
+      statusGap * 16 +
+      (entry.needsProductWorkFirst ? 22 : 0) +
+      (entry.managementBucket === 'proof-gap' ? 18 : 0) +
+      (entry.managementBucket === 'product-gap' ? 12 : 0);
+    const reasonTags = [
+      refreshRequired ? 'Signal recent' : null,
+      entry.priority === 'haute' ? 'Haute priorite' : null,
+      entry.e2eStatus !== 'oui' ? `E2E ${this.statusLabel(entry.e2eStatus)}` : null,
+      entry.managementBucket === 'proof-gap' ? 'Preuve manquante' : null,
+      entry.needsProductWorkFirst || entry.managementBucket === 'product-gap'
+        ? 'Surface a construire'
+        : null,
+    ].filter((value): value is string => Boolean(value));
+    const automation = this.buildNowAutomation(entry, refreshRequired);
+
+    if (refreshRequired) {
+      return {
+        entryId: entry.id,
+        domain: entry.domain,
+        actionLabel: 'Relire la matrice',
+        reasonLabel: 'Signal recent',
+        reasonTags,
+        summarySentence: this.buildNowSummarySentence(entry, 'Relire la matrice', reasonTags),
+        automationLabel: automation.label,
+        automationDetail: automation.detail,
+        detail: entry.repoSignalSummary || entry.observedGap || entry.need,
+        nextMove: entry.nextMove,
+        readinessLabel: this.readinessLabel(entry),
+        score,
+        tone: 'review',
+      };
+    }
+
+    if (entry.needsProductWorkFirst || entry.managementBucket === 'product-gap') {
+      return {
+        entryId: entry.id,
+        domain: entry.domain,
+        actionLabel: 'Construire la surface',
+        reasonLabel: this.priorityLabel(entry.priority),
+        reasonTags,
+        summarySentence: this.buildNowSummarySentence(entry, 'Construire la surface', reasonTags),
+        automationLabel: automation.label,
+        automationDetail: automation.detail,
+        detail: entry.observedGap || entry.need,
+        nextMove: entry.nextMove,
+        readinessLabel: this.readinessLabel(entry),
+        score,
+        tone: 'build',
+      };
+    }
+
+    if (entry.managementBucket === 'covered') {
+      return null;
+    }
+
+    return {
+      entryId: entry.id,
+      domain: entry.domain,
+      actionLabel: 'Produire la preuve',
+      reasonLabel: this.priorityLabel(entry.priority),
+      reasonTags,
+      summarySentence: this.buildNowSummarySentence(entry, 'Produire la preuve', reasonTags),
+      automationLabel: automation.label,
+      automationDetail: automation.detail,
+      detail: entry.observedGap || entry.need,
+      nextMove: entry.nextMove,
+      readinessLabel: this.readinessLabel(entry),
+      score,
+      tone: 'proof',
+    };
+  }
+
+  private buildNowAutomation(
+    entry: AdminQualityMatrixEntry,
+    refreshRequired: boolean,
+  ): { readonly label: string; readonly detail: string } {
+    if (entry.managementBucket === 'scope-limit') {
+      return {
+        label: 'Bloque scope',
+        detail: 'Le perimetre doit etre arbitre avant execution.',
+      };
+    }
+
+    if (refreshRequired) {
+      return {
+        label: 'Decision humaine',
+        detail: 'Le signal recent doit etre relu avant promotion.',
+      };
+    }
+
+    if (entry.needsProductWorkFirst || entry.managementBucket === 'product-gap') {
+      return {
+        label: 'Decision humaine',
+        detail: 'La surface produit doit etre tranchee avant delegation.',
+      };
+    }
+
+    return {
+      label: 'Automatisable',
+      detail: 'Le prompt et les preuves attendues peuvent etre delegues.',
+    };
+  }
+
+  private buildNowSummarySentence(
+    entry: AdminQualityMatrixEntry,
+    actionLabel: string,
+    reasonTags: readonly string[],
+  ): string {
+    const reasons = reasonTags.length ? reasonTags.join(', ') : this.readinessLabel(entry);
+    return `La matrice recommande de ${actionLabel.toLowerCase()} car ${reasons.toLowerCase()} ressortent sur ce domaine.`;
   }
 
   private compareEntries(left: AdminQualityMatrixEntry, right: AdminQualityMatrixEntry): number {
@@ -4170,6 +4811,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       if (typeof parsed.missionHudExpanded === 'boolean') {
         this.missionHudExpanded.set(parsed.missionHudExpanded);
       }
+      if (this.isConsoleSurface(parsed.activeConsoleSurface)) {
+        this.activeConsoleSurface.set(parsed.activeConsoleSurface);
+      }
       if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
         this.activeWorkspaceSurface.set(parsed.activeWorkspaceSurface);
       } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
@@ -4197,6 +4841,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       selectedEntryId: this.selectedEntryId(),
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),
+      activeConsoleSurface: this.activeConsoleSurface(),
       activeWorkspaceSurface: this.activeWorkspaceSurface(),
       selectedAiProvider: this.selectedAiProvider(),
       missionHudExpanded: this.missionHudExpanded(),
@@ -4236,6 +4881,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   private isWorkspaceSurface(value: unknown): value is AdminQualityWorkspaceSurface {
     return value === 'qaQueue' || value === 'delegation' || value === 'actions';
+  }
+
+  private isConsoleSurface(value: unknown): value is AdminQualityConsoleSurface {
+    return value === 'context' || value === 'ai' || value === 'queue' || value === 'workspace';
   }
 
   private isLegacyInspectionSurface(value: unknown): value is AdminQualityLegacyInspectionSurface {

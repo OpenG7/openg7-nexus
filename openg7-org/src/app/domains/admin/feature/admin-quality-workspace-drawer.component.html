@@ -94,7 +94,7 @@
           </div>
         </header>
 
-        <div class="relative flex-1 overflow-y-auto px-5 py-5 xl:px-6">
+        <div class="og7-scrollbar-elegant relative flex-1 overflow-y-auto px-5 py-5 xl:px-6">
           @switch (activeSurface()) {
             @case ('qaQueue') {
               <section
@@ -222,6 +222,72 @@
                         </article>
                       }
                     </div>
+
+                    <article
+                      class="mt-5 rounded-[22px] border border-cyan-300/20 bg-cyan-400/8 p-4"
+                      data-og7="admin-quality-workspace-pilot-command"
+                      [attr.data-og7-id]="recalculation.entryId"
+                    >
+                      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="min-w-0">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/90">
+                            Pilotage developpement
+                          </p>
+                          <div class="mt-3 flex flex-wrap items-center gap-2">
+                            <span
+                              class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold"
+                              [class]="pilotPriorityClasses(recalculation.pilot.priority)"
+                            >
+                              {{ pilotPriorityLabel(recalculation.pilot.priority) }}
+                            </span>
+                            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">
+                              {{ pilotBucketLabel(recalculation.pilot.bucket) }}
+                            </span>
+                            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">
+                              {{ pilotActionLabel(recalculation.pilot.actionType) }}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="rounded-[20px] border border-cyan-300/20 bg-slate-950/55 px-4 py-3 text-right">
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Score</p>
+                          <p class="mt-2 text-2xl font-semibold text-white">{{ recalculation.pilot.score }}/100</p>
+                        </div>
+                      </div>
+
+                      @if (recalculation.pilot.blockingReason) {
+                        <p class="mt-4 rounded-[18px] border border-amber-300/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50">
+                          {{ recalculation.pilot.blockingReason }}
+                        </p>
+                      }
+
+                      <div class="mt-4 grid gap-4 lg:grid-cols-3">
+                        <div>
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Fichiers</p>
+                          <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
+                            @for (item of recalculation.pilot.targetFiles; track $index) {
+                              <li class="break-all">{{ item }}</li>
+                            }
+                          </ul>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Commandes</p>
+                          <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
+                            @for (item of recalculation.pilot.suggestedCommands; track $index) {
+                              <li class="break-all">{{ item }}</li>
+                            }
+                          </ul>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Preuves attendues</p>
+                          <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
+                            @for (item of recalculation.pilot.expectedEvidence; track $index) {
+                              <li>{{ item }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </article>
 
                     <div class="mt-5 grid gap-4 lg:grid-cols-2">
                       <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
@@ -384,7 +450,7 @@
                             {{ 'admin.quality.workspace.delegation.cards.recommendationsBody' | translate }}
                           </p>
                           <textarea
-                            class="mt-3 min-h-[8rem] w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
+                            class="og7-scrollbar-elegant mt-3 min-h-32 w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
                             [value]="editableSignalRecommendationsText()"
                             (input)="updateSignalRecommendations($event)"
                             data-og7="admin-quality-signal-recommendations-editor"
@@ -551,14 +617,14 @@
                         }
                         @if (selectedSignalContext()) {
                           <textarea
-                            class="mt-4 min-h-[14rem] w-full rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-200 outline-none transition focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/20"
+                            class="og7-scrollbar-elegant mt-4 min-h-56 w-full rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-200 outline-none transition focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/20"
                             [value]="editableCodexPrompt()"
                             (input)="updateCodexPrompt($event)"
                             data-og7="admin-quality-delegation-codex-editor"
                             data-og7-id="admin-quality-codex-prompt-editor"
                           ></textarea>
                         } @else {
-                          <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                          <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
                         }
                       </article>
 
@@ -598,7 +664,7 @@
                         <p class="mt-4 rounded-[20px] border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-white">
                           {{ plan.issueTitle }}
                         </p>
-                        <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
+                        <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
                       </article>
                     </div>
                   </article>
