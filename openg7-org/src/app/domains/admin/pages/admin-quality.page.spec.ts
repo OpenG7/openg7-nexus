@@ -794,26 +794,78 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const workspaceBar = root.querySelector('[data-og7="admin-quality-workspace-bar"]');
-    const openWorkspaceButton = root.querySelector(
-      '[data-og7-id="admin-quality-open-workspace"]',
+    const consoleRemote = root.querySelector('[data-og7="admin-quality-console-remote"]');
+    const consoleStage = root.querySelector('[data-og7="admin-quality-console-stage"]') as HTMLElement;
+    const surfaceStage = root.querySelector(
+      '[data-og7="admin-quality-console-surface-stage"]',
+    ) as HTMLElement;
+    const consoleContextButton = root.querySelector(
+      '[data-og7-id="admin-quality-console-context"]',
+    ) as HTMLButtonElement;
+    const consoleQueueButton = root.querySelector(
+      '[data-og7-id="admin-quality-console-queue"]',
+    ) as HTMLButtonElement;
+    const workspaceBar = root.querySelector('[data-og7="admin-quality-workspace-bar"]') as HTMLElement;
+    const sidePanel = root.querySelector('[data-og7="admin-quality-side-panel"]') as HTMLElement;
+    const aiPilotBlock = root.querySelector('[data-og7="admin-quality-ai-pilot-block"]') as HTMLElement;
+    const missionDeskButton = root.querySelector(
+      '[data-og7-id="admin-quality-side-panel-open-mission"]',
     ) as HTMLButtonElement;
     const secondaryQueue = root.querySelector(
       '[data-og7="admin-quality-secondary-queue"]',
     ) as HTMLDetailsElement;
+    const secondaryQueueScroller = secondaryQueue.querySelector('.og7-admin-quality-scrollbar');
     const secondaryQueueTitle = root.querySelector(
       '[data-og7="admin-quality-secondary-queue"] h2',
     ) as HTMLElement;
 
+    expect(consoleRemote).not.toBeNull();
+    expect(consoleStage.className).toContain('2xl:grid-cols');
+    expect(surfaceStage).not.toBeNull();
+    expect(root.querySelectorAll('[data-og7="admin-quality-secondary-queue"]').length).toBe(1);
+    expect(consoleContextButton.getAttribute('aria-pressed')).toBe('true');
+    expect(sidePanel.getAttribute('data-og7-visible')).toBe('true');
     expect(workspaceBar).not.toBeNull();
+    expect(workspaceBar.getAttribute('data-og7-visible')).toBe('false');
+    expect(workspaceBar.className).toContain('hidden');
+    expect(aiPilotBlock.getAttribute('data-og7-visible')).toBe('false');
     expect(secondaryQueue).not.toBeNull();
+    expect(secondaryQueue.closest('[data-og7="admin-quality-console-surface-stage"]')).toBe(surfaceStage);
+    expect(
+      secondaryQueue.closest('[data-og7="admin-quality-scroll-section"][data-og7-id="coverage"]'),
+    ).toBeNull();
     expect(secondaryQueue.open).toBeFalse();
+    expect(secondaryQueue.getAttribute('data-og7-visible')).toBe('false');
+    expect(secondaryQueueScroller).not.toBeNull();
+    expect((secondaryQueueScroller as HTMLElement).className).toContain('overflow-auto');
     expect(secondaryQueue.className).toContain('bg-slate-950/58');
     expect(secondaryQueue.className).not.toContain('og7-admin-quality-surface');
     expect(secondaryQueue.className).not.toContain('bg-slate-50');
     expect(secondaryQueueTitle.className).toContain('text-white');
     expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).toBeNull();
 
+    consoleQueueButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.activeConsoleSurface()).toBe('queue');
+    expect(secondaryQueue.open).toBeTrue();
+    expect(secondaryQueue.getAttribute('data-og7-visible')).toBe('true');
+    expect(sidePanel.getAttribute('data-og7-visible')).toBe('true');
+
+    consoleContextButton.click();
+    fixture.detectChanges();
+
+    missionDeskButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.activeConsoleSurface()).toBe('workspace');
+    expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('delegation');
+    expect(workspaceBar.getAttribute('data-og7-visible')).toBe('true');
+    expect(sidePanel.getAttribute('data-og7-visible')).toBe('true');
+
+    const openWorkspaceButton = root.querySelector(
+      '[data-og7-id="admin-quality-open-workspace"]',
+    ) as HTMLButtonElement;
     openWorkspaceButton.click();
     fixture.detectChanges();
 
@@ -1033,10 +1085,21 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const commandRail = root.querySelector('[data-og7="admin-quality-command-rail"]');
+    const commandRailLayout = root.querySelector(
+      '[data-og7="admin-quality-command-rail"] [data-og7-layout="compact-six"]',
+    ) as HTMLElement;
+    const commandRailCards = root.querySelectorAll(
+      '[data-og7="admin-quality-command-rail"] [data-og7="admin-quality-summary"]',
+    );
     const domainFilter = root.querySelector(
       '[data-og7-id="admin-quality-domain-filter"]',
     ) as HTMLSelectElement;
 
+    expect(commandRail?.getAttribute('data-og7-density')).toBe('compact');
+    expect(commandRailLayout.className).toContain('xl:grid-cols-6');
+    expect(commandRailCards.length).toBe(6);
+    expect(commandRailCards[0]?.getAttribute('data-og7-density')).toBe('compact');
     expect(root.querySelector('[data-og7-id="rail-heading"]')?.textContent).toContain(
       'Vue globale',
     );
@@ -1150,6 +1213,9 @@ describe('AdminQualityPage', () => {
     const missionControlShell = root.querySelector(
       '[data-og7="admin-quality-mission-control-shell"]',
     );
+    const consoleMissionActions = root.querySelector(
+      '[data-og7="admin-quality-console-mission-actions"]',
+    );
     const recommendations = root.querySelectorAll('[data-og7="admin-quality-recommendation"]');
     let recommendationButtons = root.querySelectorAll(
       '[data-og7="admin-quality-recommendation"] > button',
@@ -1160,13 +1226,20 @@ describe('AdminQualityPage', () => {
     expect(missionAccordionToggle?.textContent).toContain('Mission control complet');
     expect(missionControl).not.toBeNull();
     expect(missionHero).not.toBeNull();
+    expect(missionHero?.getAttribute('data-og7-density')).toBe('compact');
+    expect((missionHero as HTMLElement).className).toContain('p-3');
     expect(missionWorkflow).not.toBeNull();
     expect(root.querySelector('[data-og7="admin-quality-local-state"]')).toBeNull();
     expect(missionControl?.textContent).toContain('Mission Control');
     expect(missionControl?.textContent).toContain('Gap constate');
     expect(missionControl?.textContent).toContain('Mission suggeree');
-    expect(missionControl?.textContent).toContain('Valider mission');
-    expect(missionControl?.textContent).toContain('Lancer Codex');
+    expect(missionHero?.textContent).not.toContain('Valider mission');
+    expect(missionHero?.textContent).not.toContain('Lancer Codex');
+    expect(missionHero?.textContent).not.toContain('Differer');
+    expect(consoleMissionActions).not.toBeNull();
+    expect(consoleMissionActions?.textContent).toContain('Valider mission');
+    expect(consoleMissionActions?.textContent).toContain('Lancer Codex');
+    expect(consoleMissionActions?.textContent).toContain('Differer');
     expect(recommendations.length).toBe(3);
     expect(root.textContent).toContain('Validation humaine requise');
     expect(recommendationButtons[0]?.getAttribute('aria-pressed')).toBe('true');
@@ -1181,9 +1254,12 @@ describe('AdminQualityPage', () => {
     expect(recommendationButtons[0]?.getAttribute('aria-pressed')).toBe('false');
     expect(recommendationButtons[1]?.getAttribute('aria-pressed')).toBe('true');
 
-    const updatedApproveButton = root.querySelector(
+    const updatedApproveButton = consoleMissionActions?.querySelector(
       '[data-og7-id="admin-quality-approve-mission"]',
     ) as HTMLButtonElement;
+    expect(updatedApproveButton.closest('[data-og7="admin-quality-console-mission-actions"]')).toBe(
+      consoleMissionActions,
+    );
     const missionControlRadarSweep = root.querySelector(
       '[data-og7="admin-quality-mission-control-radar-sweep"]',
     );
@@ -1234,7 +1310,8 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const runway = root.querySelector('[data-og7="admin-quality-codex-runway"]');
+    const runway = root.querySelector('[data-og7="admin-quality-codex-runway"]') as HTMLElement;
+    const runwayMetrics = runway.querySelector('[data-og7-layout="compact-grid"]') as HTMLElement;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
     const generatedTasks = root.querySelectorAll('[data-og7="admin-quality-generated-task"]');
     const generatedTaskCount = root.querySelector(
@@ -1252,6 +1329,12 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-mission-energy-lane-segment"]',
     );
     const missionHud = root.querySelector('[data-og7="admin-quality-mission-hud"]');
+    const missionHudRadarStrip = root.querySelector(
+      '[data-og7="admin-quality-hud-radar-strip"]',
+    ) as HTMLElement;
+    const missionHudRadarIndicators = root.querySelector(
+      '[data-og7="admin-quality-hud-radar-indicators"]',
+    ) as HTMLElement;
     const missionHudAmbientLayer = root.querySelector(
       '[data-og7="admin-quality-hud-ambient-layer"]',
     );
@@ -1282,6 +1365,9 @@ describe('AdminQualityPage', () => {
     const missionControlContactLock = root.querySelector(
       '[data-og7="admin-quality-mission-control-contact-lock"]',
     );
+    const missionControlContactLog = root.querySelector(
+      '[data-og7="admin-quality-mission-control-contact-log"]',
+    ) as HTMLElement;
     const contactLogEntries = root.querySelectorAll(
       '[data-og7="admin-quality-mission-control-contact-log-entry"]',
     );
@@ -1306,29 +1392,61 @@ describe('AdminQualityPage', () => {
     const missionHudMiniSegments = root.querySelectorAll(
       '[data-og7="admin-quality-hud-energy-segment"]',
     );
+    const consoleHudControls = root.querySelector(
+      '[data-og7="admin-quality-console-hud-controls"]',
+    ) as HTMLElement;
+    const consoleDeskActions = root.querySelector(
+      '[data-og7="admin-quality-console-desk-actions"]',
+    ) as HTMLElement;
+    const workspaceHudChip = root.querySelector(
+      '[data-og7-id="admin-quality-hud-section-workspace"]',
+    ) as HTMLElement;
+    const hudToggle = root.querySelector('[data-og7-id="admin-quality-hud-toggle"]') as HTMLElement;
+    const missionDeskAction = root.querySelector(
+      '[data-og7-id="admin-quality-hud-open-workspace"]',
+    ) as HTMLElement;
+    const proofDeskAction = root.querySelector(
+      '[data-og7-id="admin-quality-hud-open-actions"]',
+    ) as HTMLElement;
     const proofTelemetry = root.querySelector('[data-og7="admin-quality-proof-telemetry"]');
     const sidePanel = root.querySelector('[data-og7="admin-quality-side-panel"]');
     const sidePanelEntry = root.querySelector('[data-og7-id="admin-quality-side-panel-entry"]');
     const sidePanelMission = root.querySelector('[data-og7-id="admin-quality-side-panel-mission"]');
 
     expect(runway).not.toBeNull();
+    expect(runway.getAttribute('data-og7-density')).toBe('compact');
+    expect(runway.className).toContain('p-3');
+    expect(runwayMetrics.className).toContain('xl:grid-cols-4');
     expect(missionHud).not.toBeNull();
     expect(missionHud?.getAttribute('data-og7-expanded')).toBe('true');
     expect(missionHud?.getAttribute('data-og7-ambient')).toBe('nominal');
     expect(missionHud?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
+    expect(missionHud?.getAttribute('data-og7-layout')).toBe('compact-radar-strip');
+    expect((missionHud as HTMLElement).className).toContain('py-2.5');
+    expect(missionHudRadarStrip.getAttribute('data-og7-layout')).toBe('radar-indicator');
+    expect(missionHudRadarStrip.className).toContain('sm:pr-72');
+    expect(missionHudRadarIndicators.closest('[data-og7="admin-quality-mission-hud"]')).toBe(
+      missionHud,
+    );
     expect(missionHudAmbientLayer).not.toBeNull();
     expect(missionControlShell?.getAttribute('data-og7-ambient')).toBe('nominal');
     expect(missionControlShell?.getAttribute('data-og7-provider')).toBe('codex');
     expect(missionControlShell?.getAttribute('data-og7-cockpit-tone')).toBe('codex');
     expect(missionControlShell?.getAttribute('data-og7-proof-stream')).toBe('high');
     expect(missionControlShell?.getAttribute('data-og7-radar-signal')).toBe('pulse');
+    expect(missionControlShell?.getAttribute('data-og7-radar-motion')).toBe('static');
+    expect(missionControlShell?.getAttribute('data-og7-radar-layout')).toBe('compact');
     expect(missionControlRadar).not.toBeNull();
     expect(missionControlRadarSweep).not.toBeNull();
     expect(missionControlRadarSweep?.getAttribute('data-og7-speed')).toBe('nominal');
     expect(missionControlRadarSweep?.getAttribute('data-og7-mode')).toBe('lock');
+    expect(getComputedStyle(missionControlRadarSweep as Element).animationName).toBe('none');
+    expect(getComputedStyle(missionControlRadarSweep as Element).display).toBe('none');
     expect(missionControlCadence?.textContent).toContain('1 event / active cycle');
     expect(missionControlCadenceDetail?.textContent).toContain('1 lock');
     expect(missionControlCadenceDetail?.textContent).toContain('0 action');
+    expect(missionControlContactLog.getAttribute('data-og7-layout')).toBe('compact-grid');
+    expect(missionControlContactLog.className).toContain('xl:grid-cols-2');
     expect(missionControlAcquisitionRings.length).toBe(3);
     expect(missionControlRadarTrails.length).toBe(3);
     expect(missionControlRadarEndpoints.length).toBe(3);
@@ -1388,8 +1506,24 @@ describe('AdminQualityPage', () => {
     expect(sidePanelMission?.textContent).toContain('Etendre la preuve QA');
     expect(missionHud?.textContent).toContain('Recherche et decouverte profonde');
     expect(missionHudMiniLane).not.toBeNull();
+    expect(missionHudMiniLane?.getAttribute('data-og7-layout')).toBe('compact');
     expect(missionHudMiniSegments.length).toBe(3);
     expect(missionHudMiniSegments[0]?.getAttribute('data-og7-state')).toBe('flowing');
+    expect(consoleHudControls).not.toBeNull();
+    expect(workspaceHudChip.closest('[data-og7="admin-quality-console-hud-controls"]')).toBe(
+      consoleHudControls,
+    );
+    expect(hudToggle.closest('[data-og7="admin-quality-console-hud-controls"]')).toBe(
+      consoleHudControls,
+    );
+    expect(missionDeskAction.closest('[data-og7="admin-quality-console-desk-actions"]')).toBe(
+      consoleDeskActions,
+    );
+    expect(proofDeskAction.closest('[data-og7="admin-quality-console-desk-actions"]')).toBe(
+      consoleDeskActions,
+    );
+    expect(missionDeskAction.closest('[data-og7="admin-quality-mission-hud"]')).toBeNull();
+    expect(proofDeskAction.closest('[data-og7="admin-quality-mission-hud"]')).toBeNull();
     expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-status"]')?.textContent).toContain(
       'Ops pret',
     );
@@ -1562,7 +1696,7 @@ describe('AdminQualityPage', () => {
     );
   });
 
-  it('opens the workspace directly from the sticky mission HUD actions', () => {
+  it('opens the workspace directly from the console remote desk actions', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -1828,7 +1962,7 @@ describe('AdminQualityPage', () => {
     ).toContain('Derniere delegation: E via Codex');
   });
 
-  it('updates the sticky mission HUD active section when a section chip is selected', () => {
+  it('updates the sticky mission HUD active section when a console remote chip is selected', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -1935,10 +2069,14 @@ describe('AdminQualityPage', () => {
     );
 
     expect(rail.getAttribute('data-og7-layout')).toBe('responsive-grid');
+    expect(rail.getAttribute('data-og7-density')).toBe('compact');
+    expect(rail.className).toContain('gap-2');
     expect(rail.className).not.toContain('overflow-x-auto');
     expect(rail.className).not.toContain('min-w-max');
     expect(cards.length).toBe(4);
     expect(codexCard.className).toContain('min-w-0');
+    expect(codexCard.className).toContain('gap-2');
+    expect(codexCard.getAttribute('data-og7-density')).toBe('compact');
     expect(codexCard?.textContent).toContain('Ops armed');
     expect(codexCard?.textContent).toContain('Proof package ready');
     expect(codexCard?.textContent).toContain('PR #321');
@@ -1969,7 +2107,12 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
+    const consoleMissionActions = root.querySelector(
+      '[data-og7="admin-quality-console-mission-actions"]',
+    );
+    const delegateButton = Array.from(
+      consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
+    ).find(
       (element) => element.textContent?.trim() === 'Lancer Codex',
     ) as HTMLButtonElement | undefined;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
@@ -2002,7 +2145,10 @@ describe('AdminQualityPage', () => {
       '[data-og7-id="admin-quality-ai-provider"]',
     ) as HTMLSelectElement;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
-    const aiBay = root.querySelector('[data-og7="admin-quality-ai-bay"]');
+    const aiBay = root.querySelector('[data-og7="admin-quality-ai-bay"]') as HTMLElement;
+    const aiBayLayout = root.querySelector(
+      '[data-og7="admin-quality-ai-bay"] [data-og7-layout="compact-flight-deck"]',
+    ) as HTMLElement;
     const aiBayStatus = root.querySelector('[data-og7-id="admin-quality-ai-bay-status"]');
     const telemetryStatus = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-status"]');
     const missionControlShell = root.querySelector(
@@ -2019,6 +2165,9 @@ describe('AdminQualityPage', () => {
     expect(fixture.componentInstance.selectedAiDispatchReady()).toBeTrue();
     expect(quotaStatus?.textContent).toContain('Ops ready');
     expect(aiBay?.getAttribute('data-og7-state')).toBe('armed');
+    expect(aiBay?.getAttribute('data-og7-density')).toBe('compact');
+    expect(aiBay.className).toContain('p-3');
+    expect(aiBayLayout.className).toContain('lg:grid-cols');
     expect(aiBayStatus?.textContent).toContain('Ops armed');
     expect(telemetryStatus?.getAttribute('data-og7-state')).toBe('live');
     expect(missionControlShell?.getAttribute('data-og7-provider')).toBe('codex');
@@ -2059,7 +2208,12 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const delegateButton = Array.from(root.querySelectorAll('[data-og7="action"]')).find(
+    const consoleMissionActions = root.querySelector(
+      '[data-og7="admin-quality-console-mission-actions"]',
+    );
+    const delegateButton = Array.from(
+      consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
+    ).find(
       (element) => element.textContent?.trim() === 'Lancer Codex',
     ) as HTMLButtonElement | undefined;
 

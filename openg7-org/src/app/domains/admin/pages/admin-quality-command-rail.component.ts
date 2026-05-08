@@ -25,58 +25,60 @@ export interface AdminQualityCommandMetric {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="relative overflow-hidden rounded-[26px] border border-violet-500/30 bg-[#071120]/94 p-3 shadow-[0_30px_84px_-48px_rgba(14,165,233,0.62)]"
+      class="relative overflow-hidden rounded-3xl border border-violet-500/30 bg-[#071120]/94 p-2.5 shadow-[0_24px_70px_-48px_rgba(14,165,233,0.56)]"
       data-og7="admin-quality-command-rail"
+      data-og7-density="compact"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_82%_18%,_rgba(168,85,247,0.16),_transparent_22%),linear-gradient(180deg,_rgba(3,7,18,0.34),_rgba(3,7,18,0.04))]"></div>
-      <div class="pointer-events-none absolute inset-x-5 top-14 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent"></div>
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.16),transparent_22%),linear-gradient(180deg,rgba(3,7,18,0.34),rgba(3,7,18,0.04))]"></div>
+      <div class="pointer-events-none absolute inset-x-5 top-10 h-px bg-linear-to-r from-transparent via-white/12 to-transparent"></div>
 
       <div class="sr-only" data-og7-id="rail-heading">
         {{ scope().filtered ? 'Scope actif' : 'Vue globale' }}
       </div>
 
-      <div class="relative grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
+      <div class="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" data-og7-layout="compact-six">
         @for (metric of metrics(); track metric.id) {
           <article
-            class="relative min-w-0 overflow-hidden rounded-[22px] border px-4 py-3.5"
+            class="relative min-w-0 overflow-hidden rounded-2xl border px-3 py-2.5"
             [class]="cardClasses(metric.accent)"
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
+            data-og7-density="compact"
             [attr.aria-label]="metric.activeValue + ' actif pour ' + metric.label + '. Global ' + metric.totalValue + '. ' + metric.detail"
             [attr.title]="metric.detail"
           >
-            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/18 to-transparent"></div>
-            <div class="flex h-full flex-col gap-3.5">
-              <div class="flex min-w-0 items-center gap-3">
+            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-white/18 to-transparent"></div>
+            <div class="flex h-full flex-col gap-2">
+              <div class="flex min-w-0 items-center gap-2.5">
                 <span
-                  class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-xs font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                   [class]="iconShellClasses(metric.accent)"
                   aria-hidden="true"
                 >
                   {{ iconLabel(metric.id) }}
                 </span>
                 <div class="min-w-0">
-                  <p class="truncate text-[2.1rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
+                  <p class="truncate text-[1.85rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
                     {{ metric.activeValue }}
                   </p>
                   <span class="sr-only">Global {{ metric.totalValue }}</span>
                 </div>
               </div>
 
-              <div class="min-w-0 space-y-1">
-                <p class="truncate text-base font-semibold text-white">{{ titleLabel(metric.id) }}</p>
-                <p class="truncate text-sm" [class]="detailClasses(metric.accent)">{{ subtitleLabel(metric.id) }}</p>
+              <div class="min-w-0 space-y-0.5">
+                <p class="truncate text-sm font-semibold text-white">{{ titleLabel(metric.id) }}</p>
+                <p class="truncate text-xs" [class]="detailClasses(metric.accent)">{{ subtitleLabel(metric.id) }}</p>
               </div>
 
-              <div class="mt-auto flex items-end justify-between gap-3">
+              <div class="mt-auto flex items-end justify-between gap-2 pt-1">
                 <div>
-                  <p class="text-xs font-medium" [class]="supportClasses(metric.accent)">
+                  <p class="text-[11px] font-medium" [class]="supportClasses(metric.accent)">
                     {{ footerLabel(metric.id) }}
                   </p>
                   <p class="sr-only">Global {{ metric.totalValue }}</p>
                 </div>
                 <span
-                  class="inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                  class="inline-flex shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold"
                   [class]="badgeClasses(metric.accent)"
                 >
                   {{ deltaLabel(metric) }}

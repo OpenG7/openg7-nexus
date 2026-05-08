@@ -84,9 +84,11 @@ import {
 import { AdminQualityDelegationPlan, buildDelegationPlan } from './admin-quality-delegation';
 import { AdminQualityDomainIconComponent } from './admin-quality-domain-icon.component';
 import {
+  AdminQualityMissionActionDescriptor,
   AdminQualityMissionActionTone,
   AdminQualityMissionControlAction,
   AdminQualityMissionControlActionEvent,
+  missionActionDescriptors,
   resolveMissionAction,
 } from './admin-quality-mission-actions';
 import {
@@ -122,11 +124,17 @@ type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
 type AdminQualityMissionRadarTimelineKind = 'lock' | 'action' | 'proof';
 type AdminQualityBuildNowTone = 'review' | 'build' | 'proof' | 'blocked';
+type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace';
 type AdminQualityMissionRadarSignalTone =
   | 'manual'
   | 'pulse'
   | 'proof'
   | AdminQualityMissionActionTone;
+interface AdminQualityConsoleSurfaceOption {
+  readonly id: AdminQualityConsoleSurface;
+  readonly label: string;
+  readonly detail: string;
+}
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
@@ -199,6 +207,7 @@ interface AdminQualityPersistedViewState {
   readonly selectedEntryId?: string | null;
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
+  readonly activeConsoleSurface?: AdminQualityConsoleSurface;
   readonly activeWorkspaceSurface?: AdminQualityWorkspaceSurface;
   readonly selectedAiProvider?: AdminAiProvider;
   readonly missionHudExpanded?: boolean;
@@ -394,6 +403,27 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         animation:
           og7-mission-radar-sweep calc(var(--og7-cockpit-sweep-duration) * 0.68) linear infinite,
           og7-radar-proof-sweep 1.45s ease-in-out infinite;
+      }
+
+      [data-og7-radar-motion='static'] .og7-radar-sweep {
+        animation: none !important;
+        display: none;
+        opacity: 0 !important;
+      }
+
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar'] {
+        background:
+          radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.1), transparent 24%),
+          radial-gradient(circle at 82% 16%, rgba(96, 165, 250, 0.08), transparent 22%),
+          linear-gradient(180deg, rgba(15, 23, 42, 0.16), rgba(2, 6, 23, 0.04)) !important;
+        opacity: 0.48 !important;
+      }
+
+      [data-og7-radar-motion='static'] .og7-radar-trail-line,
+      [data-og7-radar-motion='static'] .og7-radar-acquisition-ring,
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar-echo'],
+      [data-og7-radar-motion='static'] [data-og7='admin-quality-mission-control-radar-echo'] span {
+        animation: none !important;
       }
 
       @keyframes og7-mission-radar-sweep {
@@ -613,6 +643,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedSignalRecommendationsDraft = signal('');
   readonly signalDelegationTraces = signal<Record<string, AdminQualityCoverageSignalTrace>>({});
   readonly workspaceOpen = signal(false);
+  readonly activeConsoleSurface = signal<AdminQualityConsoleSurface>('context');
   readonly activeWorkspaceSurface = signal<AdminQualityWorkspaceSurface>('delegation');
   readonly selectedAiProvider = signal<AdminAiProvider>('codex');
   readonly missionHudExpanded = signal(true);
@@ -657,6 +688,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'mission', label: 'Mission control', href: '#admin-quality-mission' },
     { id: 'workspace', label: 'Workspace', href: '#admin-quality-workspace' },
   ];
+  readonly consoleSurfaceOptions: readonly AdminQualityConsoleSurfaceOption[] = [
+    { id: 'context', label: 'Contexte', detail: 'Domaine actif' },
+    { id: 'ai', label: 'IA', detail: 'Pilotage' },
+    { id: 'queue', label: 'Queue', detail: 'Matrice' },
+    { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves' },
+  ];
+  readonly consoleMissionActions = computed<readonly AdminQualityMissionActionDescriptor[]>(() => {
+    const mission = this.selectedMission();
+    return mission ? missionActionDescriptors(mission.status) : [];
+  });
   readonly selectedAiProviderOption = computed(() =>
     resolveAdminAiProviderOption(this.selectedAiProvider()),
   );
@@ -2042,6 +2083,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   openWorkspace(surface: AdminQualityWorkspaceSurface = this.activeWorkspaceSurface()): void {
     this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set('workspace');
     this.activeWorkspaceSurface.set(surface);
     this.workspaceOpen.set(true);
     this.setMissionHudSection('workspace', 'manual-targeting');
@@ -2053,7 +2095,26 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   setActiveWorkspaceSurface(surface: AdminQualityWorkspaceSurface): void {
     this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set('workspace');
     this.activeWorkspaceSurface.set(surface);
+  }
+
+  activateConsoleSurface(
+    surface: AdminQualityConsoleSurface,
+    workspaceSurface?: AdminQualityWorkspaceSurface,
+  ): void {
+    this.stopVoiceForContextChange();
+    this.activeConsoleSurface.set(surface);
+
+    if (workspaceSurface) {
+      this.activeWorkspaceSurface.set(workspaceSurface);
+    } else if (surface === 'queue') {
+      this.activeWorkspaceSurface.set('qaQueue');
+    }
+
+    if (surface === 'workspace') {
+      this.setMissionHudSection('workspace', 'manual-targeting');
+    }
   }
 
   updateSelectedSignalPrompt(value: string): void {
@@ -2143,6 +2204,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   ): void {
     this.pendingMissionControlLockReason = reason;
     this.missionHudActiveSection.set(section);
+    if (section === 'workspace') {
+      this.activeConsoleSurface.set('workspace');
+    }
   }
 
   scrollMissionHudToSection(section: AdminQualityMissionHudSection): void {
@@ -2483,6 +2547,63 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
 
     return 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/8';
+  }
+
+  consoleSurfaceClasses(surface: AdminQualityConsoleSurface): string {
+    if (this.activeConsoleSurface() === surface) {
+      return 'border-cyan-300/35 bg-cyan-400/14 text-cyan-50 shadow-[0_0_0_1px_rgba(34,211,238,0.12)]';
+    }
+
+    return 'border-white/10 bg-white/5 text-slate-300 hover:border-white/18 hover:bg-white/8';
+  }
+
+  consoleMissionActionLabel(action: AdminQualityMissionActionDescriptor): string {
+    if (action.action === 'auto-delegate') {
+      return this.selectedAiDispatching() ? 'Dispatch...' : `Lancer ${this.selectedAiProviderLabel()}`;
+    }
+
+    return action.label;
+  }
+
+  consoleMissionActionClasses(tone: AdminQualityMissionActionTone): string {
+    switch (tone) {
+      case 'primary':
+        return 'border-sky-400/35 bg-sky-400/14 text-sky-50 hover:bg-sky-400/20';
+      case 'secondary':
+        return 'border-amber-400/30 bg-amber-400/12 text-amber-100 hover:bg-amber-400/18';
+      case 'danger':
+        return 'border-rose-400/30 bg-rose-400/12 text-rose-100 hover:bg-rose-400/18';
+      case 'success':
+        return 'border-emerald-400/30 bg-emerald-400/12 text-emerald-100 hover:bg-emerald-400/18';
+      default:
+        return 'border-white/12 bg-white/5 text-slate-100 hover:bg-white/8';
+    }
+  }
+
+  isConsoleMissionActionBlocked(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): boolean {
+    return (
+      action === 'auto-delegate' &&
+      this.selectedMission()?.id === mission.id &&
+      Boolean(this.selectedMissionQuotaSummary()) &&
+      !this.canStartSelectedMission()
+    );
+  }
+
+  isConsoleMissionActionDisabled(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): boolean {
+    return this.isConsoleMissionActionBlocked(action, mission) && action !== 'auto-delegate';
+  }
+
+  triggerConsoleMissionAction(
+    action: AdminQualityMissionControlAction,
+    mission: AdminQualityMissionRecommendation,
+  ): void {
+    this.handleMissionAction({ action, recommendation: mission });
   }
 
   missionHudAmbientOverlayClasses(): string {
@@ -4558,6 +4679,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       if (typeof parsed.missionHudExpanded === 'boolean') {
         this.missionHudExpanded.set(parsed.missionHudExpanded);
       }
+      if (this.isConsoleSurface(parsed.activeConsoleSurface)) {
+        this.activeConsoleSurface.set(parsed.activeConsoleSurface);
+      }
       if (this.isWorkspaceSurface(parsed.activeWorkspaceSurface)) {
         this.activeWorkspaceSurface.set(parsed.activeWorkspaceSurface);
       } else if (this.isLegacyInspectionSurface(parsed.inspectionSurface)) {
@@ -4585,6 +4709,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       selectedEntryId: this.selectedEntryId(),
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),
+      activeConsoleSurface: this.activeConsoleSurface(),
       activeWorkspaceSurface: this.activeWorkspaceSurface(),
       selectedAiProvider: this.selectedAiProvider(),
       missionHudExpanded: this.missionHudExpanded(),
@@ -4624,6 +4749,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   private isWorkspaceSurface(value: unknown): value is AdminQualityWorkspaceSurface {
     return value === 'qaQueue' || value === 'delegation' || value === 'actions';
+  }
+
+  private isConsoleSurface(value: unknown): value is AdminQualityConsoleSurface {
+    return value === 'context' || value === 'ai' || value === 'queue' || value === 'workspace';
   }
 
   private isLegacyInspectionSurface(value: unknown): value is AdminQualityLegacyInspectionSurface {

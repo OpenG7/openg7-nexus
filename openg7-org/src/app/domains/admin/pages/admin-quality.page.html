@@ -736,8 +736,9 @@
       <div class="h-px bg-white/10"></div>
 
       <section
-        class="og7-cockpit-surface relative overflow-hidden rounded-[18px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(7,20,38,0.94))] px-4 py-3 shadow-[0_24px_70px_-46px_rgba(34,211,238,0.36)] transition-[box-shadow,border-color,transform] duration-500"
+        class="og7-cockpit-surface relative overflow-hidden rounded-[18px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(7,20,38,0.94))] px-3 py-2.5 shadow-[0_18px_54px_-42px_rgba(34,211,238,0.32)] transition-[box-shadow,border-color,transform] duration-500"
         data-og7="admin-quality-mission-hud"
+        data-og7-layout="compact-radar-strip"
         [attr.data-og7-expanded]="missionHudExpanded()"
         [attr.data-og7-ambient]="missionHudAmbientTone()"
         [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
@@ -754,37 +755,23 @@
           data-og7="admin-quality-hud-ambient-layer"
         ></div>
 
-        <div class="relative grid gap-3 border-b border-white/10 pb-3 xl:grid-cols-[minmax(0,1.4fr)_auto] xl:items-start">
-          <div class="min-w-0 space-y-2">
-            <div class="flex flex-wrap items-center gap-2">
+        <div
+          class="relative rounded-2xl border border-white/10 bg-slate-950/28 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:pr-72"
+          data-og7="admin-quality-hud-radar-strip"
+          data-og7-layout="radar-indicator"
+        >
+          <div class="min-w-0 space-y-1.5">
+            <div class="flex flex-wrap items-center gap-2 pr-0 sm:pr-2">
               <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
                 Mission HUD
               </p>
-              <span
-                class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                [class]="missionHudStatusClasses(mission.status)"
-                data-og7-id="admin-quality-hud-mission-status"
-              >
-                {{ missionHudStatusLabel(mission.status) }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100"
-              >
-                {{ selectedAiProviderLabel() }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200"
-                data-og7-id="admin-quality-hud-active-section-label"
-              >
-                Zone active · {{ missionHudSectionLabel() }}
-              </span>
             </div>
 
             <div class="min-w-0">
               <h2 class="truncate text-lg font-semibold text-white" data-og7-id="admin-quality-hud-title">
                 {{ mission.title }}
               </h2>
-              <p class="mt-1 max-w-3xl text-sm leading-6 text-slate-300" data-og7-id="admin-quality-hud-summary">
+              <p class="mt-1 max-w-3xl text-sm leading-5 text-slate-300" data-og7-id="admin-quality-hud-summary">
                 @if (missionHudExpanded()) {
                 {{ selectedEntry()?.domain ?? 'Mission active' }} · {{ selectedAiDispatchWorkflow() }}
                 } @else {
@@ -794,45 +781,40 @@
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 xl:justify-end">
-            @for (section of missionHudSectionOptions; track section.id) {
-            <button
-              type="button"
-              class="inline-flex min-h-9 items-center justify-center rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition"
-              [class]="missionHudSectionClasses(section.id)"
-              [attr.data-og7-active]="missionHudActiveSection() === section.id"
-              [attr.data-og7-pulse]="missionHudSectionPulse(section.id)"
-              [attr.data-og7-id]="'admin-quality-hud-section-' + section.id"
-              data-og7="admin-quality-hud-section-chip"
-              (click)="scrollMissionHudToSection(section.id)"
-            >
-              {{ section.shortLabel }}
-            </button>
-            }
-            <button
-              type="button"
-              class="inline-flex min-h-9 items-center justify-center rounded-full border border-white/12 bg-white/5 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-100 transition hover:bg-white/8"
-              (click)="toggleMissionHud()"
-              data-og7="action"
-              data-og7-id="admin-quality-hud-toggle"
-            >
-              {{ missionHudExpanded() ? 'Compact mode' : 'Expanded mode' }}
-            </button>
+          <div
+            class="mt-2 flex flex-wrap gap-1.5 sm:absolute sm:right-3 sm:top-3 sm:mt-0 sm:max-w-64 sm:justify-end"
+            data-og7="admin-quality-hud-radar-indicators"
+          >
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                [class]="missionHudStatusClasses(mission.status)"
+                data-og7-id="admin-quality-hud-mission-status"
+              >
+                {{ missionHudStatusLabel(mission.status) }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-cyan-100"
+              >
+                {{ selectedAiProviderLabel() }}
+              </span>
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-200"
+                data-og7-id="admin-quality-hud-active-section-label"
+              >
+                Zone active · {{ missionHudSectionLabel() }}
+              </span>
           </div>
         </div>
 
-        <div class="relative mt-3 grid gap-3 2xl:grid-cols-[minmax(0,1fr)_auto] 2xl:items-center">
-          <div
-            class="rounded-2xl border border-white/10 bg-white/4 px-3 py-3"
-            data-og7="admin-quality-hud-energy-lane"
-          >
-            <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-              <span>Energy lane</span>
-              <span class="h-px flex-1 bg-white/10"></span>
-            </div>
-            <div class="mt-3 grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] items-center gap-2">
+        <div
+          class="relative mt-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2"
+          data-og7="admin-quality-hud-energy-lane"
+          data-og7-layout="compact"
+        >
+            <div class="grid grid-cols-[auto_auto_minmax(1.75rem,1fr)_auto_minmax(1.75rem,1fr)_auto_minmax(1.75rem,1fr)_auto] items-center gap-1.5">
+              <span class="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Lane</span>
               <span
-                class="inline-flex h-8 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                class="inline-flex h-6 items-center justify-center rounded-full border px-1.5 text-[9px] font-semibold uppercase tracking-[0.14em]"
                 [class]="missionHudEnergyNodeClasses(missionHudEnergyLaneSegments()[0]?.state ?? 'standby')"
               >
                 Mission
@@ -846,39 +828,17 @@
                 [attr.data-og7-state]="segment.state"
               ></div>
               <span
-                class="inline-flex h-8 items-center justify-center rounded-full border px-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                class="inline-flex h-6 items-center justify-center rounded-full border px-1.5 text-[9px] font-semibold uppercase tracking-[0.14em]"
                 [class]="missionHudEnergyNodeClasses(segment.state)"
               >
                 {{ segment.to }}
               </span>
               }
             </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2 xl:justify-end">
-            <button
-              type="button"
-              class="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/12 bg-[#10192b] px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]"
-              (click)="openWorkspace('delegation')"
-              data-og7="action"
-              data-og7-id="admin-quality-hud-open-workspace"
-            >
-              Ouvrir mission desk
-            </button>
-            <button
-              type="button"
-              class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/16"
-              (click)="openWorkspace('actions')"
-              data-og7="action"
-              data-og7-id="admin-quality-hud-open-actions"
-            >
-              Ouvrir proof desk
-            </button>
-          </div>
         </div>
 
         @if (missionHudExpanded()) {
-        <div class="relative mt-3 grid gap-2 sm:grid-cols-2 xl:min-w-136 xl:grid-cols-4" data-og7="admin-quality-hud-expanded-panels">
+        <div class="relative mt-2 grid gap-2 sm:grid-cols-2 xl:min-w-136 xl:grid-cols-4" data-og7="admin-quality-hud-expanded-panels">
             <article class="rounded-[14px] border border-white/10 bg-white/5 px-3 py-2.5">
               <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Ops
@@ -942,7 +902,7 @@
             </article>
           </div>
 
-        <div class="mt-3 flex flex-col gap-3 border-t border-white/10 pt-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="mt-2 flex flex-col gap-3 border-t border-white/10 pt-2 lg:flex-row lg:items-center lg:justify-between">
           <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
             @if (selectedAiProofDisplay(); as proof) {
             <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-slate-200">
@@ -1007,7 +967,7 @@
             </span>
             <span class="mt-1 block text-lg font-semibold text-white">Mission control complet</span>
             <span class="mt-2 block max-w-3xl text-sm leading-6 text-slate-300">
-              Radar, preuves, providers et boucle d execution restent disponibles ici sans charger la vue principale.
+              Radar statique, preuves, providers et boucle d execution restent disponibles ici sans charger la vue principale.
             </span>
           </span>
           <span class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300">
@@ -1031,6 +991,8 @@
         [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
         [attr.data-og7-proof-stream]="missionControlProofStreamIntensity()"
         [attr.data-og7-radar-signal]="missionControlRadarSignalTone()"
+        data-og7-radar-motion="static"
+        data-og7-radar-layout="compact"
         [attr.data-og7-lock-focus]="missionControlPanelFocused('mission')"
         [ngStyle]="missionControlShellStyleVars()"
       >
@@ -1142,11 +1104,11 @@
         data-og7="admin-quality-mission-control-provider-light"
       ></div>
 
-      <div class="relative mb-4 grid gap-4 2xl:grid-cols-[minmax(15rem,0.62fr)_minmax(0,1fr)] 2xl:items-start">
-        <div class="space-y-3 rounded-[24px] border border-white/10 bg-slate-950/40 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-          <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
-            <span>Mission radar</span>
-            <span class="h-px w-10 bg-white/10"></span>
+      <div class="relative mb-3 grid gap-3 xl:grid-cols-[minmax(16rem,0.42fr)_minmax(0,1fr)] xl:items-start">
+        <div class="space-y-2 rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+            <span>Radar statique</span>
+            <span class="h-px w-8 bg-white/10"></span>
             <span class="text-slate-400">{{ missionHudAmbientTone() }}</span>
             <span
               class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-[0.18em]"
@@ -1158,22 +1120,22 @@
           </div>
 
           <p
-            class="text-[11px] leading-5 text-slate-400"
+            class="text-[11px] leading-4 text-slate-400"
             data-og7="admin-quality-mission-control-cadence-detail"
           >
             {{ missionControlRadarCadenceDetail() }}
           </p>
 
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-1.5">
             <span
-              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
+              class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
               [class]="missionControlProviderSignatureClasses()"
               data-og7="admin-quality-mission-control-signature"
             >
               {{ missionControlProviderSignatureLabel() }}
             </span>
             <span
-              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+              class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
               [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
             >
               {{ selectedAiTelemetryLabel() }}
@@ -1181,35 +1143,39 @@
           </div>
 
           <div
-            class="flex flex-col rounded-[18px] border px-3 py-3 text-left"
+            class="flex flex-col rounded-2xl border px-3 py-2 text-left"
             [class]="missionControlContactLockClasses()"
             data-og7="admin-quality-mission-control-contact-lock"
           >
-            <span class="text-[10px] font-semibold uppercase tracking-[0.2em]">
+            <span class="text-[9px] font-semibold uppercase tracking-[0.18em]">
               {{ missionControlContactLockLabel() }}
             </span>
-            <span class="mt-1 text-[11px] leading-5 text-slate-300/90">
+            <span class="mt-1 text-[11px] leading-4 text-slate-300/90">
               {{ missionControlContactLockDetail() }}
             </span>
           </div>
         </div>
 
-        <div class="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <div class="space-y-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">Verrou radar</p>
-              <p class="mt-1 text-sm font-semibold text-white">Historique recent des prises et preuves</p>
+              <p class="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-400">Verrou radar</p>
+              <p class="mt-1 text-sm font-semibold text-white">Historique recent</p>
             </div>
-            <span class="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-300">
               {{ missionControlRadarLockLog().length }} evenements
             </span>
           </div>
 
-          <div class="grid gap-2" data-og7="admin-quality-mission-control-contact-log">
+          <div
+            class="grid gap-2 xl:grid-cols-2"
+            data-og7="admin-quality-mission-control-contact-log"
+            data-og7-layout="compact-grid"
+          >
             @for (entry of missionControlRadarLockLog(); track entry.sequence; let index = $index) {
             <button
               type="button"
-              class="grid gap-2 rounded-[16px] border px-3 py-3 text-left transition hover:border-white/20 hover:bg-white/8 sm:grid-cols-[auto_minmax(0,1fr)]"
+              class="grid gap-2 rounded-2xl border px-3 py-2.5 text-left transition hover:border-white/20 hover:bg-white/8 sm:grid-cols-[auto_minmax(0,1fr)]"
               [class]="missionControlContactLogEntryClasses(index)"
               [attr.data-og7-age]="missionControlContactLogAge(index)"
               [attr.data-og7-id]="entry.id"
@@ -1238,17 +1204,17 @@
                 </span>
               </div>
 
-              <div class="min-w-0 space-y-1">
+              <div class="min-w-0 space-y-0.5">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="font-semibold uppercase tracking-[0.18em] text-slate-200/80">
+                  <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200/80">
                     {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` : `T-${index} ${entry.kindLabel.toLowerCase()}` }}
                   </span>
                   <span class="text-[10px] text-slate-400/90">
                     {{ missionControlTimelineCadenceLabel(index) }}
                   </span>
                 </div>
-                <p class="text-[11px] leading-5 text-slate-100/95">{{ entry.detailLabel }}</p>
-                <p class="text-[10px] leading-5 text-slate-400/90">
+                <p class="text-[11px] leading-4 text-slate-100/95">{{ entry.detailLabel }}</p>
+                <p class="text-[10px] leading-4 text-slate-400/90">
                   {{ entry.metricLabel }} · proof {{ entry.proofStream }}
                 </p>
               </div>
@@ -1317,181 +1283,165 @@
           (signalSelected)="selectCoverageSignal($event)"
         />
       </div>
-
-      <details
-        class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/58 shadow-[0_22px_72px_-52px_rgba(56,189,248,0.34)]"
-        data-og7="admin-quality-secondary-queue"
-      >
-        <summary
-          class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-          data-og7-id="admin-quality-secondary-queue-toggle"
-        >
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">
-              Surface secondaire
-            </p>
-            <h2 class="mt-1 text-lg font-semibold text-white">QA Queue detaillee</h2>
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-              Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
-              la prochaine action sans concurrencer la surface principale.
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-            <span
-              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
-            >
-              {{ filteredEntries().length }} domaine(s)
-            </span>
-            <span
-              class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/8 px-2.5 py-1 font-medium text-cyan-100"
-            >
-              Reselection manuelle
-            </span>
-          </div>
-        </summary>
-
-        <div class="border-t border-white/10 px-4 py-4 sm:px-5">
-          <section
-            class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/72 shadow-[0_24px_72px_-48px_rgba(8,47,73,0.48)] backdrop-blur"
-          >
-            <div class="max-h-160 overflow-auto">
-              <table class="min-w-225 divide-y divide-white/10 text-left text-sm text-slate-300">
-                <thead
-                  class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-wide text-slate-400"
-                >
-                  <tr>
-                    <th class="px-4 py-3">Domaine</th>
-                    <th class="px-4 py-3">Diagnostic</th>
-                    <th class="px-4 py-3">Lecture</th>
-                    <th class="px-4 py-3">Prochaine action</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-white/10">
-                  @if (!filteredEntries().length) {
-                  <tr>
-                    <td
-                      colspan="4"
-                      class="px-4 py-8 text-center text-sm text-slate-400"
-                      data-og7-id="admin-quality-empty"
-                    >
-                      Aucun domaine ne correspond aux filtres actifs.
-                    </td>
-                  </tr>
-                  } @else { @for (entry of filteredEntries(); track entry.id) {
-                  <tr
-                    data-og7="admin-quality-row"
-                    [attr.data-og7-id]="entry.id"
-                    [attr.data-og7-state]="entry.e2eStatus"
-                    [class.bg-cyan-400/8]="isSelected(entry)"
-                  >
-                    <td class="px-4 py-4 align-top">
-                      <button
-                        type="button"
-                        class="w-full text-left"
-                        (click)="selectEntry(entry)"
-                        [attr.aria-pressed]="isSelected(entry)"
-                        data-og7="action"
-                        data-og7-id="admin-quality-select-row"
-                      >
-                        <div class="flex items-start gap-3">
-                          <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
-                          <div class="min-w-0">
-                            <p class="font-semibold text-white">{{ entry.domain }}</p>
-                            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                              <p>Revu le {{ entry.reviewedAt }}</p>
-                              @if (entryNeedsMatrixRefresh(entry)) {
-                              <span
-                                class="inline-flex rounded-full border border-rose-300/22 bg-rose-400/10 px-2 py-0.5 font-semibold text-rose-100"
-                                data-og7="admin-quality-row-refresh-required"
-                                [attr.data-og7-id]="entry.id"
-                                title="Une mission cloturee est plus recente que la derniere revue de matrice."
-                              >
-                                Refresh matrice
-                              </span>
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    </td>
-                    <td class="px-4 py-4 align-top">
-                      <p class="font-medium leading-relaxed text-white">{{ entry.need }}</p>
-                      <p class="mt-2 text-xs leading-relaxed text-slate-400">{{ entry.observedGap }}</p>
-                    </td>
-                    <td class="px-4 py-4 align-top">
-                      <div class="flex flex-wrap gap-1.5">
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="statusClasses(entry.summaryStatus)"
-                          >S {{ statusLabel(entry.summaryStatus) }}</span
-                        >
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="statusClasses(entry.businessStatus)"
-                          >M {{ statusLabel(entry.businessStatus) }}</span
-                        >
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="statusClasses(entry.implementationStatus)"
-                          >I {{ statusLabel(entry.implementationStatus) }}</span
-                        >
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="statusClasses(entry.e2eStatus)"
-                          >E {{ statusLabel(entry.e2eStatus) }}</span
-                        >
-                      </div>
-                      <div class="mt-3 flex flex-wrap gap-1.5">
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="priorityClasses(entry.priority)"
-                          >Priorite {{ priorityLabel(entry.priority) }}</span
-                        >
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="bucketClasses(entry.managementBucket)"
-                          >{{ bucketLabel(entry.managementBucket) }}</span
-                        >
-                        <span
-                          class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                          [class]="readinessClasses(entry)"
-                          >{{ readinessLabel(entry) }}</span
-                        >
-                      </div>
-                      @if (entry.evidence.length) {
-                      <div class="mt-3 space-y-1">
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                          Preuve
-                        </p>
-                        <p class="text-xs leading-relaxed text-slate-400">
-                          {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
-                          firstEvidence) {
-                          <span class="text-slate-500"> - {{ firstEvidence }}</span>
-                          }
-                        </p>
-                      </div>
-                      }
-                    </td>
-                    <td class="px-4 py-4 align-top">
-                      <p class="leading-relaxed text-slate-300">{{ entry.nextMove }}</p>
-                    </td>
-                  </tr>
-                  } }
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      </details>
     </div>
 
     <aside
       class="flex min-w-0 flex-col gap-6 xl:sticky xl:top-58"
       data-og7="admin-quality-mission-inspector"
     >
+      <nav
+        class="rounded-3xl border border-cyan-300/18 bg-slate-950/66 px-4 py-4 shadow-[0_22px_70px_-54px_rgba(34,211,238,0.42)]"
+        aria-label="Console de pilotage QA"
+        data-og7="admin-quality-console-remote"
+      >
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Console de pilotage
+            </p>
+            <p class="mt-1 text-sm leading-6 text-slate-300">
+              Choisir la surface visible sans perdre le contexte actif.
+            </p>
+          </div>
+          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+            Sticky
+          </span>
+        </div>
+
+        <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2" data-og7="admin-quality-console-actions">
+          @for (surface of consoleSurfaceOptions; track surface.id) {
+          <button
+            type="button"
+            class="min-h-14 rounded-2xl border px-3 py-2 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+            [class]="consoleSurfaceClasses(surface.id)"
+            [attr.aria-pressed]="activeConsoleSurface() === surface.id"
+            [attr.data-og7-active]="activeConsoleSurface() === surface.id"
+            [attr.data-og7-id]="'admin-quality-console-' + surface.id"
+            data-og7="action"
+            (click)="activateConsoleSurface(surface.id)"
+          >
+            <span class="block text-sm font-semibold">{{ surface.label }}</span>
+            <span class="mt-1 block text-[11px] leading-4 opacity-75">{{ surface.detail }}</span>
+          </button>
+          }
+        </div>
+
+        <div
+          class="mt-3 border-t border-white/10 pt-3"
+          data-og7="admin-quality-console-hud-controls"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Navigation HUD
+            </p>
+            <button
+              type="button"
+              class="inline-flex min-h-8 items-center justify-center rounded-full border border-white/12 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-100 transition hover:bg-white/8"
+              (click)="toggleMissionHud()"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-toggle"
+            >
+              {{ missionHudExpanded() ? 'Compact mode' : 'Expanded mode' }}
+            </button>
+          </div>
+
+          <div class="mt-2 grid gap-1.5 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+            @for (section of missionHudSectionOptions; track section.id) {
+            <button
+              type="button"
+              class="min-h-9 rounded-2xl border px-2.5 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.16em] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+              [class]="missionHudSectionClasses(section.id)"
+              [attr.data-og7-active]="missionHudActiveSection() === section.id"
+              [attr.data-og7-pulse]="missionHudSectionPulse(section.id)"
+              [attr.data-og7-id]="'admin-quality-hud-section-' + section.id"
+              data-og7="admin-quality-hud-section-chip"
+              (click)="scrollMissionHudToSection(section.id)"
+            >
+              {{ section.shortLabel }}
+            </button>
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-3 border-t border-white/10 pt-3"
+          data-og7="admin-quality-console-desk-actions"
+        >
+          <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+            Desks
+          </p>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+            <button
+              type="button"
+              class="min-h-10 rounded-2xl border border-white/12 bg-[#10192b] px-3 py-2 text-left text-sm font-medium text-slate-100 transition hover:bg-[#16233a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+              (click)="openWorkspace('delegation')"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-open-workspace"
+            >
+              Ouvrir mission desk
+            </button>
+            <button
+              type="button"
+              class="min-h-10 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-left text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/16 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+              (click)="openWorkspace('actions')"
+              data-og7="action"
+              data-og7-id="admin-quality-hud-open-actions"
+            >
+              Ouvrir proof desk
+            </button>
+          </div>
+        </div>
+
+        @if (selectedMission(); as mission) {
+        <div
+          class="mt-4 border-t border-white/10 pt-4"
+          data-og7="admin-quality-console-mission-actions"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Commandes mission
+            </p>
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+              [class]="missionHudStatusClasses(mission.status)"
+            >
+              {{ missionHudStatusLabel(mission.status) }}
+            </span>
+          </div>
+
+          <div class="mt-3 grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+            @for (action of consoleMissionActions(); track action.action) {
+            <button
+              type="button"
+              class="min-h-10 rounded-2xl border px-3 py-2 text-left text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-55"
+              [class]="consoleMissionActionClasses(action.tone)"
+              [disabled]="isConsoleMissionActionDisabled(action.action, mission)"
+              [attr.aria-disabled]="isConsoleMissionActionBlocked(action.action, mission)"
+              [attr.title]="
+                isConsoleMissionActionBlocked(action.action, mission)
+                  ? selectedAiDispatchStatusDetail()
+                  : null
+              "
+              data-og7="action"
+              [attr.data-og7-id]="action.hookId ?? null"
+              (click)="triggerConsoleMissionAction(action.action, mission)"
+            >
+              {{ consoleMissionActionLabel(action) }}
+            </button>
+            }
+          </div>
+        </div>
+        }
+      </nav>
+
+      <div
+        class="grid gap-6 2xl:grid-cols-[minmax(22rem,0.92fr)_minmax(0,1.08fr)] 2xl:items-start"
+        data-og7="admin-quality-console-stage"
+      >
       <section
         class="rounded-3xl border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(6,18,34,0.92))] px-4 py-4 shadow-[0_24px_72px_-50px_rgba(34,211,238,0.42)]"
         data-og7="admin-quality-side-panel"
+        data-og7-visible="true"
       >
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div class="min-w-0">
@@ -1549,7 +1499,7 @@
             type="button"
             class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-50 transition hover:bg-cyan-400/16"
             data-og7-id="admin-quality-side-panel-open-mission"
-            (click)="openWorkspace('delegation')"
+            (click)="activateConsoleSurface('workspace', 'delegation')"
           >
             Mission desk
           </button>
@@ -1557,17 +1507,190 @@
             type="button"
             class="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/8"
             data-og7-id="admin-quality-side-panel-open-proof"
-            (click)="openWorkspace('actions')"
+            (click)="activateConsoleSurface('workspace', 'actions')"
           >
             Proof desk
           </button>
         </div>
       </section>
 
-      <div class="grid gap-6 xl:grid-cols-[minmax(19rem,0.72fr)_minmax(0,1.28fr)] xl:items-start">
+      <div class="grid gap-6" data-og7="admin-quality-console-surface-stage">
+        <details
+          class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/58 shadow-[0_22px_72px_-52px_rgba(56,189,248,0.34)]"
+          data-og7="admin-quality-secondary-queue"
+          [open]="activeConsoleSurface() === 'queue'"
+          [class.hidden]="activeConsoleSurface() !== 'queue'"
+          [attr.aria-hidden]="activeConsoleSurface() !== 'queue'"
+          [attr.data-og7-visible]="activeConsoleSurface() === 'queue'"
+        >
+          <summary
+            class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+            data-og7-id="admin-quality-secondary-queue-toggle"
+          >
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">
+                Surface secondaire
+              </p>
+              <h2 class="mt-1 text-lg font-semibold text-white">QA Queue detaillee</h2>
+              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
+                Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
+                la prochaine action sans concurrencer la surface principale.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
+              >
+                {{ filteredEntries().length }} domaine(s)
+              </span>
+              <span
+                class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/8 px-2.5 py-1 font-medium text-cyan-100"
+              >
+                Reselection manuelle
+              </span>
+            </div>
+          </summary>
+
+          <div class="border-t border-white/10 px-4 py-4 sm:px-5">
+            <section
+              class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/72 shadow-[0_24px_72px_-48px_rgba(8,47,73,0.48)] backdrop-blur"
+            >
+              <div class="og7-admin-quality-scrollbar og7-scrollbar-elegant max-h-160 overflow-auto">
+                <table class="min-w-225 divide-y divide-white/10 text-left text-sm text-slate-300">
+                  <thead
+                    class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-wide text-slate-400"
+                  >
+                    <tr>
+                      <th class="px-4 py-3">Domaine</th>
+                      <th class="px-4 py-3">Diagnostic</th>
+                      <th class="px-4 py-3">Lecture</th>
+                      <th class="px-4 py-3">Prochaine action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/10">
+                    @if (!filteredEntries().length) {
+                    <tr>
+                      <td
+                        colspan="4"
+                        class="px-4 py-8 text-center text-sm text-slate-400"
+                        data-og7-id="admin-quality-empty"
+                      >
+                        Aucun domaine ne correspond aux filtres actifs.
+                      </td>
+                    </tr>
+                    } @else { @for (entry of filteredEntries(); track entry.id) {
+                    <tr
+                      data-og7="admin-quality-row"
+                      [attr.data-og7-id]="entry.id"
+                      [attr.data-og7-state]="entry.e2eStatus"
+                      [class.bg-cyan-400/8]="isSelected(entry)"
+                    >
+                      <td class="px-4 py-4 align-top">
+                        <button
+                          type="button"
+                          class="w-full text-left"
+                          (click)="selectEntry(entry)"
+                          [attr.aria-pressed]="isSelected(entry)"
+                          data-og7="action"
+                          data-og7-id="admin-quality-select-row"
+                        >
+                          <div class="flex items-start gap-3">
+                            <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
+                            <div class="min-w-0">
+                              <p class="font-semibold text-white">{{ entry.domain }}</p>
+                              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                                <p>Revu le {{ entry.reviewedAt }}</p>
+                                @if (entryNeedsMatrixRefresh(entry)) {
+                                <span
+                                  class="inline-flex rounded-full border border-rose-300/22 bg-rose-400/10 px-2 py-0.5 font-semibold text-rose-100"
+                                  data-og7="admin-quality-row-refresh-required"
+                                  [attr.data-og7-id]="entry.id"
+                                  title="Une mission cloturee est plus recente que la derniere revue de matrice."
+                                >
+                                  Refresh matrice
+                                </span>
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      </td>
+                      <td class="px-4 py-4 align-top">
+                        <p class="font-medium leading-relaxed text-white">{{ entry.need }}</p>
+                        <p class="mt-2 text-xs leading-relaxed text-slate-400">{{ entry.observedGap }}</p>
+                      </td>
+                      <td class="px-4 py-4 align-top">
+                        <div class="flex flex-wrap gap-1.5">
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="statusClasses(entry.summaryStatus)"
+                            >S {{ statusLabel(entry.summaryStatus) }}</span
+                          >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="statusClasses(entry.businessStatus)"
+                            >M {{ statusLabel(entry.businessStatus) }}</span
+                          >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="statusClasses(entry.implementationStatus)"
+                            >I {{ statusLabel(entry.implementationStatus) }}</span
+                          >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="statusClasses(entry.e2eStatus)"
+                            >E {{ statusLabel(entry.e2eStatus) }}</span
+                          >
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-1.5">
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="priorityClasses(entry.priority)"
+                            >Priorite {{ priorityLabel(entry.priority) }}</span
+                          >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="bucketClasses(entry.managementBucket)"
+                            >{{ bucketLabel(entry.managementBucket) }}</span
+                          >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                            [class]="readinessClasses(entry)"
+                            >{{ readinessLabel(entry) }}</span
+                          >
+                        </div>
+                        @if (entry.evidence.length) {
+                        <div class="mt-3 space-y-1">
+                          <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                            Preuve
+                          </p>
+                          <p class="text-xs leading-relaxed text-slate-400">
+                            {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
+                            firstEvidence) {
+                            <span class="text-slate-500"> - {{ firstEvidence }}</span>
+                            }
+                          </p>
+                        </div>
+                        }
+                      </td>
+                      <td class="px-4 py-4 align-top">
+                        <p class="leading-relaxed text-slate-300">{{ entry.nextMove }}</p>
+                      </td>
+                    </tr>
+                    } }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </details>
+
         <section
           class="rounded-[20px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(8,21,39,0.92))] px-4 py-4 shadow-[0_20px_60px_-42px_rgba(34,211,238,0.38)]"
           data-og7="admin-quality-ai-pilot-block"
+          [class.hidden]="activeConsoleSurface() !== 'ai'"
+          [attr.aria-hidden]="activeConsoleSurface() !== 'ai'"
+          [attr.data-og7-visible]="activeConsoleSurface() === 'ai'"
         >
           <div class="flex flex-col gap-3">
             <div class="min-w-0 space-y-1.5">
@@ -1639,6 +1762,9 @@
           data-og7="admin-quality-workspace-bar"
           data-og7-id="workspace"
           [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
+          [class.hidden]="activeConsoleSurface() !== 'workspace'"
+          [attr.aria-hidden]="activeConsoleSurface() !== 'workspace'"
+          [attr.data-og7-visible]="activeConsoleSurface() === 'workspace'"
         >
         <div
           class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.1),transparent_22%)]"
@@ -1872,6 +1998,7 @@
           </button>
           </div>
         </section>
+      </div>
       </div>
     </aside>
   </div>

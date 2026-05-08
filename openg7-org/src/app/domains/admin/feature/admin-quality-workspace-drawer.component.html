@@ -94,7 +94,7 @@
           </div>
         </header>
 
-        <div class="relative flex-1 overflow-y-auto px-5 py-5 xl:px-6">
+        <div class="og7-scrollbar-elegant relative flex-1 overflow-y-auto px-5 py-5 xl:px-6">
           @switch (activeSurface()) {
             @case ('qaQueue') {
               <section
@@ -450,7 +450,7 @@
                             {{ 'admin.quality.workspace.delegation.cards.recommendationsBody' | translate }}
                           </p>
                           <textarea
-                            class="mt-3 min-h-[8rem] w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
+                            class="og7-scrollbar-elegant mt-3 min-h-32 w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
                             [value]="editableSignalRecommendationsText()"
                             (input)="updateSignalRecommendations($event)"
                             data-og7="admin-quality-signal-recommendations-editor"
@@ -617,14 +617,14 @@
                         }
                         @if (selectedSignalContext()) {
                           <textarea
-                            class="mt-4 min-h-[14rem] w-full rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-200 outline-none transition focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/20"
+                            class="og7-scrollbar-elegant mt-4 min-h-56 w-full rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-200 outline-none transition focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/20"
                             [value]="editableCodexPrompt()"
                             (input)="updateCodexPrompt($event)"
                             data-og7="admin-quality-delegation-codex-editor"
                             data-og7-id="admin-quality-codex-prompt-editor"
                           ></textarea>
                         } @else {
-                          <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                          <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
                         }
                       </article>
 
@@ -664,7 +664,7 @@
                         <p class="mt-4 rounded-[20px] border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-white">
                           {{ plan.issueTitle }}
                         </p>
-                        <pre class="mt-4 max-h-[16rem] overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
+                        <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
                       </article>
                     </div>
                   </article>

@@ -145,7 +145,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 
         <div class="rounded-[24px] border border-white/10 bg-[#061221]/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           @if (entries().length) {
-            <div class="overflow-x-auto">
+            <div class="og7-scrollbar-elegant overflow-x-auto">
               <div class="min-w-[42rem]">
                 <div class="grid grid-cols-[minmax(11rem,1.3fr)_repeat(6,2.15rem)_4.5rem_minmax(9rem,1fr)] items-center gap-2 border-b border-white/10 px-3 pb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
                   <span>Domaine</span>

@@ -935,12 +935,6 @@ export class AdminQualityMissionControlComponent {
     }
   }
 
-  heroActions(
-    recommendation: AdminQualityMissionRecommendation,
-  ): readonly AdminQualityMissionActionDescriptor[] {
-    return missionActionDescriptors(recommendation.status);
-  }
-
   cardActions(
     recommendation: AdminQualityMissionRecommendation,
   ): readonly AdminQualityMissionActionDescriptor[] {
