@@ -1,5 +1,5 @@
 <section
-  class="relative mx-auto flex w-full max-w-384 flex-col gap-6 overflow-hidden px-1 pb-12 text-slate-100 xl:px-0"
+  class="relative mx-auto flex w-full max-w-384 flex-col gap-6 overflow-hidden px-4 pt-4 pb-12 text-slate-100 sm:px-5 sm:pt-6 lg:px-6 xl:px-8 xl:pt-8 2xl:px-10"
   data-og7="admin-quality-matrix"
 >
   <div
@@ -25,8 +25,8 @@
       class="pointer-events-none absolute right-6 bottom-5 h-7 w-7 rounded-full bg-sky-400/80 blur-[10px]"
     ></div>
 
-    <div class="relative lg:min-h-56">
-      <div class="og7-admin-quality-motion-rise max-w-3xl space-y-3 lg:max-w-[calc(100%-36rem)] lg:pr-6" style="animation-delay: 40ms">
+    <div class="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(30rem,0.92fr)] lg:items-start">
+      <div class="og7-admin-quality-motion-rise max-w-3xl space-y-3 lg:pr-6" style="animation-delay: 40ms">
         <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-200">
           Gestion de la qualite
         </p>
@@ -49,100 +49,130 @@
         </p>
       </div>
 
-      <div
-        class="og7-admin-quality-motion-rise mt-5 flex flex-wrap items-center gap-3 lg:absolute lg:top-0 lg:right-0 lg:mt-0 lg:max-w-140 lg:flex-nowrap lg:justify-end"
+      <aside
+        class="og7-admin-quality-motion-rise flex flex-col gap-3 rounded-3xl border border-white/10 bg-slate-950/38 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+        data-og7="admin-quality-hero-briefing"
         style="animation-delay: 120ms"
       >
-        @if (snapshot(); as data) {
-        <div
-          class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/12 bg-slate-950/56 px-3 py-2 text-xs text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-          data-og7-id="admin-quality-generated-at"
-        >
-          <span
-            class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/12 bg-slate-950/82 text-[10px] text-white/88"
+        <div class="flex flex-wrap items-center gap-2 lg:justify-end" data-og7="admin-quality-hero-status">
+          @if (snapshot(); as data) {
+          <div
+            class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/12 bg-slate-950/56 px-3 py-2 text-xs text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+            data-og7-id="admin-quality-generated-at"
           >
-            ○
-          </span>
-          <span class="max-w-full whitespace-nowrap"
-            >Snapshot charge le {{ data.generatedAt | date: 'yyyy-MM-dd HH:mm' }}</span
-          >
-          @if (matrixSourceStatus(); as sourceStatus) {
-          <span
-            class="inline-flex rounded-full border px-2 py-0.5 font-semibold"
-            data-og7-id="admin-quality-source-status"
-            [class]="matrixSourceClasses(sourceStatus)"
-            [attr.data-og7-state]="sourceStatus"
-          >
-            {{ matrixSourceLabel(sourceStatus) }}
-          </span>
-          }
-        </div>
-        }
-
-        <div
-          class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/12 bg-slate-950/56 px-3 py-2 text-xs text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-          data-og7-id="admin-quality-mission-sync"
-          [attr.data-og7-state]="missionDecisionSyncStatus()"
-          [attr.title]="missionDecisionSyncMessage()"
-        >
-          <span
-            class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/12 bg-slate-950/82 text-[10px] text-white/88"
-            aria-hidden="true"
-          >
-            M
-          </span>
-          <span
-            class="inline-flex rounded-full border px-2 py-0.5 font-semibold"
-            data-og7-id="admin-quality-mission-sync-status"
-            [class]="missionDecisionSyncClasses(missionDecisionSyncStatus())"
-          >
-            {{ missionDecisionSyncLabel(missionDecisionSyncStatus()) }}
-          </span>
-        </div>
-
-        <label
-          class="relative inline-flex min-h-12 min-w-[14rem] items-center rounded-[16px] border border-white/10 bg-[#10192b] px-3.5 py-3 text-sm text-slate-100"
-        >
-          <span class="sr-only">Portee du recalcul</span>
-          <select
-            class="w-full appearance-none bg-transparent pr-7 text-sm text-white outline-none"
-            [value]="matrixRecalculationScope()"
-            (change)="setMatrixRecalculationScope($event)"
-            data-og7-id="admin-quality-recalculate-scope"
-          >
-            @for (option of matrixRecalculationScopeOptions; track option.id) {
-            <option class="bg-slate-950 text-slate-100" [value]="option.id">{{ option.label }}</option>
+            <span
+              class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/12 bg-slate-950/82 text-[10px] text-white/88"
+            >
+              ○
+            </span>
+            <span class="max-w-full whitespace-nowrap"
+              >Snapshot charge le {{ data.generatedAt | date: 'yyyy-MM-dd HH:mm' }}</span
+            >
+            @if (matrixSourceStatus(); as sourceStatus) {
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 font-semibold"
+              data-og7-id="admin-quality-source-status"
+              [class]="matrixSourceClasses(sourceStatus)"
+              [attr.data-og7-state]="sourceStatus"
+            >
+              {{ matrixSourceLabel(sourceStatus) }}
+            </span>
             }
-          </select>
-          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
-        </label>
+          </div>
+          }
 
-        <button
-          type="button"
-          class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-[16px] border border-cyan-300/30 bg-[#10192b] px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-60"
-          (click)="recalculateMatrix()"
-          [disabled]="loading() || recalculatingMatrix()"
-          data-og7-id="admin-quality-recalculate-matrix"
-        >
-          <span aria-hidden="true">R</span>
-          <span>{{ recalculatingMatrix() ? 'Analyse en cours...' : 'Generer le plan QA' }}</span>
-        </button>
+          <div
+            class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/12 bg-slate-950/56 px-3 py-2 text-xs text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+            data-og7-id="admin-quality-mission-sync"
+            [attr.data-og7-state]="missionDecisionSyncStatus()"
+            [attr.title]="missionDecisionSyncMessage()"
+          >
+            <span
+              class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/12 bg-slate-950/82 text-[10px] text-white/88"
+              aria-hidden="true"
+            >
+              M
+            </span>
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 font-semibold"
+              data-og7-id="admin-quality-mission-sync-status"
+              [class]="missionDecisionSyncClasses(missionDecisionSyncStatus())"
+            >
+              {{ missionDecisionSyncLabel(missionDecisionSyncStatus()) }}
+            </span>
+          </div>
+        </div>
 
-        <a
-          routerLink="/admin"
-          class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-[#10192b] px-6 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]"
-        >
-          &larr; Retour Admin
-        </a>
-        <a
-          routerLink="/admin/ops"
-          class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl border border-sky-400/35 bg-linear-to-r from-sky-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400"
-        >
-          Acces Ops &rarr;
-        </a>
-      </div>
+        <div class="grid gap-2 sm:grid-cols-[minmax(12rem,1fr)_auto]">
+          <label
+            class="relative inline-flex min-h-12 items-center rounded-2xl border border-white/10 bg-[#10192b] px-3.5 py-3 text-sm text-slate-100"
+          >
+            <span class="sr-only">Portee du recalcul</span>
+            <select
+              class="w-full appearance-none bg-transparent pr-7 text-sm text-white outline-none"
+              [value]="matrixRecalculationScope()"
+              (change)="setMatrixRecalculationScope($event)"
+              data-og7-id="admin-quality-recalculate-scope"
+            >
+              @for (option of matrixRecalculationScopeOptions; track option.id) {
+              <option class="bg-slate-950 text-slate-100" [value]="option.id">{{ option.label }}</option>
+              }
+            </select>
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-300" aria-hidden="true">⌄</span>
+          </label>
 
-      <div class="og7-admin-quality-motion-rise mt-6 flex flex-col gap-3 lg:mt-8" style="animation-delay: 180ms">
+          <button
+            type="button"
+            class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl border border-cyan-300/30 bg-[#10192b] px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-[#16233a] disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="recalculateMatrix()"
+            [disabled]="loading() || recalculatingMatrix()"
+            data-og7-id="admin-quality-recalculate-matrix"
+          >
+            <span aria-hidden="true">R</span>
+            <span>{{ recalculatingMatrix() ? 'Analyse en cours...' : 'Generer le plan QA' }}</span>
+          </button>
+        </div>
+
+        <div class="grid gap-2 sm:grid-cols-2">
+          <a
+            routerLink="/admin"
+            class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl border border-white/14 bg-[#10192b] px-6 py-3 text-sm font-medium text-slate-100 transition hover:bg-[#16233a]"
+          >
+            &larr; Retour Admin
+          </a>
+          <a
+            routerLink="/admin/ops"
+            class="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl border border-sky-400/35 bg-linear-to-r from-sky-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:from-sky-400 hover:to-blue-400"
+          >
+            Acces Ops &rarr;
+          </a>
+        </div>
+
+        <div class="grid gap-2 sm:grid-cols-2" data-og7="admin-quality-hero-summary">
+          <div class="rounded-2xl border border-cyan-300/16 bg-cyan-400/8 px-3 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">Chantiers</p>
+            <p class="mt-1 text-2xl font-semibold text-white">{{ buildNowAllItems().length }}</p>
+            <p class="mt-1 text-xs text-slate-400">A traiter maintenant</p>
+          </div>
+          <div class="rounded-2xl border border-sky-300/16 bg-sky-400/8 px-3 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">Preuves</p>
+            <p class="mt-1 text-2xl font-semibold text-white">{{ proofGapCount() }}</p>
+            <p class="mt-1 text-xs text-slate-400">Domaines a prouver</p>
+          </div>
+          <div class="rounded-2xl border border-indigo-300/16 bg-indigo-400/8 px-3 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-200">Produit</p>
+            <p class="mt-1 text-2xl font-semibold text-white">{{ productWorkCount() }}</p>
+            <p class="mt-1 text-xs text-slate-400">Surfaces a construire</p>
+          </div>
+          <div class="rounded-2xl border border-amber-300/16 bg-amber-400/8 px-3 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">Signaux</p>
+            <p class="mt-1 text-2xl font-semibold text-white">{{ matrixRefreshRequiredCount() }}</p>
+            <p class="mt-1 text-xs text-slate-400">Lignes a relire</p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="og7-admin-quality-motion-rise flex flex-col gap-3 lg:col-span-2" style="animation-delay: 180ms">
         <og7-admin-navigation-pills
           [items]="adminCircuitItems"
           variant="dark"
@@ -962,6 +992,35 @@
       data-og7="admin-quality-scroll-section"
       data-og7-id="mission"
     >
+      <details
+        class="w-full rounded-[30px] border border-cyan-300/18 bg-slate-950/42 shadow-[0_24px_78px_-58px_rgba(34,211,238,0.48)]"
+        data-og7="admin-quality-accordion"
+        data-og7-id="mission-control"
+      >
+        <summary
+          class="flex cursor-pointer list-none flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between xl:px-5"
+          data-og7-id="admin-quality-accordion-toggle-mission-control"
+        >
+          <span class="min-w-0">
+            <span class="block text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Surface avancee
+            </span>
+            <span class="mt-1 block text-lg font-semibold text-white">Mission control complet</span>
+            <span class="mt-2 block max-w-3xl text-sm leading-6 text-slate-300">
+              Radar, preuves, providers et boucle d execution restent disponibles ici sans charger la vue principale.
+            </span>
+          </span>
+          <span class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300">
+            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1">
+              {{ selectedAiProviderLabel() }}
+            </span>
+            @if (selectedMission(); as mission) {
+            <span class="inline-flex rounded-full border px-2.5 py-1" [class]="missionHudStatusClasses(mission.status)">
+              {{ missionHudStatusLabel(mission.status) }}
+            </span>
+            }
+          </span>
+        </summary>
       @if (missionControl(); as mission) {
       <section
         class="og7-cockpit-surface og7-radar-lock-focus-shell relative w-full overflow-hidden rounded-4xl border p-4 xl:p-5 transition-[border-color,box-shadow,background] duration-500"
@@ -1232,6 +1291,7 @@
       </div>
       </section>
       }
+      </details>
     </div>
 
     <div
@@ -1259,7 +1319,7 @@
       </div>
 
       <details
-        class="og7-admin-quality-surface rounded-[30px] border border-slate-200/90 bg-slate-50/90 shadow-[0_18px_56px_-40px_rgba(15,23,42,0.2)]"
+        class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/58 shadow-[0_22px_72px_-52px_rgba(56,189,248,0.34)]"
         data-og7="admin-quality-secondary-queue"
       >
         <summary
@@ -1267,37 +1327,37 @@
           data-og7-id="admin-quality-secondary-queue-toggle"
         >
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">
               Surface secondaire
             </p>
-            <h2 class="mt-1 text-lg font-semibold text-slate-900">QA Queue detaillee</h2>
-            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+            <h2 class="mt-1 text-lg font-semibold text-white">QA Queue detaillee</h2>
+            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
               Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
               la prochaine action sans concurrencer la surface principale.
             </p>
           </div>
-          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
             <span
-              class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
             >
               {{ filteredEntries().length }} domaine(s)
             </span>
             <span
-              class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 font-medium"
+              class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/8 px-2.5 py-1 font-medium text-cyan-100"
             >
               Reselection manuelle
             </span>
           </div>
         </summary>
 
-        <div class="border-t border-slate-200/80 px-4 py-4 sm:px-5">
+        <div class="border-t border-white/10 px-4 py-4 sm:px-5">
           <section
-            class="og7-admin-quality-surface rounded-[30px] border border-sky-100/90 bg-white/95 shadow-[0_24px_72px_-44px_rgba(15,23,42,0.18)] backdrop-blur"
+            class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/72 shadow-[0_24px_72px_-48px_rgba(8,47,73,0.48)] backdrop-blur"
           >
             <div class="max-h-160 overflow-auto">
-              <table class="min-w-225 divide-y divide-slate-200 text-left text-sm text-slate-700">
+              <table class="min-w-225 divide-y divide-white/10 text-left text-sm text-slate-300">
                 <thead
-                  class="sticky top-0 z-10 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"
+                  class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-wide text-slate-400"
                 >
                   <tr>
                     <th class="px-4 py-3">Domaine</th>
@@ -1306,12 +1366,12 @@
                     <th class="px-4 py-3">Prochaine action</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-white/10">
                   @if (!filteredEntries().length) {
                   <tr>
                     <td
                       colspan="4"
-                      class="px-4 py-8 text-center text-sm text-slate-500"
+                      class="px-4 py-8 text-center text-sm text-slate-400"
                       data-og7-id="admin-quality-empty"
                     >
                       Aucun domaine ne correspond aux filtres actifs.
@@ -1322,7 +1382,7 @@
                     data-og7="admin-quality-row"
                     [attr.data-og7-id]="entry.id"
                     [attr.data-og7-state]="entry.e2eStatus"
-                    [class.bg-slate-50]="isSelected(entry)"
+                    [class.bg-cyan-400/8]="isSelected(entry)"
                   >
                     <td class="px-4 py-4 align-top">
                       <button
@@ -1336,12 +1396,12 @@
                         <div class="flex items-start gap-3">
                           <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
                           <div class="min-w-0">
-                            <p class="font-semibold text-slate-900">{{ entry.domain }}</p>
-                            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                            <p class="font-semibold text-white">{{ entry.domain }}</p>
+                            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                               <p>Revu le {{ entry.reviewedAt }}</p>
                               @if (entryNeedsMatrixRefresh(entry)) {
                               <span
-                                class="inline-flex rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 font-semibold text-rose-700"
+                                class="inline-flex rounded-full border border-rose-300/22 bg-rose-400/10 px-2 py-0.5 font-semibold text-rose-100"
                                 data-og7="admin-quality-row-refresh-required"
                                 [attr.data-og7-id]="entry.id"
                                 title="Une mission cloturee est plus recente que la derniere revue de matrice."
@@ -1355,8 +1415,8 @@
                       </button>
                     </td>
                     <td class="px-4 py-4 align-top">
-                      <p class="font-medium leading-relaxed text-slate-900">{{ entry.need }}</p>
-                      <p class="mt-2 text-xs leading-relaxed text-slate-600">{{ entry.observedGap }}</p>
+                      <p class="font-medium leading-relaxed text-white">{{ entry.need }}</p>
+                      <p class="mt-2 text-xs leading-relaxed text-slate-400">{{ entry.observedGap }}</p>
                     </td>
                     <td class="px-4 py-4 align-top">
                       <div class="flex flex-wrap gap-1.5">
@@ -1400,10 +1460,10 @@
                       </div>
                       @if (entry.evidence.length) {
                       <div class="mt-3 space-y-1">
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                           Preuve
                         </p>
-                        <p class="text-xs leading-relaxed text-slate-600">
+                        <p class="text-xs leading-relaxed text-slate-400">
                           {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
                           firstEvidence) {
                           <span class="text-slate-500"> - {{ firstEvidence }}</span>
@@ -1413,7 +1473,7 @@
                       }
                     </td>
                     <td class="px-4 py-4 align-top">
-                      <p class="leading-relaxed text-slate-700">{{ entry.nextMove }}</p>
+                      <p class="leading-relaxed text-slate-300">{{ entry.nextMove }}</p>
                     </td>
                   </tr>
                   } }
@@ -1429,6 +1489,81 @@
       class="flex min-w-0 flex-col gap-6 xl:sticky xl:top-58"
       data-og7="admin-quality-mission-inspector"
     >
+      <section
+        class="rounded-3xl border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(6,18,34,0.92))] px-4 py-4 shadow-[0_24px_72px_-50px_rgba(34,211,238,0.42)]"
+        data-og7="admin-quality-side-panel"
+      >
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+              Panneau lateral
+            </p>
+            <h2 class="mt-2 text-lg font-semibold text-white">Contexte actif</h2>
+          </div>
+          <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            Decision
+          </span>
+        </div>
+
+        @if (selectedEntry(); as entry) {
+        <div class="mt-4 space-y-3" data-og7-id="admin-quality-side-panel-entry">
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Domaine</p>
+            <p class="mt-1 text-base font-semibold leading-6 text-white">{{ entry.domain }}</p>
+            <p class="mt-2 text-sm leading-6 text-slate-300">{{ entry.need }}</p>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 text-[10px] font-semibold">
+            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.businessStatus)">
+              M {{ statusLabel(entry.businessStatus) }}
+            </span>
+            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.implementationStatus)">
+              I {{ statusLabel(entry.implementationStatus) }}
+            </span>
+            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.e2eStatus)">
+              E {{ statusLabel(entry.e2eStatus) }}
+            </span>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Prochaine action</p>
+            <p class="mt-2 text-sm leading-6 text-cyan-50">{{ entry.nextMove }}</p>
+          </div>
+        </div>
+        }
+
+        @if (selectedMission(); as mission) {
+        <div class="mt-3 rounded-2xl border border-white/10 bg-slate-950/45 px-3 py-3" data-og7-id="admin-quality-side-panel-mission">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Mission</p>
+            <span class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold" [class]="missionHudStatusClasses(mission.status)">
+              {{ missionHudStatusLabel(mission.status) }}
+            </span>
+          </div>
+          <p class="mt-2 text-sm font-semibold leading-6 text-white">{{ mission.title }}</p>
+        </div>
+        }
+
+        <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-50 transition hover:bg-cyan-400/16"
+            data-og7-id="admin-quality-side-panel-open-mission"
+            (click)="openWorkspace('delegation')"
+          >
+            Mission desk
+          </button>
+          <button
+            type="button"
+            class="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/8"
+            data-og7-id="admin-quality-side-panel-open-proof"
+            (click)="openWorkspace('actions')"
+          >
+            Proof desk
+          </button>
+        </div>
+      </section>
+
       <div class="grid gap-6 xl:grid-cols-[minmax(19rem,0.72fr)_minmax(0,1.28fr)] xl:items-start">
         <section
           class="rounded-[20px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(8,21,39,0.92))] px-4 py-4 shadow-[0_20px_60px_-42px_rgba(34,211,238,0.38)]"
@@ -1555,15 +1690,16 @@
           </div>
 
           <div
-            class="grid grid-cols-3 gap-2 rounded-[22px] border border-white/10 bg-white/4 p-1"
+            class="grid grid-cols-1 gap-1.5 rounded-[22px] border border-white/10 bg-white/4 p-1.5"
             role="tablist"
             aria-label="Workspace inspector"
             data-og7="admin-quality-workspace-inspector-tabs"
+            data-og7-layout="vertical-list"
           >
             <button
               type="button"
               role="tab"
-              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
               [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'qaQueue'"
               [class.border]="true"
               [class.border-cyan-300/20]="activeWorkspaceSurface() === 'qaQueue'"
@@ -1580,7 +1716,7 @@
             <button
               type="button"
               role="tab"
-              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
               [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'delegation'"
               [class.border]="true"
               [class.border-cyan-300/20]="activeWorkspaceSurface() === 'delegation'"
@@ -1597,7 +1733,7 @@
             <button
               type="button"
               role="tab"
-              class="rounded-[18px] px-3 py-3 text-sm font-medium transition"
+              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
               [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'actions'"
               [class.border]="true"
               [class.border-cyan-300/20]="activeWorkspaceSurface() === 'actions'"

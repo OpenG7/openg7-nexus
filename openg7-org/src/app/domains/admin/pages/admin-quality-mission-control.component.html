@@ -188,12 +188,14 @@
         </span>
       </div>
 
-      <div class="mt-4 overflow-x-auto pb-2" data-og7="admin-quality-provider-comparison-rail">
-        <div class="flex min-w-max snap-x snap-mandatory gap-3">
+      <div
+        class="mt-4 grid min-w-0 gap-3 md:grid-cols-2 2xl:grid-cols-4"
+        data-og7="admin-quality-provider-comparison-rail"
+        data-og7-layout="responsive-grid"
+      >
         @for (entry of providerComparison(); track entry.provider) {
           <article
-            class="shrink-0 snap-start rounded-[20px] border p-4"
-            style="flex: 0 0 calc((100% - 0.75rem) / 2); min-width: 18rem"
+            class="min-w-0 rounded-2xl border p-4"
             data-og7="admin-quality-provider-comparison-card"
             [attr.data-og7-id]="entry.provider"
             [attr.data-og7-selected]="entry.selected"
@@ -201,9 +203,9 @@
             [class]="providerComparisonCardClasses(entry)"
           >
             <div class="flex items-start justify-between gap-3">
-              <div>
+              <div class="min-w-0">
                 <p class="text-sm font-semibold text-white">{{ entry.label }}</p>
-                <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                <p class="mt-1 wrap-break-word text-[11px] uppercase tracking-[0.2em] text-slate-400">
                   {{ entry.workflow }}
                 </p>
               </div>
@@ -215,7 +217,7 @@
               </span>
             </div>
 
-            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.opsDetail }}</p>
+            <p class="mt-3 wrap-break-word text-xs leading-5 text-slate-300">{{ entry.opsDetail }}</p>
 
             <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold">
               <span
@@ -231,11 +233,10 @@
               </span>
             </div>
 
-            <p class="mt-3 text-xs leading-5 text-slate-300">{{ entry.proofDetail }}</p>
-            <p class="mt-2 text-[11px] text-slate-400">{{ entry.pullRequestLabel }}</p>
+            <p class="mt-3 wrap-break-word text-xs leading-5 text-slate-300">{{ entry.proofDetail }}</p>
+            <p class="mt-2 wrap-break-word text-[11px] text-slate-400">{{ entry.pullRequestLabel }}</p>
           </article>
         }
-        </div>
       </div>
     </section>
 
@@ -268,23 +269,25 @@
           </span>
         </div>
 
-        <div class="mt-4 overflow-x-auto pb-2" data-og7="admin-quality-mission-loop-rail">
-          <div class="flex min-w-max snap-x snap-mandatory gap-3">
+        <div
+          class="mt-4 grid min-w-0 gap-3 md:grid-cols-2 2xl:grid-cols-4"
+          data-og7="admin-quality-mission-loop-rail"
+          data-og7-layout="responsive-grid"
+        >
           @for (step of missionExecutionLoop(); track step.id) {
             <article
-              class="shrink-0 snap-start rounded-[20px] border p-4"
-              style="flex: 0 0 calc((100% - 0.75rem) / 2); min-width: 18rem"
+              class="min-w-0 rounded-2xl border p-4"
               data-og7="admin-quality-mission-loop-step"
               [attr.data-og7-id]="step.id"
               [attr.data-og7-status]="step.status"
               [class]="missionLoopCardClasses(step.status)"
             >
               <div class="flex flex-wrap items-start justify-between gap-3">
-                <div>
+                <div class="min-w-0">
                   <p class="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
                     {{ step.label }}
                   </p>
-                  <p class="mt-2 text-sm font-semibold text-white">{{ step.detail }}</p>
+                  <p class="mt-2 wrap-break-word text-sm font-semibold text-white">{{ step.detail }}</p>
                 </div>
                 <span
                   class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
@@ -293,10 +296,9 @@
                   {{ missionLoopStatusLabel(step.status) }}
                 </span>
               </div>
-              <p class="mt-3 text-xs leading-5 text-slate-300">{{ step.support }}</p>
+              <p class="mt-3 wrap-break-word text-xs leading-5 text-slate-300">{{ step.support }}</p>
             </article>
           }
-          </div>
         </div>
 
         <section

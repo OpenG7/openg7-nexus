@@ -715,6 +715,9 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const matrixShell = root.querySelector('[data-og7="admin-quality-matrix"]') as HTMLElement;
+    const heroBriefing = root.querySelector('[data-og7="admin-quality-hero-briefing"]') as HTMLElement;
+    const heroSummary = root.querySelector('[data-og7="admin-quality-hero-summary"]') as HTMLElement;
     const generatedAt = root.querySelector('[data-og7-id="admin-quality-generated-at"]') as HTMLElement;
     const sourceStatus = root.querySelector('[data-og7-id="admin-quality-source-status"]') as HTMLElement;
     const missionSync = root.querySelector('[data-og7-id="admin-quality-mission-sync"]') as HTMLElement;
@@ -722,6 +725,14 @@ describe('AdminQualityPage', () => {
       '[data-og7-id="admin-quality-mission-sync-status"]',
     ) as HTMLElement;
 
+    expect(matrixShell.className).toContain('px-4');
+    expect(matrixShell.className).toContain('xl:px-8');
+    expect(matrixShell.className).not.toContain('xl:px-0');
+    expect(heroBriefing.className).not.toContain('absolute');
+    expect(heroSummary.textContent).toContain('Chantiers');
+    expect(heroSummary.textContent).toContain('Preuves');
+    expect(heroSummary.textContent).toContain('Produit');
+    expect(heroSummary.textContent).toContain('Signaux');
     expect(generatedAt.className).toContain('bg-slate-950/56');
     expect(generatedAt.className).toContain('text-white');
     expect(sourceStatus.className).toContain('text-white');
@@ -790,10 +801,17 @@ describe('AdminQualityPage', () => {
     const secondaryQueue = root.querySelector(
       '[data-og7="admin-quality-secondary-queue"]',
     ) as HTMLDetailsElement;
+    const secondaryQueueTitle = root.querySelector(
+      '[data-og7="admin-quality-secondary-queue"] h2',
+    ) as HTMLElement;
 
     expect(workspaceBar).not.toBeNull();
     expect(secondaryQueue).not.toBeNull();
     expect(secondaryQueue.open).toBeFalse();
+    expect(secondaryQueue.className).toContain('bg-slate-950/58');
+    expect(secondaryQueue.className).not.toContain('og7-admin-quality-surface');
+    expect(secondaryQueue.className).not.toContain('bg-slate-50');
+    expect(secondaryQueueTitle.className).toContain('text-white');
     expect(root.querySelector('[data-og7="admin-quality-workspace-drawer"]')).toBeNull();
 
     openWorkspaceButton.click();
@@ -1120,6 +1138,12 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const missionAccordion = root.querySelector(
+      '[data-og7="admin-quality-accordion"][data-og7-id="mission-control"]',
+    ) as HTMLDetailsElement;
+    const missionAccordionToggle = root.querySelector(
+      '[data-og7-id="admin-quality-accordion-toggle-mission-control"]',
+    );
     const missionControl = root.querySelector('[data-og7="admin-quality-mission-control"]');
     const missionHero = root.querySelector('[data-og7="admin-quality-mission-hero"]');
     const missionWorkflow = root.querySelector('[data-og7="admin-quality-mission-workflow"]');
@@ -1131,7 +1155,9 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-recommendation"] > button',
     ) as NodeListOf<HTMLButtonElement>;
 
-
+    expect(missionAccordion).not.toBeNull();
+    expect(missionAccordion.open).toBeFalse();
+    expect(missionAccordionToggle?.textContent).toContain('Mission control complet');
     expect(missionControl).not.toBeNull();
     expect(missionHero).not.toBeNull();
     expect(missionWorkflow).not.toBeNull();
@@ -1217,6 +1243,9 @@ describe('AdminQualityPage', () => {
     const telemetryStatus = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-status"]');
     const telemetryDetail = root.querySelector('[data-og7-id="admin-quality-ai-telemetry-detail"]');
     const missionLoop = root.querySelector('[data-og7="admin-quality-mission-loop"]');
+    const missionLoopRail = root.querySelector(
+      '[data-og7="admin-quality-mission-loop-rail"]',
+    ) as HTMLElement;
     const missionLoopSteps = root.querySelectorAll('[data-og7="admin-quality-mission-loop-step"]');
     const missionEnergyLane = root.querySelector('[data-og7="admin-quality-mission-energy-lane"]');
     const missionEnergySegments = root.querySelectorAll(
@@ -1260,6 +1289,12 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-panel-shell"][data-og7-id="coverage"]',
     );
     const workspacePanel = root.querySelector('[data-og7="admin-quality-workspace-bar"]');
+    const workspaceTabs = root.querySelector(
+      '[data-og7="admin-quality-workspace-inspector-tabs"]',
+    ) as HTMLElement;
+    const workspaceTabButtons = root.querySelectorAll<HTMLElement>(
+      '[data-og7="admin-quality-workspace-inspector-tabs"] [role="tab"]',
+    );
     const missionControlCadence = root.querySelector(
       '[data-og7="admin-quality-mission-control-cadence"]',
     );
@@ -1272,6 +1307,9 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-hud-energy-segment"]',
     );
     const proofTelemetry = root.querySelector('[data-og7="admin-quality-proof-telemetry"]');
+    const sidePanel = root.querySelector('[data-og7="admin-quality-side-panel"]');
+    const sidePanelEntry = root.querySelector('[data-og7-id="admin-quality-side-panel-entry"]');
+    const sidePanelMission = root.querySelector('[data-og7-id="admin-quality-side-panel-mission"]');
 
     expect(runway).not.toBeNull();
     expect(missionHud).not.toBeNull();
@@ -1338,8 +1376,16 @@ describe('AdminQualityPage', () => {
     expect(coveragePanel?.getAttribute('data-og7-lock-focus')).toBe('true');
     expect(missionControlShell?.getAttribute('data-og7-lock-focus')).toBe('false');
     expect(workspacePanel?.getAttribute('data-og7-lock-focus')).toBe('false');
+    expect(workspaceTabs.getAttribute('data-og7-layout')).toBe('vertical-list');
+    expect(workspaceTabs.className).not.toContain('grid-cols-3');
+    expect(workspaceTabButtons.length).toBe(3);
+    expect(workspaceTabButtons[1]?.className).toContain('text-left');
     expect(cockpitSyncBands.length).toBe(2);
     expect(missionHud?.textContent).toContain('Etendre la preuve QA');
+    expect(sidePanel).not.toBeNull();
+    expect(sidePanel?.textContent).toContain('Contexte actif');
+    expect(sidePanelEntry?.textContent).toContain('Recherche et decouverte profonde');
+    expect(sidePanelMission?.textContent).toContain('Etendre la preuve QA');
     expect(missionHud?.textContent).toContain('Recherche et decouverte profonde');
     expect(missionHudMiniLane).not.toBeNull();
     expect(missionHudMiniSegments.length).toBe(3);
@@ -1356,7 +1402,11 @@ describe('AdminQualityPage', () => {
       ),
     ).toBe('true');
     expect(missionLoop).not.toBeNull();
+    expect(missionLoopRail.getAttribute('data-og7-layout')).toBe('responsive-grid');
+    expect(missionLoopRail.className).not.toContain('overflow-x-auto');
+    expect(missionLoopRail.className).not.toContain('min-w-max');
     expect(missionLoopSteps.length).toBe(4);
+    expect(missionLoopSteps[0]?.className).toContain('min-w-0');
     expect(missionEnergyLane).not.toBeNull();
     expect(missionEnergySegments.length).toBe(3);
     expect(missionEnergySegments[0]?.getAttribute('data-og7-state')).toBe('flowing');
@@ -1875,15 +1925,20 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
+    const rail = root.querySelector('[data-og7="admin-quality-provider-comparison-rail"]') as HTMLElement;
     const cards = root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]');
     const codexCard = root.querySelector(
       '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="codex"]',
-    );
+    ) as HTMLElement;
     const claudeCard = root.querySelector(
       '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="claude"]',
     );
 
+    expect(rail.getAttribute('data-og7-layout')).toBe('responsive-grid');
+    expect(rail.className).not.toContain('overflow-x-auto');
+    expect(rail.className).not.toContain('min-w-max');
     expect(cards.length).toBe(4);
+    expect(codexCard.className).toContain('min-w-0');
     expect(codexCard?.textContent).toContain('Ops armed');
     expect(codexCard?.textContent).toContain('Proof package ready');
     expect(codexCard?.textContent).toContain('PR #321');
