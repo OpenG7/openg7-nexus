@@ -794,7 +794,16 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const consoleRemote = root.querySelector('[data-og7="admin-quality-console-remote"]');
+    const mainCockpit = root.querySelector('[data-og7="admin-quality-main-cockpit"]') as HTMLElement;
+    const consoleRemote = root.querySelector('[data-og7="admin-quality-console-remote"]') as HTMLElement;
+    const consoleScreen = root.querySelector('[data-og7="admin-quality-console-screen"]');
+    const consoleMapBeacons = root.querySelectorAll<HTMLElement>(
+      '[data-og7="admin-quality-console-map-beacon"]',
+    );
+    const consoleActions = root.querySelector('[data-og7="admin-quality-console-actions"]');
+    const consoleActiveSurface = root.querySelector(
+      '[data-og7-id="admin-quality-console-active-surface"]',
+    );
     const consoleStage = root.querySelector('[data-og7="admin-quality-console-stage"]') as HTMLElement;
     const surfaceStage = root.querySelector(
       '[data-og7="admin-quality-console-surface-stage"]',
@@ -819,8 +828,24 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-secondary-queue"] h2',
     ) as HTMLElement;
 
+    expect(mainCockpit.className).toContain('xl:grid-cols-[minmax(0,1fr)_17rem]');
+    expect(mainCockpit.className).toContain('2xl:grid-cols-[minmax(0,1fr)_18rem]');
     expect(consoleRemote).not.toBeNull();
-    expect(consoleStage.className).toContain('2xl:grid-cols');
+    expect(consoleRemote.getAttribute('data-og7-layout')).toBe('command-deck');
+    expect(consoleRemote.getAttribute('data-og7-density')).toBe('micro');
+    expect(consoleRemote.className).toContain('p-1.5');
+    expect(consoleScreen).not.toBeNull();
+    expect(consoleMapBeacons.length).toBe(2);
+    expect(consoleMapBeacons[0]?.className).toContain('og7-console-map-beacon');
+    expect(consoleMapBeacons[0]?.getAttribute('data-og7-beat')).toBe('lead');
+    expect(consoleMapBeacons[1]?.getAttribute('data-og7-beat')).toBe('echo');
+    expect(getComputedStyle(consoleMapBeacons[0] as Element).animationName).toContain(
+      'og7-console-map-heartbeat',
+    );
+    expect(consoleActions?.getAttribute('data-og7-layout')).toBe('command-grid');
+    expect(consoleActiveSurface?.textContent).toContain('Contexte');
+    expect(consoleStage.className).toContain('gap-3');
+    expect(consoleStage.className).not.toContain('2xl:grid-cols');
     expect(surfaceStage).not.toBeNull();
     expect(root.querySelectorAll('[data-og7="admin-quality-secondary-queue"]').length).toBe(1);
     expect(consoleContextButton.getAttribute('aria-pressed')).toBe('true');
@@ -848,6 +873,7 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.activeConsoleSurface()).toBe('queue');
+    expect(consoleActiveSurface?.textContent).toContain('Queue');
     expect(secondaryQueue.open).toBeTrue();
     expect(secondaryQueue.getAttribute('data-og7-visible')).toBe('true');
     expect(sidePanel.getAttribute('data-og7-visible')).toBe('true');
@@ -900,6 +926,7 @@ describe('AdminQualityPage', () => {
     const signalLegend = root.querySelector(
       '[data-og7="admin-quality-coverage-matrix-signal-legend"]',
     );
+    const dataDeck = root.querySelector('[data-og7="admin-quality-coverage-data"]') as HTMLElement;
     const legendToggle = root.querySelector(
       '[data-og7-id="admin-quality-coverage-matrix-legend-toggle"]',
     ) as HTMLButtonElement;
@@ -913,18 +940,22 @@ describe('AdminQualityPage', () => {
     expect(matrix).not.toBeNull();
     expect(rows.length).toBe(3);
     expect(signalLegend).not.toBeNull();
-    expect(legendToggle.getAttribute('aria-expanded')).toBe('true');
-    expect(
-      root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]').length,
-    ).toBe(6);
+    expect(dataDeck).not.toBeNull();
+    expect(dataDeck.className).not.toContain('overflow-x-auto');
+    expect(advancedRow.textContent).toContain('Recherche et decouverte profonde');
+    expect(advancedRow.getBoundingClientRect().height).toBeGreaterThan(0);
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('false');
+    expect(root.querySelector('[data-og7="admin-quality-coverage-matrix-legend"]')).toBeNull();
     expect(advancedRow.querySelectorAll('[data-og7-attention="true"]').length).toBeGreaterThan(0);
     expect(trustRow.querySelector('[data-og7-attention="true"]')).toBeNull();
 
     legendToggle.click();
     fixture.detectChanges();
 
-    expect(legendToggle.getAttribute('aria-expanded')).toBe('false');
-    expect(root.querySelector('[data-og7="admin-quality-coverage-matrix-legend"]')).toBeNull();
+    expect(legendToggle.getAttribute('aria-expanded')).toBe('true');
+    expect(
+      root.querySelectorAll('[data-og7="admin-quality-coverage-matrix-legend-item"]').length,
+    ).toBe(6);
 
     trustRow.click();
     fixture.detectChanges();
@@ -1395,12 +1426,19 @@ describe('AdminQualityPage', () => {
     const consoleHudControls = root.querySelector(
       '[data-og7="admin-quality-console-hud-controls"]',
     ) as HTMLElement;
+    const consoleModeGrid = root.querySelector(
+      '[data-og7="admin-quality-console-actions"]',
+    ) as HTMLElement;
     const consoleDeskActions = root.querySelector(
       '[data-og7="admin-quality-console-desk-actions"]',
+    ) as HTMLElement;
+    const consoleMissionActions = root.querySelector(
+      '[data-og7="admin-quality-console-mission-actions"]',
     ) as HTMLElement;
     const workspaceHudChip = root.querySelector(
       '[data-og7-id="admin-quality-hud-section-workspace"]',
     ) as HTMLElement;
+    const workspaceHudChipLabel = workspaceHudChip.querySelector('span:last-child') as HTMLElement;
     const hudToggle = root.querySelector('[data-og7-id="admin-quality-hud-toggle"]') as HTMLElement;
     const missionDeskAction = root.querySelector(
       '[data-og7-id="admin-quality-hud-open-workspace"]',
@@ -1510,9 +1548,15 @@ describe('AdminQualityPage', () => {
     expect(missionHudMiniSegments.length).toBe(3);
     expect(missionHudMiniSegments[0]?.getAttribute('data-og7-state')).toBe('flowing');
     expect(consoleHudControls).not.toBeNull();
+    expect(consoleModeGrid.getAttribute('data-og7-layout')).toBe('command-grid');
+    expect(consoleMissionActions.getAttribute('data-og7-layout')).toBe('command-bar');
     expect(workspaceHudChip.closest('[data-og7="admin-quality-console-hud-controls"]')).toBe(
       consoleHudControls,
     );
+    expect(workspaceHudChip.getAttribute('aria-label')).toBe('Workspace deck');
+    expect(workspaceHudChipLabel.textContent).toContain('Workspace');
+    expect(workspaceHudChipLabel.className).not.toContain('truncate');
+    expect(workspaceHudChipLabel.className).toContain('text-[7px]');
     expect(hudToggle.closest('[data-og7="admin-quality-console-hud-controls"]')).toBe(
       consoleHudControls,
     );
@@ -2054,35 +2098,31 @@ describe('AdminQualityPage', () => {
     expect(coveragePanel?.getAttribute('data-og7-lock-focus')).toBe('true');
   });
 
-  it('renders a multi-provider comparison deck driven by Ops readiness and proof telemetry', () => {
+  it('keeps provider readiness compact and hands off socket details to Ops', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const rail = root.querySelector('[data-og7="admin-quality-provider-comparison-rail"]') as HTMLElement;
-    const cards = root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]');
-    const codexCard = root.querySelector(
-      '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="codex"]',
+    const handoff = root.querySelector('[data-og7="admin-quality-provider-ops-handoff"]') as HTMLElement;
+    const activeSocket = root.querySelector(
+      '[data-og7-id="admin-quality-provider-active-socket"]',
     ) as HTMLElement;
-    const claudeCard = root.querySelector(
-      '[data-og7="admin-quality-provider-comparison-card"][data-og7-id="claude"]',
-    );
+    const opsLink = root.querySelector(
+      '[data-og7-id="admin-quality-open-provider-sockets"]',
+    ) as HTMLAnchorElement;
 
-    expect(rail.getAttribute('data-og7-layout')).toBe('responsive-grid');
-    expect(rail.getAttribute('data-og7-density')).toBe('compact');
-    expect(rail.className).toContain('gap-2');
-    expect(rail.className).not.toContain('overflow-x-auto');
-    expect(rail.className).not.toContain('min-w-max');
-    expect(cards.length).toBe(4);
-    expect(codexCard.className).toContain('min-w-0');
-    expect(codexCard.className).toContain('gap-2');
-    expect(codexCard.getAttribute('data-og7-density')).toBe('compact');
-    expect(codexCard?.textContent).toContain('Ops armed');
-    expect(codexCard?.textContent).toContain('Proof package ready');
-    expect(codexCard?.textContent).toContain('PR #321');
-    expect(codexCard?.getAttribute('data-og7-selected')).toBe('true');
-    expect(claudeCard?.textContent).toContain('Proof pipeline active');
-    expect(claudeCard?.getAttribute('data-og7-proof-state')).toBe('in-progress');
+    expect(root.querySelector('[data-og7="admin-quality-provider-comparison"]')).toBeNull();
+    expect(root.querySelector('[data-og7="admin-quality-provider-comparison-rail"]')).toBeNull();
+    expect(root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]').length).toBe(0);
+    expect(handoff.getAttribute('data-og7-density')).toBe('micro');
+    expect(handoff.textContent).toContain('Provider sockets');
+    expect(handoff.textContent).toContain('Ops armed');
+    expect(handoff.textContent).toContain('2/4 armed');
+    expect(handoff.textContent).toContain('Quality keeps only the active dispatch signal');
+    expect(activeSocket.textContent).toContain('Codex - codex-pr.yml');
+    expect(activeSocket.textContent).toContain('Proof package ready');
+    expect(activeSocket.textContent).toContain('2 artifact(s)');
+    expect(opsLink.getAttribute('href')).toContain('/admin/ops');
   });
 
   it('blocks delegation when Ops readiness does not allow dispatch', () => {
@@ -2113,7 +2153,7 @@ describe('AdminQualityPage', () => {
     const delegateButton = Array.from(
       consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
     ).find(
-      (element) => element.textContent?.trim() === 'Lancer Codex',
+      (element) => element.textContent?.includes('Lancer Codex'),
     ) as HTMLButtonElement | undefined;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
 
@@ -2214,7 +2254,7 @@ describe('AdminQualityPage', () => {
     const delegateButton = Array.from(
       consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
     ).find(
-      (element) => element.textContent?.trim() === 'Lancer Codex',
+      (element) => element.textContent?.includes('Lancer Codex'),
     ) as HTMLButtonElement | undefined;
 
     delegateButton?.click();

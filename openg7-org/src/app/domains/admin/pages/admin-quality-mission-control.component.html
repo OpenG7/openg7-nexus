@@ -1,5 +1,5 @@
 <section
-  class="relative w-full overflow-hidden rounded-[30px] border border-sky-500/25 bg-[#040d1d]/96 p-4 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-5"
+  class="relative w-full overflow-hidden rounded-[26px] border border-sky-500/25 bg-[#040d1d]/96 p-3 text-slate-100 shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-4"
   data-og7="admin-quality-mission-control"
 >
   <div
@@ -9,14 +9,14 @@
     class="pointer-events-none absolute -right-8 top-24 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl"
   ></div>
 
-  <div class="relative space-y-4">
+  <div class="relative space-y-3">
     <div
-      class="flex flex-col gap-3 border-b border-white/10 pb-4 xl:flex-row xl:items-start xl:justify-between"
+      class="flex flex-col gap-2 border-b border-white/10 pb-3 xl:flex-row xl:items-start xl:justify-between"
     >
       <div class="space-y-2">
         <div class="flex items-center gap-3">
           <span
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.2)]"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-200 shadow-[0_0_24px_rgba(56,189,248,0.2)]"
             aria-hidden="true"
           >
             ~
@@ -26,32 +26,32 @@
             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">
               Pilotage AI
             </p>
-            <h2 class="mt-1 text-[1.9rem] font-semibold tracking-tight text-white">
+            <h2 class="mt-0.5 text-2xl font-semibold tracking-tight text-white">
               AI Mission Control
             </h2>
           </div>
         </div>
 
-        <p class="max-w-2xl text-sm leading-relaxed text-slate-300">
+        <p class="max-w-2xl text-sm leading-5 text-slate-300">
           {{ missionControl().overview }}
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-2 xl:justify-end">
+      <div class="flex flex-wrap gap-1.5 xl:justify-end">
         <span
-          class="inline-flex rounded-full border px-3 py-1.5 text-[11px] font-semibold"
+          class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold"
           [class]="missionPhaseClasses(missionControl().phase)"
         >
           Phase : {{ missionControl().phaseLabel }}
         </span>
         <span
-          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100"
+          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold text-cyan-100"
           data-og7-id="admin-quality-active-ai-provider"
         >
           AI : {{ selectedAiProviderLabel() }}
         </span>
         <span
-          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[11px] font-semibold text-amber-100"
+          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100"
         >
           Cue : {{ missionCueLabel() }}
         </span>
@@ -172,100 +172,103 @@
     </article>
 
     <section
-      class="rounded-3xl border border-white/10 bg-[#071426]/90 p-3 sm:p-4"
-      data-og7="admin-quality-provider-comparison"
+      class="rounded-2xl border border-cyan-300/15 bg-[#071426]/80 px-3 py-2.5"
+      data-og7="admin-quality-provider-ops-handoff"
+      data-og7-density="micro"
     >
-      <div
-        class="flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-end sm:justify-between"
-      >
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
-            Provider comparison
-          </p>
-          <h3 class="mt-1 text-base font-semibold text-white">Dispatch lanes at a glance</h3>
-          <p class="mt-1 max-w-3xl text-xs leading-5 text-slate-300">
-            Compare key readiness, workflow lane, and last proof telemetry before switching console.
+      <div class="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Provider sockets
+            </p>
+            @if (activeProviderOpsSummary(); as provider) {
+              <span
+                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                [class]="providerSocketOpsClasses(provider.opsState)"
+                data-og7-id="admin-quality-provider-ops-state"
+              >
+                {{ provider.opsLabel }}
+              </span>
+            }
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/4 px-2 py-0.5 text-[10px] text-slate-200"
+              data-og7-id="admin-quality-provider-ops-count"
+            >
+              {{ armedProviderCount() }}/{{ providerComparison().length }} armed
+            </span>
+          </div>
+          <p class="mt-1 wrap-break-word text-xs leading-4 text-slate-300">
+            Keys, sockets, and diagnostics now live in Ops. Quality keeps only the active dispatch signal.
           </p>
         </div>
-        <span
-          class="inline-flex rounded-full border border-white/10 bg-white/4 px-2.5 py-1 text-[11px] text-slate-200"
+
+        <a
+          routerLink="/admin/ops"
+          class="inline-flex items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-50 shadow-[0_16px_34px_-28px_rgba(34,211,238,0.7)] transition hover:border-cyan-200/45 hover:bg-cyan-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+          data-og7="action"
+          data-og7-id="admin-quality-open-provider-sockets"
         >
-          {{ providerComparison().length }} providers tracked
-        </span>
+          Open Ops sockets
+        </a>
       </div>
 
-      <div
-        class="mt-3 grid min-w-0 gap-2 md:grid-cols-2 2xl:grid-cols-4"
-        data-og7="admin-quality-provider-comparison-rail"
-        data-og7-layout="responsive-grid"
-        data-og7-density="compact"
-      >
-        @for (entry of providerComparison(); track entry.provider) {
-          <article
-            class="grid min-w-0 gap-2 rounded-2xl border p-3"
-            data-og7="admin-quality-provider-comparison-card"
-            [attr.data-og7-id]="entry.provider"
-            [attr.data-og7-selected]="entry.selected"
-            [attr.data-og7-proof-state]="entry.proofState"
-            data-og7-density="compact"
-            [class]="providerComparisonCardClasses(entry)"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="text-sm font-semibold text-white">{{ entry.label }}</p>
-                <p class="mt-0.5 wrap-break-word text-[10px] uppercase tracking-[0.18em] text-slate-400">
-                  {{ entry.workflow }}
-                </p>
-              </div>
-              <span
-                class="inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
-                [class]="providerComparisonOpsClasses(entry.opsState)"
-              >
-                {{ entry.opsLabel }}
-              </span>
-            </div>
+      @if (activeProviderOpsSummary(); as provider) {
+        <div
+          class="mt-2 grid min-w-0 gap-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          data-og7-id="admin-quality-provider-active-socket"
+        >
+          <div class="min-w-0">
+            <p class="wrap-break-word text-sm font-semibold text-white">
+              {{ provider.label }} - {{ provider.workflow }}
+            </p>
+            <p class="mt-0.5 wrap-break-word text-[11px] leading-4 text-slate-300">
+              {{ provider.opsDetail }}
+            </p>
+          </div>
 
-            <p class="wrap-break-word text-[11px] leading-4 text-slate-300">{{ entry.opsDetail }}</p>
-
-            <div class="flex flex-wrap gap-1.5 text-[10px] font-semibold">
-              <span
-                class="inline-flex rounded-full border px-2 py-0.5"
-                [class]="missionProofStateClasses(entry.proofState)"
-              >
-                {{ entry.proofLabel }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-slate-200"
-              >
-                {{ entry.artifactCount }} artifact(s)
-              </span>
-            </div>
-
-            <div class="grid gap-1 border-t border-white/10 pt-2">
-              <p class="wrap-break-word text-[11px] leading-4 text-slate-300">{{ entry.proofDetail }}</p>
-              <p class="wrap-break-word text-[10px] leading-4 text-slate-400">{{ entry.pullRequestLabel }}</p>
-            </div>
-          </article>
-        }
-      </div>
+          <div class="flex flex-wrap gap-1.5 sm:justify-end">
+            <span
+              class="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+              [class]="missionProofStateClasses(provider.proofState)"
+              data-og7-id="admin-quality-provider-proof-state"
+            >
+              {{ provider.proofLabel }}
+            </span>
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-slate-200"
+              data-og7-id="admin-quality-provider-artifacts"
+            >
+              {{ provider.artifactCount }} artifact(s)
+            </span>
+          </div>
+        </div>
+      } @else {
+        <p
+          class="mt-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 text-xs text-slate-300"
+          data-og7-id="admin-quality-provider-ops-empty"
+        >
+          No provider socket telemetry available yet.
+        </p>
+      }
     </section>
 
     @if (selectedMission(); as missionItem) {
       <section
-        class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-4"
+        class="rounded-[22px] border border-white/10 bg-[#071426]/90 p-3"
         data-og7="admin-quality-mission-loop"
       >
         <div
-          class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between"
+          class="flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
             <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
               Mission loop
             </p>
-            <h3 class="mt-2 text-base font-semibold text-white">
+            <h3 class="mt-1 text-base font-semibold text-white">
               Mission -> dispatch -> proof -> validation
             </h3>
-            <p class="mt-2 text-sm text-slate-300">
+            <p class="mt-1 text-sm text-slate-300">
               Unified operator view for {{ selectedAiProviderLabel() }} through
               {{ aiDispatchWorkflow() }}.
             </p>
@@ -280,24 +283,24 @@
         </div>
 
         <div
-          class="mt-4 grid min-w-0 gap-3 md:grid-cols-2 2xl:grid-cols-4"
+          class="mt-3 grid min-w-0 gap-2 md:grid-cols-2 2xl:grid-cols-4"
           data-og7="admin-quality-mission-loop-rail"
           data-og7-layout="responsive-grid"
         >
           @for (step of missionExecutionLoop(); track step.id) {
             <article
-              class="min-w-0 rounded-2xl border p-4"
+              class="min-w-0 rounded-2xl border p-3"
               data-og7="admin-quality-mission-loop-step"
               [attr.data-og7-id]="step.id"
               [attr.data-og7-status]="step.status"
               [class]="missionLoopCardClasses(step.status)"
             >
-              <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="flex flex-wrap items-start justify-between gap-2">
                 <div class="min-w-0">
                   <p class="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
                     {{ step.label }}
                   </p>
-                  <p class="mt-2 wrap-break-word text-sm font-semibold text-white">{{ step.detail }}</p>
+                  <p class="mt-1 wrap-break-word text-sm font-semibold text-white">{{ step.detail }}</p>
                 </div>
                 <span
                   class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
@@ -306,13 +309,13 @@
                   {{ missionLoopStatusLabel(step.status) }}
                 </span>
               </div>
-              <p class="mt-3 wrap-break-word text-xs leading-5 text-slate-300">{{ step.support }}</p>
+              <p class="mt-2 wrap-break-word text-xs leading-4 text-slate-300">{{ step.support }}</p>
             </article>
           }
         </div>
 
         <section
-          class="mt-4 rounded-[20px] border border-cyan-300/12 bg-slate-950/45 px-4 py-3"
+          class="mt-3 rounded-[20px] border border-cyan-300/12 bg-slate-950/45 px-3 py-2"
           data-og7="admin-quality-mission-energy-lane"
         >
           <div
@@ -321,7 +324,7 @@
             @for (step of missionExecutionLoop(); track step.id; let index = $index) {
               <div class="flex flex-col items-center gap-1 text-center">
                 <span
-                  class="inline-flex h-10 w-10 items-center justify-center rounded-full border text-[10px] font-semibold uppercase tracking-[0.18em]"
+                  class="inline-flex h-8 w-8 items-center justify-center rounded-full border text-[9px] font-semibold uppercase tracking-[0.16em]"
                   data-og7="admin-quality-mission-energy-node"
                   [attr.data-og7-id]="step.id"
                   [attr.data-og7-status]="step.status"
@@ -364,19 +367,19 @@
 
         @if (selectedAiProof(); as proof) {
           <article
-            class="mt-4 rounded-[20px] border border-white/10 bg-slate-950/55 p-4"
+            class="mt-3 rounded-[20px] border border-white/10 bg-slate-950/55 p-3"
             data-og7="admin-quality-proof-telemetry"
             [attr.data-og7-state]="proof.state"
           >
             <div
-              class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between"
+              class="flex flex-col gap-2 border-b border-white/10 pb-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div>
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
                   Live proof telemetry
                 </p>
-                <h4 class="mt-2 text-base font-semibold text-white">{{ proof.label }}</h4>
-                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{{ proof.summary }}</p>
+                <h4 class="mt-1 text-base font-semibold text-white">{{ proof.label }}</h4>
+                <p class="mt-1 max-w-3xl text-sm leading-5 text-slate-300">{{ proof.summary }}</p>
               </div>
               <span
                 class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold"
@@ -386,7 +389,7 @@
               </span>
             </div>
 
-            <div class="mt-4 grid gap-3 lg:grid-cols-3">
+            <div class="mt-3 grid gap-2 lg:grid-cols-3">
               <article class="rounded-[18px] border border-white/10 bg-white/4 p-3">
                 <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
                   Last run
@@ -452,7 +455,7 @@
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p class="text-sm font-semibold text-emerald-300">Mission active</p>
-                  <h3 class="mt-1 text-2xl font-semibold leading-tight text-white">
+                  <h3 class="mt-1 text-xl font-semibold leading-tight text-white">
                     {{ missionItem.title }}
                   </h3>
                   <p class="mt-1 text-sm leading-5 text-slate-100">

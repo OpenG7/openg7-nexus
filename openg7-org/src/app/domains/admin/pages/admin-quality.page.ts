@@ -134,6 +134,7 @@ interface AdminQualityConsoleSurfaceOption {
   readonly id: AdminQualityConsoleSurface;
   readonly label: string;
   readonly detail: string;
+  readonly iconLabel: string;
 }
 interface AdminQualityActiveFilterChip {
   readonly id: string;
@@ -353,6 +354,52 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         animation: og7-admin-quality-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
 
+      .og7-console-map-beacon {
+        --og7-console-beacon-rgb: 34, 211, 238;
+        animation: og7-console-map-heartbeat 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+        filter: saturate(1.08);
+      }
+
+      .og7-console-map-beacon::before,
+      .og7-console-map-beacon::after {
+        content: '';
+        position: absolute;
+        inset: -0.45rem;
+        border-radius: 9999px;
+        background: radial-gradient(
+          circle,
+          rgba(var(--og7-console-beacon-rgb), 0.48) 0%,
+          rgba(var(--og7-console-beacon-rgb), 0.22) 28%,
+          transparent 70%
+        );
+        opacity: 0;
+        transform: scale(0.32);
+        pointer-events: none;
+      }
+
+      .og7-console-map-beacon::before {
+        animation: og7-console-map-heart-glow 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+      }
+
+      .og7-console-map-beacon::after {
+        animation: og7-console-map-heart-glow 1.9s cubic-bezier(0.18, 0.84, 0.28, 1) infinite;
+        animation-delay: 180ms;
+        inset: -0.72rem;
+      }
+
+      .og7-console-map-beacon--emerald {
+        --og7-console-beacon-rgb: 52, 211, 153;
+        animation-delay: 620ms;
+      }
+
+      .og7-console-map-beacon--emerald::before {
+        animation-delay: 620ms;
+      }
+
+      .og7-console-map-beacon--emerald::after {
+        animation-delay: 800ms;
+      }
+
       .og7-cockpit-sync-band {
         background: linear-gradient(
           90deg,
@@ -445,6 +492,64 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
         100% {
           opacity: 1;
           transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes og7-console-map-heartbeat {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: scale(1);
+        }
+
+        10% {
+          opacity: 1;
+          transform: scale(1.95);
+        }
+
+        18% {
+          transform: scale(1.15);
+        }
+
+        28% {
+          opacity: 1;
+          transform: scale(1.62);
+        }
+
+        44% {
+          opacity: 0.78;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes og7-console-map-heart-glow {
+        0%,
+        100% {
+          opacity: 0;
+          transform: scale(0.28);
+        }
+
+        10% {
+          opacity: 0.78;
+          transform: scale(0.72);
+        }
+
+        30% {
+          opacity: 0.34;
+          transform: scale(1.38);
+        }
+
+        52% {
+          opacity: 0;
+          transform: scale(1.74);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .og7-console-map-beacon,
+        .og7-console-map-beacon::before,
+        .og7-console-map-beacon::after {
+          animation: none;
         }
       }
 
@@ -689,11 +794,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'workspace', label: 'Workspace', href: '#admin-quality-workspace' },
   ];
   readonly consoleSurfaceOptions: readonly AdminQualityConsoleSurfaceOption[] = [
-    { id: 'context', label: 'Contexte', detail: 'Domaine actif' },
-    { id: 'ai', label: 'IA', detail: 'Pilotage' },
-    { id: 'queue', label: 'Queue', detail: 'Matrice' },
-    { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves' },
+    { id: 'context', label: 'Contexte', detail: 'Domaine actif', iconLabel: 'CX' },
+    { id: 'ai', label: 'IA', detail: 'Pilotage', iconLabel: 'AI' },
+    { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
+    { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
   ];
+  readonly activeConsoleSurfaceOption = computed(
+    () =>
+      this.consoleSurfaceOptions.find((surface) => surface.id === this.activeConsoleSurface()) ??
+      this.consoleSurfaceOptions[0],
+  );
   readonly consoleMissionActions = computed<readonly AdminQualityMissionActionDescriptor[]>(() => {
     const mission = this.selectedMission();
     return mission ? missionActionDescriptors(mission.status) : [];
@@ -708,10 +818,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     readonly id: AdminQualityMissionHudSection;
     readonly label: string;
     readonly shortLabel: string;
+    readonly iconLabel: string;
   }[] = [
-    { id: 'coverage', label: 'Coverage matrix', shortLabel: 'Coverage' },
-    { id: 'mission', label: 'Mission Control', shortLabel: 'Mission' },
-    { id: 'workspace', label: 'Workspace deck', shortLabel: 'Workspace' },
+    { id: 'coverage', label: 'Coverage matrix', shortLabel: 'Coverage', iconLabel: 'CV' },
+    { id: 'mission', label: 'Mission Control', shortLabel: 'Mission', iconLabel: 'MS' },
+    { id: 'workspace', label: 'Workspace deck', shortLabel: 'Workspace', iconLabel: 'WK' },
   ];
   readonly selectedAiOpsModule = computed<AdminQualityAiOpsModule | null>(
     () =>
@@ -2577,6 +2688,27 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         return 'border-emerald-400/30 bg-emerald-400/12 text-emerald-100 hover:bg-emerald-400/18';
       default:
         return 'border-white/12 bg-white/5 text-slate-100 hover:bg-white/8';
+    }
+  }
+
+  consoleMissionActionIconLabel(action: AdminQualityMissionControlAction): string {
+    switch (action) {
+      case 'approve':
+        return 'OK';
+      case 'auto-delegate':
+        return 'GO';
+      case 'defer':
+        return 'DF';
+      case 'block':
+        return 'BL';
+      case 'reset':
+        return 'RS';
+      case 'return-proof':
+        return 'PF';
+      case 'complete':
+        return 'CL';
+      default:
+        return 'OP';
     }
   }
 
