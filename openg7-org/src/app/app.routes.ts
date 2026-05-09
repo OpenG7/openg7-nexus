@@ -4,6 +4,7 @@ import { authGuard } from './core/auth/auth.guard';
 import { permissionsGuard } from './core/auth/permissions.guard';
 import { profilePendingChangesGuard } from './core/auth/profile-pending-changes.guard';
 import { roleGuard } from './core/auth/role.guard';
+import { provideOpenG7AdminQuality } from './domains/admin/data-access/admin-quality.openg7-provider';
 
 const ROBOTS_NOINDEX = 'noindex,nofollow';
 
@@ -26,9 +27,10 @@ export const routes: Routes = [
   },
   {
     path: 'admin/quality',
-    loadComponent: () => import('./domains/admin/pages/admin-quality.page').then(m => m.AdminQualityPage),
+    loadComponent: () => import('@openg7/admin-quality').then(m => m.AdminQualityPage),
     canMatch: [authGuard, roleGuard],
     data: { roles: ['admin'], robots: ROBOTS_NOINDEX },
+    providers: [provideOpenG7AdminQuality()],
   },
   {
     path: 'admin',

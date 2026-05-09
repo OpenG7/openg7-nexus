@@ -47,6 +47,7 @@
     "test:e2e:regression": "yarn --cwd openg7-org e2e:regression",
     "prebuild:web": "yarn codegen && yarn test",
     "build:web": "yarn workspace @openg7/web build",
+    "build:admin-quality": "yarn workspace @openg7/admin-quality build",
     "build:cms": "yarn workspace @openg7/strapi build",
     "build:all": "yarn build:web --optimization=false && yarn build:cms",
     "generate:sitemap": "yarn workspace @openg7/web generate:sitemap",

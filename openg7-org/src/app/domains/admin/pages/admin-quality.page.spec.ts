@@ -7,6 +7,7 @@ import {
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AdminQualityPage } from '@openg7/admin-quality';
 import { of, throwError } from 'rxjs';
 
 import { AdminOpsService } from '../data-access/admin-ops.service';
@@ -20,8 +21,12 @@ import {
   AdminQualityMissionDecisionSnapshot,
   AdminQualityMissionDecisionsService,
 } from '../data-access/admin-quality-mission-decisions.service';
-
-import { AdminQualityPage } from './admin-quality.page';
+import {
+  ADMIN_QUALITY_MATRIX_PORT,
+  ADMIN_QUALITY_MISSION_DECISIONS_PORT,
+  ADMIN_QUALITY_NOTIFICATIONS,
+  ADMIN_QUALITY_OPS_PORT,
+} from '../data-access/admin-quality.ports';
 
 class AdminQualityMatrixServiceMock {
   readonly loadMatrix = jasmine.createSpy('loadMatrix').and.returnValue(
@@ -538,6 +543,10 @@ describe('AdminQualityPage', () => {
         { provide: AdminQualityMatrixService, useValue: service },
         { provide: AdminOpsService, useValue: opsService },
         { provide: AdminQualityMissionDecisionsService, useValue: missionDecisions },
+        { provide: ADMIN_QUALITY_MATRIX_PORT, useValue: service },
+        { provide: ADMIN_QUALITY_OPS_PORT, useValue: opsService },
+        { provide: ADMIN_QUALITY_MISSION_DECISIONS_PORT, useValue: missionDecisions },
+        { provide: ADMIN_QUALITY_NOTIFICATIONS, useValue: notifications },
         { provide: NotificationStore, useValue: notifications },
       ],
     }).compileComponents();
@@ -759,17 +768,26 @@ describe('AdminQualityPage', () => {
   });
 
   it('keeps the hero status pills high contrast on the QA cockpit shell', () => {
-
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
     const matrixShell = root.querySelector('[data-og7="admin-quality-matrix"]') as HTMLElement;
-    const heroBriefing = root.querySelector('[data-og7="admin-quality-hero-briefing"]') as HTMLElement;
-    const heroSummary = root.querySelector('[data-og7="admin-quality-hero-summary"]') as HTMLElement;
-    const generatedAt = root.querySelector('[data-og7-id="admin-quality-generated-at"]') as HTMLElement;
-    const sourceStatus = root.querySelector('[data-og7-id="admin-quality-source-status"]') as HTMLElement;
-    const missionSync = root.querySelector('[data-og7-id="admin-quality-mission-sync"]') as HTMLElement;
+    const heroBriefing = root.querySelector(
+      '[data-og7="admin-quality-hero-briefing"]',
+    ) as HTMLElement;
+    const heroSummary = root.querySelector(
+      '[data-og7="admin-quality-hero-summary"]',
+    ) as HTMLElement;
+    const generatedAt = root.querySelector(
+      '[data-og7-id="admin-quality-generated-at"]',
+    ) as HTMLElement;
+    const sourceStatus = root.querySelector(
+      '[data-og7-id="admin-quality-source-status"]',
+    ) as HTMLElement;
+    const missionSync = root.querySelector(
+      '[data-og7-id="admin-quality-mission-sync"]',
+    ) as HTMLElement;
     const missionSyncStatus = root.querySelector(
       '[data-og7-id="admin-quality-mission-sync-status"]',
     ) as HTMLElement;
@@ -843,8 +861,12 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const mainCockpit = root.querySelector('[data-og7="admin-quality-main-cockpit"]') as HTMLElement;
-    const consoleRemote = root.querySelector('[data-og7="admin-quality-console-remote"]') as HTMLElement;
+    const mainCockpit = root.querySelector(
+      '[data-og7="admin-quality-main-cockpit"]',
+    ) as HTMLElement;
+    const consoleRemote = root.querySelector(
+      '[data-og7="admin-quality-console-remote"]',
+    ) as HTMLElement;
     const consoleScreen = root.querySelector(
       '[data-og7="admin-quality-console-screen"]',
     ) as HTMLElement;
@@ -855,7 +877,9 @@ describe('AdminQualityPage', () => {
     const consoleActiveSurface = root.querySelector(
       '[data-og7-id="admin-quality-console-active-surface"]',
     );
-    const consoleStage = root.querySelector('[data-og7="admin-quality-console-stage"]') as HTMLElement;
+    const consoleStage = root.querySelector(
+      '[data-og7="admin-quality-console-stage"]',
+    ) as HTMLElement;
     const surfaceStage = root.querySelector(
       '[data-og7="admin-quality-console-surface-stage"]',
     ) as HTMLElement;
@@ -865,9 +889,13 @@ describe('AdminQualityPage', () => {
     const consoleQueueButton = root.querySelector(
       '[data-og7-id="admin-quality-console-queue"]',
     ) as HTMLButtonElement;
-    const workspaceBar = root.querySelector('[data-og7="admin-quality-workspace-bar"]') as HTMLElement;
+    const workspaceBar = root.querySelector(
+      '[data-og7="admin-quality-workspace-bar"]',
+    ) as HTMLElement;
     const sidePanel = root.querySelector('[data-og7="admin-quality-side-panel"]') as HTMLElement;
-    const aiPilotBlock = root.querySelector('[data-og7="admin-quality-ai-pilot-block"]') as HTMLElement;
+    const aiPilotBlock = root.querySelector(
+      '[data-og7="admin-quality-ai-pilot-block"]',
+    ) as HTMLElement;
     const missionDeskButton = root.querySelector(
       '[data-og7-id="admin-quality-side-panel-open-mission"]',
     ) as HTMLButtonElement;
@@ -907,7 +935,9 @@ describe('AdminQualityPage', () => {
     expect(workspaceBar.className).toContain('hidden');
     expect(aiPilotBlock.getAttribute('data-og7-visible')).toBe('false');
     expect(secondaryQueue).not.toBeNull();
-    expect(secondaryQueue.closest('[data-og7="admin-quality-console-surface-stage"]')).toBe(surfaceStage);
+    expect(secondaryQueue.closest('[data-og7="admin-quality-console-surface-stage"]')).toBe(
+      surfaceStage,
+    );
     expect(
       secondaryQueue.closest('[data-og7="admin-quality-scroll-section"][data-og7-id="coverage"]'),
     ).toBeNull();
@@ -1387,9 +1417,7 @@ describe('AdminQualityPage', () => {
     const root = fixture.nativeElement as HTMLElement;
     const runway = root.querySelector('[data-og7="admin-quality-codex-runway"]');
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
-    const generatedTasksSummary = root.querySelector(
-      '[data-og7="admin-quality-generated-tasks"]',
-    );
+    const generatedTasksSummary = root.querySelector('[data-og7="admin-quality-generated-tasks"]');
     const generatedTasks = root.querySelectorAll('[data-og7="admin-quality-generated-task"]');
     const generatedTaskKindSummaries = root.querySelectorAll(
       '[data-og7="admin-quality-generated-task-kind-summary"]',
@@ -1411,9 +1439,7 @@ describe('AdminQualityPage', () => {
     );
     const hudCodexLabels = root.querySelector('[data-og7="admin-quality-hud-codex-labels"]');
     const hudCodexUnits = root.querySelector('[data-og7-id="admin-quality-hud-codex-units"]');
-    const hudCodexWorkflow = root.querySelector(
-      '[data-og7-id="admin-quality-hud-codex-workflow"]',
-    );
+    const hudCodexWorkflow = root.querySelector('[data-og7-id="admin-quality-hud-codex-workflow"]');
     const hudMissionBrief = root.querySelector('[data-og7="admin-quality-hud-mission-brief"]');
     const hudGapCard = root.querySelector('[data-og7-id="admin-quality-hud-gap-card"]');
     const hudSuggestedMissionCard = root.querySelector(
@@ -1559,9 +1585,9 @@ describe('AdminQualityPage', () => {
     expect(missionControlContactLog.getAttribute('data-og7-layout')).toBe('micro-rail');
     expect(missionControlContactLog.className).toContain('lg:grid-cols-2');
     expect(missionHudContactLogShell).not.toBeNull();
-    expect(missionControlContactLog.closest('[data-og7="admin-quality-hud-contact-log-shell"]')).toBe(
-      missionHudContactLogShell,
-    );
+    expect(
+      missionControlContactLog.closest('[data-og7="admin-quality-hud-contact-log-shell"]'),
+    ).toBe(missionHudContactLogShell);
     expect(missionControlContactLog.closest('[data-og7="admin-quality-mission-hud"]')).toBe(
       missionHud,
     );
@@ -1580,7 +1606,8 @@ describe('AdminQualityPage', () => {
     expect(contactLogEntries[0]?.getAttribute('data-og7-signal')).toBe('pulse');
     expect(contactLogEntries[0]?.getAttribute('data-og7-age')).toBe('current');
     expect(
-      root.querySelector('[data-og7="admin-quality-mission-control-contact-log-time"]')?.textContent,
+      root.querySelector('[data-og7="admin-quality-mission-control-contact-log-time"]')
+        ?.textContent,
     ).toContain('T+0');
     expect(contactLogEntries[0]?.textContent).toContain('Latest lock');
     expect(contactLogEntries[0]?.textContent).toContain('Section pulse');
@@ -1612,9 +1639,7 @@ describe('AdminQualityPage', () => {
     expect(hudCodexUnits?.textContent).toContain('unites');
     expect(hudCodexWorkflow?.textContent).toContain('codex-pr.yml');
     expect(missionHudTimeline).not.toBeNull();
-    expect(missionHudTimeline.closest('[data-og7="admin-quality-mission-hud"]')).toBe(
-      missionHud,
-    );
+    expect(missionHudTimeline.closest('[data-og7="admin-quality-mission-hud"]')).toBe(missionHud);
     expect(missionHudTimeline.getAttribute('data-og7-layout')).toBe('embedded-compact');
     expect(missionHudTimeline.textContent).toContain('Timeline de la mission');
     expect(missionHudTimelineSteps.length).toBe(5);
@@ -1654,9 +1679,9 @@ describe('AdminQualityPage', () => {
     expect(missionLoopSteps.length).toBe(0);
     expect(duplicateMissionEnergyLane).toBeNull();
     expect(proofTelemetry).toBeNull();
-    expect(root.querySelector('[data-og7-id="admin-quality-hud-proof-run"]')?.textContent).toContain(
-      'Run #51',
-    );
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-hud-proof-run"]')?.textContent,
+    ).toContain('Run #51');
     expect(
       root.querySelector('[data-og7-id="admin-quality-hud-proof-artifacts"]')?.textContent,
     ).toContain('2 artifact(s)');
@@ -1675,7 +1700,9 @@ describe('AdminQualityPage', () => {
       root.querySelector('[data-og7-id="admin-quality-codex-ops-status"]')?.textContent,
     ).toContain('Ops pret');
     expect(aiBay).toBeNull();
-    expect(root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]')).toBeNull();
+    expect(
+      root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]'),
+    ).toBeNull();
   });
 
   it('toggles the sticky mission HUD between expanded and compact modes', () => {
@@ -1701,12 +1728,14 @@ describe('AdminQualityPage', () => {
     expect(root.querySelector('[data-og7-id="admin-quality-hud-proof-artifacts"]')).toBeNull();
     expect(root.querySelector('[data-og7-id="admin-quality-hud-proof-pr"]')).toBeNull();
     expect(root.querySelector('[data-og7="admin-quality-hud-mission-brief"]')).not.toBeNull();
-    expect(root.querySelector('[data-og7-id="admin-quality-hud-suggested-mission-card"]')?.textContent).toContain(
-      'Mission suggeree',
-    );
-    expect(root.querySelector('[data-og7="admin-quality-mission-hud"]')?.getAttribute('data-og7-expanded')).toBe(
-      'false',
-    );
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-hud-suggested-mission-card"]')?.textContent,
+    ).toContain('Mission suggeree');
+    expect(
+      root
+        .querySelector('[data-og7="admin-quality-mission-hud"]')
+        ?.getAttribute('data-og7-expanded'),
+    ).toBe('false');
     expect(root.querySelector('[data-og7-id="admin-quality-hud-summary"]')?.textContent).toContain(
       'Ops pret',
     );
@@ -1807,9 +1836,9 @@ describe('AdminQualityPage', () => {
 
     const root = fixture.nativeElement as HTMLElement;
 
-    expect(root.querySelector('[data-og7-id="admin-quality-codex-ops-status"]')?.textContent).toContain(
-      'Cle locale',
-    );
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-codex-ops-status"]')?.textContent,
+    ).toContain('Cle locale');
     expect(root.querySelector('[data-og7-id="admin-quality-hud-ops-detail"]')).toBeNull();
   });
 
@@ -1842,9 +1871,7 @@ describe('AdminQualityPage', () => {
     button.click();
     fixture.detectChanges();
 
-    const summary = root.querySelector(
-      '[data-og7="admin-quality-matrix-recalculation-summary"]',
-    );
+    const summary = root.querySelector('[data-og7="admin-quality-matrix-recalculation-summary"]');
     const focus = root.querySelector(
       '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="advanced-discovery"]',
     );
@@ -1941,10 +1968,14 @@ describe('AdminQualityPage', () => {
     const buildNow = root.querySelector('[data-og7="admin-quality-build-now"]');
     const primary = root.querySelector('[data-og7="admin-quality-next-best-action"]');
     const groups = root.querySelector('[data-og7="admin-quality-build-now-groups"]');
-    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-og7="admin-quality-build-now-item"]'));
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-og7="admin-quality-build-now-item"]'),
+    );
 
     expect(buildNow?.textContent).toContain('A construire maintenant');
-    expect(primary?.textContent).toContain('Produire la preuve sur Recherche et decouverte profonde');
+    expect(primary?.textContent).toContain(
+      'Produire la preuve sur Recherche et decouverte profonde',
+    );
     expect(primary?.textContent).toContain('La matrice recommande de produire la preuve');
     expect(groups?.textContent).toContain('A construire');
     expect(groups?.textContent).toContain('A prouver');
@@ -1960,21 +1991,31 @@ describe('AdminQualityPage', () => {
     expect(items[1].textContent).toContain('Construire la surface');
     expect(items[1].textContent).toContain('Decision humaine');
 
-    (items[0].querySelector('[data-og7-id="admin-quality-build-now-open"]') as HTMLButtonElement).click();
+    (
+      items[0].querySelector('[data-og7-id="admin-quality-build-now-open"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(fixture.componentInstance.selectedEntry()?.id).toBe('advanced-discovery');
     expect(fixture.componentInstance.workspaceOpen()).toBeTrue();
     expect(fixture.componentInstance.activeWorkspaceSurface()).toBe('delegation');
 
-    (items[0].querySelector('[data-og7-id="admin-quality-build-now-plan"]') as HTMLButtonElement).click();
+    (
+      items[0].querySelector('[data-og7-id="admin-quality-build-now-plan"]') as HTMLButtonElement
+    ).click();
     expect(fixture.componentInstance.matrixRecalculationScope()).toBe('selected-entry');
     expect(service.recalculateMatrix).toHaveBeenCalledWith('selected-entry', 'advanced-discovery');
 
-    (items[0].querySelector('[data-og7-id="admin-quality-build-now-create-mission"]') as HTMLButtonElement).click();
+    (
+      items[0].querySelector(
+        '[data-og7-id="admin-quality-build-now-create-mission"]',
+      ) as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.missionDecisions()['advanced-discovery::core']).toBe('approved');
+    expect(fixture.componentInstance.missionDecisions()['advanced-discovery::core']).toBe(
+      'approved',
+    );
     expect(fixture.componentInstance.selectedMission()?.id).toBe('advanced-discovery::core');
     expect(fixture.componentInstance.missionHudActiveSection()).toBe('mission');
     expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
@@ -2074,8 +2115,10 @@ describe('AdminQualityPage', () => {
     });
     expect(launchButton.disabled).toBeTrue();
     expect(fixture.componentInstance.selectedSignalDispatchReady()).toBeFalse();
-    expect(root.querySelector('[data-og7-id="admin-quality-dispatch-blocked"]')?.textContent).toContain(
-      'Le bouton reste verrouille jusqu\'a reception d\'une confirmation serveur plus recente',
+    expect(
+      root.querySelector('[data-og7-id="admin-quality-dispatch-blocked"]')?.textContent,
+    ).toContain(
+      "Le bouton reste verrouille jusqu'a reception d'une confirmation serveur plus recente",
     );
     expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
       source: 'admin-quality',
@@ -2123,7 +2166,9 @@ describe('AdminQualityPage', () => {
       '[data-og7="admin-quality-mission-control-contact-log-count"]',
     );
     const contactLogTimes = () =>
-      Array.from(root.querySelectorAll('[data-og7="admin-quality-mission-control-contact-log-time"]'));
+      Array.from(
+        root.querySelectorAll('[data-og7="admin-quality-mission-control-contact-log-time"]'),
+      );
 
     workspaceChip.click();
     fixture.detectChanges();
@@ -2174,18 +2219,16 @@ describe('AdminQualityPage', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const handoff = root.querySelector('[data-og7="admin-quality-provider-ops-handoff"]');
-    const activeSocket = root.querySelector(
-      '[data-og7-id="admin-quality-provider-active-socket"]',
-    );
-    const opsLink = root.querySelector(
-      '[data-og7-id="admin-quality-open-provider-sockets"]',
-    );
+    const activeSocket = root.querySelector('[data-og7-id="admin-quality-provider-active-socket"]');
+    const opsLink = root.querySelector('[data-og7-id="admin-quality-open-provider-sockets"]');
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
     const opsStatus = root.querySelector('[data-og7-id="admin-quality-codex-ops-status"]');
 
     expect(root.querySelector('[data-og7="admin-quality-provider-comparison"]')).toBeNull();
     expect(root.querySelector('[data-og7="admin-quality-provider-comparison-rail"]')).toBeNull();
-    expect(root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]').length).toBe(0);
+    expect(
+      root.querySelectorAll('[data-og7="admin-quality-provider-comparison-card"]').length,
+    ).toBe(0);
     expect(handoff).toBeNull();
     expect(activeSocket).toBeNull();
     expect(opsLink).toBeNull();
@@ -2220,9 +2263,9 @@ describe('AdminQualityPage', () => {
     );
     const delegateButton = Array.from(
       consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
-    ).find(
-      (element) => element.textContent?.includes('Lancer Codex'),
-    ) as HTMLButtonElement | undefined;
+    ).find((element) => element.textContent?.includes('Lancer Codex')) as
+      | HTMLButtonElement
+      | undefined;
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
 
     expect(fixture.componentInstance.selectedAiDispatchReady()).toBeFalse();
@@ -2251,7 +2294,8 @@ describe('AdminQualityPage', () => {
     const quotaStatus = root.querySelector('[data-og7-id="admin-quality-codex-quota-status"]');
     const aiBay = root.querySelector('[data-og7="admin-quality-ai-bay"]');
     const providerHandoff = root.querySelector('[data-og7="admin-quality-provider-ops-handoff"]');
-    const activeSocket = () => root.querySelector('[data-og7-id="admin-quality-provider-active-socket"]');
+    const activeSocket = () =>
+      root.querySelector('[data-og7-id="admin-quality-provider-active-socket"]');
     const missionControlShell = root.querySelector(
       '[data-og7="admin-quality-mission-control-shell"]',
     );
@@ -2297,9 +2341,9 @@ describe('AdminQualityPage', () => {
     );
     const delegateButton = Array.from(
       consoleMissionActions?.querySelectorAll('[data-og7="action"]') ?? [],
-    ).find(
-      (element) => element.textContent?.includes('Lancer Codex'),
-    ) as HTMLButtonElement | undefined;
+    ).find((element) => element.textContent?.includes('Lancer Codex')) as
+      | HTMLButtonElement
+      | undefined;
 
     delegateButton?.click();
     fixture.detectChanges();
@@ -2323,9 +2367,13 @@ describe('AdminQualityPage', () => {
     expect(notifications.info).toHaveBeenCalledWith('Codex queued via codex-pr.yml on main.', {
       source: 'admin-quality',
     });
-    expect(root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]')).toBeNull();
+    expect(
+      root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="dispatch"]'),
+    ).toBeNull();
     expect(root.querySelector('[data-og7="admin-quality-mission-energy-lane"]')).toBeNull();
-    expect(root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="proof"]')).toBeNull();
+    expect(
+      root.querySelector('[data-og7="admin-quality-mission-loop-step"][data-og7-id="proof"]'),
+    ).toBeNull();
   });
 
   it('marks a matrix row as refresh-required when a completed mission is newer than the last review', () => {
