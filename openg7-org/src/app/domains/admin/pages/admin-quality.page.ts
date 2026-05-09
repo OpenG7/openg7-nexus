@@ -60,6 +60,10 @@ import {
   AdminQualityWorkspaceSurface,
 } from '../feature/admin-quality-workspace-drawer.component';
 
+import {
+  AdminQualityComboboxComponent,
+  AdminQualityComboboxOption,
+} from './admin-quality-combobox.component';
 import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 import {
   AdminQualityActionIntent,
@@ -96,10 +100,10 @@ import {
   AdminQualityMissionDecisionMap,
   AdminQualityMissionRecommendation,
   AdminQualityMissionStatus,
+  AdminQualityMissionTimelineStatus,
   buildMissionControl,
 } from './admin-quality-mission-control';
 import {
-  AdminQualityMissionControlComponent,
   AdminQualityMissionProofDisplay,
   AdminQualityMissionProviderComparisonEntry,
 } from './admin-quality-mission-control.component';
@@ -118,7 +122,6 @@ type AdminQualityAiOpsModule = AdminOpsSecuritySnapshot['aiKeys'][number];
 type AdminQualityAiProofModule = AdminOpsAiProofSnapshot['providers'][number];
 type AdminQualityAiTelemetryState = 'live' | 'degraded' | 'syncing' | 'offline';
 type AdminQualityMissionHudSection = 'coverage' | 'mission' | 'workspace';
-type AdminQualityMissionHudLaneState = 'charged' | 'flowing' | 'standby' | 'fault';
 type AdminQualityMissionHudAmbientTone = 'nominal' | 'syncing' | 'warning' | 'critical';
 type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
@@ -193,11 +196,11 @@ interface AdminQualityMissionRadarLockDisplayEntry extends AdminQualityMissionRa
   readonly signalTone: AdminQualityMissionRadarSignalTone;
   readonly detailLabel: string;
 }
-interface AdminQualityMissionHudLaneSegment {
+interface AdminQualityMissionHudTimelineStep {
   readonly id: string;
-  readonly from: string;
-  readonly to: string;
-  readonly state: AdminQualityMissionHudLaneState;
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly status: AdminQualityMissionTimelineStatus;
 }
 interface AdminQualityPersistedViewState {
   readonly search?: string;
@@ -244,6 +247,31 @@ const MATRIX_RECALCULATION_SCOPE_OPTIONS: readonly AdminQualityMatrixRecalculati
   { id: 'selected-entry', label: 'Entree active' },
   { id: 'all', label: 'Toute la matrice' },
 ];
+const MATRIX_RECALCULATION_SCOPE_SELECT_OPTIONS: readonly AdminQualityComboboxOption[] =
+  MATRIX_RECALCULATION_SCOPE_OPTIONS.map((option) => ({
+    value: option.id,
+    label: option.label,
+  }));
+const PRIORITY_FILTER_OPTIONS: readonly AdminQualityComboboxOption[] = [
+  { value: 'all', label: 'Priorite' },
+  { value: 'haute', label: 'Priorite : Haute' },
+  { value: 'moyenne', label: 'Priorite : Moyenne' },
+  { value: 'basse', label: 'Priorite : Basse' },
+];
+const E2E_FILTER_OPTIONS: readonly AdminQualityComboboxOption[] = [
+  { value: 'all', label: 'E2E' },
+  { value: 'oui', label: 'E2E : Oui' },
+  { value: 'partiel', label: 'E2E : Partiel' },
+  { value: 'non', label: 'E2E : Non' },
+  { value: 'hors MVP', label: 'E2E : Hors MVP' },
+];
+const BUCKET_FILTER_OPTIONS: readonly AdminQualityComboboxOption[] = [
+  { value: 'all', label: 'Gestion' },
+  { value: 'covered', label: 'Gestion : Couvert' },
+  { value: 'proof-gap', label: 'Gestion : Preuve a renforcer' },
+  { value: 'product-gap', label: 'Gestion : Produit d abord' },
+  { value: 'scope-limit', label: 'Gestion : Hors scope courant' },
+];
 
 const MISSION_CONTROL_STORAGE_KEY = 'og7.admin-quality.mission-control.v1';
 const VIEW_STATE_STORAGE_KEY = 'og7.admin-quality.view-state.v1';
@@ -257,11 +285,11 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     CommonModule,
     RouterLink,
     TranslateModule,
+    AdminQualityComboboxComponent,
     AdminNavigationPillsComponent,
     AdminQualityCommandRailComponent,
     AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
-    AdminQualityMissionControlComponent,
     AdminQualityWorkspaceDrawerComponent,
   ],
   templateUrl: './admin-quality.page.html',
@@ -713,7 +741,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly syncingSignalGuidanceTrackingIds = new Set<string>();
   private missionHudSectionObserver: IntersectionObserver | null = null;
   private missionHudSectionPulseTimer: ReturnType<typeof setTimeout> | null = null;
-  private missionHudProofPulseTimer: ReturnType<typeof setTimeout> | null = null;
   private missionControlPanelFocusTimer: ReturnType<typeof setTimeout> | null = null;
   private missionControlRadarLockSequence = 0;
   private pendingMissionControlLockReason: AdminQualityMissionRadarLockReason | null = null;
@@ -724,7 +751,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   ];
 
   @ViewChild('coverageSection') private coverageSection?: ElementRef<HTMLElement>;
-  @ViewChild('missionSection') private missionSection?: ElementRef<HTMLElement>;
   @ViewChild('workspaceSection') private workspaceSection?: ElementRef<HTMLElement>;
 
   readonly loading = signal(true);
@@ -755,7 +781,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly missionHudActiveSection = signal<AdminQualityMissionHudSection>('coverage');
   readonly missionControlFocusedPanel = signal<AdminQualityMissionHudSection | null>(null);
   readonly missionHudPulsingSection = signal<AdminQualityMissionHudSection | null>(null);
-  readonly missionHudProofPulseActive = signal(false);
   readonly aiOpsSecurityStatus = signal<AdminQualityAiOpsSyncStatus>('loading');
   readonly aiOpsSecurity = signal<AdminOpsSecuritySnapshot | null>(null);
   readonly aiOpsProofStatus = signal<AdminQualityAiOpsSyncStatus>('loading');
@@ -799,6 +824,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
     { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
   ];
+  readonly matrixRecalculationScopeSelectOptions = MATRIX_RECALCULATION_SCOPE_SELECT_OPTIONS;
+  readonly priorityFilterOptions = PRIORITY_FILTER_OPTIONS;
+  readonly e2eFilterOptions = E2E_FILTER_OPTIONS;
+  readonly bucketFilterOptions = BUCKET_FILTER_OPTIONS;
   readonly activeConsoleSurfaceOption = computed(
     () =>
       this.consoleSurfaceOptions.find((surface) => surface.id === this.activeConsoleSurface()) ??
@@ -814,6 +843,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedAiProviderLabel = computed(() => this.selectedAiProviderOption().label);
   readonly selectedAiProviderCaption = computed(() => this.selectedAiProviderOption().caption);
   readonly selectedAiProviderModel = computed(() => this.selectedAiProviderOption().defaultModel);
+  readonly aiProviderSelectOptions = computed<readonly AdminQualityComboboxOption[]>(() =>
+    this.aiProviders.map((provider) => ({
+      value: provider.id,
+      label: provider.label,
+    })),
+  );
   readonly missionHudSectionOptions: readonly {
     readonly id: AdminQualityMissionHudSection;
     readonly label: string;
@@ -1162,9 +1197,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       pulsing: this.missionHudSectionPulse(section.id),
     }));
   });
-  readonly missionControlActiveRadarEchoPoint = computed<AdminQualityMissionRadarEchoPoint | null>(
-    () => this.missionControlRadarEchoPoints().find((point) => point.active) ?? null,
-  );
   readonly missionControlRadarLockHistory = signal<
     readonly AdminQualityMissionRadarLockHistoryEntry[]
   >([]);
@@ -1214,23 +1246,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       };
     });
   });
-  readonly missionControlContactLockLabel = computed(() => {
-    const point = this.missionControlActiveRadarEchoPoint();
-    if (!point) {
-      return 'Contact lock unavailable';
-    }
-
-    return point.pulsing ? `Acquiring ${point.label}` : `Contact lock · ${point.label}`;
-  });
-  readonly missionControlContactLockDetail = computed(() => {
-    const point = this.missionControlActiveRadarEchoPoint();
-    if (!point) {
-      return 'No active section tracked by mission radar.';
-    }
-
-    const proofStream = this.missionControlProofStreamIntensity();
-    return `${point.metricLabel} · proof stream ${proofStream}`;
-  });
   readonly missionHudAmbientTone = computed<AdminQualityMissionHudAmbientTone>(() => {
     const proof = this.selectedAiProofDisplay();
     const telemetry = this.selectedAiTelemetryState();
@@ -1250,36 +1265,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
     return 'nominal';
   });
-  readonly missionHudEnergyLaneSegments = computed<readonly AdminQualityMissionHudLaneSegment[]>(
-    () => {
-      const mission = this.selectedMission();
-      const proof = this.selectedAiProofDisplay();
-      const dispatchState = this.resolveMissionHudLaneState(
-        mission?.status ?? 'proposed',
-        this.selectedAiDispatchReady(),
-        false,
-      );
-      const proofState = this.resolveMissionHudLaneState(
-        mission?.status ?? 'proposed',
-        this.selectedAiDispatchReady(),
-        true,
-      );
-      const validationState: AdminQualityMissionHudLaneState =
-        mission?.status === 'done'
-          ? 'flowing'
-          : mission?.status === 'proof-returned'
-            ? 'charged'
-            : proof?.state === 'failed'
-              ? 'fault'
-              : 'standby';
-
-      return [
-        { id: 'mission-dispatch', from: 'Mission', to: 'Dispatch', state: dispatchState },
-        { id: 'dispatch-proof', from: 'Dispatch', to: 'Proof', state: proofState },
-        { id: 'proof-validation', from: 'Proof', to: 'Validation', state: validationState },
-      ];
-    },
-  );
   readonly availableCodexQuotaUnits = computed(() =>
     this.selectedAiDispatchReady() ? this.selectedMissionRequiredUnits() : 0,
   );
@@ -1299,6 +1284,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       ...Array.from(options).sort((left, right) => left.localeCompare(right, 'fr-CA')),
     ];
   });
+  readonly domainFilterOptions = computed<readonly AdminQualityComboboxOption[]>(() =>
+    this.domainOptions().map((option) => ({
+      value: option,
+      label: option === 'all' ? 'Domaine' : option,
+    })),
+  );
 
   readonly filteredEntries = computed(() => {
     const query = this.search().trim().toLocaleLowerCase('fr-CA');
@@ -1740,6 +1731,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     const plan = this.selectedDelegation();
     return entry && plan ? buildMissionControl(entry, plan, this.missionDecisions()) : null;
   });
+  readonly missionHudTimelineSteps = computed<readonly AdminQualityMissionHudTimelineStep[]>(() =>
+    (this.missionControl()?.timeline ?? []).map((step) => ({
+      ...step,
+      shortLabel: this.missionHudTimelineShortLabel(step.id),
+    })),
+  );
+  readonly activeMissionHudTimelineStep = computed<AdminQualityMissionHudTimelineStep | null>(() => {
+    const steps = this.missionHudTimelineSteps();
+    return steps[this.activeMissionHudTimelineIndex(steps)] ?? null;
+  });
   readonly selectedMission = computed<AdminQualityMissionRecommendation | null>(() => {
     const recommendations = this.missionControl()?.recommendations ?? [];
     if (!recommendations.length) {
@@ -1803,7 +1804,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         proof &&
         (proof.state === 'completed' || proof.state === 'in-progress')
       ) {
-        this.triggerMissionHudProofPulse();
         if (previousProofSignature !== null) {
           this.recordMissionControlProofEvent(this.missionHudActiveSection(), proof.label);
         }
@@ -1841,9 +1841,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       if (this.missionHudSectionPulseTimer) {
         clearTimeout(this.missionHudSectionPulseTimer);
       }
-      if (this.missionHudProofPulseTimer) {
-        clearTimeout(this.missionHudProofPulseTimer);
-      }
     });
 
     this.loadMatrixSnapshot();
@@ -1854,7 +1851,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   setMatrixRecalculationScope(event: Event): void {
-    const value = (event.target as HTMLSelectElement | null)?.value;
+    this.setMatrixRecalculationScopeValue((event.target as HTMLSelectElement | null)?.value ?? '');
+  }
+
+  setMatrixRecalculationScopeValue(value: string): void {
     if (value === 'refresh-required' || value === 'selected-entry' || value === 'all') {
       this.matrixRecalculationScope.set(value);
     }
@@ -2036,39 +2036,47 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   setDomainFilter(event: Event): void {
+    this.setDomainFilterValue((event.target as HTMLSelectElement | null)?.value ?? 'all');
+  }
+
+  setDomainFilterValue(value: string): void {
     this.stopVoiceForContextChange();
-    this.selectedDomain.set(
-      ((event.target as HTMLSelectElement | null)?.value as FilterValue<string>) ?? 'all',
-    );
+    this.selectedDomain.set((value || 'all') as FilterValue<string>);
   }
 
   setPriorityFilter(event: Event): void {
+    this.setPriorityFilterValue((event.target as HTMLSelectElement | null)?.value ?? 'all');
+  }
+
+  setPriorityFilterValue(value: string): void {
     this.stopVoiceForContextChange();
-    this.selectedPriority.set(
-      ((event.target as HTMLSelectElement | null)
-        ?.value as FilterValue<AdminQualityMatrixPriority>) ?? 'all',
-    );
+    this.selectedPriority.set((value || 'all') as FilterValue<AdminQualityMatrixPriority>);
   }
 
   setE2EFilter(event: Event): void {
+    this.setE2EFilterValue((event.target as HTMLSelectElement | null)?.value ?? 'all');
+  }
+
+  setE2EFilterValue(value: string): void {
     this.stopVoiceForContextChange();
-    this.selectedE2EStatus.set(
-      ((event.target as HTMLSelectElement | null)
-        ?.value as FilterValue<AdminQualityMatrixStatus>) ?? 'all',
-    );
+    this.selectedE2EStatus.set((value || 'all') as FilterValue<AdminQualityMatrixStatus>);
   }
 
   setBucketFilter(event: Event): void {
+    this.setBucketFilterValue((event.target as HTMLSelectElement | null)?.value ?? 'all');
+  }
+
+  setBucketFilterValue(value: string): void {
     this.stopVoiceForContextChange();
-    this.selectedBucket.set(
-      ((event.target as HTMLSelectElement | null)
-        ?.value as FilterValue<AdminQualityMatrixBucket>) ?? 'all',
-    );
+    this.selectedBucket.set((value || 'all') as FilterValue<AdminQualityMatrixBucket>);
   }
 
   setAiProvider(event: Event): void {
+    this.setAiProviderValue((event.target as HTMLSelectElement | null)?.value ?? '');
+  }
+
+  setAiProviderValue(value: string): void {
     this.stopVoiceForContextChange();
-    const value = (event.target as HTMLSelectElement | null)?.value;
     if (!isAdminAiProvider(value)) {
       return;
     }
@@ -2616,6 +2624,34 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
   }
 
+  missionHudConfidencePercent(value: AdminQualityMissionRecommendation['confidence']): number {
+    return value === 'High' ? 88 : 72;
+  }
+
+  missionHudConfidenceRingBackground(value: AdminQualityMissionRecommendation['confidence']): string {
+    const percent = this.missionHudConfidencePercent(value);
+    const degrees = `${Math.round(percent * 3.6)}deg`;
+    const color = value === 'High' ? 'rgba(34,197,94,0.96)' : 'rgba(245,158,11,0.96)';
+    return `conic-gradient(${color} 0deg ${degrees}, rgba(148,163,184,0.14) ${degrees} 360deg)`;
+  }
+
+  missionHudConfidenceClasses(value: AdminQualityMissionRecommendation['confidence']): string {
+    return value === 'High'
+      ? 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100'
+      : 'border-amber-400/25 bg-amber-400/12 text-amber-100';
+  }
+
+  missionHudImpactClasses(value: AdminQualityMissionRecommendation['impact']): string {
+    switch (value) {
+      case 'High':
+        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
+      case 'Low':
+        return 'border-white/12 bg-white/5 text-slate-200';
+      default:
+        return 'border-amber-400/25 bg-amber-400/12 text-amber-100';
+    }
+  }
+
   missionHudTelemetryClasses(status: AdminQualityAiTelemetryState): string {
     switch (status) {
       case 'live':
@@ -2627,27 +2663,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       default:
         return 'border-white/12 bg-white/5 text-slate-200';
     }
-  }
-
-  missionHudProofClasses(state: AdminQualityMissionProofDisplay['state']): string {
-    switch (state) {
-      case 'completed':
-        return 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100';
-      case 'in-progress':
-        return 'border-sky-400/25 bg-sky-400/12 text-sky-100';
-      case 'queued':
-        return 'border-amber-400/25 bg-amber-400/12 text-amber-100';
-      case 'failed':
-        return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
-      default:
-        return 'border-white/12 bg-white/5 text-slate-200';
-    }
-  }
-
-  missionHudOpsClasses(): string {
-    return this.selectedAiDispatchReady()
-      ? 'border-emerald-400/25 bg-emerald-400/12 text-emerald-100'
-      : 'border-amber-400/25 bg-amber-400/12 text-amber-100';
   }
 
   missionHudSectionClasses(section: AdminQualityMissionHudSection): string {
@@ -2751,10 +2766,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
   }
 
-  missionHudProofPulse(state: AdminQualityMissionProofDisplay['state']): boolean {
-    return this.missionHudProofPulseActive() && (state === 'completed' || state === 'in-progress');
-  }
-
   missionHudSectionPulse(section: AdminQualityMissionHudSection): boolean {
     return this.missionHudPulsingSection() === section;
   }
@@ -2805,32 +2816,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         return 'bg-[linear-gradient(90deg,transparent,rgba(96,165,250,0.16),rgba(59,130,246,0.18),transparent)]';
       default:
         return 'bg-[linear-gradient(90deg,transparent,rgba(34,211,238,0.16),rgba(56,189,248,0.18),transparent)]';
-    }
-  }
-
-  missionControlProviderSignatureLabel(): string {
-    switch (this.selectedAiProvider()) {
-      case 'claude':
-        return 'Claude ember line';
-      case 'gemini':
-        return 'Gemini solar mesh';
-      case 'copilot':
-        return 'Copilot cobalt grid';
-      default:
-        return 'Codex spectrum';
-    }
-  }
-
-  missionControlProviderSignatureClasses(): string {
-    switch (this.selectedAiProvider()) {
-      case 'claude':
-        return 'border-amber-300/25 bg-amber-400/12 text-amber-100';
-      case 'gemini':
-        return 'border-lime-300/25 bg-lime-400/12 text-lime-100';
-      case 'copilot':
-        return 'border-blue-300/25 bg-blue-400/12 text-blue-100';
-      default:
-        return 'border-cyan-300/25 bg-cyan-400/12 text-cyan-100';
     }
   }
 
@@ -2901,17 +2886,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     return point.intensity === 'high' ? 'text-slate-200/75' : 'text-slate-400';
   }
 
-  missionControlContactLockClasses(): string {
-    const point = this.missionControlActiveRadarEchoPoint();
-    if (!point) {
-      return 'border-white/10 bg-white/5 text-slate-300';
-    }
-
-    return point.pulsing
-      ? 'border-[var(--og7-cockpit-accent-strong)] bg-white/12 text-white shadow-[0_0_18px_var(--og7-cockpit-glow)]'
-      : 'border-[var(--og7-cockpit-accent)] bg-white/10 text-slate-100';
-  }
-
   missionControlContactLogEntryClasses(index: number): string {
     if (index === 0) {
       return 'border-[var(--og7-cockpit-accent)] bg-white/10 text-slate-100';
@@ -2977,20 +2951,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   missionControlRadarSweepMode(): AdminQualityMissionRadarTimelineKind | 'idle' {
     return this.missionControlRadarLatestSignal()?.kind ?? 'idle';
-  }
-
-  missionControlRadarCadenceLabel(): string {
-    const count = this.missionControlRadarLockLog().length;
-    return `${count} ${count === 1 ? 'event' : 'events'} / active cycle`;
-  }
-
-  missionControlRadarCadenceDetail(): string {
-    const entries = this.missionControlRadarLockLog();
-    const lockCount = entries.filter((entry) => entry.kind === 'lock').length;
-    const actionCount = entries.filter((entry) => entry.kind === 'action').length;
-    const proofCount = entries.filter((entry) => entry.kind === 'proof').length;
-
-    return `${lockCount} lock${lockCount > 1 ? 's' : ''} · ${actionCount} action${actionCount > 1 ? 's' : ''} · ${proofCount} proof${proofCount > 1 ? 's' : ''}`;
   }
 
   missionControlTimelineSlotLabel(index: number): string {
@@ -3203,30 +3163,75 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
   }
 
-  missionHudEnergyTrackClasses(state: AdminQualityMissionHudLaneState): string {
-    switch (state) {
-      case 'flowing':
-        return 'bg-gradient-to-r from-cyan-300 via-sky-300 to-emerald-300 shadow-[0_0_22px_rgba(56,189,248,0.35)]';
-      case 'charged':
-        return 'bg-gradient-to-r from-amber-300/90 via-cyan-300/80 to-sky-300/75';
-      case 'fault':
-        return 'bg-gradient-to-r from-rose-300/90 via-rose-400/80 to-amber-300/50';
+  missionHudTimelineMarkerClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'border-emerald-300/35 bg-emerald-400/22 text-emerald-50 shadow-[0_0_18px_rgba(52,211,153,0.2)]';
+      case 'current':
+        return 'border-cyan-300/45 bg-cyan-400/22 text-cyan-50 shadow-[0_0_0_5px_rgba(34,211,238,0.12),0_0_24px_rgba(34,211,238,0.28)]';
       default:
-        return 'bg-white/12';
+        return 'border-white/10 bg-slate-950/72 text-slate-400';
     }
   }
 
-  missionHudEnergyNodeClasses(state: AdminQualityMissionHudLaneState): string {
-    switch (state) {
-      case 'flowing':
-        return 'border-cyan-300/40 bg-cyan-300/25 text-cyan-100 shadow-[0_0_18px_rgba(56,189,248,0.32)]';
-      case 'charged':
-        return 'border-amber-300/40 bg-amber-300/18 text-amber-100';
-      case 'fault':
-        return 'border-rose-300/40 bg-rose-300/18 text-rose-100';
+  missionHudTimelineConnectorClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'bg-gradient-to-r from-emerald-300 via-cyan-300 to-cyan-300 shadow-[0_0_18px_rgba(34,211,238,0.22)]';
+      case 'current':
+        return 'bg-gradient-to-r from-cyan-300 to-white/12';
       default:
-        return 'border-white/12 bg-white/5 text-slate-300';
+        return 'bg-white/10';
     }
+  }
+
+  missionHudTimelineTextClasses(status: AdminQualityMissionTimelineStatus): string {
+    switch (status) {
+      case 'done':
+        return 'text-slate-100';
+      case 'current':
+        return 'text-white';
+      default:
+        return 'text-slate-500';
+    }
+  }
+
+  missionHudTimelineMarkerText(status: AdminQualityMissionTimelineStatus, index: number): string {
+    return status === 'done' ? 'OK' : `${index + 1}`;
+  }
+
+  private missionHudTimelineShortLabel(id: string): string {
+    switch (id) {
+      case 'analysis':
+        return 'Analyse';
+      case 'approval':
+        return 'Validation';
+      case 'execution':
+        return 'Execution';
+      case 'review':
+        return 'Preuve';
+      case 'closure':
+        return 'Cloture';
+      default:
+        return id;
+    }
+  }
+
+  private activeMissionHudTimelineIndex(
+    steps: readonly AdminQualityMissionHudTimelineStep[],
+  ): number {
+    const currentIndex = steps.findIndex((step) => step.status === 'current');
+    if (currentIndex >= 0) {
+      return currentIndex;
+    }
+
+    for (let index = steps.length - 1; index >= 0; index -= 1) {
+      if (steps[index]?.status === 'done') {
+        return index;
+      }
+    }
+
+    return 0;
   }
 
   actionStatusLabel(status: AdminQualityActionStatus): string {
@@ -4946,44 +4951,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   ): ElementRef<HTMLElement> | undefined {
     switch (section) {
       case 'mission':
-        return this.missionSection;
+        return undefined;
       case 'workspace':
         return this.workspaceSection;
       default:
         return this.coverageSection;
     }
-  }
-
-  private resolveMissionHudLaneState(
-    missionStatus: AdminQualityMissionStatus,
-    dispatchReady: boolean,
-    proofStage: boolean,
-  ): AdminQualityMissionHudLaneState {
-    if (missionStatus === 'blocked' || missionStatus === 'rejected') {
-      return 'fault';
-    }
-
-    if (proofStage) {
-      if (missionStatus === 'proof-returned' || missionStatus === 'done') {
-        return 'flowing';
-      }
-
-      if (missionStatus === 'in-progress') {
-        return 'charged';
-      }
-
-      return 'standby';
-    }
-
-    if (missionStatus === 'in-progress' || missionStatus === 'proof-returned' || missionStatus === 'done') {
-      return 'flowing';
-    }
-
-    if (missionStatus === 'approved' && dispatchReady) {
-      return 'charged';
-    }
-
-    return dispatchReady ? 'flowing' : 'standby';
   }
 
   private triggerMissionHudSectionPulse(section: AdminQualityMissionHudSection): void {
@@ -4995,17 +4968,6 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.missionHudPulsingSection.set(null);
       this.missionHudSectionPulseTimer = null;
     }, 950);
-  }
-
-  private triggerMissionHudProofPulse(): void {
-    this.missionHudProofPulseActive.set(true);
-    if (this.missionHudProofPulseTimer) {
-      clearTimeout(this.missionHudProofPulseTimer);
-    }
-    this.missionHudProofPulseTimer = setTimeout(() => {
-      this.missionHudProofPulseActive.set(false);
-      this.missionHudProofPulseTimer = null;
-    }, 1400);
   }
 
   private recordMissionControlLock(

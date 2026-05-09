@@ -19,13 +19,29 @@ export interface GeneratedAdminQualityActionDiscovery {
 
 export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
+    "id": "admin-ops-backup-reset",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-ops.page.html",
+        "line": 907,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-ops-codex-dispatch",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-ops.page.html",
-        "line": 149,
+        "line": 678,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -37,13 +53,29 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
+    "id": "admin-ops-import-reset",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-ops.page.html",
+        "line": 1027,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-ops-refresh",
     "trigger": "button",
     "hasActionHook": false,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-ops.page.html",
-        "line": 14,
+        "line": 84,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -81,13 +113,169 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
+    "id": "admin-quality-apply-proposal",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 199,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts",
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-create-mission",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 348,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-create-mission-primary",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 252,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-empty-recalculate",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 371,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-open",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 332,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-open-primary",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 236,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-plan",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 340,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-build-now-plan-primary",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 244,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-confirm-dispatch",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
+        "line": 592,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.spec.ts",
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-quality-copy-codex",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
-        "line": 292,
+        "line": 582,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -105,7 +293,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
-        "line": 316,
+        "line": 642,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -117,13 +305,151 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
+    "id": "admin-quality-hud-open-actions",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1210,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-hud-open-workspace",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1200,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-hud-proof-pr",
+    "trigger": "link",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1036,
+        "tag": "a",
+        "trigger": "link",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-hud-proof-run",
+    "trigger": "link",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1012,
+        "tag": "a",
+        "trigger": "link",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-hud-toggle",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1160,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-inspector-tab-actions",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 2022,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-inspector-tab-delegation",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 2005,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-quality-inspector-tab-qaQueue",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1988,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-quality-open-issue",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html",
-        "line": 325,
+        "line": 651,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -136,13 +462,31 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
+    "id": "admin-quality-open-provider-sockets",
+    "trigger": "link",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
+        "line": 93,
+        "tag": "a",
+        "trigger": "link",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-quality-open-workspace",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 430,
+        "line": 2153,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -154,13 +498,33 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
+    "id": "admin-quality-recalculate-matrix",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 115,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
+    "e2eFiles": [
+      "openg7-org/e2e/admin-quality-recalculate-matrix.spec.ts"
+    ]
+  },
+  {
     "id": "admin-quality-reset-filters",
     "trigger": "button",
     "hasActionHook": true,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 259,
+        "line": 640,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -178,7 +542,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
-        "line": 524,
+        "line": 1763,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -188,29 +552,31 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-speak",
+    "id": "admin-quality-side-panel-open-mission",
     "trigger": "button",
     "hasActionHook": false,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
-        "line": 464,
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1672,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
       }
     ],
-    "specFiles": [],
+    "specFiles": [
+      "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+    ],
     "e2eFiles": []
   },
   {
-    "id": "admin-quality-stop-speaking",
+    "id": "admin-quality-side-panel-open-proof",
     "trigger": "button",
     "hasActionHook": false,
     "sourceFiles": [
       {
-        "file": "openg7-org/src/app/domains/admin/pages/admin-quality-mission-control.component.html",
-        "line": 472,
+        "file": "openg7-org/src/app/domains/admin/pages/admin-quality.page.html",
+        "line": 1680,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -263,7 +629,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
-        "line": 129,
+        "line": 145,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -277,13 +643,47 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     ]
   },
   {
+    "id": "admin-trust-quick-publish",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
+        "line": 177,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": [
+      "openg7-org/e2e/company-or-partner-enrichment-lifecycle.spec.ts"
+    ]
+  },
+  {
+    "id": "admin-trust-quick-queue",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
+        "line": 169,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
     "id": "admin-trust-quick-reject",
     "trigger": "button",
     "hasActionHook": false,
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
-        "line": 137,
+        "line": 153,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -301,7 +701,23 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
-        "line": 145,
+        "line": 161,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
+    "id": "admin-trust-quick-suspend-publication",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
+        "line": 185,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -317,7 +733,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
-        "line": 121,
+        "line": 137,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -335,7 +751,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/admin/pages/admin-trust.page.html",
-        "line": 504,
+        "line": 544,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": false
@@ -409,7 +825,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "sourceFiles": [
       {
         "file": "openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.html",
-        "line": 86,
+        "line": 96,
         "tag": "button",
         "trigger": "button",
         "hasActionHook": true
@@ -1074,7 +1490,6 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       "openg7-org/e2e/feed-stacked-filters-drilldown.spec.ts",
       "openg7-org/e2e/feed-view-context-refinement.spec.ts",
       "openg7-org/e2e/full-human-journey.spec.ts",
-      "openg7-org/e2e/hydrocarbon-business-journey.spec.ts",
       "openg7-org/e2e/opportunity-archive-lifecycle.spec.ts",
       "openg7-org/e2e/opportunity-enrichment-lifecycle.spec.ts"
     ]
@@ -1428,6 +1843,24 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     ]
   },
   {
+    "id": "indicator-decision-open-target",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html",
+        "line": 94,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": [
+      "openg7-org/e2e/hydrocarbon-business-journey.spec.ts"
+    ]
+  },
+  {
     "id": "indicator-open-stats-details",
     "trigger": "button",
     "hasActionHook": true,
@@ -1569,6 +2002,40 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     ]
   },
   {
+    "id": "map-open-feed",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html",
+        "line": 160,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": [
+      "openg7-org/e2e/map.spec.ts"
+    ]
+  },
+  {
+    "id": "map-open-feed-mobile",
+    "trigger": "button",
+    "hasActionHook": true,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html",
+        "line": 67,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": true
+      }
+    ],
+    "specFiles": [],
+    "e2eFiles": []
+  },
+  {
     "id": "mobile-menu-toggle",
     "trigger": "button",
     "hasActionHook": false,
@@ -1636,6 +2103,26 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     "e2eFiles": [
       "openg7-org/e2e/notification-panel.spec.ts",
       "openg7-org/e2e/quality-breadth-cross-surface-a11y-depth.spec.ts"
+    ]
+  },
+  {
+    "id": "open-priority-path",
+    "trigger": "button",
+    "hasActionHook": false,
+    "sourceFiles": [
+      {
+        "file": "openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html",
+        "line": 202,
+        "tag": "button",
+        "trigger": "button",
+        "hasActionHook": false
+      }
+    ],
+    "specFiles": [
+      "openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.spec.ts"
+    ],
+    "e2eFiles": [
+      "openg7-org/e2e/hydrocarbon-business-journey.spec.ts"
     ]
   },
   {
