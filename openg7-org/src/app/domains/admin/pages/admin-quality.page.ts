@@ -60,10 +60,6 @@ import {
   AdminQualityWorkspaceSurface,
 } from '../feature/admin-quality-workspace-drawer.component';
 
-import {
-  AdminQualityComboboxComponent,
-  AdminQualityComboboxOption,
-} from './admin-quality-combobox.component';
 import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 import {
   AdminQualityActionIntent,
@@ -74,6 +70,10 @@ import {
   buildActionRegistry,
   buildUndocumentedDiscoveredActions,
 } from './admin-quality-action-registry';
+import {
+  AdminQualityComboboxComponent,
+  AdminQualityComboboxOption,
+} from './admin-quality-combobox.component';
 import {
   AdminQualityCommandMetric,
   AdminQualityCommandScopeSummary,

@@ -1,3 +1,4 @@
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -10,7 +11,6 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 
 export interface AdminQualityComboboxOption {
   readonly value: string;
@@ -138,7 +138,12 @@ export class AdminQualityComboboxComponent {
   });
 
   protected toggle(): void {
-    this.open() ? this.close() : this.openPanel();
+    if (this.open()) {
+      this.close();
+      return;
+    }
+
+    this.openPanel();
   }
 
   protected openPanel(): void {
