@@ -114,6 +114,8 @@ describe('HomeMapSectionComponent', () => {
     expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-cinematic-status"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-corridor-card"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-corridor-beat"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-corridor-downstream"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="action"][data-og7-id="map-open-corridor-feed"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('og7-home-openlayers-map [data-og7="map-hub-prompt"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="map-decision-panel"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7="map-drilldown"][data-og7-id="energy"]')).toBeTruthy();

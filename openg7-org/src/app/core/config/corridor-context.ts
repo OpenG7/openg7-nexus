@@ -18,6 +18,29 @@ const CORRIDOR_CONTEXTS: Readonly<Record<string, CorridorContext>> = {
     id: 'step-live',
     labelKey: 'home.corridorsRealtime.items.stepLive',
   },
+  'flow-energy': {
+    id: 'flow-energy',
+    labelKey: 'home.map.overlay.corridorLabels.flowEnergy',
+    fromProvinceId: 'QC',
+    toProvinceId: 'ON',
+  },
+  'flow-battery': {
+    id: 'flow-battery',
+    labelKey: 'home.map.overlay.corridorLabels.flowBattery',
+    fromProvinceId: 'AB',
+    toProvinceId: 'ON',
+  },
+  'flow-food': {
+    id: 'flow-food',
+    labelKey: 'home.map.overlay.corridorLabels.flowFood',
+    fromProvinceId: 'BC',
+    toProvinceId: 'ON',
+  },
+  'flow-qc-usne': {
+    id: 'flow-qc-usne',
+    labelKey: 'home.map.overlay.corridorLabels.flowQcUsne',
+    fromProvinceId: 'QC',
+  },
 };
 
 export function resolveCorridorContext(corridorId: string | null | undefined): CorridorContext | null {

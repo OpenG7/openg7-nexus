@@ -2,6 +2,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, PLATFORM_ID, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { FiltersService } from '@app/core/filters.service';
 import type { SectorType } from '@app/core/models/opportunity';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { FeatureCollection, LineString, Point } from 'geojson';
 import { createEmpty, extend as extendExtent } from 'ol/extent.js';
@@ -700,6 +701,27 @@ const HOME_HUB_FEATURES: FeatureCollection<Point> = {
                   }
                 </div>
               </div>
+
+              <div
+                class="mt-2.5 flex flex-col gap-2 rounded-xl border border-emerald-300/16 bg-white/4 px-2.5 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                data-og7="map-corridor-downstream"
+                [attr.data-og7-id]="corridor.id"
+              >
+                <p class="text-[11px] leading-relaxed text-slate-300/82">
+                  {{ 'feed.context.corridorFocus' | translate }}
+                  <strong class="font-semibold text-white">{{ corridor.routeLabelKey | translate }}</strong>
+                </p>
+                <button
+                  type="button"
+                  class="inline-flex shrink-0 items-center justify-center rounded-2xl border border-emerald-200/35 bg-emerald-300/15 px-3 py-2 text-[11px] font-semibold text-emerald-50 transition hover:bg-emerald-300/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+                  data-og7="action"
+                  data-og7-id="map-open-corridor-feed"
+                  [attr.data-og7-corridor-id]="corridor.id"
+                  (click)="openCurrentCorridorFeed()"
+                >
+                  {{ 'home.map.decision.openFeed' | translate }}
+                </button>
+              </div>
             </section>
           }
 
@@ -751,6 +773,7 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly ngZone = inject(NgZone);
+  private readonly router = inject(Router);
   private readonly filters = inject(FiltersService);
   private readonly geoJson = new GeoJSON();
   private readonly topoJson = new TopoJSON();
@@ -1313,6 +1336,23 @@ export class HomeOpenlayersMapComponent implements AfterViewInit {
     this.filters.activeSector.set(corridor.sector as SectorType);
     this.refreshMapStyles();
     this.syncFocusView();
+  }
+
+  protected openCurrentCorridorFeed(): void {
+    const corridor = this.currentCorridor();
+    if (!corridor) {
+      return;
+    }
+
+    this.noteUserInteraction();
+    void this.router.navigate(['/feed'], {
+      queryParams: {
+        source: 'trade-map',
+        corridorId: corridor.id,
+        sector: corridor.sector,
+        type: 'REQUEST',
+      },
+    });
   }
 
   protected isActiveBeat(beatId: string): boolean {
