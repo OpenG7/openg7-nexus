@@ -3,6 +3,7 @@ import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
 import {
@@ -112,6 +113,10 @@ class UserAlertsServiceMock {
       return next;
     });
   }
+}
+
+class FeedActionsServiceMock {
+  readonly record = jasmine.createSpy('record').and.resolveTo(null);
 }
 
 class FeedConnectionMatchServiceMock {
@@ -387,6 +392,7 @@ describe('FeedAlertDetailPage', () => {
           } as Pick<AuthService, 'isAuthenticated'>,
         },
         { provide: UserAlertsService, useValue: userAlerts },
+        { provide: FeedActionsService, useValue: new FeedActionsServiceMock() },
         { provide: FeedConnectionMatchService, useValue: connectionMatcher },
         { provide: NotificationStore, useValue: notifications },
       ],

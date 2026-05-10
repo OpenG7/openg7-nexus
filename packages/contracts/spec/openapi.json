@@ -428,6 +428,74 @@
         }
       }
     },
+    "/api/users/me/feed-actions": {
+      "get": {
+        "summary": "List feed actions for the authenticated user",
+        "parameters": [
+          {
+            "name": "targetType",
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/FeedActionTargetType" }
+          },
+          {
+            "name": "targetId",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/FeedActionType" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedActionCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Record a feed action for the authenticated user",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedActionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedActionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me/opportunity-offers": {
       "get": {
         "summary": "List opportunity offers for the authenticated user",
@@ -1500,6 +1568,99 @@
           "metadata": { "$ref": "#/components/schemas/FeedPublicationMetadata", "nullable": true }
         },
         "required": ["type", "title", "summary", "mode"]
+      },
+      "FeedActionTargetType": {
+        "type": "string",
+        "enum": ["opportunity", "alert", "indicator", "feed-item"]
+      },
+      "FeedActionType": {
+        "type": "string",
+        "enum": [
+          "save",
+          "unsave",
+          "subscribe",
+          "report-update",
+          "report-opportunity",
+          "archive",
+          "duplicate",
+          "share",
+          "create-indicator-alert"
+        ]
+      },
+      "FeedActionStatus": {
+        "type": "string",
+        "enum": ["completed", "queued", "failed"]
+      },
+      "FeedActionRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "targetType": { "$ref": "#/components/schemas/FeedActionTargetType" },
+          "targetId": { "type": "string" },
+          "action": { "$ref": "#/components/schemas/FeedActionType" },
+          "status": { "$ref": "#/components/schemas/FeedActionStatus" },
+          "sourceRoute": { "type": "string", "nullable": true },
+          "targetRoute": { "type": "string", "nullable": true },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "occurredAt": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time", "nullable": true },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "correlationId": { "type": "string", "nullable": true },
+          "idempotencyKey": { "type": "string", "nullable": true }
+        },
+        "required": [
+          "id",
+          "targetType",
+          "targetId",
+          "action",
+          "status",
+          "sourceRoute",
+          "targetRoute",
+          "metadata",
+          "occurredAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "FeedActionCreateRequest": {
+        "type": "object",
+        "properties": {
+          "targetType": { "$ref": "#/components/schemas/FeedActionTargetType" },
+          "targetId": { "type": "string" },
+          "action": { "$ref": "#/components/schemas/FeedActionType" },
+          "status": { "$ref": "#/components/schemas/FeedActionStatus" },
+          "sourceRoute": { "type": "string", "nullable": true },
+          "targetRoute": { "type": "string", "nullable": true },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "occurredAt": { "type": "string", "format": "date-time" },
+          "correlationId": { "type": "string", "nullable": true }
+        },
+        "required": ["targetType", "targetId", "action"]
+      },
+      "FeedActionResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/FeedActionRecord" }
+        },
+        "required": ["data"]
+      },
+      "FeedActionCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FeedActionRecord" }
+          }
+        },
+        "required": ["data"]
       },
       "OpportunityOfferActivityRecord": {
         "type": "object",

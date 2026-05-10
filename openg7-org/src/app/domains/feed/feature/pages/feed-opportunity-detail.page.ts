@@ -11,6 +11,7 @@ import {
 import { Params, RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
   OpportunityOfferRecord,
@@ -77,6 +78,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private readonly conversationDrafts = inject(OpportunityConversationDraftsService);
   private readonly opportunityArchive = inject(OpportunityArchiveService);
   private readonly reportQueue = inject(OpportunityReportQueueService);
+  private readonly feedActions = inject(FeedActionsService);
 
   private readonly syncTimers: ReturnType<typeof setTimeout>[] = [];
   private pendingOfferPayload: OpportunityOfferPayload | null = null;
@@ -286,13 +288,20 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
 
   protected handleSaveToggle(): void {
     const key = this.favoriteKey();
+    const detail = this.detailVm();
     if (!key) {
       return;
     }
-    if (this.saved()) {
+    const wasSaved = this.saved();
+    if (wasSaved) {
       this.favorites.remove(key);
     } else {
       this.favorites.add(key);
+    }
+    if (detail) {
+      void this.recordOpportunityAction(wasSaved ? 'unsave' : 'save', detail, {
+        favoriteKey: key,
+      });
     }
     this.simulateSync();
   }
@@ -307,10 +316,12 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     try {
       if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
         await navigator.share({ title: detail.title, text: detail.summaryHeadline, url });
+        void this.recordOpportunityAction('share', detail, { method: 'native' });
         return;
       }
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
+        void this.recordOpportunityAction('share', detail, { method: 'clipboard' });
       }
     } catch {
       // Intentionally ignored: user cancellation is not an error state.
@@ -363,6 +374,12 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   }
 
   protected handleDuplicate(): void {
+    const detail = this.detailVm();
+    if (detail) {
+      void this.recordOpportunityAction('duplicate', detail, {
+        targetRoute: '/feed',
+      });
+    }
     this.simulateSync();
   }
 
@@ -373,6 +390,12 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     }
 
     this.opportunityArchive.archive(itemId);
+    const detail = this.detailVm();
+    if (detail) {
+      void this.recordOpportunityAction('archive', detail, {
+        localOnly: true,
+      });
+    }
     this.syncState.set('saved-local');
   }
 
@@ -409,6 +432,10 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
         itemTitle: detail.title,
         route: this.currentInternalUrl(),
         payload,
+      });
+      void this.recordOpportunityAction('report-opportunity', detail, {
+        reportId: record.id,
+        reason: payload.reason,
       });
 
       this.reportSubmitState.set('success');
@@ -1005,6 +1032,34 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     const url =
       navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
+  }
+
+  private recordOpportunityAction(
+    action: 'save' | 'unsave' | 'report-opportunity' | 'archive' | 'duplicate' | 'share',
+    detail: OpportunityDetailVm,
+    metadata: Record<string, unknown> = {},
+  ): Promise<unknown> {
+    return this.feedActions.record(
+      {
+        targetType: 'opportunity',
+        targetId: detail.item.id,
+        action,
+        status: action === 'report-opportunity' ? 'queued' : 'completed',
+        sourceRoute: this.currentInternalUrl(),
+        targetRoute: typeof metadata['targetRoute'] === 'string' ? metadata['targetRoute'] : null,
+        metadata: {
+          title: detail.title,
+          ...metadata,
+        },
+      },
+      {
+        idempotencyKey: this.buildActionIdempotencyKey(action, detail.item.id),
+      },
+    );
+  }
+
+  private buildActionIdempotencyKey(action: string, targetId: string): string {
+    return `feed-action:${action}:opportunity:${targetId}:${Date.now()}`;
   }
 
   protected override isExpectedItem(item: FeedItem | null): item is FeedItem {

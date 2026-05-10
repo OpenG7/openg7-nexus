@@ -665,6 +665,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me/feed-actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List feed actions for the authenticated user */
+        get: {
+            parameters: {
+                query?: {
+                    targetType?: components["schemas"]["FeedActionTargetType"];
+                    targetId?: string;
+                    action?: components["schemas"]["FeedActionType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedActionCollectionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Record a feed action for the authenticated user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "Idempotency-Key"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FeedActionCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedActionResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me/opportunity-offers": {
         parameters: {
             query?: never;
@@ -1594,6 +1660,52 @@ export interface components {
             originId?: string | null;
             connectionMatchId?: number | null;
             metadata?: components["schemas"]["FeedPublicationMetadata"];
+        };
+        /** @enum {string} */
+        FeedActionTargetType: "opportunity" | "alert" | "indicator" | "feed-item";
+        /** @enum {string} */
+        FeedActionType: "save" | "unsave" | "subscribe" | "report-update" | "report-opportunity" | "archive" | "duplicate" | "share" | "create-indicator-alert";
+        /** @enum {string} */
+        FeedActionStatus: "completed" | "queued" | "failed";
+        FeedActionRecord: {
+            id: string;
+            targetType: components["schemas"]["FeedActionTargetType"];
+            targetId: string;
+            action: components["schemas"]["FeedActionType"];
+            status: components["schemas"]["FeedActionStatus"];
+            sourceRoute: string | null;
+            targetRoute: string | null;
+            metadata: {
+                [key: string]: unknown;
+            } | null;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: date-time */
+            createdAt: string | null;
+            /** Format: date-time */
+            updatedAt: string | null;
+            correlationId?: string | null;
+            idempotencyKey?: string | null;
+        };
+        FeedActionCreateRequest: {
+            targetType: components["schemas"]["FeedActionTargetType"];
+            targetId: string;
+            action: components["schemas"]["FeedActionType"];
+            status?: components["schemas"]["FeedActionStatus"];
+            sourceRoute?: string | null;
+            targetRoute?: string | null;
+            metadata?: {
+                [key: string]: unknown;
+            } | null;
+            /** Format: date-time */
+            occurredAt?: string;
+            correlationId?: string | null;
+        };
+        FeedActionResponse: {
+            data: components["schemas"]["FeedActionRecord"];
+        };
+        FeedActionCollectionResponse: {
+            data: components["schemas"]["FeedActionRecord"][];
         };
         OpportunityOfferActivityRecord: {
             id: string;
