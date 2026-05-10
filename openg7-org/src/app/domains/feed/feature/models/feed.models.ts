@@ -1,12 +1,6 @@
 import { Signal } from '@angular/core';
 
-export type FeedItemType =
-  | 'OFFER'
-  | 'REQUEST'
-  | 'ALERT'
-  | 'TENDER'
-  | 'CAPACITY'
-  | 'INDICATOR';
+export type FeedItemType = 'OFFER' | 'REQUEST' | 'ALERT' | 'TENDER' | 'CAPACITY' | 'INDICATOR';
 
 export type FeedItemCategory = 'OPPORTUNITY' | 'ALERT' | 'INDICATOR';
 
@@ -125,6 +119,7 @@ export interface FeedPublishOutcome {
 
 export interface FeedPublishOptions {
   readonly metadata?: FeedPublicationMetadata | null;
+  readonly idempotencyKey?: string | null;
 }
 
 export interface FeedRealtimeConnectionState {

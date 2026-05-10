@@ -1117,6 +1117,7 @@
           "pricing": "Pricing model",
           "comment": "Comment",
           "attachment": "Attachment",
+          "clearAttachment": "Remove",
           "retry": "Retry",
           "generatedTitlePrefix": "Offer",
           "status": {
@@ -1124,11 +1125,14 @@
             "successReference": "Offer recorded under reference {{ reference }}.",
             "existingOfferRedirect": "Offer {{ reference }} already exists. Opening tracking.",
             "offline": "Offline: offer saved locally. Retry when connected.",
+            "attachmentUploadError": "Unable to upload the attachment. Try another file or retry.",
             "errorGeneric": "Unable to send offer. Try again."
           },
           "validation": {
             "summary": "Fix the required fields before sending the offer.",
-            "capacityMin": "Capacity must be at least 1 MW."
+            "capacityMin": "Capacity must be at least 1 MW.",
+            "attachmentType": "Use a PDF, PNG, JPG, or WebP file.",
+            "attachmentTooLarge": "Attachment must be {{ maxMb }} MB or less."
           },
           "send": "Send offer",
           "sending": "Sending..."

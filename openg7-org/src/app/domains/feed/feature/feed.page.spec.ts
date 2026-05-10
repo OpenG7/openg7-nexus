@@ -174,6 +174,17 @@ class OpportunityOffersServiceMock {
     status: 'submitted',
     ...payload,
   }));
+  readonly submit = jasmine
+    .createSpy('submit')
+    .and.callFake(async (payload) => this.create(payload));
+  readonly uploadAttachment = jasmine.createSpy('uploadAttachment').and.resolveTo({
+    id: 'upload-1',
+    name: 'term-sheet.pdf',
+    mime: 'application/pdf',
+    size: 42,
+    url: '/uploads/term-sheet.pdf',
+    scanStatus: 'passed',
+  });
   readonly withdraw = jasmine.createSpy('withdraw');
 }
 
@@ -206,14 +217,17 @@ function createFeedItem(
   };
 }
 
-function createOfferPayload(): OpportunityOfferPayload {
+function createOfferPayload(patch: Partial<OpportunityOfferPayload> = {}): OpportunityOfferPayload {
   return {
     capacityMw: 340,
     startDate: '2026-01-20',
     endDate: '2026-02-18',
     pricingModel: 'spot',
     comment: 'Firm import block for winter peak support.',
+    attachmentFile: null,
+    attachmentId: null,
     attachmentName: 'term-sheet.pdf',
+    ...patch,
   };
 }
 
@@ -860,19 +874,28 @@ describe('FeedPage', () => {
     expect(publishedDraft.fromProvinceId).toBe('qc');
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 340, unit: 'MW' });
-    expect(opportunityOffers.create).toHaveBeenCalledWith({
-      opportunityId: 'opportunity-300mw',
-      opportunityTitle: 'Item opportunity-300mw',
-      opportunityRoute: '/feed',
-      recipientKind: 'PARTNER',
-      recipientLabel: 'Grid Ops',
-      capacityMw: 340,
-      startDate: '2026-01-20',
-      endDate: '2026-02-18',
-      pricingModel: 'spot',
-      comment: 'Firm import block for winter peak support.',
-      attachmentName: 'term-sheet.pdf',
-    });
+    expect(opportunityOffers.submit).toHaveBeenCalledWith(
+      {
+        opportunityId: 'opportunity-300mw',
+        opportunityTitle: 'Item opportunity-300mw',
+        opportunityRoute: '/feed',
+        recipientKind: 'PARTNER',
+        recipientLabel: 'Grid Ops',
+        capacityMw: 340,
+        startDate: '2026-01-20',
+        endDate: '2026-02-18',
+        pricingModel: 'spot',
+        comment: 'Firm import block for winter peak support.',
+        attachmentId: null,
+        attachmentName: 'term-sheet.pdf',
+      },
+      jasmine.objectContaining({
+        feedItemId: null,
+        attachmentId: null,
+        correlationId: jasmine.any(String),
+        idempotencyKey: jasmine.stringMatching(/:record$/),
+      }),
+    );
     expect(notifications.success).toHaveBeenCalledWith(
       'feed.opportunity.detail.offer.status.successReference',
       {
@@ -880,10 +903,44 @@ describe('FeedPage', () => {
         metadata: {
           action: 'create-opportunity-offer',
           itemId: 'opportunity-300mw',
+          feedItemId: null,
           offerId: 'offer-record-1',
           offerReference: 'OG7-OFR-20260120-AB12',
+          correlationId: jasmine.any(String),
         },
       },
+    );
+  });
+
+  it('uploads contact drawer attachments before persisting the offer record', async () => {
+    const item = createFeedItem('REQUEST', 'opportunity-300mw');
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
+    stream.contactItem.emit(item);
+    fixture.detectChanges();
+
+    const drawer = fixture.debugElement.query(By.directive(OpportunityOfferDrawerStubComponent))
+      .componentInstance as OpportunityOfferDrawerStubComponent;
+    const file = new File(['%PDF-1.4'], 'term-sheet.pdf', { type: 'application/pdf' });
+    drawer.submitted.emit(createOfferPayload({ attachmentFile: file }));
+    await fixture.whenStable();
+
+    expect(opportunityOffers.uploadAttachment).toHaveBeenCalledWith(
+      file,
+      jasmine.objectContaining({ idempotencyKey: jasmine.stringMatching(/:attachment$/) }),
+    );
+    expect(opportunityOffers.submit).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        attachmentId: 'upload-1',
+        attachmentName: 'term-sheet.pdf',
+      }),
+      jasmine.objectContaining({
+        attachmentId: 'upload-1',
+        idempotencyKey: jasmine.stringMatching(/:record$/),
+      }),
     );
   });
 
@@ -919,7 +976,7 @@ describe('FeedPage', () => {
 
     expect(component.contactSubmitState()).toBe('error');
     expect(component.contactSubmitError()).toBe('feed.error.generic');
-    expect(opportunityOffers.create).not.toHaveBeenCalled();
+    expect(opportunityOffers.submit).not.toHaveBeenCalled();
     expect(notifications.error).toHaveBeenCalledWith('feed.error.generic', {
       source: 'feed',
       metadata: {

@@ -1,5 +1,10 @@
 ﻿<div class="opportunity-offer-drawer" *ngIf="visible()" data-og7="opportunity-offer-drawer">
-  <button class="opportunity-offer-drawer__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+  <button
+    class="opportunity-offer-drawer__backdrop"
+    type="button"
+    (click)="onBackdropClick()"
+    aria-hidden="true"
+  ></button>
 
   <section
     #panel
@@ -10,7 +15,13 @@
   >
     <header>
       <h2>{{ 'feed.opportunity.detail.cta.makeOffer' | translate }}</h2>
-      <button type="button" (click)="closed.emit()" [attr.aria-label]="'feed.drawer.close' | translate">x</button>
+      <button
+        type="button"
+        (click)="closed.emit()"
+        [attr.aria-label]="'feed.drawer.close' | translate"
+      >
+        x
+      </button>
     </header>
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -21,13 +32,24 @@
             type="number"
             min="1"
             formControlName="capacityMw"
-            [attr.aria-invalid]="form.controls.capacityMw.invalid && (form.controls.capacityMw.touched || submitAttempted()) ? 'true' : null"
+            [attr.aria-invalid]="
+              form.controls.capacityMw.invalid &&
+              (form.controls.capacityMw.touched || submitAttempted())
+                ? 'true'
+                : null
+            "
             data-og7="opportunity-offer-field"
             data-og7-id="capacity"
           />
           <small>MW</small>
         </div>
-        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.capacityMw.invalid && (form.controls.capacityMw.touched || submitAttempted())">
+        <p
+          class="opportunity-offer-drawer__field-error"
+          *ngIf="
+            form.controls.capacityMw.invalid &&
+            (form.controls.capacityMw.touched || submitAttempted())
+          "
+        >
           {{ 'validation.required' | translate }}
         </p>
       </label>
@@ -38,11 +60,22 @@
           <input
             type="date"
             formControlName="startDate"
-            [attr.aria-invalid]="form.controls.startDate.invalid && (form.controls.startDate.touched || submitAttempted()) ? 'true' : null"
+            [attr.aria-invalid]="
+              form.controls.startDate.invalid &&
+              (form.controls.startDate.touched || submitAttempted())
+                ? 'true'
+                : null
+            "
             data-og7="opportunity-offer-field"
             data-og7-id="start-date"
           />
-          <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.startDate.invalid && (form.controls.startDate.touched || submitAttempted())">
+          <p
+            class="opportunity-offer-drawer__field-error"
+            *ngIf="
+              form.controls.startDate.invalid &&
+              (form.controls.startDate.touched || submitAttempted())
+            "
+          >
             {{ 'validation.required' | translate }}
           </p>
         </label>
@@ -51,11 +84,20 @@
           <input
             type="date"
             formControlName="endDate"
-            [attr.aria-invalid]="form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted()) ? 'true' : null"
+            [attr.aria-invalid]="
+              form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted())
+                ? 'true'
+                : null
+            "
             data-og7="opportunity-offer-field"
             data-og7-id="end-date"
           />
-          <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted())">
+          <p
+            class="opportunity-offer-drawer__field-error"
+            *ngIf="
+              form.controls.endDate.invalid && (form.controls.endDate.touched || submitAttempted())
+            "
+          >
             {{ 'validation.required' | translate }}
           </p>
         </label>
@@ -65,12 +107,19 @@
         <span>{{ 'feed.opportunity.detail.offer.pricing' | translate }}</span>
         <select
           formControlName="pricingModel"
-          [attr.aria-invalid]="form.controls.pricingModel.invalid && (form.controls.pricingModel.touched || submitAttempted()) ? 'true' : null"
+          [attr.aria-invalid]="
+            form.controls.pricingModel.invalid &&
+            (form.controls.pricingModel.touched || submitAttempted())
+              ? 'true'
+              : null
+          "
           data-og7="opportunity-offer-field"
           data-og7-id="pricing-model"
         >
           <option value="spot">{{ 'feed.opportunity.detail.pricing.spot' | translate }}</option>
-          <option value="indexed">{{ 'feed.opportunity.detail.pricing.indexed' | translate }}</option>
+          <option value="indexed">
+            {{ 'feed.opportunity.detail.pricing.indexed' | translate }}
+          </option>
           <option value="fixed">{{ 'feed.opportunity.detail.pricing.fixed' | translate }}</option>
         </select>
       </label>
@@ -80,15 +129,31 @@
         <textarea
           formControlName="comment"
           rows="4"
-          [attr.aria-invalid]="form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted()) ? 'true' : null"
+          [attr.aria-invalid]="
+            form.controls.comment.invalid && (form.controls.comment.touched || submitAttempted())
+              ? 'true'
+              : null
+          "
           data-og7="opportunity-offer-field"
           data-og7-id="comment"
         ></textarea>
-        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.comment.hasError('required') && (form.controls.comment.touched || submitAttempted())">
+        <p
+          class="opportunity-offer-drawer__field-error"
+          *ngIf="
+            form.controls.comment.hasError('required') &&
+            (form.controls.comment.touched || submitAttempted())
+          "
+        >
           {{ 'validation.required' | translate }}
         </p>
-        <p class="opportunity-offer-drawer__field-error" *ngIf="form.controls.comment.hasError('minlength') && (form.controls.comment.touched || submitAttempted())">
-          {{ 'validation.minLength' | translate : { min: minCommentLength } }}
+        <p
+          class="opportunity-offer-drawer__field-error"
+          *ngIf="
+            form.controls.comment.hasError('minlength') &&
+            (form.controls.comment.touched || submitAttempted())
+          "
+        >
+          {{ 'validation.minLength' | translate: { min: minCommentLength } }}
         </p>
       </label>
 
@@ -96,7 +161,9 @@
         <span>{{ 'feed.opportunity.detail.offer.attachment' | translate }}</span>
         <input
           type="file"
+          [attr.accept]="acceptedAttachmentTypes"
           (change)="onAttachmentSelected($event)"
+          [attr.aria-invalid]="form.controls.attachmentName.invalid ? 'true' : null"
           data-og7="opportunity-offer-field"
           data-og7-id="attachment"
         />
@@ -104,6 +171,18 @@
 
       <p class="opportunity-offer-drawer__attachment" *ngIf="form.controls.attachmentName.value">
         {{ form.controls.attachmentName.value }}
+        <button
+          type="button"
+          (click)="clearAttachment()"
+          data-og7="action"
+          data-og7-id="opportunity-offer-attachment-clear"
+        >
+          {{ 'feed.opportunity.detail.offer.clearAttachment' | translate }}
+        </button>
+      </p>
+
+      <p class="opportunity-offer-drawer__field-error" *ngIf="attachmentErrorKey()">
+        {{ attachmentErrorKey() | translate: { maxMb: maxAttachmentFileSizeMb } }}
       </p>
 
       <p
@@ -153,8 +232,17 @@
           {{ 'feed.opportunity.detail.offer.retry' | translate }}
         </button>
 
-        <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="opportunity-offer-submit">
-          {{ submitting() ? ('feed.opportunity.detail.offer.sending' | translate) : ('feed.opportunity.detail.offer.send' | translate) }}
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          data-og7="action"
+          data-og7-id="opportunity-offer-submit"
+        >
+          {{
+            submitting()
+              ? ('feed.opportunity.detail.offer.sending' | translate)
+              : ('feed.opportunity.detail.offer.send' | translate)
+          }}
         </button>
       </div>
     </form>

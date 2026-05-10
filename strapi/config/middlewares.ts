@@ -88,7 +88,7 @@ const allowCredentials = parseBoolean(process.env.CORS_ALLOW_CREDENTIALS, true);
 const uploadAssetOrigins = collectUploadAssetOrigins();
 const uploadMaxFileSizeBytes = parsePositiveInteger(
   process.env.UPLOAD_MAX_FILE_SIZE_BYTES,
-  DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES
+  DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES,
 );
 const uploadBodyLimit = `${Math.max(2, Math.ceil(uploadMaxFileSizeBytes / (1024 * 1024)) + 1)}mb`;
 
@@ -130,6 +130,7 @@ export default [
         'Authorization',
         'Origin',
         'Accept',
+        'Idempotency-Key',
         'Access-Control-Allow-Credentials',
         'Access-Control-Allow-Headers',
       ],

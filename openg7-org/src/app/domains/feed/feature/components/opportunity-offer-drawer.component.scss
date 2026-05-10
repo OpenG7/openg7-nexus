@@ -120,8 +120,21 @@
 
 .opportunity-offer-drawer__attachment {
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   color: rgba(186, 230, 253, 0.9);
   font-size: 0.8rem;
+}
+
+.opportunity-offer-drawer__attachment button {
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  border-radius: 0.55rem;
+  background: rgba(8, 47, 73, 0.45);
+  color: rgba(224, 242, 254, 0.96);
+  padding: 0.28rem 0.46rem;
+  cursor: pointer;
 }
 
 .opportunity-offer-drawer__field-error {

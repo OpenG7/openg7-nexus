@@ -428,6 +428,115 @@
         }
       }
     },
+    "/api/users/me/opportunity-offers": {
+      "get": {
+        "summary": "List opportunity offers for the authenticated user",
+        "parameters": [
+          {
+            "name": "opportunityId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityOfferCollectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit an offer for an opportunity",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityOfferCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityOfferResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/opportunity-offer-attachments": {
+      "post": {
+        "summary": "Upload an attachment for an authenticated opportunity offer",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["files"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityOfferAttachmentResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Attachment too large"
+          },
+          "415": {
+            "description": "Unsupported attachment type"
+          }
+        }
+      }
+    },
     "/api/hydrocarbon-signals": {
       "get": {
         "summary": "List hydrocarbon publication projections",
@@ -1391,6 +1500,167 @@
           "metadata": { "$ref": "#/components/schemas/FeedPublicationMetadata", "nullable": true }
         },
         "required": ["type", "title", "summary", "mode"]
+      },
+      "OpportunityOfferActivityRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "submitted",
+              "tracked",
+              "qualified",
+              "inDiscussion",
+              "partiallyServed",
+              "withdrawn"
+            ]
+          },
+          "actor": {
+            "type": "string",
+            "enum": ["sender", "system"]
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "type", "actor", "createdAt"]
+      },
+      "OpportunityOfferRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "reference": { "type": "string" },
+          "opportunityId": { "type": "string" },
+          "opportunityTitle": { "type": "string" },
+          "opportunityRoute": { "type": "string", "nullable": true },
+          "feedItemId": { "type": "string", "nullable": true },
+          "recipientKind": {
+            "type": "string",
+            "enum": ["GOV", "COMPANY", "PARTNER", "USER"]
+          },
+          "recipientLabel": { "type": "string" },
+          "senderUserId": { "type": "string" },
+          "senderLabel": { "type": "string" },
+          "senderEmail": { "type": "string", "format": "email" },
+          "capacityMw": { "type": "number" },
+          "startDate": { "type": "string", "format": "date" },
+          "endDate": { "type": "string", "format": "date" },
+          "pricingModel": { "type": "string" },
+          "comment": { "type": "string" },
+          "attachmentId": { "type": "string", "nullable": true },
+          "attachmentName": { "type": "string", "nullable": true },
+          "status": {
+            "type": "string",
+            "enum": ["submitted", "inDiscussion", "partiallyServed", "withdrawn"]
+          },
+          "allocatedCapacityMw": { "type": "number", "nullable": true },
+          "remainingOpportunityCapacityMw": { "type": "number", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "submittedAt": { "type": "string", "format": "date-time" },
+          "withdrawnAt": { "type": "string", "nullable": true, "format": "date-time" },
+          "activities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OpportunityOfferActivityRecord" }
+          },
+          "correlationId": { "type": "string", "nullable": true },
+          "idempotencyKey": { "type": "string", "nullable": true }
+        },
+        "required": [
+          "id",
+          "reference",
+          "opportunityId",
+          "opportunityTitle",
+          "recipientKind",
+          "recipientLabel",
+          "senderUserId",
+          "senderLabel",
+          "senderEmail",
+          "capacityMw",
+          "startDate",
+          "endDate",
+          "pricingModel",
+          "comment",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "submittedAt",
+          "activities"
+        ]
+      },
+      "OpportunityOfferCreateRequest": {
+        "type": "object",
+        "properties": {
+          "opportunityId": { "type": "string" },
+          "opportunityTitle": { "type": "string" },
+          "opportunityRoute": { "type": "string", "nullable": true },
+          "feedItemId": { "type": "string", "nullable": true },
+          "recipientKind": {
+            "type": "string",
+            "enum": ["GOV", "COMPANY", "PARTNER", "USER"]
+          },
+          "recipientLabel": { "type": "string" },
+          "capacityMw": { "type": "number", "minimum": 0 },
+          "startDate": { "type": "string", "format": "date" },
+          "endDate": { "type": "string", "format": "date" },
+          "pricingModel": { "type": "string" },
+          "comment": { "type": "string" },
+          "attachmentId": { "type": "string", "nullable": true },
+          "attachmentName": { "type": "string", "nullable": true },
+          "correlationId": { "type": "string", "nullable": true }
+        },
+        "required": [
+          "opportunityId",
+          "opportunityTitle",
+          "recipientKind",
+          "recipientLabel",
+          "capacityMw",
+          "startDate",
+          "endDate",
+          "pricingModel",
+          "comment"
+        ]
+      },
+      "OpportunityOfferAttachmentRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "mime": {
+            "type": "string",
+            "enum": ["application/pdf", "image/jpeg", "image/png", "image/webp"]
+          },
+          "size": { "type": "number" },
+          "url": { "type": "string", "nullable": true },
+          "scanStatus": {
+            "type": "string",
+            "enum": ["passed"]
+          }
+        },
+        "required": ["id", "name", "mime", "size", "url", "scanStatus"]
+      },
+      "OpportunityOfferAttachmentResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/OpportunityOfferAttachmentRecord" }
+        },
+        "required": ["data"]
+      },
+      "OpportunityOfferResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/OpportunityOfferRecord" }
+        },
+        "required": ["data"]
+      },
+      "OpportunityOfferCollectionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OpportunityOfferRecord" }
+          }
+        },
+        "required": ["data"]
       },
       "BillingPlanPrice": {
         "type": "object",

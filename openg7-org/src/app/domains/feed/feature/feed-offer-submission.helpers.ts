@@ -22,7 +22,7 @@ export function buildOpportunityOfferDraft(
   source: OpportunityOfferDraftSource,
   payload: OpportunityOfferPayload,
   sectorFallback: string | null,
-  translate: Pick<TranslateService, 'instant'>
+  translate: Pick<TranslateService, 'instant'>,
 ): FeedComposerDraft {
   const titlePrefix = translate.instant('feed.opportunity.detail.offer.generatedTitlePrefix');
   const title = `${titlePrefix}: ${source.title}`.slice(0, 160);
@@ -57,7 +57,7 @@ export function buildOpportunityOfferDraft(
 export function buildOpportunityOfferRecordPayload(
   source: OpportunityOfferRecordSource,
   route: string,
-  payload: OpportunityOfferPayload
+  payload: OpportunityOfferPayload,
 ): CreateOpportunityOfferPayload {
   return {
     opportunityId: source.id,
@@ -70,13 +70,14 @@ export function buildOpportunityOfferRecordPayload(
     endDate: payload.endDate,
     pricingModel: payload.pricingModel,
     comment: payload.comment,
+    attachmentId: payload.attachmentId ?? null,
     attachmentName: payload.attachmentName,
   };
 }
 
 export function resolveOpportunityOfferSubmitErrorMessage(
   outcome: FeedPublishOutcome,
-  translate: Pick<TranslateService, 'instant'>
+  translate: Pick<TranslateService, 'instant'>,
 ): string | null {
   if (outcome.status === 'success') {
     return null;
@@ -92,4 +93,19 @@ export function resolveOpportunityOfferSubmitErrorMessage(
   }
 
   return outcome.error ?? translate.instant('feed.error.generic');
+}
+
+export function createOpportunityOfferOperationKey(): string {
+  const uuid = globalThis.crypto?.randomUUID?.();
+  if (uuid) {
+    return `opportunity-offer-${uuid}`;
+  }
+  return `opportunity-offer-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function buildOpportunityOfferIdempotencyKey(
+  operationKey: string,
+  step: 'attachment' | 'feed' | 'record',
+): string {
+  return `${operationKey}:${step}`.slice(0, 140);
 }

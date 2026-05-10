@@ -37,8 +37,10 @@ import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 import { isFeedOpportunityType } from '../feed-item.helpers';
 import {
+  buildOpportunityOfferIdempotencyKey,
   buildOpportunityOfferDraft,
   buildOpportunityOfferRecordPayload,
+  createOpportunityOfferOperationKey,
   resolveOpportunityOfferSubmitErrorMessage,
 } from '../feed-offer-submission.helpers';
 import { FeedItem } from '../models/feed.models';
@@ -78,6 +80,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
 
   private readonly syncTimers: ReturnType<typeof setTimeout>[] = [];
   private pendingOfferPayload: OpportunityOfferPayload | null = null;
+  private pendingOfferOperationKey: string | null = null;
   private offerStatusTimer: ReturnType<typeof setTimeout> | null = null;
   private reportStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -130,11 +133,15 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   protected readonly existingSubmittedOffer = computed(() => {
     const detail = this.detailVm();
     const itemId = detail?.item.id ?? this.itemId();
-    return this.opportunityOffers
-      .entriesForOpportunity(itemId)
-      .find((entry) => entry.status !== 'withdrawn') ?? null;
+    return (
+      this.opportunityOffers
+        .entriesForOpportunity(itemId)
+        .find((entry) => entry.status !== 'withdrawn') ?? null
+    );
   });
-  protected readonly hasExistingSubmittedOffer = computed(() => this.existingSubmittedOffer() !== null);
+  protected readonly hasExistingSubmittedOffer = computed(
+    () => this.existingSubmittedOffer() !== null,
+  );
   protected readonly pendingReport = computed(() => {
     const detail = this.detailVm();
     if (!detail) {
@@ -324,7 +331,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     }
 
     const sectorLabel = detail?.item.sectorId
-      ? this.resolveSectorLabel(detail.item.sectorId)?.trim().toLowerCase() ?? null
+      ? (this.resolveSectorLabel(detail.item.sectorId)?.trim().toLowerCase() ?? null)
       : null;
     if (detail?.item.sectorId && sectorLabel && normalized === sectorLabel) {
       queryParams['sector'] = detail.item.sectorId;
@@ -386,6 +393,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
 
   protected handleOfferSubmitted(payload: OpportunityOfferPayload): void {
     this.pendingOfferPayload = payload;
+    this.pendingOfferOperationKey = createOpportunityOfferOperationKey();
     void this.submitOfferPayload(payload);
   }
 
@@ -406,14 +414,17 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
       this.reportSubmitState.set('success');
       this.reportSubmitError.set(null);
       this.syncState.set('saved-local');
-      this.notifications.success(this.translate.instant('feed.opportunity.detail.report.status.success'), {
-        source: 'feed',
-        metadata: {
-          itemId: detail.item.id,
-          reportId: record.id,
-          reason: payload.reason,
+      this.notifications.success(
+        this.translate.instant('feed.opportunity.detail.report.status.success'),
+        {
+          source: 'feed',
+          metadata: {
+            itemId: detail.item.id,
+            reportId: record.id,
+            reason: payload.reason,
+          },
         },
-      });
+      );
       this.closeReportDrawerAfterSuccess();
     } catch (error) {
       const message = this.resolveLoadError(error);
@@ -459,7 +470,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
 
   private openExistingOffer(
     offer: OpportunityOfferRecord,
-    navigation = this.opportunityEngagement.buildExistingOfferNavigation(offer.id)
+    navigation = this.opportunityEngagement.buildExistingOfferNavigation(offer.id),
   ): void {
     this.notifications.info(
       this.translate.instant('feed.opportunity.detail.offer.status.existingOfferRedirect', {
@@ -473,7 +484,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
           offerReference: offer.reference,
           route: 'alerts',
         },
-      }
+      },
     );
     void this.router.navigate(navigation.commands, navigation.extras);
   }
@@ -499,6 +510,21 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     }
 
     this.offerSubmitState.set('submitting');
+    const operationKey = this.pendingOfferOperationKey ?? createOpportunityOfferOperationKey();
+    this.pendingOfferOperationKey = operationKey;
+    let preparedPayload = payload;
+    if (!payload.attachmentId && payload.attachmentFile) {
+      const uploadedPayload = await this.prepareOfferAttachmentPayload(
+        payload,
+        operationKey,
+        detail.item.id,
+      );
+      if (!uploadedPayload) {
+        return;
+      }
+      preparedPayload = uploadedPayload;
+      this.pendingOfferPayload = preparedPayload;
+    }
     const outcome = await this.feed.publishDraft(
       buildOpportunityOfferDraft(
         {
@@ -509,10 +535,13 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
           mode: detail.item.mode,
           tags: detail.item.tags,
         },
-        payload,
+        preparedPayload,
         this.sectors()[0]?.id ?? null,
-        this.translate
-      )
+        this.translate,
+      ),
+      {
+        idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'feed'),
+      },
     );
     const errorMessage = resolveOpportunityOfferSubmitErrorMessage(outcome, this.translate);
 
@@ -529,26 +558,51 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
       return;
     }
 
-    const record = this.opportunityOffers.create(
-      buildOpportunityOfferRecordPayload(
+    let record: OpportunityOfferRecord;
+    try {
+      record = await this.opportunityOffers.submit(
+        buildOpportunityOfferRecordPayload(
+          {
+            id: detail.item.id,
+            title: detail.title,
+            sectorId: detail.item.sectorId,
+            fromProvinceId: detail.item.fromProvinceId,
+            toProvinceId: detail.item.toProvinceId,
+            mode: detail.item.mode,
+            tags: detail.item.tags,
+            source: detail.item.source,
+          },
+          this.currentInternalUrl(),
+          preparedPayload,
+        ),
         {
-          id: detail.item.id,
-          title: detail.title,
-          sectorId: detail.item.sectorId,
-          fromProvinceId: detail.item.fromProvinceId,
-          toProvinceId: detail.item.toProvinceId,
-          mode: detail.item.mode,
-          tags: detail.item.tags,
-          source: detail.item.source,
+          feedItemId: outcome.item?.id ?? null,
+          attachmentId: preparedPayload.attachmentId ?? null,
+          idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'record'),
+          correlationId: operationKey,
         },
-        this.currentInternalUrl(),
-        payload
-      )
-    );
+      );
+    } catch (error) {
+      const message = this.translate.instant('feed.opportunity.detail.offer.status.errorGeneric');
+      this.offerSubmitState.set('error');
+      this.offerSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: detail.item.id,
+          feedItemId: outcome.item?.id ?? null,
+          correlationId: operationKey,
+        },
+      });
+      return;
+    }
     this.qnaTab.set('offers');
     this.offerSubmitState.set('success');
     this.offerSubmitError.set(null);
     this.pendingOfferPayload = null;
+    this.pendingOfferOperationKey = null;
     this.simulateSync();
     this.notifications.success(
       this.translate.instant('feed.opportunity.detail.offer.status.successReference', {
@@ -559,12 +613,52 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
         metadata: {
           action: 'create-opportunity-offer',
           itemId: detail.item.id,
+          feedItemId: outcome.item?.id ?? null,
           offerId: record.id,
           offerReference: record.reference,
+          correlationId: operationKey,
         },
-      }
+      },
     );
     this.closeOfferDrawerAfterSuccess();
+  }
+
+  private async prepareOfferAttachmentPayload(
+    payload: OpportunityOfferPayload,
+    operationKey: string,
+    itemId: string,
+  ): Promise<OpportunityOfferPayload | null> {
+    if (payload.attachmentId || !payload.attachmentFile) {
+      return payload;
+    }
+
+    try {
+      const attachment = await this.opportunityOffers.uploadAttachment(payload.attachmentFile, {
+        idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'attachment'),
+      });
+      return {
+        ...payload,
+        attachmentFile: null,
+        attachmentId: attachment.id,
+        attachmentName: attachment.name || payload.attachmentName,
+      };
+    } catch (error) {
+      const message = this.translate.instant(
+        'feed.opportunity.detail.offer.status.attachmentUploadError',
+      );
+      this.offerSubmitState.set('error');
+      this.offerSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'upload-opportunity-offer-attachment',
+          itemId,
+          correlationId: operationKey,
+        },
+      });
+      return null;
+    }
   }
 
   private buildOfferMessage(offer: OpportunityOfferRecord): string {
@@ -610,6 +704,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private resetOfferSubmitState(): void {
     this.clearOfferStatusTimer();
     this.pendingOfferPayload = null;
+    this.pendingOfferOperationKey = null;
     this.offerSubmitState.set('idle');
     this.offerSubmitError.set(null);
   }
@@ -639,16 +734,19 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private buildDetailVm(item: FeedItem): OpportunityDetailVm {
     const fromLabel = this.resolveProvinceLabel(item.fromProvinceId) ?? 'Quebec';
     const toLabel = this.resolveProvinceLabel(item.toProvinceId) ?? 'Ontario';
-    const sectorLabel = this.resolveSectorLabel(item.sectorId) ?? this.translate.instant('feed.opportunity.detail.energy');
+    const sectorLabel =
+      this.resolveSectorLabel(item.sectorId) ??
+      this.translate.instant('feed.opportunity.detail.energy');
     const routeLabel = `${fromLabel} -> ${toLabel}`;
     const capacityMw =
       item.quantity && item.quantity.unit === 'MW' && Number.isFinite(item.quantity.value)
         ? Math.round(item.quantity.value)
         : 300;
 
-    const visibilityLabel = item.source.kind === 'PARTNER'
-      ? this.translate.instant('feed.opportunity.detail.visibilityNetwork')
-      : this.translate.instant('feed.opportunity.detail.visibilityPublic');
+    const visibilityLabel =
+      item.source.kind === 'PARTNER'
+        ? this.translate.instant('feed.opportunity.detail.visibilityNetwork')
+        : this.translate.instant('feed.opportunity.detail.visibilityPublic');
 
     const urgencyLabel =
       (item.urgency ?? 0) >= 3
@@ -856,7 +954,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private toTitleCase(value: string): string {
     return value
       .split(/\s+/)
-      .map(part => part.slice(0, 1).toUpperCase() + part.slice(1).toLowerCase())
+      .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1).toLowerCase())
       .join(' ');
   }
 
@@ -871,7 +969,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     this.syncState.set('saved-local');
     this.syncTimers.push(
       setTimeout(() => this.syncState.set('syncing'), 260),
-      setTimeout(() => this.syncState.set('synced'), 950)
+      setTimeout(() => this.syncState.set('synced'), 950),
     );
   }
 
@@ -895,19 +993,21 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
   private redirectToLogin(): void {
     const navigation = this.opportunityEngagement.buildLoginNavigation(
       this.currentInternalUrl(`/feed/opportunities/${this.itemId() ?? 'unknown'}`),
-      `/feed/opportunities/${this.itemId() ?? 'unknown'}`
+      `/feed/opportunities/${this.itemId() ?? 'unknown'}`,
     );
     void this.router.navigate(navigation.commands, navigation.extras);
   }
 
-  private currentInternalUrl(fallback = `/feed/opportunities/${this.itemId() ?? 'unknown'}`): string {
+  private currentInternalUrl(
+    fallback = `/feed/opportunities/${this.itemId() ?? 'unknown'}`,
+  ): string {
     const navigation = this.router.getCurrentNavigation();
-    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    const url =
+      navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
   }
 
   protected override isExpectedItem(item: FeedItem | null): item is FeedItem {
     return isFeedOpportunityType(item?.type ?? null);
   }
-
 }
