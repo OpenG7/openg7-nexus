@@ -1,14 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
+import {
+  NotificationStore,
+  NotificationStoreApi,
+} from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  AdminQualityActionRecord,
+  AdminQualityDelegationPlan,
+  AdminQualityWorkspaceDrawerComponent,
+} from '@openg7/admin-quality';
 
-import { AdminQualityActionRecord } from '../pages/admin-quality-action-registry';
-import { AdminQualityDelegationPlan } from '../pages/admin-quality-delegation';
-
-import { AdminQualityWorkspaceDrawerComponent } from './admin-quality-workspace-drawer.component';
+import { ADMIN_QUALITY_NOTIFICATIONS } from '../data-access/admin-quality.ports';
 
 function buildDelegationPlan(
-  overrides: Partial<AdminQualityDelegationPlan> = {}
+  overrides: Partial<AdminQualityDelegationPlan> = {},
 ): AdminQualityDelegationPlan {
   return {
     mode: 'product-closure',
@@ -61,7 +66,9 @@ function buildAction(overrides: Partial<AdminQualityActionRecord> = {}): AdminQu
     sourceDetected: true,
     detectedTrigger: 'button',
     detectedActionHook: true,
-    detectedSourceFiles: ['src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html:1'],
+    detectedSourceFiles: [
+      'src/app/domains/admin/feature/admin-quality-workspace-drawer.component.html:1',
+    ],
     detectedSpecFiles: [],
     detectedE2EFiles: [],
     completionScore: 100,
@@ -75,11 +82,18 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
   let notifications: jasmine.SpyObj<NotificationStoreApi>;
 
   beforeEach(() => {
-    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', ['success', 'info', 'error']);
+    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
+      'success',
+      'info',
+      'error',
+    ]);
 
     TestBed.configureTestingModule({
       imports: [AdminQualityWorkspaceDrawerComponent, TranslateModule.forRoot()],
-      providers: [{ provide: NotificationStore, useValue: notifications }],
+      providers: [
+        { provide: ADMIN_QUALITY_NOTIFICATIONS, useValue: notifications },
+        { provide: NotificationStore, useValue: notifications },
+      ],
     });
 
     const translate = TestBed.inject(TranslateService);
@@ -116,7 +130,8 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                 title: 'QA Queue',
                 subtitle: 'Requirements and coverage review',
                 emptyTitle: 'QA Queue pending',
-                emptyBody: 'The QA queue will connect to the detailed matrix once structured data is available.',
+                emptyBody:
+                  'The QA queue will connect to the detailed matrix once structured data is available.',
                 status: {
                   yes: 'Proved',
                   partial: 'Partial',
@@ -200,7 +215,8 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
                 title: 'Actions',
                 subtitle: 'Action registry and instrumentation',
                 emptyTitle: 'Actions pending',
-                emptyBody: 'The action registry will appear here once the active domain exposes structured instrumentation.',
+                emptyBody:
+                  'The action registry will appear here once the active domain exposes structured instrumentation.',
                 status: {
                   proved: 'Proved',
                   documented: 'Documented',
@@ -217,7 +233,7 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -266,8 +282,12 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const closeButton = root.querySelector('[data-og7-id="admin-quality-workspace-close"]') as HTMLButtonElement;
-    const backdropButton = root.querySelector('[data-og7-id="admin-quality-workspace-backdrop"]') as HTMLButtonElement;
+    const closeButton = root.querySelector(
+      '[data-og7-id="admin-quality-workspace-close"]',
+    ) as HTMLButtonElement;
+    const backdropButton = root.querySelector(
+      '[data-og7-id="admin-quality-workspace-backdrop"]',
+    ) as HTMLButtonElement;
 
     closeButton.click();
     backdropButton.click();
@@ -287,8 +307,12 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const actionsTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-actions"]') as HTMLButtonElement;
-    const delegationTab = root.querySelector('[data-og7-id="admin-quality-workspace-tab-delegation"]') as HTMLButtonElement;
+    const actionsTab = root.querySelector(
+      '[data-og7-id="admin-quality-workspace-tab-actions"]',
+    ) as HTMLButtonElement;
+    const delegationTab = root.querySelector(
+      '[data-og7-id="admin-quality-workspace-tab-delegation"]',
+    ) as HTMLButtonElement;
 
     expect(delegationTab.getAttribute('role')).toBe('tab');
     expect(delegationTab.getAttribute('aria-selected')).toBe('true');
@@ -317,9 +341,15 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const copyBriefButton = root.querySelector('[data-og7-id="admin-quality-copy-codex"]') as HTMLButtonElement;
-    const copyIssueButton = root.querySelector('[data-og7-id="admin-quality-copy-issue"]') as HTMLButtonElement;
-    const openGithubButton = root.querySelector('[data-og7-id="admin-quality-open-issue"]') as HTMLButtonElement;
+    const copyBriefButton = root.querySelector(
+      '[data-og7-id="admin-quality-copy-codex"]',
+    ) as HTMLButtonElement;
+    const copyIssueButton = root.querySelector(
+      '[data-og7-id="admin-quality-copy-issue"]',
+    ) as HTMLButtonElement;
+    const openGithubButton = root.querySelector(
+      '[data-og7-id="admin-quality-open-issue"]',
+    ) as HTMLButtonElement;
 
     try {
       copyBriefButton.click();
@@ -357,7 +387,9 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const panel = root.querySelector('[data-og7="admin-quality-workspace-panel"][data-og7-id="actions"]');
+    const panel = root.querySelector(
+      '[data-og7="admin-quality-workspace-panel"][data-og7-id="actions"]',
+    );
 
     expect(panel).not.toBeNull();
     expect(root.textContent).toContain('Copy Codex brief');
@@ -417,9 +449,13 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
 
     expect(signalContext?.textContent).toContain('Signal context');
     expect(signalContext?.textContent).toContain('E2E proof is partial.');
-    expect(signalContext?.textContent).toContain('Request a stronger regression before final review.');
+    expect(signalContext?.textContent).toContain(
+      'Request a stronger regression before final review.',
+    );
     expect(promptEditor.value).toBe('Original brief');
-    expect(recommendationsEditor.value).toContain('Keep the matrix partial until stronger proof exists.');
+    expect(recommendationsEditor.value).toContain(
+      'Keep the matrix partial until stronger proof exists.',
+    );
 
     promptEditor.value = 'Adjusted brief';
     promptEditor.dispatchEvent(new Event('input'));
@@ -430,7 +466,9 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     launchButton.click();
 
     expect(promptChangedSpy).toHaveBeenCalledWith('Adjusted brief');
-    expect(recommendationsChangedSpy).toHaveBeenCalledWith('Validate the evidence before escalation.');
+    expect(recommendationsChangedSpy).toHaveBeenCalledWith(
+      'Validate the evidence before escalation.',
+    );
     expect(launchSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -500,7 +538,9 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
 
     expect(recalculationCard?.textContent).toContain('Matrix recalculation');
     expect(recalculationCard?.textContent).toContain('Recommendations');
-    expect(recalculationCard?.textContent).toContain('Apply the proposal only after the new executable proof is confirmed.');
+    expect(recalculationCard?.textContent).toContain(
+      'Apply the proposal only after the new executable proof is confirmed.',
+    );
     expect(recalculationCard?.textContent).toContain('Reasons');
     expect(recalculationCard?.textContent).toContain('Evidence');
 

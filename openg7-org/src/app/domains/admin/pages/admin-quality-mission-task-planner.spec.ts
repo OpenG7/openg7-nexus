@@ -1,5 +1,5 @@
-import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
-import { buildMissionTasks, summarizeMissionQuota } from './admin-quality-mission-task-planner';
+import { buildMissionTasks, summarizeMissionQuota } from '@openg7/admin-ai/mission-task-planner';
+import { AdminQualityMissionRecommendation } from '@openg7/admin-quality';
 
 function buildRecommendation(
   overrides: Partial<AdminQualityMissionRecommendation> = {}

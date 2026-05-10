@@ -450,6 +450,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ops/codex/dispatch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compatibility alias for the AI dispatch endpoint */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AdminOpsCodexDispatchRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsCodexDispatchResponse"];
+                    };
+                };
+                /** @description Invalid payload */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Dispatch disabled */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/statistics": {
         parameters: {
             query?: never;
@@ -479,62 +540,6 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StatisticsResponse"];
-                    };
-                };
-            };
-        };
-        "/api/admin/ops/codex/dispatch": {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            get?: never;
-            put?: never;
-            /** Compatibility alias for the AI dispatch endpoint */
-            post: {
-                parameters: {
-                    query?: never;
-                    header?: never;
-                    path?: never;
-                    cookie?: never;
-                };
-                requestBody: {
-                    content: {
-                        "application/json": components["schemas"]["AdminOpsCodexDispatchRequest"];
-                    };
-                };
-                responses: {
-                    /** @description OK */
-                    200: {
-                        headers: {
-                            [name: string]: unknown;
-                        };
-                        content: {
-                            "application/json": components["schemas"]["AdminOpsCodexDispatchResponse"];
-                        };
-                    };
-                    /** @description Invalid payload */
-                    400: {
-                        headers: {
-                            [name: string]: unknown;
-                        };
-                        content?: never;
-                    };
-                    /** @description Forbidden */
-                    403: {
-                        headers: {
-                            [name: string]: unknown;
-                        };
-                        content?: never;
-                    };
-                    /** @description Dispatch disabled */
-                    503: {
-                        headers: {
-                            [name: string]: unknown;
-                        };
-                        content?: never;
                     };
                 };
             };

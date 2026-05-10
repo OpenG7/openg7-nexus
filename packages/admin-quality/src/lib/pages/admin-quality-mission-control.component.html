@@ -1,0 +1,212 @@
+<section
+  class="relative w-full overflow-hidden rounded-[28px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(5,16,34,0.98),rgba(8,18,40,0.96)_48%,rgba(5,12,28,0.98))] p-4 text-slate-100 shadow-[0_36px_110px_-62px_rgba(14,165,233,0.64)] ring-1 ring-white/5 sm:p-5"
+  data-og7="admin-quality-mission-control"
+>
+  <div
+    class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.08),transparent_18%,transparent_82%,rgba(251,191,36,0.08)),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_28%,rgba(15,23,42,0.22))]"
+  ></div>
+  <div
+    class="pointer-events-none absolute inset-x-6 top-0 h-px bg-linear-to-r from-transparent via-cyan-200/28 to-transparent"
+  ></div>
+
+  <div class="relative space-y-4">
+    <div
+      class="grid gap-4 border-b border-white/10 pb-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start"
+    >
+      <div class="max-w-4xl space-y-3">
+        <div class="flex items-start gap-3">
+          <span
+            class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/24 bg-cyan-300/10 text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_42px_-34px_rgba(34,211,238,0.9)]"
+            aria-hidden="true"
+          >
+            ~
+          </span>
+
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/86">
+              Pilotage AI
+            </p>
+            <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              AI Mission Control
+            </h2>
+          </div>
+        </div>
+
+        <p class="max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
+          {{ missionControl().overview }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/4 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] xl:max-w-xl xl:justify-end">
+        <span
+          class="inline-flex rounded-full border px-3 py-1.5 text-[10px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          [class]="missionPhaseClasses(missionControl().phase)"
+        >
+          Phase : {{ missionControl().phaseLabel }}
+        </span>
+        <span
+          class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-semibold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          data-og7-id="admin-quality-active-ai-provider"
+        >
+          AI : {{ selectedAiProviderLabel() }}
+        </span>
+        <span
+          class="inline-flex rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[10px] font-semibold text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+        >
+          Cue : {{ missionCueLabel() }}
+        </span>
+      </div>
+    </div>
+
+    <section
+      class="rounded-[22px] border border-cyan-300/14 bg-[linear-gradient(180deg,rgba(7,20,38,0.74),rgba(5,14,30,0.9))] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:px-4"
+      data-og7="admin-quality-provider-ops-handoff"
+      data-og7-density="micro"
+    >
+      <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              Provider sockets
+            </p>
+            @if (activeProviderOpsSummary(); as provider) {
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                [class]="providerSocketOpsClasses(provider.opsState)"
+                data-og7-id="admin-quality-provider-ops-state"
+              >
+                {{ provider.opsLabel }}
+              </span>
+            }
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-slate-200"
+              data-og7-id="admin-quality-provider-ops-count"
+            >
+              {{ armedProviderCount() }}/{{ providerComparison().length }} armed
+            </span>
+          </div>
+          <p class="mt-2 wrap-break-word text-sm leading-5 text-slate-300">
+            Keys, sockets, and diagnostics now live in Ops. Quality keeps only the active dispatch signal.
+          </p>
+        </div>
+
+        <a
+          routerLink="/admin/ops"
+          class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/26 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-50 shadow-[0_16px_34px_-28px_rgba(34,211,238,0.7)] transition hover:border-cyan-200/45 hover:bg-cyan-300/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+          data-og7="action"
+          data-og7-id="admin-quality-open-provider-sockets"
+        >
+          Open Ops sockets
+        </a>
+      </div>
+
+      @if (activeProviderOpsSummary(); as provider) {
+        <div
+          class="mt-3 grid min-w-0 gap-3 rounded-2xl border border-white/10 bg-slate-950/38 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          data-og7-id="admin-quality-provider-active-socket"
+        >
+          <div class="min-w-0">
+            <p class="wrap-break-word text-base font-semibold text-white">
+              {{ provider.label }} - {{ provider.workflow }}
+            </p>
+            <p class="mt-1 wrap-break-word text-xs leading-5 text-slate-300">
+              {{ provider.opsDetail }}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 sm:justify-end">
+            <span
+              class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold"
+              [class]="missionProofStateClasses(provider.proofState)"
+              data-og7-id="admin-quality-provider-proof-state"
+            >
+              {{ provider.proofLabel }}
+            </span>
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-slate-200"
+              data-og7-id="admin-quality-provider-artifacts"
+            >
+              {{ provider.artifactCount }} artifact(s)
+            </span>
+          </div>
+        </div>
+      } @else {
+        <p
+          class="mt-2 rounded-2xl border border-white/10 bg-white/4 px-3 py-2 text-xs text-slate-300"
+          data-og7-id="admin-quality-provider-ops-empty"
+        >
+          No provider socket telemetry available yet.
+        </p>
+      }
+    </section>
+
+    @if (selectedMission(); as missionItem) {
+      @if (selectedMissionQuotaSummary(); as quota) {
+        <section class="grid gap-3">
+          <article
+            class="rounded-3xl border border-violet-300/16 bg-[linear-gradient(180deg,rgba(20,16,43,0.78),rgba(7,18,34,0.92))] p-4 shadow-[0_24px_72px_-52px_rgba(139,92,246,0.65)]"
+            data-og7="admin-quality-generated-tasks"
+            data-og7-layout="compact-summary"
+          >
+            <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200/80">
+                  {{ 'admin.quality.codex.tasks.label' | translate }}
+                </p>
+                <h3 class="mt-2 text-lg font-semibold text-white">
+                  {{
+                    'admin.quality.codex.tasks.title'
+                      | translate: { count: selectedMissionTasks().length }
+                  }}
+                </h3>
+                <p class="mt-1 wrap-break-word text-xs leading-5 text-slate-300">
+                  {{ missionItem.title }}
+                </p>
+              </div>
+
+              <div class="flex flex-wrap gap-2 lg:justify-end">
+                <span
+                  class="inline-flex rounded-full border border-violet-300/24 bg-violet-400/12 px-3 py-1 text-[11px] font-semibold text-violet-50"
+                  data-og7-id="admin-quality-generated-task-summary-count"
+                >
+                  {{ quota.taskCount }} tasks
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-cyan-300/24 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold text-cyan-50"
+                  data-og7-id="admin-quality-generated-task-summary-units"
+                >
+                  {{ quota.requiredUnits }} units
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-amber-300/24 bg-amber-400/10 px-3 py-1 text-[11px] font-semibold text-amber-50"
+                  data-og7-id="admin-quality-generated-task-summary-blocking"
+                >
+                  {{ selectedMissionBlockingTaskCount() }} blocking
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-emerald-300/24 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold text-emerald-50"
+                  data-og7-id="admin-quality-generated-task-summary-workflow"
+                >
+                  {{ aiDispatchWorkflow() }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
+              @for (summary of selectedMissionTaskKindSummaries(); track summary.kind) {
+                <span
+                  class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold"
+                  [class]="taskKindClasses(summary.kind)"
+                  data-og7="admin-quality-generated-task-kind-summary"
+                  [attr.data-og7-id]="summary.kind"
+                >
+                  {{ taskKindKey(summary.kind) | translate }} · {{ summary.count }}
+                </span>
+              }
+            </div>
+          </article>
+        </section>
+      }
+    }
+  </div>
+</section>

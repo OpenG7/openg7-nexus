@@ -7,6 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..', '..');
 const agentsPath = resolve(repoRoot, 'AGENTS.md');
 const appDir = resolve(repoRoot, 'openg7-org', 'src', 'app');
+const adminQualityPackageDir = resolve(repoRoot, 'packages', 'admin-quality', 'src', 'lib');
 
 function loadSelectors(markdown) {
   const og7Matches = [...markdown.matchAll(/\[data-og7="([\w-]+)"\]/g)].map(match => match[1]);
@@ -49,7 +50,7 @@ function attributeExists(files, attribute, value) {
 function validateSelectors() {
   const markdown = readFileSync(agentsPath, 'utf8');
   const { og7, og7Ids } = loadSelectors(markdown);
-  const files = readAllFiles(appDir);
+  const files = [appDir, adminQualityPackageDir].flatMap(readAllFiles);
   const missing = [];
 
   for (const selector of og7) {
@@ -67,7 +68,7 @@ function validateSelectors() {
   }
 
   if (missing.length > 0) {
-    console.error('Sélecteurs manquants dans openg7-org/src/app:\n- ' + missing.join('\n- '));
+    console.error('Sélecteurs manquants dans openg7-org/src/app ou packages/admin-quality/src/lib:\n- ' + missing.join('\n- '));
     process.exit(1);
   }
 

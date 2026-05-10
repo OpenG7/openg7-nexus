@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { AdminQualityCoverageMatrixComponent } from '@openg7/admin-quality';
 
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
-
-import { AdminQualityCoverageMatrixComponent } from './admin-quality-coverage-matrix.component';
 
 describe('AdminQualityCoverageMatrixComponent', () => {
   function buildEntry(overrides: Partial<AdminQualityMatrixEntry> = {}): AdminQualityMatrixEntry {

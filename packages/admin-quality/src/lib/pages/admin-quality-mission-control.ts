@@ -153,7 +153,7 @@ function buildRecommendations(
       targetFiles: [
         'strapi/src/api/admin-quality-matrix/controllers/admin-quality-matrix.ts',
         'openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.ts',
-        'openg7-org/src/app/domains/admin/pages/admin-quality.page.ts',
+        'packages/admin-quality/src/lib/pages/admin-quality.page.ts',
       ],
       dependencies: ['Un resultat de mission existe et peut etre relu humainement.'],
       confidence: 'High',

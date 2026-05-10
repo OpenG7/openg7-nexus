@@ -1,0 +1,32 @@
+{
+  "name": "@openg7/admin-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./admin-ai-providers": {
+      "types": "./dist/lib/admin-ai-providers.d.ts",
+      "default": "./dist/lib/admin-ai-providers.js"
+    },
+    "./mission-task-planner": {
+      "types": "./dist/lib/mission-task-planner.d.ts",
+      "default": "./dist/lib/mission-task-planner.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

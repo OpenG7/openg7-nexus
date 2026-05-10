@@ -3,9 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import { AdminAiProvider } from '@openg7/admin-ai/admin-ai-providers';
 import { forkJoin, map, Observable } from 'rxjs';
-
-import { AdminAiProvider } from './admin-ai-providers';
 
 export type AdminOpsCodexScope =
   | 'openg7-org'
