@@ -200,7 +200,10 @@ async function ensureTables(strapi: Core.Strapi): Promise<void> {
           table.datetime('cancel_requested_at').nullable();
           table.datetime('created_at').notNullable();
           table.datetime('updated_at').notNullable();
-          table.unique(['user_id', 'idempotency_key', 'payload_hash'], 'company_import_jobs_idempotency_unique');
+          table.unique(
+            ['user_id', 'idempotency_key', 'payload_hash'],
+            'company_import_jobs_idempotency_unique',
+          );
         });
       }
 
@@ -208,7 +211,12 @@ async function ensureTables(strapi: Core.Strapi): Promise<void> {
       if (!hasErrorsTable) {
         await knex.schema.createTable(ERRORS_TABLE, (table: any) => {
           table.increments('id').primary();
-          table.string('job_id', 64).notNullable().references('id').inTable(JOBS_TABLE).onDelete('CASCADE');
+          table
+            .string('job_id', 64)
+            .notNullable()
+            .references('id')
+            .inTable(JOBS_TABLE)
+            .onDelete('CASCADE');
           table.integer('row_number').notNullable();
           table.string('field', 96).nullable();
           table.string('code', 96).notNullable();
@@ -397,7 +405,7 @@ function buildProvinceLookup(entities: readonly ProvinceEntity[]): Map<string, n
 
 function resolveSectorId(
   lookup: ReadonlyMap<string, number | string>,
-  sectors: readonly string[]
+  sectors: readonly string[],
 ): number | string | null {
   for (const sector of sectors) {
     const value = lookup.get(toLookupToken(sector));
@@ -410,7 +418,7 @@ function resolveSectorId(
 
 function resolveProvinceId(
   lookup: ReadonlyMap<string, number | string>,
-  province: string | null
+  province: string | null,
 ): number | string | null {
   if (!province) {
     return null;
@@ -464,7 +472,10 @@ function normalizeJobRecord(row: Record<string, unknown>): CompanyImportBulkJobR
   };
 }
 
-async function fetchJobById(strapi: Core.Strapi, jobId: string): Promise<CompanyImportBulkJobRecord | null> {
+async function fetchJobById(
+  strapi: Core.Strapi,
+  jobId: string,
+): Promise<CompanyImportBulkJobRecord | null> {
   const row = await strapi.db.connection(JOBS_TABLE).where({ id: jobId }).first();
   return row ? normalizeJobRecord(row as Record<string, unknown>) : null;
 }
@@ -472,13 +483,17 @@ async function fetchJobById(strapi: Core.Strapi, jobId: string): Promise<Company
 async function fetchJobForUser(
   strapi: Core.Strapi,
   jobId: string,
-  userId: string
+  userId: string,
 ): Promise<CompanyImportBulkJobRecord | null> {
   const row = await strapi.db.connection(JOBS_TABLE).where({ id: jobId, user_id: userId }).first();
   return row ? normalizeJobRecord(row as Record<string, unknown>) : null;
 }
 
-async function updateJob(strapi: Core.Strapi, jobId: string, patch: Record<string, unknown>): Promise<void> {
+async function updateJob(
+  strapi: Core.Strapi,
+  jobId: string,
+  patch: Record<string, unknown>,
+): Promise<void> {
   await strapi.db
     .connection(JOBS_TABLE)
     .where({ id: jobId })
@@ -487,7 +502,14 @@ async function updateJob(strapi: Core.Strapi, jobId: string, patch: Record<strin
 
 async function addRowError(
   strapi: Core.Strapi,
-  input: { jobId: string; rowNumber: number; field?: string | null; code: string; message: string; raw: unknown }
+  input: {
+    jobId: string;
+    rowNumber: number;
+    field?: string | null;
+    code: string;
+    message: string;
+    raw: unknown;
+  },
 ): Promise<void> {
   const rawSample = (() => {
     try {
@@ -508,7 +530,11 @@ async function addRowError(
 }
 
 async function isCancelled(strapi: Core.Strapi, jobId: string): Promise<boolean> {
-  const row = await strapi.db.connection(JOBS_TABLE).select('state', 'cancel_requested_at').where({ id: jobId }).first();
+  const row = await strapi.db
+    .connection(JOBS_TABLE)
+    .select('state', 'cancel_requested_at')
+    .where({ id: jobId })
+    .first();
   if (!row) {
     return true;
   }
@@ -534,7 +560,9 @@ async function copyAndHashFile(sourcePath: string, targetPath: string): Promise<
   return hasher.digest('hex');
 }
 
-async function* iterateRows(job: CompanyImportBulkJobRecord): AsyncGenerator<{ rowNumber: number; value: unknown }> {
+async function* iterateRows(
+  job: CompanyImportBulkJobRecord,
+): AsyncGenerator<{ rowNumber: number; value: unknown }> {
   if (job.sourceType === 'json') {
     const parsed = JSON.parse(job.payloadJson ?? '[]') as unknown;
     if (!Array.isArray(parsed)) {
@@ -553,7 +581,10 @@ async function* iterateRows(job: CompanyImportBulkJobRecord): AsyncGenerator<{ r
     throw new Error('Missing source file for file-based job.');
   }
 
-  const rl = createInterface({ input: createReadStream(job.sourcePath, { encoding: 'utf8' }), crlfDelay: Infinity });
+  const rl = createInterface({
+    input: createReadStream(job.sourcePath, { encoding: 'utf8' }),
+    crlfDelay: Infinity,
+  });
   let lineNo = 0;
   let headers: string[] | null = null;
   for await (const line of rl) {
@@ -615,8 +646,15 @@ async function processChunk(
   job: CompanyImportBulkJobRecord,
   chunk: Array<{ rowNumber: number; company: ImportedCompanyInput }>,
   sectorLookup: Map<string, number | string>,
-  provinceLookup: Map<string, number | string>
-): Promise<{ created: number; updated: number; skipped: number; ok: number; failed: number; warnings: number }> {
+  provinceLookup: Map<string, number | string>,
+): Promise<{
+  created: number;
+  updated: number;
+  skipped: number;
+  ok: number;
+  failed: number;
+  warnings: number;
+}> {
   if (!chunk.length) {
     return { created: 0, updated: 0, skipped: 0, ok: 0, failed: 0, warnings: 0 };
   }
@@ -644,7 +682,11 @@ async function processChunk(
     filters: { businessId: { $in: businessIds } },
     limit: businessIds.length + 10,
   })) as ExistingCompanyEntity[] | ExistingCompanyEntity | null;
-  const existingArray = Array.isArray(existingRows) ? existingRows : existingRows ? [existingRows] : [];
+  const existingArray = Array.isArray(existingRows)
+    ? existingRows
+    : existingRows
+      ? [existingRows]
+      : [];
   const existingByBusinessId = new Map<string, ExistingCompanyEntity>();
   existingArray.forEach((entry) => {
     const businessId = normalizeString(entry.businessId, 80)?.toUpperCase();
@@ -747,7 +789,11 @@ async function processJob(strapi: Core.Strapi, job: CompanyImportBulkJobRecord):
       limit: 1000,
     })) as ProvinceEntity[] | ProvinceEntity | null;
     const sectors = Array.isArray(sectorsRaw) ? sectorsRaw : sectorsRaw ? [sectorsRaw] : [];
-    const provinces = Array.isArray(provincesRaw) ? provincesRaw : provincesRaw ? [provincesRaw] : [];
+    const provinces = Array.isArray(provincesRaw)
+      ? provincesRaw
+      : provincesRaw
+        ? [provincesRaw]
+        : [];
     const sectorLookup = buildSectorLookup(sectors);
     const provinceLookup = buildProvinceLookup(provinces);
 
@@ -1021,15 +1067,20 @@ export function parseBulkImportHeadersAndOptions(input: {
     bodyRecord.data && typeof bodyRecord.data === 'object' && !Array.isArray(bodyRecord.data)
       ? (bodyRecord.data as Record<string, unknown>)
       : bodyRecord;
-  const mode = normalizeMode(source.mode ?? input.headers['mode'] ?? input.headers['x-import-mode']);
+  const mode = normalizeMode(
+    source.mode ?? input.headers['mode'] ?? input.headers['x-import-mode'],
+  );
   const dryRun = normalizeBoolean(
     source.dryRun ?? source.dry_run ?? input.headers['dry-run'] ?? input.headers['x-dry-run'],
-    false
+    false,
   );
   return {
     mode,
     dryRun: mode === 'validate-only' ? true : dryRun,
-    idempotencyKey: normalizeString(input.headers['idempotency-key'] ?? input.headers['Idempotency-Key'], 160),
+    idempotencyKey: normalizeString(
+      input.headers['idempotency-key'] ?? input.headers['Idempotency-Key'],
+      160,
+    ),
   };
 }
 
@@ -1089,7 +1140,7 @@ export function extractCompaniesArray(input: unknown): unknown[] | null {
 
 export async function enqueueCompanyImportBulkJob(
   strapi: Core.Strapi,
-  options: EnqueueBulkImportOptions
+  options: EnqueueBulkImportOptions,
 ): Promise<EnqueueBulkImportResult> {
   await ensureTables(strapi);
   let sourceType: BulkImportSourceType;
@@ -1098,7 +1149,10 @@ export async function enqueueCompanyImportBulkJob(
   let payloadHash: string;
 
   if (options.uploadedFile) {
-    const detected = detectSourceType(options.uploadedFile.originalFilename, options.uploadedFile.mimetype);
+    const detected = detectSourceType(
+      options.uploadedFile.originalFilename,
+      options.uploadedFile.mimetype,
+    );
     if (!detected) {
       throw new Error('Only CSV and JSONL files are supported for multipart import.');
     }
@@ -1198,7 +1252,11 @@ function toStatus(job: CompanyImportBulkJobRecord) {
   };
 }
 
-export async function getCompanyImportBulkJobStatus(strapi: Core.Strapi, userId: string, jobId: string) {
+export async function getCompanyImportBulkJobStatus(
+  strapi: Core.Strapi,
+  userId: string,
+  jobId: string,
+) {
   await ensureTables(strapi);
   const job = await fetchJobForUser(strapi, jobId, userId);
   if (!job) {
@@ -1211,7 +1269,7 @@ export async function getCompanyImportBulkJobStatus(strapi: Core.Strapi, userId:
 export async function cancelCompanyImportBulkJob(
   strapi: Core.Strapi,
   userId: string,
-  jobId: string
+  jobId: string,
 ): Promise<{ cancelled: boolean; state: BulkImportState | null }> {
   await ensureTables(strapi);
   const job = await fetchJobForUser(strapi, jobId, userId);
@@ -1236,7 +1294,11 @@ export async function cancelCompanyImportBulkJob(
   return { cancelled: false, state: job.state };
 }
 
-export async function getCompanyImportBulkReport(strapi: Core.Strapi, userId: string, jobId: string) {
+export async function getCompanyImportBulkReport(
+  strapi: Core.Strapi,
+  userId: string,
+  jobId: string,
+) {
   await ensureTables(strapi);
   const job = await fetchJobForUser(strapi, jobId, userId);
   if (!job) {
@@ -1278,7 +1340,7 @@ export async function getCompanyImportBulkErrors(
   userId: string,
   jobId: string,
   format: 'json' | 'csv',
-  limit = 2000
+  limit = 2000,
 ): Promise<{ json?: Record<string, unknown>; csv?: string } | null> {
   await ensureTables(strapi);
   const job = await fetchJobForUser(strapi, jobId, userId);

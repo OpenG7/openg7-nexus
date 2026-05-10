@@ -67,7 +67,9 @@ export class FaqPage {
   });
 
   protected readonly topEntries = computed(() => this.entries().slice(0, this.featuredCount));
-  protected readonly normalizedQuery = computed(() => this.normalizeForSearch(this.debouncedQuery()));
+  protected readonly normalizedQuery = computed(() =>
+    this.normalizeForSearch(this.debouncedQuery()),
+  );
   protected readonly hasQuery = computed(() => this.normalizedQuery().length > 0);
 
   protected readonly filteredEntries = computed(() => {

@@ -18,10 +18,6 @@
 >
   {{ 'auth.continueWithGoogle' | translate }}
 </button>
-<p
-  *ngIf="inProgress() as provider"
-  class="text-sm text-slate-600"
-  data-og7="auth-social-progress"
->
-  {{ 'auth.sso.progress' | translate: { provider: ('auth.sso.' + provider) | translate } }}
+<p *ngIf="inProgress() as provider" class="text-sm text-slate-600" data-og7="auth-social-progress">
+  {{ 'auth.sso.progress' | translate: { provider: 'auth.sso.' + provider | translate } }}
 </p>

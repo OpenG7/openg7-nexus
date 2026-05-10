@@ -25,10 +25,7 @@ export const reasonSig = signal<string | null>(null);
  * @param segments Attempted URL segments.
  * @returns True to continue navigation or a UrlTree redirecting to login.
  */
-export const authGuard: CanMatchFn = (
-  _route: Route,
-  segments: UrlSegment[]
-) => {
+export const authGuard: CanMatchFn = (_route: Route, segments: UrlSegment[]) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const redirect = inject(AuthRedirectService);
@@ -39,7 +36,7 @@ async function evaluateAuthGuard(
   auth: AuthService,
   router: Router,
   redirect: AuthRedirectService,
-  segments: UrlSegment[]
+  segments: UrlSegment[],
 ) {
   await auth.ensureSessionRestored();
 

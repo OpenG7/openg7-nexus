@@ -5,10 +5,18 @@
 >
   <header class="opportunity-timeline__header">
     <div class="opportunity-timeline__headline">
-      <p class="opportunity-timeline__eyebrow">{{ 'opportunities.timeline.prototypeLabel' | translate }}</p>
-      <h3 class="opportunity-timeline__title" [id]="'opportunity-title-' + vm().id">{{ vm().title }}</h3>
+      <p class="opportunity-timeline__eyebrow">
+        {{ 'opportunities.timeline.prototypeLabel' | translate }}
+      </p>
+      <h3 class="opportunity-timeline__title" [id]="'opportunity-title-' + vm().id">
+        {{ vm().title }}
+      </h3>
     </div>
-    <div class="opportunity-timeline__score" role="img" [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate:{ value: scoreLabel() }">
+    <div
+      class="opportunity-timeline__score"
+      role="img"
+      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate: { value: scoreLabel() }"
+    >
       <svg viewBox="0 0 72 72" class="opportunity-timeline__score-figure" aria-hidden="true">
         <defs>
           <linearGradient id="opportunity-score-high" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -41,7 +49,9 @@
 
   <section class="opportunity-timeline__actors">
     <div class="opportunity-timeline__actor">
-      <p class="opportunity-timeline__actor-label">{{ 'opportunities.timeline.buyer' | translate }}</p>
+      <p class="opportunity-timeline__actor-label">
+        {{ 'opportunities.timeline.buyer' | translate }}
+      </p>
       <div class="opportunity-timeline__actor-content">
         @if (vm().buyer.logoUrl) {
           <img
@@ -55,7 +65,9 @@
         <div class="opportunity-timeline__actor-body">
           <p class="opportunity-timeline__actor-name">{{ vm().buyer.name }}</p>
           <div class="opportunity-timeline__chips" role="list">
-            <span class="opportunity-timeline__chip" role="listitem">{{ vm().buyer.province }}</span>
+            <span class="opportunity-timeline__chip" role="listitem">{{
+              vm().buyer.province
+            }}</span>
             <span class="opportunity-timeline__chip" role="listitem">{{ vm().buyer.sector }}</span>
           </div>
         </div>
@@ -63,13 +75,19 @@
     </div>
 
     <div class="opportunity-timeline__actor opportunity-timeline__actor--supplier">
-      <p class="opportunity-timeline__actor-label">{{ 'opportunities.timeline.supplier' | translate }}</p>
+      <p class="opportunity-timeline__actor-label">
+        {{ 'opportunities.timeline.supplier' | translate }}
+      </p>
       <div class="opportunity-timeline__actor-content">
         <div class="opportunity-timeline__actor-body">
           <p class="opportunity-timeline__actor-name">{{ vm().supplier.name }}</p>
           <div class="opportunity-timeline__chips" role="list">
-            <span class="opportunity-timeline__chip" role="listitem">{{ vm().supplier.province }}</span>
-            <span class="opportunity-timeline__chip" role="listitem">{{ vm().supplier.sector }}</span>
+            <span class="opportunity-timeline__chip" role="listitem">{{
+              vm().supplier.province
+            }}</span>
+            <span class="opportunity-timeline__chip" role="listitem">{{
+              vm().supplier.sector
+            }}</span>
           </div>
         </div>
         @if (vm().supplier.logoUrl) {
@@ -87,30 +105,41 @@
 
   <section class="opportunity-timeline__context" [id]="'opportunity-context-' + vm().id">
     <div class="opportunity-timeline__context-item">
-      <span class="opportunity-timeline__context-label">{{ 'opportunities.timeline.distance' | translate }}</span>
+      <span class="opportunity-timeline__context-label">{{
+        'opportunities.timeline.distance' | translate
+      }}</span>
       <span class="opportunity-timeline__context-value">{{ distanceLabel() }}</span>
     </div>
     @if (vm().context.leadTime) {
       <div class="opportunity-timeline__context-item">
-        <span class="opportunity-timeline__context-label">{{ 'opportunities.timeline.leadTime' | translate }}</span>
+        <span class="opportunity-timeline__context-label">{{
+          'opportunities.timeline.leadTime' | translate
+        }}</span>
         <span class="opportunity-timeline__context-value">{{ vm().context.leadTime }}</span>
       </div>
     }
     @if (co2Label(); as co2) {
       <div class="opportunity-timeline__context-item">
-        <span class="opportunity-timeline__context-label">{{ 'opportunities.timeline.co2Savings' | translate }}</span>
+        <span class="opportunity-timeline__context-label">{{
+          'opportunities.timeline.co2Savings' | translate
+        }}</span>
         <span class="opportunity-timeline__context-value">{{ co2 }}</span>
       </div>
     }
     @if (vm().context.logisticsCost) {
       <div class="opportunity-timeline__context-item">
-        <span class="opportunity-timeline__context-label">{{ 'opportunities.timeline.logisticsCost' | translate }}</span>
+        <span class="opportunity-timeline__context-label">{{
+          'opportunities.timeline.logisticsCost' | translate
+        }}</span>
         <span class="opportunity-timeline__context-value">{{ vm().context.logisticsCost }}</span>
       </div>
     }
   </section>
 
-  <section class="opportunity-timeline__steps" [attr.aria-label]="'opportunities.timeline.stepsTitle' | translate">
+  <section
+    class="opportunity-timeline__steps"
+    [attr.aria-label]="'opportunities.timeline.stepsTitle' | translate"
+  >
     <ol class="opportunity-timeline__list">
       @for (step of vm().steps; track step.id; let index = $index) {
         <li class="opportunity-timeline__step" [attr.data-step-index]="index">
@@ -140,11 +169,7 @@
   </section>
 
   <footer class="opportunity-timeline__actions">
-    <button
-      type="button"
-      class="opportunity-timeline__action-primary"
-      (click)="emitViewSheet()"
-    >
+    <button type="button" class="opportunity-timeline__action-primary" (click)="emitViewSheet()">
       {{ 'opportunities.timeline.viewSheet' | translate }}
     </button>
     <button type="button" class="opportunity-timeline__action-secondary" (click)="emitConnect()">
@@ -156,7 +181,11 @@
       (click)="toggleSave()"
       [attr.aria-pressed]="saved()"
     >
-      {{ saved() ? ('opportunities.timeline.saved' | translate) : ('opportunities.timeline.save' | translate) }}
+      {{
+        saved()
+          ? ('opportunities.timeline.saved' | translate)
+          : ('opportunities.timeline.save' | translate)
+      }}
     </button>
   </footer>
 </article>

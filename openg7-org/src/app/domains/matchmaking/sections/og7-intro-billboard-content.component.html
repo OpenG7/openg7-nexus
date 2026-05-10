@@ -16,7 +16,7 @@
                   </h2>
                   <span class="og7-intro-panel__score">
                     <span class="og7-intro-panel__score-indicator"></span>
-                    {{ 'introBillboard.scoreBadge' | translate:{ value: scorePercent() } }}
+                    {{ 'introBillboard.scoreBadge' | translate: { value: scorePercent() } }}
                   </span>
                 </div>
                 <p class="og7-intro-panel__subtitle">
@@ -155,19 +155,29 @@
 </ng-template>
 
 <ng-template #messageStepTemplate>
-  <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200 shadow-inner">
-    <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">{{ 'introBillboard.briefingTitle' | translate }}</h3>
+  <div
+    class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200 shadow-inner"
+  >
+    <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+      {{ 'introBillboard.briefingTitle' | translate }}
+    </h3>
     <dl class="space-y-3">
       <div class="flex items-start justify-between gap-3">
-        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">{{ 'introBillboard.matchBuyer' | translate }}</dt>
+        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+          {{ 'introBillboard.matchBuyer' | translate }}
+        </dt>
         <dd class="text-right font-semibold text-slate-100">{{ matchSelected()?.buyer?.name }}</dd>
       </div>
       <div class="flex items-start justify-between gap-3">
-        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">{{ 'introBillboard.matchSupplier' | translate }}</dt>
+        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+          {{ 'introBillboard.matchSupplier' | translate }}
+        </dt>
         <dd class="text-right font-semibold text-slate-100">{{ matchSelected()?.seller?.name }}</dd>
       </div>
       <div class="flex items-start justify-between gap-3">
-        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">{{ 'introBillboard.matchCommodity' | translate }}</dt>
+        <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+          {{ 'introBillboard.matchCommodity' | translate }}
+        </dt>
         <dd class="text-right font-semibold text-slate-100">{{ matchTitle() }}</dd>
       </div>
     </dl>
@@ -186,10 +196,7 @@
         !matchSelected()
       "
       [ready]="
-        stepper.readyToSend() &&
-        !!buyerProfile() &&
-        !!supplierProfile() &&
-        !!matchSelected()
+        stepper.readyToSend() && !!buyerProfile() && !!supplierProfile() && !!matchSelected()
       "
       [success]="successState()"
       [attachments]="stepper.attachmentsSelected()"

@@ -33,7 +33,7 @@ export class FavoritesPage {
   readonly error = this.favorites.error;
   readonly favoritesList = computed(() => this.favorites.list());
   readonly favoritesView = computed(() =>
-    this.favoritesList().map((item) => this.toViewModel(item))
+    this.favoritesList().map((item) => this.toViewModel(item)),
   );
   readonly hasFavorites = computed(() => this.favoritesView().length > 0);
   readonly errorMessageKey = computed(() => {
@@ -41,9 +41,7 @@ export class FavoritesPage {
     if (!errorKey) {
       return null;
     }
-    return errorKey === 'favorites.sync.failed'
-      ? 'pages.favorites.errors.syncFailed'
-      : errorKey;
+    return errorKey === 'favorites.sync.failed' ? 'pages.favorites.errors.syncFailed' : errorKey;
   });
   readonly skeletonItems = [0, 1, 2] as const;
 
@@ -152,7 +150,7 @@ export class FavoritesPage {
 
   private routeFor(
     entityType: string,
-    entityId: string
+    entityId: string,
   ): { commands: readonly string[]; queryParams?: Params } {
     switch (entityType) {
       case 'company':

@@ -41,18 +41,19 @@ export class Og7PublicationMetadataCardComponent {
       return [];
     }
 
-    return Object.entries(extensions)
-      .flatMap(([key, value]) => {
-        const field = this.resolveField(key);
-        const formatted = this.formatValue(value, field);
-        if (!formatted.length) {
-          return [];
-        }
-        return [{
+    return Object.entries(extensions).flatMap(([key, value]) => {
+      const field = this.resolveField(key);
+      const formatted = this.formatValue(value, field);
+      if (!formatted.length) {
+        return [];
+      }
+      return [
+        {
           label: field?.labelKey ?? this.humanizeKey(key),
           values: formatted,
-        }];
-      });
+        },
+      ];
+    });
   });
 
   protected resolveSchemaVersion(): number | null {
@@ -62,7 +63,10 @@ export class Og7PublicationMetadataCardComponent {
 
   private resolveField(key: string): PublicationFieldConfig | null {
     const config = this.publicationConfig();
-    return config?.sections.flatMap(section => section.fields).find(entry => entry.key === key) ?? null;
+    return (
+      config?.sections.flatMap((section) => section.fields).find((entry) => entry.key === key) ??
+      null
+    );
   }
 
   private formatValue(value: unknown, field: PublicationFieldConfig | null): MetadataValue[] {
@@ -70,7 +74,12 @@ export class Og7PublicationMetadataCardComponent {
       return [];
     }
     if (typeof value === 'boolean') {
-      return [{ value: value ? 'forms.common.boolean.true' : 'forms.common.boolean.false', translate: true }];
+      return [
+        {
+          value: value ? 'forms.common.boolean.true' : 'forms.common.boolean.false',
+          translate: true,
+        },
+      ];
     }
     if (typeof value === 'number') {
       return [{ value: String(value), translate: false }];
@@ -84,7 +93,7 @@ export class Og7PublicationMetadataCardComponent {
       return [{ value: optionKey ?? normalized, translate: Boolean(optionKey) }];
     }
     if (Array.isArray(value)) {
-      return value.flatMap(entry => this.formatValue(entry, field));
+      return value.flatMap((entry) => this.formatValue(entry, field));
     }
     if (typeof value === 'object') {
       return [{ value: JSON.stringify(value), translate: false }];
@@ -92,18 +101,21 @@ export class Og7PublicationMetadataCardComponent {
     return [];
   }
 
-  private resolveOptionLabelKey(field: PublicationFieldConfig | null, value: string): string | null {
+  private resolveOptionLabelKey(
+    field: PublicationFieldConfig | null,
+    value: string,
+  ): string | null {
     if (!field?.options?.length) {
       return null;
     }
 
-    return field.options.find(option => String(option.value) === value)?.labelKey ?? null;
+    return field.options.find((option) => String(option.value) === value)?.labelKey ?? null;
   }
 
   private humanizeKey(value: string): string {
     return value
       .replace(/([a-z])([A-Z])/g, '$1 $2')
       .replace(/[-_]+/g, ' ')
-      .replace(/^./, char => char.toUpperCase());
+      .replace(/^./, (char) => char.toUpperCase());
   }
 }

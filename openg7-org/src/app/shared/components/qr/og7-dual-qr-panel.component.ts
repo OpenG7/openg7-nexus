@@ -45,9 +45,15 @@ export class Og7DualQrPanelComponent {
   protected readonly buyerQr = signal<string | null>(null);
   protected readonly supplierQr = signal<string | null>(null);
 
-  protected readonly hasBuyerLink = computed(() => this.showBuyerPanel() && Boolean(this.buyerLink()));
-  protected readonly hasSupplierLink = computed(() => this.showSupplierPanel() && Boolean(this.supplierLink()));
-  protected readonly showBothPanels = computed(() => this.showBuyerPanel() && this.showSupplierPanel());
+  protected readonly hasBuyerLink = computed(
+    () => this.showBuyerPanel() && Boolean(this.buyerLink()),
+  );
+  protected readonly hasSupplierLink = computed(
+    () => this.showSupplierPanel() && Boolean(this.supplierLink()),
+  );
+  protected readonly showBothPanels = computed(
+    () => this.showBuyerPanel() && this.showSupplierPanel(),
+  );
 
   constructor() {
     effect(() => {

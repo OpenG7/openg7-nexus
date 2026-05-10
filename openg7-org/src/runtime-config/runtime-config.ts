@@ -145,10 +145,13 @@ function parseFeatureFlags(value: unknown, fallback: FeatureFlags): FeatureFlags
   }
 
   if (isRecord(value)) {
-    return Object.entries(value).reduce<FeatureFlags>((acc, [flagKey, flagValue]) => {
-      acc[flagKey] = coerceBoolean(flagValue);
-      return acc;
-    }, { ...fallback });
+    return Object.entries(value).reduce<FeatureFlags>(
+      (acc, [flagKey, flagValue]) => {
+        acc[flagKey] = coerceBoolean(flagValue);
+        return acc;
+      },
+      { ...fallback },
+    );
   }
 
   if (typeof value === 'string') {
@@ -160,10 +163,13 @@ function parseFeatureFlags(value: unknown, fallback: FeatureFlags): FeatureFlags
     try {
       const parsed = JSON.parse(trimmed) as FeatureFlags;
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        return Object.entries(parsed).reduce<FeatureFlags>((acc, [flagKey, flagValue]) => {
-          acc[flagKey] = coerceBoolean(flagValue);
-          return acc;
-        }, { ...fallback });
+        return Object.entries(parsed).reduce<FeatureFlags>(
+          (acc, [flagKey, flagValue]) => {
+            acc[flagKey] = coerceBoolean(flagValue);
+            return acc;
+          },
+          { ...fallback },
+        );
       }
     } catch {
       // Fallback to comma separated parsing below.
@@ -231,10 +237,13 @@ function parseHomeFeedPanelLimits(
     return { ...fallback };
   }
 
-  return HOME_FEED_PANEL_LIMIT_KEYS.reduce<HomeFeedPanelLimitsConfig>((acc, key) => {
-    acc[key] = parsePositiveIntegerValue(source[key], fallback[key]);
-    return acc;
-  }, { ...fallback });
+  return HOME_FEED_PANEL_LIMIT_KEYS.reduce<HomeFeedPanelLimitsConfig>(
+    (acc, key) => {
+      acc[key] = parsePositiveIntegerValue(source[key], fallback[key]);
+      return acc;
+    },
+    { ...fallback },
+  );
 }
 
 function parseAuthMode(value: unknown, fallback: AuthMode): AuthMode {
@@ -331,7 +340,9 @@ function parseCspSources(value: unknown, fallback: string[]): string[] {
   }
 
   for (const candidate of toArrayCandidates(value)) {
-    const sanitized = sanitizeCspSource(typeof candidate === 'string' ? candidate : String(candidate));
+    const sanitized = sanitizeCspSource(
+      typeof candidate === 'string' ? candidate : String(candidate),
+    );
     if (sanitized) {
       sources.add(sanitized);
     }
@@ -340,7 +351,9 @@ function parseCspSources(value: unknown, fallback: string[]): string[] {
   return Array.from(sources);
 }
 
-function normalizeDirectiveKey(key: keyof ContentSecurityPolicyConfig): [keyof ContentSecurityPolicyConfig, string] {
+function normalizeDirectiveKey(
+  key: keyof ContentSecurityPolicyConfig,
+): [keyof ContentSecurityPolicyConfig, string] {
   const camelCaseKey = key;
   const kebabCaseKey = key.replace(/([A-Z])/g, (match) => `-${match.toLowerCase()}`);
   return [camelCaseKey, kebabCaseKey];
@@ -372,7 +385,9 @@ function parseContentSecurityPolicy(
 
   for (const directive of CSP_DIRECTIVE_KEYS) {
     const [camelCaseKey, kebabCaseKey] = normalizeDirectiveKey(directive);
-    const candidate = (value as Record<string, unknown>)[camelCaseKey] ?? (value as Record<string, unknown>)[kebabCaseKey];
+    const candidate =
+      (value as Record<string, unknown>)[camelCaseKey] ??
+      (value as Record<string, unknown>)[kebabCaseKey];
     result[directive] = parseCspSources(candidate, base[directive] ?? []);
   }
 
@@ -441,7 +456,8 @@ function resolveCspDirectiveFromEnv(
   env: Record<string, string | undefined>,
   key: keyof ContentSecurityPolicyConfig,
 ): string[] | undefined {
-  const envKey = `CSP_${key.replace(/([A-Z])/g, (match) => `_${match.toUpperCase()}`)}`.toUpperCase();
+  const envKey =
+    `CSP_${key.replace(/([A-Z])/g, (match) => `_${match.toUpperCase()}`)}`.toUpperCase();
   const raw = env[envKey];
   if (raw === undefined) {
     return undefined;
@@ -460,7 +476,9 @@ function resolveCspDirectiveFromEnv(
   return trimmed.split(/[,\s]+/).filter(Boolean);
 }
 
-function buildContentSecurityPolicyFromEnv(env: Record<string, string | undefined>): ContentSecurityPolicyConfig | undefined {
+function buildContentSecurityPolicyFromEnv(
+  env: Record<string, string | undefined>,
+): ContentSecurityPolicyConfig | undefined {
   const config: ContentSecurityPolicyConfig = {
     connectSrc: [],
     fontSrc: [],
@@ -489,7 +507,8 @@ function buildContentSecurityPolicyFromEnv(env: Record<string, string | undefine
 export function readRuntimeConfigFromProcessEnv(
   env?: Record<string, string | undefined>,
 ): RuntimeSource {
-  const globalProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+  const globalProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } })
+    .process;
   const sourceEnv = env ?? globalProcess?.env ?? {};
   const keys = Object.keys(environment) as RuntimeConfigKey[];
   const overrides: RuntimeSource = {};

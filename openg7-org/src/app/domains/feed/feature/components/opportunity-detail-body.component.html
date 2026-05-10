@@ -44,13 +44,15 @@
       <li *ngFor="let doc of documents()">
         <a [href]="doc.href" rel="noopener" target="_blank">
           <span>{{ doc.label }}</span>
-          <small>{{ ('feed.opportunity.detail.docType.' + doc.kind) | translate }}</small>
+          <small>{{ 'feed.opportunity.detail.docType.' + doc.kind | translate }}</small>
         </a>
       </li>
     </ul>
   </article>
 
-  <og7-opportunity-hydrocarbon-detail [metadata]="publicationMetadata()"></og7-opportunity-hydrocarbon-detail>
+  <og7-opportunity-hydrocarbon-detail
+    [metadata]="publicationMetadata()"
+  ></og7-opportunity-hydrocarbon-detail>
 
   <og7-publication-metadata-card [metadata]="publicationMetadata()"></og7-publication-metadata-card>
 

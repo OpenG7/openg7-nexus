@@ -8,10 +8,7 @@ import {
 } from '@app/core/services/user-alerts-api.service';
 import { of } from 'rxjs';
 
-import {
-  FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
-  UserAlertsService,
-} from './user-alerts.service';
+import { FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, UserAlertsService } from './user-alerts.service';
 
 function buildRecord(id: string, patch: Partial<UserAlertRecord> = {}): UserAlertRecord {
   return {
@@ -59,11 +56,13 @@ describe('UserAlertsService', () => {
           sourceType: payload.sourceType ?? null,
           sourceId: payload.sourceId ?? null,
           metadata: payload.metadata ?? null,
-        })
-      )
+        }),
+      ),
     );
     api.generateFromSavedSearches.and.returnValue(of({ count: 0, skipped: 0, generated: [] }));
-    api.markRead.and.returnValue(of(buildRecord('1', { isRead: true, readAt: '2026-02-10T09:00:00.000Z' })));
+    api.markRead.and.returnValue(
+      of(buildRecord('1', { isRead: true, readAt: '2026-02-10T09:00:00.000Z' })),
+    );
     api.markAllRead.and.returnValue(of({ updated: 0, readAt: null }));
     api.deleteRead.and.returnValue(of({ deleted: 0 }));
     api.deleteMine.and.returnValue(of({ id: '1', deleted: true }));
@@ -94,7 +93,7 @@ describe('UserAlertsService', () => {
           isRead: false,
           createdAt: '2026-02-10T10:00:00.000Z',
         }),
-      ])
+      ]),
     );
 
     const service = createService();
@@ -130,7 +129,7 @@ describe('UserAlertsService', () => {
         count: 1,
         skipped: 0,
         generated: [buildRecord('generated-1', { createdAt: '2026-02-10T11:00:00.000Z' })],
-      })
+      }),
     );
 
     service.generateFromSavedSearches();
@@ -157,7 +156,7 @@ describe('UserAlertsService', () => {
       jasmine.objectContaining({
         sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
         sourceId: 'alert-001',
-      })
+      }),
     );
     expect(result.status).toBe('created');
     expect(service.hasSource(FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE, 'alert-001')).toBeTrue();
@@ -172,7 +171,7 @@ describe('UserAlertsService', () => {
           sourceType: FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
           sourceId: 'alert-001',
         }),
-      ])
+      ]),
     );
 
     const service = createService();
@@ -223,7 +222,7 @@ describe('UserAlertsService', () => {
       of([
         buildRecord('unread-1', { isRead: false, readAt: null }),
         buildRecord('read-1', { isRead: true, readAt: '2026-02-10T08:00:00.000Z' }),
-      ])
+      ]),
     );
     api.markAllRead.and.returnValue(of({ updated: 1, readAt: '2026-02-10T10:00:00.000Z' }));
 
@@ -243,7 +242,7 @@ describe('UserAlertsService', () => {
       of([
         buildRecord('read-1', { isRead: true, readAt: '2026-02-10T08:00:00.000Z' }),
         buildRecord('unread-1', { isRead: false, readAt: null }),
-      ])
+      ]),
     );
     api.deleteRead.and.returnValue(of({ deleted: 1 }));
 

@@ -31,9 +31,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       return next(
         req.clone({
           setHeaders: { Authorization: `Bearer ${token}` },
-        })
+        }),
       );
-    })
+    }),
   );
 };
 
@@ -47,7 +47,10 @@ function isAuthEndpoint(url: string): boolean {
   }
 
   try {
-    const normalized = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+    const normalized = new URL(
+      url,
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+    );
     return /^\/api\/auth(?:\/|$)/.test(normalized.pathname);
   } catch {
     return false;

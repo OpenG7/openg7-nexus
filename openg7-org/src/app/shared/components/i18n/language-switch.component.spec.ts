@@ -11,7 +11,7 @@ describe('LanguageSwitchComponent', () => {
   it('calls TranslateService.use when language changes', () => {
     TestBed.configureTestingModule({
       imports: [LanguageSwitchComponent],
-      providers: [{ provide: TranslateService, useClass: MockTranslateService }]
+      providers: [{ provide: TranslateService, useClass: MockTranslateService }],
     });
     const fixture = TestBed.createComponent(LanguageSwitchComponent);
     const service = TestBed.inject(TranslateService) as any as MockTranslateService;

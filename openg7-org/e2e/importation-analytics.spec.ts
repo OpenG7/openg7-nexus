@@ -31,7 +31,9 @@ test.describe('Importation analytics', () => {
 
     const compareToggle = overview.locator('input[type="checkbox"]');
     const compareInput = overview.locator('input[name="compareWithDraft"]');
-    const applyCompareButton = overview.locator('[data-og7="importation-filters"][data-og7-id="apply-compare"]');
+    const applyCompareButton = overview.locator(
+      '[data-og7="importation-filters"][data-og7-id="apply-compare"]',
+    );
 
     await compareToggle.check();
     await expect(compareInput).toBeEnabled();
@@ -74,7 +76,9 @@ test.describe('Importation analytics', () => {
 
     await expect.poll(() => searchParam(page.url(), 'compareWith')).toBe('2025-12');
     await expect(flowPanel.locator('.og7-importation-flow__card')).toContainText('United States');
-    await expect(collaboration).toContainText('Battery imports accelerated after the January procurement window.');
+    await expect(collaboration).toContainText(
+      'Battery imports accelerated after the January procurement window.',
+    );
     await expect(collaboration).toContainText('cmd-2');
 
     await flowPanel.locator('.og7-importation-flow__list article button').first().click();
@@ -84,12 +88,16 @@ test.describe('Importation analytics', () => {
     await expect(overview.locator('input[name="originCodesDraft"]')).toHaveValue('US');
 
     const watchlistName = 'Critical US battery flows';
-    const watchlistRequestPromise = page.waitForRequest((request) =>
-      request.method().toUpperCase() === 'POST' && request.url().includes('/api/import-watchlists')
+    const watchlistRequestPromise = page.waitForRequest(
+      (request) =>
+        request.method().toUpperCase() === 'POST' &&
+        request.url().includes('/api/import-watchlists'),
     );
 
     await collaboration.locator('input[name="watchlistName"]').fill(watchlistName);
-    await collaboration.locator('.og7-importation-collaboration__watchlists button[type="submit"]').click();
+    await collaboration
+      .locator('.og7-importation-collaboration__watchlists button[type="submit"]')
+      .click();
 
     const watchlistRequest = await watchlistRequestPromise;
     const watchlistPayload = watchlistRequest.postDataJSON() as {
@@ -112,19 +120,26 @@ test.describe('Importation analytics', () => {
     await expect(collaboration).toContainText('month:latest');
     await expect(collaboration).toContainText('US');
 
-    const scheduleRequestPromise = page.waitForRequest((request) =>
-      request.method().toUpperCase() === 'POST' && request.url().includes('/api/import-reports/schedule')
+    const scheduleRequestPromise = page.waitForRequest(
+      (request) =>
+        request.method().toUpperCase() === 'POST' &&
+        request.url().includes('/api/import-reports/schedule'),
     );
-    const scheduleResponsePromise = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'POST' &&
-      response.url().includes('/api/import-reports/schedule')
+    const scheduleResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'POST' &&
+        response.url().includes('/api/import-reports/schedule'),
     );
 
-    await collaboration.locator('input[name="recipients"]').fill('ops@openg7.test, trade@openg7.test');
+    await collaboration
+      .locator('input[name="recipients"]')
+      .fill('ops@openg7.test, trade@openg7.test');
     await collaboration.locator('select[name="format"]').selectOption('json');
     await collaboration.locator('select[name="frequency"]').selectOption('weekly');
     await collaboration.locator('textarea[name="notes"]').fill('Focus on US battery import flows.');
-    await collaboration.locator('.og7-importation-collaboration__schedule button[type="submit"]').click();
+    await collaboration
+      .locator('.og7-importation-collaboration__schedule button[type="submit"]')
+      .click();
 
     const scheduleRequest = await scheduleRequestPromise;
     const schedulePayload = scheduleRequest.postDataJSON() as {

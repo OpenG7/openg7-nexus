@@ -52,23 +52,27 @@ const unique = (values: readonly (string | null)[]) =>
   Array.from(new Set(values.filter((v): v is string => Boolean(v))));
 
 test('statistics filters update the dataset', async ({ page }) => {
-  await page.route('**/api/statistics**', async route => {
+  await page.route('**/api/statistics**', async (route) => {
     const url = new URL(route.request().url());
     const requestedScopeRaw = url.searchParams.get('scope');
     const requestedScope: Scope =
-      requestedScopeRaw && ['interprovincial', 'international', 'all'].includes(requestedScopeRaw.toLowerCase())
+      requestedScopeRaw &&
+      ['interprovincial', 'international', 'all'].includes(requestedScopeRaw.toLowerCase())
         ? (requestedScopeRaw.toLowerCase() as Scope)
         : 'interprovincial';
     const requestedIntrantRaw = url.searchParams.get('intrant');
     const requestedIntrant: Intrant =
-      requestedIntrantRaw && ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(requestedIntrantRaw.toLowerCase())
+      requestedIntrantRaw &&
+      ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(
+        requestedIntrantRaw.toLowerCase(),
+      )
         ? (requestedIntrantRaw.toLowerCase() as Intrant)
         : 'all';
     const requestedPeriod = url.searchParams.get('period');
     const requestedProvince = url.searchParams.get('province');
     const requestedCountry = url.searchParams.get('country');
 
-    const filtered = allSummaries.filter(summary => {
+    const filtered = allSummaries.filter((summary) => {
       const scopeMatch = requestedScope === 'all' || summary.scope === requestedScope;
       const intrantMatch = requestedIntrant === 'all' || summary.intrant === requestedIntrant;
       const periodMatch = !requestedPeriod || summary.period === requestedPeriod;
@@ -79,7 +83,7 @@ test('statistics filters update the dataset', async ({ page }) => {
 
     const payload = {
       data: {
-        summaries: filtered.map(summary => ({
+        summaries: filtered.map((summary) => ({
           id: summary.id,
           slug: `summary-${summary.id}`,
           scope: summary.scope,
@@ -100,9 +104,9 @@ test('statistics filters update the dataset', async ({ page }) => {
           activeCorridors: filtered.length,
           updatedAt: new Date().toISOString(),
         },
-        availablePeriods: unique(filtered.map(summary => summary.period)),
-        availableProvinces: unique(filtered.map(summary => summary.province)),
-        availableCountries: unique(filtered.map(summary => summary.country)),
+        availablePeriods: unique(filtered.map((summary) => summary.period)),
+        availableProvinces: unique(filtered.map((summary) => summary.province)),
+        availableCountries: unique(filtered.map((summary) => summary.country)),
       },
       meta: {
         filters: {
@@ -129,7 +133,11 @@ test('statistics filters update the dataset', async ({ page }) => {
   await Promise.all([
     page.waitForResponse((response) => {
       const url = response.url();
-      return url.includes('/api/statistics') && url.includes('scope=international') && !url.includes('intrant=');
+      return (
+        url.includes('/api/statistics') &&
+        url.includes('scope=international') &&
+        !url.includes('intrant=')
+      );
     }),
     page.locator('[data-og7="statistics-scope-toggle"] button').nth(1).click(),
   ]);
@@ -137,21 +145,27 @@ test('statistics filters update the dataset', async ({ page }) => {
   await Promise.all([
     page.waitForResponse((response) => {
       const url = response.url();
-      return url.includes('/api/statistics') && url.includes('scope=international') && url.includes('intrant=energy');
+      return (
+        url.includes('/api/statistics') &&
+        url.includes('scope=international') &&
+        url.includes('intrant=energy')
+      );
     }),
     page.locator('[data-og7="statistics-intrant-filter"][data-og7-value="energy"]').click(),
   ]);
 
   const summaryCards = page.locator('[data-og7="statistics-summary-card"]');
   const emptyState = page.locator('[data-og7="statistics-empty"]');
-  await expect.poll(async () => (await summaryCards.count()) + (await emptyState.count())).toBeGreaterThan(0);
+  await expect
+    .poll(async () => (await summaryCards.count()) + (await emptyState.count()))
+    .toBeGreaterThan(0);
 
   if ((await summaryCards.count()) > 0) {
     await expect(summaryCards.first()).toBeVisible();
     await expect
       .poll(async () => {
-        const intrants = await summaryCards.evaluateAll(cards =>
-          cards.map(card => card.getAttribute('data-og7-intrant'))
+        const intrants = await summaryCards.evaluateAll((cards) =>
+          cards.map((card) => card.getAttribute('data-og7-intrant')),
         );
         return unique(intrants);
       })

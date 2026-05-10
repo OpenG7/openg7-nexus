@@ -135,7 +135,7 @@ const REFRESHED_SNAPSHOT: AdminOpsScenario = {
         feedItems: 151,
       },
     },
-    150
+    150,
   ),
   backups: success(
     {
@@ -156,7 +156,7 @@ const REFRESHED_SNAPSHOT: AdminOpsScenario = {
         },
       ],
     },
-    150
+    150,
   ),
   imports: success(
     {
@@ -183,7 +183,7 @@ const REFRESHED_SNAPSHOT: AdminOpsScenario = {
         },
       ],
     },
-    150
+    150,
   ),
   security: success(
     {
@@ -213,7 +213,7 @@ const REFRESHED_SNAPSHOT: AdminOpsScenario = {
         suspendedCompanies: 0,
       },
     },
-    150
+    150,
   ),
 };
 
@@ -239,7 +239,7 @@ const REFRESH_ERROR_SNAPSHOT: AdminOpsScenario = {
         feedItems: 153,
       },
     },
-    150
+    150,
   ),
   backups: success(
     {
@@ -260,7 +260,7 @@ const REFRESH_ERROR_SNAPSHOT: AdminOpsScenario = {
         },
       ],
     },
-    150
+    150,
   ),
   imports: success(
     {
@@ -284,7 +284,7 @@ const REFRESH_ERROR_SNAPSHOT: AdminOpsScenario = {
         },
       ],
     },
-    150
+    150,
   ),
   security: failure('Security snapshot unavailable.', 503, 150),
 };
@@ -297,41 +297,69 @@ test.describe('Admin ops observability', () => {
     await loginAsAuthenticatedE2eUser(page, '/admin/ops');
 
     await expect(page.locator('[data-og7="admin-ops"]')).toBeVisible();
-    await expect(page.locator('[data-og7-id="admin-ops-last-updated"]')).toContainText('2026-03-14');
+    await expect(page.locator('[data-og7-id="admin-ops-last-updated"]')).toContainText(
+      '2026-03-14',
+    );
     await expect(page.locator('[data-og7="admin-ops-health"]')).toContainText('Operational');
-    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText('backup-2026-03-14.tar.gz');
-    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText('Quebec Battery Alliance');
-    await expect(page.locator('[data-og7="admin-ops-security-controls"]')).toContainText('42 total, 4 new (7d), 1 blocked');
+    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText(
+      'backup-2026-03-14.tar.gz',
+    );
+    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
+    await expect(page.locator('[data-og7="admin-ops-security-controls"]')).toContainText(
+      '42 total, 4 new (7d), 1 blocked',
+    );
 
     const refreshButton = page.locator('[data-og7-id="admin-ops-refresh"]');
     await refreshButton.click();
 
     await expect(refreshButton).toContainText('Refreshing...');
-    await expect(page.locator('[data-og7-id="admin-ops-last-updated"]')).toContainText('2026-04-01');
-    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText('backup-2026-04-01.tar.gz');
-    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText('Northern Logistics Network');
-    await expect(page.locator('[data-og7="admin-ops-security-controls"]')).toContainText('45 total, 5 new (7d), 0 blocked');
+    await expect(page.locator('[data-og7-id="admin-ops-last-updated"]')).toContainText(
+      '2026-04-01',
+    );
+    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText(
+      'backup-2026-04-01.tar.gz',
+    );
+    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
+      'Northern Logistics Network',
+    );
+    await expect(page.locator('[data-og7="admin-ops-security-controls"]')).toContainText(
+      '45 total, 5 new (7d), 0 blocked',
+    );
     await expect(page.locator('[data-og7="admin-ops-import-sources"]')).toContainText('bulk: 8');
     await expect(refreshButton).toContainText('Refresh');
     await expect(page.locator('[data-og7-id="admin-ops-error"]')).toHaveCount(0);
   });
 
-  test('surfaces a visible refresh error without dropping the last good snapshot', async ({ page }) => {
+  test('surfaces a visible refresh error without dropping the last good snapshot', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page, ADMIN_PROFILE);
     await mockAdminOpsSequence(page, [INITIAL_SNAPSHOT, REFRESH_ERROR_SNAPSHOT]);
 
     await loginAsAuthenticatedE2eUser(page, '/admin/ops');
 
-    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText('backup-2026-03-14.tar.gz');
-    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText('Quebec Battery Alliance');
+    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText(
+      'backup-2026-03-14.tar.gz',
+    );
+    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
 
     const refreshButton = page.locator('[data-og7-id="admin-ops-refresh"]');
     await refreshButton.click();
 
     await expect(refreshButton).toContainText('Refreshing...');
-    await expect(page.locator('[data-og7-id="admin-ops-error"]')).toContainText('Security snapshot unavailable.');
-    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText('backup-2026-03-14.tar.gz');
-    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText('Quebec Battery Alliance');
+    await expect(page.locator('[data-og7-id="admin-ops-error"]')).toContainText(
+      'Security snapshot unavailable.',
+    );
+    await expect(page.locator('[data-og7="admin-ops-backup-files"]')).toContainText(
+      'backup-2026-03-14.tar.gz',
+    );
+    await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
   });
 });
 
@@ -359,7 +387,10 @@ function failure(message: string, status = 500, delayMs = 0): MockRouteResponse 
   };
 }
 
-async function mockAdminOpsSequence(page: Page, scenarios: readonly AdminOpsScenario[]): Promise<void> {
+async function mockAdminOpsSequence(
+  page: Page,
+  scenarios: readonly AdminOpsScenario[],
+): Promise<void> {
   const callCounts: Record<AdminOpsEndpoint, number> = {
     health: 0,
     backups: 0,

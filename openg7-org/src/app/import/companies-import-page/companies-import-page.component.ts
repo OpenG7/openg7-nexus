@@ -38,13 +38,18 @@ interface PillarCard {
       <section class="grid gap-4 md:grid-cols-2">
         <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p class="text-sm font-medium text-slate-500">
-            {{ 'importCompaniesPage.stats.validCompanies' | translate : { count: parsedCompanies().length } }}
+            {{
+              'importCompaniesPage.stats.validCompanies'
+                | translate: { count: parsedCompanies().length }
+            }}
           </p>
           <p class="mt-2 text-3xl font-semibold text-emerald-600">{{ parsedCompanies().length }}</p>
         </article>
         <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p class="text-sm font-medium text-slate-500">
-            {{ 'importCompaniesPage.stats.errors' | translate : { count: validationErrors().length } }}
+            {{
+              'importCompaniesPage.stats.errors' | translate: { count: validationErrors().length }
+            }}
           </p>
           <p class="mt-2 text-3xl font-semibold text-rose-600">{{ validationErrors().length }}</p>
         </article>
@@ -65,20 +70,31 @@ interface PillarCard {
         </article>
       </section>
 
-      <section class="space-y-4 rounded-2xl border border-dashed border-slate-300 bg-white p-6 shadow-sm">
+      <section
+        class="space-y-4 rounded-2xl border border-dashed border-slate-300 bg-white p-6 shadow-sm"
+      >
         <h2 class="text-xl font-semibold text-slate-800">
           {{ 'importCompaniesPage.uploadTitle' | translate }}
         </h2>
         <p class="text-sm text-slate-500">
           {{ 'importCompaniesPage.uploadHint' | translate }}
         </p>
-        <form [formGroup]="uploadForm" class="flex flex-col gap-4 md:flex-row" (ngSubmit)="onParseManualJson()">
+        <form
+          [formGroup]="uploadForm"
+          class="flex flex-col gap-4 md:flex-row"
+          (ngSubmit)="onParseManualJson()"
+        >
           <label
             class="flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 md:w-1/2"
           >
             <span class="mb-2 text-2xl" aria-hidden="true">📁</span>
             <span>{{ 'importCompaniesPage.uploadLabel' | translate }}</span>
-            <input type="file" class="hidden" accept="application/json" (change)="onFileSelected($event)" />
+            <input
+              type="file"
+              class="hidden"
+              accept="application/json"
+              (change)="onFileSelected($event)"
+            />
           </label>
           <div class="w-full md:w-1/2 space-y-3">
             <button
@@ -98,10 +114,16 @@ interface PillarCard {
         </form>
       </section>
 
-      <section *ngIf="importSuccessMessage()" class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+      <section
+        *ngIf="importSuccessMessage()"
+        class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
+      >
         {{ importSuccessMessage() }}
       </section>
-      <section *ngIf="importFailureMessage()" class="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+      <section
+        *ngIf="importFailureMessage()"
+        class="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
+      >
         {{ importFailureMessage() }}
       </section>
 
@@ -112,7 +134,10 @@ interface PillarCard {
               {{ 'importCompaniesPage.previewTitle' | translate }}
             </h2>
             <p class="text-sm text-slate-500">
-              {{ 'importCompaniesPage.previewSubtitle' | translate : { count: parsedCompanies().length } }}
+              {{
+                'importCompaniesPage.previewSubtitle'
+                  | translate: { count: parsedCompanies().length }
+              }}
             </p>
           </div>
           <button
@@ -122,7 +147,9 @@ interface PillarCard {
             (click)="onImportRequested()"
           >
             <span aria-hidden="true">⬆️</span>
-            <span *ngIf="!isImporting(); else importingLabel">{{ 'importCompaniesPage.importButton' | translate }}</span>
+            <span *ngIf="!isImporting(); else importingLabel">{{
+              'importCompaniesPage.importButton' | translate
+            }}</span>
             <ng-template #importingLabel>
               {{ 'importCompaniesPage.importing' | translate }}
             </ng-template>
@@ -133,14 +160,28 @@ interface PillarCard {
           <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
             <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th class="px-4 py-3">{{ 'importCompaniesPage.table.headers.businessId' | translate }}</th>
-                <th class="px-4 py-3">{{ 'importCompaniesPage.table.headers.name' | translate }}</th>
-                <th class="px-4 py-3">{{ 'importCompaniesPage.table.headers.province' | translate }}</th>
-                <th class="px-4 py-3">{{ 'importCompaniesPage.table.headers.sectors' | translate }}</th>
+                <th class="px-4 py-3">
+                  {{ 'importCompaniesPage.table.headers.businessId' | translate }}
+                </th>
+                <th class="px-4 py-3">
+                  {{ 'importCompaniesPage.table.headers.name' | translate }}
+                </th>
+                <th class="px-4 py-3">
+                  {{ 'importCompaniesPage.table.headers.province' | translate }}
+                </th>
+                <th class="px-4 py-3">
+                  {{ 'importCompaniesPage.table.headers.sectors' | translate }}
+                </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 bg-white" *ngIf="parsedCompanies().length > 0; else emptyPreview">
-              <tr *ngFor="let company of parsedCompanies(); let i = index" class="transition hover:bg-slate-50">
+            <tbody
+              class="divide-y divide-slate-200 bg-white"
+              *ngIf="parsedCompanies().length > 0; else emptyPreview"
+            >
+              <tr
+                *ngFor="let company of parsedCompanies(); let i = index"
+                class="transition hover:bg-slate-50"
+              >
                 <td class="px-4 py-3 font-medium text-slate-700">{{ company.businessId }}</td>
                 <td class="px-4 py-3 text-slate-600">{{ company.name }}</td>
                 <td class="px-4 py-3 text-slate-600">{{ company.location.province || '—' }}</td>
@@ -156,7 +197,10 @@ interface PillarCard {
         </div>
       </section>
 
-      <section *ngIf="validationErrors().length > 0" class="space-y-3 rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
+      <section
+        *ngIf="validationErrors().length > 0"
+        class="space-y-3 rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm"
+      >
         <h2 class="text-lg font-semibold text-rose-700">
           {{ 'importCompaniesPage.validationTitle' | translate }}
         </h2>
@@ -236,7 +280,9 @@ export class CompaniesImportPageComponent {
     };
     reader.onerror = () => {
       this.validationErrors.set([
-        this.translate.instant('importCompaniesPage.validation.fileReadError', { fileName: file.name }),
+        this.translate.instant('importCompaniesPage.validation.fileReadError', {
+          fileName: file.name,
+        }),
       ]);
     };
     reader.readAsText(file);
@@ -264,14 +310,14 @@ export class CompaniesImportPageComponent {
           this.importSuccessMessage.set(
             this.translate.instant('importCompaniesPage.successMessage', {
               count: processedCount,
-            })
+            }),
           );
           if (result?.errors?.length) {
             this.validationErrors.set(
               result.errors.map((entry) => {
                 const businessId = entry.businessId ?? 'n/a';
                 return `#${entry.index} (${businessId}): ${entry.reason}`;
-              })
+              }),
             );
           } else {
             this.validationErrors.set([]);
@@ -329,7 +375,7 @@ export class CompaniesImportPageComponent {
         errors.push(
           this.translate.instant('importCompaniesPage.validation.invalidEntry', {
             index: index + 1,
-          })
+          }),
         );
         return;
       }
@@ -346,13 +392,19 @@ export class CompaniesImportPageComponent {
       if (typeof candidate.name !== 'string' || candidate.name.trim().length === 0) {
         missingFields.push('name');
       }
-      if (!Array.isArray(candidate.sectors) || candidate.sectors.some(sector => typeof sector !== 'string')) {
+      if (
+        !Array.isArray(candidate.sectors) ||
+        candidate.sectors.some((sector) => typeof sector !== 'string')
+      ) {
         missingFields.push('sectors');
       }
       if (typeof candidate.location !== 'object' || candidate.location === null) {
         missingFields.push('location');
       } else {
-        if (typeof candidate.location.lat !== 'number' || typeof candidate.location.lng !== 'number') {
+        if (
+          typeof candidate.location.lat !== 'number' ||
+          typeof candidate.location.lng !== 'number'
+        ) {
           missingFields.push('location.lat-lng');
         }
       }
@@ -365,7 +417,7 @@ export class CompaniesImportPageComponent {
           this.translate.instant('importCompaniesPage.validation.missingFields', {
             index: index + 1,
             fields: missingFields.join(', '),
-          })
+          }),
         );
         return;
       }

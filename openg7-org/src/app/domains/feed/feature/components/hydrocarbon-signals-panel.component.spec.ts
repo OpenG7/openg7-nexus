@@ -5,7 +5,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HydrocarbonSignalsPanelComponent } from './hydrocarbon-signals-panel.component';
 
 class StrapiClientMock {
-  readonly hydrocarbonSignals = jasmine.createSpy('hydrocarbonSignals').and.resolveTo({ data: [], meta: {} });
+  readonly hydrocarbonSignals = jasmine
+    .createSpy('hydrocarbonSignals')
+    .and.resolveTo({ data: [], meta: {} });
 }
 
 describe('HydrocarbonSignalsPanelComponent', () => {
@@ -42,7 +44,7 @@ describe('HydrocarbonSignalsPanelComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -98,8 +100,12 @@ describe('HydrocarbonSignalsPanelComponent', () => {
       originProvinceId: 'ab',
       targetProvinceId: null,
     });
-    expect(fixture.nativeElement.querySelector('[data-og7="hydrocarbon-signals-panel"]')).toBeTruthy();
-    expect(fixture.nativeElement.textContent).toContain('48,000 barrels available after Edmonton storage build-up');
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="hydrocarbon-signals-panel"]'),
+    ).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain(
+      '48,000 barrels available after Edmonton storage build-up',
+    );
 
     const signalItem = fixture.nativeElement.querySelector('[data-og7="hydrocarbon-signal-item"]');
     expect(signalItem?.getAttribute('data-og7-signal-id')).toBe('signal-1');

@@ -57,7 +57,8 @@ const hydrocarbonItem = {
   type: 'OFFER',
   sectorId: 'energy',
   title: hydrocarbonSignal.title,
-  summary: 'Northern Prairie Energy can release a 10-day crude window after reduced outbound flow on the main corridor.',
+  summary:
+    'Northern Prairie Energy can release a 10-day crude window after reduced outbound flow on the main corridor.',
   fromProvinceId: 'ab',
   toProvinceId: 'on',
   mode: 'EXPORT',
@@ -105,7 +106,8 @@ const priorityIndicatorItem = {
   type: 'INDICATOR',
   sectorId: 'energy',
   title: 'Essential services dependency tightens on the QC -> ON corridor',
-  summary: 'Ontario essential services depend on Quebec balancing support and Alberta hydrocarbon continuity.',
+  summary:
+    'Ontario essential services depend on Quebec balancing support and Alberta hydrocarbon continuity.',
   fromProvinceId: 'qc',
   toProvinceId: 'on',
   mode: 'BOTH',
@@ -123,7 +125,8 @@ const priorityIndicatorItem = {
         'Ontario heating, utilities and emergency fleets depend on Quebec balancing support while Alberta barrels cover the refinery shortfall.',
       decisionProtectedServices: 'Heating, utilities, municipal fleets',
       decisionPrioritySector: 'Energy continuity',
-      decisionInterprovincialDependency: 'Quebec reserve imports plus Alberta hydrocarbon rerouting',
+      decisionInterprovincialDependency:
+        'Quebec reserve imports plus Alberta hydrocarbon rerouting',
       decisionCapacitySignal: 'QC -> ON corridor under constrained headroom',
       decisionSteps: [
         'Reserve the corridor for essential services before discretionary industrial draws.',
@@ -168,7 +171,7 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
           { id: 'energy', name: 'Energy' },
           { id: 'manufacturing', name: 'Manufacturing' },
         ],
-      })
+      }),
     );
   });
 
@@ -182,7 +185,7 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
           { id: 'mb', name: 'Manitoba' },
           { id: 'on', name: 'Ontario' },
         ],
-      })
+      }),
     );
   });
 
@@ -195,7 +198,7 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: PROFILE,
-      })
+      }),
     );
   });
 
@@ -242,7 +245,7 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -267,7 +270,9 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
       return;
     }
 
-    const itemId = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop() ?? '');
+    const itemId = decodeURIComponent(
+      new URL(route.request().url()).pathname.split('/').pop() ?? '',
+    );
     await route.fulfill(json({ data: itemsById.get(itemId) ?? hydrocarbonItem }));
   });
 
@@ -281,7 +286,7 @@ async function mockHydrocarbonDecisionApis(page: Page): Promise<void> {
       json({
         data: [hydrocarbonItem],
         cursor: null,
-      })
+      }),
     );
   });
 }
@@ -296,7 +301,7 @@ test.describe('Hydrocarbon business journey', () => {
     await page.goto('/');
 
     const priorityPath = page.locator(
-      '[data-og7="corridor-priority-path"][data-og7-corridor-id="essential-services"]'
+      '[data-og7="corridor-priority-path"][data-og7-corridor-id="essential-services"]',
     );
     await expect(priorityPath).toBeVisible();
     await expect(priorityPath.locator('[data-og7-id="priority-services"]')).toBeVisible();
@@ -317,10 +322,14 @@ test.describe('Hydrocarbon business journey', () => {
 
     const decisionFlow = page.locator('[data-og7="indicator-decision-flow"]');
     await expect(decisionFlow).toBeVisible();
-    await expect(decisionFlow).toContainText('Protect Ontario essential services before non-critical exports');
-    await expect(decisionFlow).toContainText('Quebec reserve imports plus Alberta hydrocarbon rerouting');
+    await expect(decisionFlow).toContainText(
+      'Protect Ontario essential services before non-critical exports',
+    );
+    await expect(decisionFlow).toContainText(
+      'Quebec reserve imports plus Alberta hydrocarbon rerouting',
+    );
     await expect(decisionFlow.locator('[data-og7-id="decision-step-3"]')).toContainText(
-      'Open the Alberta -> Ontario hydrocarbon release'
+      'Open the Alberta -> Ontario hydrocarbon release',
     );
 
     await decisionFlow.locator('[data-og7-id="indicator-decision-open-target"]').click();
@@ -337,6 +346,8 @@ test.describe('Hydrocarbon business journey', () => {
     await expect(hydrocarbonDetail).toContainText('48,000 bbl');
     await expect(hydrocarbonDetail).toContainText('2026-03-25 -> 2026-04-04');
     await expect(hydrocarbonDetail).toContainText('WCS less rail differential');
-    await expect(hydrocarbonDetail).toContainText('Volume available following reduced outbound flow on main corridor.');
+    await expect(hydrocarbonDetail).toContainText(
+      'Volume available following reduced outbound flow on main corridor.',
+    );
   });
 });

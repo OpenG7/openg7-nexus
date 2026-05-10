@@ -1,5 +1,10 @@
 import { computed, signal } from '@angular/core';
-import { FeedItemCategory, FeedItemType, FeedSort, FlowMode } from '@app/domains/feed/feature/models/feed.models';
+import {
+  FeedItemCategory,
+  FeedItemType,
+  FeedSort,
+  FlowMode,
+} from '@app/domains/feed/feature/models/feed.models';
 
 export const fromProvinceIdSig = signal<string | null>(null);
 export const toProvinceIdSig = signal<string | null>(null);
@@ -21,5 +26,5 @@ export const hasActiveFiltersSig = computed(
     Boolean(feedCategorySig()) ||
     Boolean(feedTypeSig()) ||
     feedModeSig() !== 'BOTH' ||
-    feedSearchSig().trim().length > 0
+    feedSearchSig().trim().length > 0,
 );

@@ -49,7 +49,11 @@
         type="button"
         class="rounded-full px-3 py-1.5 text-xs font-medium text-yellow-200 ring-1 ring-yellow-400/60 transition hover:bg-yellow-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/60"
         (click)="copyLink()"
-        [attr.aria-label]="copied() ? ('partner.quickActions.copied' | translate) : ('partner.quickActions.copy' | translate)"
+        [attr.aria-label]="
+          copied()
+            ? ('partner.quickActions.copied' | translate)
+            : ('partner.quickActions.copy' | translate)
+        "
         aria-live="polite"
       >
         @if (copied()) {

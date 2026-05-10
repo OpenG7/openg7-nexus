@@ -48,17 +48,12 @@ export const DEFAULT_MAP_KPI_SNAPSHOT: MapKpiComputed = {
   sectorCount: null,
 };
 
-export function computeMapKpiSnapshot(
-  flows: Flow[],
-  fallback?: MapKpiSnapshot
-): MapKpiComputed {
+export function computeMapKpiSnapshot(flows: Flow[], fallback?: MapKpiSnapshot): MapKpiComputed {
   const base: MapKpiComputed = {
     tradeValue: fallback?.tradeValue ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeValue,
-    tradeValueCurrency:
-      fallback?.tradeValueCurrency ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeValueCurrency,
+    tradeValueCurrency: fallback?.tradeValueCurrency ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeValueCurrency,
     tradeVolume: fallback?.tradeVolume ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeVolume,
-    tradeVolumeUnit:
-      fallback?.tradeVolumeUnit ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeVolumeUnit,
+    tradeVolumeUnit: fallback?.tradeVolumeUnit ?? DEFAULT_MAP_KPI_SNAPSHOT.tradeVolumeUnit,
     sectorCount: fallback?.sectorCount ?? DEFAULT_MAP_KPI_SNAPSHOT.sectorCount,
   };
 
@@ -109,22 +104,16 @@ export function computeMapKpiSnapshot(
 
 export const selectMapState = createFeatureSelector<MapState>('map');
 
-export const selectMapReady = createSelector(
-  selectMapState,
-  (state: MapState) => state.ready
-);
+export const selectMapReady = createSelector(selectMapState, (state: MapState) => state.ready);
 
 export const selectFilteredFlows = createSelector(
   selectMapState,
-  (state: MapState) => state.filteredFlows
+  (state: MapState) => state.filteredFlows,
 );
 
 export const selectActiveSector = createSelector(
   selectMapState,
-  (state: MapState) => state.activeSector
+  (state: MapState) => state.activeSector,
 );
 
-export const selectMapKpis = createSelector(
-  selectMapState,
-  (state: MapState) => state.kpis
-);
+export const selectMapKpis = createSelector(selectMapState, (state: MapState) => state.kpis);

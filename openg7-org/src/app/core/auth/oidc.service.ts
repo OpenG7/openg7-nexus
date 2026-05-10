@@ -4,7 +4,6 @@ import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-
 import { API_URL } from '../config/environment.tokens';
 import { HttpClientService } from '../http/http-client.service';
 import { CryptoService } from '../security/crypto.service';
@@ -148,7 +147,7 @@ export class OidcService {
 
     try {
       const auth = await firstValueFrom(
-        this.http.post<AuthResponse>(`/auth/oidc/${handshake.provider}/callback`, payload)
+        this.http.post<AuthResponse>(`/auth/oidc/${handshake.provider}/callback`, payload),
       );
 
       return {
@@ -275,7 +274,7 @@ export class OidcService {
 
   private buildAuthorizeUrl(
     provider: OidcProvider,
-    params: { state: string; nonce: string; codeChallenge: string; redirectUri: string }
+    params: { state: string; nonce: string; codeChallenge: string; redirectUri: string },
   ): string {
     const search = new URLSearchParams({
       state: params.state,
@@ -332,9 +331,7 @@ export class OidcService {
     }
 
     const base64 =
-      typeof btoa === 'function'
-        ? btoa(binary)
-        : Buffer.from(binary, 'binary').toString('base64');
+      typeof btoa === 'function' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64');
 
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }

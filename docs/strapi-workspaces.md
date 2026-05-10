@@ -4,9 +4,9 @@ This document describes how the official Strapi workspace (`@openg7/strapi`) fit
 
 ## Summary table
 
-| Workspace | Location | Strapi generation | Purpose | Owner(s) |
-|-----------|----------|-------------------|---------|----------|
-| `strapi` | `/strapi` | v5 | Central CMS for companies, exchanges, homepage blocks, feature flags, API tokens, and runtime social/realtime endpoints. Seeds power the public demo content consumed by the Angular app. | Data Platform squad |
+| Workspace | Location  | Strapi generation | Purpose                                                                                                                                                                                   | Owner(s)            |
+| --------- | --------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| `strapi`  | `/strapi` | v5                | Central CMS for companies, exchanges, homepage blocks, feature flags, API tokens, and runtime social/realtime endpoints. Seeds power the public demo content consumed by the Angular app. | Data Platform squad |
 
 ## Day-to-day usage
 

@@ -21,7 +21,6 @@ import type {
   Polygon,
 } from 'geojson';
 
-
 type MapGeojsonLayer = 'province' | 'flow' | 'hub';
 
 interface MapGeojsonBaseProperties {
@@ -59,10 +58,16 @@ export interface MapHubFeatureProperties extends MapGeojsonBaseProperties {
 }
 
 export type MapProvinceFeature = Feature<Polygon | MultiPolygon, MapProvinceFeatureProperties>;
-export type MapProvinceFeatureCollection = FeatureCollection<Polygon | MultiPolygon, MapProvinceFeatureProperties>;
+export type MapProvinceFeatureCollection = FeatureCollection<
+  Polygon | MultiPolygon,
+  MapProvinceFeatureProperties
+>;
 
 export type MapFlowFeature = Feature<LineString | MultiLineString, MapFlowFeatureProperties>;
-export type MapFlowFeatureCollection = FeatureCollection<LineString | MultiLineString, MapFlowFeatureProperties>;
+export type MapFlowFeatureCollection = FeatureCollection<
+  LineString | MultiLineString,
+  MapFlowFeatureProperties
+>;
 
 export type MapHubFeature = Feature<Point, MapHubFeatureProperties>;
 export type MapHubFeatureCollection = FeatureCollection<Point, MapHubFeatureProperties>;
@@ -87,9 +92,13 @@ export class MapGeojsonService {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private readonly stateKey = makeStateKey<MapGeojsonPayload>('MAP_GEOJSON_PAYLOAD');
-  private readonly payload = signal<MapGeojsonPayload | null>(this.transferState.get(this.stateKey, null));
+  private readonly payload = signal<MapGeojsonPayload | null>(
+    this.transferState.get(this.stateKey, null),
+  );
 
-  readonly provinceCollection = computed<MapProvinceFeatureCollection>(() => this.collectProvinces());
+  readonly provinceCollection = computed<MapProvinceFeatureCollection>(() =>
+    this.collectProvinces(),
+  );
   readonly flowCollection = computed<MapFlowFeatureCollection>(() => this.collectFlows());
   readonly hubCollection = computed<MapHubFeatureCollection>(() => this.collectHubs());
 
@@ -130,7 +139,7 @@ export class MapGeojsonService {
   }
 
   private collectFeatures<F extends MapGeojsonFeature>(
-    guard: (feature: MapGeojsonFeature) => feature is F
+    guard: (feature: MapGeojsonFeature) => feature is F,
   ): FeatureCollection<F['geometry'], F['properties']> {
     const payload = this.payload();
     if (!payload) {
@@ -151,7 +160,10 @@ export class MapGeojsonService {
     };
   }
 
-  private emptyCollection<G extends Geometry, P extends GeoJsonProperties>(): FeatureCollection<G, P> {
+  private emptyCollection<G extends Geometry, P extends GeoJsonProperties>(): FeatureCollection<
+    G,
+    P
+  > {
     return {
       type: 'FeatureCollection',
       features: [],

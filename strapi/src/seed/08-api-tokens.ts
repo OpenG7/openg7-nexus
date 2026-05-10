@@ -1,7 +1,9 @@
 export default async () => {
   const token = process.env.STRAPI_API_READONLY_TOKEN?.trim();
   if (!token) {
-    strapi.log?.warn?.('[seeds] Missing STRAPI_API_READONLY_TOKEN. Skipping read-only token provisioning.');
+    strapi.log?.warn?.(
+      '[seeds] Missing STRAPI_API_READONLY_TOKEN. Skipping read-only token provisioning.',
+    );
     return;
   }
 
@@ -27,6 +29,8 @@ export default async () => {
       type: 'read-only',
       accessKey: token,
     });
-    strapi.log?.info?.('[seeds] Updated frontend-readonly API token to match STRAPI_API_READONLY_TOKEN.');
+    strapi.log?.info?.(
+      '[seeds] Updated frontend-readonly API token to match STRAPI_API_READONLY_TOKEN.',
+    );
   }
 };

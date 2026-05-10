@@ -233,11 +233,17 @@ export class ImportationApiClient {
     return this.http.post<ImportationWatchlistDto>('/api/import-watchlists', payload);
   }
 
-  updateWatchlist(id: string, payload: ImportationWatchlistUpdatePayload): Observable<ImportationWatchlistDto> {
+  updateWatchlist(
+    id: string,
+    payload: ImportationWatchlistUpdatePayload,
+  ): Observable<ImportationWatchlistDto> {
     if (this.useMocks) {
       return of(updateMockImportationWatchlist(id, payload));
     }
-    return this.http.put<ImportationWatchlistDto>(`/api/import-watchlists/${encodeURIComponent(id)}`, payload);
+    return this.http.put<ImportationWatchlistDto>(
+      `/api/import-watchlists/${encodeURIComponent(id)}`,
+      payload,
+    );
   }
 
   getKnowledgeBase(lang: string): Observable<ImportationKnowledgeResponseDto> {
@@ -290,7 +296,13 @@ export class ImportationApiClient {
 }
 
 export function toOriginScope(value: string | null | undefined): ImportationOriginScope {
-  if (value === 'g7' || value === 'usmca' || value === 'european_union' || value === 'indo_pacific' || value === 'custom') {
+  if (
+    value === 'g7' ||
+    value === 'usmca' ||
+    value === 'european_union' ||
+    value === 'indo_pacific' ||
+    value === 'custom'
+  ) {
     return value;
   }
   return 'global';

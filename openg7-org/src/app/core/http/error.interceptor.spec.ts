@@ -19,16 +19,18 @@ describe('errorInterceptor', () => {
   let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    router = jasmine.createSpyObj<Router>(
-      'Router',
-      ['navigate', 'getCurrentNavigation'],
-      { url: '/profile' }
-    );
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'getCurrentNavigation'], {
+      url: '/profile',
+    });
     router.navigate.and.resolveTo(true);
     router.getCurrentNavigation.and.returnValue(null);
-    authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', ['setRedirectUrl']);
+    authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', [
+      'setRedirectUrl',
+    ]);
     auth = {
-      handleUnauthorizedSession: jasmine.createSpy('handleUnauthorizedSession').and.returnValue(false),
+      handleUnauthorizedSession: jasmine
+        .createSpy('handleUnauthorizedSession')
+        .and.returnValue(false),
     };
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -59,7 +61,7 @@ describe('errorInterceptor', () => {
     const handler = () =>
       throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }));
     TestBed.runInInjectionContext(() =>
-      errorInterceptor(req, handler).subscribe({ error: () => {} })
+      errorInterceptor(req, handler).subscribe({ error: () => {} }),
     );
     expect(notifications.error).toHaveBeenCalledWith(
       'not found for test',
@@ -67,7 +69,7 @@ describe('errorInterceptor', () => {
         title: 'http error 404',
         source: 'http',
         metadata: jasmine.objectContaining({ status: 404 }),
-      })
+      }),
     );
   });
 
@@ -79,7 +81,7 @@ describe('errorInterceptor', () => {
     const handler = () =>
       throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }));
     TestBed.runInInjectionContext(() =>
-      errorInterceptor(req, handler).subscribe({ error: () => {} })
+      errorInterceptor(req, handler).subscribe({ error: () => {} }),
     );
     expect(notifications.error).not.toHaveBeenCalled();
     expect(auth.handleUnauthorizedSession).not.toHaveBeenCalled();
@@ -98,7 +100,7 @@ describe('errorInterceptor', () => {
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
 
     TestBed.runInInjectionContext(() =>
-      errorInterceptor(req, handler).subscribe({ error: () => {} })
+      errorInterceptor(req, handler).subscribe({ error: () => {} }),
     );
 
     expect(auth.handleUnauthorizedSession).toHaveBeenCalled();
@@ -111,7 +113,7 @@ describe('errorInterceptor', () => {
           redirect: '/profile',
         }),
         replaceUrl: true,
-      })
+      }),
     );
     expect(notifications.info).not.toHaveBeenCalled();
     expect(notifications.error).not.toHaveBeenCalled();
@@ -127,7 +129,7 @@ describe('errorInterceptor', () => {
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
 
     TestBed.runInInjectionContext(() =>
-      errorInterceptor(req, handler).subscribe({ error: () => {} })
+      errorInterceptor(req, handler).subscribe({ error: () => {} }),
     );
 
     expect(auth.handleUnauthorizedSession).toHaveBeenCalled();
@@ -140,14 +142,14 @@ describe('errorInterceptor', () => {
           redirect: '/profile',
         }),
         replaceUrl: true,
-      })
+      }),
     );
     expect(notifications.info).toHaveBeenCalledWith(
       'session expired',
       jasmine.objectContaining({
         source: 'auth',
         metadata: jasmine.objectContaining({ status: 401, reason: 'session-expired' }),
-      })
+      }),
     );
     expect(notifications.error).not.toHaveBeenCalled();
   });
@@ -162,7 +164,7 @@ describe('errorInterceptor', () => {
       throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }));
 
     TestBed.runInInjectionContext(() =>
-      errorInterceptor(req, handler).subscribe({ error: () => {} })
+      errorInterceptor(req, handler).subscribe({ error: () => {} }),
     );
 
     expect(authRedirect.setRedirectUrl).not.toHaveBeenCalled();

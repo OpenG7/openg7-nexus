@@ -1,480 +1,635 @@
-
-
 <div class="mx-auto w-full max-w-6xl px-6">
   <div class="flex flex-col gap-8 lg:flex-row">
     <main class="lg:w-2/3 space-y-10">
-     <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6">
-  <header class="space-y-4">
-    <p class="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500">
-      {{ 'partner.panel.title' | translate }}
-    </p>
-    <h2 id="home-statistics-heading" class="text-3xl font-semibold text-title sm:text-4xl">
-      @if (selectedPartner(); as partner) {
-      {{ partner.legalName }}
-      } @else {
-      {{ 'partner.panel.title' | translate }}
-      }
-    </h2>
-    <p id="home-statistics-description" class="max-w-3xl text-base leading-relaxed text-body">
-      Explorez les routes logistiques,
-      les hubs énergétiques et les partenariats industriels qui structurent l’économie canadienne.
-    </p>
-  </header>
-  <div class="flex flex-col gap-2 text-body">
-    @if (!loading() && partnerDisplayName(); as alias) {
-    <p class="og7-partner-panel__alias text-sm text-subtle">{{ alias }}</p>
-    }
-
-    <div class="og7-partner-panel__chips mt-2 flex flex-wrap items-center gap-2">
-      @if (partnerRoleLabelKey(); as roleKey) {
-      <span
-        class="og7-partner-panel__chip inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]">
-        {{ roleKey | translate }}
-      </span>
-      }
-      @if (partnerProvinceLabelKey(); as provinceKey) {
-      <span
-        class="og7-partner-panel__chip inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]">
-        {{ provinceKey | translate }}
-      </span>
-      }
-      <span
-        class="og7-partner-panel__chip og7-partner-panel__chip--score inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]">
-        {{ 'introBillboard.scoreBadge' | translate:{ value: partnerScore() } }}
-      </span>
-    </div>
-  </div>
-
-  <section class="og7-partner-panel__content">
-    @if (loading()) {
-    <div class="og7-partner-panel__loader">
-      <div class="og7-partner-panel__skeleton og7-partner-panel__skeleton--xl"></div>
-      <div class="og7-partner-panel__skeleton"></div>
-      <div class="og7-partner-panel__skeleton"></div>
-      <div class="og7-partner-panel__skeleton og7-partner-panel__skeleton--sm"></div>
-    </div>
-    } @else if (selectedPartner()) {
-    @if (tabSelected('details')) {
-    <div class="og7-partner-panel__details flex flex-col gap-5" role="tabpanel" [attr.id]="detailsPanelId"
-      [attr.aria-labelledby]="detailsTabId">
-      <section class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5">
-        <header class="og7-partner-panel__section-header">
-          <div class="space-y-2">
-            <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-              {{ 'partner.panel.sections.identity' | translate }}
-            </h3>
-            <p class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle">
-              {{ 'partner.panel.sections.identityHint' | translate }}
-            </p>
-          </div>
+      <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6">
+        <header class="space-y-4">
+          <p class="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500">
+            {{ 'partner.panel.title' | translate }}
+          </p>
+          <h2 id="home-statistics-heading" class="text-3xl font-semibold text-title sm:text-4xl">
+            @if (selectedPartner(); as partner) {
+              {{ partner.legalName }}
+            } @else {
+              {{ 'partner.panel.title' | translate }}
+            }
+          </h2>
+          <p id="home-statistics-description" class="max-w-3xl text-base leading-relaxed text-body">
+            Explorez les routes logistiques, les hubs énergétiques et les partenariats industriels
+            qui structurent l’économie canadienne.
+          </p>
         </header>
-        <div class="og7-partner-panel__section-body space-y-4">
-          <div class="og7-partner-panel__info-grid grid gap-4 md:grid-cols-2">
-            @if (partnerRegistrations().length) {
-            <div class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.card.identifiers' | translate }}
-              </h4>
-              <ul class="space-y-2 text-sm text-body">
-                @for (identifier of partnerRegistrations(); track identifier.value) {
-                <li>{{ identifier.type }} · {{ identifier.value }}</li>
-                }
-              </ul>
-            </div>
-            }
-
-            @if (partnerAddress(); as address) {
-            <div class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.card.address' | translate }}
-              </h4>
-              <p class="text-sm leading-relaxed text-body">
-                {{ address.line1 }}<br />
-                @if (address.line2) {
-                {{ address.line2 }}<br />
-                }
-                {{ address.city }},
-                @if (address.province) {
-                {{ ('provinces.' + address.province) | translate }}
-                }
-                @if (address.postalCode) {
-                · {{ address.postalCode }}
-                }
-                @if (resolveCountryLabel(address.country); as countryLabel) {
-                <br />
-                {{ countryLabel }}
-                }
-              </p>
-            </div>
-            }
-
-            @if (partnerContacts().length) {
-            <div class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.card.contacts' | translate }}
-              </h4>
-              <ul class="space-y-2 text-sm text-body">
-                @for (item of partnerContacts(); track item.label) {
-                <li>
-                  @if (item.href) {
-                  <a class="link-primary" [href]="item.href" target="_blank" rel="noopener">
-                    {{ item.label }}
-                  </a>
-                  } @else {
-                  {{ item.label }}
-                  }
-                </li>
-                }
-              </ul>
-            </div>
-            }
-
-            @if (partnerLeadership().length) {
-            <div class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.card.leadership' | translate }}
-              </h4>
-              <ul class="space-y-3 text-sm text-body">
-                @for (leader of partnerLeadership(); track leader.name) {
-                <li>
-                  <span class="og7-partner-panel__leader-name font-semibold text-title">{{ leader.name }}</span>
-                  @if (leader.title) {
-                  <span class="og7-partner-panel__leader-title text-xs uppercase text-subtle">{{ leader.title }}</span>
-                  }
-                  <div class="og7-partner-panel__leader-contacts flex flex-wrap gap-2 text-xs text-subtle">
-                    @if (leader.email) {
-                    <a class="link-primary" [href]="'mailto:' + leader.email">
-                      {{ leader.email }}
-                    </a>
-                    }
-                    @if (leader.phone) {
-                    <a class="link-primary" [href]="'tel:' + leader.phone">
-                      {{ leader.phone }}
-                    </a>
-                    }
-                  </div>
-                </li>
-                }
-              </ul>
-            </div>
-            }
-
-            @if (partnerSocials().length) {
-            <div class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.card.networks' | translate }}
-              </h4>
-              <div class="og7-partner-panel__socials flex flex-wrap gap-2">
-                @for (link of partnerSocials(); track link.url) {
-                <a class="inline-flex items-center gap-2 px-3 py-1 text-xs" [href]="link.url" target="_blank"
-                  rel="noopener">
-                  {{ link.label ?? link.type }}
-                </a>
-                }
-              </div>
-            </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <section class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5" data-og7="partner-trust">
-        <header class="og7-partner-panel__section-header">
-          <div class="space-y-2">
-            <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-              {{ 'partner.panel.sections.trust' | translate }}
-            </h3>
-            <p class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle">
-              {{ 'partner.panel.verification.statusHelp' | translate }}
-            </p>
-          </div>
-        </header>
-        <div class="og7-partner-panel__section-body space-y-4">
-          @if (partnerPublicationStatusKey(); as publicationStatusKey) {
-          <div
-            class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4"
-            data-og7="partner-publication-lifecycle"
-            [attr.data-og7-state]="partnerPublicationStatus()">
-            <div class="space-y-2">
-              <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.panel.publication.title' | translate }}
-              </h4>
-              <p class="text-xs leading-relaxed text-subtle">
-                {{ 'partner.panel.publication.statusHelp' | translate }}
-              </p>
-            </div>
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="space-y-2">
-                <span
-                  class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
-                  [ngClass]="publicationStatusClass(partnerPublicationStatus() ?? 'pending')"
-                  data-og7-id="partner-publication-status"
-                  [attr.data-og7-state]="partnerPublicationStatus()">
-                  {{ publicationStatusKey | translate }}
-                </span>
-                @if (partnerPublicationSummaryKey(); as publicationSummaryKey) {
-                <p class="text-xs leading-relaxed text-body" data-og7-id="partner-publication-summary">
-                  {{ publicationSummaryKey | translate }}
-                </p>
-                }
-              </div>
-              @if (partnerLatestPublicationEntry(); as publicationEntry) {
-              <span class="text-xs uppercase tracking-[0.2em] text-subtle">
-                {{ 'partner.panel.publication.latestDate' | translate:{ value: formatDate(publicationEntry.occurredAt) ?? publicationEntry.occurredAt } }}
-              </span>
-              }
-            </div>
-            @if (partnerLatestPublicationEntry(); as publicationEntry) {
-            <div class="rounded-2xl border border-slate-200 bg-white p-4" data-og7="partner-publication-trace">
-              <p class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.panel.publication.latestTitle' | translate }}
-              </p>
-              <p class="mt-2 text-sm font-semibold text-title">{{ publicationEntry.label }}</p>
-              @if (publicationEntry.notes) {
-              <p class="mt-2 text-xs leading-relaxed text-body">{{ publicationEntry.notes }}</p>
-              }
-            </div>
-            }
-          </div>
+        <div class="flex flex-col gap-2 text-body">
+          @if (!loading() && partnerDisplayName(); as alias) {
+            <p class="og7-partner-panel__alias text-sm text-subtle">{{ alias }}</p>
           }
 
-          <div
-            class="og7-partner-panel__info-card space-y-3 rounded-3xl p-4 shadow-sm ring-1 ring-[color:rgba(34,211,238,0.3)]">
-            <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-              {{ 'partner.panel.verification.statusLabel' | translate }}
-            </h4>
-            <div class="flex flex-wrap items-center gap-3">
+          <div class="og7-partner-panel__chips mt-2 flex flex-wrap items-center gap-2">
+            @if (partnerRoleLabelKey(); as roleKey) {
               <span
-                class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
-                [ngClass]="verificationStatusClass(partnerVerificationStatus())"
-                data-og7-id="partner-trust-status"
-                [attr.data-og7-state]="partnerVerificationStatus()">
-                {{ partnerVerificationStatusKey() | translate }}
+                class="og7-partner-panel__chip inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]"
+              >
+                {{ roleKey | translate }}
               </span>
-              @if (partnerTrustScore(); as reliabilityScore) {
-              <span class="text-xs font-semibold uppercase tracking-[0.25em] text-[#34D399]" data-og7-id="partner-trust-score">
-                {{ 'partner.panel.verification.trustScore' | translate:{ value: reliabilityScore } }}
-              </span>
-              } @else {
-              <span class="text-xs uppercase tracking-[0.25em] text-subtle">
-                {{ 'partner.panel.verification.trustScoreUnknown' | translate }}
-              </span>
-              }
-            </div>
-          </div>
-
-          @if (partnerLatestReviewEntry(); as reviewEntry) {
-          <div
-            class="rounded-3xl border border-slate-200 bg-slate-50 p-4"
-            data-og7="partner-trust-review-decision"
-            [attr.data-og7-state]="partnerVerificationStatus()">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="space-y-1">
-                <p class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
-                  {{ 'partner.panel.verification.reviewDecisionTitle' | translate }}
-                </p>
-                <p class="text-sm font-semibold text-title">{{ reviewEntry.label }}</p>
-              </div>
-              <span class="text-xs uppercase tracking-[0.2em] text-subtle">
-                {{ 'partner.panel.verification.reviewDecisionDate' | translate:{ value: formatDate(reviewEntry.occurredAt) ?? reviewEntry.occurredAt } }}
-              </span>
-            </div>
-            @if (reviewEntry.notes) {
-            <p class="mt-3 text-xs leading-relaxed text-body">{{ reviewEntry.notes }}</p>
             }
+            @if (partnerProvinceLabelKey(); as provinceKey) {
+              <span
+                class="og7-partner-panel__chip inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]"
+              >
+                {{ provinceKey | translate }}
+              </span>
+            }
+            <span
+              class="og7-partner-panel__chip og7-partner-panel__chip--score inline-flex items-center px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em]"
+            >
+              {{ 'introBillboard.scoreBadge' | translate: { value: partnerScore() } }}
+            </span>
           </div>
-          }
+        </div>
 
-          <details class="og7-partner-panel__accordion" [attr.open]="partnerVerificationSources().length ? '' : null">
-            <summary class="og7-partner-panel__accordion-summary">
-              {{ 'partner.panel.verification.badgesTitle' | translate }}
-            </summary>
-            <div class="og7-partner-panel__accordion-body">
-              @if (partnerVerificationSources().length) {
-              <ul class="space-y-3 text-sm text-body">
-                @for (source of partnerVerificationSources(); track source.id ?? source.name) {
-                <li
-                  class="space-y-2 rounded-2xl border border-[color:rgba(33,48,74,0.85)] bg-surface p-4 text-sm text-body shadow-sm"
-                  data-og7="partner-trust-source-item"
-                  [attr.data-og7-state]="source.status">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="space-y-1">
-                      <p class="font-semibold text-title">{{ source.name }}</p>
-                      <p class="text-xs text-subtle">
-                        {{ verificationSourceTypeKey(source.type) | translate }}
-                        @if (source.referenceId) {
-                        · {{ source.referenceId }}
+        <section class="og7-partner-panel__content">
+          @if (loading()) {
+            <div class="og7-partner-panel__loader">
+              <div class="og7-partner-panel__skeleton og7-partner-panel__skeleton--xl"></div>
+              <div class="og7-partner-panel__skeleton"></div>
+              <div class="og7-partner-panel__skeleton"></div>
+              <div class="og7-partner-panel__skeleton og7-partner-panel__skeleton--sm"></div>
+            </div>
+          } @else if (selectedPartner()) {
+            @if (tabSelected('details')) {
+              <div
+                class="og7-partner-panel__details flex flex-col gap-5"
+                role="tabpanel"
+                [attr.id]="detailsPanelId"
+                [attr.aria-labelledby]="detailsTabId"
+              >
+                <section
+                  class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5"
+                >
+                  <header class="og7-partner-panel__section-header">
+                    <div class="space-y-2">
+                      <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+                        {{ 'partner.panel.sections.identity' | translate }}
+                      </h3>
+                      <p
+                        class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle"
+                      >
+                        {{ 'partner.panel.sections.identityHint' | translate }}
+                      </p>
+                    </div>
+                  </header>
+                  <div class="og7-partner-panel__section-body space-y-4">
+                    <div class="og7-partner-panel__info-grid grid gap-4 md:grid-cols-2">
+                      @if (partnerRegistrations().length) {
+                        <div
+                          class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4"
+                        >
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.card.identifiers' | translate }}
+                          </h4>
+                          <ul class="space-y-2 text-sm text-body">
+                            @for (identifier of partnerRegistrations(); track identifier.value) {
+                              <li>{{ identifier.type }} · {{ identifier.value }}</li>
+                            }
+                          </ul>
+                        </div>
+                      }
+
+                      @if (partnerAddress(); as address) {
+                        <div
+                          class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4"
+                        >
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.card.address' | translate }}
+                          </h4>
+                          <p class="text-sm leading-relaxed text-body">
+                            {{ address.line1 }}<br />
+                            @if (address.line2) {
+                              {{ address.line2 }}<br />
+                            }
+                            {{ address.city }},
+                            @if (address.province) {
+                              {{ 'provinces.' + address.province | translate }}
+                            }
+                            @if (address.postalCode) {
+                              · {{ address.postalCode }}
+                            }
+                            @if (resolveCountryLabel(address.country); as countryLabel) {
+                              <br />
+                              {{ countryLabel }}
+                            }
+                          </p>
+                        </div>
+                      }
+
+                      @if (partnerContacts().length) {
+                        <div
+                          class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4"
+                        >
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.card.contacts' | translate }}
+                          </h4>
+                          <ul class="space-y-2 text-sm text-body">
+                            @for (item of partnerContacts(); track item.label) {
+                              <li>
+                                @if (item.href) {
+                                  <a
+                                    class="link-primary"
+                                    [href]="item.href"
+                                    target="_blank"
+                                    rel="noopener"
+                                  >
+                                    {{ item.label }}
+                                  </a>
+                                } @else {
+                                  {{ item.label }}
+                                }
+                              </li>
+                            }
+                          </ul>
+                        </div>
+                      }
+
+                      @if (partnerLeadership().length) {
+                        <div
+                          class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4"
+                        >
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.card.leadership' | translate }}
+                          </h4>
+                          <ul class="space-y-3 text-sm text-body">
+                            @for (leader of partnerLeadership(); track leader.name) {
+                              <li>
+                                <span
+                                  class="og7-partner-panel__leader-name font-semibold text-title"
+                                  >{{ leader.name }}</span
+                                >
+                                @if (leader.title) {
+                                  <span
+                                    class="og7-partner-panel__leader-title text-xs uppercase text-subtle"
+                                    >{{ leader.title }}</span
+                                  >
+                                }
+                                <div
+                                  class="og7-partner-panel__leader-contacts flex flex-wrap gap-2 text-xs text-subtle"
+                                >
+                                  @if (leader.email) {
+                                    <a class="link-primary" [href]="'mailto:' + leader.email">
+                                      {{ leader.email }}
+                                    </a>
+                                  }
+                                  @if (leader.phone) {
+                                    <a class="link-primary" [href]="'tel:' + leader.phone">
+                                      {{ leader.phone }}
+                                    </a>
+                                  }
+                                </div>
+                              </li>
+                            }
+                          </ul>
+                        </div>
+                      }
+
+                      @if (partnerSocials().length) {
+                        <div
+                          class="og7-partner-panel__info-card space-y-3 rounded-3xl bg-surface p-4"
+                        >
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.card.networks' | translate }}
+                          </h4>
+                          <div class="og7-partner-panel__socials flex flex-wrap gap-2">
+                            @for (link of partnerSocials(); track link.url) {
+                              <a
+                                class="inline-flex items-center gap-2 px-3 py-1 text-xs"
+                                [href]="link.url"
+                                target="_blank"
+                                rel="noopener"
+                              >
+                                {{ link.label ?? link.type }}
+                              </a>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </section>
+
+                <section
+                  class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5"
+                  data-og7="partner-trust"
+                >
+                  <header class="og7-partner-panel__section-header">
+                    <div class="space-y-2">
+                      <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+                        {{ 'partner.panel.sections.trust' | translate }}
+                      </h3>
+                      <p
+                        class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle"
+                      >
+                        {{ 'partner.panel.verification.statusHelp' | translate }}
+                      </p>
+                    </div>
+                  </header>
+                  <div class="og7-partner-panel__section-body space-y-4">
+                    @if (partnerPublicationStatusKey(); as publicationStatusKey) {
+                      <div
+                        class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                        data-og7="partner-publication-lifecycle"
+                        [attr.data-og7-state]="partnerPublicationStatus()"
+                      >
+                        <div class="space-y-2">
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.panel.publication.title' | translate }}
+                          </h4>
+                          <p class="text-xs leading-relaxed text-subtle">
+                            {{ 'partner.panel.publication.statusHelp' | translate }}
+                          </p>
+                        </div>
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                          <div class="space-y-2">
+                            <span
+                              class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+                              [ngClass]="
+                                publicationStatusClass(partnerPublicationStatus() ?? 'pending')
+                              "
+                              data-og7-id="partner-publication-status"
+                              [attr.data-og7-state]="partnerPublicationStatus()"
+                            >
+                              {{ publicationStatusKey | translate }}
+                            </span>
+                            @if (partnerPublicationSummaryKey(); as publicationSummaryKey) {
+                              <p
+                                class="text-xs leading-relaxed text-body"
+                                data-og7-id="partner-publication-summary"
+                              >
+                                {{ publicationSummaryKey | translate }}
+                              </p>
+                            }
+                          </div>
+                          @if (partnerLatestPublicationEntry(); as publicationEntry) {
+                            <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                              {{
+                                'partner.panel.publication.latestDate'
+                                  | translate
+                                    : {
+                                        value:
+                                          formatDate(publicationEntry.occurredAt) ??
+                                          publicationEntry.occurredAt,
+                                      }
+                              }}
+                            </span>
+                          }
+                        </div>
+                        @if (partnerLatestPublicationEntry(); as publicationEntry) {
+                          <div
+                            class="rounded-2xl border border-slate-200 bg-white p-4"
+                            data-og7="partner-publication-trace"
+                          >
+                            <p
+                              class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle"
+                            >
+                              {{ 'partner.panel.publication.latestTitle' | translate }}
+                            </p>
+                            <p class="mt-2 text-sm font-semibold text-title">
+                              {{ publicationEntry.label }}
+                            </p>
+                            @if (publicationEntry.notes) {
+                              <p class="mt-2 text-xs leading-relaxed text-body">
+                                {{ publicationEntry.notes }}
+                              </p>
+                            }
+                          </div>
                         }
-                      </p>
-                    </div>
-                    <span
-                      class="inline-flex items-center rounded-full px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em]"
-                      [ngClass]="verificationSourceStatusClass(source.status)">
-                      {{ ('partner.panel.verification.badgeStatus.' + source.status) | translate }}
-                    </span>
-                  </div>
-                  <div class="flex flex-wrap gap-3 text-xs text-subtle">
-                    @if (formatDate(source.issuedAt); as issuedLabel) {
-                    <span>{{ 'partner.panel.verification.issuedAt' | translate:{ value: issuedLabel } }}</span>
+                      </div>
                     }
-                    @if (formatDate(source.lastCheckedAt); as checkedLabel) {
-                    <span>{{ 'partner.panel.verification.checkedAt' | translate:{ value: checkedLabel } }}</span>
-                    }
-                  </div>
-                  @if (source.notes) {
-                  <p class="text-xs leading-relaxed text-body">{{ source.notes }}</p>
-                  }
-                  <div class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.2em]">
-                    @if (source.url) {
-                    <a class="link-primary" [href]="source.url" target="_blank" rel="noopener">
-                      {{ 'partner.panel.verification.sourceLink' | translate }}
-                    </a>
-                    }
-                    @if (source.evidenceUrl) {
-                    <a class="link-primary" [href]="source.evidenceUrl" target="_blank" rel="noopener">
-                      {{ 'partner.panel.verification.evidenceLink' | translate }}
-                    </a>
-                    }
-                  </div>
-                </li>
-                }
-              </ul>
-              } @else {
-              <p class="og7-partner-panel__placeholder text-sm text-subtle">
-                {{ 'partner.panel.verification.badgesEmpty' | translate }}
-              </p>
-              }
-            </div>
-          </details>
 
-          <details class="og7-partner-panel__accordion" [attr.open]="partnerTrustHistoryPreview().length ? '' : null">
-            <summary class="og7-partner-panel__accordion-summary">
-              {{ 'partner.panel.verification.historyTitle' | translate }}
-            </summary>
-            <div class="og7-partner-panel__accordion-body space-y-4">
-              @if (partnerTrustHistoryPreview().length) {
-              <ul class="space-y-3 text-sm text-body">
-                @for (record of partnerTrustHistoryPreview(); track record.id ?? record.label) {
-                <li
-                  class="space-y-2 rounded-2xl border border-[color:rgba(33,48,74,0.85)] bg-surface p-4 text-sm text-body shadow-sm"
-                  data-og7="partner-trust-history-item"
-                  [attr.data-og7-type]="record.type">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="space-y-1">
-                      <p class="font-semibold text-title">{{ record.label }}</p>
-                      <p class="text-xs text-subtle">
-                        {{ trustHistoryTypeKey(record.type) | translate }}
-                        · {{ trustHistoryDirectionKey(record.direction) | translate }}
-                      </p>
+                    <div
+                      class="og7-partner-panel__info-card space-y-3 rounded-3xl p-4 shadow-sm ring-1 ring-[color:rgba(34,211,238,0.3)]"
+                    >
+                      <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                        {{ 'partner.panel.verification.statusLabel' | translate }}
+                      </h4>
+                      <div class="flex flex-wrap items-center gap-3">
+                        <span
+                          class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+                          [ngClass]="verificationStatusClass(partnerVerificationStatus())"
+                          data-og7-id="partner-trust-status"
+                          [attr.data-og7-state]="partnerVerificationStatus()"
+                        >
+                          {{ partnerVerificationStatusKey() | translate }}
+                        </span>
+                        @if (partnerTrustScore(); as reliabilityScore) {
+                          <span
+                            class="text-xs font-semibold uppercase tracking-[0.25em] text-[#34D399]"
+                            data-og7-id="partner-trust-score"
+                          >
+                            {{
+                              'partner.panel.verification.trustScore'
+                                | translate: { value: reliabilityScore }
+                            }}
+                          </span>
+                        } @else {
+                          <span class="text-xs uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.panel.verification.trustScoreUnknown' | translate }}
+                          </span>
+                        }
+                      </div>
                     </div>
-                    <span class="text-xs uppercase tracking-[0.2em] text-subtle">
-                      {{ formatDate(record.occurredAt) ?? record.occurredAt }}
-                    </span>
-                  </div>
-                  <div class="flex flex-wrap gap-3 text-xs text-subtle">
-                    @if (record.amount != null) {
-                    <span>{{ 'partner.panel.verification.historyAmount' | translate:{ value: record.amount } }}</span>
-                    }
-                    @if (formatScore(record.score); as recordScore) {
-                    <span>{{ 'partner.panel.verification.historyScore' | translate:{ value: recordScore } }}</span>
-                    }
-                  </div>
-                  @if (record.notes) {
-                  <p class="text-xs leading-relaxed text-body">{{ record.notes }}</p>
-                  }
-                </li>
-                }
-              </ul>
-              @if (partnerTrustHistoryHasMore()) {
-              <p class="text-xs text-subtle">
-                {{ 'partner.panel.verification.historyPreviewHint' | translate }}
-              </p>
-              }
-              } @else {
-              <p class="og7-partner-panel__placeholder text-sm text-subtle">
-                {{ 'partner.panel.verification.historyEmpty' | translate }}
-              </p>
-              }
-            </div>
-          </details>
-        </div>
-      </section>
 
-      <section class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5">
-        <header class="og7-partner-panel__section-header">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-            {{ 'partner.panel.sections.mission' | translate }}
-          </h3>
-        </header>
-        <div class="og7-partner-panel__section-body space-y-4">
-          @if (partnerMission()) {
-          <p class="og7-partner-panel__mission text-sm leading-relaxed text-body">
-            {{ partnerMission() }}
-          </p>
-          } @else {
-          <p class="og7-partner-panel__placeholder text-sm text-subtle">
-            {{ 'partner.panel.missionPlaceholder' | translate }}
-          </p>
-          }
-          @if (partnerHighlights().length) {
-          <ul class="og7-partner-panel__highlights flex flex-wrap gap-2">
-            @for (item of partnerHighlights(); track item) {
-            <li>
-              {{ item }}
-            </li>
+                    @if (partnerLatestReviewEntry(); as reviewEntry) {
+                      <div
+                        class="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                        data-og7="partner-trust-review-decision"
+                        [attr.data-og7-state]="partnerVerificationStatus()"
+                      >
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                          <div class="space-y-1">
+                            <p
+                              class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle"
+                            >
+                              {{ 'partner.panel.verification.reviewDecisionTitle' | translate }}
+                            </p>
+                            <p class="text-sm font-semibold text-title">{{ reviewEntry.label }}</p>
+                          </div>
+                          <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                            {{
+                              'partner.panel.verification.reviewDecisionDate'
+                                | translate
+                                  : {
+                                      value:
+                                        formatDate(reviewEntry.occurredAt) ??
+                                        reviewEntry.occurredAt,
+                                    }
+                            }}
+                          </span>
+                        </div>
+                        @if (reviewEntry.notes) {
+                          <p class="mt-3 text-xs leading-relaxed text-body">
+                            {{ reviewEntry.notes }}
+                          </p>
+                        }
+                      </div>
+                    }
+
+                    <details
+                      class="og7-partner-panel__accordion"
+                      [attr.open]="partnerVerificationSources().length ? '' : null"
+                    >
+                      <summary class="og7-partner-panel__accordion-summary">
+                        {{ 'partner.panel.verification.badgesTitle' | translate }}
+                      </summary>
+                      <div class="og7-partner-panel__accordion-body">
+                        @if (partnerVerificationSources().length) {
+                          <ul class="space-y-3 text-sm text-body">
+                            @for (
+                              source of partnerVerificationSources();
+                              track source.id ?? source.name
+                            ) {
+                              <li
+                                class="space-y-2 rounded-2xl border border-[color:rgba(33,48,74,0.85)] bg-surface p-4 text-sm text-body shadow-sm"
+                                data-og7="partner-trust-source-item"
+                                [attr.data-og7-state]="source.status"
+                              >
+                                <div class="flex items-start justify-between gap-3">
+                                  <div class="space-y-1">
+                                    <p class="font-semibold text-title">{{ source.name }}</p>
+                                    <p class="text-xs text-subtle">
+                                      {{ verificationSourceTypeKey(source.type) | translate }}
+                                      @if (source.referenceId) {
+                                        · {{ source.referenceId }}
+                                      }
+                                    </p>
+                                  </div>
+                                  <span
+                                    class="inline-flex items-center rounded-full px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em]"
+                                    [ngClass]="verificationSourceStatusClass(source.status)"
+                                  >
+                                    {{
+                                      'partner.panel.verification.badgeStatus.' + source.status
+                                        | translate
+                                    }}
+                                  </span>
+                                </div>
+                                <div class="flex flex-wrap gap-3 text-xs text-subtle">
+                                  @if (formatDate(source.issuedAt); as issuedLabel) {
+                                    <span>{{
+                                      'partner.panel.verification.issuedAt'
+                                        | translate: { value: issuedLabel }
+                                    }}</span>
+                                  }
+                                  @if (formatDate(source.lastCheckedAt); as checkedLabel) {
+                                    <span>{{
+                                      'partner.panel.verification.checkedAt'
+                                        | translate: { value: checkedLabel }
+                                    }}</span>
+                                  }
+                                </div>
+                                @if (source.notes) {
+                                  <p class="text-xs leading-relaxed text-body">
+                                    {{ source.notes }}
+                                  </p>
+                                }
+                                <div
+                                  class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.2em]"
+                                >
+                                  @if (source.url) {
+                                    <a
+                                      class="link-primary"
+                                      [href]="source.url"
+                                      target="_blank"
+                                      rel="noopener"
+                                    >
+                                      {{ 'partner.panel.verification.sourceLink' | translate }}
+                                    </a>
+                                  }
+                                  @if (source.evidenceUrl) {
+                                    <a
+                                      class="link-primary"
+                                      [href]="source.evidenceUrl"
+                                      target="_blank"
+                                      rel="noopener"
+                                    >
+                                      {{ 'partner.panel.verification.evidenceLink' | translate }}
+                                    </a>
+                                  }
+                                </div>
+                              </li>
+                            }
+                          </ul>
+                        } @else {
+                          <p class="og7-partner-panel__placeholder text-sm text-subtle">
+                            {{ 'partner.panel.verification.badgesEmpty' | translate }}
+                          </p>
+                        }
+                      </div>
+                    </details>
+
+                    <details
+                      class="og7-partner-panel__accordion"
+                      [attr.open]="partnerTrustHistoryPreview().length ? '' : null"
+                    >
+                      <summary class="og7-partner-panel__accordion-summary">
+                        {{ 'partner.panel.verification.historyTitle' | translate }}
+                      </summary>
+                      <div class="og7-partner-panel__accordion-body space-y-4">
+                        @if (partnerTrustHistoryPreview().length) {
+                          <ul class="space-y-3 text-sm text-body">
+                            @for (
+                              record of partnerTrustHistoryPreview();
+                              track record.id ?? record.label
+                            ) {
+                              <li
+                                class="space-y-2 rounded-2xl border border-[color:rgba(33,48,74,0.85)] bg-surface p-4 text-sm text-body shadow-sm"
+                                data-og7="partner-trust-history-item"
+                                [attr.data-og7-type]="record.type"
+                              >
+                                <div class="flex items-start justify-between gap-3">
+                                  <div class="space-y-1">
+                                    <p class="font-semibold text-title">{{ record.label }}</p>
+                                    <p class="text-xs text-subtle">
+                                      {{ trustHistoryTypeKey(record.type) | translate }}
+                                      · {{ trustHistoryDirectionKey(record.direction) | translate }}
+                                    </p>
+                                  </div>
+                                  <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                                    {{ formatDate(record.occurredAt) ?? record.occurredAt }}
+                                  </span>
+                                </div>
+                                <div class="flex flex-wrap gap-3 text-xs text-subtle">
+                                  @if (record.amount != null) {
+                                    <span>{{
+                                      'partner.panel.verification.historyAmount'
+                                        | translate: { value: record.amount }
+                                    }}</span>
+                                  }
+                                  @if (formatScore(record.score); as recordScore) {
+                                    <span>{{
+                                      'partner.panel.verification.historyScore'
+                                        | translate: { value: recordScore }
+                                    }}</span>
+                                  }
+                                </div>
+                                @if (record.notes) {
+                                  <p class="text-xs leading-relaxed text-body">
+                                    {{ record.notes }}
+                                  </p>
+                                }
+                              </li>
+                            }
+                          </ul>
+                          @if (partnerTrustHistoryHasMore()) {
+                            <p class="text-xs text-subtle">
+                              {{ 'partner.panel.verification.historyPreviewHint' | translate }}
+                            </p>
+                          }
+                        } @else {
+                          <p class="og7-partner-panel__placeholder text-sm text-subtle">
+                            {{ 'partner.panel.verification.historyEmpty' | translate }}
+                          </p>
+                        }
+                      </div>
+                    </details>
+                  </div>
+                </section>
+
+                <section
+                  class="og7-partner-panel__section flex flex-col gap-4 rounded-3xl bg-surface p-5"
+                >
+                  <header class="og7-partner-panel__section-header">
+                    <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+                      {{ 'partner.panel.sections.mission' | translate }}
+                    </h3>
+                  </header>
+                  <div class="og7-partner-panel__section-body space-y-4">
+                    @if (partnerMission()) {
+                      <p class="og7-partner-panel__mission text-sm leading-relaxed text-body">
+                        {{ partnerMission() }}
+                      </p>
+                    } @else {
+                      <p class="og7-partner-panel__placeholder text-sm text-subtle">
+                        {{ 'partner.panel.missionPlaceholder' | translate }}
+                      </p>
+                    }
+                    @if (partnerHighlights().length) {
+                      <ul class="og7-partner-panel__highlights flex flex-wrap gap-2">
+                        @for (item of partnerHighlights(); track item) {
+                          <li>
+                            {{ item }}
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                </section>
+              </div>
+            } @else if (tabSelected('collaboration')) {
+              <div
+                class="og7-partner-panel__collaboration flex flex-col gap-5"
+                role="tabpanel"
+                [attr.id]="collaborationPanelId"
+                [attr.aria-labelledby]="collaborationTabId"
+              >
+                <og7-intro-stepper
+                  [partnerPanelOpen]="open()"
+                  [primaryTemplate]="primaryTemplate()"
+                  [ctaRailTemplate]="ctaRailTemplate()"
+                  [messageTemplate]="null"
+                  [includeMessageStep]="false"
+                  [complianceTemplate]="complianceTemplate()"
+                  [schedulerTemplate]="schedulerTemplate()"
+                  [logisticsTemplate]="incotermsTemplate()"
+                  [pipelineTemplate]="pipelineTemplate()"
+                  [financingTemplate]="financingTemplate()"
+                  [ctaContentAvailable]="ctaContentAvailable()"
+                  [pipelineContentAvailable]="pipelineContentAvailable()"
+                  [incotermsContentAvailable]="incotermsContentAvailable()"
+                  [financingContentAvailable]="financingContentAvailable()"
+                  [complianceContentAvailable]="complianceContentAvailable()"
+                  [schedulerContentAvailable]="schedulerContentAvailable()"
+                  [financingData]="financingContext()"
+                ></og7-intro-stepper>
+              </div>
+            } @else {
+              <div
+                class="og7-partner-panel__qr-view flex flex-col items-center gap-5 p-6"
+                role="tabpanel"
+                [attr.id]="qrPanelId"
+                [attr.aria-labelledby]="qrTabId"
+              >
+                @if (hasQrLinks()) {
+                  <og7-dual-qr-panel
+                    class="og7-partner-panel__qr w-full"
+                    [buyerLink]="buyerLink()"
+                    [supplierLink]="supplierLink()"
+                  ></og7-dual-qr-panel>
+                  <p
+                    class="og7-partner-panel__qr-hint text-xs uppercase tracking-[0.3em] text-subtle text-center"
+                  >
+                    {{ 'introBillboard.scanMicroCopy' | translate }}
+                  </p>
+                } @else {
+                  <p class="og7-partner-panel__placeholder text-sm text-subtle text-center">
+                    {{ 'partner.panel.qrPlaceholder' | translate }}
+                  </p>
+                }
+              </div>
             }
-          </ul>
+          } @else {
+            <p class="og7-partner-panel__empty rounded-3xl px-6 py-4 text-sm text-center">
+              {{ 'partner.panel.unavailable' | translate }}
+            </p>
           }
-        </div>
-      </section>
-    </div>
-    } @else if (tabSelected('collaboration')) {
-    <div class="og7-partner-panel__collaboration flex flex-col gap-5" role="tabpanel" [attr.id]="collaborationPanelId"
-      [attr.aria-labelledby]="collaborationTabId">
-      <og7-intro-stepper [partnerPanelOpen]="open()" [primaryTemplate]="primaryTemplate()"
-        [ctaRailTemplate]="ctaRailTemplate()" [messageTemplate]="null" [includeMessageStep]="false"
-        [complianceTemplate]="complianceTemplate()" [schedulerTemplate]="schedulerTemplate()"
-        [logisticsTemplate]="incotermsTemplate()" [pipelineTemplate]="pipelineTemplate()"
-        [financingTemplate]="financingTemplate()" [ctaContentAvailable]="ctaContentAvailable()"
-        [pipelineContentAvailable]="pipelineContentAvailable()"
-        [incotermsContentAvailable]="incotermsContentAvailable()"
-        [financingContentAvailable]="financingContentAvailable()"
-        [complianceContentAvailable]="complianceContentAvailable()"
-        [schedulerContentAvailable]="schedulerContentAvailable()"
-        [financingData]="financingContext()"></og7-intro-stepper>
-    </div>
-    } @else {
-    <div class="og7-partner-panel__qr-view flex flex-col items-center gap-5 p-6" role="tabpanel" [attr.id]="qrPanelId"
-      [attr.aria-labelledby]="qrTabId">
-      @if (hasQrLinks()) {
-      <og7-dual-qr-panel class="og7-partner-panel__qr w-full" [buyerLink]="buyerLink()"
-        [supplierLink]="supplierLink()"></og7-dual-qr-panel>
-      <p class="og7-partner-panel__qr-hint text-xs uppercase tracking-[0.3em] text-subtle text-center">
-        {{ 'introBillboard.scanMicroCopy' | translate }}
-      </p>
-      } @else {
-      <p class="og7-partner-panel__placeholder text-sm text-subtle text-center">
-        {{ 'partner.panel.qrPlaceholder' | translate }}
-      </p>
-      }
-    </div>
-    }
-    } @else {
-    <p class="og7-partner-panel__empty rounded-3xl px-6 py-4 text-sm text-center">
-      {{ 'partner.panel.unavailable' | translate }}
-    </p>
-    }
-  </section>
-</div>
+        </section>
+      </div>
     </main>
     <aside class="lg:w-1/3">
       <div class="sticky top-6">
         @if (partnerQuickActionsId(); as quickId) {
-        <og7-partner-quick-actions
-          [partnerId]="quickId"
-          [matchId]="partnerQuickActionsMatchId()"
-          [partnerName]="partnerQuickActionsName()"
-        ></og7-partner-quick-actions>
+          <og7-partner-quick-actions
+            [partnerId]="quickId"
+            [matchId]="partnerQuickActionsMatchId()"
+            [partnerName]="partnerQuickActionsName()"
+          ></og7-partner-quick-actions>
         }
       </div>
     </aside>

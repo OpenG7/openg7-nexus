@@ -1,7 +1,7 @@
-
 # 🔍 Analyse détaillée — fonctionnalité de mise en relation
 
 ## 🎯 Objectifs produit
+
 - Transformer un **match d’opportunité** (acheteur ↔ fournisseur) en une **demande d’introduction structurée et traçable**.
 - Guider l’utilisateur dans la **collecte d’informations critiques** : message d’accroche, conformité, logistique, créneaux, etc.
 - Suivre l’avancement via un **pipeline relationnel** (Intro → Reply → Meeting → Review → Deal), synchronisé avec les retours API.
@@ -34,7 +34,7 @@
   - la **validation partielle ou complète**
   - la **synchronisation de l'étape courante dans l’URL**
   - la persistance via NgRx (signal-first)  
-  📄 `src/app/domains/matchmaking/og7-mise-en-relation/components/og7-intro-stepper.component.ts`
+    📄 `src/app/domains/matchmaking/og7-mise-en-relation/components/og7-intro-stepper.component.ts`
 
 - Les CTA (envoyer, enregistrer, accéder aux PJ…) sont regroupés dans `**Og7CtaRailComponent**` pour simplifier l’UX et afficher les statuts en temps réel.  
   📄 `src/app/shared/components/cta/og7-cta-rail.component.ts`
@@ -44,20 +44,23 @@
 ## 🧮 Structure UI recommandée : **Stepper vertical hybride**
 
 ### 📌 But :
+
 Offrir une interface **progressive**, **modulaire** et **simple d’usage**, inspirée des steppers Angular Material mais adaptée à l’architecture `signal()` et au design Tailwind.
 
 ### 📁 Fichier suggéré :
+
 `src/app/domains/matchmaking/og7-mise-en-relation/components/og7-intro-stepper.component.ts`
 
 ### ✅ Chaque étape comprend :
-| Étape | Contenu attendu | Validation |
-|-------|------------------|------------|
-| 1️⃣ Message | Message personnalisé (≥ 20 caractères) | `messageControl.valid` |
-| 2️⃣ Conformité | Upload PJ (ex. NDA, certification) | `attachments.length ≥ 1` |
-| 3️⃣ Créneaux | Minimum 2 plages horaires proposées | `slots.length ≥ 2` |
-| 4️⃣ Logistique | Mode de transport + Incoterm | `logisticsForm.valid` |
-| 5️⃣ Financement (optionnel) | Affichage info programme | — |
-| 6️⃣ Pipeline | Affichage progression + badges | — |
+
+| Étape                      | Contenu attendu                        | Validation               |
+| -------------------------- | -------------------------------------- | ------------------------ |
+| 1️⃣ Message                 | Message personnalisé (≥ 20 caractères) | `messageControl.valid`   |
+| 2️⃣ Conformité              | Upload PJ (ex. NDA, certification)     | `attachments.length ≥ 1` |
+| 3️⃣ Créneaux                | Minimum 2 plages horaires proposées    | `slots.length ≥ 2`       |
+| 4️⃣ Logistique              | Mode de transport + Incoterm           | `logisticsForm.valid`    |
+| 5️⃣ Financement (optionnel) | Affichage info programme               | —                        |
+| 6️⃣ Pipeline                | Affichage progression + badges         | —                        |
 
 > Chaque étape peut intégrer un composant autonome avec `signal()` pour l’état local, et n’émet vers le store que lors du `send()` final ou de la sauvegarde de brouillon.
 
@@ -67,9 +70,11 @@ Offrir une interface **progressive**, **modulaire** et **simple d’usage**, ins
 <div class="space-y-6 border-l-2 border-dashed border-slate-300 pl-4">
   <ng-container *ngFor="let step of steps(); let i = index">
     <div class="relative group">
-      <div class="absolute -left-5 top-0 w-3 h-3 rounded-full"
-           [class.bg-emerald-600]="step.done()"
-           [class.bg-gray-300]="!step.done()"></div>
+      <div
+        class="absolute -left-5 top-0 w-3 h-3 rounded-full"
+        [class.bg-emerald-600]="step.done()"
+        [class.bg-gray-300]="!step.done()"
+      ></div>
       <h4 class="font-semibold text-base">{{ step.label }}</h4>
       <p class="text-sm text-gray-500">{{ step.description }}</p>
       <ng-container *ngIf="step.component">
@@ -91,7 +96,7 @@ Offrir une interface **progressive**, **modulaire** et **simple d’usage**, ins
   - l’historique pipeline
   - les états de brouillon
   - les transitions (success/échec)  
-  📄 `src/app/store/connections/connections.reducer.ts`
+    📄 `src/app/store/connections/connections.reducer.ts`
 
 - Les **sélecteurs** exposent les données pertinentes pour afficher badges, brouillons ou statuts.  
   📄 `src/app/store/connections/connections.selectors.ts`

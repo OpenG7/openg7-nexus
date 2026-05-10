@@ -7,45 +7,45 @@ export const selectCompanyImportBulkState =
 
 export const selectCompanyImportBulkSubmitting = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.submitting
+  (state) => state.submitting,
 );
 
 export const selectCompanyImportBulkCancelling = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.cancelling
+  (state) => state.cancelling,
 );
 
 export const selectCompanyImportBulkStart = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.start
+  (state) => state.start,
 );
 
 export const selectCompanyImportBulkStatus = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.status
+  (state) => state.status,
 );
 
 export const selectCompanyImportBulkReport = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.report
+  (state) => state.report,
 );
 
 export const selectCompanyImportBulkErrorsPreview = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.errorsPreview
+  (state) => state.errorsPreview,
 );
 
 export const selectCompanyImportBulkError = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.error
+  (state) => state.error,
 );
 
 export const selectCompanyImportBulkStreamConnected = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.streamConnected
+  (state) => state.streamConnected,
 );
 
 export const selectCompanyImportBulkPollingEnabled = createSelector(
   selectCompanyImportBulkState,
-  (state) => state.pollingEnabled
+  (state) => state.pollingEnabled,
 );

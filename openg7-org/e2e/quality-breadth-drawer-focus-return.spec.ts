@@ -4,7 +4,9 @@ import { expect, test } from '@playwright/test';
 import { loginAsAuthenticatedE2eUser, mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test.describe('Quality breadth drawer focus return', () => {
-  test('keeps the opportunity offer drawer keyboard-usable and returns focus to its opener', async ({ page }) => {
+  test('keeps the opportunity offer drawer keyboard-usable and returns focus to its opener', async ({
+    page,
+  }) => {
     await mockAuthenticatedSessionApis(page);
     await loginAsAuthenticatedE2eUser(page, '/feed/opportunities/request-001');
 

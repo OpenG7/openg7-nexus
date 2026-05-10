@@ -28,7 +28,11 @@ import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { PartnerProfileService } from '@app/core/services/partner-profile.service';
 import { ShareResult, ShareService } from '@app/core/services/share.service';
-import { IntroStepperDefaults, Og7IntroStepId, Og7IntroStepperComponent } from '@app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component';
+import {
+  IntroStepperDefaults,
+  Og7IntroStepId,
+  Og7IntroStepperComponent,
+} from '@app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component';
 import { Og7ComplianceChecklistComponent } from '@app/shared/components/connection/og7-compliance-checklist/og7-compliance-checklist.component';
 import { Og7MeetingSchedulerComponent } from '@app/shared/components/connection/og7-meeting-scheduler/og7-meeting-scheduler.component';
 import { Og7CtaRailComponent } from '@app/shared/components/cta/og7-cta-rail.component';
@@ -170,7 +174,6 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
   protected readonly connectionError = computed(() => this.errorSignal());
   protected readonly currentStage = computed(() => this.stageSignal());
   protected readonly partnerPanelOpen = computed(() => {
-    
     if (this.forcePanelOpen()) {
       return true;
     }
@@ -218,7 +221,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
       return null;
     }
     const drafts = this.draftsSignal();
-    return drafts ? drafts[match.id] ?? null : null;
+    return drafts ? (drafts[match.id] ?? null) : null;
   });
 
   public readonly existingSubmission = computed(() => {
@@ -227,7 +230,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
       return null;
     }
     const submissions = this.submissionsSignal();
-    return submissions ? submissions[match.id] ?? null : null;
+    return submissions ? (submissions[match.id] ?? null) : null;
   });
 
   public readonly hasSavedDraft = computed(() => this.savedDraft() !== null);
@@ -239,12 +242,17 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
   });
 
   public readonly existingRequestTimestamp = computed(
-    () => this.existingSubmission()?.record?.updatedAt ?? this.existingSubmission()?.record?.createdAt ?? null
+    () =>
+      this.existingSubmission()?.record?.updatedAt ??
+      this.existingSubmission()?.record?.createdAt ??
+      null,
   );
 
   protected readonly ndaPreviewLink = computed(() => this.resolveAttachmentPreview('nda'));
   protected readonly rfqPreviewLink = computed(() => this.resolveAttachmentPreview('rfq'));
-  protected readonly successState = computed(() => !this.creating() && this.currentStage() !== 'intro');
+  protected readonly successState = computed(
+    () => !this.creating() && this.currentStage() !== 'intro',
+  );
 
   public readonly buyerDeepLink = computed(() => {
     const match = this.matchSelected();
@@ -277,7 +285,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
           }
           return this.partnerProfiles.getProfile(String(id), 'buyer');
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((profile) => this.buyerProfileSignal.set(profile));
 
@@ -291,7 +299,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
           }
           return this.partnerProfiles.getProfile(String(id), 'supplier');
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((profile) => this.supplierProfileSignal.set(profile));
 
@@ -542,7 +550,11 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
 
   public handleIntroductionRequest(profile: PartnerProfile): void {
     if (this.canSendIntroduction()) {
-      this.analytics.emit('partner_intro_requested', { id: profile.id, role: profile.role }, { priority: true });
+      this.analytics.emit(
+        'partner_intro_requested',
+        { id: profile.id, role: profile.role },
+        { priority: true },
+      );
     }
     this.sendIntroduction();
   }
@@ -561,7 +573,11 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
             source: 'matches',
             metadata: { ...metadata, strategy: result },
           });
-          this.analytics.emit('partner_card_share', { id: profile.id, role: profile.role, result }, { priority: true });
+          this.analytics.emit(
+            'partner_card_share',
+            { id: profile.id, role: profile.role, result },
+            { priority: true },
+          );
         },
         error: (error: unknown) => {
           this.notifications.error(this.translate.instant('introBillboard.shareError'), {
@@ -573,7 +589,11 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
   }
 
   public handleDownload(profile: PartnerProfile): void {
-    this.analytics.emit('partner_card_download', { id: profile.id, role: profile.role }, { priority: true });
+    this.analytics.emit(
+      'partner_card_download',
+      { id: profile.id, role: profile.role },
+      { priority: true },
+    );
     if (this.downloadingProfileSignal()) {
       return;
     }
@@ -587,10 +607,13 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
     }
 
     const metadata = { action: 'download-profile', profileId: profile?.id } as const;
-    const pendingId = this.notifications.info(this.translate.instant('introBillboard.downloadPending'), {
-      source: 'matches',
-      metadata,
-    });
+    const pendingId = this.notifications.info(
+      this.translate.instant('introBillboard.downloadPending'),
+      {
+        source: 'matches',
+        metadata,
+      },
+    );
 
     this.downloadingProfileSignal.set(true);
 
@@ -617,7 +640,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
             this.notifications.dismiss(pendingId);
           }
           this.downloadingProfileSignal.set(false);
-        })
+        }),
       )
       .subscribe();
   }
@@ -691,7 +714,9 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
     }
     const stepper = this.introStepper;
     if (!stepper) {
-      return this.baselineStepperState ? this.cloneDefaults(this.baselineStepperState) : this.emptyDefaults();
+      return this.baselineStepperState
+        ? this.cloneDefaults(this.baselineStepperState)
+        : this.emptyDefaults();
     }
     return {
       message: stepper.messageValue(),
@@ -742,7 +767,9 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
     }
     const transports = stepper.selectedTransports();
     const incoterm = stepper.selectedIncoterm();
-    const labels = transports.map((mode) => this.translate.instant(`introBillboard.transport.${mode}`));
+    const labels = transports.map((mode) =>
+      this.translate.instant(`introBillboard.transport.${mode}`),
+    );
     if (incoterm) {
       labels.push(this.translate.instant(`introBillboard.incoterms.${incoterm}`));
     }
@@ -757,10 +784,7 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
     this.store.dispatch(ConnectionsActions.meetingSlotsUpdated({ slots }));
   }
 
-  private updateAttachmentsThroughStepper(
-    key: ConnectionAttachment,
-    enabled: boolean
-  ): void {
+  private updateAttachmentsThroughStepper(key: ConnectionAttachment, enabled: boolean): void {
     const stepper = this.introStepper;
     if (!stepper) {
       return;
@@ -972,7 +996,9 @@ export class Og7IntroBillboardContentComponent implements AfterViewInit {
   }
 
   private resolveDownloadFilename(blob: Blob, profile: PartnerProfile): string {
-    const base = this.normalizeFilename(profile.displayName ?? profile.legalName ?? `partner-${profile.id}`);
+    const base = this.normalizeFilename(
+      profile.displayName ?? profile.legalName ?? `partner-${profile.id}`,
+    );
     const role = profile.role === 'buyer' ? 'buyer' : 'supplier';
     const extension = this.detectExtension(blob.type);
     return `${base}-${role}.${extension}`;

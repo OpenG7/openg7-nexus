@@ -26,7 +26,7 @@ function runParseCompanyTests() {
         location: { lat: 120, lng: 400 },
       }),
     /businessId is required|name is required|sectors must contain|coordinates are out of range/i,
-    'Expected invalid payload to throw parsing error.'
+    'Expected invalid payload to throw parsing error.',
   );
 }
 
@@ -51,12 +51,12 @@ function runStateTransitionTests() {
   assert.equal(
     __testing.resolveTerminalState(new Error('boom')),
     'failed',
-    'Expected generic error to map to failed state.'
+    'Expected generic error to map to failed state.',
   );
   assert.equal(
     __testing.resolveTerminalState({}),
     'failed',
-    'Expected unknown error object to map to failed state.'
+    'Expected unknown error object to map to failed state.',
   );
 }
 

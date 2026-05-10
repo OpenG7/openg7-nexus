@@ -2,7 +2,9 @@
   data-og7="opportunity-matches"
   class="relative isolate overflow-hidden bg-slate-950 py-12 sm:py-16"
 >
-  <div class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-slate-900/0 via-slate-900/40 to-slate-950"></div>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-slate-900/0 via-slate-900/40 to-slate-950"
+  ></div>
   <div class="relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 sm:px-10">
     <header class="flex flex-col gap-4 text-slate-100">
       <div class="space-y-2">
@@ -16,9 +18,7 @@
       <p class="max-w-3xl text-base text-slate-300">
         {{ 'opportunities.description' | translate }}
       </p>
-      <p class="max-w-3xl text-sm text-cyan-200/80">
-        {{ 'opportunities.aiNote' | translate }}
-      </p>
+      <p class="max-w-3xl text-sm text-cyan-200/80">{{ 'opportunities.aiNote' | translate }}</p>
     </header>
 
     <section
@@ -36,11 +36,16 @@
           [attr.aria-expanded]="filtersOpen()"
           aria-controls="opportunity-filters-panel"
         >
-          {{ filtersOpen() ? ('opportunities.filters.hide' | translate) : ('opportunities.filters.show' | translate) }}
+          {{ filtersOpen() ? ('opportunities.filters.hide' | translate) :
+          ('opportunities.filters.show' | translate) }}
         </button>
       </div>
 
-      <div id="opportunity-filters-panel" class="mt-4" [ngClass]="filtersOpen() ? 'block' : 'hidden lg:block'">
+      <div
+        id="opportunity-filters-panel"
+        class="mt-4"
+        [ngClass]="filtersOpen() ? 'block' : 'hidden lg:block'"
+      >
         <div class="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
           <div class="flex w-full flex-col gap-2 lg:max-w-sm">
             <label for="opportunity-search" class="text-sm font-medium text-slate-200">
@@ -71,7 +76,7 @@
             >
               <option value="all">{{ 'opportunities.filters.allProvinces' | translate }}</option>
               @for (option of provinceOptions; track option.value) {
-                <option [value]="option.value">{{ option.labelKey | translate }}</option>
+              <option [value]="option.value">{{ option.labelKey | translate }}</option>
               }
             </select>
           </div>
@@ -89,30 +94,32 @@
             >
               <option value="all">{{ 'opportunities.filters.allSectors' | translate }}</option>
               @for (option of sectorOptions; track option.value) {
-                <option [value]="option.value">{{ option.labelKey | translate }}</option>
+              <option [value]="option.value">{{ option.labelKey | translate }}</option>
               }
             </select>
           </div>
 
           <div class="flex w-full flex-col gap-2 lg:w-auto lg:flex-1">
-            <span class="text-sm font-medium text-slate-200">{{ 'opportunities.filters.mode.label' | translate }}</span>
+            <span class="text-sm font-medium text-slate-200"
+              >{{ 'opportunities.filters.mode.label' | translate }}</span
+            >
             <div
               class="flex flex-col gap-2 sm:flex-row"
               role="radiogroup"
               [attr.aria-label]="'opportunities.filters.mode.label' | translate"
             >
               @for (option of modeOptions; track option.value) {
-                <button
-                  type="button"
-                  class="flex-1 rounded-full border border-slate-600/40 px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                  [ngClass]="selectedMode() === option.value ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40 shadow-sm' : 'text-slate-300 hover:bg-slate-800/70'"
-                  (click)="onModeChange(option.value)"
-                  role="radio"
-                  [attr.aria-checked]="selectedMode() === option.value"
-                  aria-controls="opportunity-results"
-                >
-                  {{ option.labelKey | translate }}
-                </button>
+              <button
+                type="button"
+                class="flex-1 rounded-full border border-slate-600/40 px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                [ngClass]="selectedMode() === option.value ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40 shadow-sm' : 'text-slate-300 hover:bg-slate-800/70'"
+                (click)="onModeChange(option.value)"
+                role="radio"
+                [attr.aria-checked]="selectedMode() === option.value"
+                aria-controls="opportunity-results"
+              >
+                {{ option.labelKey | translate }}
+              </button>
               }
             </div>
           </div>
@@ -129,7 +136,7 @@
               aria-controls="opportunity-results"
             >
               @for (option of layoutOptions; track option.value) {
-                <option [value]="option.value">{{ option.labelKey | translate }}</option>
+              <option [value]="option.value">{{ option.labelKey | translate }}</option>
               }
             </select>
           </div>
@@ -137,39 +144,49 @@
       </div>
     </section>
 
-    <div class="flex flex-col gap-3 rounded-2xl bg-slate-900/60 px-4 py-3 text-sm text-slate-200 ring-1 ring-white/5 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      class="flex flex-col gap-3 rounded-2xl bg-slate-900/60 px-4 py-3 text-sm text-slate-200 ring-1 ring-white/5 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div class="flex flex-wrap items-center gap-2">
         <span class="font-semibold text-white">
           {{ 'opportunities.results.count' | translate:{ count: filteredMatches().length } }}
         </span>
         <span class="text-slate-500">&middot;</span>
         <span class="text-slate-300">
-          {{ hasActiveFilters() ? ('opportunities.results.filtersActive' | translate) : ('opportunities.results.filtersNone' | translate) }}
+          {{ hasActiveFilters() ? ('opportunities.results.filtersActive' | translate) :
+          ('opportunities.results.filtersNone' | translate) }}
         </span>
         @if (hasActiveFilters()) {
-          <div class="flex flex-wrap gap-2">
-            @if (query()) {
-              <span class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
-                {{ 'opportunities.filters.q' | translate }}: "{{ query() }}"
-              </span>
-            }
-            @if (province() !== 'all') {
-              <span class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
-                {{ 'opportunities.filters.province' | translate }}: {{ ('provinces.' + province()) | translate }}
-              </span>
-            }
-            @if (selectedSector() !== 'all') {
-              <span class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
-                {{ 'opportunities.filters.sector' | translate }}: {{ ('sectors.' + selectedSector()) | translate }}
-              </span>
-            }
-            @if (selectedMode() !== 'all') {
-              <span class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10">
-                {{ 'opportunities.filters.mode.label' | translate }}:
-                {{ ('opportunities.filters.mode.' + selectedMode()) | translate }}
-              </span>
-            }
-          </div>
+        <div class="flex flex-wrap gap-2">
+          @if (query()) {
+          <span
+            class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10"
+          >
+            {{ 'opportunities.filters.q' | translate }}: "{{ query() }}"
+          </span>
+          } @if (province() !== 'all') {
+          <span
+            class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10"
+          >
+            {{ 'opportunities.filters.province' | translate }}: {{ ('provinces.' + province()) |
+            translate }}
+          </span>
+          } @if (selectedSector() !== 'all') {
+          <span
+            class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10"
+          >
+            {{ 'opportunities.filters.sector' | translate }}: {{ ('sectors.' + selectedSector()) |
+            translate }}
+          </span>
+          } @if (selectedMode() !== 'all') {
+          <span
+            class="rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-200 ring-1 ring-white/10"
+          >
+            {{ 'opportunities.filters.mode.label' | translate }}: {{ ('opportunities.filters.mode.'
+            + selectedMode()) | translate }}
+          </span>
+          }
+        </div>
         }
       </div>
       <button
@@ -184,29 +201,31 @@
     </div>
 
     <div id="opportunity-results" class="space-y-6" aria-live="polite" [attr.aria-busy]="loading()">
-    @if (loading()) {
+      @if (loading()) {
       <div class="matches-grid" data-og7="matches-grid">
         <div class="matches-grid__scroller" role="presentation">
           <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             @for (item of skeletonItems; track $index) {
-              <div class="animate-pulse rounded-3xl bg-slate-900/60 p-6 shadow-xl ring-1 ring-white/5">
-                <div class="h-6 w-2/3 rounded-full bg-slate-700/60"></div>
-                <div class="mt-6 space-y-3">
-                  <div class="h-4 w-full rounded-full bg-slate-700/50"></div>
-                  <div class="h-4 w-4/5 rounded-full bg-slate-700/40"></div>
-                  <div class="h-4 w-3/5 rounded-full bg-slate-700/30"></div>
-                </div>
-                <div class="mt-8 h-10 w-full rounded-full bg-slate-700/40"></div>
+            <div
+              class="animate-pulse rounded-3xl bg-slate-900/60 p-6 shadow-xl ring-1 ring-white/5"
+            >
+              <div class="h-6 w-2/3 rounded-full bg-slate-700/60"></div>
+              <div class="mt-6 space-y-3">
+                <div class="h-4 w-full rounded-full bg-slate-700/50"></div>
+                <div class="h-4 w-4/5 rounded-full bg-slate-700/40"></div>
+                <div class="h-4 w-3/5 rounded-full bg-slate-700/30"></div>
               </div>
+              <div class="mt-8 h-10 w-full rounded-full bg-slate-700/40"></div>
+            </div>
             }
           </div>
         </div>
       </div>
-    } @else if (hasError()) {
-      <div class="flex flex-col items-center gap-4 rounded-3xl bg-slate-900/70 p-10 text-center text-slate-200 shadow-xl ring-1 ring-white/5">
-        <p class="text-base">
-          {{ (errorMessage() || 'opportunities.error') | translate }}
-        </p>
+      } @else if (hasError()) {
+      <div
+        class="flex flex-col items-center gap-4 rounded-3xl bg-slate-900/70 p-10 text-center text-slate-200 shadow-xl ring-1 ring-white/5"
+      >
+        <p class="text-base">{{ (errorMessage() || 'opportunities.error') | translate }}</p>
         <button
           type="button"
           class="rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
@@ -215,11 +234,11 @@
           {{ 'opportunities.retry' | translate }}
         </button>
       </div>
-    } @else if (showEmptyState()) {
-      <div class="flex flex-col items-center gap-4 rounded-3xl bg-slate-900/70 p-10 text-center text-slate-200 shadow-xl ring-1 ring-white/5">
-        <p class="text-base">
-          {{ 'opportunities.empty' | translate }}
-        </p>
+      } @else if (showEmptyState()) {
+      <div
+        class="flex flex-col items-center gap-4 rounded-3xl bg-slate-900/70 p-10 text-center text-slate-200 shadow-xl ring-1 ring-white/5"
+      >
+        <p class="text-base">{{ 'opportunities.empty' | translate }}</p>
         <button
           type="button"
           class="rounded-full border border-slate-600/50 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:bg-slate-800/70 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
@@ -228,228 +247,226 @@
           {{ 'common.clear' | translate }}
         </button>
       </div>
-    } @else {
+      } @else {
       <div class="matches-grid" data-og7="matches-grid">
-        @switch (selectedLayout()) {
-          @case ('standard') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        @switch (selectedLayout()) { @case ('standard') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            @for (match of filteredMatches(); track trackByMatchId($index, match)) {
+            <article
+              class="flex h-full flex-col justify-between rounded-3xl bg-slate-900/80 p-6 text-slate-100 shadow-xl ring-1 ring-white/5 transition"
+              [ngClass]="supplierSelected(match) ? 'ring-emerald-400/60 shadow-[0_40px_110px_-70px_rgba(16,185,129,0.8)]' : ''"
             >
-              <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @for (match of filteredMatches(); track trackByMatchId($index, match)) {
-              <article
-                class="flex h-full flex-col justify-between rounded-3xl bg-slate-900/80 p-6 text-slate-100 shadow-xl ring-1 ring-white/5 transition"
-                [ngClass]="supplierSelected(match) ? 'ring-emerald-400/60 shadow-[0_40px_110px_-70px_rgba(16,185,129,0.8)]' : ''"
-              >
-                <div class="space-y-5">
-                  <div class="flex items-start justify-between gap-3">
-                    <h3 class="text-lg font-semibold leading-snug text-white">
-                      {{ match.commodity }}
-                    </h3>
-                    <span
-                      class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
-                      [ngClass]="confidenceBadgeClass(confidencePercent(match))"
-                      [attr.aria-label]="'opportunities.confidence' | translate:{ value: confidencePercent(match) }"
-                    >
-                      {{ confidencePercent(match) }}%
-                    </span>
+              <div class="space-y-5">
+                <div class="flex items-start justify-between gap-3">
+                  <h3 class="text-lg font-semibold leading-snug text-white">
+                    {{ match.commodity }}
+                  </h3>
+                  <span
+                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                    [ngClass]="confidenceBadgeClass(confidencePercent(match))"
+                    [attr.aria-label]="'opportunities.confidence' | translate:{ value: confidencePercent(match) }"
+                  >
+                    {{ confidencePercent(match) }}%
+                  </span>
+                </div>
+
+                <dl class="space-y-4 text-sm">
+                  <div class="space-y-1">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {{ 'opportunities.buyer' | translate }}
+                    </dt>
+                    <dd class="space-y-1">
+                      <p class="font-semibold text-slate-100">{{ match.buyer.name }}</p>
+                      <p class="text-xs text-slate-300">
+                        {{ ('provinces.' + match.buyer.province) | translate }} &middot; {{
+                        ('sectors.' + match.buyer.sector) | translate }}
+                      </p>
+                    </dd>
                   </div>
 
-                  <dl class="space-y-4 text-sm">
-                    <div class="space-y-1">
-                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        {{ 'opportunities.buyer' | translate }}
-                      </dt>
-                      <dd class="space-y-1">
-                        <p class="font-semibold text-slate-100">{{ match.buyer.name }}</p>
-                        <p class="text-xs text-slate-300">
-                          {{ ('provinces.' + match.buyer.province) | translate }} &middot;
-                          {{ ('sectors.' + match.buyer.sector) | translate }}
-                        </p>
-                      </dd>
-                    </div>
+                  <div class="space-y-1">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {{ 'opportunities.seller' | translate }}
+                    </dt>
+                    <dd class="space-y-1">
+                      <p class="font-semibold text-slate-100">{{ match.seller.name }}</p>
+                      <p class="text-xs text-slate-300">
+                        {{ ('provinces.' + match.seller.province) | translate }} &middot; {{
+                        ('sectors.' + match.seller.sector) | translate }}
+                      </p>
+                    </dd>
+                  </div>
 
-                    <div class="space-y-1">
-                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        {{ 'opportunities.seller' | translate }}
-                      </dt>
-                      <dd class="space-y-1">
-                        <p class="font-semibold text-slate-100">{{ match.seller.name }}</p>
-                        <p class="text-xs text-slate-300">
-                          {{ ('provinces.' + match.seller.province) | translate }} &middot;
-                          {{ ('sectors.' + match.seller.sector) | translate }}
-                        </p>
-                      </dd>
-                    </div>
-
-                    @if (match.distanceKm != null) {
-                      <div class="space-y-1">
-                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          {{ 'opportunities.distanceLabel' | translate }}
-                        </dt>
-                        <dd class="text-xs text-slate-300">
-                          {{ 'opportunities.distance' | translate:{ value: match.distanceKm } }}
-                        </dd>
-                      </div>
-                    }
-                  </dl>
-                </div>
-                <div class="pt-4">
-                  <button
-                    type="button"
-                    class="w-full rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-                    [attr.aria-label]="'opportunities.cta.hint' | translate:{ commodity: match.commodity }"
-                    (click)="handleConnectById(match.id.toString())"
-                  >
-                    {{ 'opportunities.cta.connect' | translate }}
-                  </button>
-                </div>
-              </article>
-                }
+                  @if (match.distanceKm != null) {
+                  <div class="space-y-1">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {{ 'opportunities.distanceLabel' | translate }}
+                    </dt>
+                    <dd class="text-xs text-slate-300">
+                      {{ 'opportunities.distance' | translate:{ value: match.distanceKm } }}
+                    </dd>
+                  </div>
+                  }
+                </dl>
               </div>
-            </div>
-          }
-          @case ('tile') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @for (vm of tileViewModels(); track vm.id) {
-                  <og7-opportunity-tile
-                    [vm]="vm"
-                    (viewSheet)="handleViewSheet($event)"
-                    (connect)="handleConnectById($event)"
-                  ></og7-opportunity-tile>
-                }
+              <div class="pt-4">
+                <button
+                  type="button"
+                  class="w-full rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                  [attr.aria-label]="'opportunities.cta.hint' | translate:{ commodity: match.commodity }"
+                  (click)="handleConnectById(match.id.toString())"
+                >
+                  {{ 'opportunities.cta.connect' | translate }}
+                </button>
               </div>
-            </div>
-          }
-          @case ('mini-map') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @for (vm of miniMapViewModels(); track vm.id) {
-                  <og7-opportunity-mini-map [vm]="vm" (connect)="handleConnectById($event)"></og7-opportunity-mini-map>
-                }
-              </div>
-            </div>
-          }
-          @case ('subway') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 lg:grid-cols-2">
-                @for (vm of subwayViewModels(); track vm.id) {
-                  <og7-opportunity-subway
-                    [vm]="vm"
-                    (viewSheet)="handleViewSheet($event)"
-                    (connect)="handleConnectById($event)"
-                  ></og7-opportunity-subway>
-                }
-              </div>
-            </div>
-          }
-          @case ('radar') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @for (vm of radarViewModels(); track vm.id) {
-                  <og7-opportunity-radar
-                    [vm]="vm"
-                    (viewSheet)="handleViewSheet($event)"
-                    (connect)="handleConnectById($event)"
-                  ></og7-opportunity-radar>
-                }
-              </div>
-            </div>
-          }
-          @case ('two-way') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 lg:grid-cols-2">
-                @for (vm of twoWayViewModels(); track vm.id) {
-                  <og7-opportunity-two-way-comparator
-                    [vm]="vm"
-                    (connect)="handleConnectById($event)"
-                  ></og7-opportunity-two-way-comparator>
-                }
-              </div>
-            </div>
-          }
-          @case ('timeline') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 xl:grid-cols-2">
-                @for (vm of timelineViewModels(); track vm.id) {
-                  <og7-opportunity-timeline
-                    [vm]="vm"
-                    (viewSheet)="handleViewSheet($event)"
-                    (connect)="handleConnectById($event)"
-                  ></og7-opportunity-timeline>
-                }
-              </div>
-            </div>
-          }
-          @case ('impact-banner') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="matches-grid__inner grid gap-6 md:grid-cols-2">
-                @for (vm of impactBannerViewModels(); track vm.id) {
-                  <og7-opportunity-impact-banner [vm]="vm" (connect)="handleConnectById($event)"></og7-opportunity-impact-banner>
-                }
-              </div>
-            </div>
-          }
-          @case ('compact-kpi') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="flex w-full justify-center">
-                <og7-opportunity-compact-kpi-list
-                  class="w-full max-w-5xl"
-                  [vm]="compactKpiVm()"
-                  (connect)="handleConnectById($event)"
-                ></og7-opportunity-compact-kpi-list>
-              </div>
-            </div>
-          }
-          @case ('swipe-stack') {
-            <div
-              class="matches-grid__scroller"
-              role="group"
-              [attr.aria-label]="'opportunities.cards.carousel' | translate"
-            >
-              <div class="flex w-full justify-center">
-                <og7-opportunity-swipe-stack class="w-full max-w-xl" [vm]="swipeStackVm()"></og7-opportunity-swipe-stack>
-              </div>
-            </div>
-          }
-        }
+            </article>
+            }
+          </div>
+        </div>
+        } @case ('tile') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            @for (vm of tileViewModels(); track vm.id) {
+            <og7-opportunity-tile
+              [vm]="vm"
+              (viewSheet)="handleViewSheet($event)"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-tile>
+            }
+          </div>
+        </div>
+        } @case ('mini-map') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            @for (vm of miniMapViewModels(); track vm.id) {
+            <og7-opportunity-mini-map
+              [vm]="vm"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-mini-map>
+            }
+          </div>
+        </div>
+        } @case ('subway') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 lg:grid-cols-2">
+            @for (vm of subwayViewModels(); track vm.id) {
+            <og7-opportunity-subway
+              [vm]="vm"
+              (viewSheet)="handleViewSheet($event)"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-subway>
+            }
+          </div>
+        </div>
+        } @case ('radar') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            @for (vm of radarViewModels(); track vm.id) {
+            <og7-opportunity-radar
+              [vm]="vm"
+              (viewSheet)="handleViewSheet($event)"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-radar>
+            }
+          </div>
+        </div>
+        } @case ('two-way') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 lg:grid-cols-2">
+            @for (vm of twoWayViewModels(); track vm.id) {
+            <og7-opportunity-two-way-comparator
+              [vm]="vm"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-two-way-comparator>
+            }
+          </div>
+        </div>
+        } @case ('timeline') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 xl:grid-cols-2">
+            @for (vm of timelineViewModels(); track vm.id) {
+            <og7-opportunity-timeline
+              [vm]="vm"
+              (viewSheet)="handleViewSheet($event)"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-timeline>
+            }
+          </div>
+        </div>
+        } @case ('impact-banner') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="matches-grid__inner grid gap-6 md:grid-cols-2">
+            @for (vm of impactBannerViewModels(); track vm.id) {
+            <og7-opportunity-impact-banner
+              [vm]="vm"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-impact-banner>
+            }
+          </div>
+        </div>
+        } @case ('compact-kpi') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="flex w-full justify-center">
+            <og7-opportunity-compact-kpi-list
+              class="w-full max-w-5xl"
+              [vm]="compactKpiVm()"
+              (connect)="handleConnectById($event)"
+            ></og7-opportunity-compact-kpi-list>
+          </div>
+        </div>
+        } @case ('swipe-stack') {
+        <div
+          class="matches-grid__scroller"
+          role="group"
+          [attr.aria-label]="'opportunities.cards.carousel' | translate"
+        >
+          <div class="flex w-full justify-center">
+            <og7-opportunity-swipe-stack
+              class="w-full max-w-xl"
+              [vm]="swipeStackVm()"
+            ></og7-opportunity-swipe-stack>
+          </div>
+        </div>
+        } }
       </div>
-    }
+      }
     </div>
   </div>
 </section>

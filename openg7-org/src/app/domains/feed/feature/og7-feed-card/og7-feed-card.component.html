@@ -1,18 +1,24 @@
 <article class="feed-card">
   <header class="feed-card__header">
     <div class="feed-card__meta">
-      <span class="feed-card__type">{{ ('feed.type.' + item().type) | translate }}</span>
+      <span class="feed-card__type">{{ 'feed.type.' + item().type | translate }}</span>
       <span class="feed-card__timestamp">{{ item().createdAt | jsonDateAgo }}</span>
     </div>
     <div class="feed-card__badges">
       <span *ngIf="item().urgency" class="feed-card__badge" [class]="urgencyBadgeClass()">
-        {{ ('feed.urgency.' + item().urgency) | translate }}
+        {{ 'feed.urgency.' + item().urgency | translate }}
       </span>
       <span *ngIf="item().credibility" class="feed-card__badge">
-        {{ ('feed.credibility.' + item().credibility) | translate }}
+        {{ 'feed.credibility.' + item().credibility | translate }}
       </span>
-      <span *ngIf="item().status === 'pending' || item().status === 'failed' || item().status === 'archived'" class="feed-card__badge" [class]="statusBadgeClass()">
-        {{ ('feed.status.' + item().status) | translate }}
+      <span
+        *ngIf="
+          item().status === 'pending' || item().status === 'failed' || item().status === 'archived'
+        "
+        class="feed-card__badge"
+        [class]="statusBadgeClass()"
+      >
+        {{ 'feed.status.' + item().status | translate }}
       </span>
     </div>
   </header>
@@ -33,7 +39,7 @@
       {{ sectorLabel() }}
     </span>
     <span *ngIf="item().mode && item().mode !== 'BOTH'" class="feed-card__chip">
-      {{ ('feed.mode.' + (item().mode | lowercase)) | translate }}
+      {{ 'feed.mode.' + (item().mode | lowercase) | translate }}
     </span>
     <span *ngIf="item().quantity" class="feed-card__chip">
       {{ item().quantity?.value }} {{ item().quantity?.unit }}
@@ -42,7 +48,8 @@
 
   <footer class="feed-card__footer">
     <div class="feed-card__source">
-      {{ 'feed.source' | translate }}: {{ item().source.label || ('feed.sourceUnknown' | translate) }}
+      {{ 'feed.source' | translate }}:
+      {{ item().source.label || ('feed.sourceUnknown' | translate) }}
     </div>
     <div class="feed-card__actions">
       <button

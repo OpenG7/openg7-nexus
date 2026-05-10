@@ -18,7 +18,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IntroductionDraftState, ConnectionAttachment, TransportMode, IncotermCode } from '@app/core/models/connection';
+import {
+  IntroductionDraftState,
+  ConnectionAttachment,
+  TransportMode,
+  IncotermCode,
+} from '@app/core/models/connection';
 import { FinancingBanner } from '@app/core/models/partner-profile';
 import { PipelineStepStatus } from '@app/state';
 import { TranslateModule } from '@ngx-translate/core';
@@ -127,26 +132,34 @@ export class Og7IntroStepperComponent {
   public readonly messageValue = computed(() => this.introMessageSignal());
   public readonly messageTouched = computed(() => this.introTouchedSignal());
   private readonly trimmedMessage = computed(() => this.introMessageSignal().trim());
-  public readonly messageTooShort = computed(() => this.trimmedMessage().length < this.minMessageLength);
-  public readonly messageTooLong = computed(() => this.trimmedMessage().length > this.maxMessageLength);
+  public readonly messageTooShort = computed(
+    () => this.trimmedMessage().length < this.minMessageLength,
+  );
+  public readonly messageTooLong = computed(
+    () => this.trimmedMessage().length > this.maxMessageLength,
+  );
   public readonly messageInvalid = computed(() => this.messageTooShort() || this.messageTooLong());
-  public readonly messageReady = computed(() => !this.messageInvalid() && this.trimmedMessage().length > 0);
+  public readonly messageReady = computed(
+    () => !this.messageInvalid() && this.trimmedMessage().length > 0,
+  );
 
   public readonly attachmentsSelected = computed(
-    () => this.attachmentsSignal() as readonly ConnectionAttachment[]
+    () => this.attachmentsSignal() as readonly ConnectionAttachment[],
   );
   public readonly complianceReady = computed(() => this.attachmentsSignal().length > 0);
 
   public readonly meetingSlots = computed(() => this.meetingSlotsSignal() as readonly string[]);
   public readonly meetingSlotsCount = computed(() => this.meetingSlotsSignal().length);
-  public readonly schedulerReady = computed(() => this.meetingSlotsSignal().length >= this.minimumSlots);
+  public readonly schedulerReady = computed(
+    () => this.meetingSlotsSignal().length >= this.minimumSlots,
+  );
 
   public readonly selectedTransports = computed(
-    () => this.selectedTransportsSignal() as readonly TransportMode[]
+    () => this.selectedTransportsSignal() as readonly TransportMode[],
   );
   public readonly selectedIncoterm = computed(() => this.selectedIncotermSignal());
   public readonly logisticsReady = computed(
-    () => Boolean(this.selectedIncotermSignal()) && this.selectedTransportsSignal().length > 0
+    () => Boolean(this.selectedIncotermSignal()) && this.selectedTransportsSignal().length > 0,
   );
 
   public readonly pipelineReady = computed(() => {
@@ -162,7 +175,7 @@ export class Og7IntroStepperComponent {
       this.complianceReady() &&
       this.schedulerReady() &&
       this.logisticsReady() &&
-      this.pipelineReady()
+      this.pipelineReady(),
   );
 
   protected readonly steps = computed(() => {
@@ -441,7 +454,7 @@ export class Og7IntroStepperComponent {
 
   public updateAttachment(
     key: ConnectionAttachment,
-    enabled: boolean
+    enabled: boolean,
   ): readonly ConnectionAttachment[] {
     const next = new Set(this.attachmentsSignal());
     if (enabled) {
@@ -523,7 +536,10 @@ export class Og7IntroStepperComponent {
     return STEP_ORDER.includes(lower) ? lower : null;
   }
 
-  private normalizeStep(candidate: Og7IntroStepId | null, steps: readonly StepDefinition[]): Og7IntroStepId {
+  private normalizeStep(
+    candidate: Og7IntroStepId | null,
+    steps: readonly StepDefinition[],
+  ): Og7IntroStepId {
     if (candidate && steps.some((step) => step.id === candidate)) {
       return candidate;
     }

@@ -6,9 +6,16 @@ interface Labels {
   status: string;
 }
 
-interface CounterMetric { inc(labels: Labels, value?: number): void }
-interface HistogramMetric { observe(labels: Labels, value: number): void }
-interface MetricsRegistry { contentType: string; metrics(): Promise<string> }
+interface CounterMetric {
+  inc(labels: Labels, value?: number): void;
+}
+interface HistogramMetric {
+  observe(labels: Labels, value: number): void;
+}
+interface MetricsRegistry {
+  contentType: string;
+  metrics(): Promise<string>;
+}
 interface PromClientModule {
   collectDefaultMetrics: (options: { register?: MetricsRegistry; prefix?: string }) => void;
   Counter: new (options: {
@@ -66,7 +73,8 @@ async function initializePrometheus() {
     return;
   }
 
-  const promClient = (namespace as { default?: PromClientModule }).default ?? (namespace as PromClientModule);
+  const promClient =
+    (namespace as { default?: PromClientModule }).default ?? (namespace as PromClientModule);
 
   if (!promClient) {
     return;
@@ -101,7 +109,10 @@ void initializePrometheus();
 
 const DEFAULT_SLOW_THRESHOLD_MS = 1_000;
 const parsedSlowThreshold = Number.parseInt(process.env['SSR_SLOW_REQUEST_THRESHOLD_MS'] ?? '', 10);
-const slowThresholdMs = Number.isFinite(parsedSlowThreshold) && parsedSlowThreshold > 0 ? parsedSlowThreshold : DEFAULT_SLOW_THRESHOLD_MS;
+const slowThresholdMs =
+  Number.isFinite(parsedSlowThreshold) && parsedSlowThreshold > 0
+    ? parsedSlowThreshold
+    : DEFAULT_SLOW_THRESHOLD_MS;
 
 function resolveRoute(req: Request): string {
   if (req.route?.path) {

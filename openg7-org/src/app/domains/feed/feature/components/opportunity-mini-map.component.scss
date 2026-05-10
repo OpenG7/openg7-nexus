@@ -71,7 +71,12 @@
 .opportunity-mini-map__line span {
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(94, 234, 212, 0.95), rgba(16, 185, 129, 0.2));
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.2),
+    rgba(94, 234, 212, 0.95),
+    rgba(16, 185, 129, 0.2)
+  );
   box-shadow: 0 0 14px rgba(94, 234, 212, 0.85);
 }
 

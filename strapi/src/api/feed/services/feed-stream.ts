@@ -100,4 +100,3 @@ export function broadcastFeedEnvelope(envelope: FeedRealtimeEnvelope): void {
     heartbeatTimer = null;
   }
 }
-

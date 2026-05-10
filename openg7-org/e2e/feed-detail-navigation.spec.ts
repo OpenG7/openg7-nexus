@@ -34,6 +34,3 @@ test.describe('Feed detail navigation', () => {
     await expect(page).toHaveURL(/\/feed\/indicators\/indicator-001$/);
   });
 });
-
-
-

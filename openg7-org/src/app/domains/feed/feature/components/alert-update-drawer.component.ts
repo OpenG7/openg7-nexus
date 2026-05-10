@@ -61,12 +61,12 @@ export class AlertUpdateDrawerComponent {
   private previousFocusedElement: HTMLElement | null = null;
   private readonly activeLanguage = toSignal(
     this.translate.onLangChange.pipe(
-      map(event => event.lang),
-      startWith(this.translate.currentLang || this.translate.getDefaultLang() || 'en')
+      map((event) => event.lang),
+      startWith(this.translate.currentLang || this.translate.getDefaultLang() || 'en'),
     ),
     {
       initialValue: this.translate.currentLang || this.translate.getDefaultLang() || 'en',
-    }
+    },
   );
 
   readonly open = input(false);
@@ -109,11 +109,11 @@ export class AlertUpdateDrawerComponent {
     return state === 'submitting' || state === 'success';
   });
   protected readonly viewingReport = computed(
-    () => this.mode() === 'view' && Boolean(this.existingReport())
+    () => this.mode() === 'view' && Boolean(this.existingReport()),
   );
 
   constructor() {
-    effect(onCleanup => {
+    effect((onCleanup) => {
       if (typeof document === 'undefined') {
         return;
       }
@@ -191,9 +191,9 @@ export class AlertUpdateDrawerComponent {
 
     const focusableElements = Array.from(
       panel.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter(element => !element.hasAttribute('hidden') && element.tabIndex !== -1);
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((element) => !element.hasAttribute('hidden') && element.tabIndex !== -1);
 
     if (!focusableElements.length) {
       event.preventDefault();

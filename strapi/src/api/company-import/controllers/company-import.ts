@@ -152,9 +152,9 @@ function parseCountryCode(value: string | null): string | null {
 }
 
 function extractPayloadSource(input: unknown): Record<string, unknown> {
-  const record = (input && typeof input === 'object' && !Array.isArray(input)
-    ? input
-    : {}) as Record<string, unknown>;
+  const record = (
+    input && typeof input === 'object' && !Array.isArray(input) ? input : {}
+  ) as Record<string, unknown>;
   if (record.data && typeof record.data === 'object' && !Array.isArray(record.data)) {
     return record.data as Record<string, unknown>;
   }
@@ -267,7 +267,7 @@ function addError(
   errors: ImportErrorEntry[],
   index: number,
   businessId: string | null,
-  reason: string
+  reason: string,
 ): void {
   if (errors.length >= MAX_ERRORS) {
     return;
@@ -324,7 +324,7 @@ function buildProvinceLookup(entities: readonly ProvinceEntity[]): Map<string, n
 
 function resolveSectorId(
   sectorLookup: ReadonlyMap<string, number | string>,
-  sectors: readonly string[]
+  sectors: readonly string[],
 ): number | string | null {
   for (const sector of sectors) {
     const token = toLookupToken(sector);
@@ -338,7 +338,7 @@ function resolveSectorId(
 
 function resolveProvinceId(
   provinceLookup: ReadonlyMap<string, number | string>,
-  province: string | null
+  province: string | null,
 ): number | string | null {
   if (!province) {
     return null;
@@ -391,7 +391,8 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         const reason = error instanceof Error ? error.message : 'Invalid company entry.';
         const businessId =
           entry && typeof entry === 'object' && !Array.isArray(entry)
-            ? normalizeString((entry as Record<string, unknown>).businessId, 80)?.toUpperCase() ?? null
+            ? (normalizeString((entry as Record<string, unknown>).businessId, 80)?.toUpperCase() ??
+              null)
             : null;
         addError(parseErrors, index + 1, businessId, reason);
       }

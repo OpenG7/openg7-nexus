@@ -7,10 +7,7 @@ import {
   NotificationStore,
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
-import {
-  CompanyRecord,
-  CompanyService,
-} from '@app/core/services/company.service';
+import { CompanyRecord, CompanyService } from '@app/core/services/company.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
@@ -73,9 +70,9 @@ class CompanyServiceMock {
   readonly loadingSignal = signal(false);
   readonly errorSignal = signal<string | null>(null);
   readonly loadCompanies = jasmine.createSpy('loadCompanies');
-  readonly updateStatus = jasmine.createSpy('updateStatus').and.returnValue(
-    of(this.companiesSignal()[0]),
-  );
+  readonly updateStatus = jasmine
+    .createSpy('updateStatus')
+    .and.returnValue(of(this.companiesSignal()[0]));
 
   companies() {
     return this.companiesSignal.asReadonly();
@@ -125,9 +122,7 @@ describe('AdminPage', () => {
     const warningBadge = root.querySelector(
       '[data-og7="admin-summary-badge"][data-og7-id="warning"]',
     );
-    const readyBadge = root.querySelector(
-      '[data-og7="admin-summary-badge"][data-og7-id="ready"]',
-    );
+    const readyBadge = root.querySelector('[data-og7="admin-summary-badge"][data-og7-id="ready"]');
     const criticalBadge = root.querySelector(
       '[data-og7="admin-summary-badge"][data-og7-id="critical"]',
     );
@@ -139,7 +134,9 @@ describe('AdminPage', () => {
     expect(badges.length).toBe(4);
     for (const badge of badges) {
       expect((badge as HTMLElement).className).toContain('text-white');
-      expect((badge as HTMLElement).className).toContain('shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]');
+      expect((badge as HTMLElement).className).toContain(
+        'shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]',
+      );
     }
     expect((neutralBadge as HTMLElement).className).toContain('bg-cyan-200/18');
     expect((warningBadge as HTMLElement).className).toContain('bg-amber-200/20');

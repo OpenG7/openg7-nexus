@@ -10,10 +10,7 @@ if (typeof globalWithIO.IntersectionObserver === 'undefined') {
     readonly rootMargin = '';
     readonly thresholds = [] as number[];
 
-    constructor(
-      _callback: IntersectionObserverCallback,
-      _options?: IntersectionObserverInit
-    ) {
+    constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {
       void _callback;
       void _options;
     }

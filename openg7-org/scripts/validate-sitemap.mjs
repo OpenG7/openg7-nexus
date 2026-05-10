@@ -24,7 +24,7 @@ async function main() {
   console.log('[sitemap] public/sitemap.xml is up to date.');
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('[sitemap] Validation failed.');
   if (error instanceof Error) {
     console.error(error.message);

@@ -142,4 +142,7 @@ export class OpportunitySubwayComponent {
   }
 }
 
-export type { OpportunitySubwayStation as SubwayStation, OpportunitySubwayStationBadge as SubwayStationBadge };
+export type {
+  OpportunitySubwayStation as SubwayStation,
+  OpportunitySubwayStationBadge as SubwayStationBadge,
+};

@@ -12,10 +12,10 @@ export const selectUserState = createFeatureSelector<UserState>('user');
 
 export const selectUserProfile = createSelector(
   selectUserState,
-  (state: UserState) => state.profile
+  (state: UserState) => state.profile,
 );
 
 export const selectUserPermissions = createSelector(
   selectUserState,
-  (state: UserState) => state.permissions
+  (state: UserState) => state.permissions,
 );

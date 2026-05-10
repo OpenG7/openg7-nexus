@@ -43,7 +43,9 @@
   text-transform: uppercase;
   padding: 0.8rem 1.8rem;
   box-shadow: 0 16px 40px -32px rgba(37, 99, 235, 0.65);
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base);
 }
 
 .btn-primary:hover:not(:disabled),
@@ -90,7 +92,10 @@
 }
 
 .card-hover {
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base), background-color var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base),
+    background-color var(--og7-transition-base);
 }
 
 .card-hover:hover {
@@ -117,7 +122,7 @@
   color: color-mix(in srgb, var(--og7-color-primary) 75%, #ffffff 25%);
 }
 
-[data-og7="app-shell"] {
+[data-og7='app-shell'] {
   background-color: var(--og7-color-page);
   color: var(--og7-color-body);
   font-family: var(--og7-font-family-base);

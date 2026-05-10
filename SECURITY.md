@@ -1,6 +1,7 @@
 **Languages:** [English](#english) | [Français](#francais)
 
 <a id="english"></a>
+
 # OpenG7 Security Policy
 
 We are committed to protecting the OpenG7 ecosystem (Angular front-end, Strapi CMS, and shared tooling). Please report vulnerabilities privately so we can investigate and issue a fix.
@@ -15,11 +16,13 @@ We are committed to protecting the OpenG7 ecosystem (Angular front-end, Strapi C
 ## Scope
 
 In scope:
+
 - Front-end application under `openg7-org/` and its SSR runtime.
 - Strapi CMS (`strapi/`), including seeds, plugins, and API routes.
 - Supporting packages and scripts (`packages/`, `infra/`, `scripts/`, `docs/` where applicable) that configure or deploy the platform.
 
 Out of scope:
+
 - Third-party services or libraries we consume (report to the upstream project instead).
 - Social engineering, phishing, or physical attacks.
 - Denial of Service (volume-based or resource exhaustion) and automated scanning that disrupts availability.
@@ -28,6 +31,7 @@ Out of scope:
 ## Testing Guidelines (Safe Harbor)
 
 We allow good-faith security research under these conditions:
+
 - Use test accounts and limit the scope of your testing to your own data.
 - Do not exfiltrate, destroy, or publicly disclose data. Stop testing immediately if you encounter real user data.
 - Avoid actions that degrade availability for others. Coordinate timing with us for tests that may be disruptive.
@@ -42,6 +46,7 @@ We allow good-faith security research under these conditions:
 Thank you for helping keep OpenG7 users safe.
 
 <a id="francais"></a>
+
 # Politique de sécurité OpenG7
 
 Nous protégeons l’écosystème OpenG7 (front-end Angular, CMS Strapi et outils partagés). Merci de signaler toute vulnérabilité de manière privée afin que nous puissions enquêter et corriger rapidement.
@@ -56,11 +61,13 @@ Nous protégeons l’écosystème OpenG7 (front-end Angular, CMS Strapi et outil
 ## Périmètre
 
 En périmètre :
+
 - Application front-end dans `openg7-org/` et son runtime SSR.
 - CMS Strapi (`strapi/`), y compris seeds, plugins et routes API.
 - Packages et scripts de support (`packages/`, `infra/`, `scripts/`, `docs/` le cas échéant) qui configurent ou déploient la plateforme.
 
 Hors périmètre :
+
 - Services ou bibliothèques tiers (merci de signaler directement à leur équipe).
 - Attaques de social engineering, phishing ou physiques.
 - Déni de service (volumétrique ou exhaustion) et scans automatisés qui perturbent la disponibilité.
@@ -69,6 +76,7 @@ Hors périmètre :
 ## Règles de test (Safe Harbor)
 
 La recherche en bonne foi est autorisée si vous respectez ces règles :
+
 - Utilisez des comptes de test et limitez vos essais à vos propres données.
 - N’exfiltrez, ne détruisez ni ne divulguez aucune donnée. Arrêtez immédiatement si vous tombez sur des données réelles.
 - Évitez toute action qui dégraderait l’accessibilité pour d’autres. Coordonnez le calendrier avec nous pour les tests potentiellement perturbateurs.

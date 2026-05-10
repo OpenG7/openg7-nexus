@@ -19,9 +19,15 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
       class="relative isolate mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:px-6 lg:px-8"
       data-og7="companies-bulk-import-page"
     >
-      <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.22),transparent_68%)]"></div>
-      <div class="pointer-events-none absolute -left-20 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/35 blur-3xl"></div>
-      <div class="pointer-events-none absolute -right-20 top-20 -z-10 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl"></div>
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.22),transparent_68%)]"
+      ></div>
+      <div
+        class="pointer-events-none absolute -left-20 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/35 blur-3xl"
+      ></div>
+      <div
+        class="pointer-events-none absolute -right-20 top-20 -z-10 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl"
+      ></div>
 
       <header
         class="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.45)] backdrop-blur"
@@ -38,10 +44,14 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
           </div>
 
           <div class="flex flex-wrap gap-2">
-            <span class="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800">
+            <span
+              class="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800"
+            >
               {{ 'importCompaniesBulkPage.badges.formats' | translate }}
             </span>
-            <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+            <span
+              class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700"
+            >
               {{ 'importCompaniesBulkPage.badges.liveTracking' | translate }}
             </span>
           </div>
@@ -69,18 +79,26 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
               formControlName="mode"
               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
             >
-              <option value="upsert">{{ 'importCompaniesBulkPage.modes.upsert' | translate }}</option>
-              <option value="validate-only">{{ 'importCompaniesBulkPage.modes.validateOnly' | translate }}</option>
+              <option value="upsert">
+                {{ 'importCompaniesBulkPage.modes.upsert' | translate }}
+              </option>
+              <option value="validate-only">
+                {{ 'importCompaniesBulkPage.modes.validateOnly' | translate }}
+              </option>
             </select>
           </label>
 
-          <label class="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-700 shadow-sm">
+          <label
+            class="inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-700 shadow-sm"
+          >
             <input
               type="checkbox"
               formControlName="dryRun"
               class="rounded border-slate-300 text-sky-600 focus:ring-sky-300"
             />
-            <span class="font-medium">{{ 'importCompaniesBulkPage.fields.dryRun' | translate }}</span>
+            <span class="font-medium">{{
+              'importCompaniesBulkPage.fields.dryRun' | translate
+            }}</span>
           </label>
         </div>
 
@@ -128,7 +146,11 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
             data-og7="action"
             data-og7-id="bulk-import-start"
           >
-            {{ facade.submitting() ? ('importCompaniesBulkPage.actions.starting' | translate) : ('importCompaniesBulkPage.actions.start' | translate) }}
+            {{
+              facade.submitting()
+                ? ('importCompaniesBulkPage.actions.starting' | translate)
+                : ('importCompaniesBulkPage.actions.start' | translate)
+            }}
           </button>
           <button
             type="button"
@@ -138,7 +160,11 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
             data-og7="action"
             data-og7-id="bulk-import-cancel"
           >
-            {{ facade.cancelling() ? ('importCompaniesBulkPage.actions.cancelling' | translate) : ('importCompaniesBulkPage.actions.cancel' | translate) }}
+            {{
+              facade.cancelling()
+                ? ('importCompaniesBulkPage.actions.cancelling' | translate)
+                : ('importCompaniesBulkPage.actions.cancel' | translate)
+            }}
           </button>
           <button
             type="button"
@@ -151,11 +177,14 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
             *ngIf="selectedFileName()"
             class="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800"
           >
-            {{ 'importCompaniesBulkPage.selectedFile' | translate:{ file: selectedFileName() } }}
+            {{ 'importCompaniesBulkPage.selectedFile' | translate: { file: selectedFileName() } }}
           </span>
         </div>
 
-        <p *ngIf="facade.error()" class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <p
+          *ngIf="facade.error()"
+          class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+        >
           {{ facade.error() }}
         </p>
       </form>
@@ -167,9 +196,11 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
       >
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-semibold text-slate-900">{{ 'importCompaniesBulkPage.progress.title' | translate }}</h2>
+            <h2 class="text-xl font-semibold text-slate-900">
+              {{ 'importCompaniesBulkPage.progress.title' | translate }}
+            </h2>
             <p class="mt-1 text-sm text-slate-600">
-              {{ 'importCompaniesBulkPage.progress.phase' | translate:{ phase: status.phase } }}
+              {{ 'importCompaniesBulkPage.progress.phase' | translate: { phase: status.phase } }}
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
@@ -183,30 +214,43 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
               class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
               [ngClass]="statePillClass(status.state)"
             >
-              {{ ('importCompaniesBulkPage.states.' + status.state) | translate }}
+              {{ 'importCompaniesBulkPage.states.' + status.state | translate }}
             </span>
           </div>
         </div>
 
         <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
-          <div class="h-full rounded-full bg-cyan-500 transition-all duration-300" [style.width.%]="progressPercent()"></div>
+          <div
+            class="h-full rounded-full bg-cyan-500 transition-all duration-300"
+            [style.width.%]="progressPercent()"
+          ></div>
         </div>
 
         <dl class="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
           <div class="rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
-            <dt class="text-xs uppercase tracking-wide text-slate-500">{{ 'importCompaniesBulkPage.progress.total' | translate }}</dt>
+            <dt class="text-xs uppercase tracking-wide text-slate-500">
+              {{ 'importCompaniesBulkPage.progress.total' | translate }}
+            </dt>
             <dd class="mt-1 text-lg font-semibold text-slate-900">{{ status.progress.total }}</dd>
           </div>
           <div class="rounded-xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
-            <dt class="text-xs uppercase tracking-wide text-slate-500">{{ 'importCompaniesBulkPage.progress.processed' | translate }}</dt>
-            <dd class="mt-1 text-lg font-semibold text-slate-900">{{ status.progress.processed }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-slate-500">
+              {{ 'importCompaniesBulkPage.progress.processed' | translate }}
+            </dt>
+            <dd class="mt-1 text-lg font-semibold text-slate-900">
+              {{ status.progress.processed }}
+            </dd>
           </div>
           <div class="rounded-xl border border-slate-200 bg-emerald-50/80 p-4 shadow-sm">
-            <dt class="text-xs uppercase tracking-wide text-emerald-700/80">{{ 'importCompaniesBulkPage.progress.ok' | translate }}</dt>
+            <dt class="text-xs uppercase tracking-wide text-emerald-700/80">
+              {{ 'importCompaniesBulkPage.progress.ok' | translate }}
+            </dt>
             <dd class="mt-1 text-lg font-semibold text-emerald-700">{{ status.progress.ok }}</dd>
           </div>
           <div class="rounded-xl border border-slate-200 bg-rose-50/80 p-4 shadow-sm">
-            <dt class="text-xs uppercase tracking-wide text-rose-700/80">{{ 'importCompaniesBulkPage.progress.failed' | translate }}</dt>
+            <dt class="text-xs uppercase tracking-wide text-rose-700/80">
+              {{ 'importCompaniesBulkPage.progress.failed' | translate }}
+            </dt>
             <dd class="mt-1 text-lg font-semibold text-rose-700">{{ status.progress.failed }}</dd>
           </div>
         </dl>
@@ -217,10 +261,13 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
         class="mt-6 space-y-3 rounded-2xl border border-rose-200 bg-rose-50/95 p-6 shadow-[0_18px_40px_-35px_rgba(244,63,94,0.25)]"
         data-og7="bulk-import-errors-preview"
       >
-        <h2 class="text-lg font-semibold text-rose-700">{{ 'importCompaniesBulkPage.errors.title' | translate }}</h2>
+        <h2 class="text-lg font-semibold text-rose-700">
+          {{ 'importCompaniesBulkPage.errors.title' | translate }}
+        </h2>
         <ul class="space-y-2 text-sm text-rose-800">
           <li *ngFor="let error of facade.errorsPreview()">
-            <span class="font-semibold">#{{ error.rowNumber }}</span> - {{ error.code }} - {{ error.message }}
+            <span class="font-semibold">#{{ error.rowNumber }}</span> - {{ error.code }} -
+            {{ error.message }}
           </li>
         </ul>
       </section>
@@ -230,13 +277,19 @@ import { CompaniesBulkImportFacade } from './companies-bulk-import.facade';
         class="mt-6 space-y-4 rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
         data-og7="bulk-import-report"
       >
-        <h2 class="text-xl font-semibold text-slate-900">{{ 'importCompaniesBulkPage.report.title' | translate }}</h2>
+        <h2 class="text-xl font-semibold text-slate-900">
+          {{ 'importCompaniesBulkPage.report.title' | translate }}
+        </h2>
         <p class="text-sm text-slate-600">
-          {{ 'importCompaniesBulkPage.report.summary' | translate:{
-            processed: report.report.summary.processed,
-            ok: report.report.summary.ok,
-            failed: report.report.summary.failed
-          } }}
+          {{
+            'importCompaniesBulkPage.report.summary'
+              | translate
+                : {
+                    processed: report.report.summary.processed,
+                    ok: report.report.summary.ok,
+                    failed: report.report.summary.failed,
+                  }
+          }}
         </p>
         <div class="flex flex-wrap items-center gap-3">
           <a
@@ -298,7 +351,7 @@ export class CompaniesBulkImportPageComponent {
           },
         ],
         null,
-        2
+        2,
       ),
     ],
   });

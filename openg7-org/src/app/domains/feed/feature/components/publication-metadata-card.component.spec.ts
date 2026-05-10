@@ -29,12 +29,16 @@ describe('Og7PublicationMetadataCardComponent', () => {
     fixture.detectChanges();
 
     const content = fixture.nativeElement.textContent;
-    expect(fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]'),
+    ).toBeTruthy();
     expect(content).toContain('feed.publicationMetadata.title');
     expect(content).toContain('forms.hydrocarbonSurplus.title');
     expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.label');
     expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.options.slowdown');
     expect(content).toContain('forms.hydrocarbonSurplus.fields.logisticsMode.options.rail');
-    expect(content).toContain('forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer');
+    expect(content).toContain(
+      'forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer',
+    );
   });
 });

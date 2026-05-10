@@ -10,7 +10,9 @@
       </div>
 
       <label class="block space-y-3">
-        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">Composant</span>
+        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500"
+          >Composant</span
+        >
         <div class="rounded-lg border border-neutral-200 bg-white shadow-sm">
           <select
             class="w-full appearance-none rounded-lg border-0 bg-transparent px-4 py-3 text-base font-medium text-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -32,17 +34,27 @@
           <header class="space-y-2">
             <h2 class="text-2xl font-semibold text-neutral-900">Filtre et actions</h2>
             <p class="text-sm text-neutral-600">
-              Le champ de recherche met à jour dynamiquement un tableau Material et déclenche des actions dédiées.
+              Le champ de recherche met à jour dynamiquement un tableau Material et déclenche des
+              actions dédiées.
             </p>
           </header>
 
           <div class="space-y-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500">Filtrer les entreprises</span>
-            <og7-search-field ariaLabel="Filtrer les entreprises" (searchChanged)="applyFilter($event)"></og7-search-field>
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-neutral-500"
+              >Filtrer les entreprises</span
+            >
+            <og7-search-field
+              ariaLabel="Filtrer les entreprises"
+              (searchChanged)="applyFilter($event)"
+            ></og7-search-field>
           </div>
 
           <div class="overflow-x-auto rounded-2xl border border-neutral-200">
-            <table mat-table [dataSource]="companies" class="min-w-full divide-y divide-neutral-200 text-sm text-neutral-800">
+            <table
+              mat-table
+              [dataSource]="companies"
+              class="min-w-full divide-y divide-neutral-200 text-sm text-neutral-800"
+            >
               <ng-container matColumnDef="name">
                 <th
                   mat-header-cell
@@ -59,8 +71,12 @@
             </table>
           </div>
 
-          <div class="space-y-2 rounded-2xl border border-dashed border-primary-200 bg-primary-50 p-4 text-sm text-primary-900">
-            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-primary-500">Dernière action</span>
+          <div
+            class="space-y-2 rounded-2xl border border-dashed border-primary-200 bg-primary-50 p-4 text-sm text-primary-900"
+          >
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-primary-500"
+              >Dernière action</span
+            >
             <og7-search-field
               ariaLabel="Valider une recherche"
               (searchCommitted)="commitSearch($event)"
@@ -78,7 +94,8 @@
           <header class="space-y-2 text-center">
             <h2 class="text-2xl font-semibold text-neutral-900">Flux d'introduction simulé</h2>
             <p class="text-sm text-neutral-600">
-              Chaque étape est préremplie avec des données fictives pour parcourir rapidement le scénario complet.
+              Chaque étape est préremplie avec des données fictives pour parcourir rapidement le
+              scénario complet.
             </p>
           </header>
 
@@ -96,10 +113,13 @@
           ></og7-intro-stepper>
 
           <ng-template #messageTemplate>
-            <div class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
+            <div
+              class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center"
+            >
               <p class="text-lg font-semibold text-neutral-900">Message d'ouverture</p>
               <p class="text-sm text-neutral-600">
-                Le message initial est injecté automatiquement pour se concentrer sur les étapes suivantes.
+                Le message initial est injecté automatiquement pour se concentrer sur les étapes
+                suivantes.
               </p>
               <button
                 type="button"
@@ -112,7 +132,9 @@
           </ng-template>
 
           <ng-template #complianceTemplate>
-            <div class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
+            <div
+              class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center"
+            >
               <p class="text-lg font-semibold text-neutral-900">Vérifications préchargées</p>
               <p class="text-sm text-neutral-600">
                 Les pièces requises sont déjà cochées pour illustrer la validation automatique.
@@ -137,7 +159,9 @@
           </ng-template>
 
           <ng-template #schedulerTemplate>
-            <div class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center">
+            <div
+              class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center"
+            >
               <p class="text-lg font-semibold text-neutral-900">Créneaux suggérés</p>
               <p class="text-sm text-neutral-600">
                 Deux créneaux fictifs sont insérés pour simuler la prise de rendez-vous.
@@ -168,17 +192,22 @@
             <div class="space-y-5 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-left">
               <h3 class="text-lg font-semibold text-neutral-900">Synthèse logistique</h3>
               <p class="text-sm text-neutral-600">
-                Les choix ci-dessous sont définis via du mock pour illustrer l'expérience utilisateur complète.
+                Les choix ci-dessous sont définis via du mock pour illustrer l'expérience
+                utilisateur complète.
               </p>
               <div class="grid gap-4 md:grid-cols-2">
                 <div class="space-y-2 rounded-md border border-neutral-200 bg-white p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Transports retenus</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+                    Transports retenus
+                  </p>
                   <ul class="space-y-1 text-sm text-neutral-700">
                     <li *ngFor="let mode of transports">{{ transportLabels[mode] }}</li>
                   </ul>
                 </div>
                 <div class="space-y-2 rounded-md border border-neutral-200 bg-white p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">Incoterm proposé</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+                    Incoterm proposé
+                  </p>
                   <p class="text-base font-semibold text-neutral-900">{{ incoterm }}</p>
                   <p class="text-sm text-neutral-600">{{ incotermDescriptions[incoterm] }}</p>
                 </div>
@@ -213,8 +242,12 @@
                   *ngFor="let step of pipelineSteps"
                   class="rounded-md border border-neutral-200 bg-white p-4 text-sm text-neutral-700"
                 >
-                  <p class="font-semibold text-neutral-900">{{ pipelineStageLabels[step.stage] }}</p>
-                  <p class="text-xs uppercase tracking-[0.2em] text-neutral-500">{{ pipelineStatusLabels[step.status] }}</p>
+                  <p class="font-semibold text-neutral-900">
+                    {{ pipelineStageLabels[step.stage] }}
+                  </p>
+                  <p class="text-xs uppercase tracking-[0.2em] text-neutral-500">
+                    {{ pipelineStatusLabels[step.status] }}
+                  </p>
                 </li>
               </ul>
               <div class="flex flex-wrap items-center gap-3">
@@ -240,7 +273,8 @@
             <div class="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-left">
               <h3 class="text-lg font-semibold text-neutral-900">Programme de financement</h3>
               <p class="text-sm text-neutral-600">
-                Les contenus FR/EN proviennent du mock financingBanner et s'affichent dans le composant parent.
+                Les contenus FR/EN proviennent du mock financingBanner et s'affichent dans le
+                composant parent.
               </p>
               <button
                 type="button"
@@ -259,7 +293,8 @@
           <header class="space-y-2 text-center">
             <h2 class="text-2xl font-semibold text-neutral-50">Chronologie d'une opportunité</h2>
             <p class="text-sm text-neutral-300">
-              Les données simulées illustrent un corridor interprovincial avec impact carbone et logistique.
+              Les données simulées illustrent un corridor interprovincial avec impact carbone et
+              logistique.
             </p>
           </header>
           <og7-opportunity-timeline [vm]="opportunityTimelineVm"></og7-opportunity-timeline>

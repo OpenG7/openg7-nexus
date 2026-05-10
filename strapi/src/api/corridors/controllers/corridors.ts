@@ -182,7 +182,10 @@ function buildItemMeta(entry: CorridorAccumulator): string {
   return `${entry.events} updates`;
 }
 
-function buildSnapshot(entities: readonly Record<string, unknown>[], limit: number): CorridorsRealtimeSnapshot {
+function buildSnapshot(
+  entities: readonly Record<string, unknown>[],
+  limit: number,
+): CorridorsRealtimeSnapshot {
   const corridors = new Map<string, CorridorAccumulator>();
   let latestTimestamp: string | null = null;
 
@@ -215,7 +218,10 @@ function buildSnapshot(entities: readonly Record<string, unknown>[], limit: numb
       current.requests += 1;
     }
 
-    current.maxUrgency = Math.max(current.maxUrgency, normalizeUrgency(entity.urgency)) as 1 | 2 | 3;
+    current.maxUrgency = Math.max(current.maxUrgency, normalizeUrgency(entity.urgency)) as
+      | 1
+      | 2
+      | 3;
     if (createdAt.localeCompare(current.latestAt) > 0) {
       current.latestAt = createdAt;
     }
@@ -284,7 +290,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           },
           sort: ['createdAt:desc', 'id:desc'],
           limit: FEED_PULL_LIMIT,
-        })) as Record<string, unknown> | Record<string, unknown>[] | null | undefined
+        })) as Record<string, unknown> | Record<string, unknown>[] | null | undefined,
       );
 
       ctx.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=30');

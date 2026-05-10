@@ -1,14 +1,16 @@
-:host { display: block; }
+:host {
+  display: block;
+}
 
 /* Variante compacte : réduis la hauteur et les espacements */
-:host(.og7-search--compact) input[type="search"] {
-  padding-top: 0.375rem;   /* ~6px */
+:host(.og7-search--compact) input[type='search'] {
+  padding-top: 0.375rem; /* ~6px */
   padding-bottom: 0.375rem;
-  min-height: 2.25rem;     /* ~36px */
+  min-height: 2.25rem; /* ~36px */
 }
 
 /* Variante hero : fond translucide + blur pour surimpression sur image */
-:host(.og7-search--hero) input[type="search"] {
+:host(.og7-search--hero) input[type='search'] {
   background-color: rgba(255, 255, 255, 0.75);
   border-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(6px);
@@ -50,7 +52,7 @@
 }
 
 /* Focus ring de secours (au cas où les utilitaires Tailwind changent) */
-:host input[type="search"]:focus {
+:host input[type='search']:focus {
   outline: 2px solid transparent; /* évite l’outline natif */
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35); /* anneau bleu doux */
 }

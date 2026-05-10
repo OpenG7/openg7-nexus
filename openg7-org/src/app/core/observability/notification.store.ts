@@ -97,7 +97,9 @@ export const NotificationStore = signalStore(
   withMethods((store) => {
     const http = inject(HttpClient, { optional: true });
     const apiUrl = sanitizeUrl(inject(API_URL, { optional: true }) ?? '') ?? '';
-    const explicitWebhook = sanitizeUrl(inject(NOTIFICATION_WEBHOOK_URL, { optional: true }) ?? null);
+    const explicitWebhook = sanitizeUrl(
+      inject(NOTIFICATION_WEBHOOK_URL, { optional: true }) ?? null,
+    );
 
     const resolveWebhookUrl = (): string | null => {
       const pref = store.preferences();
@@ -199,7 +201,7 @@ export const NotificationStore = signalStore(
                 ...item,
                 read: true,
               }
-            : item
+            : item,
         );
         patchState(store, { items: next });
       },
@@ -229,7 +231,7 @@ export const NotificationStore = signalStore(
         patchState(store, { lastDeliveryError: null });
       },
     };
-  })
+  }),
 );
 
 export type NotificationStoreApi = InstanceType<typeof NotificationStore>;

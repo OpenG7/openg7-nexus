@@ -140,19 +140,20 @@ class RedisCooldownStore implements CooldownStore {
   }
 }
 
-export default (
-  config: ActivationEmailCooldownConfig = {},
-  { strapi }: { strapi: any }
-) => {
+export default (config: ActivationEmailCooldownConfig = {}, { strapi }: { strapi: any }) => {
   const sessionDriver = (process.env.STRAPI_SESSION_DRIVER || '').trim().toLowerCase();
-  const enabled = config.enabled ?? parseBoolean(process.env.ACTIVATION_EMAIL_COOLDOWN_ENABLED, true);
+  const enabled =
+    config.enabled ?? parseBoolean(process.env.ACTIVATION_EMAIL_COOLDOWN_ENABLED, true);
   const cooldownMs = parsePositiveInteger(
     config.cooldownMs ?? process.env.ACTIVATION_EMAIL_COOLDOWN_MS,
-    DEFAULT_COOLDOWN_MS
+    DEFAULT_COOLDOWN_MS,
   );
-  const keyPrefix = String(config.keyPrefix ?? process.env.ACTIVATION_EMAIL_COOLDOWN_PREFIX ?? DEFAULT_KEY_PREFIX);
+  const keyPrefix = String(
+    config.keyPrefix ?? process.env.ACTIVATION_EMAIL_COOLDOWN_PREFIX ?? DEFAULT_KEY_PREFIX,
+  );
   const useRedis =
-    config.useRedis ?? parseBoolean(process.env.ACTIVATION_EMAIL_COOLDOWN_USE_REDIS, sessionDriver === 'redis');
+    config.useRedis ??
+    parseBoolean(process.env.ACTIVATION_EMAIL_COOLDOWN_USE_REDIS, sessionDriver === 'redis');
 
   let store: CooldownStore = new MemoryCooldownStore();
   let redisFallbackLogged = false;
@@ -166,8 +167,8 @@ export default (
           redisFallbackLogged = true;
           strapi.log?.warn?.(
             `[security] Activation-email cooldown Redis store failed (${asErrorMessage(
-              error
-            )}). Falling back to in-memory storage.`
+              error,
+            )}). Falling back to in-memory storage.`,
           );
         }
         store = new MemoryCooldownStore();
@@ -176,8 +177,8 @@ export default (
     } catch (error) {
       strapi.log?.warn?.(
         `[security] Activation-email cooldown Redis init failed (${asErrorMessage(
-          error
-        )}). Using in-memory storage.`
+          error,
+        )}). Using in-memory storage.`,
       );
     }
   }
@@ -223,11 +224,10 @@ export default (
     } catch (error) {
       strapi.log?.warn?.(
         `[security] Activation-email cooldown check failed (${asErrorMessage(
-          error
-        )}). Request allowed.`
+          error,
+        )}). Request allowed.`,
       );
       return next();
     }
   };
 };
-

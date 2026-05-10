@@ -19,7 +19,7 @@ describe('catalogReducer', () => {
   it('should hydrate the catalog', () => {
     const state = catalogReducer(
       initialCatalogState,
-      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems })
+      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems }),
     );
 
     expect(state).toEqual({
@@ -34,24 +34,21 @@ describe('catalogReducer', () => {
   it('should update individual slices', () => {
     const hydrated = catalogReducer(
       initialCatalogState,
-      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems })
+      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems }),
     );
 
-    const withSectors = catalogReducer(
-      hydrated,
-      CatalogActions.sectorsUpdated({ sectors: [] })
-    );
+    const withSectors = catalogReducer(hydrated, CatalogActions.sectorsUpdated({ sectors: [] }));
     expect(withSectors.sectors).toEqual([]);
 
     const withProvinces = catalogReducer(
       hydrated,
-      CatalogActions.provincesUpdated({ provinces: [] })
+      CatalogActions.provincesUpdated({ provinces: [] }),
     );
     expect(withProvinces.provinces).toEqual([]);
 
     const withCompanies = catalogReducer(
       hydrated,
-      CatalogActions.companiesUpdated({ companies: [] })
+      CatalogActions.companiesUpdated({ companies: [] }),
     );
     expect(withCompanies.companies).toEqual([]);
   });
@@ -59,7 +56,7 @@ describe('catalogReducer', () => {
   it('should clear the catalog', () => {
     const hydrated = catalogReducer(
       initialCatalogState,
-      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems })
+      CatalogActions.catalogHydrated({ sectors, provinces, companies, feedItems }),
     );
 
     const cleared = catalogReducer(hydrated, CatalogActions.catalogCleared());
@@ -70,7 +67,7 @@ describe('catalogReducer', () => {
   it('should mark mock sources when loading catalog mocks', () => {
     const state = catalogReducer(
       initialCatalogState,
-      CatalogActions.catalogMockLoaded({ sectors, provinces, companies, feedItems })
+      CatalogActions.catalogMockLoaded({ sectors, provinces, companies, feedItems }),
     );
 
     expect(state.sources).toEqual(mockSources);

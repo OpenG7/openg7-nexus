@@ -216,7 +216,7 @@ export class PartnerQuickActionsComponent {
     if (this.translationsLoaded) {
       return;
     }
-    void this.loadTranslations().then(translations => {
+    void this.loadTranslations().then((translations) => {
       if (!translations) {
         return;
       }
@@ -232,8 +232,10 @@ export class PartnerQuickActionsComponent {
         import('./i18n/partner.quick-actions.fr.json'),
         import('./i18n/partner.quick-actions.en.json'),
       ]);
-      const fr = (frModule as { default?: TranslationSlice }).default ?? (frModule as TranslationSlice);
-      const en = (enModule as { default?: TranslationSlice }).default ?? (enModule as TranslationSlice);
+      const fr =
+        (frModule as { default?: TranslationSlice }).default ?? (frModule as TranslationSlice);
+      const en =
+        (enModule as { default?: TranslationSlice }).default ?? (enModule as TranslationSlice);
       return { fr, en } satisfies LoadedTranslations;
     } catch (error) {
       console.error('Failed to load partner quick actions translations', error);

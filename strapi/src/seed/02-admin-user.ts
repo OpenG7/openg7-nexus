@@ -44,9 +44,15 @@ function normalizeRoleName(value: unknown): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
-async function resolveUsersPermissionsRoleId(preferredRoleName: string): Promise<number | string | null> {
+async function resolveUsersPermissionsRoleId(
+  preferredRoleName: string,
+): Promise<number | string | null> {
   const roleQuery = strapi.db.query('plugin::users-permissions.role');
-  const roles = (await roleQuery.findMany()) as Array<{ id: number | string; name?: string; type?: string }>;
+  const roles = (await roleQuery.findMany()) as Array<{
+    id: number | string;
+    name?: string;
+    type?: string;
+  }>;
   if (!Array.isArray(roles) || roles.length === 0) {
     return null;
   }
@@ -98,18 +104,16 @@ async function ensureUsersPermissionsAdminUser(params: {
       $or: [{ email }, { username: email }],
     },
     populate: ['role'],
-  })) as
-    | {
-        id: number | string;
-        email?: string | null;
-        username?: string | null;
-        provider?: string | null;
-        confirmed?: boolean | null;
-        blocked?: boolean | null;
-        password?: string | null;
-        role?: { id?: number | string | null } | null;
-      }
-    | null;
+  })) as {
+    id: number | string;
+    email?: string | null;
+    username?: string | null;
+    provider?: string | null;
+    confirmed?: boolean | null;
+    blocked?: boolean | null;
+    password?: string | null;
+    role?: { id?: number | string | null } | null;
+  } | null;
 
   if (!existing) {
     const createPayload: Record<string, unknown> = {

@@ -33,7 +33,7 @@ describe('FavoritesService', () => {
         metadata: null,
         createdAt: null,
         updatedAt: null,
-      })
+      }),
     );
     favoritesApi.deleteMine.and.returnValue(of({ id: '1', deleted: true }));
 
@@ -52,9 +52,11 @@ describe('FavoritesService', () => {
 
     storage = {};
     spyOn(window.localStorage, 'getItem').and.callFake((key: string) => storage[key] ?? null);
-    setItemSpy = spyOn(window.localStorage, 'setItem').and.callFake((key: string, value: string) => {
-      storage[key] = value;
-    });
+    setItemSpy = spyOn(window.localStorage, 'setItem').and.callFake(
+      (key: string, value: string) => {
+        storage[key] = value;
+      },
+    );
   });
 
   it('should track items count without duplicates', () => {
@@ -108,7 +110,7 @@ describe('FavoritesService', () => {
           createdAt: null,
           updatedAt: null,
         },
-      ])
+      ]),
     );
     favoritesApi.createMine.and.returnValue(
       of({
@@ -118,7 +120,7 @@ describe('FavoritesService', () => {
         metadata: null,
         createdAt: null,
         updatedAt: null,
-      })
+      }),
     );
 
     const service = createService();
@@ -144,7 +146,7 @@ describe('FavoritesService', () => {
           createdAt: null,
           updatedAt: null,
         },
-      ])
+      ]),
     );
     authState.set(true);
     const service = createService();

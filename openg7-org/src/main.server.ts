@@ -12,4 +12,3 @@ registerLocaleData(localeFr);
 export default function bootstrap(ctx: BootstrapContext) {
   return bootstrapApplication(AppComponent, appConfigServer, ctx);
 }
-

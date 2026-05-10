@@ -82,7 +82,9 @@ export class OpportunityTwoWayComparatorComponent {
     }
   });
 
-  readonly scoreBadgeClass = computed(() => `opportunity-two-way__score-badge--${this.scoreTone()}`);
+  readonly scoreBadgeClass = computed(
+    () => `opportunity-two-way__score-badge--${this.scoreTone()}`,
+  );
 
   readonly titleId = computed(() => `opportunity-two-way-title-${this.vm().id}`);
   readonly scoreId = computed(() => `opportunity-two-way-score-${this.vm().id}`);

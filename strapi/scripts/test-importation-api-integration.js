@@ -15,12 +15,16 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'importation-test-app-key-a,importation-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'importation-test-app-key-a,importation-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'importation-test-api-token-salt';
-  process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'importation-test-admin-jwt-secret';
-  process.env.TRANSFER_TOKEN_SALT = process.env.TRANSFER_TOKEN_SALT || 'importation-test-transfer-token-salt';
+  process.env.ADMIN_JWT_SECRET =
+    process.env.ADMIN_JWT_SECRET || 'importation-test-admin-jwt-secret';
+  process.env.TRANSFER_TOKEN_SALT =
+    process.env.TRANSFER_TOKEN_SALT || 'importation-test-transfer-token-salt';
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'importation-test-jwt-secret';
-  process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'importation-test-encryption-key-123456789';
+  process.env.ENCRYPTION_KEY =
+    process.env.ENCRYPTION_KEY || 'importation-test-encryption-key-123456789';
 }
 
 async function cleanupDatabase() {
@@ -33,7 +37,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -69,17 +73,25 @@ async function run() {
     assert.equal(flows.status, 200, 'Expected import-flows to succeed.');
     assert.ok(Array.isArray(flows.body?.timeline), 'Expected import-flows timeline array.');
     assert.ok(Array.isArray(flows.body?.flows), 'Expected import-flows flows array.');
-    assert.equal(flows.body.flows[0]?.originCode, 'US', 'Expected USMCA response to be led by US data.');
+    assert.equal(
+      flows.body.flows[0]?.originCode,
+      'US',
+      'Expected USMCA response to be led by US data.',
+    );
 
-    const commodities = await requestJson(`${baseUrl}/api/import-commodities?period=month&originScope=g7&hsSections=85`);
+    const commodities = await requestJson(
+      `${baseUrl}/api/import-commodities?period=month&originScope=g7&hsSections=85`,
+    );
     assert.equal(commodities.status, 200, 'Expected import-commodities to succeed.');
     assert.ok(Array.isArray(commodities.body?.top), 'Expected import-commodities top array.');
     assert.ok(
       commodities.body.top.every((entry) => String(entry.hsCode || '').startsWith('85')),
-      'Expected hsSections filter to constrain returned top commodities.'
+      'Expected hsSections filter to constrain returned top commodities.',
     );
 
-    const riskFlags = await requestJson(`${baseUrl}/api/import-risk-flags?originScope=g7&hsSections=85`);
+    const riskFlags = await requestJson(
+      `${baseUrl}/api/import-risk-flags?originScope=g7&hsSections=85`,
+    );
     assert.equal(riskFlags.status, 200, 'Expected import-risk-flags to succeed.');
     assert.ok(Array.isArray(riskFlags.body), 'Expected import-risk-flags array response.');
 
@@ -88,7 +100,7 @@ async function run() {
     assert.ok(Array.isArray(suppliers.body?.suppliers), 'Expected import-suppliers list.');
     assert.ok(
       suppliers.body.suppliers.every((supplier) => ['JP', 'KR'].includes(supplier.originCode)),
-      'Expected indo_pacific suppliers only.'
+      'Expected indo_pacific suppliers only.',
     );
 
     const knowledge = await requestJson(`${baseUrl}/api/import-knowledge?lang=en`);
@@ -120,21 +132,40 @@ async function run() {
       }),
     });
     assert.equal(createdWatchlist.status, 201, 'Expected watchlist creation to succeed.');
-    assert.equal(createdWatchlist.body?.name, 'Ontario Battery Lane', 'Expected created watchlist payload.');
+    assert.equal(
+      createdWatchlist.body?.name,
+      'Ontario Battery Lane',
+      'Expected created watchlist payload.',
+    );
 
     const watchlistsAfter = await requestJson(`${baseUrl}/api/import-watchlists`);
-    assert.equal(watchlistsAfter.status, 200, 'Expected import-watchlists GET after create to succeed.');
-    assert.equal((watchlistsAfter.body?.watchlists?.length ?? 0), initialCount + 1, 'Expected created watchlist to be persisted in memory.');
+    assert.equal(
+      watchlistsAfter.status,
+      200,
+      'Expected import-watchlists GET after create to succeed.',
+    );
+    assert.equal(
+      watchlistsAfter.body?.watchlists?.length ?? 0,
+      initialCount + 1,
+      'Expected created watchlist to be persisted in memory.',
+    );
 
-    const updatedWatchlist = await requestJson(`${baseUrl}/api/import-watchlists/${createdWatchlist.body?.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Ontario Battery Lane Updated',
-      }),
-    });
+    const updatedWatchlist = await requestJson(
+      `${baseUrl}/api/import-watchlists/${createdWatchlist.body?.id}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Ontario Battery Lane Updated',
+        }),
+      },
+    );
     assert.equal(updatedWatchlist.status, 200, 'Expected watchlist update to succeed.');
-    assert.equal(updatedWatchlist.body?.name, 'Ontario Battery Lane Updated', 'Expected updated watchlist payload.');
+    assert.equal(
+      updatedWatchlist.body?.name,
+      'Ontario Battery Lane Updated',
+      'Expected updated watchlist payload.',
+    );
 
     const schedule = await requestJson(`${baseUrl}/api/import-reports/schedule`, {
       method: 'POST',
@@ -150,12 +181,19 @@ async function run() {
     assert.equal(schedule.body?.scheduled, true, 'Expected scheduling acknowledgement payload.');
     assert.ok(schedule.body?.reportId, 'Expected persisted report schedule id.');
 
-    const scheduledReports = await app.entityService.findMany('api::import-report-schedule.import-report-schedule', {
-      sort: ['createdAt:desc'],
-    });
+    const scheduledReports = await app.entityService.findMany(
+      'api::import-report-schedule.import-report-schedule',
+      {
+        sort: ['createdAt:desc'],
+      },
+    );
     assert.ok(Array.isArray(scheduledReports), 'Expected persisted report schedules collection.');
     assert.equal(scheduledReports.length, 1, 'Expected a persisted scheduled report entry.');
-    assert.deepEqual(scheduledReports[0]?.recipients, ['ops@example.test'], 'Expected recipients to be stored.');
+    assert.deepEqual(
+      scheduledReports[0]?.recipients,
+      ['ops@example.test'],
+      'Expected recipients to be stored.',
+    );
 
     console.log('Importation integration tests passed.');
   } finally {

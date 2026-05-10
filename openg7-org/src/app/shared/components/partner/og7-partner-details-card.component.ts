@@ -107,7 +107,7 @@ export class Og7PartnerDetailsCardComponent {
   });
 
   protected readonly verificationStatusKey = computed(
-    () => `partner.panel.verification.status.${this.verificationStatus()}`
+    () => `partner.panel.verification.status.${this.verificationStatus()}`,
   );
 
   protected readonly trustScore = computed(() => {
@@ -124,16 +124,14 @@ export class Og7PartnerDetailsCardComponent {
       .sort((a, b) => Date.parse(b.occurredAt ?? '') - Date.parse(a.occurredAt ?? ''))
       .slice(0, 3);
   });
-  protected readonly recentReviewEntry = computed(
-    () => {
-      const reviewTrail = [...(this.profile()?.trustHistory ?? [])].reverse();
-      return (
-        reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
-        reviewTrail.find((record) => record.type === 'evaluation') ??
-        null
-      );
-    }
-  );
+  protected readonly recentReviewEntry = computed(() => {
+    const reviewTrail = [...(this.profile()?.trustHistory ?? [])].reverse();
+    return (
+      reviewTrail.find((record) => record.type === 'evaluation' && Boolean(record.notes?.trim())) ??
+      reviewTrail.find((record) => record.type === 'evaluation') ??
+      null
+    );
+  });
 
   protected readonly socialLinks = computed(() => {
     const entity = this.profile();
@@ -230,13 +228,19 @@ export class Og7PartnerDetailsCardComponent {
   protected onDownload(entity: PartnerProfile): void {
     this.download.emit(entity);
 
-    if (typeof document === 'undefined' || typeof URL === 'undefined' || typeof Blob === 'undefined') {
+    if (
+      typeof document === 'undefined' ||
+      typeof URL === 'undefined' ||
+      typeof Blob === 'undefined'
+    ) {
       return;
     }
 
     try {
       const fileName = `${this.slugify(entity.legalName || entity.displayName || 'partner')}.json`;
-      const blob = new Blob([JSON.stringify(entity, null, 2)], { type: 'application/json;charset=utf-8' });
+      const blob = new Blob([JSON.stringify(entity, null, 2)], {
+        type: 'application/json;charset=utf-8',
+      });
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = objectUrl;
@@ -277,7 +281,10 @@ export class Og7PartnerDetailsCardComponent {
 
   private sharePayload(entity: PartnerProfile): ShareData {
     const title = entity.displayName || entity.legalName;
-    const parts = [title, entity.sector ? this.translate.instant(`sectors.${entity.sector}`) : null].filter(Boolean);
+    const parts = [
+      title,
+      entity.sector ? this.translate.instant(`sectors.${entity.sector}`) : null,
+    ].filter(Boolean);
     const text = parts.join(' · ');
     return {
       title,

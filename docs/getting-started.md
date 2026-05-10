@@ -34,14 +34,14 @@ yarn --version
 
 ## 3. Scripts de développement à connaître
 
-| Commande | Rôle |
-| --- | --- |
-| `yarn dev:web` | Lance l'application Angular (`openg7-org`) avec HMR sur http://localhost:4200. |
-| `yarn --cwd openg7-org serve:ssr:openg7-org` | Démarre le serveur SSR Express construit dans `dist/` après `yarn build:preprod`. |
-| `yarn dev:cms` | Démarre le workspace Strapi (`@openg7/strapi`) avec rechargement automatique. |
-| `yarn dev:all` | Exécute simultanément le front et Strapi via `concurrently`. |
-| `yarn --cwd strapi strapi develop` | Optionnel : lance Strapi directement depuis son workspace. |
-| `yarn --cwd packages/contracts run codegen` | Régénère les types et clients API à partir des schémas exposés par les workspaces Strapi. |
+| Commande                                     | Rôle                                                                                      |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `yarn dev:web`                               | Lance l'application Angular (`openg7-org`) avec HMR sur http://localhost:4200.            |
+| `yarn --cwd openg7-org serve:ssr:openg7-org` | Démarre le serveur SSR Express construit dans `dist/` après `yarn build:preprod`.         |
+| `yarn dev:cms`                               | Démarre le workspace Strapi (`@openg7/strapi`) avec rechargement automatique.             |
+| `yarn dev:all`                               | Exécute simultanément le front et Strapi via `concurrently`.                              |
+| `yarn --cwd strapi strapi develop`           | Optionnel : lance Strapi directement depuis son workspace.                                |
+| `yarn --cwd packages/contracts run codegen`  | Régénère les types et clients API à partir des schémas exposés par les workspaces Strapi. |
 
 ## 4. Enchaînement recommandé pour lancer les services
 

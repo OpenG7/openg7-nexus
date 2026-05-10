@@ -25,10 +25,7 @@ const requestCounter = new Counter({
 
 const DEFAULT_SLOW_THRESHOLD_MS = 1_500;
 
-export default (
-  config: MetricsConfig = {},
-  { strapi }: { strapi: any },
-) => {
+export default (config: MetricsConfig = {}, { strapi }: { strapi: any }) => {
   const slowThreshold =
     typeof config.slowRequestThresholdMs === 'number' && config.slowRequestThresholdMs > 0
       ? config.slowRequestThresholdMs
@@ -63,7 +60,10 @@ export default (
       const durationMs = durationNs / 1_000_000;
       const durationSeconds = durationNs / 1_000_000_000;
 
-      const route = typeof ctx._matchedRoute === 'string' && ctx._matchedRoute ? ctx._matchedRoute : ctx.path || 'unmatched';
+      const route =
+        typeof ctx._matchedRoute === 'string' && ctx._matchedRoute
+          ? ctx._matchedRoute
+          : ctx.path || 'unmatched';
       const labels = { method: ctx.method, route, status: String(ctx.status) };
 
       requestDuration.observe(labels, durationSeconds);
@@ -78,7 +78,9 @@ export default (
           status: ctx.status,
           durationMs: Math.round(durationMs),
         };
-        strapi.log?.warn?.(`[observability] Slow Strapi request detected: ${JSON.stringify(payload)}`);
+        strapi.log?.warn?.(
+          `[observability] Slow Strapi request detected: ${JSON.stringify(payload)}`,
+        );
       }
     }
   };

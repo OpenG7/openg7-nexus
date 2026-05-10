@@ -19,8 +19,16 @@
           "placeholderKey": "forms.coldChainCapacity.fields.title.placeholder",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 3, "errorKey": "forms.coldChainCapacity.validation.title.minLength" },
-            { "type": "maxLength", "value": 160, "errorKey": "forms.coldChainCapacity.validation.title.maxLength" }
+            {
+              "type": "minLength",
+              "value": 3,
+              "errorKey": "forms.coldChainCapacity.validation.title.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 160,
+              "errorKey": "forms.coldChainCapacity.validation.title.maxLength"
+            }
           ]
         },
         {
@@ -30,7 +38,11 @@
           "placeholderKey": "forms.coldChainCapacity.fields.summary.placeholder",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 10, "errorKey": "forms.coldChainCapacity.validation.summary.minLength" }
+            {
+              "type": "minLength",
+              "value": 10,
+              "errorKey": "forms.coldChainCapacity.validation.summary.minLength"
+            }
           ]
         }
       ]
@@ -46,7 +58,11 @@
           "labelKey": "forms.coldChainCapacity.fields.availablePallets.label",
           "required": true,
           "validators": [
-            { "type": "min", "value": 1, "errorKey": "forms.coldChainCapacity.validation.availablePallets.min" }
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.coldChainCapacity.validation.availablePallets.min"
+            }
           ],
           "width": "half"
         },
@@ -56,9 +72,18 @@
           "labelKey": "forms.coldChainCapacity.fields.temperatureRange.label",
           "required": true,
           "options": [
-            { "value": "frozen", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.frozen" },
-            { "value": "chilled", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.chilled" },
-            { "value": "ambient-monitored", "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.ambientMonitored" }
+            {
+              "value": "frozen",
+              "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.frozen"
+            },
+            {
+              "value": "chilled",
+              "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.chilled"
+            },
+            {
+              "value": "ambient-monitored",
+              "labelKey": "forms.coldChainCapacity.fields.temperatureRange.options.ambientMonitored"
+            }
           ],
           "width": "half"
         },
@@ -67,9 +92,18 @@
           "type": "multiselect",
           "labelKey": "forms.coldChainCapacity.fields.certifications.label",
           "options": [
-            { "value": "haccp", "labelKey": "forms.coldChainCapacity.fields.certifications.options.haccp" },
-            { "value": "cfia", "labelKey": "forms.coldChainCapacity.fields.certifications.options.cfia" },
-            { "value": "gfsi", "labelKey": "forms.coldChainCapacity.fields.certifications.options.gfsi" }
+            {
+              "value": "haccp",
+              "labelKey": "forms.coldChainCapacity.fields.certifications.options.haccp"
+            },
+            {
+              "value": "cfia",
+              "labelKey": "forms.coldChainCapacity.fields.certifications.options.cfia"
+            },
+            {
+              "value": "gfsi",
+              "labelKey": "forms.coldChainCapacity.fields.certifications.options.gfsi"
+            }
           ]
         },
         {
@@ -97,7 +131,11 @@
           "labelKey": "forms.coldChainCapacity.fields.availableUntil.label",
           "required": true,
           "validators": [
-            { "type": "dateOrder", "compareWithField": "availableFrom", "errorKey": "forms.coldChainCapacity.validation.availableUntil.dateOrder" }
+            {
+              "type": "dateOrder",
+              "compareWithField": "availableFrom",
+              "errorKey": "forms.coldChainCapacity.validation.availableUntil.dateOrder"
+            }
           ],
           "width": "half"
         }
@@ -134,11 +172,13 @@
           "type": "number",
           "labelKey": "forms.coldChainCapacity.fields.minimumCommitmentDays.label",
           "validators": [
-            { "type": "min", "value": 1, "errorKey": "forms.coldChainCapacity.validation.minimumCommitmentDays.min" }
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.coldChainCapacity.validation.minimumCommitmentDays.min"
+            }
           ],
-          "visibleWhen": [
-            { "field": "crossDockAvailable", "operator": "truthy" }
-          ],
+          "visibleWhen": [{ "field": "crossDockAvailable", "operator": "truthy" }],
           "width": "half"
         },
         {
@@ -147,7 +187,11 @@
           "labelKey": "forms.coldChainCapacity.fields.handlingNotes.label",
           "helpKey": "forms.coldChainCapacity.fields.handlingNotes.help",
           "visibleWhen": [
-            { "field": "temperatureRange", "operator": "in", "value": ["frozen", "ambient-monitored"] }
+            {
+              "field": "temperatureRange",
+              "operator": "in",
+              "value": ["frozen", "ambient-monitored"]
+            }
           ]
         },
         {

@@ -1,6 +1,10 @@
 import { ensureCompanyImportBulkWorkerRunning } from './api/company-import/services/company-import-bulk-jobs';
 import runSeeds from './seed';
-import { getSeedFailureStrategy, isAutoSeedEnabled, isDevOrIntegrationEnv } from './utils/seed-helpers';
+import {
+  getSeedFailureStrategy,
+  isAutoSeedEnabled,
+  isDevOrIntegrationEnv,
+} from './utils/seed-helpers';
 
 export default async ({ strapi }: { strapi: any }) => {
   ensureCompanyImportBulkWorkerRunning(strapi);
@@ -13,6 +17,8 @@ export default async ({ strapi }: { strapi: any }) => {
   }
 
   const failureStrategy = getSeedFailureStrategy();
-  strapi.log?.info?.(`Running Strapi seeds for development environment (failure strategy: ${failureStrategy}).`);
+  strapi.log?.info?.(
+    `Running Strapi seeds for development environment (failure strategy: ${failureStrategy}).`,
+  );
   await runSeeds();
 };

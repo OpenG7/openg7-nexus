@@ -27,8 +27,12 @@
   </header>
 
   <div class="space-y-3">
-    <label class="sr-only" for="quick-search-input">{{ 'search.quick.placeholder' | translate }}</label>
-    <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-surface px-4 py-3 shadow-inner focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-100">
+    <label class="sr-only" for="quick-search-input">{{
+      'search.quick.placeholder' | translate
+    }}</label>
+    <div
+      class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-surface px-4 py-3 shadow-inner focus-within:border-primary-300 focus-within:ring-2 focus-within:ring-primary-100"
+    >
       <span class="text-subtle" aria-hidden="true">🔍</span>
       <input
         #queryInput
@@ -60,7 +64,9 @@
           {{ 'search.quick.actions.save' | translate }}
         </ng-template>
       </button>
-      <span class="hidden rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-subtle md:block">
+      <span
+        class="hidden rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-subtle md:block"
+      >
         Ctrl K
       </span>
     </div>
@@ -97,7 +103,11 @@
         <div class="rounded-2xl border border-red-200 bg-red-50/80 p-4 text-sm text-red-800">
           <p class="font-semibold">{{ 'search.quick.error.title' | translate }}</p>
           <p class="mt-1">{{ 'search.quick.error.description' | translate }}</p>
-          <button type="button" class="mt-3 inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-500" (click)="retry()">
+          <button
+            type="button"
+            class="mt-3 inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-500"
+            (click)="retry()"
+          >
             {{ 'search.quick.actions.retry' | translate }}
           </button>
         </div>
@@ -121,8 +131,10 @@
               class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-subtle"
               data-og7-id="quick-search-empty"
             >
-              <p class="text-base font-semibold text-title">{{ 'search.quick.empty.title' | translate }}</p>
-              <p>{{ 'search.quick.empty.subtitle' | translate:{ query: query() } }}</p>
+              <p class="text-base font-semibold text-title">
+                {{ 'search.quick.empty.title' | translate }}
+              </p>
+              <p>{{ 'search.quick.empty.subtitle' | translate: { query: query() } }}</p>
             </div>
           </ng-container>
         </div>
@@ -134,7 +146,9 @@
             data-og7="quick-search-section"
             [attr.data-og7-id]="'quick-search-section-' + section.id"
           >
-            <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">{{ section.title }}</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+              {{ section.title }}
+            </h3>
             <div class="space-y-2">
               <button
                 type="button"
@@ -157,29 +171,46 @@
     </section>
 
     <aside class="flex flex-col gap-4">
-      <section class="rounded-2xl border border-slate-200 bg-surface p-4 shadow-sm" *ngIf="historyEntries().length > 0">
-        <div class="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+      <section
+        class="rounded-2xl border border-slate-200 bg-surface p-4 shadow-sm"
+        *ngIf="historyEntries().length > 0"
+      >
+        <div
+          class="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.3em] text-subtle"
+        >
           <span>{{ 'search.quick.history.title' | translate }}</span>
-          <button type="button" class="text-[11px] font-medium text-primary" (click)="clearHistory()">
+          <button
+            type="button"
+            class="text-[11px] font-medium text-primary"
+            (click)="clearHistory()"
+          >
             {{ 'search.quick.history.clear' | translate }}
           </button>
         </div>
         <ul class="space-y-2 text-sm text-body">
           <li *ngFor="let entry of historyEntries(); trackBy: trackHistory">
-            <button type="button" class="flex w-full items-start justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-left transition hover:border-primary-200 hover:bg-primary-50" (click)="onHistorySelect(entry)">
+            <button
+              type="button"
+              class="flex w-full items-start justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-left transition hover:border-primary-200 hover:bg-primary-50"
+              (click)="onHistorySelect(entry)"
+            >
               <span class="flex-1">
                 <span class="block font-semibold text-title">{{ entry.label }}</span>
-                <span *ngIf="entry.description" class="text-xs text-subtle">{{ entry.description }}</span>
+                <span *ngIf="entry.description" class="text-xs text-subtle">{{
+                  entry.description
+                }}</span>
               </span>
               <span class="text-[11px] text-subtle">
-                {{ entry.visitedAt | date:'short' }}
+                {{ entry.visitedAt | date: 'short' }}
               </span>
             </button>
           </li>
         </ul>
       </section>
       <section class="rounded-2xl border border-slate-200 bg-surface p-4 text-xs text-subtle">
-        <h3 class="text-sm font-semibold text-title">{{ 'search.quick.shortcuts.title' | translate }}</h3>
+        <h3 class="text-sm font-semibold text-title">
+          {{ 'search.quick.shortcuts.title' | translate }}
+        </h3>
         <ul class="mt-3 space-y-2">
           <li class="flex items-center justify-between">
             <span>{{ 'search.quick.shortcuts.navigate' | translate }}</span>

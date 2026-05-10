@@ -11,14 +11,14 @@ This document describes the envisioned user experience for the importation works
 
 ## 2. Information architecture & layout
 
-| Fold | Section | Purpose |
-| --- | --- | --- |
+| Fold           | Section                     | Purpose                                                                                                           |
+| -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Above the fold | Overview header + KPI tiles | Show last-updated timestamp, total import value, YOY delta, and quick filters (region, HS section, partner type). |
-| Fold 1 | Flow map + timeline | Visualise import flows on a choropleth map, with timeline scrubber for month/quarter selection. |
-| Fold 2 | Commodity deep dive | Tabs for "Top commodities", "Emerging trends", and "Risk flags" with sortable tables and sparkline chips. |
-| Fold 3 | Supplier intelligence | Cards highlighting strategic suppliers, dependency scores, and diversification recommendations. |
-| Fold 4 | Collaboration hub | Shared watchlists, recent annotations, assignment panel, and export actions. |
-| Bottom | Knowledge base & next steps | Strapi-powered articles, alerts, and CTA to request an enriched dataset. |
+| Fold 1         | Flow map + timeline         | Visualise import flows on a choropleth map, with timeline scrubber for month/quarter selection.                   |
+| Fold 2         | Commodity deep dive         | Tabs for "Top commodities", "Emerging trends", and "Risk flags" with sortable tables and sparkline chips.         |
+| Fold 3         | Supplier intelligence       | Cards highlighting strategic suppliers, dependency scores, and diversification recommendations.                   |
+| Fold 4         | Collaboration hub           | Shared watchlists, recent annotations, assignment panel, and export actions.                                      |
+| Bottom         | Knowledge base & next steps | Strapi-powered articles, alerts, and CTA to request an enriched dataset.                                          |
 
 The page uses the authenticated shell layout (`<og7-app-shell>`) with a persistent left navigation. Breadcrumb: `Tableau de bord / Commerce extérieur / Importation`.
 
@@ -136,4 +136,3 @@ src/app/domains/trade/importation/
 2. What retention policy applies to scheduled reports and generated exports?
 3. Do we need to expose HS6-level detail or stop at HS4 for performance and confidentiality reasons?
 4. How do we integrate near-real-time customs alerts (RSS, email ingestion) into the collaboration feed?
-

@@ -33,12 +33,12 @@ export function buildFeedDraftPrefillKey(query: Pick<ParamMap, 'get'>): string |
 }
 
 export function buildFeedDraftPrefillKeyFromValues(prefill: FeedDraftPrefillQuery): string | null {
-  const values = FEED_DRAFT_QUERY_PARAM_KEYS.map(key => prefill[key] ?? '');
+  const values = FEED_DRAFT_QUERY_PARAM_KEYS.map((key) => prefill[key] ?? '');
   return values.some(Boolean) ? values.join('|') : null;
 }
 
 export function buildFeedDraftPrefillQueryParams(
-  prefill: Partial<Record<FeedDraftQueryParamKey, FeedDraftPrefillValue>>
+  prefill: Partial<Record<FeedDraftQueryParamKey, FeedDraftPrefillValue>>,
 ): Params {
   return FEED_DRAFT_QUERY_PARAM_KEYS.reduce<Params>((queryParams, key) => {
     const value = normalizeFeedDraftPrefillValue(prefill[key]);
@@ -50,10 +50,13 @@ export function buildFeedDraftPrefillQueryParams(
 }
 
 export function buildFeedDraftPrefillClearQueryParams(): Record<FeedDraftQueryParamKey, null> {
-  return FEED_DRAFT_QUERY_PARAM_KEYS.reduce<Record<FeedDraftQueryParamKey, null>>((queryParams, key) => {
-    queryParams[key] = null;
-    return queryParams;
-  }, {} as Record<FeedDraftQueryParamKey, null>);
+  return FEED_DRAFT_QUERY_PARAM_KEYS.reduce<Record<FeedDraftQueryParamKey, null>>(
+    (queryParams, key) => {
+      queryParams[key] = null;
+      return queryParams;
+    },
+    {} as Record<FeedDraftQueryParamKey, null>,
+  );
 }
 
 function createEmptyFeedDraftPrefillQuery(): FeedDraftPrefillQuery {

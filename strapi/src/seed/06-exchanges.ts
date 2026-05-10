@@ -36,7 +36,7 @@ export default async () => {
           sourceProvince: { id: sourceId },
           targetProvince: { id: targetId },
         },
-      }
+      },
     );
   }
 };

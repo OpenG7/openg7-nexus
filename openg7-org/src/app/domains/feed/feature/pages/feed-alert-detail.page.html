@@ -71,7 +71,11 @@
     </ng-container>
 
     <ng-template #emptyState>
-      <article class="feed-alert-detail__empty" *ngIf="loading(); else missingState" data-og7="alert-detail-loading">
+      <article
+        class="feed-alert-detail__empty"
+        *ngIf="loading(); else missingState"
+        data-og7="alert-detail-loading"
+      >
         <h2>{{ 'feed.alert.detail.loadingTitle' | translate }}</h2>
         <p>{{ 'feed.alert.detail.loadingBody' | translate }}</p>
       </article>
@@ -79,18 +83,12 @@
       <ng-template #missingState>
         <article class="feed-alert-detail__empty" data-og7="alert-detail-missing">
           <h2>
-            {{
-              notFound()
-                ? ('feed.alert.detail.notFoundTitle' | translate)
-                : ('feed.alert.detail.errorTitle' | translate)
-            }}
+            {{ notFound() ? ('feed.alert.detail.notFoundTitle' | translate) :
+            ('feed.alert.detail.errorTitle' | translate) }}
           </h2>
           <p>
-            {{
-              notFound()
-                ? ('feed.alert.detail.notFoundBody' | translate)
-                : (error() || ('feed.alert.detail.errorBody' | translate))
-            }}
+            {{ notFound() ? ('feed.alert.detail.notFoundBody' | translate) : (error() ||
+            ('feed.alert.detail.errorBody' | translate)) }}
           </p>
           <div class="feed-alert-detail__empty-actions">
             <button

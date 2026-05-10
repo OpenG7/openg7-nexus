@@ -1,8 +1,14 @@
-<header class="indicator-hero" [class.indicator-hero--compact]="compact()" data-og7="indicator-detail-header">
+<header
+  class="indicator-hero"
+  [class.indicator-hero--compact]="compact()"
+  data-og7="indicator-detail-header"
+>
   <div class="indicator-hero__breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/feed">{{ 'feed.title' | translate }}</a>
     <span>/</span>
-    <a routerLink="/feed" [queryParams]="{ type: 'INDICATOR' }">{{ 'feed.indicator.detail.breadcrumbIndicators' | translate }}</a>
+    <a routerLink="/feed" [queryParams]="{ type: 'INDICATOR' }">{{
+      'feed.indicator.detail.breadcrumbIndicators' | translate
+    }}</a>
     <span>/</span>
     <strong>{{ 'feed.indicator.detail.breadcrumbCurrent' | translate }}</strong>
   </div>
@@ -84,20 +90,20 @@
         [attr.data-og7-id]="'indicator-granularity-' + option"
         (click)="granularityChange.emit(option)"
       >
-        {{ ('feed.indicator.detail.granularity.' + option) | translate }}
+        {{ 'feed.indicator.detail.granularity.' + option | translate }}
       </button>
     </div>
   </div>
 
   <div class="indicator-hero__meta">
     <span [attr.data-og7-state]="connectionState()">
-      {{ ('feed.indicator.detail.connection.' + connectionState()) | translate }}
+      {{ 'feed.indicator.detail.connection.' + connectionState() | translate }}
     </span>
     <span>
-      {{ 'feed.indicator.detail.lastUpdate' | translate:{ value: lastUpdatedLabel() } }}
+      {{ 'feed.indicator.detail.lastUpdate' | translate: { value: lastUpdatedLabel() } }}
     </span>
     <span>
-      {{ 'feed.indicator.detail.chips.windowHours' | translate:{ value: windowHours() } }}
+      {{ 'feed.indicator.detail.chips.windowHours' | translate: { value: windowHours() } }}
     </span>
     <span>
       {{ granularityLabel() }}

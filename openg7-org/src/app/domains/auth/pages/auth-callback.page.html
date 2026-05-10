@@ -3,8 +3,8 @@
   class="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center"
 >
   @if (error(); as message) {
-    <p class="text-sm text-red-600" role="alert">{{ message }}</p>
+  <p class="text-sm text-red-600" role="alert">{{ message }}</p>
   } @else {
-    <p class="text-sm text-slate-600">{{ 'auth.login.loading' | translate }}</p>
+  <p class="text-sm text-slate-600">{{ 'auth.login.loading' | translate }}</p>
   }
 </section>

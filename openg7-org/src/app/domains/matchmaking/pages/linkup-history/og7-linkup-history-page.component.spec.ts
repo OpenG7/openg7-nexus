@@ -71,10 +71,7 @@ describe('Og7LinkupHistoryPageComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [Og7LinkupHistoryPageComponent, TranslateModule.forRoot()],
-      providers: [
-        provideRouter([]),
-        { provide: LinkupDataService, useValue: linkups },
-      ],
+      providers: [provideRouter([]), { provide: LinkupDataService, useValue: linkups }],
     }).compileComponents();
   });
 
@@ -151,9 +148,9 @@ describe('Og7LinkupHistoryPageComponent', () => {
     ]);
 
     const retryButton = Array.from(
-      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
-    ).find(
-      (button: HTMLButtonElement) => (button.textContent as string).includes('pages.linkups.actions.retry')
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+    ).find((button: HTMLButtonElement) =>
+      (button.textContent as string).includes('pages.linkups.actions.retry'),
     ) as HTMLButtonElement;
 
     retryButton.click();

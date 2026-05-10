@@ -12,7 +12,11 @@
     radial-gradient(circle at 62% 24%, rgba(125, 211, 252, 0.22) 0 1px, transparent 2px),
     radial-gradient(circle at 82% 62%, rgba(191, 219, 254, 0.22) 0 1px, transparent 2px),
     radial-gradient(circle at 28% 72%, rgba(147, 197, 253, 0.18) 0 1px, transparent 2px);
-  background-size: 320px 320px, 420px 420px, 520px 520px, 660px 660px;
+  background-size:
+    320px 320px,
+    420px 420px,
+    520px 520px,
+    660px 660px;
   opacity: 0.8;
 }
 

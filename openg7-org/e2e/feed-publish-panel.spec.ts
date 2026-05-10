@@ -27,7 +27,9 @@ interface FeedApiItem {
 const e2eOrigin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4300';
 
 test.describe('Feed publish panel', () => {
-  test('publishes a prefilled exchange, clears the draft URL, and persists after reload', async ({ page }) => {
+  test('publishes a prefilled exchange, clears the draft URL, and persists after reload', async ({
+    page,
+  }) => {
     const publishedItems: FeedApiItem[] = [];
     const corsHeaders = {
       'access-control-allow-origin': e2eOrigin,
@@ -53,10 +55,11 @@ test.describe('Feed publish panel', () => {
         }
       }
 
-      (window as Window & { EventSource?: typeof EventSource }).EventSource = ConnectedEventSource as unknown as typeof EventSource;
+      (window as Window & { EventSource?: typeof EventSource }).EventSource =
+        ConnectedEventSource as unknown as typeof EventSource;
     });
 
-    await page.route('**/runtime-config.js', async route => {
+    await page.route('**/runtime-config.js', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/javascript',
@@ -72,7 +75,7 @@ test.describe('Feed publish panel', () => {
     await mockAuthenticatedSessionApis(page);
     await seedAuthenticatedSession(page);
 
-    await page.route('**/api/sectors', async route => {
+    await page.route('**/api/sectors', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -82,7 +85,7 @@ test.describe('Feed publish panel', () => {
       });
     });
 
-    await page.route('**/api/provinces', async route => {
+    await page.route('**/api/provinces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -95,7 +98,7 @@ test.describe('Feed publish panel', () => {
       });
     });
 
-    await page.route('**/api/feed**', async route => {
+    await page.route('**/api/feed**', async (route) => {
       const request = route.request();
       const pathname = new URL(request.url()).pathname;
       if (pathname !== '/api/feed') {
@@ -176,15 +179,17 @@ test.describe('Feed publish panel', () => {
     const title = 'Winter balancing support';
     const summary = 'Cross-border balancing support required after the weather alert.';
     await page.goto(
-      `/feed?draftSource=alert&draftAlertId=alert-001&draftOriginType=alert&draftOriginId=alert-001&draftType=REQUEST&draftMode=IMPORT&draftSectorId=energy&draftFromProvinceId=on&draftToProvinceId=qc&draftTitle=${encodeURIComponent(title)}&draftSummary=${encodeURIComponent(summary)}&draftTags=linked-alert,grid`
+      `/feed?draftSource=alert&draftAlertId=alert-001&draftOriginType=alert&draftOriginId=alert-001&draftType=REQUEST&draftMode=IMPORT&draftSectorId=energy&draftFromProvinceId=on&draftToProvinceId=qc&draftTitle=${encodeURIComponent(title)}&draftSummary=${encodeURIComponent(summary)}&draftTags=linked-alert,grid`,
     );
 
     await expect(page.locator('[data-og7="feed-publish-drawer"]')).toBeVisible();
     await expect(page.locator('#composer-title')).toHaveValue(title);
     await expect(page.locator('#composer-summary')).toHaveValue(summary);
 
-    const publishResponse = page.waitForResponse(response =>
-      response.url().includes('/api/feed') && response.request().method().toUpperCase() === 'POST'
+    const publishResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/feed') &&
+        response.request().method().toUpperCase() === 'POST',
     );
     await page.locator('.feed-composer__submit').click();
     await publishResponse;

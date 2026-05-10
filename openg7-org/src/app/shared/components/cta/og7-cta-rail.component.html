@@ -8,13 +8,19 @@
   >
     <div class="space-y-3">
       <p class="text-[0.65rem] font-semibold uppercase tracking-[0.32em] text-white/80">
-        {{ ready() ? ('introBillboard.ctaReady' | translate) : ('introBillboard.ctaPrepare' | translate) }}
+        {{
+          ready()
+            ? ('introBillboard.ctaReady' | translate)
+            : ('introBillboard.ctaPrepare' | translate)
+        }}
       </p>
       <p class="text-2xl font-semibold leading-tight">
         {{ creating() ? ('introBillboard.ctaSending' | translate) : ('cta.sendIntro' | translate) }}
       </p>
     </div>
-    <div class="flex flex-col items-end gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/90">
+    <div
+      class="flex flex-col items-end gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/90"
+    >
       <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1">
         <span [ngClass]="statusDotClass()"></span>
         {{ statusLabel() | translate }}
@@ -35,8 +41,10 @@
       <span class="badge-tertiary">{{ slotsLabel() }}</span>
     </div>
     <p class="text-xs text-subtle">{{ 'introBillboard.ctaSlotsHint' | translate }}</p>
-    <div class="mt-2 flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.24em] text-subtle">
-      <span class="inline-flex h-2 w-2 rounded-full" style="background-color:#16a34a"></span>
+    <div
+      class="mt-2 flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.24em] text-subtle"
+    >
+      <span class="inline-flex h-2 w-2 rounded-full" style="background-color: #16a34a"></span>
       <span>{{ 'introBillboard.pipelineActive' | translate }}</span>
     </div>
   </button>
@@ -51,8 +59,10 @@
       <span class="badge-tertiary">{{ attachmentsLabel() }}</span>
     </div>
     <p class="text-xs text-subtle">{{ 'introBillboard.ctaDocsHint' | translate }}</p>
-    <div class="mt-2 flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.24em] text-subtle">
-      <span class="inline-flex h-2 w-2 rounded-full" style="background-color:#2563eb"></span>
+    <div
+      class="mt-2 flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.24em] text-subtle"
+    >
+      <span class="inline-flex h-2 w-2 rounded-full" style="background-color: #2563eb"></span>
       <span>{{ 'attachments.title' | translate }}</span>
     </div>
   </button>

@@ -20,11 +20,11 @@ L'objectif n'est pas seulement d'afficher une alerte statique, mais de transform
 
 ## 3. Persona principal
 
-| Persona | Rôle | Besoin immédiat | Critère de succès |
-| --- | --- | --- | --- |
-| Responsable commercial énergie | Valoriser un volume disponible non écoulé | Publier vite une opportunité crédible et ciblée | Première prise de contact en moins de 24 h |
-| Responsable opérations / terminal | Signaler un ralentissement de sortie | Trouver une solution de délestage, stockage ou redirection | Réduction du stock immobilisé |
-| Analyste marché interne | Documenter le contexte du signal | Comparer l'événement à la demande régionale et aux prix | Traçabilité complète |
+| Persona                           | Rôle                                      | Besoin immédiat                                            | Critère de succès                          |
+| --------------------------------- | ----------------------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
+| Responsable commercial énergie    | Valoriser un volume disponible non écoulé | Publier vite une opportunité crédible et ciblée            | Première prise de contact en moins de 24 h |
+| Responsable opérations / terminal | Signaler un ralentissement de sortie      | Trouver une solution de délestage, stockage ou redirection | Réduction du stock immobilisé              |
+| Analyste marché interne           | Documenter le contexte du signal          | Comparer l'événement à la demande régionale et aux prix    | Traçabilité complète                       |
 
 ## 4. Déclencheurs du cas d'usage
 

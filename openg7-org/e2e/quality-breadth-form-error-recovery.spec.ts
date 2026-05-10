@@ -38,8 +38,12 @@ test.describe('Quality breadth form error recovery', () => {
 
     await expect(page).toHaveURL(/\/profile$/);
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(0);
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()).toBeVisible();
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(
+      0,
+    );
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
+    ).toBeVisible();
   });
 
   test('clears a profile field error before saving and finishes with one coherent success state', async ({
@@ -71,8 +75,12 @@ test.describe('Quality breadth form error recovery', () => {
 
     await saveButton.click();
 
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(0);
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()).toBeVisible();
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(
+      0,
+    );
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toHaveCount(0);
     await expect(webhookError).toHaveCount(0);
   });
@@ -87,12 +95,24 @@ test.describe('Quality breadth form error recovery', () => {
     await page.locator('[data-og7-id="opportunity-make-offer"]').click();
 
     const drawer = page.locator('[data-og7="opportunity-offer-drawer"]');
-    const capacityInput = drawer.locator('[data-og7="opportunity-offer-field"][data-og7-id="capacity"]');
-    const startDateInput = drawer.locator('[data-og7="opportunity-offer-field"][data-og7-id="start-date"]');
-    const endDateInput = drawer.locator('[data-og7="opportunity-offer-field"][data-og7-id="end-date"]');
-    const pricingModelInput = drawer.locator('[data-og7="opportunity-offer-field"][data-og7-id="pricing-model"]');
-    const commentInput = drawer.locator('[data-og7="opportunity-offer-field"][data-og7-id="comment"]');
-    const validationSummary = drawer.locator('[data-og7="opportunity-offer-validation"][data-og7-id="summary"]');
+    const capacityInput = drawer.locator(
+      '[data-og7="opportunity-offer-field"][data-og7-id="capacity"]',
+    );
+    const startDateInput = drawer.locator(
+      '[data-og7="opportunity-offer-field"][data-og7-id="start-date"]',
+    );
+    const endDateInput = drawer.locator(
+      '[data-og7="opportunity-offer-field"][data-og7-id="end-date"]',
+    );
+    const pricingModelInput = drawer.locator(
+      '[data-og7="opportunity-offer-field"][data-og7-id="pricing-model"]',
+    );
+    const commentInput = drawer.locator(
+      '[data-og7="opportunity-offer-field"][data-og7-id="comment"]',
+    );
+    const validationSummary = drawer.locator(
+      '[data-og7="opportunity-offer-validation"][data-og7-id="summary"]',
+    );
 
     await expect(drawer).toBeVisible();
     await capacityInput.fill('');
@@ -109,7 +129,9 @@ test.describe('Quality breadth form error recovery', () => {
     await startDateInput.fill('2026-03-20');
     await endDateInput.fill('2026-03-31');
     await pricingModelInput.selectOption('fixed');
-    await commentInput.fill('Recovered draft now meets the minimum comment length and can be submitted.');
+    await commentInput.fill(
+      'Recovered draft now meets the minimum comment length and can be submitted.',
+    );
 
     await expect(validationSummary).toHaveCount(0);
     await expect(startDateInput).not.toHaveAttribute('aria-invalid', 'true');
@@ -119,8 +141,12 @@ test.describe('Quality breadth form error recovery', () => {
     await drawer.locator('[data-og7-id="opportunity-offer-submit"]').click();
 
     await expect(drawer).toBeHidden();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(0);
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()).toBeVisible();
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(
+      0,
+    );
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="opportunity-qna"]')).toContainText('315 MW');
     await expect(page.locator('[data-og7="opportunity-qna"]')).toContainText('fixed');
   });

@@ -2,7 +2,11 @@ import './setup';
 import { expect, test } from '@playwright/test';
 
 import { loginAsAuthenticatedE2eUser, seedAuthenticatedSession } from './helpers/auth-session';
-import { DEFAULT_PROFILE, mockCompanyApis, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
+import {
+  DEFAULT_PROFILE,
+  mockCompanyApis,
+  mockProfileAndFavoritesApis,
+} from './helpers/domain-mocks';
 
 test.describe('Use-case audit gap coverage', () => {
   test('submits the full company registration stepper', async ({ page }) => {
@@ -33,8 +37,15 @@ test.describe('Use-case audit gap coverage', () => {
     await page.locator('#company-logo-secondary').fill('https://cdn.example.test/logo-alt.png');
 
     const [createRequest, createResponse] = await Promise.all([
-      page.waitForRequest((request) => request.method().toUpperCase() === 'POST' && request.url().includes('/api/companies')),
-      page.waitForResponse((response) => response.request().method().toUpperCase() === 'POST' && response.url().includes('/api/companies')),
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'POST' && request.url().includes('/api/companies'),
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'POST' &&
+          response.url().includes('/api/companies'),
+      ),
       page.getByRole('button', { name: 'Submit company' }).click(),
     ]);
 
@@ -75,7 +86,9 @@ test.describe('Use-case audit gap coverage', () => {
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
   });
 
-  test('restores the authenticated session after a hard reload on a protected route', async ({ page }) => {
+  test('restores the authenticated session after a hard reload on a protected route', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page);
 
     await page.goto('/');
@@ -106,8 +119,16 @@ test.describe('Use-case audit gap coverage', () => {
     await expect(profileSaveButton).toBeEnabled();
 
     const [updateRequest, updateResponse] = await Promise.all([
-      page.waitForRequest((request) => request.method().toUpperCase() === 'PUT' && request.url().includes('/api/users/me/profile')),
-      page.waitForResponse((response) => response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/users/me/profile')),
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' &&
+          request.url().includes('/api/users/me/profile'),
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/users/me/profile'),
+      ),
       profileSaveButton.click(),
     ]);
 
@@ -129,7 +150,9 @@ test.describe('Use-case audit gap coverage', () => {
     await expect(page.locator('#profile-phone')).toHaveValue('+1 514 555 0199');
 
     const passwordForm = page.locator('[data-og7="user-profile-change-password"]');
-    const encryptedTokenBefore = await page.evaluate(() => window.localStorage.getItem('auth_token'));
+    const encryptedTokenBefore = await page.evaluate(() =>
+      window.localStorage.getItem('auth_token'),
+    );
 
     await passwordForm.locator('#profile-password-current').fill('StrongPass123!');
     await passwordForm.locator('#profile-password-new').fill('StrongerPass456!');
@@ -138,7 +161,7 @@ test.describe('Use-case audit gap coverage', () => {
     const passwordResponse = page.waitForResponse(
       (response) =>
         response.request().method().toUpperCase() === 'POST' &&
-        response.url().includes('/api/auth/change-password')
+        response.url().includes('/api/auth/change-password'),
     );
     await passwordForm.locator('button[type="submit"]').click();
     expect((await passwordResponse).status()).toBe(200);
@@ -157,7 +180,7 @@ test.describe('Use-case audit gap coverage', () => {
     const emailChangeResponse = page.waitForResponse(
       (response) =>
         response.request().method().toUpperCase() === 'POST' &&
-        response.url().includes('/api/users/me/profile/email-change')
+        response.url().includes('/api/users/me/profile/email-change'),
     );
     await emailChangeForm.locator('button[type="submit"]').click();
     expect((await emailChangeResponse).status()).toBe(200);
@@ -198,15 +221,33 @@ test.describe('Use-case audit gap coverage', () => {
       .toContain('Cross-province trust review');
 
     const [saveRequest, saveResponse] = await Promise.all([
-      page.waitForRequest((request) => request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')),
-      page.waitForResponse((response) => response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/companies/1001')),
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001'),
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/companies/1001'),
+      ),
       page.locator('[data-og7-id="admin-trust-save"]').click(),
     ]);
 
     const savePayload = saveRequest.postDataJSON() as {
       data?: {
-        verificationSources?: Array<{ name?: string; referenceId?: string; type?: string; status?: string }>;
-        trustHistory?: Array<{ label?: string; type?: string; direction?: string; occurredAt?: string; score?: number }>;
+        verificationSources?: Array<{
+          name?: string;
+          referenceId?: string;
+          type?: string;
+          status?: string;
+        }>;
+        trustHistory?: Array<{
+          label?: string;
+          type?: string;
+          direction?: string;
+          occurredAt?: string;
+          score?: number;
+        }>;
       };
     };
 
@@ -219,7 +260,7 @@ test.describe('Use-case audit gap coverage', () => {
           type: 'chamber',
           status: 'validated',
         }),
-      ])
+      ]),
     );
     expect(savePayload.data?.trustHistory).toEqual(
       expect.arrayContaining([
@@ -230,7 +271,7 @@ test.describe('Use-case audit gap coverage', () => {
           occurredAt: '2026-03-15',
           score: 94,
         }),
-      ])
+      ]),
     );
 
     await page.reload();

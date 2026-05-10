@@ -31,7 +31,7 @@ Le fichier [`opensearch.tf`](./opensearch.tf) décrit un exemple de domaine Open
 1. Configurer les webhooks Strapi (`afterCreate/afterUpdate/afterDelete`) pour pousser les mutations vers une file (`indexing-jobs`).
 2. Un worker Node.js (ou Lambda) dépile les jobs et appelle OpenSearch avec signature SigV4.
 3. `companies` et `exchanges` sont indexés avec mapping explicite (`keyword` + `text`, champs géographiques pour la carte).
-4. Les purges (DELETE) déclenchent également la purge Varnish via le webhook `PURGE /cache`. 
+4. Les purges (DELETE) déclenchent également la purge Varnish via le webhook `PURGE /cache`.
 
 ## Monitoring
 

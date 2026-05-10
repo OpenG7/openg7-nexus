@@ -6,7 +6,7 @@ test.describe('Corridors realtime', () => {
     await page.goto('/');
 
     const corridorItem = page.locator(
-      '[data-og7="corridors-realtime"] [data-og7-id="corridor-item"][data-og7-corridor-id="essential-services"]'
+      '[data-og7="corridors-realtime"] [data-og7-id="corridor-item"][data-og7-corridor-id="essential-services"]',
     );
 
     await expect(corridorItem).toBeVisible();
@@ -26,8 +26,12 @@ test.describe('Corridors realtime', () => {
     await expect(page.locator('#feed-from')).toHaveValue(/QC$/);
     await expect(page.locator('#feed-to')).toHaveValue(/ON$/);
     await expect(page.locator('[data-og7="feed-active-filters"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toBeVisible();
 
     await expect.poll(() => page.locator('[data-feed-item-id]').count()).toBe(2);
     await expect(page.locator('[data-feed-item-id="offer-001"]')).toBeVisible();

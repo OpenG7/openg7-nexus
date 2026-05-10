@@ -9,5 +9,5 @@ import { HttpContext, HttpContextToken } from '@angular/common/http';
 export const SUPPRESS_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
 
 export function createSilentHttpContext(): HttpContext {
-	return new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
+  return new HttpContext().set(SUPPRESS_ERROR_TOAST, true);
 }

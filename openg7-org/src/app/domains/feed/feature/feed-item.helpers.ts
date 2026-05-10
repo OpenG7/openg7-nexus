@@ -16,7 +16,7 @@ export function buildFeedFavoriteKey(item: Pick<FeedItem, 'id' | 'type'>): strin
 }
 
 export function resolveFeedConnectionMatchId(
-  item: Pick<FeedItem, 'type' | 'connectionMatchId'> | null | undefined
+  item: Pick<FeedItem, 'type' | 'connectionMatchId'> | null | undefined,
 ): number | null {
   if (!item || !isFeedOpportunityType(item.type)) {
     return null;

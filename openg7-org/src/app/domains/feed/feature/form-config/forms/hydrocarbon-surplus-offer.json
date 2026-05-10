@@ -19,8 +19,16 @@
           "placeholderKey": "forms.hydrocarbonSurplus.fields.title.placeholder",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 3, "errorKey": "forms.hydrocarbonSurplus.validation.title.minLength" },
-            { "type": "maxLength", "value": 160, "errorKey": "forms.hydrocarbonSurplus.validation.title.maxLength" }
+            {
+              "type": "minLength",
+              "value": 3,
+              "errorKey": "forms.hydrocarbonSurplus.validation.title.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 160,
+              "errorKey": "forms.hydrocarbonSurplus.validation.title.maxLength"
+            }
           ]
         },
         {
@@ -31,8 +39,16 @@
           "helpKey": "forms.hydrocarbonSurplus.fields.summary.help",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 10, "errorKey": "forms.hydrocarbonSurplus.validation.summary.minLength" },
-            { "type": "maxLength", "value": 5000, "errorKey": "forms.hydrocarbonSurplus.validation.summary.maxLength" }
+            {
+              "type": "minLength",
+              "value": 10,
+              "errorKey": "forms.hydrocarbonSurplus.validation.summary.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 5000,
+              "errorKey": "forms.hydrocarbonSurplus.validation.summary.maxLength"
+            }
           ]
         },
         {
@@ -50,8 +66,14 @@
           "defaultValue": "surplus",
           "required": true,
           "options": [
-            { "value": "surplus", "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.surplus" },
-            { "value": "slowdown", "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.slowdown" }
+            {
+              "value": "surplus",
+              "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.surplus"
+            },
+            {
+              "value": "slowdown",
+              "labelKey": "forms.hydrocarbonSurplus.fields.publicationType.options.slowdown"
+            }
           ],
           "width": "half"
         },
@@ -61,11 +83,26 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.productType.label",
           "required": true,
           "options": [
-            { "value": "crude-oil", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.crudeOil" },
-            { "value": "bitumen", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.bitumen" },
-            { "value": "synthetic-crude", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.syntheticCrude" },
-            { "value": "diesel", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.diesel" },
-            { "value": "other", "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.other" }
+            {
+              "value": "crude-oil",
+              "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.crudeOil"
+            },
+            {
+              "value": "bitumen",
+              "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.bitumen"
+            },
+            {
+              "value": "synthetic-crude",
+              "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.syntheticCrude"
+            },
+            {
+              "value": "diesel",
+              "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.diesel"
+            },
+            {
+              "value": "other",
+              "labelKey": "forms.hydrocarbonSurplus.fields.productType.options.other"
+            }
           ],
           "width": "half"
         },
@@ -75,11 +112,26 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.label",
           "required": true,
           "options": [
-            { "value": "surplus-stock", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.surplusStock" },
-            { "value": "demand-slowdown", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.demandSlowdown" },
-            { "value": "transport-disruption", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.transportDisruption" },
-            { "value": "buyer-outage", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.buyerOutage" },
-            { "value": "price-window", "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.priceWindow" }
+            {
+              "value": "surplus-stock",
+              "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.surplusStock"
+            },
+            {
+              "value": "demand-slowdown",
+              "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.demandSlowdown"
+            },
+            {
+              "value": "transport-disruption",
+              "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.transportDisruption"
+            },
+            {
+              "value": "buyer-outage",
+              "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.buyerOutage"
+            },
+            {
+              "value": "price-window",
+              "labelKey": "forms.hydrocarbonSurplus.fields.businessReason.options.priceWindow"
+            }
           ],
           "width": "half"
         }
@@ -96,7 +148,11 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.volumeBarrels.label",
           "required": true,
           "validators": [
-            { "type": "min", "value": 1, "errorKey": "forms.hydrocarbonSurplus.validation.volumeBarrels.min" }
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.hydrocarbonSurplus.validation.volumeBarrels.min"
+            }
           ],
           "width": "half"
         },
@@ -105,7 +161,11 @@
           "type": "number",
           "labelKey": "forms.hydrocarbonSurplus.fields.minimumLotBarrels.label",
           "validators": [
-            { "type": "min", "value": 1, "errorKey": "forms.hydrocarbonSurplus.validation.minimumLotBarrels.min" }
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.hydrocarbonSurplus.validation.minimumLotBarrels.min"
+            }
           ],
           "width": "half"
         },
@@ -122,7 +182,11 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.availableUntil.label",
           "required": true,
           "validators": [
-            { "type": "dateOrder", "compareWithField": "availableFrom", "errorKey": "forms.hydrocarbonSurplus.validation.availableUntil.dateOrder" }
+            {
+              "type": "dateOrder",
+              "compareWithField": "availableFrom",
+              "errorKey": "forms.hydrocarbonSurplus.validation.availableUntil.dateOrder"
+            }
           ],
           "width": "half"
         },
@@ -132,7 +196,11 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.estimatedDelayDays.label",
           "helpKey": "forms.hydrocarbonSurplus.fields.estimatedDelayDays.help",
           "validators": [
-            { "type": "min", "value": 0, "errorKey": "forms.hydrocarbonSurplus.validation.estimatedDelayDays.min" }
+            {
+              "type": "min",
+              "value": 0,
+              "errorKey": "forms.hydrocarbonSurplus.validation.estimatedDelayDays.min"
+            }
           ],
           "visibleWhen": [
             { "field": "publicationType", "operator": "equals", "value": "slowdown" }
@@ -145,10 +213,22 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.label",
           "defaultValue": "medium",
           "options": [
-            { "value": "low", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.low" },
-            { "value": "medium", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.medium" },
-            { "value": "high", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.high" },
-            { "value": "critical", "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.critical" }
+            {
+              "value": "low",
+              "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.low"
+            },
+            {
+              "value": "medium",
+              "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.medium"
+            },
+            {
+              "value": "high",
+              "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.high"
+            },
+            {
+              "value": "critical",
+              "labelKey": "forms.hydrocarbonSurplus.fields.storagePressureLevel.options.critical"
+            }
           ],
           "width": "half"
         }
@@ -188,10 +268,22 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.label",
           "required": true,
           "options": [
-            { "value": "wcs", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wcs" },
-            { "value": "wti-linked", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wtiLinked" },
-            { "value": "synthetic-blend", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.syntheticBlend" },
-            { "value": "other", "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.other" }
+            {
+              "value": "wcs",
+              "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wcs"
+            },
+            {
+              "value": "wti-linked",
+              "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.wtiLinked"
+            },
+            {
+              "value": "synthetic-blend",
+              "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.syntheticBlend"
+            },
+            {
+              "value": "other",
+              "labelKey": "forms.hydrocarbonSurplus.fields.qualityGrade.options.other"
+            }
           ],
           "width": "half"
         },
@@ -201,11 +293,26 @@
           "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.label",
           "required": true,
           "options": [
-            { "value": "pipeline", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.pipeline" },
-            { "value": "rail", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.rail" },
-            { "value": "truck", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.truck" },
-            { "value": "storage-transfer", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer" },
-            { "value": "mixed", "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.mixed" }
+            {
+              "value": "pipeline",
+              "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.pipeline"
+            },
+            {
+              "value": "rail",
+              "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.rail"
+            },
+            {
+              "value": "truck",
+              "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.truck"
+            },
+            {
+              "value": "storage-transfer",
+              "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.storageTransfer"
+            },
+            {
+              "value": "mixed",
+              "labelKey": "forms.hydrocarbonSurplus.fields.logisticsMode.options.mixed"
+            }
           ]
         },
         {
@@ -219,8 +326,14 @@
             { "value": "mb", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.mb" },
             { "value": "on", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.on" },
             { "value": "qc", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.qc" },
-            { "value": "refining-network", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.refiningNetwork" },
-            { "value": "storage-network", "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.storageNetwork" }
+            {
+              "value": "refining-network",
+              "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.refiningNetwork"
+            },
+            {
+              "value": "storage-network",
+              "labelKey": "forms.hydrocarbonSurplus.fields.targetScope.options.storageNetwork"
+            }
           ]
         }
       ]

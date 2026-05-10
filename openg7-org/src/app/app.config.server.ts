@@ -12,7 +12,7 @@ const serverOnly: ApplicationConfig = {
     provideServerRendering(),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor, csrfInterceptor, errorInterceptor])
+      withInterceptors([authInterceptor, csrfInterceptor, errorInterceptor]),
     ),
   ],
 };

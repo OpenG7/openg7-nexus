@@ -90,7 +90,11 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <article class="feed-opportunity-detail__empty" *ngIf="loading(); else missingState" data-og7="opportunity-detail-loading">
+    <article
+      class="feed-opportunity-detail__empty"
+      *ngIf="loading(); else missingState"
+      data-og7="opportunity-detail-loading"
+    >
       <h2>{{ 'feed.opportunity.detail.loadingTitle' | translate }}</h2>
       <p>{{ 'feed.opportunity.detail.loadingBody' | translate }}</p>
     </article>

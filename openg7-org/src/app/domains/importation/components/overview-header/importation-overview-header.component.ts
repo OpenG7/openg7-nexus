@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,7 +86,7 @@ export class ImportationOverviewHeaderComponent implements OnChanges {
 
     const validationError = this.validatePeriodValue(
       normalized,
-      this.viewModel.filters.filters.periodGranularity
+      this.viewModel.filters.filters.periodGranularity,
     );
     if (validationError) {
       this.periodValueErrorKey = validationError;
@@ -131,7 +139,7 @@ export class ImportationOverviewHeaderComponent implements OnChanges {
 
     const validationError = this.validatePeriodValue(
       normalized,
-      this.viewModel.filters.filters.periodGranularity
+      this.viewModel.filters.filters.periodGranularity,
     );
     if (validationError) {
       this.compareWithErrorKey = 'pages.importation.filters.validation.compareWith';
@@ -176,7 +184,7 @@ export class ImportationOverviewHeaderComponent implements OnChanges {
 
   private validatePeriodValue(
     value: string,
-    granularity: ImportationPeriodGranularity
+    granularity: ImportationPeriodGranularity,
   ): string | null {
     if (granularity === 'month') {
       return /^\d{4}-(0[1-9]|1[0-2])$/.test(value)
@@ -190,8 +198,6 @@ export class ImportationOverviewHeaderComponent implements OnChanges {
         : 'pages.importation.filters.validation.periodQuarter';
     }
 
-    return /^\d{4}$/.test(value)
-      ? null
-      : 'pages.importation.filters.validation.periodYear';
+    return /^\d{4}$/.test(value) ? null : 'pages.importation.filters.validation.periodYear';
   }
 }

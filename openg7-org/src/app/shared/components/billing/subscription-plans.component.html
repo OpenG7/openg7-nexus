@@ -32,18 +32,29 @@
 
         <div class="plans__price" aria-live="polite">
           <span class="plans__amount">{{ planPrice(plan) }}</span>
-          <span *ngIf="plan.price.amount > 0" class="plans__interval">{{ planInterval(plan) }}</span>
+          <span *ngIf="plan.price.amount > 0" class="plans__interval">{{
+            planInterval(plan)
+          }}</span>
         </div>
 
         <ul class="plans__features">
           <li *ngFor="let feature of plan.features">{{ feature | translate }}</li>
         </ul>
 
-        <div class="plans__badges" *ngIf="plan.capabilities.premiumVisibility || plan.capabilities.priorityAnalytics">
-          <span *ngIf="plan.capabilities.premiumVisibility" class="plans__badge plans__badge--visibility">
+        <div
+          class="plans__badges"
+          *ngIf="plan.capabilities.premiumVisibility || plan.capabilities.priorityAnalytics"
+        >
+          <span
+            *ngIf="plan.capabilities.premiumVisibility"
+            class="plans__badge plans__badge--visibility"
+          >
             {{ 'pricing.plans.capabilities.visibility' | translate }}
           </span>
-          <span *ngIf="plan.capabilities.priorityAnalytics" class="plans__badge plans__badge--analytics">
+          <span
+            *ngIf="plan.capabilities.priorityAnalytics"
+            class="plans__badge plans__badge--analytics"
+          >
             {{ 'pricing.plans.capabilities.analytics' | translate }}
           </span>
         </div>
@@ -66,7 +77,11 @@
               {{ 'pricing.plans.current' | translate }}
             </ng-container>
             <ng-template #defaultCta>
-              {{ plan.tier === 'free' ? ('pricing.plans.freeCta' | translate) : ('pricing.plans.upgrade' | translate) }}
+              {{
+                plan.tier === 'free'
+                  ? ('pricing.plans.freeCta' | translate)
+                  : ('pricing.plans.upgrade' | translate)
+              }}
             </ng-template>
           </ng-template>
         </button>
@@ -104,7 +119,11 @@
     </div>
 
     <ng-template #invoicesContent>
-      <div *ngIf="invoicesError(); else invoicesTable" class="plans__state plans__state--error" role="alert">
+      <div
+        *ngIf="invoicesError(); else invoicesTable"
+        class="plans__state plans__state--error"
+        role="alert"
+      >
         <p>{{ invoicesError() }}</p>
         <button type="button" class="plans__retry" (click)="loadInvoices()">
           {{ 'pricing.invoices.retry' | translate }}
@@ -124,10 +143,19 @@
         </thead>
         <tbody>
           <tr *ngFor="let invoice of invoices()">
-            <td data-title="{{ 'pricing.invoices.date' | translate }}">{{ invoice.createdAt | date: 'mediumDate' }}</td>
-            <td data-title="{{ 'pricing.invoices.status.label' | translate }}">{{ invoiceStatus(invoice) }}</td>
-            <td data-title="{{ 'pricing.invoices.amount' | translate }}">{{ invoiceAmount(invoice) }}</td>
-            <td class="plans__invoices-actions" data-title="{{ 'pricing.invoices.actions' | translate }}">
+            <td data-title="{{ 'pricing.invoices.date' | translate }}">
+              {{ invoice.createdAt | date: 'mediumDate' }}
+            </td>
+            <td data-title="{{ 'pricing.invoices.status.label' | translate }}">
+              {{ invoiceStatus(invoice) }}
+            </td>
+            <td data-title="{{ 'pricing.invoices.amount' | translate }}">
+              {{ invoiceAmount(invoice) }}
+            </td>
+            <td
+              class="plans__invoices-actions"
+              data-title="{{ 'pricing.invoices.actions' | translate }}"
+            >
               <a
                 *ngIf="invoice.hostedInvoiceUrl"
                 class="plans__invoice-link"
@@ -159,4 +187,3 @@
     </ng-template>
   </section>
 </section>
-

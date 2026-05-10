@@ -23,7 +23,7 @@ test.describe('Quality breadth offline edge continuity', () => {
             notifyDelta: true,
             note: 'Keep this alert draft stable while navigation is interrupted.',
           },
-        })
+        }),
       );
     });
 
@@ -34,16 +34,22 @@ test.describe('Quality breadth offline edge continuity', () => {
     const drawer = page.locator('[data-og7="indicator-alert-drawer"]');
     const thresholdInput = drawer.locator('[data-og7-id="threshold-value"]');
     const noteInput = drawer.locator('[data-og7-id="note"]');
-    const relatedOpportunity = page.locator('[data-og7="indicator-related-opportunities"] ul li button').first();
+    const relatedOpportunity = page
+      .locator('[data-og7="indicator-related-opportunities"] ul li button')
+      .first();
 
     await expect(subscribeButton).toHaveText(/S'abonner|Subscribe/i);
     await subscribeButton.click();
 
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
+    ).toBeVisible();
     await expect(drawer.locator('[data-og7-id="indicator-alert-retry"]')).toBeVisible();
     await expect(thresholdInput).toHaveValue('19');
-    await expect(noteInput).toHaveValue('Keep this alert draft stable while navigation is interrupted.');
+    await expect(noteInput).toHaveValue(
+      'Keep this alert draft stable while navigation is interrupted.',
+    );
 
     await page.keyboard.press('Escape');
     await expect(drawer).toBeHidden();
@@ -59,9 +65,13 @@ test.describe('Quality breadth offline edge continuity', () => {
 
     await subscribeButton.click();
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
+    ).toBeVisible();
     await expect(thresholdInput).toHaveValue('19');
-    await expect(noteInput).toHaveValue('Keep this alert draft stable while navigation is interrupted.');
+    await expect(noteInput).toHaveValue(
+      'Keep this alert draft stable while navigation is interrupted.',
+    );
 
     await page.reload();
     await expect(page.locator('[data-og7="indicator-detail-page"]')).toBeVisible();
@@ -69,10 +79,14 @@ test.describe('Quality breadth offline edge continuity', () => {
 
     await subscribeButton.click();
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
+    ).toBeVisible();
     await expect(drawer.locator('[data-og7-id="indicator-alert-retry"]')).toBeVisible();
     await expect(thresholdInput).toHaveValue('19');
-    await expect(noteInput).toHaveValue('Keep this alert draft stable while navigation is interrupted.');
+    await expect(noteInput).toHaveValue(
+      'Keep this alert draft stable while navigation is interrupted.',
+    );
     await expect(drawer.locator('[data-og7="indicator-alert-view"]')).toHaveCount(0);
 
     await drawer.locator('[data-og7-id="indicator-alert-retry"]').click();
@@ -89,6 +103,10 @@ test.describe('Quality breadth offline edge continuity', () => {
 
     await subscribeButton.click();
     await expect(page.locator('[data-og7="indicator-alert-view"]')).toBeVisible();
-    await expect(page.locator('[data-og7="indicator-alert-drawer"] [data-og7="indicator-alert-status"][data-og7-id="offline"]')).toHaveCount(0);
+    await expect(
+      page.locator(
+        '[data-og7="indicator-alert-drawer"] [data-og7="indicator-alert-status"][data-og7-id="offline"]',
+      ),
+    ).toHaveCount(0);
   });
 });

@@ -21,7 +21,8 @@ function ensureRuntimeConfigLoaded(): void {
     return;
   }
 
-  const message = 'Runtime configuration manifest not found. Ensure runtime-config.js is loaded before bootstrapping Angular.';
+  const message =
+    'Runtime configuration manifest not found. Ensure runtime-config.js is loaded before bootstrapping Angular.';
   if (isDevMode()) {
     console.warn(message);
     return;

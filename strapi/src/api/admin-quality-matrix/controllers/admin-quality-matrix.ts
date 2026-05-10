@@ -13,13 +13,7 @@ type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
 type MatrixImpactMode = 'provided' | 'targeted' | 'global' | 'none';
-type MatrixSignalId =
-  | 'summary'
-  | 'business'
-  | 'implementation'
-  | 'e2e'
-  | 'readiness'
-  | 'priority';
+type MatrixSignalId = 'summary' | 'business' | 'implementation' | 'e2e' | 'readiness' | 'priority';
 type MatrixSignalConfirmationSource =
   | 'repo-signal'
   | 'proof-returned'
@@ -344,7 +338,9 @@ function normalizeEvidence(value: unknown): string[] {
     return [];
   }
 
-  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+  return value.filter(
+    (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
+  );
 }
 
 function normalizeStringArray(value: unknown): string[] {
@@ -352,7 +348,9 @@ function normalizeStringArray(value: unknown): string[] {
     return [];
   }
 
-  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+  return value.filter(
+    (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
+  );
 }
 
 function normalizeObject(value: unknown): Record<string, unknown> {
@@ -438,9 +436,10 @@ function resolveChangedFileImpact(
   return {
     entryIds: uniqueSorted(Array.from(matchedEntryIds)),
     mode: matchedEntryIds.size > 0 ? 'targeted' : 'none',
-    reason: matchedEntryIds.size > 0
-      ? 'Targeted impact map matched changed files.'
-      : 'No matrix-impacting file detected.',
+    reason:
+      matchedEntryIds.size > 0
+        ? 'Targeted impact map matched changed files.'
+        : 'No matrix-impacting file detected.',
   };
 }
 
@@ -537,9 +536,10 @@ function requireIngestToken(ctx: Context): boolean {
 }
 
 function sanitizeIngestPayload(body: unknown): MatrixIngestPayload {
-  const record = body && typeof body === 'object' && !Array.isArray(body)
-    ? (body as Record<string, unknown>)
-    : {};
+  const record =
+    body && typeof body === 'object' && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : {};
 
   const mergedAt = normalizeDate(record.mergedAt) ?? new Date().toISOString();
   const commitSha = normalizeString(record.commitSha) ?? '';
@@ -638,7 +638,9 @@ function reviewedAtDeadline(entry: MatrixEntryEntity): number | null {
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
-function missionDecisionTimestamp(decision: MissionDecisionEntity | null | undefined): number | null {
+function missionDecisionTimestamp(
+  decision: MissionDecisionEntity | null | undefined,
+): number | null {
   if (!decision) {
     return null;
   }
@@ -696,11 +698,7 @@ function summarizeStatus(state: MatrixCoverageState): MatrixStatus {
     return 'hors MVP';
   }
 
-  const ranks = [
-    state.businessStatus,
-    state.implementationStatus,
-    state.e2eStatus,
-  ]
+  const ranks = [state.businessStatus, state.implementationStatus, state.e2eStatus]
     .filter((status) => status !== 'hors MVP')
     .map((status) => statusRank(status));
 
@@ -763,7 +761,10 @@ function signalEscalationSteps(
   }
 }
 
-function statusForSignal(state: MatrixCoverageState, signalId: MatrixCoverageSignalId): MatrixStatus {
+function statusForSignal(
+  state: MatrixCoverageState,
+  signalId: MatrixCoverageSignalId,
+): MatrixStatus {
   switch (signalId) {
     case 'summary':
       return state.summaryStatus;
@@ -903,7 +904,11 @@ function resolvePilotBucket(
     return 'needs-product-call';
   }
 
-  if (actionType === 'fix-proof-gap' || actionType === 'add-test' || result.startsWith('blocked-')) {
+  if (
+    actionType === 'fix-proof-gap' ||
+    actionType === 'add-test' ||
+    result.startsWith('blocked-')
+  ) {
     return 'needs-proof';
   }
 
@@ -928,9 +933,19 @@ function pilotScoreFor(
   }
 
   score += current.summaryStatus === 'non' ? 18 : current.summaryStatus === 'partiel' ? 10 : 0;
-  score += current.implementationStatus === 'non' ? 18 : current.implementationStatus === 'partiel' ? 9 : 0;
+  score +=
+    current.implementationStatus === 'non'
+      ? 18
+      : current.implementationStatus === 'partiel'
+        ? 9
+        : 0;
   score += current.e2eStatus === 'non' ? 16 : current.e2eStatus === 'partiel' ? 8 : 0;
-  score += current.managementBucket === 'proof-gap' ? 12 : current.managementBucket === 'product-gap' ? 8 : 0;
+  score +=
+    current.managementBucket === 'proof-gap'
+      ? 12
+      : current.managementBucket === 'product-gap'
+        ? 8
+        : 0;
   score += confidence === 'high' ? 10 : confidence === 'medium' ? 5 : 0;
   score -= current.needsProductWorkFirst ? 6 : 0;
 
@@ -953,7 +968,10 @@ function pilotPriorityFor(score: number, bucket: MatrixPilotBucket): MatrixPilot
   return 'later';
 }
 
-function pilotTargetFiles(actionType: MatrixPilotActionType, evidence: readonly string[]): string[] {
+function pilotTargetFiles(
+  actionType: MatrixPilotActionType,
+  evidence: readonly string[],
+): string[] {
   const files = evidenceTargetFiles(evidence);
   if (files.length) {
     return files;
@@ -961,7 +979,11 @@ function pilotTargetFiles(actionType: MatrixPilotActionType, evidence: readonly 
 
   switch (actionType) {
     case 'update-contract':
-      return ['packages/contracts/spec/openapi.json', 'strapi/src/api', 'openg7-org/src/app/core/api'];
+      return [
+        'packages/contracts/spec/openapi.json',
+        'strapi/src/api',
+        'openg7-org/src/app/core/api',
+      ];
     case 'add-test':
     case 'fix-proof-gap':
       return ['openg7-org/e2e', 'openg7-org/src/app'];
@@ -1035,7 +1057,10 @@ function pilotExpectedEvidence(actionType: MatrixPilotActionType): string[] {
   }
 }
 
-function pilotBlockingReason(bucket: MatrixPilotBucket, result: MatrixRecalculationResult): string | null {
+function pilotBlockingReason(
+  bucket: MatrixPilotBucket,
+  result: MatrixRecalculationResult,
+): string | null {
   if (bucket === 'blocked-by-api') {
     return 'Le contrat API ou schema doit etre stabilise avant de piloter le developpement applicatif.';
   }
@@ -1071,7 +1096,12 @@ function buildDevelopmentCommand(
   );
   const apiSignal = hasApiSignal(entry, recalculation.evidence);
   const bucket = resolvePilotBucket(actionType, recalculation.result, apiSignal);
-  const score = pilotScoreFor(entry, recalculation.current, recalculation.result, recalculation.confidence);
+  const score = pilotScoreFor(
+    entry,
+    recalculation.current,
+    recalculation.result,
+    recalculation.confidence,
+  );
   const rationale = [...recalculation.reasons, ...pilotCoverageRationale(recalculation.current)];
 
   return {
@@ -1090,14 +1120,16 @@ function buildDevelopmentCommand(
   };
 }
 
-function withDevelopmentCommand<T extends {
-  readonly result: MatrixRecalculationResult;
-  readonly confidence: MatrixRecalculationConfidence;
-  readonly current: MatrixCoverageState;
-  readonly proposed: MatrixCoverageState | null;
-  readonly reasons: readonly string[];
-  readonly evidence: readonly string[];
-}>(entry: MatrixEntryEntity, recalculation: T): T & { readonly pilot: MatrixDevelopmentCommand } {
+function withDevelopmentCommand<
+  T extends {
+    readonly result: MatrixRecalculationResult;
+    readonly confidence: MatrixRecalculationConfidence;
+    readonly current: MatrixCoverageState;
+    readonly proposed: MatrixCoverageState | null;
+    readonly reasons: readonly string[];
+    readonly evidence: readonly string[];
+  },
+>(entry: MatrixEntryEntity, recalculation: T): T & { readonly pilot: MatrixDevelopmentCommand } {
   return {
     ...recalculation,
     pilot: buildDevelopmentCommand(entry, recalculation),
@@ -1167,7 +1199,8 @@ function buildLatestSignalGuidanceByEntryId(
       continue;
     }
 
-    const existingBySignal = latestByEntryId.get(entryId) ?? new Map<MatrixSignalId, MissionDecisionEntity>();
+    const existingBySignal =
+      latestByEntryId.get(entryId) ?? new Map<MatrixSignalId, MissionDecisionEntity>();
     const current = existingBySignal.get(signalId);
     const currentTimestamp = missionDecisionTimestamp(current);
     const nextTimestamp = missionDecisionTimestamp(decision);
@@ -1220,7 +1253,8 @@ function resolveSignalDispatchSnapshot(
 
   for (const [signalId, decision] of latestSignalGuidanceBySignal.entries()) {
     const requestedTimestamp = missionDecisionTimestamp(decision);
-    const requestedAt = requestedTimestamp == null ? null : new Date(requestedTimestamp).toISOString();
+    const requestedAt =
+      requestedTimestamp == null ? null : new Date(requestedTimestamp).toISOString();
     const metadata = normalizeObject(decision.metadata);
     const trackedPullRequestNumber = normalizeInteger(metadata.proofPullRequestNumber);
     const trackedProofBranch =
@@ -1231,7 +1265,8 @@ function resolveSignalDispatchSnapshot(
       ? new Date(trackedPullRequestMergedAt).getTime()
       : null;
     const hasExactPullRequestTracking =
-      trackedPullRequestNumber != null || (trackedProofBranch != null && trackedProofBranch.length > 0);
+      trackedPullRequestNumber != null ||
+      (trackedProofBranch != null && trackedProofBranch.length > 0);
 
     let confirmedAt: string | null = null;
     let confirmationSource: MatrixSignalConfirmationSource | null = null;
@@ -1264,7 +1299,8 @@ function resolveSignalDispatchSnapshot(
       const nextConfirmedAt = new Date(confirmationDecisionTimestamp).toISOString();
       if (!confirmedAt || confirmationDecisionTimestamp > new Date(confirmedAt).getTime()) {
         confirmedAt = nextConfirmedAt;
-        confirmationSource = confirmationDecisionStatus === 'proof-returned' ? 'proof-returned' : 'done';
+        confirmationSource =
+          confirmationDecisionStatus === 'proof-returned' ? 'proof-returned' : 'done';
       }
     }
 
@@ -1327,9 +1363,11 @@ function buildRecalculationEntry(
   const deadline = reviewedAtDeadline(entry);
   const repoSignalAt = normalizeDate(entry.lastRepoSignalAt);
   const repoSignalTimestamp = repoSignalAt ? new Date(repoSignalAt).getTime() : Number.NaN;
-  const repoSignalNewer = deadline == null || (Number.isFinite(repoSignalTimestamp) && repoSignalTimestamp > deadline);
+  const repoSignalNewer =
+    deadline == null || (Number.isFinite(repoSignalTimestamp) && repoSignalTimestamp > deadline);
   const decisionTimestamp = missionDecisionTimestamp(latestCompletedDecision);
-  const completedDecisionNewer = deadline == null || (decisionTimestamp != null && decisionTimestamp > deadline);
+  const completedDecisionNewer =
+    deadline == null || (decisionTimestamp != null && decisionTimestamp > deadline);
   const decisionTitle = normalizeString(latestCompletedDecision?.title, 220);
   const decisionMessage = normalizeString(latestCompletedDecision?.message, 1_000);
   const decisionPrompt = normalizeString(latestCompletedDecision?.operatorPrompt, 2_000);
@@ -1518,7 +1556,11 @@ function sourceMessageFor(generatedAt: string): string | null {
 
 function resolveGeneratedAt(entries: readonly MatrixEntryEntity[]): string {
   const timestamps = entries
-    .flatMap((entry) => [normalizeDate(entry.updatedAt), normalizeDate(entry.createdAt), normalizeDate(entry.reviewedAt)])
+    .flatMap((entry) => [
+      normalizeDate(entry.updatedAt),
+      normalizeDate(entry.createdAt),
+      normalizeDate(entry.reviewedAt),
+    ])
     .filter((value): value is string => value !== null)
     .map((value) => new Date(value).getTime())
     .filter((value) => Number.isFinite(value));
@@ -1666,7 +1708,8 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           limit: 50,
         }),
       ) as MissionDecisionEntity[];
-      const latestDecision = buildLatestCompletedDecisionByEntryId(decisions).get(payload.entryId) ?? null;
+      const latestDecision =
+        buildLatestCompletedDecisionByEntryId(decisions).get(payload.entryId) ?? null;
       const proposal = buildRecalculationEntry(
         entry,
         latestDecision,
@@ -1758,11 +1801,14 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           derivedEntryIds: impact.derivedEntryIds,
           resolvedEntryIds: impact.resolvedEntryIds,
           updatedEntryIds,
-          ignoredEntryIds: impact.resolvedEntryIds.filter((entryId) => !updatedEntryIds.includes(entryId)),
+          ignoredEntryIds: impact.resolvedEntryIds.filter(
+            (entryId) => !updatedEntryIds.includes(entryId),
+          ),
         },
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Invalid admin quality matrix ingest payload.';
+      const message =
+        error instanceof Error ? error.message : 'Invalid admin quality matrix ingest payload.';
       ctx.badRequest(message);
     }
   },

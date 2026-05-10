@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { StrapiClient } from '@app/core/api/strapi-client';
 import { TranslateModule } from '@ngx-translate/core';
 import type { HydrocarbonSignal } from '@openg7/contracts';

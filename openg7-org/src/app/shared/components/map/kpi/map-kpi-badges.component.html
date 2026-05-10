@@ -8,8 +8,9 @@
     *ngFor="let option of tradeModeOptions; trackBy: trackByTradeMode"
     class="flex-1 rounded-full border border-slate-200 bg-white/85 px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/30 sm:flex-none sm:px-4"
     [ngClass]="{
-      'border-transparent bg-slate-900 text-white shadow-md ring-2 ring-slate-900/15': filters.tradeMode() === option.id,
-      'hover:bg-white': filters.tradeMode() !== option.id
+      'border-transparent bg-slate-900 text-white shadow-md ring-2 ring-slate-900/15':
+        filters.tradeMode() === option.id,
+      'hover:bg-white': filters.tradeMode() !== option.id,
     }"
     [attr.aria-pressed]="filters.tradeMode() === option.id"
     (click)="selectTradeMode(option.id)"
@@ -30,10 +31,7 @@
     </span>
     <div class="flex items-baseline gap-2">
       <span class="text-lg font-bold text-slate-900">{{ badge.value }}</span>
-      <span
-        *ngIf="badge.detailKey"
-        class="text-xs font-medium text-slate-500"
-      >
+      <span *ngIf="badge.detailKey" class="text-xs font-medium text-slate-500">
         {{ badge.detailKey | translate }}
       </span>
     </div>

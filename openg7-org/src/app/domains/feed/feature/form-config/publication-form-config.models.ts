@@ -31,7 +31,13 @@ export type PublicationValidatorType =
   | 'dateOrder'
   | 'custom';
 
-export type PublicationConditionOperator = 'equals' | 'notEquals' | 'in' | 'notIn' | 'truthy' | 'falsy';
+export type PublicationConditionOperator =
+  | 'equals'
+  | 'notEquals'
+  | 'in'
+  | 'notIn'
+  | 'truthy'
+  | 'falsy';
 
 export interface PublicationFieldOption {
   readonly value: string | number | boolean;
@@ -99,7 +105,9 @@ export interface PublicationDraftMapping {
     readonly mode?: FlowMode;
     readonly quantity?: { readonly unit?: QuantityUnit } | null;
   };
-  readonly bindings: Partial<Record<keyof FeedComposerDraft | 'quantity.value' | 'quantity.unit', PublicationBinding>>;
+  readonly bindings: Partial<
+    Record<keyof FeedComposerDraft | 'quantity.value' | 'quantity.unit', PublicationBinding>
+  >;
   readonly extensions?: Readonly<Record<string, PublicationBinding>>;
 }
 

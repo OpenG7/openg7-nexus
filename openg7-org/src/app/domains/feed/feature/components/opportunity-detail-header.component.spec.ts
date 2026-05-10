@@ -43,7 +43,7 @@ describe('OpportunityDetailHeaderComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -53,7 +53,9 @@ describe('OpportunityDetailHeaderComponent', () => {
     setRequiredInputs(fixture);
     fixture.detectChanges();
 
-    const breadcrumbLinks = fixture.nativeElement.querySelectorAll('.opportunity-header__breadcrumb a');
+    const breadcrumbLinks = fixture.nativeElement.querySelectorAll(
+      '.opportunity-header__breadcrumb a',
+    );
     const feedLink: HTMLAnchorElement | undefined = breadcrumbLinks.item(0) as HTMLAnchorElement;
 
     expect(feedLink).toBeTruthy();
@@ -66,7 +68,9 @@ describe('OpportunityDetailHeaderComponent', () => {
     fixture.componentRef.setInput('breadcrumbType', 'OFFER');
     fixture.detectChanges();
 
-    const breadcrumbLinks = fixture.nativeElement.querySelectorAll('.opportunity-header__breadcrumb a');
+    const breadcrumbLinks = fixture.nativeElement.querySelectorAll(
+      '.opportunity-header__breadcrumb a',
+    );
     const opportunitiesLink = breadcrumbLinks.item(1) as HTMLAnchorElement;
 
     expect(opportunitiesLink.getAttribute('href')).toContain('/feed?type=OFFER');
@@ -77,14 +81,18 @@ describe('OpportunityDetailHeaderComponent', () => {
     setRequiredInputs(fixture);
     fixture.detectChanges();
 
-    let saveButton = fixture.nativeElement.querySelector('[data-og7-id="opportunity-save"]') as HTMLButtonElement;
+    let saveButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-save"]',
+    ) as HTMLButtonElement;
     expect(saveButton.textContent?.trim()).toBe('Save');
     expect(saveButton.getAttribute('aria-pressed')).toBe('false');
 
     fixture.componentRef.setInput('saved', true);
     fixture.detectChanges();
 
-    saveButton = fixture.nativeElement.querySelector('[data-og7-id="opportunity-save"]') as HTMLButtonElement;
+    saveButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-save"]',
+    ) as HTMLButtonElement;
     expect(saveButton.textContent?.trim()).toBe('Remove from favorites');
     expect(saveButton.getAttribute('aria-pressed')).toBe('true');
   });
@@ -97,12 +105,18 @@ describe('OpportunityDetailHeaderComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-og7-id="opportunity-report"]')).toBeNull();
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="opportunity-view-my-report"]') as HTMLButtonElement)
-        .textContent?.trim()
+      (
+        fixture.nativeElement.querySelector(
+          '[data-og7-id="opportunity-view-my-report"]',
+        ) as HTMLButtonElement
+      ).textContent?.trim(),
     ).toBe('View my report');
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-another"]') as HTMLButtonElement)
-        .textContent?.trim()
+      (
+        fixture.nativeElement.querySelector(
+          '[data-og7-id="opportunity-report-another"]',
+        ) as HTMLButtonElement
+      ).textContent?.trim(),
     ).toBe('Report another one');
   });
 
@@ -113,7 +127,7 @@ describe('OpportunityDetailHeaderComponent', () => {
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector(
-      '[data-og7-id="opportunity-make-offer"]'
+      '[data-og7-id="opportunity-make-offer"]',
     ) as HTMLButtonElement;
 
     expect(button.getAttribute('data-og7-state')).toBe('existing');
@@ -122,7 +136,7 @@ describe('OpportunityDetailHeaderComponent', () => {
 });
 
 function setRequiredInputs(
-  fixture: ReturnType<typeof TestBed.createComponent<OpportunityDetailHeaderComponent>>
+  fixture: ReturnType<typeof TestBed.createComponent<OpportunityDetailHeaderComponent>>,
 ): void {
   fixture.componentRef.setInput('title', 'Short-term import of 300 MW');
   fixture.componentRef.setInput('breadcrumbType', 'REQUEST');

@@ -9,11 +9,11 @@ x-strapi-build: &strapi-build
 
 x-strapi-env: &strapi-env
   HOST: 0.0.0.0
-  PORT: "1337"
-  PUBLIC_URL: "http://localhost:1337"
+  PORT: '1337'
+  PUBLIC_URL: 'http://localhost:1337'
   NODE_ENV: production
   STRAPI_ENV: production
-  STRAPI_TELEMETRY_DISABLED: "true"
+  STRAPI_TELEMETRY_DISABLED: 'true'
   APP_KEYS: docker-app-key-a,docker-app-key-b
   SESSION_KEYS: docker-session-key-a,docker-session-key-b
   ADMIN_JWT_SECRET: docker-admin-jwt-secret
@@ -21,47 +21,47 @@ x-strapi-env: &strapi-env
   TRANSFER_TOKEN_SALT: docker-transfer-token-salt
   ADMIN_ENCRYPTION_KEY: docker-admin-encryption-key
   STRAPI_SESSION_DRIVER: redis
-  STRAPI_SESSION_COOKIE_SECURE: "false"
+  STRAPI_SESSION_COOKIE_SECURE: 'false'
   STRAPI_SESSION_COOKIE_SAMESITE: lax
-  STRAPI_SESSION_REDIS_PREFIX: "strapi:sess:"
-  RATE_LIMIT_ENABLED: "true"
-  RATE_LIMIT_INTERVAL_MS: "60000"
-  RATE_LIMIT_MAX: "250"
-  RATE_LIMIT_PREFIX: "strapi::rl::"
-  ACTIVATION_EMAIL_COOLDOWN_ENABLED: "true"
-  ACTIVATION_EMAIL_COOLDOWN_MS: "120000"
-  ACTIVATION_EMAIL_COOLDOWN_PREFIX: "strapi::activation-email-cooldown::"
-  ACTIVATION_EMAIL_COOLDOWN_USE_REDIS: "true"
+  STRAPI_SESSION_REDIS_PREFIX: 'strapi:sess:'
+  RATE_LIMIT_ENABLED: 'true'
+  RATE_LIMIT_INTERVAL_MS: '60000'
+  RATE_LIMIT_MAX: '250'
+  RATE_LIMIT_PREFIX: 'strapi::rl::'
+  ACTIVATION_EMAIL_COOLDOWN_ENABLED: 'true'
+  ACTIVATION_EMAIL_COOLDOWN_MS: '120000'
+  ACTIVATION_EMAIL_COOLDOWN_PREFIX: 'strapi::activation-email-cooldown::'
+  ACTIVATION_EMAIL_COOLDOWN_USE_REDIS: 'true'
   REDIS_HOST: redis
-  REDIS_PORT: "6379"
+  REDIS_PORT: '6379'
   REDIS_PASSWORD: openg7-redis
-  CORS_ALLOWED_ORIGINS: "http://localhost:4000,http://127.0.0.1:4000,http://localhost:4200,https://localhost:4200"
-  CORS_ALLOW_CREDENTIALS: "true"
+  CORS_ALLOWED_ORIGINS: 'http://localhost:4000,http://127.0.0.1:4000,http://localhost:4200,https://localhost:4200'
+  CORS_ALLOW_CREDENTIALS: 'true'
   DATABASE_CLIENT: postgres
   DATABASE_HOST: postgres
-  DATABASE_PORT: "5432"
+  DATABASE_PORT: '5432'
   DATABASE_NAME: openg7_cms
   DATABASE_SCHEMA: public
   DATABASE_USERNAME: openg7
   DATABASE_PASSWORD: openg7
-  DATABASE_SSL: "false"
-  DATABASE_POOL_MIN: "2"
-  DATABASE_POOL_MAX: "10"
+  DATABASE_SSL: 'false'
+  DATABASE_POOL_MIN: '2'
+  DATABASE_POOL_MAX: '10'
   STRAPI_ADMIN_EMAIL: contact@openg7.org
   STRAPI_ADMIN_PASSWORD: ChangeMe123!
   STRAPI_ADMIN_FIRSTNAME: Admin
   STRAPI_ADMIN_LASTNAME: User
   STRAPI_WEB_ADMIN_ROLE: Owner
-  STRAPI_SEED_ADMIN_ALLOWED: "true"
-  STRAPI_SEED_AUTO: "false"
+  STRAPI_SEED_ADMIN_ALLOWED: 'true'
+  STRAPI_SEED_AUTO: 'false'
   STRAPI_SEED_FAILURE_STRATEGY: fail-fast
   STRAPI_API_READONLY_TOKEN: og7_frontend_readonly_token
   PREVIEW_TOKEN: preview-token
   STRAPI_ADMIN_QUALITY_INGEST_TOKEN: docker-quality-ingest-token
   SMTP_HOST: mailhog
-  SMTP_PORT: "1025"
-  SMTP_SECURE: "false"
-  SMTP_REQUIRE_TLS: "false"
+  SMTP_PORT: '1025'
+  SMTP_SECURE: 'false'
+  SMTP_REQUIRE_TLS: 'false'
   SMTP_USERNAME: notify@openg7.org
   SMTP_PASSWORD: docker
   SMTP_DEFAULT_FROM_NAME: OpenG7
@@ -70,24 +70,24 @@ x-strapi-env: &strapi-env
   UPLOAD_PROVIDER: aws-s3
   UPLOAD_S3_BUCKET: og7-strapi
   UPLOAD_S3_REGION: ca-central-1
-  UPLOAD_S3_ENDPOINT: "http://minio:9000"
-  UPLOAD_S3_BASE_URL: "http://localhost:9000/og7-strapi"
-  UPLOAD_S3_PREFIX: ""
+  UPLOAD_S3_ENDPOINT: 'http://minio:9000'
+  UPLOAD_S3_BASE_URL: 'http://localhost:9000/og7-strapi'
+  UPLOAD_S3_PREFIX: ''
   UPLOAD_S3_ACL: public-read
-  UPLOAD_S3_FORCE_PATH_STYLE: "true"
+  UPLOAD_S3_FORCE_PATH_STYLE: 'true'
   UPLOAD_S3_ACCESS_KEY_ID: openg7minio
   UPLOAD_S3_SECRET_ACCESS_KEY: openg7miniosecret
   SEARCH_ENGINE_DRIVER: meilisearch
-  SEARCH_ENGINE_URL: "http://meilisearch:7700"
+  SEARCH_ENGINE_URL: 'http://meilisearch:7700'
   SEARCH_ENGINE_API_KEY: openg7-local-meili-master-key
   SEARCH_ENGINE_AUTH_HEADER: X-Meili-API-Key
-  SEARCH_ENGINE_AUTH_SCHEME: ""
+  SEARCH_ENGINE_AUTH_SCHEME: ''
   SEARCH_ENGINE_INDEX_COMPANIES: companies
   SEARCH_ENGINE_INDEX_EXCHANGES: exchanges
-  OPS_CODEX_DISPATCH_ENABLED: "false"
-  OPS_AI_COPILOT_DISPATCH_ENABLED: "false"
-  OPS_AI_CLAUDE_DISPATCH_ENABLED: "false"
-  OPS_AI_GEMINI_DISPATCH_ENABLED: "false"
+  OPS_CODEX_DISPATCH_ENABLED: 'false'
+  OPS_AI_COPILOT_DISPATCH_ENABLED: 'false'
+  OPS_AI_CLAUDE_DISPATCH_ENABLED: 'false'
+  OPS_AI_GEMINI_DISPATCH_ENABLED: 'false'
 
 services:
   postgres:
@@ -97,11 +97,11 @@ services:
       POSTGRES_USER: openg7
       POSTGRES_PASSWORD: openg7
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -110,13 +110,13 @@ services:
     image: redis:7.2-alpine
     environment:
       REDIS_PASSWORD: openg7-redis
-    command: ["sh", "-c", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
+    command: ['sh', '-c', 'redis-server --appendonly yes --requirepass "$${REDIS_PASSWORD}"']
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
+      test: ['CMD-SHELL', 'redis-cli -a "$${REDIS_PASSWORD}" ping | grep PONG']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -127,19 +127,19 @@ services:
       MEILI_ENV: development
       MEILI_MASTER_KEY: openg7-local-meili-master-key
     ports:
-      - "7700:7700"
+      - '7700:7700'
     volumes:
       - meilisearch-data:/meili_data
 
   minio:
     image: minio/minio:latest
-    command: ["server", "/data", "--console-address", ":9001"]
+    command: ['server', '/data', '--console-address', ':9001']
     environment:
       MINIO_ROOT_USER: openg7minio
       MINIO_ROOT_PASSWORD: openg7miniosecret
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio-data:/data
 
@@ -160,7 +160,7 @@ services:
         done
         mc mb --ignore-existing local/og7-strapi
         mc anonymous set download local/og7-strapi || true
-    restart: "no"
+    restart: 'no'
 
   strapi-seed:
     <<: *strapi-build
@@ -175,8 +175,8 @@ services:
         condition: service_completed_successfully
     environment:
       <<: *strapi-env
-    command: ["node", "../node_modules/.bin/ts-node", "scripts/seed.ts"]
-    restart: "no"
+    command: ['node', '../node_modules/.bin/ts-node', 'scripts/seed.ts']
+    restart: 'no'
 
   strapi:
     <<: *strapi-build
@@ -186,14 +186,14 @@ services:
     environment:
       <<: *strapi-env
     ports:
-      - "1337:1337"
+      - '1337:1337'
     volumes:
       - strapi-uploads:/srv/app/strapi/public/uploads
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "node -e \"fetch('http://127.0.0.1:1337/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+          'CMD-SHELL',
+          'node -e "fetch(''http://127.0.0.1:1337/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
         ]
       interval: 10s
       timeout: 5s
@@ -211,10 +211,10 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: "4000"
-      API_URL: "http://localhost:1337"
-      SSR_API_URL: "http://strapi:1337"
-      API_WITH_CREDENTIALS: "true"
+      PORT: '4000'
+      API_URL: 'http://localhost:1337'
+      SSR_API_URL: 'http://strapi:1337'
+      API_WITH_CREDENTIALS: 'true'
       API_TOKEN: og7_frontend_readonly_token
       HOMEPAGE_PREVIEW_TOKEN: preview-token
       I18N_PREFIX: /assets/i18n/
@@ -222,12 +222,12 @@ services:
       FEATURE_FLAGS: '{"homeFeedMocks":false,"homeCorridorsRealtimeMocks":false,"importationMocks":false}'
       HOME_FEED_PANEL_LIMITS: '{"alerts":4,"opportunities":4,"indicators":4}'
     ports:
-      - "4000:4000"
+      - '4000:4000'
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "node -e \"fetch('http://127.0.0.1:4000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+          'CMD-SHELL',
+          'node -e "fetch(''http://127.0.0.1:4000/healthz'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
         ]
       interval: 10s
       timeout: 5s

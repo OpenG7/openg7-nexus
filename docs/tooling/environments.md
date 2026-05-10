@@ -4,10 +4,10 @@ Ce guide centralise les fichiers `.env.example` fournis par les workspaces, les 
 
 ## Fichiers modèles disponibles
 
-| Workspace | Fichier | Commentaires |
-| --- | --- | --- |
-| `strapi` | `strapi/.env.example` | Variables nécessaires aux seeds (admin, jeton read-only), à la prévisualisation du front, à la configuration Postgres managée et au stockage objet S3/Backblaze en plus du moteur de recherche Meilisearch/OpenSearch. |
-| `openg7-org` | `openg7-org/.env.example` | Regroupe les variables consommées à l'exécution par l'application Angular (URL du CMS, token read-only, token de prévisualisation, flags, etc.). |
+| Workspace    | Fichier                   | Commentaires                                                                                                                                                                                                           |
+| ------------ | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `strapi`     | `strapi/.env.example`     | Variables nécessaires aux seeds (admin, jeton read-only), à la prévisualisation du front, à la configuration Postgres managée et au stockage objet S3/Backblaze en plus du moteur de recherche Meilisearch/OpenSearch. |
+| `openg7-org` | `openg7-org/.env.example` | Regroupe les variables consommées à l'exécution par l'application Angular (URL du CMS, token read-only, token de prévisualisation, flags, etc.).                                                                       |
 
 Copiez ces fichiers en `.env` (ou chargez-les via `direnv`/`dotenvx`) avant d'exécuter `yarn dev:web`, `yarn dev:cms` ou `yarn --cwd strapi strapi develop`. Pensez à remplacer les valeurs d'exemple (`change-me`, `og7_frontend_readonly_token`, `preview-token`, etc.) par vos secrets locaux.
 
@@ -50,12 +50,12 @@ Copiez ces fichiers en `.env` (ou chargez-les via `direnv`/`dotenvx`) avant d'ex
 
 ## Variables partagées entre workspaces
 
-| Source | Variable | Destination | Usage |
-| --- | --- | --- | --- |
-| `strapi/.env` | `STRAPI_API_READONLY_TOKEN` | `openg7-org/.env` → `API_TOKEN` | Jeton read-only injecté dans les appels HTTP du front. 【F:strapi/.env.example†L9-L19】【F:openg7-org/src/app/core/services/company.service.ts†L5-L140】|
-| `strapi/.env` | `PREVIEW_TOKEN` | `openg7-org/.env` → `HOMEPAGE_PREVIEW_TOKEN` | Protection de l'endpoint `/api/homepage/preview` et de la page Angular associée. 【F:strapi/.env.example†L21-L23】【F:openg7-org/src/app/domains/admin/pages/preview/preview.page.ts†L65-L99】|
-| Strapi | URL HTTP (`HOST` + `PORT`) | `openg7-org/.env` → `API_URL` (+ `API_WITH_CREDENTIALS`) | Base URL consommée par le `RuntimeConfigService` Angular et politique CORS par défaut côté client (`withCredentials`). 【F:strapi/.env.example†L5-L19】【F:openg7-org/.env.example†L5-L14】【F:openg7-org/src/app/core/config/runtime-config.service.ts†L17-L55】【F:openg7-org/src/app/core/http/http-client.service.ts†L1-L55】|
-| Front | `HOME_FEED_PANEL_LIMITS` | `openg7-org/.env` → runtime Angular | Surcharge optionnelle du nombre de cartes affichées sur la home pour les panneaux `alerts`, `opportunities`, `indicators` (format JSON). Exemple : `{"alerts":3,"opportunities":6,"indicators":4}`. |
+| Source        | Variable                    | Destination                                              | Usage                                                                                                                                                                                                                                                                                                                             |
+| ------------- | --------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `strapi/.env` | `STRAPI_API_READONLY_TOKEN` | `openg7-org/.env` → `API_TOKEN`                          | Jeton read-only injecté dans les appels HTTP du front. 【F:strapi/.env.example†L9-L19】【F:openg7-org/src/app/core/services/company.service.ts†L5-L140】                                                                                                                                                                          |
+| `strapi/.env` | `PREVIEW_TOKEN`             | `openg7-org/.env` → `HOMEPAGE_PREVIEW_TOKEN`             | Protection de l'endpoint `/api/homepage/preview` et de la page Angular associée. 【F:strapi/.env.example†L21-L23】【F:openg7-org/src/app/domains/admin/pages/preview/preview.page.ts†L65-L99】                                                                                                                                    |
+| Strapi        | URL HTTP (`HOST` + `PORT`)  | `openg7-org/.env` → `API_URL` (+ `API_WITH_CREDENTIALS`) | Base URL consommée par le `RuntimeConfigService` Angular et politique CORS par défaut côté client (`withCredentials`). 【F:strapi/.env.example†L5-L19】【F:openg7-org/.env.example†L5-L14】【F:openg7-org/src/app/core/config/runtime-config.service.ts†L17-L55】【F:openg7-org/src/app/core/http/http-client.service.ts†L1-L55】 |
+| Front         | `HOME_FEED_PANEL_LIMITS`    | `openg7-org/.env` → runtime Angular                      | Surcharge optionnelle du nombre de cartes affichées sur la home pour les panneaux `alerts`, `opportunities`, `indicators` (format JSON). Exemple : `{"alerts":3,"opportunities":6,"indicators":4}`.                                                                                                                               |
 
 En alignant ces variables entre workspaces, on garantit que les seeds Strapi et le front SSR partagent une configuration cohérente (URL du CMS, secrets de prévisualisation et jetons API). Pour les pipelines préprod/prod, chargez les `.env` avec les valeurs de la cible avant d'exécuter `yarn predeploy:cms-cache` et `yarn prebuild:web` : cela valide que `STRAPI_API_READONLY_TOKEN`, `PREVIEW_TOKEN` et `API_URL` pointent tous vers l'instance Strapi attendue et que le runtime front embarque les bons flags.
 

@@ -86,7 +86,7 @@ export class ImportationViewModelMapper {
     flows: ImportationFlowsResponseDto | null,
     timelinePoint: string | null,
     riskFlags: readonly ImportationRiskFlagDto[],
-    canExport: boolean
+    canExport: boolean,
   ): ImportationOverviewViewModel {
     const timeline = flows?.timeline ?? [];
     const activeTimeline = this.resolveTimelinePoint(timeline, timelinePoint);
@@ -105,9 +105,7 @@ export class ImportationViewModelMapper {
       meta: {
         lastUpdated: flows?.lastUpdated ?? null,
         dataProvider: flows?.dataProvider ?? null,
-        coverageLabel: flows?.coverage != null
-          ? this.formatPercentage(flows.coverage)
-          : null,
+        coverageLabel: flows?.coverage != null ? this.formatPercentage(flows.coverage) : null,
       },
       filters: {
         filters,
@@ -140,7 +138,8 @@ export class ImportationViewModelMapper {
           label: 'pages.importation.kpis.topOrigin',
           value: topOrigin?.originName ?? '—',
           delta: topOrigin?.yoyDelta ?? null,
-          deltaLabel: topOrigin?.yoyDelta != null ? this.formatPercentage(topOrigin.yoyDelta) : null,
+          deltaLabel:
+            topOrigin?.yoyDelta != null ? this.formatPercentage(topOrigin.yoyDelta) : null,
           trend: topOrigin?.yoyDelta != null ? (topOrigin.yoyDelta >= 0 ? 'up' : 'down') : 'flat',
           sparkline: [],
           tooltip: 'pages.importation.kpis.topOriginTooltip',
@@ -164,25 +163,26 @@ export class ImportationViewModelMapper {
     timelinePoint: string | null,
     playing: boolean,
     loading: boolean,
-    error: string | null
+    error: string | null,
   ): ImportationFlowMapViewModel {
     const timeline = flows?.timeline ?? [];
     const activeTimeline = this.resolveTimelinePoint(timeline, timelinePoint);
     const selectedPoint = activeTimeline?.period ?? timeline[0]?.period ?? null;
-    const nodes = (flows?.flows ?? []).map((flow) =>
-      ({
-        originCode: flow.originCode,
-        originName: flow.originName,
-        value: flow.value,
-        yoyDelta: flow.yoyDelta,
-        share: flow.share,
-        coordinate: flow.coordinate,
-        corridors: (flow.corridors ?? []).map((corridor) => ({
-          target: corridor.target,
-          value: corridor.value,
-          delta: corridor.delta,
-        })),
-      }) satisfies ImportationFlowNodeViewModel
+    const nodes = (flows?.flows ?? []).map(
+      (flow) =>
+        ({
+          originCode: flow.originCode,
+          originName: flow.originName,
+          value: flow.value,
+          yoyDelta: flow.yoyDelta,
+          share: flow.share,
+          coordinate: flow.coordinate,
+          corridors: (flow.corridors ?? []).map((corridor) => ({
+            target: corridor.target,
+            value: corridor.value,
+            delta: corridor.delta,
+          })),
+        }) satisfies ImportationFlowNodeViewModel,
     );
     const values = nodes.map((node) => node.value);
     const legendMin = values.length ? Math.min(...values) : null;
@@ -217,10 +217,10 @@ export class ImportationViewModelMapper {
     selectedCommodityId: string | null,
     loading: boolean,
     canExport: boolean,
-    error: string | null
+    error: string | null,
   ): ImportationCommoditySectionViewModel {
     const rows = this.pickCommodityCollection(collections, activeTab).map((commodity) =>
-      this.toCommodityRow(commodity, riskFlags)
+      this.toCommodityRow(commodity, riskFlags),
     );
     const selectedCommodity = rows.find((row) => row.id === selectedCommodityId) ?? null;
 
@@ -229,13 +229,21 @@ export class ImportationViewModelMapper {
       error: error ? 'pages.importation.commodities.error' : null,
       activeTab,
       tabs: [
-        { id: 'top', label: 'pages.importation.commodities.tabs.top', count: collections?.top.length ?? 0 },
+        {
+          id: 'top',
+          label: 'pages.importation.commodities.tabs.top',
+          count: collections?.top.length ?? 0,
+        },
         {
           id: 'emerging',
           label: 'pages.importation.commodities.tabs.emerging',
           count: collections?.emerging.length ?? 0,
         },
-        { id: 'risk', label: 'pages.importation.commodities.tabs.risk', count: collections?.risk.length ?? 0 },
+        {
+          id: 'risk',
+          label: 'pages.importation.commodities.tabs.risk',
+          count: collections?.risk.length ?? 0,
+        },
       ],
       rows,
       selectedCommodityId,
@@ -247,7 +255,7 @@ export class ImportationViewModelMapper {
   mapSuppliers(
     suppliers: readonly ImportationSupplierDto[] | null,
     loading: boolean,
-    error: string | null
+    error: string | null,
   ): ImportationSupplierSectionViewModel {
     const cards: ImportationSupplierCardViewModel[] = (suppliers ?? []).map((supplier) => ({
       id: supplier.id,
@@ -270,9 +278,12 @@ export class ImportationViewModelMapper {
   mapCollaboration(
     watchlists: readonly ImportationWatchlistDto[] | null,
     annotations: readonly ImportationAnnotationDto[] | null,
-    permissions: Pick<ImportationCollaborationViewModel, 'canManageWatchlists' | 'canScheduleReports' | 'canViewCollaboration'>,
+    permissions: Pick<
+      ImportationCollaborationViewModel,
+      'canManageWatchlists' | 'canScheduleReports' | 'canViewCollaboration'
+    >,
     loading: boolean,
-    error: string | null
+    error: string | null,
   ): ImportationCollaborationViewModel {
     return {
       loading,
@@ -299,17 +310,19 @@ export class ImportationViewModelMapper {
   mapKnowledge(
     response: ImportationKnowledgeResponseDto | null,
     loading: boolean,
-    error: string | null
+    error: string | null,
   ): ImportationKnowledgeSectionViewModel {
-    const articles: ImportationKnowledgeArticleCardViewModel[] = (response?.articles ?? []).map((article) => ({
-      id: article.id,
-      title: article.title,
-      summary: article.summary,
-      publishedAt: article.publishedAt,
-      link: article.link,
-      tag: article.tag,
-      thumbnailUrl: article.thumbnailUrl,
-    }));
+    const articles: ImportationKnowledgeArticleCardViewModel[] = (response?.articles ?? []).map(
+      (article) => ({
+        id: article.id,
+        title: article.title,
+        summary: article.summary,
+        publishedAt: article.publishedAt,
+        link: article.link,
+        tag: article.tag,
+        thumbnailUrl: article.thumbnailUrl,
+      }),
+    );
 
     const cta = response?.cta
       ? {
@@ -329,9 +342,21 @@ export class ImportationViewModelMapper {
   }
 
   private resolveTimelinePoint(
-    timeline: readonly { period: string; totalValue: number; yoyDelta: number | null; label: string; isProjected?: boolean }[],
-    target: string | null
-  ): { period: string; totalValue: number; yoyDelta: number | null; label: string; isProjected?: boolean } | null {
+    timeline: readonly {
+      period: string;
+      totalValue: number;
+      yoyDelta: number | null;
+      label: string;
+      isProjected?: boolean;
+    }[],
+    target: string | null,
+  ): {
+    period: string;
+    totalValue: number;
+    yoyDelta: number | null;
+    label: string;
+    isProjected?: boolean;
+  } | null {
     if (!timeline.length) {
       return null;
     }
@@ -341,9 +366,14 @@ export class ImportationViewModelMapper {
     return timeline.find((point) => point.period === target) ?? timeline[0];
   }
 
-  private resolveTopOrigin(flows: readonly { originCode: string; originName: string; value: number; yoyDelta: number | null }[]):
-    | { originCode: string; originName: string; value: number; yoyDelta: number | null }
-    | null {
+  private resolveTopOrigin(
+    flows: readonly {
+      originCode: string;
+      originName: string;
+      value: number;
+      yoyDelta: number | null;
+    }[],
+  ): { originCode: string; originName: string; value: number; yoyDelta: number | null } | null {
     if (!flows.length) {
       return null;
     }
@@ -369,16 +399,28 @@ export class ImportationViewModelMapper {
 
   private extractSparkline(
     timeline: readonly { totalValue: number; yoyDelta: number | null }[],
-    selector: (point: { totalValue: number; yoyDelta: number | null }) => number = (point) => point.totalValue
+    selector: (point: { totalValue: number; yoyDelta: number | null }) => number = (point) =>
+      point.totalValue,
   ): readonly number[] {
     return timeline.slice(0, 12).map((point) => selector(point));
   }
 
   private toCommodityRow(
-    commodity: { id: string; hsCode: string; label: string; value: number; yoyDelta: number | null; riskScore: number | null; sparkline: readonly number[]; flags: readonly string[] },
-    riskFlags: readonly ImportationRiskFlag[]
+    commodity: {
+      id: string;
+      hsCode: string;
+      label: string;
+      value: number;
+      yoyDelta: number | null;
+      riskScore: number | null;
+      sparkline: readonly number[];
+      flags: readonly string[];
+    },
+    riskFlags: readonly ImportationRiskFlag[],
   ): ImportationCommodityRowViewModel {
-    const flags = riskFlags.filter((flag) => flag.relatedCommodityId === commodity.id || commodity.flags.includes(flag.id));
+    const flags = riskFlags.filter(
+      (flag) => flag.relatedCommodityId === commodity.id || commodity.flags.includes(flag.id),
+    );
     return {
       id: commodity.id,
       hsCode: commodity.hsCode,
@@ -393,7 +435,7 @@ export class ImportationViewModelMapper {
 
   private pickCommodityCollection(
     collections: ImportationCommodityCollectionsDto | null,
-    tab: ImportationCommodityTab
+    tab: ImportationCommodityTab,
   ): ImportationCommodityCollectionsDto['top'] {
     if (!collections) {
       return [];
@@ -410,9 +452,10 @@ export class ImportationViewModelMapper {
 
   private buildFiltersSummary(filters: ImportationFilters): string {
     const sections = filters.hsSections.length ? filters.hsSections.join(', ') : '—';
-    const origin = filters.originScope === 'custom' && filters.originCodes.length
-      ? filters.originCodes.join(', ')
-      : `@${filters.originScope}`;
+    const origin =
+      filters.originScope === 'custom' && filters.originCodes.length
+        ? filters.originCodes.join(', ')
+        : `@${filters.originScope}`;
     const period = `${filters.periodGranularity}:${filters.periodValue ?? 'latest'}`;
     return `${period} • ${origin} • HS ${sections}`;
   }

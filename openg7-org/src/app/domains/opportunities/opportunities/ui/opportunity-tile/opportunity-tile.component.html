@@ -6,13 +6,15 @@
   <header class="opportunity-tile__header">
     <div class="opportunity-tile__title-group">
       <h3 class="opportunity-tile__title" [id]="titleId()">{{ vm().title }}</h3>
-      <p class="opportunity-tile__subtitle">{{ 'opportunities.timeline.prototypeLabel' | translate }}</p>
+      <p class="opportunity-tile__subtitle">
+        {{ 'opportunities.timeline.prototypeLabel' | translate }}
+      </p>
     </div>
 
     <div
       class="opportunity-tile__score"
       role="img"
-      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate:{ value: scoreLabel() }"
+      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate: { value: scoreLabel() }"
       [id]="scoreId()"
     >
       <svg viewBox="0 0 80 80" class="opportunity-tile__score-chart" aria-hidden="true">
@@ -40,14 +42,18 @@
           [attr.stroke-dashoffset]="scoreStrokeDashoffset()"
           [attr.stroke]="scoreStroke()"
         ></circle>
-        <text x="40" y="46" class="opportunity-tile__score-value" text-anchor="middle">{{ scoreLabel() }}</text>
+        <text x="40" y="46" class="opportunity-tile__score-value" text-anchor="middle">
+          {{ scoreLabel() }}
+        </text>
       </svg>
     </div>
   </header>
 
   <section class="opportunity-tile__body">
     <div class="opportunity-tile__actor">
-      <div class="opportunity-tile__actor-label">{{ 'opportunities.timeline.buyer' | translate }}</div>
+      <div class="opportunity-tile__actor-label">
+        {{ 'opportunities.timeline.buyer' | translate }}
+      </div>
       <p class="opportunity-tile__actor-name">{{ vm().buyer.name }}</p>
       <div class="opportunity-tile__chips">
         <span class="opportunity-tile__chip">{{ vm().buyer.provinceLabelKey | translate }}</span>
@@ -60,12 +66,16 @@
         <path d="M24 86 C 120 16, 200 104, 296 34" class="opportunity-tile__bridge-path"></path>
         <circle cx="24" cy="86" r="8" class="opportunity-tile__bridge-node"></circle>
         <circle cx="296" cy="34" r="8" class="opportunity-tile__bridge-node"></circle>
-        <text x="160" y="70" text-anchor="middle" class="opportunity-tile__bridge-distance">{{ distanceLabel() }}</text>
+        <text x="160" y="70" text-anchor="middle" class="opportunity-tile__bridge-distance">
+          {{ distanceLabel() }}
+        </text>
       </svg>
     </div>
 
     <div class="opportunity-tile__actor opportunity-tile__actor--supplier">
-      <div class="opportunity-tile__actor-label">{{ 'opportunities.timeline.supplier' | translate }}</div>
+      <div class="opportunity-tile__actor-label">
+        {{ 'opportunities.timeline.supplier' | translate }}
+      </div>
       <p class="opportunity-tile__actor-name">{{ vm().supplier.name }}</p>
       <div class="opportunity-tile__chips">
         <span class="opportunity-tile__chip">{{ vm().supplier.provinceLabelKey | translate }}</span>
@@ -95,7 +105,11 @@
       (click)="toggleSave()"
       [attr.aria-pressed]="saved()"
     >
-      {{ saved() ? ('opportunities.timeline.saved' | translate) : ('opportunities.timeline.save' | translate) }}
+      {{
+        saved()
+          ? ('opportunities.timeline.saved' | translate)
+          : ('opportunities.timeline.save' | translate)
+      }}
     </button>
   </footer>
 </article>

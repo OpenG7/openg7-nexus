@@ -32,7 +32,11 @@ describe('AlertContextAsideComponent', () => {
       { id: 'alert-002', title: 'Wind advisory', region: 'Ontario', severity: 'High' },
     ]);
     fixture.componentRef.setInput('relatedOpportunities', [
-      { id: 'opportunity-002', title: 'Spare transformer capacity', routeLabel: 'Quebec -> Ontario' },
+      {
+        id: 'opportunity-002',
+        title: 'Spare transformer capacity',
+        routeLabel: 'Quebec -> Ontario',
+      },
     ]);
     fixture.detectChanges();
 

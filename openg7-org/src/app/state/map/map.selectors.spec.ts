@@ -86,7 +86,7 @@ describe('mapReducer', () => {
   it('should reset the slice', () => {
     const mutated = mapReducer(
       initialMapState,
-      MapActions.flowsFiltered({ flows: [{ id: 'f1' }] })
+      MapActions.flowsFiltered({ flows: [{ id: 'f1' }] }),
     );
 
     const reset = mapReducer(mutated, MapActions.mapReset());

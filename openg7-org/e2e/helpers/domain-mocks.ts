@@ -533,14 +533,14 @@ function mapOpportunityMatchToStrapi(match: SeedOpportunityMatch) {
 
 export async function mockSessionApis(
   page: Page,
-  profile: E2eAuthProfile = DEFAULT_PROFILE
+  profile: E2eAuthProfile = DEFAULT_PROFILE,
 ): Promise<void> {
   await page.route('**/api/auth/local**', async (route) => {
     await route.fulfill(
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: profile,
-      })
+      }),
     );
   });
 
@@ -574,15 +574,12 @@ export async function mockSessionApis(
         json({
           version: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
 
-    if (
-      method === 'GET' &&
-      (path === '/api/users/me' || path.endsWith('/profile'))
-    ) {
+    if (method === 'GET' && (path === '/api/users/me' || path.endsWith('/profile'))) {
       await route.fulfill(json(profile));
       return;
     }
@@ -605,7 +602,7 @@ export async function mockSessionApis(
 
 export async function mockProfileAndFavoritesApis(
   page: Page,
-  profileSeed: E2eAuthProfile = DEFAULT_PROFILE
+  profileSeed: E2eAuthProfile = DEFAULT_PROFILE,
 ): Promise<void> {
   const profile = clone(profileSeed);
   const sessions = clone(DEFAULT_SESSIONS);
@@ -616,7 +613,7 @@ export async function mockProfileAndFavoritesApis(
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: profile,
-      })
+      }),
     );
   });
 
@@ -687,7 +684,7 @@ export async function mockProfileAndFavoritesApis(
           sessionsRevoked: revoked,
           sessionVersion: 5,
           sessions,
-        })
+        }),
       );
       return;
     }
@@ -697,7 +694,7 @@ export async function mockProfileAndFavoritesApis(
         json({
           version: 5,
           sessions,
-        })
+        }),
       );
       return;
     }
@@ -709,7 +706,7 @@ export async function mockProfileAndFavoritesApis(
           email: payload.email ?? 'new.email@openg7.test',
           sent: true,
           accountStatus: 'active',
-        })
+        }),
       );
       return;
     }
@@ -770,7 +767,7 @@ export async function mockProfileAndFavoritesApis(
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: profile,
-      })
+      }),
     );
   });
 
@@ -781,14 +778,14 @@ export async function mockProfileAndFavoritesApis(
           id: 1,
           url: '/uploads/e2e-avatar.png',
         },
-      ])
+      ]),
     );
   });
 }
 
 export async function mockCompanyApis(
   page: Page,
-  companySeed: readonly SeedCompany[] = DEFAULT_COMPANIES
+  companySeed: readonly SeedCompany[] = DEFAULT_COMPANIES,
 ): Promise<void> {
   const companies = clone(companySeed);
 
@@ -822,18 +819,24 @@ export async function mockCompanyApis(
         website: typeof data['website'] === 'string' ? data['website'] : null,
         status: (data['status'] as SeedCompany['status']) ?? 'pending',
         logoUrl: typeof data['logoUrl'] === 'string' ? data['logoUrl'] : null,
-        secondaryLogoUrl: typeof data['secondaryLogoUrl'] === 'string' ? data['secondaryLogoUrl'] : null,
+        secondaryLogoUrl:
+          typeof data['secondaryLogoUrl'] === 'string' ? data['secondaryLogoUrl'] : null,
         country: typeof data['country'] === 'string' ? data['country'] : 'CA',
         sector:
-          DEFAULT_SECTORS.find((entry) => entry.id === Number(data['sector'] ?? data['sectorId'])) ?? DEFAULT_SECTORS[0],
+          DEFAULT_SECTORS.find(
+            (entry) => entry.id === Number(data['sector'] ?? data['sectorId']),
+          ) ?? DEFAULT_SECTORS[0],
         province:
-          DEFAULT_PROVINCES.find((entry) => entry.id === Number(data['province'] ?? data['provinceId'])) ??
-          DEFAULT_PROVINCES[0],
+          DEFAULT_PROVINCES.find(
+            (entry) => entry.id === Number(data['province'] ?? data['provinceId']),
+          ) ?? DEFAULT_PROVINCES[0],
         verificationStatus: 'pending',
         trustScore: 0,
         verificationSources: [],
         trustHistory: [],
-        capacities: Array.isArray(data['capacities']) ? (data['capacities'] as SeedCompany['capacities']) : [],
+        capacities: Array.isArray(data['capacities'])
+          ? (data['capacities'] as SeedCompany['capacities'])
+          : [],
       };
       companies.unshift(created);
       await route.fulfill({
@@ -854,8 +857,12 @@ export async function mockCompanyApis(
 
       const current = companies[index];
       const data = payload.data ?? {};
-      const nextSectorId = Number(data['sector'] ?? current.sector?.id ?? DEFAULT_SECTORS[0]?.id ?? 1);
-      const nextProvinceId = Number(data['province'] ?? current.province?.id ?? DEFAULT_PROVINCES[0]?.id ?? 10);
+      const nextSectorId = Number(
+        data['sector'] ?? current.sector?.id ?? DEFAULT_SECTORS[0]?.id ?? 1,
+      );
+      const nextProvinceId = Number(
+        data['province'] ?? current.province?.id ?? DEFAULT_PROVINCES[0]?.id ?? 10,
+      );
       const updated: SeedCompany = {
         ...current,
         name: typeof data['name'] === 'string' ? data['name'] : current.name,
@@ -881,9 +888,11 @@ export async function mockCompanyApis(
             ? (data['country'] as string | null)
             : current.country,
         sector: DEFAULT_SECTORS.find((entry) => entry.id === nextSectorId) ?? current.sector,
-        province: DEFAULT_PROVINCES.find((entry) => entry.id === nextProvinceId) ?? current.province,
+        province:
+          DEFAULT_PROVINCES.find((entry) => entry.id === nextProvinceId) ?? current.province,
         verificationStatus:
-          (data['verificationStatus'] as SeedCompany['verificationStatus']) ?? current.verificationStatus,
+          (data['verificationStatus'] as SeedCompany['verificationStatus']) ??
+          current.verificationStatus,
         verificationSources: Array.isArray(data['verificationSources'])
           ? (data['verificationSources'] as SeedCompany['verificationSources'])
           : current.verificationSources,
@@ -906,7 +915,7 @@ export async function mockCompanyApis(
 export async function mockConnectionsApis(
   page: Page,
   connectionSeed: readonly SeedConnection[] = DEFAULT_CONNECTIONS,
-  opportunitySeed: readonly SeedOpportunityMatch[] = DEFAULT_OPPORTUNITY_MATCHES
+  opportunitySeed: readonly SeedOpportunityMatch[] = DEFAULT_OPPORTUNITY_MATCHES,
 ): Promise<void> {
   const connections = clone(connectionSeed);
   const opportunityMatches = clone(opportunitySeed);
@@ -916,7 +925,9 @@ export async function mockConnectionsApis(
     const method = request.method().toUpperCase();
     const url = new URL(request.url());
     const connectionStatusMatch = url.pathname.match(/\/api\/connections\/([^/]+)\/status\/?$/i);
-    const connectionStatusId = connectionStatusMatch ? decodeURIComponent(connectionStatusMatch[1]) : null;
+    const connectionStatusId = connectionStatusMatch
+      ? decodeURIComponent(connectionStatusMatch[1])
+      : null;
     const connectionIdMatch = url.pathname.match(/\/api\/connections\/([^/]+)\/?$/i);
     const connectionId = connectionIdMatch ? decodeURIComponent(connectionIdMatch[1]) : null;
 
@@ -974,7 +985,7 @@ export async function mockConnectionsApis(
             offset: 0,
             hasMore: false,
           },
-        })
+        }),
       );
       return;
     }
@@ -999,7 +1010,7 @@ export async function mockConnectionsApis(
       await route.fulfill(
         json({
           data: match ? mapOpportunityMatchToStrapi(match) : null,
-        })
+        }),
       );
       return;
     }
@@ -1007,7 +1018,7 @@ export async function mockConnectionsApis(
     await route.fulfill(
       json({
         data: opportunityMatches.map(mapOpportunityMatchToStrapi),
-      })
+      }),
     );
   });
 }
@@ -1027,7 +1038,7 @@ export async function mockImportApis(page: Page): Promise<void> {
           skipped: 0,
           errors: [],
         },
-      })
+      }),
     );
   });
 
@@ -1039,7 +1050,7 @@ export async function mockImportApis(page: Page): Promise<void> {
         eventsUrl: '/__e2e__/bulk-job-1/events',
         reportUrl: '/api/import/companies/jobs/bulk-job-1/report',
         errorsUrl: '/api/import/companies/jobs/bulk-job-1/errors',
-      })
+      }),
     );
   });
 
@@ -1075,7 +1086,7 @@ export async function mockImportApis(page: Page): Promise<void> {
           cancelRequestedAt: null,
         },
         lastError: null,
-      })
+      }),
     );
   });
 
@@ -1104,7 +1115,7 @@ export async function mockImportApis(page: Page): Promise<void> {
           errorsJsonUrl: '/api/import/companies/jobs/bulk-job-1/errors?format=json',
           errorsCsvUrl: '/api/import/companies/jobs/bulk-job-1/errors?format=csv',
         },
-      })
+      }),
     );
   });
 
@@ -1114,7 +1125,7 @@ export async function mockImportApis(page: Page): Promise<void> {
         jobId: 'bulk-job-1',
         count: 0,
         data: [],
-      })
+      }),
     );
   });
 
@@ -1124,7 +1135,7 @@ export async function mockImportApis(page: Page): Promise<void> {
         jobId: 'bulk-job-1',
         cancelled: true,
         state: 'cancelled',
-      })
+      }),
     );
   });
 }
@@ -1170,7 +1181,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
         coverage: 94,
         lastUpdated: '2026-03-14T08:00:00.000Z',
         dataProvider: 'OpenG7 demo',
-      })
+      }),
     );
   });
 
@@ -1213,7 +1224,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
             flags: ['risk'],
           },
         ],
-      })
+      }),
     );
   });
 
@@ -1227,7 +1238,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
           severity: 'warning',
           recommendation: 'Create a secondary supplier watchlist',
         },
-      ])
+      ]),
     );
   });
 
@@ -1246,7 +1257,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
             recommendation: 'Maintain as primary supplier',
           },
         ],
-      })
+      }),
     );
   });
 
@@ -1262,7 +1273,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
             relatedCommodityId: 'cmd-2',
           },
         ],
-      })
+      }),
     );
   });
 
@@ -1279,7 +1290,10 @@ export async function mockImportationApis(page: Page): Promise<void> {
     }
 
     if (method === 'POST' && !watchlistId) {
-      const payload = (request.postDataJSON?.() ?? {}) as { name?: string; filters?: Record<string, unknown> };
+      const payload = (request.postDataJSON?.() ?? {}) as {
+        name?: string;
+        filters?: Record<string, unknown>;
+      };
       const created = {
         id: `watch-${watchlists.length + 1}`,
         name: payload.name ?? `Watchlist ${watchlists.length + 1}`,
@@ -1297,7 +1311,10 @@ export async function mockImportationApis(page: Page): Promise<void> {
     }
 
     if (method === 'PUT' && watchlistId) {
-      const payload = (request.postDataJSON?.() ?? {}) as { name?: string; filters?: Record<string, unknown> };
+      const payload = (request.postDataJSON?.() ?? {}) as {
+        name?: string;
+        filters?: Record<string, unknown>;
+      };
       const index = watchlists.findIndex((entry) => entry.id === watchlistId);
       if (index < 0) {
         await route.fulfill({ status: 404, body: 'Watchlist not found' });
@@ -1338,7 +1355,7 @@ export async function mockImportationApis(page: Page): Promise<void> {
           actionLabel: 'Request review',
           actionLink: 'mailto:analysts@openg7.test',
         },
-      })
+      }),
     );
   });
 
@@ -1381,7 +1398,7 @@ export async function mockBillingApis(page: Page): Promise<void> {
             },
           },
         ],
-      })
+      }),
     );
   });
 
@@ -1402,7 +1419,7 @@ export async function mockBillingApis(page: Page): Promise<void> {
             lines: [],
           },
         ],
-      })
+      }),
     );
   });
 
@@ -1415,7 +1432,7 @@ export async function mockBillingApis(page: Page): Promise<void> {
       json({
         provider: 'internal',
         message: 'Checkout handled in E2E',
-      })
+      }),
     );
   });
 }
@@ -1444,7 +1461,7 @@ export async function mockAdminOpsApis(page: Page): Promise<void> {
             feedItems: 144,
           },
         },
-      })
+      }),
     );
   });
 
@@ -1469,7 +1486,7 @@ export async function mockAdminOpsApis(page: Page): Promise<void> {
             },
           ],
         },
-      })
+      }),
     );
   });
 
@@ -1497,7 +1514,7 @@ export async function mockAdminOpsApis(page: Page): Promise<void> {
             },
           ],
         },
-      })
+      }),
     );
   });
 
@@ -1531,7 +1548,7 @@ export async function mockAdminOpsApis(page: Page): Promise<void> {
             suspendedCompanies: 0,
           },
         },
-      })
+      }),
     );
   });
 }

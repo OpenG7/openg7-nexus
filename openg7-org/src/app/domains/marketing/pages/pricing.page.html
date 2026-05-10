@@ -1,21 +1,40 @@
 <section class="relative overflow-hidden bg-slate-950 text-white">
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_60%)]"></div>
-  <div class="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:flex-row lg:items-center lg:gap-16">
+  <div
+    class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_60%)]"
+  ></div>
+  <div
+    class="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:flex-row lg:items-center lg:gap-16"
+  >
     <div class="max-w-2xl">
-      <nav [attr.aria-label]="'pages.pricing.hero.breadcrumb.label' | translate" class="text-sm text-slate-300">
+      <nav
+        [attr.aria-label]="'pages.pricing.hero.breadcrumb.label' | translate"
+        class="text-sm text-slate-300"
+      >
         <ol class="flex flex-wrap items-center gap-2">
           <li>
-            <a class="transition hover:text-white" routerLink="/">{{ 'pages.pricing.hero.breadcrumb.home' | translate }}</a>
+            <a class="transition hover:text-white" routerLink="/"
+              >{{ 'pages.pricing.hero.breadcrumb.home' | translate }}</a
+            >
           </li>
           <li aria-hidden="true" class="opacity-60">/</li>
-          <li class="font-medium text-white">{{ 'pages.pricing.hero.breadcrumb.current' | translate }}</li>
+          <li class="font-medium text-white">
+            {{ 'pages.pricing.hero.breadcrumb.current' | translate }}
+          </li>
         </ol>
       </nav>
-      <p class="mt-6 text-sm font-semibold uppercase tracking-[0.45em] text-emerald-300">{{ 'pages.pricing.hero.eyebrow' | translate }}</p>
-      <h1 class="mt-4 text-balance text-4xl font-semibold leading-tight md:text-5xl">{{ 'pages.pricing.hero.title' | translate }}</h1>
+      <p class="mt-6 text-sm font-semibold uppercase tracking-[0.45em] text-emerald-300">
+        {{ 'pages.pricing.hero.eyebrow' | translate }}
+      </p>
+      <h1 class="mt-4 text-balance text-4xl font-semibold leading-tight md:text-5xl">
+        {{ 'pages.pricing.hero.title' | translate }}
+      </h1>
       <p class="mt-6 text-lg text-slate-200">{{ 'pages.pricing.hero.subtitle' | translate }}</p>
       <div class="mt-10 flex flex-wrap items-center gap-4">
-        <div class="inline-flex rounded-full bg-white/10 p-1 text-sm text-white shadow-lg shadow-emerald-500/10" role="group" [attr.aria-label]="'pages.pricing.hero.billing.label' | translate">
+        <div
+          class="inline-flex rounded-full bg-white/10 p-1 text-sm text-white shadow-lg shadow-emerald-500/10"
+          role="group"
+          [attr.aria-label]="'pages.pricing.hero.billing.label' | translate"
+        >
           <button
             type="button"
             (click)="setBillingCycle('monthly')"
@@ -35,7 +54,9 @@
             {{ 'pages.pricing.hero.billing.yearly' | translate }}
           </button>
         </div>
-        <span class="text-sm text-emerald-200" *ngIf="isActiveCycle('yearly')">{{ 'pages.pricing.hero.billing.savings' | translate }}</span>
+        <span class="text-sm text-emerald-200" *ngIf="isActiveCycle('yearly')"
+          >{{ 'pages.pricing.hero.billing.savings' | translate }}</span
+        >
       </div>
       <div class="mt-10 flex flex-wrap gap-4">
         <a
@@ -52,28 +73,50 @@
         </a>
       </div>
       <ul class="mt-12 grid gap-4 text-sm text-slate-200 sm:grid-cols-2">
-        <li *ngFor="let item of ['pages.pricing.hero.highlights.market', 'pages.pricing.hero.highlights.analytics', 'pages.pricing.hero.highlights.support', 'pages.pricing.hero.highlights.security']">
+        <li
+          *ngFor="let item of ['pages.pricing.hero.highlights.market', 'pages.pricing.hero.highlights.analytics', 'pages.pricing.hero.highlights.support', 'pages.pricing.hero.highlights.security']"
+        >
           <div class="flex items-start gap-3">
-            <span aria-hidden="true" class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">&#10003;</span>
+            <span
+              aria-hidden="true"
+              class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300"
+              >&#10003;</span
+            >
             <span>{{ item | translate }}</span>
           </div>
         </li>
       </ul>
     </div>
-    <aside class="w-full max-w-sm rounded-3xl border border-white/15 bg-white/5 p-8 text-sm backdrop-blur">
-      <h2 class="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-200">{{ 'pages.pricing.hero.metrics.title' | translate }}</h2>
+    <aside
+      class="w-full max-w-sm rounded-3xl border border-white/15 bg-white/5 p-8 text-sm backdrop-blur"
+    >
+      <h2 class="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-200">
+        {{ 'pages.pricing.hero.metrics.title' | translate }}
+      </h2>
       <ul class="mt-6 space-y-6">
         <li>
-          <p class="text-3xl font-semibold text-white">{{ 'pages.pricing.hero.metrics.suppliers.value' | translate }}</p>
-          <p class="mt-1 text-slate-200">{{ 'pages.pricing.hero.metrics.suppliers.label' | translate }}</p>
+          <p class="text-3xl font-semibold text-white">
+            {{ 'pages.pricing.hero.metrics.suppliers.value' | translate }}
+          </p>
+          <p class="mt-1 text-slate-200">
+            {{ 'pages.pricing.hero.metrics.suppliers.label' | translate }}
+          </p>
         </li>
         <li>
-          <p class="text-3xl font-semibold text-white">{{ 'pages.pricing.hero.metrics.matches.value' | translate }}</p>
-          <p class="mt-1 text-slate-200">{{ 'pages.pricing.hero.metrics.matches.label' | translate }}</p>
+          <p class="text-3xl font-semibold text-white">
+            {{ 'pages.pricing.hero.metrics.matches.value' | translate }}
+          </p>
+          <p class="mt-1 text-slate-200">
+            {{ 'pages.pricing.hero.metrics.matches.label' | translate }}
+          </p>
         </li>
         <li>
-          <p class="text-3xl font-semibold text-white">{{ 'pages.pricing.hero.metrics.satisfaction.value' | translate }}</p>
-          <p class="mt-1 text-slate-200">{{ 'pages.pricing.hero.metrics.satisfaction.label' | translate }}</p>
+          <p class="text-3xl font-semibold text-white">
+            {{ 'pages.pricing.hero.metrics.satisfaction.value' | translate }}
+          </p>
+          <p class="mt-1 text-slate-200">
+            {{ 'pages.pricing.hero.metrics.satisfaction.label' | translate }}
+          </p>
         </li>
       </ul>
     </aside>
@@ -83,9 +126,15 @@
 <section id="plans" class="bg-white py-20">
   <div class="mx-auto max-w-6xl px-6">
     <header class="max-w-3xl">
-      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">{{ 'pages.pricing.planCards.eyebrow' | translate }}</p>
-      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">{{ 'pages.pricing.planCards.heading' | translate }}</h2>
-      <p class="mt-4 text-lg text-slate-600">{{ 'pages.pricing.planCards.subheading' | translate }}</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">
+        {{ 'pages.pricing.planCards.eyebrow' | translate }}
+      </p>
+      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+        {{ 'pages.pricing.planCards.heading' | translate }}
+      </h2>
+      <p class="mt-4 text-lg text-slate-600">
+        {{ 'pages.pricing.planCards.subheading' | translate }}
+      </p>
     </header>
     <div class="mt-12 grid gap-6 lg:grid-cols-3">
       <article
@@ -100,10 +149,15 @@
       >
         <div class="flex items-start justify-between gap-4">
           <div>
-            <p *ngIf="plan.badgeKey" class="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
+            <p
+              *ngIf="plan.badgeKey"
+              class="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500"
+            >
               {{ plan.badgeKey | translate }}
             </p>
-            <h3 class="mt-2 text-2xl font-semibold text-slate-900">{{ ('pages.pricing.planCards.' + plan.key + '.title') | translate }}</h3>
+            <h3 class="mt-2 text-2xl font-semibold text-slate-900">
+              {{ ('pages.pricing.planCards.' + plan.key + '.title') | translate }}
+            </h3>
             <p class="mt-2 text-sm text-slate-600">{{ plan.descriptionKey | translate }}</p>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -127,7 +181,9 @@
             </span>
           </div>
         </div>
-        <p class="mt-4 text-sm font-medium text-emerald-600" *ngIf="plan.highlightKey">{{ plan.highlightKey | translate }}</p>
+        <p class="mt-4 text-sm font-medium text-emerald-600" *ngIf="plan.highlightKey">
+          {{ plan.highlightKey | translate }}
+        </p>
         <div class="mt-8">
           <ng-container *ngIf="displayedPrice(plan) as amount; else planLabel">
             <div class="flex items-baseline gap-2">
@@ -136,18 +192,30 @@
               </span>
               <span class="text-sm text-slate-500">{{ displayedIntervalKey() | translate }}</span>
             </div>
-            <p class="mt-2 text-sm text-slate-500" *ngIf="billingCycle() === 'yearly' && yearlyMonthlyEquivalent(plan) as monthly">
-              {{ 'pages.pricing.planCards.perMonthEquivalent' | translate:{ value: (monthly | currency:(plan.currency ?? 'CAD'):'symbol-narrow':'1.0-0') } }}
+            <p
+              class="mt-2 text-sm text-slate-500"
+              *ngIf="billingCycle() === 'yearly' && yearlyMonthlyEquivalent(plan) as monthly"
+            >
+              {{ 'pages.pricing.planCards.perMonthEquivalent' | translate:{ value: (monthly |
+              currency:(plan.currency ?? 'CAD'):'symbol-narrow':'1.0-0') } }}
             </p>
-            <p class="mt-2 text-sm font-semibold text-emerald-600" *ngIf="plan.savingsKey">{{ plan.savingsKey | translate }}</p>
+            <p class="mt-2 text-sm font-semibold text-emerald-600" *ngIf="plan.savingsKey">
+              {{ plan.savingsKey | translate }}
+            </p>
           </ng-container>
           <ng-template #planLabel>
-            <div class="text-3xl font-semibold text-slate-900">{{ priceLabelKey(plan) | translate }}</div>
+            <div class="text-3xl font-semibold text-slate-900">
+              {{ priceLabelKey(plan) | translate }}
+            </div>
           </ng-template>
         </div>
         <ul class="mt-8 space-y-3 text-sm text-slate-600">
           <li *ngFor="let feature of plan.features" class="flex items-start gap-3">
-            <span aria-hidden="true" class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">&#10003;</span>
+            <span
+              aria-hidden="true"
+              class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600"
+              >&#10003;</span
+            >
             <span>{{ feature | translate }}</span>
           </li>
         </ul>
@@ -163,8 +231,12 @@
           >
             {{ plan.cta.labelKey | translate }}
           </a>
-          <p class="text-xs text-slate-500" *ngIf="plan.cta.hintKey">{{ plan.cta.hintKey | translate }}</p>
-          <p class="text-xs text-slate-400" *ngIf="plan.footnoteKey">{{ plan.footnoteKey | translate }}</p>
+          <p class="text-xs text-slate-500" *ngIf="plan.cta.hintKey">
+            {{ plan.cta.hintKey | translate }}
+          </p>
+          <p class="text-xs text-slate-400" *ngIf="plan.footnoteKey">
+            {{ plan.footnoteKey | translate }}
+          </p>
         </div>
       </article>
     </div>
@@ -174,9 +246,15 @@
 <section id="features" class="bg-slate-50 py-20">
   <div class="mx-auto max-w-6xl px-6">
     <header class="max-w-3xl">
-      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">{{ 'pages.pricing.matrix.eyebrow' | translate }}</p>
-      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">{{ 'pages.pricing.matrix.heading' | translate }}</h2>
-      <p class="mt-4 text-lg text-slate-600">{{ 'pages.pricing.matrix.description' | translate }}</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">
+        {{ 'pages.pricing.matrix.eyebrow' | translate }}
+      </p>
+      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+        {{ 'pages.pricing.matrix.heading' | translate }}
+      </h2>
+      <p class="mt-4 text-lg text-slate-600">
+        {{ 'pages.pricing.matrix.description' | translate }}
+      </p>
     </header>
     <div class="mt-12 space-y-6 lg:hidden" data-og7="pricing-matrix-mobile">
       <section *ngFor="let group of featureGroups" class="space-y-3">
@@ -189,18 +267,26 @@
           data-og7="pricing-matrix-row-mobile"
         >
           <h4 class="text-base font-semibold text-slate-900">{{ row.labelKey | translate }}</h4>
-          <p class="mt-1 text-sm text-slate-600" *ngIf="row.descriptionKey">{{ row.descriptionKey | translate }}</p>
+          <p class="mt-1 text-sm text-slate-600" *ngIf="row.descriptionKey">
+            {{ row.descriptionKey | translate }}
+          </p>
           <dl class="mt-4 space-y-2 text-sm">
             <div class="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
-              <dt class="font-semibold text-slate-700">{{ 'pages.pricing.matrix.columns.explorer' | translate }}</dt>
+              <dt class="font-semibold text-slate-700">
+                {{ 'pages.pricing.matrix.columns.explorer' | translate }}
+              </dt>
               <dd class="text-right text-slate-600">{{ row.values.explorer | translate }}</dd>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
-              <dt class="font-semibold text-slate-700">{{ 'pages.pricing.matrix.columns.analyst' | translate }}</dt>
+              <dt class="font-semibold text-slate-700">
+                {{ 'pages.pricing.matrix.columns.analyst' | translate }}
+              </dt>
               <dd class="text-right text-slate-600">{{ row.values.analyst | translate }}</dd>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
-              <dt class="font-semibold text-slate-700">{{ 'pages.pricing.matrix.columns.enterprise' | translate }}</dt>
+              <dt class="font-semibold text-slate-700">
+                {{ 'pages.pricing.matrix.columns.enterprise' | translate }}
+              </dt>
               <dd class="text-right text-slate-600">{{ row.values.enterprise | translate }}</dd>
             </div>
           </dl>
@@ -212,29 +298,48 @@
       <table class="min-w-full border-separate border-spacing-y-4 text-left">
         <thead>
           <tr>
-            <th class="w-1/3 pb-4 pr-6 text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
+            <th
+              class="w-1/3 pb-4 pr-6 text-sm font-semibold uppercase tracking-[0.3em] text-slate-500"
+            >
               {{ 'pages.pricing.matrix.columns.feature' | translate }}
             </th>
-            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">{{ 'pages.pricing.matrix.columns.explorer' | translate }}</th>
-            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">{{ 'pages.pricing.matrix.columns.analyst' | translate }}</th>
-            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">{{ 'pages.pricing.matrix.columns.enterprise' | translate }}</th>
+            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">
+              {{ 'pages.pricing.matrix.columns.explorer' | translate }}
+            </th>
+            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">
+              {{ 'pages.pricing.matrix.columns.analyst' | translate }}
+            </th>
+            <th class="w-1/5 pb-4 pr-4 text-sm font-semibold text-slate-500">
+              {{ 'pages.pricing.matrix.columns.enterprise' | translate }}
+            </th>
           </tr>
         </thead>
         <tbody class="align-top">
           <ng-container *ngFor="let group of featureGroups">
             <tr>
-              <td colspan="4" class="pt-6 text-xs font-semibold uppercase tracking-[0.4em] text-slate-400">
+              <td
+                colspan="4"
+                class="pt-6 text-xs font-semibold uppercase tracking-[0.4em] text-slate-400"
+              >
                 {{ group.titleKey | translate }}
               </td>
             </tr>
             <tr *ngFor="let row of group.rows" class="border-b border-slate-200/60">
               <th scope="row" class="pb-4 pr-6 text-left">
-                <div class="text-base font-semibold text-slate-900">{{ row.labelKey | translate }}</div>
-                <p class="mt-1 text-sm text-slate-500" *ngIf="row.descriptionKey">{{ row.descriptionKey | translate }}</p>
+                <div class="text-base font-semibold text-slate-900">
+                  {{ row.labelKey | translate }}
+                </div>
+                <p class="mt-1 text-sm text-slate-500" *ngIf="row.descriptionKey">
+                  {{ row.descriptionKey | translate }}
+                </p>
               </th>
-              <td class="pb-4 pr-4 text-sm text-slate-600">{{ row.values.explorer | translate }}</td>
+              <td class="pb-4 pr-4 text-sm text-slate-600">
+                {{ row.values.explorer | translate }}
+              </td>
               <td class="pb-4 pr-4 text-sm text-slate-600">{{ row.values.analyst | translate }}</td>
-              <td class="pb-4 pr-4 text-sm text-slate-600">{{ row.values.enterprise | translate }}</td>
+              <td class="pb-4 pr-4 text-sm text-slate-600">
+                {{ row.values.enterprise | translate }}
+              </td>
             </tr>
           </ng-container>
         </tbody>
@@ -246,16 +351,26 @@
 <section id="addons" class="bg-white py-20">
   <div class="mx-auto max-w-6xl px-6">
     <header class="max-w-3xl">
-      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">{{ 'pages.pricing.addons.eyebrow' | translate }}</p>
-      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">{{ 'pages.pricing.addons.heading' | translate }}</h2>
-      <p class="mt-4 text-lg text-slate-600">{{ 'pages.pricing.addons.description' | translate }}</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">
+        {{ 'pages.pricing.addons.eyebrow' | translate }}
+      </p>
+      <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+        {{ 'pages.pricing.addons.heading' | translate }}
+      </h2>
+      <p class="mt-4 text-lg text-slate-600">
+        {{ 'pages.pricing.addons.description' | translate }}
+      </p>
     </header>
     <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <article
         *ngFor="let addon of addons"
         class="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"
       >
-        <span *ngIf="addon.badgeKey" class="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-600">{{ addon.badgeKey | translate }}</span>
+        <span
+          *ngIf="addon.badgeKey"
+          class="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-600"
+          >{{ addon.badgeKey | translate }}</span
+        >
         <h3 class="mt-3 text-2xl font-semibold text-slate-900">{{ addon.titleKey | translate }}</h3>
         <p class="mt-2 text-sm text-slate-600">{{ addon.descriptionKey | translate }}</p>
         <div class="mt-6 text-sm text-slate-500">
@@ -264,7 +379,9 @@
           </span>
           <span class="ml-2">{{ addon.unitKey | translate }}</span>
         </div>
-        <p class="mt-2 text-xs text-slate-500" *ngIf="addon.frequencyKey">{{ addon.frequencyKey | translate }}</p>
+        <p class="mt-2 text-xs text-slate-500" *ngIf="addon.frequencyKey">
+          {{ addon.frequencyKey | translate }}
+        </p>
       </article>
     </div>
   </div>
@@ -273,13 +390,24 @@
 <section id="testimonials" class="bg-slate-900 py-20 text-white">
   <div class="mx-auto max-w-6xl px-6">
     <header class="max-w-2xl">
-      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-300">{{ 'pages.pricing.testimonials.eyebrow' | translate }}</p>
-      <h2 class="mt-3 text-3xl font-semibold md:text-4xl">{{ 'pages.pricing.testimonials.heading' | translate }}</h2>
-      <p class="mt-4 text-lg text-slate-200">{{ 'pages.pricing.testimonials.description' | translate }}</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-300">
+        {{ 'pages.pricing.testimonials.eyebrow' | translate }}
+      </p>
+      <h2 class="mt-3 text-3xl font-semibold md:text-4xl">
+        {{ 'pages.pricing.testimonials.heading' | translate }}
+      </h2>
+      <p class="mt-4 text-lg text-slate-200">
+        {{ 'pages.pricing.testimonials.description' | translate }}
+      </p>
     </header>
     <div class="mt-12 grid gap-6 md:grid-cols-3">
-      <figure *ngFor="let testimonial of testimonials" class="flex h-full flex-col rounded-3xl bg-white/5 p-8">
-        <blockquote class="text-lg font-medium text-white">&ldquo;{{ testimonial.quoteKey | translate }}&rdquo;</blockquote>
+      <figure
+        *ngFor="let testimonial of testimonials"
+        class="flex h-full flex-col rounded-3xl bg-white/5 p-8"
+      >
+        <blockquote class="text-lg font-medium text-white">
+          &ldquo;{{ testimonial.quoteKey | translate }}&rdquo;
+        </blockquote>
         <figcaption class="mt-8 text-sm text-slate-200">
           <p class="text-base font-semibold text-white">{{ testimonial.authorKey | translate }}</p>
           <p>{{ testimonial.roleKey | translate }}</p>
@@ -295,16 +423,28 @@
     <div class="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div>
         <header class="max-w-3xl">
-          <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">{{ 'pages.pricing.faq.eyebrow' | translate }}</p>
-          <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">{{ 'pages.pricing.faq.heading' | translate }}</h2>
-          <p class="mt-4 text-lg text-slate-600">{{ 'pages.pricing.faq.description' | translate }}</p>
+          <p class="text-sm font-semibold uppercase tracking-[0.4em] text-emerald-600">
+            {{ 'pages.pricing.faq.eyebrow' | translate }}
+          </p>
+          <h2 class="mt-3 text-3xl font-semibold text-slate-900 md:text-4xl">
+            {{ 'pages.pricing.faq.heading' | translate }}
+          </h2>
+          <p class="mt-4 text-lg text-slate-600">
+            {{ 'pages.pricing.faq.description' | translate }}
+          </p>
         </header>
         <div class="mt-10 space-y-4">
           <div *ngFor="let item of faqs" [attr.id]="'faq-' + item.anchor">
             <details class="group rounded-2xl border border-slate-200 bg-white p-6">
-              <summary class="flex cursor-pointer items-center justify-between text-lg font-semibold text-slate-900">
+              <summary
+                class="flex cursor-pointer items-center justify-between text-lg font-semibold text-slate-900"
+              >
                 <span>{{ item.questionKey | translate }}</span>
-                <span aria-hidden="true" class="ml-4 text-2xl text-emerald-500 transition group-open:rotate-45">+</span>
+                <span
+                  aria-hidden="true"
+                  class="ml-4 text-2xl text-emerald-500 transition group-open:rotate-45"
+                  >+</span
+                >
               </summary>
               <p class="mt-4 text-sm text-slate-600">{{ item.answerKey | translate }}</p>
             </details>
@@ -313,10 +453,17 @@
       </div>
       <aside class="space-y-8">
         <div>
-          <h3 class="text-lg font-semibold text-slate-900">{{ 'pages.pricing.compliance.heading' | translate }}</h3>
+          <h3 class="text-lg font-semibold text-slate-900">
+            {{ 'pages.pricing.compliance.heading' | translate }}
+          </h3>
           <ul class="mt-6 space-y-4">
-            <li *ngFor="let badge of complianceBadges" class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-sm font-semibold text-emerald-600">
+            <li
+              *ngFor="let badge of complianceBadges"
+              class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5"
+            >
+              <span
+                class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-sm font-semibold text-emerald-600"
+              >
                 {{ badge.code }}
               </span>
               <div>
@@ -327,8 +474,12 @@
           </ul>
         </div>
         <div id="contact" class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-          <h3 class="text-lg font-semibold text-emerald-900">{{ 'pages.pricing.support.heading' | translate }}</h3>
-          <p class="mt-2 text-sm text-emerald-900/80">{{ 'pages.pricing.support.description' | translate }}</p>
+          <h3 class="text-lg font-semibold text-emerald-900">
+            {{ 'pages.pricing.support.heading' | translate }}
+          </h3>
+          <p class="mt-2 text-sm text-emerald-900/80">
+            {{ 'pages.pricing.support.description' | translate }}
+          </p>
           <div class="mt-4 flex flex-col gap-3">
             <a
               class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
@@ -354,8 +505,12 @@
 <section class="bg-slate-100 pb-32 pt-20">
   <div class="mx-auto max-w-5xl px-6">
     <div class="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
-      <h2 class="text-2xl font-semibold text-slate-900">{{ 'pages.pricing.customerPortal.heading' | translate }}</h2>
-      <p class="mt-3 text-sm text-slate-600">{{ 'pages.pricing.customerPortal.description' | translate }}</p>
+      <h2 class="text-2xl font-semibold text-slate-900">
+        {{ 'pages.pricing.customerPortal.heading' | translate }}
+      </h2>
+      <p class="mt-3 text-sm text-slate-600">
+        {{ 'pages.pricing.customerPortal.description' | translate }}
+      </p>
       <div class="mt-8">
         <og7-subscription-plans></og7-subscription-plans>
       </div>
@@ -364,17 +519,21 @@
 </section>
 
 <div class="fixed inset-x-0 bottom-3 z-40 px-4" data-og7="pricing-sticky-cta">
-  <div class="mx-auto max-w-6xl rounded-2xl border border-white/25 bg-slate-950/90 p-3 text-white shadow-2xl backdrop-blur">
+  <div
+    class="mx-auto max-w-6xl rounded-2xl border border-white/25 bg-slate-950/90 p-3 text-white shadow-2xl backdrop-blur"
+  >
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div class="min-w-0 space-y-1">
         <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
           {{ 'pages.pricing.hero.billing.label' | translate }}
         </p>
         <p class="truncate text-sm text-slate-200" *ngIf="currentMarketingPlan() as currentPlan">
-          {{ ('pages.pricing.planCards.' + currentPlan + '.title') | translate }} &middot; {{ 'pages.pricing.planCards.currentLabel' | translate }}
+          {{ ('pages.pricing.planCards.' + currentPlan + '.title') | translate }} &middot; {{
+          'pages.pricing.planCards.currentLabel' | translate }}
         </p>
         <p class="truncate text-sm text-slate-200" *ngIf="!currentMarketingPlan()">
-          {{ 'pages.pricing.planCards.analyst.title' | translate }} &middot; {{ 'pages.pricing.planCards.recommendedLabel' | translate }}
+          {{ 'pages.pricing.planCards.analyst.title' | translate }} &middot; {{
+          'pages.pricing.planCards.recommendedLabel' | translate }}
         </p>
       </div>
 

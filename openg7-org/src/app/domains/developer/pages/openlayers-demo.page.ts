@@ -98,7 +98,8 @@ const DEMO_CORRIDORS: readonly DemoCorridor[] = [
     globalScore: 79,
     reservedCapacityMw: 840,
     optimizationWindowDays: 21,
-    keyInsight: 'Supplier concentration is acceptable, but the cathode window needs an earlier lock.',
+    keyInsight:
+      'Supplier concentration is acceptable, but the cathode window needs an earlier lock.',
     recommendation: 'Lock cathode supply windows for the next twelve weeks.',
     risk: 'Medium',
   },
@@ -141,7 +142,21 @@ const DEMO_PROVINCES: FeatureCollection<Polygon> = {
       properties: { provinceId: 'qc', label: 'Quebec' },
       geometry: {
         type: 'Polygon',
-        coordinates: [[[-79.7, 62.0], [-71.2, 62.8], [-63.1, 61.8], [-58.0, 58.4], [-57.0, 52.4], [-58.2, 47.4], [-63.8, 45.2], [-74.1, 45.0], [-78.2, 48.4], [-79.7, 55.8], [-79.7, 62.0]]],
+        coordinates: [
+          [
+            [-79.7, 62.0],
+            [-71.2, 62.8],
+            [-63.1, 61.8],
+            [-58.0, 58.4],
+            [-57.0, 52.4],
+            [-58.2, 47.4],
+            [-63.8, 45.2],
+            [-74.1, 45.0],
+            [-78.2, 48.4],
+            [-79.7, 55.8],
+            [-79.7, 62.0],
+          ],
+        ],
       },
     },
     {
@@ -150,7 +165,23 @@ const DEMO_PROVINCES: FeatureCollection<Polygon> = {
       properties: { provinceId: 'on', label: 'Ontario' },
       geometry: {
         type: 'Polygon',
-        coordinates: [[[-95.2, 56.9], [-88.5, 57.2], [-82.0, 55.8], [-79.2, 52.8], [-79.0, 49.0], [-76.2, 46.2], [-74.1, 45.2], [-79.6, 41.7], [-84.6, 42.0], [-89.8, 45.5], [-93.4, 50.0], [-95.2, 53.8], [-95.2, 56.9]]],
+        coordinates: [
+          [
+            [-95.2, 56.9],
+            [-88.5, 57.2],
+            [-82.0, 55.8],
+            [-79.2, 52.8],
+            [-79.0, 49.0],
+            [-76.2, 46.2],
+            [-74.1, 45.2],
+            [-79.6, 41.7],
+            [-84.6, 42.0],
+            [-89.8, 45.5],
+            [-93.4, 50.0],
+            [-95.2, 53.8],
+            [-95.2, 56.9],
+          ],
+        ],
       },
     },
     {
@@ -159,7 +190,19 @@ const DEMO_PROVINCES: FeatureCollection<Polygon> = {
       properties: { provinceId: 'ab', label: 'Alberta' },
       geometry: {
         type: 'Polygon',
-        coordinates: [[[-120.0, 60.0], [-111.0, 60.0], [-110.0, 57.0], [-110.0, 49.0], [-114.3, 49.0], [-116.6, 50.6], [-118.4, 53.4], [-119.5, 56.7], [-120.0, 60.0]]],
+        coordinates: [
+          [
+            [-120.0, 60.0],
+            [-111.0, 60.0],
+            [-110.0, 57.0],
+            [-110.0, 49.0],
+            [-114.3, 49.0],
+            [-116.6, 50.6],
+            [-118.4, 53.4],
+            [-119.5, 56.7],
+            [-120.0, 60.0],
+          ],
+        ],
       },
     },
     {
@@ -168,7 +211,20 @@ const DEMO_PROVINCES: FeatureCollection<Polygon> = {
       properties: { provinceId: 'bc', label: 'British Columbia' },
       geometry: {
         type: 'Polygon',
-        coordinates: [[[-139.0, 60.0], [-132.8, 59.6], [-128.4, 57.8], [-125.3, 55.4], [-123.9, 52.4], [-123.1, 49.2], [-120.1, 48.6], [-114.0, 49.0], [-114.0, 60.0], [-139.0, 60.0]]],
+        coordinates: [
+          [
+            [-139.0, 60.0],
+            [-132.8, 59.6],
+            [-128.4, 57.8],
+            [-125.3, 55.4],
+            [-123.9, 52.4],
+            [-123.1, 49.2],
+            [-120.1, 48.6],
+            [-114.0, 49.0],
+            [-114.0, 60.0],
+            [-139.0, 60.0],
+          ],
+        ],
       },
     },
   ],
@@ -187,7 +243,12 @@ const DEMO_FLOWS: FeatureCollection<LineString> = {
       },
       geometry: {
         type: 'LineString',
-        coordinates: [[-71.208, 46.8139], [-73.5673, 45.5017], [-75.6972, 45.4215], [-79.3832, 43.6532]],
+        coordinates: [
+          [-71.208, 46.8139],
+          [-73.5673, 45.5017],
+          [-75.6972, 45.4215],
+          [-79.3832, 43.6532],
+        ],
       },
     },
     {
@@ -200,7 +261,13 @@ const DEMO_FLOWS: FeatureCollection<LineString> = {
       },
       geometry: {
         type: 'LineString',
-        coordinates: [[-114.0719, 51.0447], [-104.6189, 50.4452], [-97.1384, 49.8951], [-89.2477, 48.3809], [-79.3832, 43.6532]],
+        coordinates: [
+          [-114.0719, 51.0447],
+          [-104.6189, 50.4452],
+          [-97.1384, 49.8951],
+          [-89.2477, 48.3809],
+          [-79.3832, 43.6532],
+        ],
       },
     },
     {
@@ -213,7 +280,13 @@ const DEMO_FLOWS: FeatureCollection<LineString> = {
       },
       geometry: {
         type: 'LineString',
-        coordinates: [[-123.1207, 49.2827], [-114.0719, 51.0447], [-97.1384, 49.8951], [-89.2477, 48.3809], [-79.3832, 43.6532]],
+        coordinates: [
+          [-123.1207, 49.2827],
+          [-114.0719, 51.0447],
+          [-97.1384, 49.8951],
+          [-89.2477, 48.3809],
+          [-79.3832, 43.6532],
+        ],
       },
     },
     {
@@ -226,7 +299,11 @@ const DEMO_FLOWS: FeatureCollection<LineString> = {
       },
       geometry: {
         type: 'LineString',
-        coordinates: [[-71.208, 46.8139], [-73.5673, 45.5017], [-71.0589, 42.3601]],
+        coordinates: [
+          [-71.208, 46.8139],
+          [-73.5673, 45.5017],
+          [-71.0589, 42.3601],
+        ],
       },
     },
   ],
@@ -289,12 +366,23 @@ const DEMO_HUBS: FeatureCollection<Point> = {
 const MAPLIBRE_STYLE_URL = 'https://demotiles.maplibre.org/style.json';
 const MAPLIBRE_DEFAULT_CENTER: [number, number] = [-95, 54];
 const MAPLIBRE_DEFAULT_ZOOM = 3.15;
-const MAPLIBRE_FALLBACK_BOUNDS: [[number, number], [number, number]] = [[-139, 41.7], [-57, 62.8]];
+const MAPLIBRE_FALLBACK_BOUNDS: [[number, number], [number, number]] = [
+  [-139, 41.7],
+  [-57, 62.8],
+];
 const BOUNDARY_TOPOJSON_URLS = [
   '/assets/geo/boundaries/canada-adm1.json',
   '/assets/geo/boundaries/usa-adm1.json',
 ] as const;
-const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us-ny', 'us-ri', 'us-vt']);
+const USA_NORTHEAST_STATE_IDS = new Set([
+  'us-ct',
+  'us-ma',
+  'us-me',
+  'us-nh',
+  'us-ny',
+  'us-ri',
+  'us-vt',
+]);
 
 @Component({
   standalone: true,
@@ -302,27 +390,45 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
   imports: [CommonModule, RouterModule, TranslateModule, NgxMapLibreGLModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <main class="min-h-screen bg-slate-950 px-3 py-4 text-white sm:px-5 lg:px-8" data-og7="ol-demo-page">
+    <main
+      class="min-h-screen bg-slate-950 px-3 py-4 text-white sm:px-5 lg:px-8"
+      data-og7="ol-demo-page"
+    >
       <section class="mx-auto flex max-w-[96rem] flex-col gap-6">
         <div class="space-y-6">
           <div class="space-y-6">
-            <section class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950 shadow-[0_28px_120px_-72px_rgba(14,165,233,0.85)]" data-og7="ol-demo-cockpit">
-              <header class="flex flex-col gap-4 border-b border-white/10 bg-slate-950/95 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+            <section
+              class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950 shadow-[0_28px_120px_-72px_rgba(14,165,233,0.85)]"
+              data-og7="ol-demo-cockpit"
+            >
+              <header
+                class="flex flex-col gap-4 border-b border-white/10 bg-slate-950/95 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between"
+              >
                 <div class="flex min-w-0 items-center gap-3">
-                  <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/30 bg-cyan-300/12 text-sm font-semibold text-cyan-100">
+                  <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/30 bg-cyan-300/12 text-sm font-semibold text-cyan-100"
+                  >
                     CI
                   </span>
                   <div class="min-w-0">
-                    <p class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-300">
+                    <p
+                      class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-300"
+                    >
                       {{ 'pages.olDemo.kicker' | translate }}
                     </p>
-                    <h1 class="truncate text-base font-semibold tracking-tight text-white sm:text-lg">
+                    <h1
+                      class="truncate text-base font-semibold tracking-tight text-white sm:text-lg"
+                    >
                       {{ 'pages.olDemo.title' | translate }}
                     </h1>
                   </div>
                 </div>
 
-                <nav class="flex gap-1 overflow-x-auto rounded-xl border border-white/10 bg-white/5 p-1 text-sm text-slate-300" data-og7="ol-demo-tabs" aria-label="Corridor Intelligence">
+                <nav
+                  class="flex gap-1 overflow-x-auto rounded-xl border border-white/10 bg-white/5 p-1 text-sm text-slate-300"
+                  data-og7="ol-demo-tabs"
+                  aria-label="Corridor Intelligence"
+                >
                   <button
                     type="button"
                     class="rounded-lg bg-cyan-400/14 px-3 py-2 font-medium text-cyan-100 ring-1 ring-cyan-300/30"
@@ -332,52 +438,103 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   >
                     {{ 'pages.olDemo.nav.corridorView' | translate }}
                   </button>
-                  <button type="button" class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white" data-og7="action" data-og7-id="ol-demo-tab-comparison">
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white"
+                    data-og7="action"
+                    data-og7-id="ol-demo-tab-comparison"
+                  >
                     {{ 'pages.olDemo.nav.comparison' | translate }}
                   </button>
-                  <button type="button" class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white" data-og7="action" data-og7-id="ol-demo-tab-analytics">
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white"
+                    data-og7="action"
+                    data-og7-id="ol-demo-tab-analytics"
+                  >
                     {{ 'pages.olDemo.nav.analytics' | translate }}
                   </button>
-                  <button type="button" class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white" data-og7="action" data-og7-id="ol-demo-tab-reports">
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white"
+                    data-og7="action"
+                    data-og7-id="ol-demo-tab-reports"
+                  >
                     {{ 'pages.olDemo.nav.reports' | translate }}
                   </button>
-                  <button type="button" class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white" data-og7="action" data-og7-id="ol-demo-tab-alerts">
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-2 font-medium transition hover:bg-white/8 hover:text-white"
+                    data-og7="action"
+                    data-og7-id="ol-demo-tab-alerts"
+                  >
                     {{ 'pages.olDemo.nav.alerts' | translate }}
-                    <span class="ml-1 rounded-full bg-amber-300 px-1.5 py-0.5 text-[0.65rem] font-semibold text-slate-950">3</span>
+                    <span
+                      class="ml-1 rounded-full bg-amber-300 px-1.5 py-0.5 text-[0.65rem] font-semibold text-slate-950"
+                      >3</span
+                    >
                   </button>
                 </nav>
               </header>
 
               <div class="grid lg:grid-cols-[minmax(0,1fr)_26rem]">
-                <section class="relative min-h-[30rem] overflow-hidden sm:min-h-[34rem] lg:min-h-[42rem]">
-                  <div #mapHost class="ol-demo-map h-[30rem] w-full sm:h-[34rem] lg:h-[42rem]" data-og7="ol-demo-map"></div>
-                  <div class="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-slate-950 via-slate-950/58 to-transparent"></div>
+                <section
+                  class="relative min-h-[30rem] overflow-hidden sm:min-h-[34rem] lg:min-h-[42rem]"
+                >
+                  <div
+                    #mapHost
+                    class="ol-demo-map h-[30rem] w-full sm:h-[34rem] lg:h-[42rem]"
+                    data-og7="ol-demo-map"
+                  ></div>
+                  <div
+                    class="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-slate-950 via-slate-950/58 to-transparent"
+                  ></div>
 
-                  <div class="absolute left-3 right-3 top-3 z-10 rounded-2xl border border-white/10 bg-slate-950/82 p-4 shadow-[0_22px_60px_-36px_rgba(2,6,23,0.95)] backdrop-blur sm:left-4 sm:right-auto sm:top-4 sm:w-[min(20rem,calc(100%-2rem))]">
+                  <div
+                    class="absolute left-3 right-3 top-3 z-10 rounded-2xl border border-white/10 bg-slate-950/82 p-4 shadow-[0_22px_60px_-36px_rgba(2,6,23,0.95)] backdrop-blur sm:left-4 sm:right-auto sm:top-4 sm:w-[min(20rem,calc(100%-2rem))]"
+                  >
                     <div class="flex items-start justify-between gap-3">
                       <div>
-                        <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-300">
+                        <p
+                          class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-300"
+                        >
                           {{ 'pages.olDemo.map.activeLabel' | translate }}
                         </p>
-                        <p class="mt-2 text-base font-semibold text-white">{{ corridorRouteLabelKey(scoreboardCorridor()) | translate }}</p>
+                        <p class="mt-2 text-base font-semibold text-white">
+                          {{ corridorRouteLabelKey(scoreboardCorridor()) | translate }}
+                        </p>
                       </div>
-                      <span class="rounded-lg border border-emerald-300/25 bg-emerald-300/12 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-200">
+                      <span
+                        class="rounded-lg border border-emerald-300/25 bg-emerald-300/12 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-200"
+                      >
                         {{ 'pages.olDemo.map.activeStatus' | translate }}
                       </span>
                     </div>
 
                     <dl class="mt-4 hidden gap-3 text-sm sm:grid">
                       <div class="flex items-center justify-between gap-4">
-                        <dt class="text-slate-400">{{ 'pages.olDemo.brief.partner' | translate }}</dt>
-                        <dd class="text-right font-medium text-slate-100">{{ corridorPartnerKey(scoreboardCorridor()) | translate }}</dd>
+                        <dt class="text-slate-400">
+                          {{ 'pages.olDemo.brief.partner' | translate }}
+                        </dt>
+                        <dd class="text-right font-medium text-slate-100">
+                          {{ corridorPartnerKey(scoreboardCorridor()) | translate }}
+                        </dd>
                       </div>
                       <div class="flex items-center justify-between gap-4">
-                        <dt class="text-slate-400">{{ 'pages.olDemo.brief.sector' | translate }}</dt>
-                        <dd class="text-right font-medium text-slate-100">{{ sectorLabelKey(scoreboardCorridor().sector) | translate }}</dd>
+                        <dt class="text-slate-400">
+                          {{ 'pages.olDemo.brief.sector' | translate }}
+                        </dt>
+                        <dd class="text-right font-medium text-slate-100">
+                          {{ sectorLabelKey(scoreboardCorridor().sector) | translate }}
+                        </dd>
                       </div>
                       <div class="flex items-center justify-between gap-4">
-                        <dt class="text-slate-400">{{ 'pages.olDemo.brief.updatedAt' | translate }}</dt>
-                        <dd class="text-right font-medium text-slate-100">{{ 'pages.olDemo.map.updatedAt' | translate }}</dd>
+                        <dt class="text-slate-400">
+                          {{ 'pages.olDemo.brief.updatedAt' | translate }}
+                        </dt>
+                        <dd class="text-right font-medium text-slate-100">
+                          {{ 'pages.olDemo.map.updatedAt' | translate }}
+                        </dd>
                       </div>
                     </dl>
 
@@ -393,14 +550,46 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                     </button>
                   </div>
 
-                  <div class="absolute bottom-32 left-3 z-10 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 shadow-[0_18px_48px_-30px_rgba(2,6,23,0.9)] backdrop-blur sm:bottom-28 sm:left-4">
-                    <button type="button" class="h-11 w-11 border-b border-white/10 text-xl text-slate-100 transition hover:bg-white/10" data-og7="action" data-og7-id="ol-demo-zoom-in" [attr.aria-label]="'pages.olDemo.actions.zoomIn' | translate" (click)="zoomIn()">+</button>
-                    <button type="button" class="h-11 w-11 border-b border-white/10 text-xl text-slate-100 transition hover:bg-white/10" data-og7="action" data-og7-id="ol-demo-zoom-out" [attr.aria-label]="'pages.olDemo.actions.zoomOut' | translate" (click)="zoomOut()">-</button>
-                    <button type="button" class="h-11 w-11 text-sm text-slate-100 transition hover:bg-white/10" data-og7="action" data-og7-id="ol-demo-clear-focus" [attr.aria-label]="'pages.olDemo.actions.clearFocus' | translate" (click)="clearSelection()">x</button>
+                  <div
+                    class="absolute bottom-32 left-3 z-10 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 shadow-[0_18px_48px_-30px_rgba(2,6,23,0.9)] backdrop-blur sm:bottom-28 sm:left-4"
+                  >
+                    <button
+                      type="button"
+                      class="h-11 w-11 border-b border-white/10 text-xl text-slate-100 transition hover:bg-white/10"
+                      data-og7="action"
+                      data-og7-id="ol-demo-zoom-in"
+                      [attr.aria-label]="'pages.olDemo.actions.zoomIn' | translate"
+                      (click)="zoomIn()"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      class="h-11 w-11 border-b border-white/10 text-xl text-slate-100 transition hover:bg-white/10"
+                      data-og7="action"
+                      data-og7-id="ol-demo-zoom-out"
+                      [attr.aria-label]="'pages.olDemo.actions.zoomOut' | translate"
+                      (click)="zoomOut()"
+                    >
+                      -
+                    </button>
+                    <button
+                      type="button"
+                      class="h-11 w-11 text-sm text-slate-100 transition hover:bg-white/10"
+                      data-og7="action"
+                      data-og7-id="ol-demo-clear-focus"
+                      [attr.aria-label]="'pages.olDemo.actions.clearFocus' | translate"
+                      (click)="clearSelection()"
+                    >
+                      x
+                    </button>
                   </div>
 
                   <div class="absolute inset-x-4 bottom-4 z-10 flex justify-center">
-                    <ul class="flex max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-slate-950/82 px-3 py-3 text-[0.7rem] text-slate-300 shadow-[0_20px_60px_-36px_rgba(2,6,23,0.9)] backdrop-blur sm:gap-4 sm:px-4 sm:text-xs" data-og7="ol-demo-map-legend">
+                    <ul
+                      class="flex max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-slate-950/82 px-3 py-3 text-[0.7rem] text-slate-300 shadow-[0_20px_60px_-36px_rgba(2,6,23,0.9)] backdrop-blur sm:gap-4 sm:px-4 sm:text-xs"
+                      data-og7="ol-demo-map-legend"
+                    >
                       <li class="flex items-center gap-2">
                         <span class="h-2.5 w-2.5 rounded-full bg-cyan-300"></span>
                         <span>{{ 'pages.olDemo.legend.activeCorridor' | translate }}</span>
@@ -421,71 +610,142 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   </div>
                 </section>
 
-                <aside class="border-t border-white/10 bg-slate-950/94 p-5 lg:border-l lg:border-t-0">
-                  <div class="grid grid-cols-2 gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400 sm:grid-cols-4 lg:grid-cols-4" data-og7="ol-demo-brief-tabs">
-                    <button type="button" class="rounded-lg border border-cyan-300/35 bg-cyan-300/12 px-3 py-2 text-cyan-100">{{ 'pages.olDemo.panel.overview' | translate }}</button>
-                    <button type="button" class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white">{{ 'pages.olDemo.panel.performance' | translate }}</button>
-                    <button type="button" class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white">{{ 'pages.olDemo.panel.risks' | translate }}</button>
-                    <button type="button" class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white">{{ 'pages.olDemo.panel.insights' | translate }}</button>
+                <aside
+                  class="border-t border-white/10 bg-slate-950/94 p-5 lg:border-l lg:border-t-0"
+                >
+                  <div
+                    class="grid grid-cols-2 gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400 sm:grid-cols-4 lg:grid-cols-4"
+                    data-og7="ol-demo-brief-tabs"
+                  >
+                    <button
+                      type="button"
+                      class="rounded-lg border border-cyan-300/35 bg-cyan-300/12 px-3 py-2 text-cyan-100"
+                    >
+                      {{ 'pages.olDemo.panel.overview' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white"
+                    >
+                      {{ 'pages.olDemo.panel.performance' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white"
+                    >
+                      {{ 'pages.olDemo.panel.risks' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-white/10 px-3 py-2 transition hover:bg-white/8 hover:text-white"
+                    >
+                      {{ 'pages.olDemo.panel.insights' | translate }}
+                    </button>
                   </div>
 
                   <div class="mt-7" data-og7="ol-demo-brief">
                     <ng-container *ngIf="activeCorridor(); else emptyBrief">
                       <div class="flex items-start justify-between gap-5">
                         <div>
-                          <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-300">
+                          <p
+                            class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-300"
+                          >
                             {{ 'pages.olDemo.brief.title' | translate }}
                           </p>
-                          <h2 class="mt-3 text-2xl font-semibold tracking-tight text-white">{{ corridorRouteLabelKey(activeCorridor()) | translate }}</h2>
+                          <h2 class="mt-3 text-2xl font-semibold tracking-tight text-white">
+                            {{ corridorRouteLabelKey(activeCorridor()) | translate }}
+                          </h2>
                         </div>
-                        <div class="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-3xl border border-cyan-300/15 bg-cyan-300/8">
-                          <p class="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-cyan-300">{{ 'pages.olDemo.brief.globalScore' | translate }}</p>
-                          <p class="mt-1 text-4xl font-semibold text-white">{{ activeCorridor()!.globalScore }}</p>
+                        <div
+                          class="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-3xl border border-cyan-300/15 bg-cyan-300/8"
+                        >
+                          <p
+                            class="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-cyan-300"
+                          >
+                            {{ 'pages.olDemo.brief.globalScore' | translate }}
+                          </p>
+                          <p class="mt-1 text-4xl font-semibold text-white">
+                            {{ activeCorridor()!.globalScore }}
+                          </p>
                           <p class="text-xs text-slate-300">/100</p>
                         </div>
                       </div>
 
                       <dl class="mt-6 grid gap-3 text-sm text-slate-300">
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.partner' | translate }}</dt>
-                          <dd class="text-right font-medium text-white">{{ corridorPartnerKey(activeCorridor()) | translate }}</dd>
+                          <dd class="text-right font-medium text-white">
+                            {{ corridorPartnerKey(activeCorridor()) | translate }}
+                          </dd>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.sector' | translate }}</dt>
-                          <dd class="text-right font-medium text-white">{{ sectorLabelKey(activeCorridor()!.sector) | translate }}</dd>
+                          <dd class="text-right font-medium text-white">
+                            {{ sectorLabelKey(activeCorridor()!.sector) | translate }}
+                          </dd>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.monthlyValue' | translate }}</dt>
-                          <dd class="text-right font-medium text-emerald-300">{{ formatMonthlyValue(activeCorridor()!.monthlyValueMcad) }}</dd>
+                          <dd class="text-right font-medium text-emerald-300">
+                            {{ formatMonthlyValue(activeCorridor()!.monthlyValueMcad) }}
+                          </dd>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.reliability' | translate }}</dt>
-                          <dd class="text-right font-medium text-white">{{ activeCorridor()!.reliability }}%</dd>
+                          <dd class="text-right font-medium text-white">
+                            {{ activeCorridor()!.reliability }}%
+                          </dd>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.risk' | translate }}</dt>
-                          <dd class="rounded-lg px-2 py-1 text-right text-xs font-semibold"
+                          <dd
+                            class="rounded-lg px-2 py-1 text-right text-xs font-semibold"
                             [class.bg-emerald-300/12]="activeCorridor()!.risk === 'Low'"
                             [class.text-emerald-200]="activeCorridor()!.risk === 'Low'"
                             [class.bg-amber-300/12]="activeCorridor()!.risk === 'Medium'"
                             [class.text-amber-200]="activeCorridor()!.risk === 'Medium'"
-                          >{{ riskLabelKey(activeCorridor()!.risk) | translate }}</dd>
+                          >
+                            {{ riskLabelKey(activeCorridor()!.risk) | translate }}
+                          </dd>
                         </div>
-                        <div class="flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                        <div
+                          class="flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                        >
                           <dt>{{ 'pages.olDemo.brief.reservedCapacity' | translate }}</dt>
-                          <dd class="text-right font-medium text-white">{{ activeCorridor()!.reservedCapacityMw | number }} MW</dd>
+                          <dd class="text-right font-medium text-white">
+                            {{ activeCorridor()!.reservedCapacityMw | number }} MW
+                          </dd>
                         </div>
                         <div class="flex items-center justify-between gap-4">
                           <dt>{{ 'pages.olDemo.brief.optimizationWindow' | translate }}</dt>
-                          <dd class="text-right font-medium text-white">{{ 'pages.olDemo.brief.optimizationWindowValue' | translate: { days: activeCorridor()!.optimizationWindowDays } }}</dd>
+                          <dd class="text-right font-medium text-white">
+                            {{
+                              'pages.olDemo.brief.optimizationWindowValue'
+                                | translate: { days: activeCorridor()!.optimizationWindowDays }
+                            }}
+                          </dd>
                         </div>
                       </dl>
 
                       <div class="mt-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/8 p-4">
-                        <p class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-300">
+                        <p
+                          class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-300"
+                        >
                           {{ 'pages.olDemo.brief.keyInsight' | translate }}
                         </p>
-                        <p class="mt-2 text-sm leading-6 text-slate-100">{{ corridorKeyInsightKey(activeCorridor()) | translate }}</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-100">
+                          {{ corridorKeyInsightKey(activeCorridor()) | translate }}
+                        </p>
                       </div>
                     </ng-container>
                     <ng-template #emptyBrief>
@@ -497,27 +757,48 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                 </aside>
               </div>
 
-              <div class="grid gap-3 border-t border-white/10 bg-slate-950 px-4 py-4 sm:grid-cols-2 lg:grid-cols-4" data-og7="ol-demo-kpi-rail">
+              <div
+                class="grid gap-3 border-t border-white/10 bg-slate-950 px-4 py-4 sm:grid-cols-2 lg:grid-cols-4"
+                data-og7="ol-demo-kpi-rail"
+              >
                 <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ 'pages.olDemo.brief.monthlyValue' | translate }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-white">{{ formatMonthlyValue(scoreboardCorridor().monthlyValueMcad) }}</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {{ 'pages.olDemo.brief.monthlyValue' | translate }}
+                  </p>
+                  <p class="mt-2 text-2xl font-semibold text-white">
+                    {{ formatMonthlyValue(scoreboardCorridor().monthlyValueMcad) }}
+                  </p>
                 </article>
                 <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ 'pages.olDemo.brief.reliability' | translate }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-white">{{ scoreboardCorridor().reliability }}%</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {{ 'pages.olDemo.brief.reliability' | translate }}
+                  </p>
+                  <p class="mt-2 text-2xl font-semibold text-white">
+                    {{ scoreboardCorridor().reliability }}%
+                  </p>
                 </article>
                 <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ 'pages.olDemo.brief.risk' | translate }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-white">{{ riskLabelKey(scoreboardCorridor().risk) | translate }}</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {{ 'pages.olDemo.brief.risk' | translate }}
+                  </p>
+                  <p class="mt-2 text-2xl font-semibold text-white">
+                    {{ riskLabelKey(scoreboardCorridor().risk) | translate }}
+                  </p>
                 </article>
                 <article class="rounded-2xl border border-white/10 bg-white/6 p-4">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ 'pages.olDemo.brief.reservedCapacity' | translate }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-white">{{ scoreboardCorridor().reservedCapacityMw | number }} MW</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {{ 'pages.olDemo.brief.reservedCapacity' | translate }}
+                  </p>
+                  <p class="mt-2 text-2xl font-semibold text-white">
+                    {{ scoreboardCorridor().reservedCapacityMw | number }} MW
+                  </p>
                 </article>
               </div>
             </section>
 
-            <section class="ol-demo-scoreboard overflow-hidden rounded-[1.75rem] border border-slate-200/70 px-5 py-5 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.5)] sm:px-6 sm:py-6">
+            <section
+              class="ol-demo-scoreboard overflow-hidden rounded-[1.75rem] border border-slate-200/70 px-5 py-5 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.5)] sm:px-6 sm:py-6"
+            >
               <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="max-w-3xl">
                   <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200/90">
@@ -531,18 +812,28 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   </p>
                 </div>
 
-                <div class="inline-flex max-w-full items-center justify-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-200">
+                <div
+                  class="inline-flex max-w-full items-center justify-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-200"
+                >
                   {{ corridorRouteLabelKey(scoreboardCorridor()) | translate }}
                 </div>
               </div>
 
-              <div class="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)_minmax(0,1fr)] xl:items-stretch">
-                <article class="scoreboard-province scoreboard-province-origin relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-5">
-                  <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-slate-300">
+              <div
+                class="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)_minmax(0,1fr)] xl:items-stretch"
+              >
+                <article
+                  class="scoreboard-province scoreboard-province-origin relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-5"
+                >
+                  <p
+                    class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-slate-300"
+                  >
                     {{ 'pages.olDemo.scoreboard.originLabel' | translate }}
                   </p>
                   <div class="mt-5 flex items-center justify-center">
-                    <div class="scoreboard-province-badge scoreboard-province-badge-origin flex h-32 w-32 items-center justify-center rounded-4xl border border-white/15 text-4xl font-semibold tracking-[0.14em] text-white shadow-[0_22px_48px_-30px_rgba(103,232,249,0.7)]">
+                    <div
+                      class="scoreboard-province-badge scoreboard-province-badge-origin flex h-32 w-32 items-center justify-center rounded-4xl border border-white/15 text-4xl font-semibold tracking-[0.14em] text-white shadow-[0_22px_48px_-30px_rgba(103,232,249,0.7)]"
+                    >
                       {{ scoreboardOriginAbbr() }}
                     </div>
                   </div>
@@ -554,10 +845,14 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   </p>
                 </article>
 
-                <article class="scoreboard-center relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-slate-950/78 p-5">
+                <article
+                  class="scoreboard-center relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-slate-950/78 p-5"
+                >
                   <div class="flex items-start justify-between gap-4">
                     <div>
-                      <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-200">
+                      <p
+                        class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-200"
+                      >
                         {{ 'pages.olDemo.scoreboard.centerLabel' | translate }}
                       </p>
                       <p class="mt-2 text-lg font-semibold text-white">
@@ -572,25 +867,44 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                       [class.text-amber-700]="scoreboardCorridor().sector === 'manufacturing'"
                       [class.bg-emerald-100]="scoreboardCorridor().sector === 'agri-food'"
                       [class.text-emerald-700]="scoreboardCorridor().sector === 'agri-food'"
-                    >{{ sectorLabelKey(scoreboardCorridor().sector) | translate }}</span>
+                      >{{ sectorLabelKey(scoreboardCorridor().sector) | translate }}</span
+                    >
                   </div>
 
                   <dl class="mt-6 space-y-4 text-sm text-slate-200">
-                    <div class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3">
-                      <dt class="text-slate-400">{{ 'pages.olDemo.brief.monthlyValue' | translate }}</dt>
-                      <dd class="text-right text-lg font-semibold text-white">{{ formatMonthlyValue(scoreboardCorridor().monthlyValueMcad) }}</dd>
+                    <div
+                      class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                    >
+                      <dt class="text-slate-400">
+                        {{ 'pages.olDemo.brief.monthlyValue' | translate }}
+                      </dt>
+                      <dd class="text-right text-lg font-semibold text-white">
+                        {{ formatMonthlyValue(scoreboardCorridor().monthlyValueMcad) }}
+                      </dd>
                     </div>
-                    <div class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3">
-                      <dt class="text-slate-400">{{ 'pages.olDemo.brief.reliability' | translate }}</dt>
-                      <dd class="text-right text-lg font-semibold text-white">{{ scoreboardCorridor().reliability }}%</dd>
+                    <div
+                      class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                    >
+                      <dt class="text-slate-400">
+                        {{ 'pages.olDemo.brief.reliability' | translate }}
+                      </dt>
+                      <dd class="text-right text-lg font-semibold text-white">
+                        {{ scoreboardCorridor().reliability }}%
+                      </dd>
                     </div>
-                    <div class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3">
+                    <div
+                      class="scoreboard-stat-row flex items-center justify-between gap-4 border-b border-white/8 pb-3"
+                    >
                       <dt class="text-slate-400">{{ 'pages.olDemo.brief.risk' | translate }}</dt>
-                      <dd class="text-right text-lg font-semibold text-white">{{ riskLabelKey(scoreboardCorridor().risk) | translate }}</dd>
+                      <dd class="text-right text-lg font-semibold text-white">
+                        {{ riskLabelKey(scoreboardCorridor().risk) | translate }}
+                      </dd>
                     </div>
                     <div class="scoreboard-stat-row flex items-center justify-between gap-4">
                       <dt class="text-slate-400">{{ 'pages.olDemo.brief.partner' | translate }}</dt>
-                      <dd class="max-w-44 text-right font-medium text-white">{{ corridorPartnerKey(scoreboardCorridor()) | translate }}</dd>
+                      <dd class="max-w-44 text-right font-medium text-white">
+                        {{ corridorPartnerKey(scoreboardCorridor()) | translate }}
+                      </dd>
                     </div>
                   </dl>
 
@@ -603,12 +917,18 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   </p>
                 </article>
 
-                <article class="scoreboard-province scoreboard-province-destination relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-5">
-                  <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-slate-300">
+                <article
+                  class="scoreboard-province scoreboard-province-destination relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/6 p-5"
+                >
+                  <p
+                    class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-slate-300"
+                  >
                     {{ 'pages.olDemo.scoreboard.destinationLabel' | translate }}
                   </p>
                   <div class="mt-5 flex items-center justify-center">
-                    <div class="scoreboard-province-badge scoreboard-province-badge-destination flex h-32 w-32 items-center justify-center rounded-4xl border border-white/15 text-4xl font-semibold tracking-[0.14em] text-white shadow-[0_22px_48px_-30px_rgba(192,132,252,0.55)]">
+                    <div
+                      class="scoreboard-province-badge scoreboard-province-badge-destination flex h-32 w-32 items-center justify-center rounded-4xl border border-white/15 text-4xl font-semibold tracking-[0.14em] text-white shadow-[0_22px_48px_-30px_rgba(192,132,252,0.55)]"
+                    >
                       {{ scoreboardDestinationAbbr() }}
                     </div>
                   </div>
@@ -622,14 +942,18 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
               </div>
             </section>
 
-            <section class="overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-slate-950 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.62)]">
+            <section
+              class="overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-slate-950 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.62)]"
+            >
               <div class="border-b border-white/10 px-5 py-5 sm:px-6">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                   <div class="max-w-3xl">
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
                       {{ 'pages.olDemo.maplibre.kicker' | translate }}
                     </p>
-                    <h2 class="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-[2rem]">
+                    <h2
+                      class="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-[2rem]"
+                    >
                       {{ 'pages.olDemo.maplibre.title' | translate }}
                     </h2>
                     <p class="mt-2 text-sm leading-6 text-slate-300 sm:text-base">
@@ -637,7 +961,9 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                     </p>
                   </div>
 
-                  <div class="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-200">
+                  <div
+                    class="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.22em] text-slate-200"
+                  >
                     {{ corridorRouteLabelKey(comparisonCorridor()) | translate }}
                   </div>
                 </div>
@@ -647,14 +973,18 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                 <article class="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                   <div class="flex items-start justify-between gap-4">
                     <div>
-                      <p class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+                      <p
+                        class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80"
+                      >
                         {{ 'pages.olDemo.maplibre.directLabel' | translate }}
                       </p>
                       <h3 class="mt-2 text-xl font-semibold text-white">
                         {{ 'pages.olDemo.maplibre.directTitle' | translate }}
                       </h3>
                     </div>
-                    <span class="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+                    <span
+                      class="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-cyan-100"
+                    >
                       maplibre-gl
                     </span>
                   </div>
@@ -664,7 +994,11 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                   </p>
 
                   <div class="mt-4 overflow-hidden rounded-[1.35rem] border border-white/10">
-                    <div #maplibreDirectHost class="maplibre-demo-surface h-72 w-full" data-og7="maplibre-direct-map"></div>
+                    <div
+                      #maplibreDirectHost
+                      class="maplibre-demo-surface h-72 w-full"
+                      data-og7="maplibre-direct-map"
+                    ></div>
                   </div>
 
                   <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
@@ -676,14 +1010,18 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                 <article class="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                   <div class="flex items-start justify-between gap-4">
                     <div>
-                      <p class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+                      <p
+                        class="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80"
+                      >
                         {{ 'pages.olDemo.maplibre.ngxLabel' | translate }}
                       </p>
                       <h3 class="mt-2 text-xl font-semibold text-white">
                         {{ 'pages.olDemo.maplibre.ngxTitle' | translate }}
                       </h3>
                     </div>
-                    <span class="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-emerald-50">
+                    <span
+                      class="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-emerald-50"
+                    >
                       @maplibre/ngx-maplibre-gl
                     </span>
                   </div>
@@ -692,7 +1030,10 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                     {{ 'pages.olDemo.maplibre.ngxCopy' | translate }}
                   </p>
 
-                  <div class="mt-4 overflow-hidden rounded-[1.35rem] border border-white/10" data-og7="maplibre-ngx-map">
+                  <div
+                    class="mt-4 overflow-hidden rounded-[1.35rem] border border-white/10"
+                    data-og7="maplibre-ngx-map"
+                  >
                     <mgl-map
                       [mapStyle]="maplibreStyleUrl"
                       [center]="maplibreCenter"
@@ -705,7 +1046,10 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                     >
                       <mgl-control mglNavigation position="top-right"></mgl-control>
 
-                      <mgl-geojson-source id="compare-provinces" [data]="maplibreProvinceCollection">
+                      <mgl-geojson-source
+                        id="compare-provinces"
+                        [data]="maplibreProvinceCollection"
+                      >
                         <mgl-layer
                           id="compare-provinces-fill"
                           type="fill"
@@ -731,7 +1075,10 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                         ></mgl-layer>
                       </mgl-geojson-source>
 
-                      <mgl-geojson-source id="compare-highlight" [data]="maplibreHighlightCollection()">
+                      <mgl-geojson-source
+                        id="compare-highlight"
+                        [data]="maplibreHighlightCollection()"
+                      >
                         <mgl-layer
                           id="compare-flows-highlight"
                           type="line"
@@ -761,14 +1108,19 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
 
               <div class="border-t border-white/10 px-5 py-4 sm:px-6">
                 <p class="text-sm leading-6 text-slate-300">
-                  {{ 'pages.olDemo.maplibre.sharedHint' | translate: { route: corridorRouteLabel(comparisonCorridor()) } }}
+                  {{
+                    'pages.olDemo.maplibre.sharedHint'
+                      | translate: { route: corridorRouteLabel(comparisonCorridor()) }
+                  }}
                 </p>
               </div>
             </section>
           </div>
 
           <aside class="space-y-4">
-            <section class="rounded-[1.75rem] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.4)]">
+            <section
+              class="rounded-[1.75rem] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.4)]"
+            >
               <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {{ 'pages.olDemo.routes.heading' | translate }}
               </p>
@@ -790,23 +1142,31 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
                 >
                   <div class="flex items-start justify-between gap-3">
                     <div>
-                      <p class="text-sm font-semibold text-slate-950">{{ corridorRouteLabelKey(corridor) | translate }}</p>
-                      <p class="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">{{ corridorPartnerKey(corridor) | translate }}</p>
+                      <p class="text-sm font-semibold text-slate-950">
+                        {{ corridorRouteLabelKey(corridor) | translate }}
+                      </p>
+                      <p class="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
+                        {{ corridorPartnerKey(corridor) | translate }}
+                      </p>
                     </div>
-                    <span class="rounded-full px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em]"
+                    <span
+                      class="rounded-full px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em]"
                       [class.bg-cyan-100]="corridor.sector === 'energy'"
                       [class.text-cyan-700]="corridor.sector === 'energy'"
                       [class.bg-amber-100]="corridor.sector === 'manufacturing'"
                       [class.text-amber-700]="corridor.sector === 'manufacturing'"
                       [class.bg-emerald-100]="corridor.sector === 'agri-food'"
                       [class.text-emerald-700]="corridor.sector === 'agri-food'"
-                    >{{ sectorLabelKey(corridor.sector) | translate }}</span>
+                      >{{ sectorLabelKey(corridor.sector) | translate }}</span
+                    >
                   </div>
                 </button>
               </div>
             </section>
 
-            <section class="rounded-[1.75rem] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.4)]">
+            <section
+              class="rounded-[1.75rem] border border-slate-200 bg-white/85 p-5 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.4)]"
+            >
               <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {{ 'pages.olDemo.notes.heading' | translate }}
               </p>
@@ -870,7 +1230,12 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
       .ol-demo-map::after {
         inset: auto 0 0;
         height: 32%;
-        background: linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.06) 22%, rgba(2, 6, 23, 0.82) 100%);
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(2, 6, 23, 0.06) 22%,
+          rgba(2, 6, 23, 0.82) 100%
+        );
       }
 
       .ol-demo-scoreboard {
@@ -887,7 +1252,13 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
         inset: 0;
         pointer-events: none;
         background:
-          linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.07) 48%, rgba(255, 255, 255, 0.07) 52%, transparent 100%),
+          linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.07) 48%,
+            rgba(255, 255, 255, 0.07) 52%,
+            transparent 100%
+          ),
           radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 0 55%);
         opacity: 0.55;
       }
@@ -910,11 +1281,19 @@ const USA_NORTHEAST_STATE_IDS = new Set(['us-ct', 'us-ma', 'us-me', 'us-nh', 'us
       }
 
       .scoreboard-province-badge-origin {
-        background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.4), rgba(8, 47, 73, 0.96));
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(125, 211, 252, 0.4),
+          rgba(8, 47, 73, 0.96)
+        );
       }
 
       .scoreboard-province-badge-destination {
-        background: radial-gradient(circle at 32% 30%, rgba(165, 180, 252, 0.4), rgba(67, 56, 202, 0.88));
+        background: radial-gradient(
+          circle at 32% 30%,
+          rgba(165, 180, 252, 0.4),
+          rgba(67, 56, 202, 0.88)
+        );
       }
 
       .scoreboard-center {
@@ -980,18 +1359,29 @@ export class OpenlayersDemoPage implements AfterViewInit {
   readonly hoveredCorridorId = signal<string | null>(null);
   readonly activeCorridor = computed(() => {
     const activeId = this.selectedCorridorId() || this.hoveredCorridorId();
-    return this.corridors.find(corridor => corridor.id === activeId) ?? null;
+    return this.corridors.find((corridor) => corridor.id === activeId) ?? null;
   });
-  readonly comparisonCorridorId = computed(() => this.selectedCorridorId() || this.corridors[0]?.id || '');
-  readonly comparisonCorridor = computed(() => this.corridors.find(corridor => corridor.id === this.comparisonCorridorId()) ?? this.corridors[0]!);
-  readonly comparisonProvinceIds = computed(() => this.getCorridorProvinceIdsFromData(this.comparisonCorridorId()));
+  readonly comparisonCorridorId = computed(
+    () => this.selectedCorridorId() || this.corridors[0]?.id || '',
+  );
+  readonly comparisonCorridor = computed(
+    () =>
+      this.corridors.find((corridor) => corridor.id === this.comparisonCorridorId()) ??
+      this.corridors[0]!,
+  );
+  readonly comparisonProvinceIds = computed(() =>
+    this.getCorridorProvinceIdsFromData(this.comparisonCorridorId()),
+  );
   readonly scoreboardCorridor = computed(() => this.activeCorridor() ?? this.corridors[0] ?? null);
   readonly interactionState = computed<InteractionState>(() => {
     const selected = this.activeCorridor();
     if (selected) {
       return {
         key: 'pages.olDemo.status.selected',
-        params: { route: this.corridorRouteLabel(selected), partner: this.corridorPartnerLabel(selected) },
+        params: {
+          route: this.corridorRouteLabel(selected),
+          partner: this.corridorPartnerLabel(selected),
+        },
       };
     }
 
@@ -1015,10 +1405,16 @@ export class OpenlayersDemoPage implements AfterViewInit {
   readonly maplibreHubCollection = DEMO_HUBS;
   readonly maplibreHighlightCollection = computed<FeatureCollection<LineString>>(() => ({
     type: 'FeatureCollection',
-    features: DEMO_FLOWS.features.filter(feature => feature.properties?.['corridorId'] === this.comparisonCorridorId()),
+    features: DEMO_FLOWS.features.filter(
+      (feature) => feature.properties?.['corridorId'] === this.comparisonCorridorId(),
+    ),
   }));
   readonly maplibreProvinceFillPaint = computed<FillLayerSpecification['paint']>(() => {
-    const isActive = ['in', ['get', 'provinceId'], ['literal', this.comparisonProvinceIds()]] as ExpressionSpecification;
+    const isActive = [
+      'in',
+      ['get', 'provinceId'],
+      ['literal', this.comparisonProvinceIds()],
+    ] as ExpressionSpecification;
     return {
       'fill-color': ['case', isActive, '#3ec7d8', '#203645'] as ExpressionSpecification,
       'fill-opacity': ['case', isActive, 0.42, 0.14] as ExpressionSpecification,
@@ -1078,19 +1474,19 @@ export class OpenlayersDemoPage implements AfterViewInit {
 
     this.provinceLayer = new VectorLayer({
       source: provinceSource,
-      style: feature => this.buildProvinceStyle(feature as Feature<Geometry>),
+      style: (feature) => this.buildProvinceStyle(feature as Feature<Geometry>),
     });
     this.provinceLabelLayer = new VectorLayer({
       source: provinceLabelSource,
-      style: feature => this.buildProvinceLabelStyle(feature as Feature<Geometry>),
+      style: (feature) => this.buildProvinceLabelStyle(feature as Feature<Geometry>),
     });
     this.corridorLayer = new VectorLayer({
       source: corridorSource,
-      style: feature => this.buildCorridorStyle(feature as Feature<Geometry>),
+      style: (feature) => this.buildCorridorStyle(feature as Feature<Geometry>),
     });
     this.hubLayer = new VectorLayer({
       source: hubSource,
-      style: feature => this.buildHubStyle(feature as Feature<Geometry>),
+      style: (feature) => this.buildHubStyle(feature as Feature<Geometry>),
     });
 
     this.map = new Map({
@@ -1109,7 +1505,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     void this.loadBoundaryFeatures(provinceSource, provinceLabelSource);
 
     this.interactionKeys = [
-      this.map.on('pointermove', event => {
+      this.map.on('pointermove', (event) => {
         if (event.dragging) {
           return;
         }
@@ -1119,7 +1515,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
         this.mapHost?.nativeElement.style.setProperty('cursor', hoveredId ? 'pointer' : 'default');
         this.refreshMapStyles();
       }),
-      this.map.on('singleclick', event => {
+      this.map.on('singleclick', (event) => {
         const clickedFeature = this.findCorridorFeature(event.pixel);
         const corridorId = clickedFeature?.get('corridorId') as string | undefined;
         if (!corridorId) {
@@ -1133,21 +1529,29 @@ export class OpenlayersDemoPage implements AfterViewInit {
     void this.initializeMaplibreDirectMap();
   }
 
-  private async loadBoundaryFeatures(source: VectorSource, labelSource: VectorSource): Promise<void> {
+  private async loadBoundaryFeatures(
+    source: VectorSource,
+    labelSource: VectorSource,
+  ): Promise<void> {
     try {
       const responses = await Promise.all(
-        BOUNDARY_TOPOJSON_URLS.map(async url => {
+        BOUNDARY_TOPOJSON_URLS.map(async (url) => {
           const response = await fetch(url);
           if (!response.ok) {
             throw new Error(`Failed to load ${url}: ${response.status}`);
           }
           return response.text();
-        })
+        }),
       );
 
       const features = responses
-        .flatMap(payload => this.topoJson.readFeatures(payload, { featureProjection: 'EPSG:3857' }) as Feature<Geometry>[])
-        .filter(feature => this.normalizeBoundaryFeature(feature));
+        .flatMap(
+          (payload) =>
+            this.topoJson.readFeatures(payload, {
+              featureProjection: 'EPSG:3857',
+            }) as Feature<Geometry>[],
+        )
+        .filter((feature) => this.normalizeBoundaryFeature(feature));
 
       this.updateBoundarySources(source, labelSource, features);
     } catch (error) {
@@ -1155,12 +1559,18 @@ export class OpenlayersDemoPage implements AfterViewInit {
       this.updateBoundarySources(
         source,
         labelSource,
-        this.geoJson.readFeatures(DEMO_PROVINCES, { featureProjection: 'EPSG:3857' }) as Feature<Geometry>[]
+        this.geoJson.readFeatures(DEMO_PROVINCES, {
+          featureProjection: 'EPSG:3857',
+        }) as Feature<Geometry>[],
       );
     }
   }
 
-  private updateBoundarySources(source: VectorSource, labelSource: VectorSource, features: Feature<Geometry>[]): void {
+  private updateBoundarySources(
+    source: VectorSource,
+    labelSource: VectorSource,
+    features: Feature<Geometry>[],
+  ): void {
     source.clear();
     source.addFeatures(features);
 
@@ -1189,7 +1599,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
   }
 
   private createBoundaryLabelFeatures(features: Feature<Geometry>[]): Feature<Geometry>[] {
-    return features.flatMap(feature => {
+    return features.flatMap((feature) => {
       const provinceId = feature.get('provinceId') as string | undefined;
       const label = feature.get('label') as string | undefined;
       const geometry = feature.getGeometry();
@@ -1210,7 +1620,10 @@ export class OpenlayersDemoPage implements AfterViewInit {
     return typeof value === 'string' && value.trim() ? value.trim() : null;
   }
 
-  private getBoundaryProvinceId(shapeIso: string | null | undefined, shapeName: string | null | undefined): string | null {
+  private getBoundaryProvinceId(
+    shapeIso: string | null | undefined,
+    shapeName: string | null | undefined,
+  ): string | null {
     if (shapeIso?.startsWith('ca-')) {
       return shapeIso.slice(3);
     }
@@ -1350,7 +1763,9 @@ export class OpenlayersDemoPage implements AfterViewInit {
   }
 
   averageReliabilityLabel(): string {
-    const reliability = this.corridors.reduce((sum, corridor) => sum + corridor.reliability, 0) / this.corridors.length;
+    const reliability =
+      this.corridors.reduce((sum, corridor) => sum + corridor.reliability, 0) /
+      this.corridors.length;
     return `${Math.round(reliability)}%`;
   }
 
@@ -1399,7 +1814,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     const corridor = this.scoreboardCorridor();
     return this.translateLabel(
       corridor ? `pages.olDemo.corridors.${corridor.id}.origin` : '',
-      this.getScoreboardRouteParts().origin
+      this.getScoreboardRouteParts().origin,
     );
   }
 
@@ -1407,7 +1822,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
     const corridor = this.scoreboardCorridor();
     return this.translateLabel(
       corridor ? `pages.olDemo.corridors.${corridor.id}.destination` : '',
-      this.getScoreboardRouteParts().destination
+      this.getScoreboardRouteParts().destination,
     );
   }
 
@@ -1430,13 +1845,20 @@ export class OpenlayersDemoPage implements AfterViewInit {
     return [
       new Style({
         stroke: new Stroke({
-          color: provinceIsActive ? this.getProvinceGlowColor(provinceId) : 'rgba(15, 23, 42, 0.18)',
+          color: provinceIsActive
+            ? this.getProvinceGlowColor(provinceId)
+            : 'rgba(15, 23, 42, 0.18)',
           width: provinceIsActive ? 7 : 2,
         }),
       }),
       new Style({
-        fill: new Fill({ color: provinceIsActive ? this.getProvinceFillColor(provinceId) : 'rgba(15, 23, 42, 0.2)' }),
-        stroke: new Stroke({ color: provinceIsActive ? accentColor : 'rgba(100, 116, 139, 0.72)', width: provinceIsActive ? 2.8 : 1.1 }),
+        fill: new Fill({
+          color: provinceIsActive ? this.getProvinceFillColor(provinceId) : 'rgba(15, 23, 42, 0.2)',
+        }),
+        stroke: new Stroke({
+          color: provinceIsActive ? accentColor : 'rgba(100, 116, 139, 0.72)',
+          width: provinceIsActive ? 2.8 : 1.1,
+        }),
       }),
     ];
   }
@@ -1469,7 +1891,9 @@ export class OpenlayersDemoPage implements AfterViewInit {
     const active = isSelected || isHovered;
     const color = this.getSectorColor(sector, active);
     const glowColor = this.getSectorGlowColor(sector, active ? 0.42 : 0.12);
-    const routeLabel = this.corridorRouteLabel(this.corridors.find(corridor => corridor.id === corridorId));
+    const routeLabel = this.corridorRouteLabel(
+      this.corridors.find((corridor) => corridor.id === corridorId),
+    );
 
     const styles = [
       new Style({
@@ -1524,7 +1948,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
             stroke: new Stroke({ color: 'rgba(2, 6, 23, 0.95)', width: 4 }),
             offsetY: -14,
           }),
-        })
+        }),
       );
     }
 
@@ -1535,14 +1959,21 @@ export class OpenlayersDemoPage implements AfterViewInit {
     const provinceId = feature.get('provinceId') as string | undefined;
     const label = feature.get('label') as string | undefined;
     const activeCorridor = this.activeCorridor();
-    const active = activeCorridor ? this.getCorridorProvinceIds(activeCorridor.id).includes(provinceId ?? '') : false;
+    const active = activeCorridor
+      ? this.getCorridorProvinceIds(activeCorridor.id).includes(provinceId ?? '')
+      : false;
 
     return [
       new Style({
         image: new CircleStyle({
           radius: active ? 16 : 8,
-          fill: new Fill({ color: active ? 'rgba(251, 191, 36, 0.2)' : 'rgba(148, 163, 184, 0.08)' }),
-          stroke: new Stroke({ color: active ? 'rgba(253, 230, 138, 0.28)' : 'transparent', width: active ? 2 : 0 }),
+          fill: new Fill({
+            color: active ? 'rgba(251, 191, 36, 0.2)' : 'rgba(148, 163, 184, 0.08)',
+          }),
+          stroke: new Stroke({
+            color: active ? 'rgba(253, 230, 138, 0.28)' : 'transparent',
+            width: active ? 2 : 0,
+          }),
         }),
       }),
       new Style({
@@ -1592,21 +2023,36 @@ export class OpenlayersDemoPage implements AfterViewInit {
     }
 
     const includeAllFeatures = !corridorId;
-    this.provinceLayer?.getSource()?.getFeatures().forEach(feature => {
-      if (includeAllFeatures || provinceIds?.has((feature.get('provinceId') as string | undefined) ?? '')) {
-        includeGeometry(feature.getGeometry());
-      }
-    });
-    this.corridorLayer?.getSource()?.getFeatures().forEach(feature => {
-      if (includeAllFeatures || feature.get('corridorId') === corridorId) {
-        includeGeometry(feature.getGeometry());
-      }
-    });
-    this.hubLayer?.getSource()?.getFeatures().forEach(feature => {
-      if (includeAllFeatures || provinceIds?.has((feature.get('provinceId') as string | undefined) ?? '')) {
-        includeGeometry(feature.getGeometry());
-      }
-    });
+    this.provinceLayer
+      ?.getSource()
+      ?.getFeatures()
+      .forEach((feature) => {
+        if (
+          includeAllFeatures ||
+          provinceIds?.has((feature.get('provinceId') as string | undefined) ?? '')
+        ) {
+          includeGeometry(feature.getGeometry());
+        }
+      });
+    this.corridorLayer
+      ?.getSource()
+      ?.getFeatures()
+      .forEach((feature) => {
+        if (includeAllFeatures || feature.get('corridorId') === corridorId) {
+          includeGeometry(feature.getGeometry());
+        }
+      });
+    this.hubLayer
+      ?.getSource()
+      ?.getFeatures()
+      .forEach((feature) => {
+        if (
+          includeAllFeatures ||
+          provinceIds?.has((feature.get('provinceId') as string | undefined) ?? '')
+        ) {
+          includeGeometry(feature.getGeometry());
+        }
+      });
 
     return hasGeometry ? extent : null;
   }
@@ -1616,7 +2062,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
       return null;
     }
 
-    const feature = this.map.forEachFeatureAtPixel(pixel, candidate => {
+    const feature = this.map.forEachFeatureAtPixel(pixel, (candidate) => {
       if (candidate.get('corridorId')) {
         return candidate;
       }
@@ -1716,7 +2162,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
       return { origin: 'Origin', destination: 'Destination' };
     }
 
-    const [origin, destination] = routeLabel.split('->').map(part => part.trim());
+    const [origin, destination] = routeLabel.split('->').map((part) => part.trim());
     return {
       origin: origin || 'Origin',
       destination: destination || 'Destination',
@@ -1840,15 +2286,31 @@ export class OpenlayersDemoPage implements AfterViewInit {
     const highlightPaint = this.maplibreHighlightPaint();
 
     if (provincePaint?.['fill-color']) {
-      this.maplibreDirectMap.setPaintProperty('compare-provinces-fill', 'fill-color', provincePaint['fill-color']);
+      this.maplibreDirectMap.setPaintProperty(
+        'compare-provinces-fill',
+        'fill-color',
+        provincePaint['fill-color'],
+      );
     }
     if (provincePaint?.['fill-opacity']) {
-      this.maplibreDirectMap.setPaintProperty('compare-provinces-fill', 'fill-opacity', provincePaint['fill-opacity']);
+      this.maplibreDirectMap.setPaintProperty(
+        'compare-provinces-fill',
+        'fill-opacity',
+        provincePaint['fill-opacity'],
+      );
     }
     if (highlightPaint?.['line-color']) {
-      this.maplibreDirectMap.setPaintProperty('compare-flows-highlight', 'line-color', highlightPaint['line-color']);
+      this.maplibreDirectMap.setPaintProperty(
+        'compare-flows-highlight',
+        'line-color',
+        highlightPaint['line-color'],
+      );
     }
-    this.maplibreDirectMap.setFilter('compare-flows-highlight', ['==', ['get', 'corridorId'], corridorId]);
+    this.maplibreDirectMap.setFilter('compare-flows-highlight', [
+      '==',
+      ['get', 'corridorId'],
+      corridorId,
+    ]);
     this.fitMaplibreToCorridor(this.maplibreDirectMap, corridorId);
   }
 
@@ -1875,7 +2337,9 @@ export class OpenlayersDemoPage implements AfterViewInit {
   }
 
   private getCorridorProvinceIdsFromData(corridorId: string): string[] {
-    const feature = DEMO_FLOWS.features.find(entry => entry.properties?.['corridorId'] === corridorId);
+    const feature = DEMO_FLOWS.features.find(
+      (entry) => entry.properties?.['corridorId'] === corridorId,
+    );
     return [...((feature?.properties?.['provinces'] as string[] | undefined) ?? [])];
   }
 
@@ -1894,34 +2358,42 @@ export class OpenlayersDemoPage implements AfterViewInit {
       maxLat = Math.max(maxLat, lat);
     };
 
-    DEMO_PROVINCES.features.forEach(feature => {
+    DEMO_PROVINCES.features.forEach((feature) => {
       if (!provinceIds.has((feature.properties?.['provinceId'] as string | undefined) ?? '')) {
         return;
       }
-      feature.geometry.coordinates.forEach(ring => {
+      feature.geometry.coordinates.forEach((ring) => {
         ring.forEach(includePoint);
       });
     });
 
-    DEMO_FLOWS.features.forEach(feature => {
+    DEMO_FLOWS.features.forEach((feature) => {
       if (feature.properties?.['corridorId'] !== corridorId) {
         return;
       }
       feature.geometry.coordinates.forEach(includePoint);
     });
 
-    DEMO_HUBS.features.forEach(feature => {
+    DEMO_HUBS.features.forEach((feature) => {
       if (!provinceIds.has((feature.properties?.['provinceId'] as string | undefined) ?? '')) {
         return;
       }
       includePoint(feature.geometry.coordinates);
     });
 
-    if (!Number.isFinite(minLng) || !Number.isFinite(maxLng) || !Number.isFinite(minLat) || !Number.isFinite(maxLat)) {
+    if (
+      !Number.isFinite(minLng) ||
+      !Number.isFinite(maxLng) ||
+      !Number.isFinite(minLat) ||
+      !Number.isFinite(maxLat)
+    ) {
       return MAPLIBRE_FALLBACK_BOUNDS;
     }
 
-    return [[minLng, minLat], [maxLng, maxLat]];
+    return [
+      [minLng, minLat],
+      [maxLng, maxLat],
+    ];
   }
 
   private ensureTranslations(): void {
@@ -1929,7 +2401,7 @@ export class OpenlayersDemoPage implements AfterViewInit {
       return;
     }
 
-    void this.loadTranslations().then(translations => {
+    void this.loadTranslations().then((translations) => {
       if (!translations) {
         return;
       }
@@ -1947,8 +2419,10 @@ export class OpenlayersDemoPage implements AfterViewInit {
         import('./i18n/openlayers-demo.en.json'),
       ]);
 
-      const fr = (frModule as { default?: TranslationObject }).default ?? (frModule as TranslationObject);
-      const en = (enModule as { default?: TranslationObject }).default ?? (enModule as TranslationObject);
+      const fr =
+        (frModule as { default?: TranslationObject }).default ?? (frModule as TranslationObject);
+      const en =
+        (enModule as { default?: TranslationObject }).default ?? (enModule as TranslationObject);
       return { fr, en } satisfies LoadedTranslations;
     } catch (error) {
       console.error('Failed to load OpenLayers demo translations', error);

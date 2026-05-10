@@ -17,7 +17,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { ImportationApiClient, toGranularity, toOriginScope } from '../data-access/importation-api.client';
+import {
+  ImportationApiClient,
+  toGranularity,
+  toOriginScope,
+} from '../data-access/importation-api.client';
 import {
   ImportationAnnotationDto,
   ImportationCommodityCollectionsDto,
@@ -41,7 +45,6 @@ import {
 
 import { ImportationAnalyticsService } from './importation-analytics.service';
 import { ImportationPermissionsService } from './importation-permissions.service';
-
 
 type ImportationSectionError = string | null;
 
@@ -136,7 +139,7 @@ export class ImportationFiltersStore {
       this.stateSig().flows,
       this.stateSig().timelinePoint,
       this.stateSig().riskFlags,
-      this.permissions.canExportData()
+      this.permissions.canExportData(),
     );
   });
 
@@ -147,8 +150,8 @@ export class ImportationFiltersStore {
       this.stateSig().timelinePoint,
       this.stateSig().playing,
       this.stateSig().flowsLoading,
-      this.stateSig().flowsError
-    )
+      this.stateSig().flowsError,
+    ),
   );
 
   readonly commodityVm: Signal<ImportationCommoditySectionViewModel> = computed(() =>
@@ -160,16 +163,16 @@ export class ImportationFiltersStore {
       this.stateSig().selectedCommodityId,
       this.stateSig().commoditiesLoading,
       this.permissions.canExportData(),
-      this.stateSig().commoditiesError
-    )
+      this.stateSig().commoditiesError,
+    ),
   );
 
   readonly supplierVm: Signal<ImportationSupplierSectionViewModel> = computed(() =>
     this.mapper.mapSuppliers(
       this.stateSig().suppliers,
       this.stateSig().suppliersLoading,
-      this.stateSig().suppliersError
-    )
+      this.stateSig().suppliersError,
+    ),
   );
 
   readonly collaborationVm: Signal<ImportationCollaborationViewModel> = computed(() =>
@@ -182,40 +185,38 @@ export class ImportationFiltersStore {
         canViewCollaboration: this.permissions.canViewCollaboration(),
       },
       this.stateSig().collaborationLoading,
-      this.stateSig().collaborationError
-    )
+      this.stateSig().collaborationError,
+    ),
   );
 
   readonly knowledgeVm: Signal<ImportationKnowledgeSectionViewModel> = computed(() =>
     this.mapper.mapKnowledge(
       this.stateSig().knowledge,
       this.stateSig().knowledgeLoading,
-      this.stateSig().knowledgeError
-    )
+      this.stateSig().knowledgeError,
+    ),
   );
 
   constructor() {
-    effect(
-      () => {
-        if (!this.initialized) {
-          return;
-        }
-        const filters = this.stateSig().filters;
-        const serialized = JSON.stringify(filters);
-        if (this.lastSerializedFilters === serialized) {
-          return;
-        }
-        this.lastSerializedFilters = serialized;
-        this.persistFilters(filters);
-        this.analytics.trackFilterChange(filters);
-        this.syncQueryParams(filters);
-        this.fetchFlows(filters);
-        this.fetchCommodities(filters);
-        this.fetchSuppliers(filters);
-        this.fetchCollaboration(filters);
-        this.fetchKnowledge();
+    effect(() => {
+      if (!this.initialized) {
+        return;
       }
-    );
+      const filters = this.stateSig().filters;
+      const serialized = JSON.stringify(filters);
+      if (this.lastSerializedFilters === serialized) {
+        return;
+      }
+      this.lastSerializedFilters = serialized;
+      this.persistFilters(filters);
+      this.analytics.trackFilterChange(filters);
+      this.syncQueryParams(filters);
+      this.fetchFlows(filters);
+      this.fetchCommodities(filters);
+      this.fetchSuppliers(filters);
+      this.fetchCollaboration(filters);
+      this.fetchKnowledge();
+    });
   }
 
   initialize(route: ActivatedRoute, router: Router): void {
@@ -274,7 +275,8 @@ export class ImportationFiltersStore {
 
   setOriginCodes(codes: readonly string[]): void {
     const normalized = codes.map((code) => code.trim()).filter(Boolean);
-    const same = normalized.length === this.stateSig().filters.originCodes.length &&
+    const same =
+      normalized.length === this.stateSig().filters.originCodes.length &&
       normalized.every((code, index) => code === this.stateSig().filters.originCodes[index]);
     if (same) {
       return;
@@ -312,7 +314,11 @@ export class ImportationFiltersStore {
   setCompareWith(period: string | null): void {
     this.stateSig.update((state) => ({
       ...state,
-      filters: { ...state.filters, compareWith: period?.trim() || null, compareMode: Boolean(period?.trim()) },
+      filters: {
+        ...state.filters,
+        compareWith: period?.trim() || null,
+        compareMode: Boolean(period?.trim()),
+      },
     }));
   }
 
@@ -374,14 +380,17 @@ export class ImportationFiltersStore {
     this.stateSig.update((state) => ({ ...state, collaborationLoading: true }));
     this.api
       .createWatchlist({ name: trimmed, filters: this.stateSig().filters })
-      .pipe(takeUntilDestroyed(this.destroyRef), catchError((error) => {
-        this.stateSig.update((state) => ({
-          ...state,
-          collaborationLoading: false,
-          collaborationError: (error?.message as string) ?? 'unknown',
-        }));
-        return of(null);
-      }))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          this.stateSig.update((state) => ({
+            ...state,
+            collaborationLoading: false,
+            collaborationError: (error?.message as string) ?? 'unknown',
+          }));
+          return of(null);
+        }),
+      )
       .subscribe((watchlist) => {
         if (!watchlist) {
           return;
@@ -395,7 +404,12 @@ export class ImportationFiltersStore {
       });
   }
 
-  scheduleReport(payload: { recipients: readonly string[]; format: 'csv' | 'json' | 'look'; frequency: 'weekly' | 'monthly' | 'quarterly'; notes?: string }): void {
+  scheduleReport(payload: {
+    recipients: readonly string[];
+    format: 'csv' | 'json' | 'look';
+    frequency: 'weekly' | 'monthly' | 'quarterly';
+    notes?: string;
+  }): void {
     if (!this.permissions.canScheduleReports()) {
       return;
     }
@@ -437,7 +451,8 @@ export class ImportationFiltersStore {
       periodGranularity: toGranularity(params.get('period')),
       periodValue: params.get('periodValue') ?? base.periodValue,
       originScope,
-      originCodes: originScope === 'custom' && originCodesParam.length ? originCodesParam : base.originCodes,
+      originCodes:
+        originScope === 'custom' && originCodesParam.length ? originCodesParam : base.originCodes,
       hsSections: hsSectionsParam.length ? hsSectionsParam : base.hsSections,
       compareMode: compareMode === 'true' || (compareWith?.trim().length ?? 0) > 0,
       compareWith: compareWith?.trim() || base.compareWith,
@@ -481,7 +496,10 @@ export class ImportationFiltersStore {
         period: filters.periodGranularity,
         periodValue: filters.periodValue ?? undefined,
         originScope: filters.originScope,
-        originCode: filters.originScope === 'custom' && filters.originCodes.length ? filters.originCodes : undefined,
+        originCode:
+          filters.originScope === 'custom' && filters.originCodes.length
+            ? filters.originCodes
+            : undefined,
         hsSection: filters.hsSections.length ? filters.hsSections : undefined,
         compareMode: filters.compareMode ? 'true' : undefined,
         compareWith: filters.compareWith ?? undefined,
@@ -505,7 +523,7 @@ export class ImportationFiltersStore {
             flows: null,
           }));
           return of(null);
-        })
+        }),
       )
       .subscribe((flows) => {
         if (!flows) {
@@ -540,7 +558,7 @@ export class ImportationFiltersStore {
             commodities: null,
           }));
           return of(null);
-        })
+        }),
       )
       .subscribe((collections) => {
         if (!collections) {
@@ -564,7 +582,7 @@ export class ImportationFiltersStore {
             riskFlags: [],
           }));
           return of([] as ImportationRiskFlagDto[]);
-        })
+        }),
       )
       .subscribe((flags) => {
         this.stateSig.update((state) => ({
@@ -582,7 +600,9 @@ export class ImportationFiltersStore {
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           if (this.isMissingOptionalResource(error)) {
-            return this.optionalResourceFallback({ suppliers: [] } satisfies { suppliers: readonly ImportationSupplierDto[] });
+            return this.optionalResourceFallback({ suppliers: [] } satisfies {
+              suppliers: readonly ImportationSupplierDto[];
+            });
           }
           this.stateSig.update((state) => ({
             ...state,
@@ -591,7 +611,7 @@ export class ImportationFiltersStore {
             suppliers: null,
           }));
           return of(null);
-        })
+        }),
       )
       .subscribe((response) => {
         if (!response) {
@@ -617,24 +637,26 @@ export class ImportationFiltersStore {
       }));
       return;
     }
-    this.stateSig.update((state) => ({ ...state, collaborationLoading: true, collaborationError: null }));
+    this.stateSig.update((state) => ({
+      ...state,
+      collaborationLoading: true,
+      collaborationError: null,
+    }));
     const annotations$ = this.api.getAnnotations().pipe(
       catchError((error) =>
-        this.optionalResourceFallbackOrError(
-          error,
-          { annotations: [] } satisfies { annotations: readonly ImportationAnnotationDto[] }
-        )
-      )
+        this.optionalResourceFallbackOrError(error, { annotations: [] } satisfies {
+          annotations: readonly ImportationAnnotationDto[];
+        }),
+      ),
     );
 
     const watchlists$ = this.permissions.canManageWatchlists()
       ? this.api.getWatchlists().pipe(
           catchError((error) =>
-            this.optionalResourceFallbackOrError(
-              error,
-              { watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] }
-            )
-          )
+            this.optionalResourceFallbackOrError(error, { watchlists: [] } satisfies {
+              watchlists: readonly ImportationWatchlistDto[];
+            }),
+          ),
         )
       : of({ watchlists: [] } satisfies { watchlists: readonly ImportationWatchlistDto[] });
 
@@ -669,7 +691,10 @@ export class ImportationFiltersStore {
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           if (this.isMissingOptionalResource(error)) {
-            return this.optionalResourceFallback({ articles: [], cta: null } satisfies ImportationKnowledgeResponseDto);
+            return this.optionalResourceFallback({
+              articles: [],
+              cta: null,
+            } satisfies ImportationKnowledgeResponseDto);
           }
           this.stateSig.update((state) => ({
             ...state,
@@ -678,7 +703,7 @@ export class ImportationFiltersStore {
             knowledge: null,
           }));
           return of(null);
-        })
+        }),
       )
       .subscribe((response) => {
         if (!response) {

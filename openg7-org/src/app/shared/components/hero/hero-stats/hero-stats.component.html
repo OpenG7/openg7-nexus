@@ -38,9 +38,11 @@
         </span>
         <span
           *ngIf="s.delta !== undefined"
-          [class]="s.delta! >= 0
-            ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-            : 'bg-rose-50 text-rose-700 ring-rose-200'"
+          [class]="
+            s.delta! >= 0
+              ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+              : 'bg-rose-50 text-rose-700 ring-rose-200'
+          "
           class="rounded-full px-1.5 py-0.5 text-xs ring-1"
         >
           {{ s.delta! >= 0 ? '+' : '' }}{{ s.delta | number: '1.0-1' }}%

@@ -15,10 +15,14 @@ test.describe('Quality breadth announcement continuity', () => {
     const reportButton = page.locator('[data-og7-id="alert-report-update"]');
     const drawer = page.locator('[data-og7="alert-update-drawer"]');
     const summaryInput = page.locator('[data-og7="alert-update-field"][data-og7-id="summary"]');
-    const sourceUrlInput = page.locator('[data-og7="alert-update-field"][data-og7-id="source-url"]');
+    const sourceUrlInput = page.locator(
+      '[data-og7="alert-update-field"][data-og7-id="source-url"]',
+    );
     const localError = drawer.locator('[data-og7="alert-update-status"][data-og7-id="error"]');
     const localSuccess = drawer.locator('[data-og7="alert-update-status"][data-og7-id="success"]');
-    const relatedOpportunity = page.locator('[data-og7="alert-related-opportunities"] ul li button').first();
+    const relatedOpportunity = page
+      .locator('[data-og7="alert-related-opportunities"] ul li button')
+      .first();
 
     await page.evaluate(() => {
       const original = Storage.prototype.setItem;
@@ -44,8 +48,9 @@ test.describe('Quality breadth announcement continuity', () => {
     await expect(localSuccess).toHaveCount(0);
 
     await page.evaluate(() => {
-      const original = (window as typeof window & { __og7OriginalStorageSetItem?: Storage['setItem'] })
-        .__og7OriginalStorageSetItem;
+      const original = (
+        window as typeof window & { __og7OriginalStorageSetItem?: Storage['setItem'] }
+      ).__og7OriginalStorageSetItem;
       if (original) {
         Storage.prototype.setItem = original;
         delete (window as typeof window & { __og7OriginalStorageSetItem?: Storage['setItem'] })
@@ -78,7 +83,9 @@ test.describe('Quality breadth announcement continuity', () => {
 
     await page.locator('[data-og7-id="alert-view-my-report"]').click();
     await expect(page.locator('[data-og7="alert-update-report-view"]')).toBeVisible();
-    await expect(page.locator('[data-og7="alert-update-report-status"][data-og7-id="pending"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="alert-update-report-status"][data-og7-id="pending"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="alert-update-status"]')).toHaveCount(0);
 
     await page.locator('[data-og7-id="alert-update-view-close"]').click();

@@ -109,18 +109,25 @@ const mapInsight = (entity: InsightEntity) => {
   } as const;
 };
 
-const filterBy = (
-  entries: ReturnType<typeof mapInsight>[],
-  filters: StatisticFilters
-) => {
+const filterBy = (entries: ReturnType<typeof mapInsight>[], filters: StatisticFilters) => {
   return entries.filter((entry) => {
     if (!entry) {
       return false;
     }
-    if (filters.scope && filters.scope !== 'all' && entry.scope !== filters.scope && entry.scope !== 'all') {
+    if (
+      filters.scope &&
+      filters.scope !== 'all' &&
+      entry.scope !== filters.scope &&
+      entry.scope !== 'all'
+    ) {
       return false;
     }
-    if (filters.intrant && filters.intrant !== 'all' && entry.intrant !== filters.intrant && entry.intrant !== 'all') {
+    if (
+      filters.intrant &&
+      filters.intrant !== 'all' &&
+      entry.intrant !== filters.intrant &&
+      entry.intrant !== 'all'
+    ) {
       return false;
     }
     if (filters.period && entry.period !== filters.period) {
@@ -136,123 +143,129 @@ const filterBy = (
   });
 };
 
-export default factories.createCoreService('api::statistic-insight.statistic-insight', ({ strapi }) => ({
-  async fetch(filters: StatisticFilters): Promise<StatisticsPayload> {
-    const scope = parseEnum(filters.scope, scopeValues, null);
-    const intrant = parseEnum(filters.intrant, intrantValues, null);
-    const period = typeof filters.period === 'string' ? filters.period : null;
-    const province = typeof filters.province === 'string' ? filters.province : null;
-    const country = parseEnum(filters.country, countryValues, null);
+export default factories.createCoreService(
+  'api::statistic-insight.statistic-insight',
+  ({ strapi }) => ({
+    async fetch(filters: StatisticFilters): Promise<StatisticsPayload> {
+      const scope = parseEnum(filters.scope, scopeValues, null);
+      const intrant = parseEnum(filters.intrant, intrantValues, null);
+      const period = typeof filters.period === 'string' ? filters.period : null;
+      const province = typeof filters.province === 'string' ? filters.province : null;
+      const country = parseEnum(filters.country, countryValues, null);
 
-    const baseFilters: Record<string, unknown> = {};
-    if (scope && scope !== 'all') {
-      baseFilters.scope = scope;
-    }
-    if (intrant && intrant !== 'all') {
-      baseFilters.intrant = intrant;
-    }
-    if (country) {
-      baseFilters.country = country;
-    }
+      const baseFilters: Record<string, unknown> = {};
+      if (scope && scope !== 'all') {
+        baseFilters.scope = scope;
+      }
+      if (intrant && intrant !== 'all') {
+        baseFilters.intrant = intrant;
+      }
+      if (country) {
+        baseFilters.country = country;
+      }
 
-    const entities = await strapi.entityService.findMany('api::statistic-insight.statistic-insight', {
-      filters: baseFilters,
-      sort: [{ ordinal: 'asc' }, { updatedAt: 'desc' }],
-    });
-
-    const mapped = Array.isArray(entities)
-      ? entities
-          .map((entity) => mapInsight(entity as InsightEntity))
-          .filter((entry): entry is NonNullable<ReturnType<typeof mapInsight>> => Boolean(entry))
-      : [];
-
-    const availablePeriods = uniq(mapped.map((entry) => entry.period));
-    const availableProvinces = uniq(mapped.map((entry) => entry.province));
-    const availableCountries = countryValues.filter((code) =>
-      mapped.some((entry) => entry.country === code)
-    );
-
-    const narrowed = filterBy(mapped, {
-      scope: scope ?? undefined,
-      intrant: intrant ?? undefined,
-      period,
-      province,
-      country: country ?? undefined,
-    });
-
-    const summaries = narrowed
-      .filter((entry) => summaryKinds.includes(entry.kind as (typeof summaryKinds)[number]))
-      .sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0) || (a.id ?? 0) - (b.id ?? 0))
-      .map((entry) => ({
-        id: entry.id,
-        slug: entry.slug,
-        scope: entry.scope === 'all' ? scope ?? 'all' : entry.scope,
-        intrant: entry.intrant === 'all' ? intrant ?? 'all' : entry.intrant,
-        value: entry.value,
-        change: entry.change,
-        unitKey: entry.unitKey,
-        titleKey: entry.titleKey,
-        descriptionKey: entry.descriptionKey,
-        period: entry.period,
-        province: entry.province,
-        country: entry.country,
-      }));
-
-    const insights = narrowed
-      .filter((entry) => insightKinds.includes(entry.kind as (typeof insightKinds)[number]))
-      .sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0) || (a.id ?? 0) - (b.id ?? 0))
-      .map((entry) => ({
-        id: entry.id,
-        slug: entry.slug,
-        scope: entry.scope,
-        intrant: entry.intrant,
-        titleKey: entry.titleKey,
-        descriptionKey: entry.descriptionKey,
-        period: entry.period,
-        province: entry.province,
-        country: entry.country,
-      }));
-
-    const totalFlows = summaries.reduce((total, entry) => total + (entry.value ?? 0), 0);
-    const activeCorridors = new Set(
-      summaries
-        .map((entry) => entry.province)
-        .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
-    ).size;
-
-    const latestUpdatedAt = mapped
-      .map((entry) => entry.updatedAt)
-      .filter((value): value is string => typeof value === 'string')
-      .sort()
-      .pop();
-
-    const snapshot = summaries.length
-      ? {
-          totalFlows,
-          totalFlowsUnitKey: summaries[0]?.unitKey ?? null,
-          activeCorridors,
-          updatedAt: latestUpdatedAt ?? new Date().toISOString(),
-        }
-      : null;
-
-    return {
-      data: {
-        summaries,
-        insights,
-        snapshot,
-        availablePeriods,
-        availableProvinces,
-        availableCountries,
-      },
-      meta: {
-        filters: {
-          scope: scope,
-          intrant: intrant,
-          period,
-          province,
-          country,
+      const entities = await strapi.entityService.findMany(
+        'api::statistic-insight.statistic-insight',
+        {
+          filters: baseFilters,
+          sort: [{ ordinal: 'asc' }, { updatedAt: 'desc' }],
         },
-      },
-    };
-  },
-}));
+      );
+
+      const mapped = Array.isArray(entities)
+        ? entities
+            .map((entity) => mapInsight(entity as InsightEntity))
+            .filter((entry): entry is NonNullable<ReturnType<typeof mapInsight>> => Boolean(entry))
+        : [];
+
+      const availablePeriods = uniq(mapped.map((entry) => entry.period));
+      const availableProvinces = uniq(mapped.map((entry) => entry.province));
+      const availableCountries = countryValues.filter((code) =>
+        mapped.some((entry) => entry.country === code),
+      );
+
+      const narrowed = filterBy(mapped, {
+        scope: scope ?? undefined,
+        intrant: intrant ?? undefined,
+        period,
+        province,
+        country: country ?? undefined,
+      });
+
+      const summaries = narrowed
+        .filter((entry) => summaryKinds.includes(entry.kind as (typeof summaryKinds)[number]))
+        .sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0) || (a.id ?? 0) - (b.id ?? 0))
+        .map((entry) => ({
+          id: entry.id,
+          slug: entry.slug,
+          scope: entry.scope === 'all' ? (scope ?? 'all') : entry.scope,
+          intrant: entry.intrant === 'all' ? (intrant ?? 'all') : entry.intrant,
+          value: entry.value,
+          change: entry.change,
+          unitKey: entry.unitKey,
+          titleKey: entry.titleKey,
+          descriptionKey: entry.descriptionKey,
+          period: entry.period,
+          province: entry.province,
+          country: entry.country,
+        }));
+
+      const insights = narrowed
+        .filter((entry) => insightKinds.includes(entry.kind as (typeof insightKinds)[number]))
+        .sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0) || (a.id ?? 0) - (b.id ?? 0))
+        .map((entry) => ({
+          id: entry.id,
+          slug: entry.slug,
+          scope: entry.scope,
+          intrant: entry.intrant,
+          titleKey: entry.titleKey,
+          descriptionKey: entry.descriptionKey,
+          period: entry.period,
+          province: entry.province,
+          country: entry.country,
+        }));
+
+      const totalFlows = summaries.reduce((total, entry) => total + (entry.value ?? 0), 0);
+      const activeCorridors = new Set(
+        summaries
+          .map((entry) => entry.province)
+          .filter((value): value is string => typeof value === 'string' && value.trim() !== ''),
+      ).size;
+
+      const latestUpdatedAt = mapped
+        .map((entry) => entry.updatedAt)
+        .filter((value): value is string => typeof value === 'string')
+        .sort()
+        .pop();
+
+      const snapshot = summaries.length
+        ? {
+            totalFlows,
+            totalFlowsUnitKey: summaries[0]?.unitKey ?? null,
+            activeCorridors,
+            updatedAt: latestUpdatedAt ?? new Date().toISOString(),
+          }
+        : null;
+
+      return {
+        data: {
+          summaries,
+          insights,
+          snapshot,
+          availablePeriods,
+          availableProvinces,
+          availableCountries,
+        },
+        meta: {
+          filters: {
+            scope: scope,
+            intrant: intrant,
+            period,
+            province,
+            country,
+          },
+        },
+      };
+    },
+  }),
+);

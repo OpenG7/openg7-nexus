@@ -38,7 +38,7 @@ test.describe('RBAC access matrix', () => {
     await expect(page).toHaveURL(/\/pro$/);
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
     await expect(
-      page.locator('[data-og7="user-profile-status"] [data-og7-id="account-status-active"]')
+      page.locator('[data-og7="user-profile-status"] [data-og7-id="account-status-active"]'),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-resend-activation"]')).toHaveCount(0);
   });
@@ -78,8 +78,8 @@ test.describe('RBAC access matrix', () => {
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
     await expect(
       page.locator(
-        '[data-og7="user-profile-status"] [data-og7-id="account-status-email-not-confirmed"]'
-      )
+        '[data-og7="user-profile-status"] [data-og7-id="account-status-email-not-confirmed"]',
+      ),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-resend-activation"]')).toBeVisible();
   });
@@ -95,7 +95,7 @@ test.describe('RBAC access matrix', () => {
     await expect(page).toHaveURL(/\/profile$/);
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
     await expect(
-      page.locator('[data-og7="user-profile-status"] [data-og7-id="account-status-disabled"]')
+      page.locator('[data-og7="user-profile-status"] [data-og7-id="account-status-disabled"]'),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-resend-activation"]')).toHaveCount(0);
   });

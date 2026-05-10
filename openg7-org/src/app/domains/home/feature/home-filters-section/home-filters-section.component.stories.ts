@@ -6,7 +6,6 @@ import { moduleMetadata } from '@storybook/angular';
 
 import { HomeFiltersSectionComponent } from './home-filters-section.component';
 
-
 const meta: Meta<HomeFiltersSectionComponent> = {
   title: 'Features/Home/FiltersSection',
   component: HomeFiltersSectionComponent,

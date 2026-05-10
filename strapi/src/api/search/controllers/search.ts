@@ -34,7 +34,8 @@ const parseType = (value: unknown): QueryType => {
 const controller = () => ({
   async index(ctx: Context) {
     const query = (ctx.request.query ?? {}) as SearchQuery;
-    const rawQuery = typeof query.q === 'string' ? query.q : typeof query.query === 'string' ? query.query : '';
+    const rawQuery =
+      typeof query.q === 'string' ? query.q : typeof query.query === 'string' ? query.query : '';
     const locale = typeof query.locale === 'string' ? query.locale : null;
     const limit = parseLimit(query.limit);
     const type = parseType(query.type);

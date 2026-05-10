@@ -190,4 +190,3 @@ export const Default: StoryObj<HomeHeroSectionComponent> = {
     },
   }),
 };
-

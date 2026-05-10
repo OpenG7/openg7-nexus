@@ -10,7 +10,10 @@
   border-radius: 1.5rem;
   background-color: var(--og7-color-surface);
   border: 1px solid var(--og7-color-border);
-  transition: background-color var(--og7-transition-base), box-shadow var(--og7-transition-base), border-color var(--og7-transition-base);
+  transition:
+    background-color var(--og7-transition-base),
+    box-shadow var(--og7-transition-base),
+    border-color var(--og7-transition-base);
   cursor: pointer;
   box-shadow: 0 18px 46px -32px rgba(15, 23, 42, 0.15);
 }
@@ -89,7 +92,10 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   padding: 0.45rem 1.2rem;
-  transition: border-color var(--og7-transition-base), background-color var(--og7-transition-base), color var(--og7-transition-base);
+  transition:
+    border-color var(--og7-transition-base),
+    background-color var(--og7-transition-base),
+    color var(--og7-transition-base);
 }
 
 .og7-compliance__toggle:hover:not(:disabled) {

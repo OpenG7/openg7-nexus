@@ -2,7 +2,8 @@
 
 ---
 
-# @OpenG7 – Steering Project seeding  
+# @OpenG7 – Steering Project seeding
+
 `tools/projects/seed-openg7-steering.ts`
 
 This document explains how to use the **Project seeding script** to create and update
@@ -193,8 +194,8 @@ Add this in the root `package.json`:
 ```jsonc
 {
   "scripts": {
-    "projects:seed:steering": "ts-node tools/projects/seed-openg7-steering.ts"
-  }
+    "projects:seed:steering": "ts-node tools/projects/seed-openg7-steering.ts",
+  },
 }
 ```
 
@@ -241,7 +242,7 @@ The script uses a hidden HTML comment marker in the issue body:
 where:
 
 ```ts
-slug = slugify("<repo>-<title>");
+slug = slugify('<repo>-<title>');
 ```
 
 The script first searches for issues containing this marker before creating a new one.

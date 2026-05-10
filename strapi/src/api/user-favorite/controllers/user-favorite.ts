@@ -130,7 +130,7 @@ function normalizeFindManyResult<T>(value: T | T[] | null | undefined): T[] {
 async function findFavoriteForUser(
   strapi: Core.Strapi,
   userId: number | string,
-  favoriteId: number | string
+  favoriteId: number | string,
 ): Promise<FavoriteEntity | null> {
   const existing = await strapi.entityService.findMany(USER_FAVORITE_UID, {
     filters: {
@@ -150,7 +150,7 @@ async function findFavoriteByTarget(
   strapi: Core.Strapi,
   userId: number | string,
   entityType: string,
-  entityId: string
+  entityId: string,
 ): Promise<FavoriteEntity | null> {
   const existing = await strapi.entityService.findMany(USER_FAVORITE_UID, {
     filters: {
@@ -184,7 +184,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     });
 
     ctx.body = normalizeFindManyResult(entries).map((entry) =>
-      toFavoriteResponse(entry as FavoriteEntity)
+      toFavoriteResponse(entry as FavoriteEntity),
     );
   },
 
@@ -200,7 +200,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         strapi,
         currentUser.id,
         payload.entityType,
-        payload.entityId
+        payload.entityId,
       );
 
       if (existing?.id) {

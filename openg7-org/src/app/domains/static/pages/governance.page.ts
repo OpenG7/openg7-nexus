@@ -27,7 +27,12 @@ export class GovernancePage {
     return this.asArray('pages.governance.anchors');
   }
 
-  protected boardMembers(): Array<{ name: string; role: string; background: string; focus: string }> {
+  protected boardMembers(): Array<{
+    name: string;
+    role: string;
+    background: string;
+    focus: string;
+  }> {
     return this.asArray('pages.governance.board.members');
   }
 

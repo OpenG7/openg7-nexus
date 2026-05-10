@@ -52,7 +52,11 @@ export async function findId(uid: UID, filters: Filters = {}): Promise<number | 
   return entry?.id ?? null;
 }
 
-export async function upsertByUID(uid: UID, data: Record<string, any>, options: UpsertOptions = {}) {
+export async function upsertByUID(
+  uid: UID,
+  data: Record<string, any>,
+  options: UpsertOptions = {},
+) {
   const uniqueFilters = options.unique ?? { slug: (data as any).slug };
   if (!uniqueFilters || Object.values(uniqueFilters).every((value) => value === undefined)) {
     throw new Error(`Missing unique filters for ${uid}`);
@@ -91,7 +95,7 @@ export async function ensureRole(name: string) {
 
 export async function setRolePermissions(
   roleId: number | string,
-  permissions: Record<string, Record<string, boolean>>
+  permissions: Record<string, Record<string, boolean>>,
 ) {
   const permissionQuery = strapi.db.query('plugin::users-permissions.permission');
   const managedActionPrefixes = Object.keys(permissions).map((uid) => `${uid}.`);
@@ -154,7 +158,11 @@ export function isAutoSeedEnabled() {
     return true;
   }
 
-  const normalizedEnvironment = (process.env.STRAPI_ENV || process.env.NODE_ENV || '').toLowerCase();
+  const normalizedEnvironment = (
+    process.env.STRAPI_ENV ||
+    process.env.NODE_ENV ||
+    ''
+  ).toLowerCase();
   if (['production', 'prod'].includes(normalizedEnvironment)) {
     return false;
   }

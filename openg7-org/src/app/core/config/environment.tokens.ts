@@ -10,5 +10,7 @@ export const FEATURE_FLAGS = new InjectionToken<FeatureFlags>('FEATURE_FLAGS');
 
 export type AuthMode = 'local-only' | 'sso-only' | 'hybrid';
 export const AUTH_MODE = new InjectionToken<AuthMode>('AUTH_MODE');
-export const NOTIFICATION_WEBHOOK_URL = new InjectionToken<string | null>('NOTIFICATION_WEBHOOK_URL');
+export const NOTIFICATION_WEBHOOK_URL = new InjectionToken<string | null>(
+  'NOTIFICATION_WEBHOOK_URL',
+);
 export const ANALYTICS_ENDPOINT = new InjectionToken<string | null>('ANALYTICS_ENDPOINT');

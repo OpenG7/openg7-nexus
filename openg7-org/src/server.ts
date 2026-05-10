@@ -39,11 +39,7 @@ function collectConnectOrigins(config: EnvironmentConfig): Set<string> {
   const origins = new Set<string>();
   origins.add("'self'");
 
-  const candidates = [
-    config.API_URL,
-    config.ANALYTICS_ENDPOINT,
-    config.NOTIFICATION_WEBHOOK_URL,
-  ];
+  const candidates = [config.API_URL, config.ANALYTICS_ENDPOINT, config.NOTIFICATION_WEBHOOK_URL];
 
   for (const candidate of candidates) {
     const sanitized = sanitizeUrl(candidate);
@@ -91,7 +87,7 @@ function buildContentSecurityPolicy(config: EnvironmentConfig): string {
     "form-action 'self'",
     "frame-ancestors 'none'",
     "require-trusted-types-for 'script'",
-    "trusted-types angular angular#bundler",
+    'trusted-types angular angular#bundler',
     buildDirective('connect-src', connectSrc),
   ];
 
@@ -182,7 +178,7 @@ app.get(
   '**',
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: 'index.html'
+    index: 'index.html',
   }),
 );
 

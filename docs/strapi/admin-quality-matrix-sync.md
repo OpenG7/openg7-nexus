@@ -23,6 +23,7 @@ L'endpoint d'ingestion accepte des `impactedEntryIds` explicites, mais peut auss
 - `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`
 
 Usage:
+
 - secret bearer attendu par `POST /api/admin/quality/matrix/ingest`
 - configure par environnement, jamais committe
 
@@ -38,6 +39,7 @@ STRAPI_ADMIN_QUALITY_INGEST_TOKEN=change-me-long-random-token
 - `ADMIN_QUALITY_MATRIX_INGEST_TOKEN`
 
 Usage:
+
 - `ADMIN_QUALITY_MATRIX_INGEST_URL` pointe vers l'endpoint de l'environnement cible
 - `ADMIN_QUALITY_MATRIX_INGEST_TOKEN` doit etre strictement identique a `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`
 
@@ -74,6 +76,7 @@ La rotation doit etre atomique par environnement.
 5. Verifier que le workflow publie toujours `200` sur l'endpoint d'ingestion.
 
 Regle:
+
 - ne pas reutiliser le meme token entre preprod et prod
 - ne pas changer l'URL GitHub pour pointer par erreur vers un autre environnement
 
@@ -88,6 +91,7 @@ Verifier:
 3. que le merge a bien eu lieu sur `main`
 
 Comportement attendu:
+
 - si un secret manque, le workflow skippe proprement la publication
 
 ### Le workflow publie mais Strapi renvoie `401`

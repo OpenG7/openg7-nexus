@@ -13,7 +13,7 @@ describe('userReducer', () => {
   it('should hydrate the profile and permissions', () => {
     const state = userReducer(
       initialUserState,
-      UserActions.profileHydrated({ profile, permissions: ['read'] })
+      UserActions.profileHydrated({ profile, permissions: ['read'] }),
     );
 
     expect(state).toEqual({ profile, permissions: ['read'] });
@@ -22,7 +22,7 @@ describe('userReducer', () => {
   it('should clear the profile slice', () => {
     const hydrated = userReducer(
       initialUserState,
-      UserActions.profileHydrated({ profile, permissions: ['read'] })
+      UserActions.profileHydrated({ profile, permissions: ['read'] }),
     );
 
     const cleared = userReducer(hydrated, UserActions.profileCleared());

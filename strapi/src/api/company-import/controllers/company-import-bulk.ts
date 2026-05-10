@@ -151,7 +151,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       userId,
       jobId,
       format,
-      Number.isFinite(limit) ? limit : 2000
+      Number.isFinite(limit) ? limit : 2000,
     );
     if (!payload) {
       return ctx.notFound('Bulk import job not found.');
@@ -199,7 +199,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         type: 'bulk-import.progress',
         jobId,
         payload: status,
-      })}\n\n`
+      })}\n\n`,
     );
 
     const request = ctx.req as {

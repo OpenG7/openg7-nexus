@@ -55,7 +55,8 @@ describe('HomeFiltersSectionComponent', () => {
     const fixture = TestBed.createComponent(HomeFiltersSectionComponent);
     fixture.detectChanges();
 
-    const heading: HTMLElement | null = fixture.nativeElement.querySelector('#home-filters-heading');
+    const heading: HTMLElement | null =
+      fixture.nativeElement.querySelector('#home-filters-heading');
     expect(heading?.textContent).toContain('Filter exchanges');
     const filtersHost = fixture.nativeElement.querySelector('[data-og7="filters"]');
     expect(filtersHost).toBeTruthy();

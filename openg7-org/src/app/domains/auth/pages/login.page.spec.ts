@@ -52,7 +52,7 @@ describe('LoginPage', () => {
     auth.ensureSessionRestored.and.resolveTo();
     auth.isAuthenticated.and.returnValue(false);
     auth.getProfile.and.returnValue(
-      of({ id: '1', email: 'user@example.com', roles: ['user'] } as any)
+      of({ id: '1', email: 'user@example.com', roles: ['user'] } as any),
     );
     authRedirect = jasmine.createSpyObj<AuthRedirectService>('AuthRedirectService', [
       'captureRedirectParam',
@@ -114,7 +114,7 @@ describe('LoginPage', () => {
 
     expect(sessionExpiredComponent.loginNotice()).toBe('auth.sessionExpired');
     const notice = sessionExpiredFixture.nativeElement.querySelector(
-      '[data-og7="auth-login-notice"]'
+      '[data-og7="auth-login-notice"]',
     ) as HTMLElement | null;
     expect(notice?.textContent ?? '').toContain('auth.sessionExpired');
   });
@@ -125,7 +125,7 @@ describe('LoginPage', () => {
     authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
     authRedirect.consumeRedirectUrl.and.returnValue(redirectTarget);
     auth.login.and.returnValue(
-      of({ jwt: 'token', user: { id: '1', email: 'user@example.com', roles: [] } })
+      of({ jwt: 'token', user: { id: '1', email: 'user@example.com', roles: [] } }),
     );
 
     const redirectFixture = TestBed.createComponent(LoginPage);
@@ -145,7 +145,7 @@ describe('LoginPage', () => {
   it('submits valid credentials via AuthService then navigates to profile', async () => {
     const credentials = { email: 'user@example.com', password: 'secret' };
     auth.login.and.returnValue(
-      of({ jwt: 'token', user: { id: '1', email: credentials.email, roles: [] } })
+      of({ jwt: 'token', user: { id: '1', email: credentials.email, roles: [] } }),
     );
 
     const form = (component as any).form;
@@ -167,10 +167,10 @@ describe('LoginPage', () => {
     authRedirect.peekRedirectUrl.and.returnValue(redirectTarget);
     authRedirect.consumeRedirectUrl.and.returnValue(redirectTarget);
     auth.login.and.returnValue(
-      of({ jwt: 'token', user: { id: '2', email: credentials.email, roles: [] } })
+      of({ jwt: 'token', user: { id: '2', email: credentials.email, roles: [] } }),
     );
     auth.getProfile.and.returnValue(
-      of({ id: '2', email: credentials.email, roles: ['owner'] } as any)
+      of({ id: '2', email: credentials.email, roles: ['owner'] } as any),
     );
 
     const redirectFixture = TestBed.createComponent(LoginPage);
@@ -223,7 +223,7 @@ describe('LoginPage', () => {
     expect(auth.sendEmailConfirmation).toHaveBeenCalledWith({ email });
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.login.activationEmailSent',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -237,7 +237,7 @@ describe('LoginPage', () => {
     expect(auth.sendEmailConfirmation).not.toHaveBeenCalled();
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.errors.emailInvalid',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -255,8 +255,8 @@ describe('LoginPage', () => {
                 message: 'Invalid identifier or password',
               },
             },
-          })
-      )
+          }),
+      ),
     );
 
     const form = (component as any).form;
@@ -267,7 +267,7 @@ describe('LoginPage', () => {
     expect((component as any).apiError()).toBe('auth.errors.invalidCredentials');
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.errors.invalidCredentials',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -284,8 +284,8 @@ describe('LoginPage', () => {
                 name: 'ForbiddenError',
               },
             },
-          })
-      )
+          }),
+      ),
     );
 
     const form = (component as any).form;
@@ -296,7 +296,7 @@ describe('LoginPage', () => {
     expect((component as any).apiError()).toBe('auth.errors.api');
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.errors.api',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -312,8 +312,8 @@ describe('LoginPage', () => {
                 message: 'Email is not confirmed',
               },
             },
-          })
-      )
+          }),
+      ),
     );
 
     const form = (component as any).form;
@@ -325,7 +325,7 @@ describe('LoginPage', () => {
     expect((component as any).apiError()).toBe('auth.errors.emailNotConfirmed');
     expect((component as any).canSendActivationEmail()).toBeTrue();
     expect(
-      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]')
+      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]'),
     ).not.toBeNull();
   });
 
@@ -341,8 +341,8 @@ describe('LoginPage', () => {
                 message: 'This account is disabled',
               },
             },
-          })
-      )
+          }),
+      ),
     );
 
     const form = (component as any).form;
@@ -354,14 +354,16 @@ describe('LoginPage', () => {
     expect((component as any).apiError()).toBe('auth.errors.accountDisabled');
     expect((component as any).canSendActivationEmail()).toBeFalse();
     expect(
-      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]')
+      fixture.nativeElement.querySelector('[data-og7="auth-login-send-activation"]'),
     ).toBeNull();
   });
 
   it('maps activation email errors to a dedicated already-confirmed message', () => {
     const email = 'confirmed@example.com';
     auth.sendEmailConfirmation.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'already confirmed' } }))
+      throwError(
+        () => new HttpErrorResponse({ status: 409, error: { message: 'already confirmed' } }),
+      ),
     );
 
     const form = (component as any).form;
@@ -372,7 +374,7 @@ describe('LoginPage', () => {
 
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.login.activationAlreadyConfirmed',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 });

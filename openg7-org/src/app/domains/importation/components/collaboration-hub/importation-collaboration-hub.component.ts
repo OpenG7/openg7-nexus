@@ -32,7 +32,12 @@ export class ImportationCollaborationHubComponent {
   @Input({ required: true }) viewModel!: ImportationCollaborationViewModel;
 
   @Output() createWatchlist = new EventEmitter<string>();
-  @Output() scheduleReport = new EventEmitter<{ recipients: readonly string[]; format: 'csv' | 'json' | 'look'; frequency: 'weekly' | 'monthly' | 'quarterly'; notes?: string }>();
+  @Output() scheduleReport = new EventEmitter<{
+    recipients: readonly string[];
+    format: 'csv' | 'json' | 'look';
+    frequency: 'weekly' | 'monthly' | 'quarterly';
+    notes?: string;
+  }>();
 
   watchlistName = '';
   watchlistErrorKey: string | null = null;
@@ -72,13 +77,15 @@ export class ImportationCollaborationHubComponent {
     }
     const recipients = this.normalizeRecipients(this.scheduleDraft.recipients);
     if (!recipients.length) {
-      this.scheduleRecipientsErrorKey = 'pages.importation.collaboration.schedule.validation.required';
+      this.scheduleRecipientsErrorKey =
+        'pages.importation.collaboration.schedule.validation.required';
       return;
     }
 
     const invalidRecipient = recipients.find((email) => !this.emailPattern.test(email));
     if (invalidRecipient) {
-      this.scheduleRecipientsErrorKey = 'pages.importation.collaboration.schedule.validation.invalid';
+      this.scheduleRecipientsErrorKey =
+        'pages.importation.collaboration.schedule.validation.invalid';
       return;
     }
 

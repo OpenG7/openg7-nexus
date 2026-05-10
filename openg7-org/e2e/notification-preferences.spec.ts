@@ -39,12 +39,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);
@@ -132,12 +132,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);
@@ -220,12 +220,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);
@@ -300,12 +300,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);
@@ -378,7 +378,9 @@ test.describe('Notification preferences', () => {
     await expect(saveButton).toBeEnabled();
   });
 
-  test('blocks save when quiet hours timezone is invalid, then saves once corrected', async ({ page }) => {
+  test('blocks save when quiet hours timezone is invalid, then saves once corrected', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page);
 
     await loginAsAuthenticatedE2eUser(page, '/profile');
@@ -390,7 +392,9 @@ test.describe('Notification preferences', () => {
     const quietHoursStart = page.locator('#profile-quiet-hours-start');
     const quietHoursEnd = page.locator('#profile-quiet-hours-end');
     const quietHoursTimezone = page.locator('#profile-quiet-hours-timezone');
-    const quietHoursTimezoneError = page.locator('[data-og7-id="alerts-quiet-hours-timezone-error"]');
+    const quietHoursTimezoneError = page.locator(
+      '[data-og7-id="alerts-quiet-hours-timezone-error"]',
+    );
 
     await quietHoursEnabled.check();
     await quietHoursStart.fill('20:00');
@@ -411,12 +415,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);
@@ -441,7 +445,9 @@ test.describe('Notification preferences', () => {
     });
   });
 
-  test('clears quiet hours values and persists nulls when quiet hours are disabled', async ({ page }) => {
+  test('clears quiet hours values and persists nulls when quiet hours are disabled', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page, {
       ...DEFAULT_PROFILE,
       notificationPreferences: {
@@ -493,12 +499,12 @@ test.describe('Notification preferences', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PUT' &&
-          request.url().includes('/api/users/me/profile')
+          request.url().includes('/api/users/me/profile'),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PUT' &&
-          response.url().includes('/api/users/me/profile')
+          response.url().includes('/api/users/me/profile'),
       ),
       saveButton.click(),
     ]);

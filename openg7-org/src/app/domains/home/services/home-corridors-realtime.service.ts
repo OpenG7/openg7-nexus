@@ -58,7 +58,7 @@ export class HomeCorridorsRealtimeService {
         .get<CorridorsRealtimeSnapshot>('assets/mocks/corridors-realtime.mock.json')
         .pipe(
           map((payload) => this.normalizeSnapshot(payload)),
-          catchError(() => this.snapshotFallback())
+          catchError(() => this.snapshotFallback()),
         );
     }
 
@@ -68,11 +68,13 @@ export class HomeCorridorsRealtimeService {
       })
       .pipe(
         map((payload) => this.normalizeSnapshot(payload)),
-        catchError(() => this.snapshotFallback())
+        catchError(() => this.snapshotFallback()),
       );
   }
 
-  private normalizeSnapshot(payload: CorridorsRealtimeSnapshot | null | undefined): CorridorsRealtimeSnapshot {
+  private normalizeSnapshot(
+    payload: CorridorsRealtimeSnapshot | null | undefined,
+  ): CorridorsRealtimeSnapshot {
     const base = payload ?? this.emptySnapshot();
     return {
       ...base,

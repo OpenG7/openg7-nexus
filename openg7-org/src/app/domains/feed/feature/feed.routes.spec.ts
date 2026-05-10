@@ -13,15 +13,17 @@ class StoreMock {
   readonly hydrated$ = new BehaviorSubject(false);
   readonly error$ = new BehaviorSubject<string | null>(null);
 
-  readonly select = jasmine.createSpy('select').and.callFake((selector: unknown): Observable<unknown> => {
-    if (selector === selectFeedHydrated) {
-      return this.hydrated$.asObservable();
-    }
-    if (selector === selectFeedError) {
-      return this.error$.asObservable();
-    }
-    throw new Error(`Unexpected selector in StoreMock: ${String(selector)}`);
-  });
+  readonly select = jasmine
+    .createSpy('select')
+    .and.callFake((selector: unknown): Observable<unknown> => {
+      if (selector === selectFeedHydrated) {
+        return this.hydrated$.asObservable();
+      }
+      if (selector === selectFeedError) {
+        return this.error$.asObservable();
+      }
+      throw new Error(`Unexpected selector in StoreMock: ${String(selector)}`);
+    });
 }
 
 class FeedRealtimeServiceMock {
@@ -45,7 +47,9 @@ describe('feed.routes setup resolver', () => {
       ],
     });
 
-    setupResolver = routes[0]?.children?.[0]?.resolve?.['setup'] as (route: ActivatedRouteSnapshot) => Promise<boolean>;
+    setupResolver = routes[0]?.children?.[0]?.resolve?.['setup'] as (
+      route: ActivatedRouteSnapshot,
+    ) => Promise<boolean>;
   });
 
   it('parses query params and dispatches feed filters before loading the initial page', async () => {
@@ -81,7 +85,7 @@ describe('feed.routes setup resolver', () => {
           sort: 'URGENCY',
           search: 'winter peak',
         },
-      })
+      }),
     );
     expect(feed.loadInitial).toHaveBeenCalledTimes(1);
   });
@@ -110,7 +114,7 @@ describe('feed.routes setup resolver', () => {
           sort: 'NEWEST',
           search: '',
         },
-      })
+      }),
     );
     expect(feed.loadInitial).not.toHaveBeenCalled();
   });
@@ -144,7 +148,7 @@ describe('feed.routes setup resolver', () => {
           type: 'OFFER',
           mode: 'EXPORT',
         }) as never,
-      })
+      }),
     );
   });
 
@@ -175,7 +179,7 @@ describe('feed.routes setup resolver', () => {
           sort: 'NEWEST',
           search: '',
         },
-      })
+      }),
     );
   });
 });

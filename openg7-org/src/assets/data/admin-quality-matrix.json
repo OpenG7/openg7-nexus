@@ -273,7 +273,10 @@
       "needsProductWorkFirst": true,
       "observedGap": "Les journeys hydrocarbures et corridors sont prouves, mais les dependances interprovinciales et la priorisation explicite des services essentiels restent fragmentees.",
       "nextMove": "Exposer un parcours explicite de priorisation metier, puis le prouver comme flux de decision.",
-      "evidence": ["e2e/hydrocarbon-business-journey.spec.ts", "e2e/hydrocarbon-feed-navigation.spec.ts"],
+      "evidence": [
+        "e2e/hydrocarbon-business-journey.spec.ts",
+        "e2e/hydrocarbon-feed-navigation.spec.ts"
+      ],
       "reviewedAt": "2026-04-07"
     }
   ]

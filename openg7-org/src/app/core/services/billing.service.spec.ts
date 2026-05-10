@@ -75,7 +75,9 @@ describe('BillingService', () => {
 
   it('initiates checkout and redirects with Stripe', async () => {
     const stripeRedirect = jasmine.createSpy('redirectToCheckout').and.resolveTo({ error: null });
-    spyOn<any>(service, 'ensureStripe').and.returnValue(Promise.resolve({ redirectToCheckout: stripeRedirect }));
+    spyOn<any>(service, 'ensureStripe').and.returnValue(
+      Promise.resolve({ redirectToCheckout: stripeRedirect }),
+    );
 
     const promise = service.startCheckout('premium');
     const req = http.expectOne('/billing/checkout');
@@ -92,7 +94,7 @@ describe('BillingService', () => {
     spyOn<any>(service, 'ensureStripe').and.returnValue(
       Promise.resolve({
         redirectToCheckout: () => Promise.resolve({ error: { message: 'stripe.redirect_failed' } }),
-      })
+      }),
     );
 
     const promise = service.startCheckout('premium');
@@ -156,4 +158,3 @@ describe('BillingService', () => {
     expect(stripeRedirect).toHaveBeenCalledWith({ sessionId: 'sess_second' });
   });
 });
-

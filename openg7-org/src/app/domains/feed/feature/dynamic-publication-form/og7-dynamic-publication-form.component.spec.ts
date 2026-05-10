@@ -52,9 +52,11 @@ describe('Og7DynamicPublicationFormComponent', () => {
         capacityMw: 120,
         fromProvinceId: 'qc',
         toProvinceId: 'on',
-      })
+      }),
     );
-    expect(fixture.nativeElement.querySelectorAll('.dynamic-publication-form__section').length).toBe(5);
+    expect(
+      fixture.nativeElement.querySelectorAll('.dynamic-publication-form__section').length,
+    ).toBe(5);
   });
 
   it('blocks submission and shows validation feedback when date order is invalid', () => {
@@ -83,15 +85,23 @@ describe('Og7DynamicPublicationFormComponent', () => {
     fixture.detectChanges();
 
     expect(submitSpy).not.toHaveBeenCalled();
-    expect(fixture.nativeElement.textContent).toContain('forms.energySurplus.validation.availabilityEnd.dateOrder');
+    expect(fixture.nativeElement.textContent).toContain(
+      'forms.energySurplus.validation.availabilityEnd.dateOrder',
+    );
   });
 
   it('renders multiselect, checkbox, and datetime controls for advanced templates', () => {
-    fixture.componentRef.setInput('config', coldChainCapacityOfferConfigJson as PublicationFormConfig);
+    fixture.componentRef.setInput(
+      'config',
+      coldChainCapacityOfferConfigJson as PublicationFormConfig,
+    );
     fixture.detectChanges();
 
     const component = fixture.componentInstance as unknown as {
-      form: () => { patchValue: (value: Record<string, unknown>) => void; value: Record<string, unknown> };
+      form: () => {
+        patchValue: (value: Record<string, unknown>) => void;
+        value: Record<string, unknown>;
+      };
     };
 
     component.form().patchValue({
@@ -116,7 +126,10 @@ describe('Og7DynamicPublicationFormComponent', () => {
   });
 
   it('applies visibleWhen conditions for scenario-specific fields', () => {
-    fixture.componentRef.setInput('config', coldChainCapacityOfferConfigJson as PublicationFormConfig);
+    fixture.componentRef.setInput(
+      'config',
+      coldChainCapacityOfferConfigJson as PublicationFormConfig,
+    );
     fixture.detectChanges();
 
     const component = fixture.componentInstance as unknown as {

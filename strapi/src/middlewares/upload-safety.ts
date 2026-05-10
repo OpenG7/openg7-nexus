@@ -136,7 +136,12 @@ function buildAllowedMimeTypes(config: UploadSafetyConfig): string[] {
   return DEFAULT_ALLOWED_MIME_TYPES;
 }
 
-function buildErrorResponse(status: number, name: string, message: string, details: Record<string, unknown>) {
+function buildErrorResponse(
+  status: number,
+  name: string,
+  message: string,
+  details: Record<string, unknown>,
+) {
   return {
     data: null,
     error: {
@@ -148,19 +153,16 @@ function buildErrorResponse(status: number, name: string, message: string, detai
   };
 }
 
-export default (
-  config: UploadSafetyConfig = {},
-  { strapi }: { strapi: any }
-) => {
+export default (config: UploadSafetyConfig = {}, { strapi }: { strapi: any }) => {
   const enabled = parseBoolean(config.enabled ?? process.env.UPLOAD_SAFETY_ENABLED, true);
   const maxFileSizeBytes = parsePositiveInteger(
     config.maxFileSizeBytes ?? process.env.UPLOAD_MAX_FILE_SIZE_BYTES,
-    DEFAULT_MAX_FILE_SIZE_BYTES
+    DEFAULT_MAX_FILE_SIZE_BYTES,
   );
   const allowedMimeTypes = buildAllowedMimeTypes(config);
   const allowedMimeTypeSet = new Set(allowedMimeTypes);
   const uploadPathPattern = parseUploadPathPattern(
-    config.uploadPathPattern ?? process.env.UPLOAD_PATH_PATTERN
+    config.uploadPathPattern ?? process.env.UPLOAD_PATH_PATTERN,
   );
 
   return async (ctx: Context, next: Next) => {
@@ -180,7 +182,7 @@ export default (
       const mimeType = normalizeMimeType(file.mimetype);
       if (!mimeType || !allowedMimeTypeSet.has(mimeType)) {
         strapi.log?.warn?.(
-          `[security] Upload blocked due to unsupported mime type: ${mimeType ?? 'unknown'}`
+          `[security] Upload blocked due to unsupported mime type: ${mimeType ?? 'unknown'}`,
         );
         ctx.status = 415;
         ctx.body = buildErrorResponse(
@@ -191,14 +193,18 @@ export default (
             code: 'UPLOAD_UNSUPPORTED_MIME_TYPE',
             allowedMimeTypes,
             receivedMimeType: mimeType,
-          }
+          },
         );
         return;
       }
 
-      if (typeof file.size === 'number' && Number.isFinite(file.size) && file.size > maxFileSizeBytes) {
+      if (
+        typeof file.size === 'number' &&
+        Number.isFinite(file.size) &&
+        file.size > maxFileSizeBytes
+      ) {
         strapi.log?.warn?.(
-          `[security] Upload blocked due to max file size (${file.size} > ${maxFileSizeBytes}).`
+          `[security] Upload blocked due to max file size (${file.size} > ${maxFileSizeBytes}).`,
         );
         ctx.status = 413;
         ctx.body = buildErrorResponse(
@@ -209,7 +215,7 @@ export default (
             code: 'UPLOAD_FILE_TOO_LARGE',
             maxFileSizeBytes,
             actualFileSizeBytes: file.size,
-          }
+          },
         );
         return;
       }

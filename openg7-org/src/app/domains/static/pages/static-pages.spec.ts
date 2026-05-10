@@ -17,7 +17,15 @@ describe('Static informational pages', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), TermsPage, PrivacyPage, LegalPage, FaqPage, CreditsPage, GovernancePage],
+      imports: [
+        TranslateModule.forRoot(),
+        TermsPage,
+        PrivacyPage,
+        LegalPage,
+        FaqPage,
+        CreditsPage,
+        GovernancePage,
+      ],
       providers: [provideRouter([])],
     }).compileComponents();
 
@@ -38,7 +46,9 @@ describe('Static informational pages', () => {
     const container = element.querySelector('[data-og7-page="terms"]');
 
     expect(container).toBeTruthy();
-    const headings = Array.from(container!.querySelectorAll('h2')).map(h => h.textContent?.trim());
+    const headings = Array.from(container!.querySelectorAll('h2')).map((h) =>
+      h.textContent?.trim(),
+    );
     expect(headings).toContain('2. Account stewardship');
 
     const bulletLists = container!.querySelectorAll('ul');
@@ -48,10 +58,14 @@ describe('Static informational pages', () => {
     expect(toc).toBeTruthy();
 
     const sectionCards = container!.querySelectorAll('[data-og7="terms-section"]');
-    expect(sectionCards.length).withContext('Expected section cards to be tagged').toBeGreaterThan(0);
+    expect(sectionCards.length)
+      .withContext('Expected section cards to be tagged')
+      .toBeGreaterThan(0);
 
     const supportCta = container!.querySelector('[data-og7-id="support-cta"]');
-    expect((supportCta as HTMLAnchorElement | null)?.getAttribute('href')).toContain('mailto:legal@openg7.org');
+    expect((supportCta as HTMLAnchorElement | null)?.getAttribute('href')).toContain(
+      'mailto:legal@openg7.org',
+    );
   });
 
   it('renders the Privacy page with collection and rights sections', () => {
@@ -60,7 +74,9 @@ describe('Static informational pages', () => {
     const container = element.querySelector('[data-og7-page="privacy"]');
 
     expect(container).toBeTruthy();
-    const headings = Array.from(container!.querySelectorAll('h2')).map(h => h.textContent?.trim());
+    const headings = Array.from(container!.querySelectorAll('h2')).map((h) =>
+      h.textContent?.trim(),
+    );
     expect(headings).toContain('1. Data we collect');
     expect(headings).toContain('5. Your rights');
   });
@@ -71,28 +87,30 @@ describe('Static informational pages', () => {
     const container = element.querySelector('[data-og7-page="legal"]');
 
     expect(container).toBeTruthy();
-    const creditsHeading = Array.from(container!.querySelectorAll('h2')).find(h =>
-      h.textContent?.includes('Credits & partners')
+    const creditsHeading = Array.from(container!.querySelectorAll('h2')).find((h) =>
+      h.textContent?.includes('Credits & partners'),
     );
     expect(creditsHeading?.textContent?.trim()).toBe('Credits & partners');
 
     const partnersList = container!.querySelectorAll('ul li');
     expect(partnersList.length).withContext('Expected partner acknowledgements').toBeGreaterThan(0);
 
-    const highlightLabels = Array.from(container!.querySelectorAll('[data-og7-legal-highlight] dt')).map(dt =>
-      dt.textContent?.trim()
-    );
+    const highlightLabels = Array.from(
+      container!.querySelectorAll('[data-og7-legal-highlight] dt'),
+    ).map((dt) => dt.textContent?.trim());
     expect(highlightLabels).toContain('Registration');
 
-    const contactEmails = Array.from(container!.querySelectorAll('[data-og7-legal-contact-channel] a')).map(a =>
-      a.textContent?.trim()
-    );
+    const contactEmails = Array.from(
+      container!.querySelectorAll('[data-og7-legal-contact-channel] a'),
+    ).map((a) => a.textContent?.trim());
     expect(contactEmails).toContain('legal@openg7.org');
 
     const toc = container!.querySelector('[data-og7="legal-toc"]');
     expect(toc).toBeTruthy();
 
-    const downloadPdf = container!.querySelector('[data-og7-id="download-pdf"]') as HTMLAnchorElement | null;
+    const downloadPdf = container!.querySelector(
+      '[data-og7-id="download-pdf"]',
+    ) as HTMLAnchorElement | null;
     expect(downloadPdf?.getAttribute('href')).toContain('legal-notice.pdf');
 
     const copyLegal = container!.querySelector('[data-og7-id="copy-legal"]');
@@ -105,9 +123,9 @@ describe('Static informational pages', () => {
     const container = element.querySelector('[data-og7-page="faq"]');
 
     expect(container).toBeTruthy();
-    const questions = Array.from(container!.querySelectorAll('[data-og7="faq-item"] h2 button')).map(button =>
-      button.textContent?.trim()
-    );
+    const questions = Array.from(
+      container!.querySelectorAll('[data-og7="faq-item"] h2 button'),
+    ).map((button) => button.textContent?.trim());
     expect(questions.some((question) => question?.includes('What is OpenG7?'))).toBeTrue();
 
     const answers = container!.querySelectorAll('[data-og7="faq-item"] p.leading-relaxed');
@@ -131,19 +149,25 @@ describe('Static informational pages', () => {
     const founderNote = element.querySelector('[data-og7="credits-founder-note"]');
     expect(founderNote?.textContent).toContain('Why OpenG7 begins as a founder-led build');
 
-    const filterButtons = Array.from(element.querySelectorAll('[data-og7="credits-filter"]')).map(btn =>
-      btn.textContent?.trim()
+    const filterButtons = Array.from(element.querySelectorAll('[data-og7="credits-filter"]')).map(
+      (btn) => btn.textContent?.trim(),
     );
     expect(filterButtons).toContain('Reset');
 
-    const charterCta = element.querySelector('[data-og7="credits-hero-cta"][data-og7-id="charter"]');
+    const charterCta = element.querySelector(
+      '[data-og7="credits-hero-cta"][data-og7-id="charter"]',
+    );
     expect(charterCta?.getAttribute('href')).toBe('/governance');
 
     const communityCta = element.querySelector('[data-og7="credits-community-cta"]');
-    expect(communityCta?.getAttribute('href')).toBe('https://www.linkedin.com/in/letourneausamantha/');
+    expect(communityCta?.getAttribute('href')).toBe(
+      'https://www.linkedin.com/in/letourneausamantha/',
+    );
 
     const founderNoteCta = element.querySelector('[data-og7="credits-founder-note-cta"]');
-    expect(founderNoteCta?.getAttribute('href')).toBe('https://www.linkedin.com/in/letourneausamantha/');
+    expect(founderNoteCta?.getAttribute('href')).toBe(
+      'https://www.linkedin.com/in/letourneausamantha/',
+    );
   });
 
   it('presents the Governance page with commitments and board members', () => {
@@ -156,13 +180,15 @@ describe('Static informational pages', () => {
     const commitmentCards = container!.querySelectorAll('article');
     expect(commitmentCards.length).withContext('Expected four governance commitments').toBe(4);
 
-    const navLabels = Array.from(
-      element.querySelectorAll('[data-og7-governance-nav] a')
-    ).map(link => link.textContent?.trim());
-    expect(navLabels.some(label => label?.includes('Board & stewardship'))).toBeTrue();
+    const navLabels = Array.from(element.querySelectorAll('[data-og7-governance-nav] a')).map(
+      (link) => link.textContent?.trim(),
+    );
+    expect(navLabels.some((label) => label?.includes('Board & stewardship'))).toBeTrue();
 
     const boardMembers = element.querySelectorAll('[data-og7-board-member]');
-    expect(boardMembers.length).withContext('Expected at least one board member card').toBeGreaterThan(0);
+    expect(boardMembers.length)
+      .withContext('Expected at least one board member card')
+      .toBeGreaterThan(0);
 
     const governanceCtas = Array.from(element.querySelectorAll('[data-og7="governance-cta"]'));
     expect(governanceCtas.length).toBe(2);
@@ -178,7 +204,9 @@ describe('Static informational pages', () => {
     component.provinceFilter.set('QC');
     fixture.detectChanges();
 
-    const filteredCards = fixture.nativeElement.querySelectorAll('[data-og7="credits-contributor-card"]');
+    const filteredCards = fixture.nativeElement.querySelectorAll(
+      '[data-og7="credits-contributor-card"]',
+    );
     expect(filteredCards.length).toBe(1);
 
     component.search.set('does-not-exist');
@@ -190,7 +218,9 @@ describe('Static informational pages', () => {
     component.resetFilters();
     fixture.detectChanges();
 
-    const allCards = fixture.nativeElement.querySelectorAll('[data-og7="credits-contributor-card"]');
+    const allCards = fixture.nativeElement.querySelectorAll(
+      '[data-og7="credits-contributor-card"]',
+    );
     expect(allCards.length).toBe(component.contributors().length);
   });
 });

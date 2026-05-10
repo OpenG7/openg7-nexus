@@ -59,7 +59,7 @@ const INITIAL_STATE: FeedState = {
 
 export const feedReducer = createReducer(
   INITIAL_STATE,
-  on(FeedActions.loadInitial, state => ({
+  on(FeedActions.loadInitial, (state) => ({
     ...state,
     loading: true,
     error: null,
@@ -93,7 +93,7 @@ export const feedReducer = createReducer(
     error,
   })),
   on(FeedActions.receiveRealtimeEnvelope, (state, { envelope }) =>
-    reduceRealtimeEnvelope(state, envelope)
+    reduceRealtimeEnvelope(state, envelope),
   ),
   on(FeedActions.applyFilters, (state, { filters }) => ({
     ...state,
@@ -116,26 +116,28 @@ export const feedReducer = createReducer(
   }),
   on(FeedActions.publishSuccess, (state, { tempId, item }) => {
     const { [tempId]: _, ...optimisticMap } = state.optimisticMap;
-    const items = state.items.map(existing =>
-      existing.id === tempId ? { ...item, status: 'confirmed' as const } : existing
+    const items = state.items.map((existing) =>
+      existing.id === tempId ? { ...item, status: 'confirmed' as const } : existing,
     );
     return {
       ...state,
       items,
       itemIndex: createItemIndex(items),
       optimisticMap,
-      unseenIds: state.unseenIds.filter(id => id !== tempId && id !== item.id),
+      unseenIds: state.unseenIds.filter((id) => id !== tempId && id !== item.id),
       localPublishedIds: state.localPublishedIds.includes(item.id)
         ? state.localPublishedIds
         : [item.id, ...state.localPublishedIds].slice(0, 50),
     };
   }),
   on(FeedActions.publishFailure, (state, { tempId, error }) => {
-    if (!state.items.some(item => item.id === tempId)) {
+    if (!state.items.some((item) => item.id === tempId)) {
       return state;
     }
-    const items = state.items.map(item =>
-      item.id === tempId ? { ...item, status: 'failed' as const, accessibilitySummary: error } : item
+    const items = state.items.map((item) =>
+      item.id === tempId
+        ? { ...item, status: 'failed' as const, accessibilitySummary: error }
+        : item,
     );
     return {
       ...state,
@@ -162,20 +164,20 @@ export const feedReducer = createReducer(
     hydrated: true,
     localPublishedIds: [],
   })),
-  on(FeedActions.markOnboardingSeen, state => ({
+  on(FeedActions.markOnboardingSeen, (state) => ({
     ...state,
     onboardingSeen: true,
   })),
   on(FeedActions.openDrawer, (state, { itemId }) => ({
     ...state,
     drawerItemId: itemId,
-  }))
+  })),
 );
 
 function mergeItems(
   current: readonly FeedItem[],
   currentIndex: Readonly<Record<string, number>>,
-  next: readonly FeedItem[]
+  next: readonly FeedItem[],
 ): { items: readonly FeedItem[]; itemIndex: Readonly<Record<string, number>> } {
   if (!next.length) {
     return { items: current, itemIndex: currentIndex };
@@ -273,7 +275,7 @@ function replaceLoadedItems(next: readonly FeedItem[]): {
 function appendLoadedItems(
   current: readonly FeedItem[],
   currentIndex: Readonly<Record<string, number>>,
-  next: readonly FeedItem[]
+  next: readonly FeedItem[],
 ): {
   items: readonly FeedItem[];
   itemIndex: Readonly<Record<string, number>>;
@@ -357,11 +359,12 @@ function reduceRealtimeEnvelope(state: FeedState, envelope: FeedRealtimeEnvelope
         ...state,
         ...merged,
         cursor: cursor ?? state.cursor,
-        unseenIds: isLocalPublish || state.unseenIds.includes(item.id)
-          ? state.unseenIds
-          : [item.id, ...state.unseenIds].slice(0, 200),
+        unseenIds:
+          isLocalPublish || state.unseenIds.includes(item.id)
+            ? state.unseenIds
+            : [item.id, ...state.unseenIds].slice(0, 200),
         localPublishedIds: isLocalPublish
-          ? state.localPublishedIds.filter(id => id !== item.id)
+          ? state.localPublishedIds.filter((id) => id !== item.id)
           : state.localPublishedIds,
       };
     }
@@ -374,13 +377,13 @@ function reduceRealtimeEnvelope(state: FeedState, envelope: FeedRealtimeEnvelope
     }
     case 'feed.item.deleted': {
       const item = payload as FeedItem;
-      const items = state.items.filter(existing => existing.id !== item.id);
+      const items = state.items.filter((existing) => existing.id !== item.id);
       return {
         ...state,
         items,
         itemIndex: createItemIndex(items),
-        unseenIds: state.unseenIds.filter(id => id !== item.id),
-        localPublishedIds: state.localPublishedIds.filter(id => id !== item.id),
+        unseenIds: state.unseenIds.filter((id) => id !== item.id),
+        localPublishedIds: state.localPublishedIds.filter((id) => id !== item.id),
       };
     }
     default:

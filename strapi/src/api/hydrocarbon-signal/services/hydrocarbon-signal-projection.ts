@@ -22,7 +22,9 @@ interface ProjectionInput {
 }
 
 function asObject(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 function asString(value: unknown, fallback: string | null = null): string | null {
@@ -62,9 +64,7 @@ function asStringArray(value: unknown): string[] {
     return [];
   }
 
-  return value
-    .map((entry) => asString(entry))
-    .filter((entry): entry is string => Boolean(entry));
+  return value.map((entry) => asString(entry)).filter((entry): entry is string => Boolean(entry));
 }
 
 function isHydrocarbonProjectionCandidate(metadata: Record<string, unknown> | null): boolean {
@@ -89,14 +89,18 @@ export async function syncHydrocarbonSignalProjection(input: ProjectionInput): P
   const extensions = asObject(metadata?.extensions) ?? {};
   const quantityValue = input.quantity?.value ?? asNumber(extensions.volumeBarrels) ?? 0;
   const quantityUnit = asString(input.quantity?.unit, 'bbl') ?? 'bbl';
-  const companyName = asString(extensions.companyName, input.sourceLabel ?? 'Hydrocarbon publisher') ?? 'Hydrocarbon publisher';
+  const companyName =
+    asString(extensions.companyName, input.sourceLabel ?? 'Hydrocarbon publisher') ??
+    'Hydrocarbon publisher';
   const publicationType = asString(extensions.publicationType, 'surplus') ?? 'surplus';
   const productType = asString(extensions.productType, 'other') ?? 'other';
   const businessReason = asString(extensions.businessReason, 'surplusStock') ?? 'surplusStock';
-  const originSite = asString(extensions.originSite, input.fromProvinceId ?? 'Unknown origin') ?? 'Unknown origin';
+  const originSite =
+    asString(extensions.originSite, input.fromProvinceId ?? 'Unknown origin') ?? 'Unknown origin';
   const qualityGrade = asString(extensions.qualityGrade, 'other') ?? 'other';
   const storagePressureLevel = asString(extensions.storagePressureLevel, 'medium') ?? 'medium';
-  const contactChannel = asString(extensions.contactChannel, input.sourceLabel ?? 'OpenG7 feed') ?? 'OpenG7 feed';
+  const contactChannel =
+    asString(extensions.contactChannel, input.sourceLabel ?? 'OpenG7 feed') ?? 'OpenG7 feed';
 
   await upsertByUID(
     HYDROCARBON_SIGNAL_UID,
@@ -137,6 +141,6 @@ export async function syncHydrocarbonSignalProjection(input: ProjectionInput): P
       unique: {
         feedItemId: String(input.feedItemId),
       },
-    }
+    },
   );
 }

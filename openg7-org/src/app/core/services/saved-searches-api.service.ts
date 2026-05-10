@@ -3,13 +3,7 @@ import { STRAPI_ROUTES, strapiSavedSearchById } from '@app/core/api/strapi.route
 import { HttpClientService } from '@app/core/http/http-client.service';
 import { Observable } from 'rxjs';
 
-export type SavedSearchScope =
-  | 'all'
-  | 'companies'
-  | 'partners'
-  | 'feed'
-  | 'map'
-  | 'opportunities';
+export type SavedSearchScope = 'all' | 'companies' | 'partners' | 'feed' | 'map' | 'opportunities';
 
 export type SavedSearchFrequency = 'realtime' | 'daily' | 'weekly';
 

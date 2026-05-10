@@ -80,7 +80,7 @@ async function disableFeedMocks(page: Page): Promise<void> {
 
 async function installControllableFeedEventSource(
   page: Page,
-  initiallyConnected: boolean
+  initiallyConnected: boolean,
 ): Promise<void> {
   await page.addInitScript(
     ({ connected }: { connected: boolean }) => {
@@ -127,13 +127,13 @@ async function installControllableFeedEventSource(
 
       runtimeWindow.EventSource = ControlledEventSource as unknown as typeof EventSource;
     },
-    { connected: initiallyConnected }
+    { connected: initiallyConnected },
   );
 }
 
 function buildStatisticsResponse(
   summaries: readonly StatisticsSummaryRecord[],
-  scope: StatisticsScope
+  scope: StatisticsScope,
 ) {
   const unique = (values: readonly (string | null)[]) =>
     Array.from(new Set(values.filter((value): value is string => Boolean(value))));
@@ -256,7 +256,7 @@ test.describe('Quality breadth perceived performance', () => {
   }) => {
     const internationalReady = createDeferred();
     const internationalSummaries = statisticsSummaryRecords.filter(
-      (summary) => summary.scope === 'international'
+      (summary) => summary.scope === 'international',
     );
 
     await page.route('**/api/statistics**', async (route) => {
@@ -289,9 +289,9 @@ test.describe('Quality breadth perceived performance', () => {
     await expect(page.locator('[data-og7="statistics-summary-card"]').first()).toBeVisible();
     await expect(page.locator('[data-og7="statistics-loading"]')).toHaveCount(0);
     await expect(page.locator('[data-og7="statistics-error"]')).toHaveCount(0);
-    await expect(page.locator('[data-og7="statistics-summary-card"][data-og7-scope="international"]')).toHaveCount(
-      internationalSummaries.length
-    );
+    await expect(
+      page.locator('[data-og7="statistics-summary-card"][data-og7-scope="international"]'),
+    ).toHaveCount(internationalSummaries.length);
   });
 
   test('shows saved-search loading immediately and keeps creation state truthful across a retry cycle', async ({
@@ -340,11 +340,18 @@ test.describe('Quality breadth perceived performance', () => {
           name: typeof payload.name === 'string' ? payload.name : 'Saved search',
           scope: payload.scope === 'feed' ? 'feed' : 'all',
           filters:
-            payload.filters && typeof payload.filters === 'object' && !Array.isArray(payload.filters)
+            payload.filters &&
+            typeof payload.filters === 'object' &&
+            !Array.isArray(payload.filters)
               ? payload.filters
               : {},
           notifyEnabled: Boolean(payload.notifyEnabled),
-          frequency: payload.frequency === 'weekly' ? 'weekly' : payload.frequency === 'realtime' ? 'realtime' : 'daily',
+          frequency:
+            payload.frequency === 'weekly'
+              ? 'weekly'
+              : payload.frequency === 'realtime'
+                ? 'realtime'
+                : 'daily',
           lastRunAt: null,
           createdAt: '2026-04-07T09:00:00.000Z',
           updatedAt: '2026-04-07T09:00:00.000Z',
@@ -366,7 +373,7 @@ test.describe('Quality breadth perceived performance', () => {
 
     await expect(page.locator('[data-og7="saved-searches"]')).toBeVisible();
     await expect(page.locator('[data-og7="saved-search-list"]')).toContainText(
-      /Chargement de vos recherches sauvegardees|Chargement de vos recherches sauvegardées|Loading your saved searches/i
+      /Chargement de vos recherches sauvegardees|Chargement de vos recherches sauvegardées|Loading your saved searches/i,
     );
     await expect(page.locator('[data-og7="saved-search-item"]')).toHaveCount(0);
     await expect(page.locator('[data-og7-id="saved-search-error"]')).toHaveCount(0);

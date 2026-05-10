@@ -17,7 +17,9 @@
 
   <div class="og7-linkup-history__filters">
     <div class="og7-linkup-history__filters-group">
-      <span class="og7-linkup-history__filters-label">{{ 'pages.linkups.filters.status.label' | translate }}</span>
+      <span class="og7-linkup-history__filters-label">{{
+        'pages.linkups.filters.status.label' | translate
+      }}</span>
       <div class="og7-linkup-history__chip-set">
         <button
           type="button"
@@ -35,7 +37,9 @@
     </div>
 
     <div class="og7-linkup-history__filters-group">
-      <span class="og7-linkup-history__filters-label">{{ 'pages.linkups.filters.tradeMode.label' | translate }}</span>
+      <span class="og7-linkup-history__filters-label">{{
+        'pages.linkups.filters.tradeMode.label' | translate
+      }}</span>
       <div class="og7-linkup-history__chip-set">
         <button
           type="button"
@@ -71,7 +75,10 @@
     </button>
   </div>
 
-  <div class="og7-linkup-history__table-wrapper" *ngIf="!loading() && !errorKey() && filteredLinkups().length; else emptyState">
+  <div
+    class="og7-linkup-history__table-wrapper"
+    *ngIf="!loading() && !errorKey() && filteredLinkups().length; else emptyState"
+  >
     <table class="og7-linkup-history__table">
       <thead>
         <tr>
@@ -89,9 +96,15 @@
             <div class="og7-linkup-history__company">
               <span class="og7-linkup-history__company-name">{{ linkup.companyA.name }}</span>
               <span class="og7-linkup-history__company-meta">
-                <ng-container *ngIf="linkup.companyA.province">{{ linkup.companyA.province | translate }}</ng-container>
-                <ng-container *ngIf="linkup.companyA.province && linkup.companyA.sector"> · </ng-container>
-                <ng-container *ngIf="linkup.companyA.sector">{{ linkup.companyA.sector | translate }}</ng-container>
+                <ng-container *ngIf="linkup.companyA.province">{{
+                  linkup.companyA.province | translate
+                }}</ng-container>
+                <ng-container *ngIf="linkup.companyA.province && linkup.companyA.sector">
+                  ·
+                </ng-container>
+                <ng-container *ngIf="linkup.companyA.sector">{{
+                  linkup.companyA.sector | translate
+                }}</ng-container>
               </span>
             </div>
           </td>
@@ -99,14 +112,22 @@
             <div class="og7-linkup-history__company">
               <span class="og7-linkup-history__company-name">{{ linkup.companyB.name }}</span>
               <span class="og7-linkup-history__company-meta">
-                <ng-container *ngIf="linkup.companyB.province">{{ linkup.companyB.province | translate }}</ng-container>
-                <ng-container *ngIf="linkup.companyB.province && linkup.companyB.sector"> · </ng-container>
-                <ng-container *ngIf="linkup.companyB.sector">{{ linkup.companyB.sector | translate }}</ng-container>
+                <ng-container *ngIf="linkup.companyB.province">{{
+                  linkup.companyB.province | translate
+                }}</ng-container>
+                <ng-container *ngIf="linkup.companyB.province && linkup.companyB.sector">
+                  ·
+                </ng-container>
+                <ng-container *ngIf="linkup.companyB.sector">{{
+                  linkup.companyB.sector | translate
+                }}</ng-container>
               </span>
             </div>
           </td>
           <td>
-            <span class="og7-linkup-history__sector">{{ (linkup.primarySector ?? '-') | translate }}</span>
+            <span class="og7-linkup-history__sector">{{
+              linkup.primarySector ?? '-' | translate
+            }}</span>
           </td>
           <td>
             <span class="og7-linkup-history__date">{{ linkup.createdAt | date: 'd MMM y' }}</span>

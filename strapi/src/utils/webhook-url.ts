@@ -106,11 +106,7 @@ function stripIpv6Brackets(value: string): string {
 }
 
 function isLocalHostname(hostname: string): boolean {
-  return (
-    hostname === 'localhost' ||
-    hostname.endsWith('.localhost') ||
-    hostname.endsWith('.local')
-  );
+  return hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local');
 }
 
 function isPrivateIpv4(ip: string): boolean {
@@ -221,10 +217,10 @@ function invalidResult(code: WebhookValidationCode, message: string): WebhookVal
 }
 
 export function readWebhookSecurityConfig(
-  env: NodeJS.ProcessEnv = process.env
+  env: NodeJS.ProcessEnv = process.env,
 ): WebhookSecurityConfig {
   const allowedHosts = parseAllowedHosts(
-    env.WEBHOOK_ALLOWED_HOSTS ?? env.NOTIFICATION_WEBHOOK_ALLOWED_HOSTS
+    env.WEBHOOK_ALLOWED_HOSTS ?? env.NOTIFICATION_WEBHOOK_ALLOWED_HOSTS,
   );
 
   return {
@@ -237,7 +233,7 @@ export function readWebhookSecurityConfig(
 
 export function validateWebhookUrl(
   value: string | null | undefined,
-  config: WebhookSecurityConfig = readWebhookSecurityConfig()
+  config: WebhookSecurityConfig = readWebhookSecurityConfig(),
 ): WebhookValidationResult {
   if (typeof value !== 'string' || value.trim().length === 0) {
     return invalidResult('empty_url', 'must be provided.');
@@ -258,10 +254,7 @@ export function validateWebhookUrl(
   }
 
   if (parsed.username || parsed.password) {
-    return invalidResult(
-      'credentials_not_allowed',
-      'must not include embedded credentials.'
-    );
+    return invalidResult('credentials_not_allowed', 'must not include embedded credentials.');
   }
 
   const hostname = normalizeHostname(parsed.hostname);
@@ -276,15 +269,12 @@ export function validateWebhookUrl(
   if (!config.allowPrivateNetworks && isPrivateNetworkHost(hostname)) {
     return invalidResult(
       'private_network_not_allowed',
-      'private or loopback network targets are not allowed.'
+      'private or loopback network targets are not allowed.',
     );
   }
 
   if (!isAllowedHostname(hostname, config.allowedHosts)) {
-    return invalidResult(
-      'host_not_allowed',
-      'hostname is not in the configured allowlist.'
-    );
+    return invalidResult('host_not_allowed', 'hostname is not in the configured allowlist.');
   }
 
   return {

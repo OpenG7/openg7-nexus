@@ -6,14 +6,16 @@
 >
   <header class="opportunity-radar__header">
     <div class="opportunity-radar__headline">
-      <p class="opportunity-radar__eyebrow">{{ 'opportunities.timeline.prototypeLabel' | translate }}</p>
+      <p class="opportunity-radar__eyebrow">
+        {{ 'opportunities.timeline.prototypeLabel' | translate }}
+      </p>
       <h3 class="opportunity-radar__title" [id]="titleId()">{{ vm().title }}</h3>
     </div>
     <div
       class="opportunity-radar__score"
       role="img"
       [id]="scoreId()"
-      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate:{ value: scoreLabel() }"
+      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate: { value: scoreLabel() }"
     >
       <svg viewBox="0 0 72 72" class="opportunity-radar__score-chart" aria-hidden="true">
         <defs>
@@ -48,7 +50,9 @@
   <section class="opportunity-radar__layout">
     <div class="opportunity-radar__actors">
       <div class="opportunity-radar__actor">
-        <p class="opportunity-radar__actor-label">{{ 'opportunities.timeline.buyer' | translate }}</p>
+        <p class="opportunity-radar__actor-label">
+          {{ 'opportunities.timeline.buyer' | translate }}
+        </p>
         <div class="opportunity-radar__actor-body">
           @if (vm().buyer.logoUrl) {
             <img
@@ -62,21 +66,31 @@
           <div class="opportunity-radar__actor-content">
             <p class="opportunity-radar__actor-name">{{ vm().buyer.name }}</p>
             <div class="opportunity-radar__chips" role="list">
-              <span class="opportunity-radar__chip" role="listitem">{{ vm().buyer.provinceLabelKey | translate }}</span>
-              <span class="opportunity-radar__chip" role="listitem">{{ vm().buyer.sectorLabelKey | translate }}</span>
+              <span class="opportunity-radar__chip" role="listitem">{{
+                vm().buyer.provinceLabelKey | translate
+              }}</span>
+              <span class="opportunity-radar__chip" role="listitem">{{
+                vm().buyer.sectorLabelKey | translate
+              }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="opportunity-radar__actor opportunity-radar__actor--supplier">
-        <p class="opportunity-radar__actor-label">{{ 'opportunities.timeline.supplier' | translate }}</p>
+        <p class="opportunity-radar__actor-label">
+          {{ 'opportunities.timeline.supplier' | translate }}
+        </p>
         <div class="opportunity-radar__actor-body">
           <div class="opportunity-radar__actor-content">
             <p class="opportunity-radar__actor-name">{{ vm().supplier.name }}</p>
             <div class="opportunity-radar__chips" role="list">
-              <span class="opportunity-radar__chip" role="listitem">{{ vm().supplier.provinceLabelKey | translate }}</span>
-              <span class="opportunity-radar__chip" role="listitem">{{ vm().supplier.sectorLabelKey | translate }}</span>
+              <span class="opportunity-radar__chip" role="listitem">{{
+                vm().supplier.provinceLabelKey | translate
+              }}</span>
+              <span class="opportunity-radar__chip" role="listitem">{{
+                vm().supplier.sectorLabelKey | translate
+              }}</span>
             </div>
           </div>
           @if (vm().supplier.logoUrl) {
@@ -112,17 +126,33 @@
         </g>
         <g class="opportunity-radar__axes">
           @for (axis of axisGeometry(); track axis.id) {
-            <line class="opportunity-radar__axis-line" x1="60" y1="60" [attr.x2]="axis.line.x2" [attr.y2]="axis.line.y2"></line>
-            <circle class="opportunity-radar__axis-node" [attr.cx]="axis.point.x" [attr.cy]="axis.point.y" r="3"></circle>
+            <line
+              class="opportunity-radar__axis-line"
+              x1="60"
+              y1="60"
+              [attr.x2]="axis.line.x2"
+              [attr.y2]="axis.line.y2"
+            ></line>
+            <circle
+              class="opportunity-radar__axis-node"
+              [attr.cx]="axis.point.x"
+              [attr.cy]="axis.point.y"
+              r="3"
+            ></circle>
           }
         </g>
         <polygon class="opportunity-radar__shape" [attr.points]="polygonPoints()"></polygon>
       </svg>
-      <figcaption class="visually-hidden">{{ 'opportunities.radar.legendHint' | translate }}</figcaption>
+      <figcaption class="visually-hidden">
+        {{ 'opportunities.radar.legendHint' | translate }}
+      </figcaption>
     </figure>
   </section>
 
-  <section class="opportunity-radar__metrics" [attr.aria-label]="'opportunities.radar.metricsLabel' | translate">
+  <section
+    class="opportunity-radar__metrics"
+    [attr.aria-label]="'opportunities.radar.metricsLabel' | translate"
+  >
     <dl class="opportunity-radar__metrics-list">
       @for (axis of axisGeometry(); track axis.id) {
         <div class="opportunity-radar__metric" [attr.data-axis-id]="axis.id">

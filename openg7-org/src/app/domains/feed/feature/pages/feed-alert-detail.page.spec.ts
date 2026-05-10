@@ -40,9 +40,7 @@ class StoreMock {
     { id: 'on', name: 'Ontario' },
     { id: 'qc', name: 'Quebec' },
   ]);
-  private readonly sectorsSig = signal([
-    { id: 'energy', name: 'Energy' },
-  ]);
+  private readonly sectorsSig = signal([{ id: 'energy', name: 'Energy' }]);
 
   readonly selectSignal = jasmine
     .createSpy('selectSignal')
@@ -70,12 +68,14 @@ class UserAlertsServiceMock {
 
   readonly entries = this.entriesSig.asReadonly();
   readonly refresh = jasmine.createSpy('refresh');
-  readonly create = jasmine.createSpy('create').and.callFake(async (_payload: Record<string, unknown>) => {
-    if (this.createResult.status === 'created' && this.createResult.entry) {
-      this.entriesSig.update((current) => [this.createResult.entry!, ...current]);
-    }
-    return this.createResult;
-  });
+  readonly create = jasmine
+    .createSpy('create')
+    .and.callFake(async (_payload: Record<string, unknown>) => {
+      if (this.createResult.status === 'created' && this.createResult.entry) {
+        this.entriesSig.update((current) => [this.createResult.entry!, ...current]);
+      }
+      return this.createResult;
+    });
 
   createResult: {
     status: 'created' | 'duplicate' | 'pending' | 'unauthenticated' | 'invalid' | 'error';
@@ -93,11 +93,14 @@ class UserAlertsServiceMock {
 
   hasSource(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
     return this.entriesSig().some(
-      (entry) => entry.sourceType === sourceType && entry.sourceId === sourceId
+      (entry) => entry.sourceType === sourceType && entry.sourceId === sourceId,
     );
   }
 
-  isSourcePending(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+  isSourcePending(
+    sourceType: string | null | undefined,
+    sourceId: string | null | undefined,
+  ): boolean {
     return Boolean(this.pendingBySourceSig()[`${sourceType ?? ''}::${sourceId ?? ''}`]);
   }
 
@@ -191,149 +194,157 @@ function buildSubscriptionAlertRecord(alertId: string): UserAlertRecord {
 }
 
 function seedAlertDetailTranslations(translate: TranslateService): void {
-  translate.setTranslation('en', {
-    feed: {
-      sourceUnknown: 'Unknown source',
-      alert: {
-        detail: {
-          ontario: 'Ontario',
-          unknownSector: 'Unspecified sector',
-          routeUnknown: 'Interprovincial corridor',
-          justNow: 'just now',
-          minutesAgo: '{{ count }} min ago',
-          hoursAgo: '{{ count }} h ago',
-          severity: {
-            low: 'Low EN',
-            medium: 'Medium EN',
-            high: 'High EN',
-          },
-          confidence: {
-            possible: 'Possible EN',
-            probable: 'Probable EN',
-            high: 'High confidence EN',
-          },
-          windows: {
-            short: '12-36h EN',
-            medium: '24-48h EN',
-            long: '48-72h EN',
-          },
-          summaryPointSource: 'Reported by {{ source }}.',
-          summaryPointRoute: 'Relevant route: {{ route }}.',
-          summaryPointTags: 'Signals: {{ tags }}.',
-          impactSeverity: 'Estimated severity: {{ severity }}.',
-          impactConfidence: 'Confidence level: {{ confidence }}.',
-          impactWindow: 'Monitoring window: {{ window }}.',
-          infrastructureSector: 'Relevant operating scope: {{ sector }}.',
-          infrastructureSource: 'Primary reporting source: {{ source }}.',
-          indicatorSeverity: 'Severity',
-          indicatorConfidence: 'Confidence',
-          indicatorRecency: 'Recency',
-          updateReportedBy: 'Initial report published by {{ source }}.',
-          recoVerifySource: 'Confirm the latest advisory from {{ source }} before acting.',
-          recoTrackUpdates: 'Subscribe to track new updates and queue changes.',
-          recoAssessRoute: 'Review internal exposure on {{ route }}.',
-          relatedIndicatorsEmpty: 'No indicators yet.',
-          relatedAlertsEmpty: 'No alerts yet.',
-          relatedOpportunitiesEmpty: 'No opportunities yet.',
-          shareCopied: 'Copied EN',
-          shareUnavailable: 'Share unavailable EN',
-          errorTitle: 'Unavailable EN',
-          errorBody: 'Retry EN',
-          retry: 'Retry EN',
-          subscription: {
-            status: {
-              success: 'Subscription saved EN',
-              duplicate: 'Already subscribed EN',
-              pending: 'Pending subscription EN',
-              invalid: 'Invalid subscription EN',
-              errorGeneric: 'Subscription failed EN',
+  translate.setTranslation(
+    'en',
+    {
+      feed: {
+        sourceUnknown: 'Unknown source',
+        alert: {
+          detail: {
+            ontario: 'Ontario',
+            unknownSector: 'Unspecified sector',
+            routeUnknown: 'Interprovincial corridor',
+            justNow: 'just now',
+            minutesAgo: '{{ count }} min ago',
+            hoursAgo: '{{ count }} h ago',
+            severity: {
+              low: 'Low EN',
+              medium: 'Medium EN',
+              high: 'High EN',
             },
-          },
-          timeline: {
-            reported: 'Reported',
-            confirmed: 'Last confirmed',
-            monitoring: 'Monitoring',
-            monitoringValue: 'Active monitoring over {{ window }}',
+            confidence: {
+              possible: 'Possible EN',
+              probable: 'Probable EN',
+              high: 'High confidence EN',
+            },
+            windows: {
+              short: '12-36h EN',
+              medium: '24-48h EN',
+              long: '48-72h EN',
+            },
+            summaryPointSource: 'Reported by {{ source }}.',
+            summaryPointRoute: 'Relevant route: {{ route }}.',
+            summaryPointTags: 'Signals: {{ tags }}.',
+            impactSeverity: 'Estimated severity: {{ severity }}.',
+            impactConfidence: 'Confidence level: {{ confidence }}.',
+            impactWindow: 'Monitoring window: {{ window }}.',
+            infrastructureSector: 'Relevant operating scope: {{ sector }}.',
+            infrastructureSource: 'Primary reporting source: {{ source }}.',
+            indicatorSeverity: 'Severity',
+            indicatorConfidence: 'Confidence',
+            indicatorRecency: 'Recency',
+            updateReportedBy: 'Initial report published by {{ source }}.',
+            recoVerifySource: 'Confirm the latest advisory from {{ source }} before acting.',
+            recoTrackUpdates: 'Subscribe to track new updates and queue changes.',
+            recoAssessRoute: 'Review internal exposure on {{ route }}.',
+            relatedIndicatorsEmpty: 'No indicators yet.',
+            relatedAlertsEmpty: 'No alerts yet.',
+            relatedOpportunitiesEmpty: 'No opportunities yet.',
+            shareCopied: 'Copied EN',
+            shareUnavailable: 'Share unavailable EN',
+            errorTitle: 'Unavailable EN',
+            errorBody: 'Retry EN',
+            retry: 'Retry EN',
+            subscription: {
+              status: {
+                success: 'Subscription saved EN',
+                duplicate: 'Already subscribed EN',
+                pending: 'Pending subscription EN',
+                invalid: 'Invalid subscription EN',
+                errorGeneric: 'Subscription failed EN',
+              },
+            },
+            timeline: {
+              reported: 'Reported',
+              confirmed: 'Last confirmed',
+              monitoring: 'Monitoring',
+              monitoringValue: 'Active monitoring over {{ window }}',
+            },
           },
         },
       },
+      sectors: {
+        energy: 'Energy',
+      },
     },
-    sectors: {
-      energy: 'Energy',
-    },
-  }, true);
+    true,
+  );
 
-  translate.setTranslation('fr', {
-    feed: {
-      sourceUnknown: 'Source inconnue',
-      alert: {
-        detail: {
-          ontario: 'Ontario',
-          unknownSector: 'Secteur non precise',
-          routeUnknown: 'Corridor interprovincial',
-          justNow: 'a l instant',
-          minutesAgo: 'il y a {{ count }} min',
-          hoursAgo: 'il y a {{ count }} h',
-          severity: {
-            low: 'Faible FR',
-            medium: 'Moyenne FR',
-            high: 'Elevee FR',
-          },
-          confidence: {
-            possible: 'Possible FR',
-            probable: 'Probable FR',
-            high: 'Forte confiance FR',
-          },
-          windows: {
-            short: '12-36h FR',
-            medium: '24-48h FR',
-            long: '48-72h FR',
-          },
-          summaryPointSource: 'Signalement publie par {{ source }}.',
-          summaryPointRoute: 'Trajet concerne : {{ route }}.',
-          summaryPointTags: 'Signaux : {{ tags }}.',
-          impactSeverity: 'Severite estimee : {{ severity }}.',
-          impactConfidence: 'Niveau de confiance : {{ confidence }}.',
-          impactWindow: 'Fenetre de suivi : {{ window }}.',
-          infrastructureSector: 'Perimetre operationnel concerne : {{ sector }}.',
-          infrastructureSource: 'Source principale de signalement : {{ source }}.',
-          indicatorSeverity: 'Severite',
-          indicatorConfidence: 'Confiance',
-          indicatorRecency: 'Recence',
-          updateReportedBy: 'Signalement initial publie par {{ source }}.',
-          recoVerifySource: 'Verifier le dernier avis de {{ source }} avant d agir.',
-          recoTrackUpdates: 'S abonner pour suivre les mises a jour et changements en file.',
-          recoAssessRoute: 'Evaluer l exposition interne sur {{ route }}.',
-          relatedIndicatorsEmpty: 'Aucun indicateur.',
-          relatedAlertsEmpty: 'Aucune alerte.',
-          relatedOpportunitiesEmpty: 'Aucune opportunite.',
-          shareCopied: 'Copie FR',
-          shareUnavailable: 'Partage indisponible FR',
-          errorTitle: 'Indisponible FR',
-          errorBody: 'Reessayez FR',
-          retry: 'Reessayer FR',
-          subscription: {
-            status: {
-              success: 'Abonnement enregistre FR',
-              duplicate: 'Deja abonne FR',
-              pending: 'Abonnement en attente FR',
-              invalid: 'Abonnement invalide FR',
-              errorGeneric: 'Erreur abonnement FR',
+  translate.setTranslation(
+    'fr',
+    {
+      feed: {
+        sourceUnknown: 'Source inconnue',
+        alert: {
+          detail: {
+            ontario: 'Ontario',
+            unknownSector: 'Secteur non precise',
+            routeUnknown: 'Corridor interprovincial',
+            justNow: 'a l instant',
+            minutesAgo: 'il y a {{ count }} min',
+            hoursAgo: 'il y a {{ count }} h',
+            severity: {
+              low: 'Faible FR',
+              medium: 'Moyenne FR',
+              high: 'Elevee FR',
             },
-          },
-          timeline: {
-            reported: 'Signalee',
-            confirmed: 'Derniere confirmation',
-            monitoring: 'Suivi',
-            monitoringValue: 'Surveillance active sur {{ window }}',
+            confidence: {
+              possible: 'Possible FR',
+              probable: 'Probable FR',
+              high: 'Forte confiance FR',
+            },
+            windows: {
+              short: '12-36h FR',
+              medium: '24-48h FR',
+              long: '48-72h FR',
+            },
+            summaryPointSource: 'Signalement publie par {{ source }}.',
+            summaryPointRoute: 'Trajet concerne : {{ route }}.',
+            summaryPointTags: 'Signaux : {{ tags }}.',
+            impactSeverity: 'Severite estimee : {{ severity }}.',
+            impactConfidence: 'Niveau de confiance : {{ confidence }}.',
+            impactWindow: 'Fenetre de suivi : {{ window }}.',
+            infrastructureSector: 'Perimetre operationnel concerne : {{ sector }}.',
+            infrastructureSource: 'Source principale de signalement : {{ source }}.',
+            indicatorSeverity: 'Severite',
+            indicatorConfidence: 'Confiance',
+            indicatorRecency: 'Recence',
+            updateReportedBy: 'Signalement initial publie par {{ source }}.',
+            recoVerifySource: 'Verifier le dernier avis de {{ source }} avant d agir.',
+            recoTrackUpdates: 'S abonner pour suivre les mises a jour et changements en file.',
+            recoAssessRoute: 'Evaluer l exposition interne sur {{ route }}.',
+            relatedIndicatorsEmpty: 'Aucun indicateur.',
+            relatedAlertsEmpty: 'Aucune alerte.',
+            relatedOpportunitiesEmpty: 'Aucune opportunite.',
+            shareCopied: 'Copie FR',
+            shareUnavailable: 'Partage indisponible FR',
+            errorTitle: 'Indisponible FR',
+            errorBody: 'Reessayez FR',
+            retry: 'Reessayer FR',
+            subscription: {
+              status: {
+                success: 'Abonnement enregistre FR',
+                duplicate: 'Deja abonne FR',
+                pending: 'Abonnement en attente FR',
+                invalid: 'Abonnement invalide FR',
+                errorGeneric: 'Erreur abonnement FR',
+              },
+            },
+            timeline: {
+              reported: 'Signalee',
+              confirmed: 'Derniere confirmation',
+              monitoring: 'Suivi',
+              monitoringValue: 'Surveillance active sur {{ window }}',
+            },
           },
         },
       },
+      sectors: {
+        energy: 'Energie',
+      },
     },
-    sectors: {
-      energy: 'Energie',
-    },
-  }, true);
+    true,
+  );
 }
 
 describe('FeedAlertDetailPage', () => {
@@ -370,7 +381,9 @@ describe('FeedAlertDetailPage', () => {
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'alert-001' }));
     const routeStub: Pick<ActivatedRoute, 'paramMap' | 'snapshot'> = {
       paramMap: routeParamMap$.asObservable(),
-      snapshot: { paramMap: convertToParamMap({ itemId: 'alert-001' }) } as ActivatedRoute['snapshot'],
+      snapshot: {
+        paramMap: convertToParamMap({ itemId: 'alert-001' }),
+      } as ActivatedRoute['snapshot'],
     };
 
     const item = createAlertItem('alert-001');
@@ -430,7 +443,7 @@ describe('FeedAlertDetailPage', () => {
         metadata: jasmine.objectContaining({
           route: '/feed/alerts/alert-001',
         }),
-      })
+      }),
     );
     expect(notifications.success).toHaveBeenCalled();
   });
@@ -577,7 +590,11 @@ describe('FeedAlertDetailPage', () => {
       reportDrawerOpen: () => boolean;
       subscribed: () => boolean;
       reportUpdate: () => void;
-      handleReportSubmitted: (payload: { reason: 'correction'; summary: string; sourceUrl: string | null }) => void;
+      handleReportSubmitted: (payload: {
+        reason: 'correction';
+        summary: string;
+        sourceUrl: string | null;
+      }) => void;
       reportSubmitState: () => 'idle' | 'submitting' | 'success' | 'error';
     };
 
@@ -613,7 +630,11 @@ describe('FeedAlertDetailPage', () => {
     await fixture.whenStable();
 
     const component = fixture.componentInstance as unknown as {
-      handleReportSubmitted: (payload: { reason: 'correction'; summary: string; sourceUrl: string | null }) => void;
+      handleReportSubmitted: (payload: {
+        reason: 'correction';
+        summary: string;
+        sourceUrl: string | null;
+      }) => void;
     };
 
     const payload = {
@@ -660,9 +681,11 @@ describe('FeedAlertDetailPage', () => {
       jasmine.objectContaining({
         label: 'Hydro Ottawa',
         href: 'https://hydroottawa.com/advisories',
-      })
+      }),
     );
-    expect(component.detailVm()?.summaryPoints[0]).toContain('Line crews are monitoring icing on east corridors');
+    expect(component.detailVm()?.summaryPoints[0]).toContain(
+      'Line crews are monitoring icing on east corridors',
+    );
   });
 
   it('recomputes localized labels when the active language changes', async () => {
@@ -705,7 +728,7 @@ describe('FeedAlertDetailPage', () => {
         fromProvinceId: 'qc',
         toProvinceId: 'on',
         mode: 'IMPORT',
-      })
+      }),
     );
     expect(callArgs[1]?.queryParams).toEqual(
       jasmine.objectContaining({
@@ -719,7 +742,7 @@ describe('FeedAlertDetailPage', () => {
         draftFromProvinceId: 'qc',
         draftToProvinceId: 'on',
         draftConnectionMatchId: '73',
-      })
+      }),
     );
     expect(notifications.success).not.toHaveBeenCalled();
   });
@@ -769,7 +792,7 @@ describe('FeedAlertDetailPage', () => {
           action: 'create-linked-opportunity',
           itemId: 'alert-001',
         }),
-      })
+      }),
     );
   });
 
@@ -864,11 +887,11 @@ describe('FeedAlertDetailPage', () => {
       } | null;
     };
 
-    expect(component.detailVm()?.relatedAlerts.map(entry => entry.id)).toEqual([
+    expect(component.detailVm()?.relatedAlerts.map((entry) => entry.id)).toEqual([
       'alert-related-1',
       'alert-related-2',
     ]);
-    expect(component.detailVm()?.relatedOpportunities.map(entry => entry.id)).toEqual([
+    expect(component.detailVm()?.relatedOpportunities.map((entry) => entry.id)).toEqual([
       'opportunity-direct',
       'opportunity-context',
     ]);
@@ -919,7 +942,7 @@ describe('FeedAlertDetailPage', () => {
     feed.items.set([createAlertItem('alert-retry', { title: 'Stale alert in collection' })]);
     feed.findItemById.and.returnValues(
       Promise.reject(new HttpErrorResponse({ status: 503, statusText: 'Service Unavailable' })),
-      Promise.resolve(item)
+      Promise.resolve(item),
     );
     routeParamMap$.next(convertToParamMap({ itemId: 'alert-retry' }));
 

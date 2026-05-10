@@ -104,7 +104,7 @@ describe('IndicatorAlertRulesService', () => {
 });
 
 function createPayload(
-  patch: Partial<CreateIndicatorAlertRulePayload> = {}
+  patch: Partial<CreateIndicatorAlertRulePayload> = {},
 ): CreateIndicatorAlertRulePayload {
   return {
     indicatorId: 'indicator-spot-ontario',

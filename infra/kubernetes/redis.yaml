@@ -43,7 +43,8 @@ spec:
                 secretKeyRef:
                   name: openg7-redis-secret
                   key: password
-          command: ["/bin/sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\" --appendonly yes"]
+          command:
+            ['/bin/sh', '-c', 'redis-server --requirepass "$REDIS_PASSWORD" --appendonly yes']
           resources:
             requests:
               cpu: 100m
@@ -61,7 +62,7 @@ spec:
             periodSeconds: 5
           readinessProbe:
             exec:
-              command: ["redis-cli", "-a", "$(REDIS_PASSWORD)", "PING"]
+              command: ['redis-cli', '-a', '$(REDIS_PASSWORD)', 'PING']
             initialDelaySeconds: 5
             periodSeconds: 5
       securityContext:
@@ -70,7 +71,7 @@ spec:
     - metadata:
         name: redis-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: ['ReadWriteOnce']
         resources:
           requests:
             storage: 1Gi

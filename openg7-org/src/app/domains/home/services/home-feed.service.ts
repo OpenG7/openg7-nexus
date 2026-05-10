@@ -87,7 +87,9 @@ export class HomeFeedService {
     }
   }
 
-  private normalizeResponse(response: HomeFeedResponse | FeedItem[] | null | undefined): FeedItem[] {
+  private normalizeResponse(
+    response: HomeFeedResponse | FeedItem[] | null | undefined,
+  ): FeedItem[] {
     if (!response) {
       return [];
     }

@@ -5,7 +5,7 @@ import {
 } from '@openg7/admin-quality';
 
 function buildRecommendation(
-  overrides: Partial<AdminQualityMissionRecommendation> = {}
+  overrides: Partial<AdminQualityMissionRecommendation> = {},
 ): AdminQualityMissionRecommendation {
   return {
     id: 'advanced-discovery::core',
@@ -32,7 +32,12 @@ describe('admin-quality-mission-actions', () => {
     const actions = missionActionDescriptors('proposed');
 
     expect(actions).toEqual([
-      { action: 'approve', label: 'Valider mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
+      {
+        action: 'approve',
+        label: 'Valider mission',
+        tone: 'primary',
+        hookId: 'admin-quality-approve-mission',
+      },
       { action: 'auto-delegate', label: 'Deleguer', tone: 'secondary' },
       { action: 'defer', label: 'Differer', tone: 'neutral' },
     ]);
@@ -49,7 +54,10 @@ describe('admin-quality-mission-actions', () => {
   });
 
   it('resolves auto-delegate from proposed to in-progress', () => {
-    const resolution = resolveMissionAction('auto-delegate', buildRecommendation({ status: 'proposed' }));
+    const resolution = resolveMissionAction(
+      'auto-delegate',
+      buildRecommendation({ status: 'proposed' }),
+    );
 
     expect(resolution).toEqual({
       kind: 'status',
@@ -59,7 +67,10 @@ describe('admin-quality-mission-actions', () => {
   });
 
   it('resolves auto-delegate from blocked back to approved', () => {
-    const resolution = resolveMissionAction('auto-delegate', buildRecommendation({ status: 'blocked' }));
+    const resolution = resolveMissionAction(
+      'auto-delegate',
+      buildRecommendation({ status: 'blocked' }),
+    );
 
     expect(resolution).toEqual({
       kind: 'status',
@@ -69,7 +80,10 @@ describe('admin-quality-mission-actions', () => {
   });
 
   it('returns null when auto-delegate is not valid for the current status', () => {
-    const resolution = resolveMissionAction('auto-delegate', buildRecommendation({ status: 'in-progress' }));
+    const resolution = resolveMissionAction(
+      'auto-delegate',
+      buildRecommendation({ status: 'in-progress' }),
+    );
 
     expect(resolution).toBeNull();
   });
@@ -85,7 +99,10 @@ describe('admin-quality-mission-actions', () => {
 
   it('resolves approval and completion transitions with the expected messages', () => {
     const approveResolution = resolveMissionAction('approve', buildRecommendation());
-    const completeResolution = resolveMissionAction('complete', buildRecommendation({ status: 'proof-returned' }));
+    const completeResolution = resolveMissionAction(
+      'complete',
+      buildRecommendation({ status: 'proof-returned' }),
+    );
 
     expect(approveResolution).toEqual({
       kind: 'status',

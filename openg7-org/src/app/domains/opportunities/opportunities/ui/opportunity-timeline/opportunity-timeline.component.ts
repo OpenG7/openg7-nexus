@@ -99,8 +99,11 @@ export class OpportunityTimelineComponent {
 
   readonly scoreLabel = computed(() => `${this.vm().score}%`);
 
-  readonly distanceLabel = computed(() =>
-    new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(this.vm().context.distanceKm) + ' km',
+  readonly distanceLabel = computed(
+    () =>
+      new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
+        this.vm().context.distanceKm,
+      ) + ' km',
   );
 
   readonly co2Label = computed(() => {

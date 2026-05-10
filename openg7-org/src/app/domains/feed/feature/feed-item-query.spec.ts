@@ -8,7 +8,6 @@ import {
 } from './feed-item-query';
 import { FeedFilterState, FeedItem } from './models/feed.models';
 
-
 function createFeedItem(id: string, overrides: Partial<FeedItem> = {}): FeedItem {
   return {
     id,
@@ -128,7 +127,7 @@ describe('feed-item-query', () => {
       queryFeedItems([govItem, partnerItem, companyItem], {
         sourceKinds: ['GOV', 'PARTNER'],
         sort: 'NEWEST',
-      }).map((item) => item.id)
+      }).map((item) => item.id),
     ).toEqual(['partner-item', 'gov-item']);
 
     expect(
@@ -136,7 +135,7 @@ describe('feed-item-query', () => {
         excludedSourceKinds: ['GOV'],
         tagSet: FEED_LABOR_TAGS,
         sort: 'NEWEST',
-      }).map((item) => item.id)
+      }).map((item) => item.id),
     ).toEqual(['company-item']);
 
     expect(matchesFeedItemQuery(partnerItem, { tagSet: FEED_TRANSPORT_TAGS })).toBeTrue();
@@ -199,7 +198,7 @@ describe('feed-item-query', () => {
     });
 
     const ordered = [lowUrgency, highUrgencyOlder, highUrgencyNewer].sort((left, right) =>
-      compareFeedItems(left, right, 'URGENCY')
+      compareFeedItems(left, right, 'URGENCY'),
     );
 
     expect(ordered.map((item) => item.id)).toEqual(['high-new', 'high-old', 'low']);

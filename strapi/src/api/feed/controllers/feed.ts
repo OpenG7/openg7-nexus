@@ -357,8 +357,8 @@ function sanitizeMetadataValue(value: unknown, depth = 0): unknown {
   if (Array.isArray(value)) {
     const normalized = value
       .slice(0, 50)
-      .map(entry => sanitizeMetadataValue(entry, depth + 1))
-      .filter(entry => entry !== undefined);
+      .map((entry) => sanitizeMetadataValue(entry, depth + 1))
+      .filter((entry) => entry !== undefined);
     return normalized.length ? normalized : undefined;
   }
   if (typeof value !== 'object') {
@@ -444,7 +444,13 @@ function collectMetadataSearchTokens(value: unknown, tokens: string[] = [], dept
 }
 
 function buildMetadataSearchText(value: unknown): string | null {
-  const tokens = Array.from(new Set(collectMetadataSearchTokens(value).map(token => token.trim()).filter(Boolean)));
+  const tokens = Array.from(
+    new Set(
+      collectMetadataSearchTokens(value)
+        .map((token) => token.trim())
+        .filter(Boolean),
+    ),
+  );
   return tokens.length ? tokens.join(' ').slice(0, 5000) : null;
 }
 
@@ -606,9 +612,10 @@ function mapFeedEntity(entity: Record<string, unknown>): FeedResponseItem {
 
 function sanitizeCreatePayload(input: unknown): FeedCreatePayload {
   const raw = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
-  const source = raw.data && typeof raw.data === 'object' && !Array.isArray(raw.data)
-    ? (raw.data as Record<string, unknown>)
-    : raw;
+  const source =
+    raw.data && typeof raw.data === 'object' && !Array.isArray(raw.data)
+      ? (raw.data as Record<string, unknown>)
+      : raw;
 
   const type = normalizeFeedType(source.type);
   if (!type) {
@@ -969,7 +976,7 @@ function matchesHighlightsFilter(
   item: FeedResponseItem,
   filter: HomeFeedFilter,
   type: FeedType | null,
-  tag: string | null
+  tag: string | null,
 ): boolean {
   if (type && item.type !== type) {
     return false;
@@ -1041,7 +1048,7 @@ function normalizeIdempotencyKey(ctx: Record<string, unknown>): string | null {
 
 async function resolveCurrentUser(
   strapi: Core.Strapi,
-  ctx: Record<string, unknown>
+  ctx: Record<string, unknown>,
 ): Promise<AuthenticatedUser | null> {
   const state = (ctx.state ?? {}) as Record<string, unknown>;
   const currentUser = (state.user ?? null) as AuthenticatedUser | null;
@@ -1127,15 +1134,14 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         filters: createFilters(parsed),
         sort: buildSort(parsed.sort),
         limit: parsed.limit + 1,
-      })
+      }),
     );
 
     const hasMore = entities.length > parsed.limit;
     const pageEntities = hasMore ? entities.slice(0, parsed.limit) : entities;
     const items = pageEntities.map((entity) => mapFeedEntity(entity as Record<string, unknown>));
-    const nextCursor = hasMore && items.length > 0
-      ? encodeCursor(parsed.sort, items[items.length - 1])
-      : null;
+    const nextCursor =
+      hasMore && items.length > 0 ? encodeCursor(parsed.sort, items[items.length - 1]) : null;
 
     (ctx as any).body = {
       data: items,
@@ -1167,7 +1173,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           status: 'confirmed',
         },
         limit: 1,
-      })
+      }),
     )[0] as Record<string, unknown> | undefined;
 
     if (!entity) {
@@ -1187,7 +1193,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const parsed = parseHighlightsQuery(query);
     const poolLimit = Math.min(
       MAX_HIGHLIGHTS_POOL_LIMIT,
-      Math.max(parsed.limit * 8, DEFAULT_HIGHLIGHTS_POOL_LIMIT)
+      Math.max(parsed.limit * 8, DEFAULT_HIGHLIGHTS_POOL_LIMIT),
     );
 
     const entities = normalizeFindManyResult(
@@ -1195,7 +1201,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         filters: createHighlightsBaseFilters(parsed),
         sort: ['createdAt:desc', 'id:desc'],
         limit: poolLimit,
-      })
+      }),
     );
 
     const items = entities
@@ -1204,7 +1210,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         (item) =>
           matchesHighlightsScope(item, parsed.scope) &&
           matchesHighlightsFilter(item, parsed.filter, parsed.type, parsed.tag) &&
-          matchesHighlightsSearch(item, parsed.search)
+          matchesHighlightsSearch(item, parsed.search),
       )
       .sort(compareByNewestThenId)
       .slice(0, parsed.limit);
@@ -1255,7 +1261,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           },
           sort: ['createdAt:desc'],
           limit: 1,
-        })
+        }),
       )[0] as Record<string, unknown> | undefined;
 
       if (existing) {

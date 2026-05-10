@@ -5,7 +5,7 @@ import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
 import { mockProfileAndFavoritesApis } from './helpers/domain-mocks';
 
 async function enableMockFeed(page: Page): Promise<void> {
-  await page.route('**/runtime-config.js', async route => {
+  await page.route('**/runtime-config.js', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/javascript',
@@ -25,10 +25,12 @@ async function expectNonEmptyText(locator: Locator): Promise<void> {
 }
 
 test.describe('Quality breadth screenreader status', () => {
-  test('announces feed load failures through alert surfaces while preserving a live status region', async ({ page }) => {
+  test('announces feed load failures through alert surfaces while preserving a live status region', async ({
+    page,
+  }) => {
     await enableMockFeed(page);
     await mockProfileAndFavoritesApis(page);
-    await page.route('**/assets/mocks/catalog.mock.json', async route => {
+    await page.route('**/assets/mocks/catalog.mock.json', async (route) => {
       await route.abort('failed');
     });
 
@@ -48,7 +50,7 @@ test.describe('Quality breadth screenreader status', () => {
   });
 
   test('announces login notices politely and API failures assertively', async ({ page }) => {
-    await page.route('**/api/auth/local', async route => {
+    await page.route('**/api/auth/local', async (route) => {
       await route.fulfill({
         status: 401,
         contentType: 'application/json',
@@ -86,7 +88,7 @@ test.describe('Quality breadth screenreader status', () => {
     let failProfileUpdate = true;
 
     await mockProfileAndFavoritesApis(page);
-    await page.route('**/api/users/me/profile', async route => {
+    await page.route('**/api/users/me/profile', async (route) => {
       const request = route.request();
       if (request.method().toUpperCase() !== 'PUT') {
         await route.fallback();
@@ -123,7 +125,9 @@ test.describe('Quality breadth screenreader status', () => {
     failProfileUpdate = false;
     await saveButton.click();
 
-    const successToast = page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last();
+    const successToast = page
+      .locator('[data-og7="notification-toast"][data-og7-id="success"]')
+      .last();
     await expect(successToast).toHaveAttribute('role', 'status');
     await expectNonEmptyText(successToast.locator('.notification-toast-tray__message'));
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toHaveCount(0);

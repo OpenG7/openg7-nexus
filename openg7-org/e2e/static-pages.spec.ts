@@ -13,7 +13,11 @@ const staticPages: readonly PageExpectation[] = [
     linkSelector: '[data-og7="footer-link-credits"]',
     urlPart: '/credits',
     pageAttr: 'credits',
-    headings: ['An ecosystem built together', 'Un ecosysteme construit ensemble', 'pages.credits.title'],
+    headings: [
+      'An ecosystem built together',
+      'Un ecosysteme construit ensemble',
+      'pages.credits.title',
+    ],
   },
   {
     linkSelector: '[data-og7="footer-link-faq"]',

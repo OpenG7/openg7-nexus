@@ -32,15 +32,15 @@ The rest of this document remains the target blueprint and can be delivered incr
 
 ## 2. Information architecture & layout
 
-| Fold | Section | Purpose |
-| --- | --- | --- |
-| Above the fold | Hero + plan switcher | Immediate clarity, highlight Analyst differentiators, CTA "Start Analyst trial".
-| Fold 1 | Pricing cards | Three tiers with concise description, key metrics, and CTAs.
-| Fold 2 | Feature comparison | Matrix showing availability (checkmark, dash) for strategic capabilities.
-| Fold 3 | Usage-based add-ons | Showcase optional modules (data export API, premium support) with per-unit pricing.
-| Fold 4 | Testimonials carousel | Two quotes from provincial partners and one from a sustainability team.
-| Fold 5 | FAQ + compliance badges | Address procurement questions and show SOC2 / ISO icons.
-| Bottom | Secondary CTA & contact banner | Sticky support CTA, fallback email + phone.
+| Fold           | Section                        | Purpose                                                                             |
+| -------------- | ------------------------------ | ----------------------------------------------------------------------------------- |
+| Above the fold | Hero + plan switcher           | Immediate clarity, highlight Analyst differentiators, CTA "Start Analyst trial".    |
+| Fold 1         | Pricing cards                  | Three tiers with concise description, key metrics, and CTAs.                        |
+| Fold 2         | Feature comparison             | Matrix showing availability (checkmark, dash) for strategic capabilities.           |
+| Fold 3         | Usage-based add-ons            | Showcase optional modules (data export API, premium support) with per-unit pricing. |
+| Fold 4         | Testimonials carousel          | Two quotes from provincial partners and one from a sustainability team.             |
+| Fold 5         | FAQ + compliance badges        | Address procurement questions and show SOC2 / ISO icons.                            |
+| Bottom         | Secondary CTA & contact banner | Sticky support CTA, fallback email + phone.                                         |
 
 The base layout uses the shared marketing shell (`<og7-marketing-layout>`): top navigation, sticky header when scrolling, and the standard footer with legal links. A breadcrumb (`Home / Pricing`) appears below the hero to assist deep-linked visitors.
 
@@ -128,4 +128,3 @@ Each leaf component receives inputs from the page container, favouring `signal` 
 3. Connect analytics events and verify they respect RBAC gating for premium analytics.
 4. Run Lighthouse (desktop + mobile) and axe audits; fix regressions before release.
 5. Prepare marketing copy for release notes and update `/app/dashboard` banner to advertise the Analyst trial.
-

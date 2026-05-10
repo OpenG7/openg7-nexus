@@ -44,4 +44,3 @@ export default meta;
 export const Default: StoryObj<HomeStatisticsSectionComponent> = {
   render: () => ({ props: { stats } }),
 };
-

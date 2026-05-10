@@ -32,7 +32,10 @@ const PROFILE = {
   },
 } as const;
 
-async function mockNotificationApis(page: Parameters<typeof test>[0]['page'], seed: readonly AlertRecord[]): Promise<void> {
+async function mockNotificationApis(
+  page: Parameters<typeof test>[0]['page'],
+  seed: readonly AlertRecord[],
+): Promise<void> {
   const alerts = seed.map((entry) => ({ ...entry }));
 
   const json = (body: unknown, status = 200) => ({
@@ -58,7 +61,7 @@ async function mockNotificationApis(page: Parameters<typeof test>[0]['page'], se
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: PROFILE,
-      })
+      }),
     );
   });
 
@@ -145,7 +148,7 @@ async function mockNotificationApis(page: Parameters<typeof test>[0]['page'], se
         json({
           version: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -158,7 +161,7 @@ async function mockNotificationApis(page: Parameters<typeof test>[0]['page'], se
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -232,12 +235,16 @@ test.describe('Notification panel', () => {
     await expect(headerPanel).toContainText('Rail capacity risk');
     await expect(headerPanel).toContainText('Port disruption');
 
-    const markRailRead = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'PATCH' &&
-      response.url().includes('/api/users/me/alerts/alert-rail/read')
+    const markRailRead = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'PATCH' &&
+        response.url().includes('/api/users/me/alerts/alert-rail/read'),
     );
 
-    await headerPanel.locator('[data-og7-id="header-alert-item"]').filter({ hasText: 'Rail capacity risk' }).click();
+    await headerPanel
+      .locator('[data-og7-id="header-alert-item"]')
+      .filter({ hasText: 'Rail capacity risk' })
+      .click();
     await markRailRead;
 
     await expect(page.locator('[data-og7-id="notification-unread-count"]')).toHaveText('1');
@@ -248,25 +255,29 @@ test.describe('Notification panel', () => {
     await expect(page.locator('[data-og7="user-alerts"]')).toBeVisible();
     await expect(page.locator('[data-og7="user-alert-item"]')).toHaveCount(3);
     await expect(
-      page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Rail capacity risk' })
+      page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Rail capacity risk' }),
     ).toHaveAttribute('data-og7-state', 'read');
     await expect(
-      page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Port disruption' })
+      page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Port disruption' }),
     ).toHaveAttribute('data-og7-state', 'unread');
 
-    const markAllRead = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'PATCH' &&
-      response.url().includes('/api/users/me/alerts/read-all')
+    const markAllRead = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'PATCH' &&
+        response.url().includes('/api/users/me/alerts/read-all'),
     );
     await page.locator('[data-og7-id="alerts-mark-all-read"]').click();
     await markAllRead;
 
-    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(
+      0,
+    );
     await expect(page.locator('[data-og7-id="notification-unread-count"]')).toHaveCount(0);
 
-    const clearRead = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'DELETE' &&
-      /\/api\/users\/me\/alerts\/read\/?$/i.test(new URL(response.url()).pathname)
+    const clearRead = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'DELETE' &&
+        /\/api\/users\/me\/alerts\/read\/?$/i.test(new URL(response.url()).pathname),
     );
     await page.locator('[data-og7-id="alerts-clear-read"]').click();
     await clearRead;

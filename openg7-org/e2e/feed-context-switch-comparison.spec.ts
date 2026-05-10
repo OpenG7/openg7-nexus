@@ -18,9 +18,15 @@ test.describe('Feed context switch comparison', () => {
       toProvince: null,
     });
     await expect(page.locator('#feed-search')).toHaveValue('300 MW');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('300 MW');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toHaveCount(0);
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      '300 MW',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toHaveCount(0);
     await expect(page.locator('[data-feed-item-id="request-001"]')).toHaveClass(/is-highlighted/);
     await expectVisibleItemIds(page, ['request-001']);
 
@@ -62,10 +68,18 @@ test.describe('Feed context switch comparison', () => {
     await expect(page.locator('#feed-search')).toHaveValue('two-week');
     await expect(page.locator('#feed-from')).toHaveValue(/QC$/);
     await expect(page.locator('#feed-to')).toHaveValue(/ON$/);
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('two-week');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toBeVisible();
-    await expect(page.locator('[data-feed-item-id="request-001"]')).not.toHaveClass(/is-highlighted/);
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'two-week',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-feed-item-id="request-001"]')).not.toHaveClass(
+      /is-highlighted/,
+    );
     await expectVisibleItemIds(page, ['request-001']);
 
     await page.locator('[data-feed-item-id="request-001"] [data-og7-id="feed-open-item"]').click();
@@ -88,8 +102,12 @@ test.describe('Feed context switch comparison', () => {
     await expect(page.locator('#feed-search')).toHaveValue('two-week');
     await expect(page.locator('#feed-from')).toHaveValue(/QC$/);
     await expect(page.locator('#feed-to')).toHaveValue(/ON$/);
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toBeVisible();
     await expectVisibleItemIds(page, ['request-001']);
   });
 });
@@ -99,12 +117,17 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll((elements) => elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
-async function expectSearchParams(page: Page, expected: Record<string, string | null>): Promise<void> {
+async function expectSearchParams(
+  page: Page,
+  expected: Record<string, string | null>,
+): Promise<void> {
   for (const [key, value] of Object.entries(expected)) {
     await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBe(value);
   }

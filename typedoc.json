@@ -1,9 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": [
-    "openg7-org/src/app/core",
-    "openg7-org/src/app/shared"
-  ],
+  "entryPoints": ["openg7-org/src/app/core", "openg7-org/src/app/shared"],
   "entryPointStrategy": "expand",
   "out": "docs/reference/core",
   "tsconfig": "openg7-org/tsconfig.typedoc.json",

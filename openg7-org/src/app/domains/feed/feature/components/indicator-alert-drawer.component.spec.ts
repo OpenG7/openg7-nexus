@@ -31,13 +31,24 @@ describe('IndicatorAlertDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const thresholdDirection: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="threshold-direction"]');
-    const thresholdValue: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="threshold-value"]');
-    const windowSelect: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="window"]');
-    const frequencySelect: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="frequency"]');
-    const notifyDelta: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="notify-delta"]');
+    const thresholdDirection: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="threshold-direction"]',
+    );
+    const thresholdValue: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="threshold-value"]',
+    );
+    const windowSelect: HTMLSelectElement =
+      fixture.nativeElement.querySelector('[data-og7-id="window"]');
+    const frequencySelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="frequency"]',
+    );
+    const notifyDelta: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="notify-delta"]',
+    );
     const note: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="note"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="indicator-alert-submit"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-alert-submit"]',
+    );
 
     thresholdDirection.value = 'lt';
     thresholdDirection.dispatchEvent(new Event('change'));
@@ -85,23 +96,29 @@ describe('IndicatorAlertDrawerComponent', () => {
     fixture.detectChanges();
 
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="threshold-direction"]') as HTMLSelectElement).value
+      (
+        fixture.nativeElement.querySelector(
+          '[data-og7-id="threshold-direction"]',
+        ) as HTMLSelectElement
+      ).value,
     ).toBe('lt');
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="threshold-value"]') as HTMLInputElement).value
+      (fixture.nativeElement.querySelector('[data-og7-id="threshold-value"]') as HTMLInputElement)
+        .value,
     ).toBe('22');
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="window"]') as HTMLSelectElement).value
+      (fixture.nativeElement.querySelector('[data-og7-id="window"]') as HTMLSelectElement).value,
     ).toBe('24h');
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="frequency"]') as HTMLSelectElement).value
+      (fixture.nativeElement.querySelector('[data-og7-id="frequency"]') as HTMLSelectElement).value,
     ).toBe('hourly');
     expect(
-      (fixture.nativeElement.querySelector('[data-og7-id="notify-delta"]') as HTMLInputElement).checked
+      (fixture.nativeElement.querySelector('[data-og7-id="notify-delta"]') as HTMLInputElement)
+        .checked,
     ).toBeFalse();
-    expect((fixture.nativeElement.querySelector('[data-og7-id="note"]') as HTMLTextAreaElement).value).toBe(
-      'Restore my previous draft'
-    );
+    expect(
+      (fixture.nativeElement.querySelector('[data-og7-id="note"]') as HTMLTextAreaElement).value,
+    ).toBe('Restore my previous draft');
   });
 
   it('renders the existing active rule in view mode instead of the compose form', () => {
@@ -126,11 +143,15 @@ describe('IndicatorAlertDrawerComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-og7="indicator-alert-view"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[data-og7-id="indicator-alert-submit"]')).toBeFalsy();
     expect(
-      (fixture.nativeElement.querySelector('[data-og7="indicator-alert-rule-status"]') as HTMLElement)?.dataset[
-        'og7Id'
-      ]
+      fixture.nativeElement.querySelector('[data-og7-id="indicator-alert-submit"]'),
+    ).toBeFalsy();
+    expect(
+      (
+        fixture.nativeElement.querySelector(
+          '[data-og7="indicator-alert-rule-status"]',
+        ) as HTMLElement
+      )?.dataset['og7Id'],
     ).toBe('active');
   });
 });

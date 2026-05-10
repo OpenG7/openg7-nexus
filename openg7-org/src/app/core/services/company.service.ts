@@ -130,7 +130,11 @@ interface StrapiSingleResponse<T> {
   readonly meta?: unknown;
 }
 
-export const COMPANY_STATUSES: readonly CompanyStatus[] = ['pending', 'approved', 'suspended'] as const;
+export const COMPANY_STATUSES: readonly CompanyStatus[] = [
+  'pending',
+  'approved',
+  'suspended',
+] as const;
 
 const ENDPOINT_PATH = '/api/companies';
 const DEFAULT_POPULATE = 'sector,province,verificationSources,trustHistory';
@@ -268,7 +272,7 @@ export class CompanyService {
       verificationStatus?: CompanyVerificationStatus;
       verificationSources?: ReadonlyArray<CompanyVerificationSource>;
       trustHistory?: ReadonlyArray<CompanyTrustRecord>;
-    }
+    },
   ): Observable<CompanyRecord> {
     const data: Record<string, unknown> = {};
     if (payload.status) {
@@ -335,7 +339,9 @@ export class CompanyService {
     return list;
   }
 
-  private mapSingleResponse(targetId?: number): OperatorFunction<StrapiSingleResponse<CompanyAttributes>, CompanyRecord> {
+  private mapSingleResponse(
+    targetId?: number,
+  ): OperatorFunction<StrapiSingleResponse<CompanyAttributes>, CompanyRecord> {
     return map((response) => {
       const company = response?.data ? this.mapCompany(response.data) : null;
       if (!company) {
@@ -346,31 +352,34 @@ export class CompanyService {
     });
   }
 
-  private mapCompany(entity: StrapiEntity<CompanyAttributes> | null | undefined): CompanyRecord | null {
+  private mapCompany(
+    entity: StrapiEntity<CompanyAttributes> | null | undefined,
+  ): CompanyRecord | null {
     if (!entity?.id) {
       return null;
     }
     const attrs = entity.attributes ?? {};
     const status = this.normalizeStatus(attrs.status);
-    const name = typeof attrs.name === 'string' && attrs.name.trim() ? attrs.name : `Company #${entity.id}`;
+    const name =
+      typeof attrs.name === 'string' && attrs.name.trim() ? attrs.name : `Company #${entity.id}`;
     return {
       id: entity.id,
       name,
       description: typeof attrs.description === 'string' ? attrs.description : null,
       website: typeof attrs.website === 'string' ? attrs.website : null,
-    status,
-    logoUrl: typeof attrs.logoUrl === 'string' ? attrs.logoUrl : null,
-    secondaryLogoUrl: typeof attrs.secondaryLogoUrl === 'string' ? attrs.secondaryLogoUrl : null,
-    capacities: this.normalizeCapacities(attrs.capacities),
-    sector: this.normalizeRelation(attrs.sector),
-    province: this.normalizeRelation(attrs.province),
-    country: this.normalizeCountry(attrs.country),
-    verificationStatus: this.normalizeVerificationStatus(attrs.verificationStatus),
-    verificationSources: this.normalizeVerificationSources(attrs.verificationSources),
-    trustScore: this.normalizeTrustScore(attrs.trustScore),
-    trustHistory: this.normalizeTrustHistory(attrs.trustHistory),
-  };
-}
+      status,
+      logoUrl: typeof attrs.logoUrl === 'string' ? attrs.logoUrl : null,
+      secondaryLogoUrl: typeof attrs.secondaryLogoUrl === 'string' ? attrs.secondaryLogoUrl : null,
+      capacities: this.normalizeCapacities(attrs.capacities),
+      sector: this.normalizeRelation(attrs.sector),
+      province: this.normalizeRelation(attrs.province),
+      country: this.normalizeCountry(attrs.country),
+      verificationStatus: this.normalizeVerificationStatus(attrs.verificationStatus),
+      verificationSources: this.normalizeVerificationSources(attrs.verificationSources),
+      trustScore: this.normalizeTrustScore(attrs.trustScore),
+      trustHistory: this.normalizeTrustHistory(attrs.trustHistory),
+    };
+  }
 
   private normalizeStatus(input: CompanyAttributes['status']): CompanyStatus {
     if (input === 'approved' || input === 'suspended' || input === 'pending') {
@@ -379,7 +388,9 @@ export class CompanyService {
     return 'pending';
   }
 
-  private normalizeRelation(relation?: CompanyAttributes['sector'] | CompanyAttributes['province']): CompanyRelation | null {
+  private normalizeRelation(
+    relation?: CompanyAttributes['sector'] | CompanyAttributes['province'],
+  ): CompanyRelation | null {
     const payload = relation?.data;
     if (!payload?.id) {
       return null;
@@ -409,7 +420,11 @@ export class CompanyService {
       let value: number | null = null;
       if (typeof valueRaw === 'number' && Number.isFinite(valueRaw)) {
         value = valueRaw;
-      } else if (typeof valueRaw === 'string' && valueRaw.trim() !== '' && !Number.isNaN(Number(valueRaw))) {
+      } else if (
+        typeof valueRaw === 'string' &&
+        valueRaw.trim() !== '' &&
+        !Number.isNaN(Number(valueRaw))
+      ) {
         value = Number(valueRaw);
       }
       const unitRaw = data['unit'];
@@ -427,7 +442,9 @@ export class CompanyService {
     return normalized as CountryCode;
   }
 
-  private normalizeVerificationStatus(value: CompanyAttributes['verificationStatus']): CompanyVerificationStatus {
+  private normalizeVerificationStatus(
+    value: CompanyAttributes['verificationStatus'],
+  ): CompanyVerificationStatus {
     if (
       value === 'pending' ||
       value === 'verified' ||
@@ -462,7 +479,10 @@ export class CompanyService {
       sources.push({
         id: typeof data['id'] === 'number' ? data['id'] : null,
         name: nameRaw.trim(),
-        type: typeRaw === 'chamber' || typeRaw === 'audit' || typeRaw === 'other' ? typeRaw : 'registry',
+        type:
+          typeRaw === 'chamber' || typeRaw === 'audit' || typeRaw === 'other'
+            ? typeRaw
+            : 'registry',
         status: statusRaw === 'validated' || statusRaw === 'revoked' ? statusRaw : 'pending',
         referenceId: normalizeString(data['referenceId']),
         url: normalizeString(data['url']),
@@ -504,7 +524,8 @@ export class CompanyService {
         occurredAt: occurredAtRaw.trim(),
         amount: this.parseNumber(amountRaw),
         score: this.parseNumber(scoreRaw),
-        notes: typeof data['notes'] === 'string' && data['notes'].trim() ? data['notes'].trim() : null,
+        notes:
+          typeof data['notes'] === 'string' && data['notes'].trim() ? data['notes'].trim() : null,
       });
     }
     return records;
@@ -582,7 +603,8 @@ export class CompanyService {
   }
 
   private serializeVerificationSource(source: CompanyVerificationSource) {
-    const normalize = (value: string | null | undefined) => (value && value.trim() ? value.trim() : null);
+    const normalize = (value: string | null | undefined) =>
+      value && value.trim() ? value.trim() : null;
     return {
       id: source.id ?? undefined,
       name: source.name.trim(),

@@ -25,7 +25,9 @@ test.describe('Feed opportunity detail', () => {
     await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeVisible();
 
     await page.locator('[data-og7="opportunity-offer-drawer"] input[type="number"]').fill('280');
-    await page.locator('[data-og7="opportunity-offer-drawer"] textarea').fill('We can secure balancing and deliver in 15-minute ramps.');
+    await page
+      .locator('[data-og7="opportunity-offer-drawer"] textarea')
+      .fill('We can secure balancing and deliver in 15-minute ramps.');
     await page.locator('[data-og7-id="opportunity-offer-submit"]').click();
     await expect(page.locator('[data-og7="opportunity-offer-drawer"]')).toBeHidden();
 
@@ -33,5 +35,3 @@ test.describe('Feed opportunity detail', () => {
     await expect(page).toHaveURL(/\/feed\?.*mode=IMPORT/);
   });
 });
-
-

@@ -28,7 +28,7 @@ test.describe('Feed notifications', () => {
         ConnectedEventSource as unknown as typeof EventSource;
     });
 
-    await page.route('**/runtime-config.js', async route => {
+    await page.route('**/runtime-config.js', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/javascript',
@@ -44,7 +44,7 @@ test.describe('Feed notifications', () => {
     await mockAuthenticatedSessionApis(page);
     await seedAuthenticatedSession(page);
 
-    await page.route('**/api/users/me/favorites**', async route => {
+    await page.route('**/api/users/me/favorites**', async (route) => {
       await route.fulfill({
         status: 404,
         contentType: 'application/json',
@@ -52,7 +52,7 @@ test.describe('Feed notifications', () => {
       });
     });
 
-    await page.route('**/api/users/me/alerts**', async route => {
+    await page.route('**/api/users/me/alerts**', async (route) => {
       await route.fulfill({
         status: 404,
         contentType: 'application/json',
@@ -60,7 +60,7 @@ test.describe('Feed notifications', () => {
       });
     });
 
-    await page.route('**/api/feed**', async route => {
+    await page.route('**/api/feed**', async (route) => {
       const request = route.request();
       const url = new URL(request.url());
 
@@ -82,7 +82,7 @@ test.describe('Feed notifications', () => {
     const errorToasts = page.locator('[data-og7="notification-toast"][data-og7-id="error"]');
     await expect(errorToasts).toHaveCount(1);
     await expect(errorToasts.first()).toContainText(
-      /Le fil n'a pas charge :|The feed did not load:/i
+      /Le fil n'a pas charge :|The feed did not load:/i,
     );
   });
 });

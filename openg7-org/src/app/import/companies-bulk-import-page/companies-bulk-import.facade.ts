@@ -58,7 +58,7 @@ export class CompaniesBulkImportFacade {
         mode: options.mode,
         dryRun: options.dryRun,
         idempotencyKey: this.buildIdempotencyKey(),
-      })
+      }),
     );
   }
 
@@ -73,7 +73,7 @@ export class CompaniesBulkImportFacade {
         mode: options.mode,
         dryRun: options.dryRun,
         idempotencyKey: this.buildIdempotencyKey(),
-      })
+      }),
     );
   }
 
@@ -91,7 +91,7 @@ export class CompaniesBulkImportFacade {
       this.store.dispatch(
         CompanyImportBulkActions.cancelFailed({
           error: this.resolveErrorMessage(error, 'Unable to cancel the import job.'),
-        })
+        }),
       );
     }
   }
@@ -101,7 +101,9 @@ export class CompaniesBulkImportFacade {
     this.store.dispatch(CompanyImportBulkActions.reset());
   }
 
-  private async startImport(start$Promise: ReturnType<CompaniesBulkImportService['startWithJson']>): Promise<void> {
+  private async startImport(
+    start$Promise: ReturnType<CompaniesBulkImportService['startWithJson']>,
+  ): Promise<void> {
     this.store.dispatch(CompanyImportBulkActions.startRequested());
     this.teardownRealtime();
     try {
@@ -112,7 +114,7 @@ export class CompaniesBulkImportFacade {
       this.store.dispatch(
         CompanyImportBulkActions.startFailed({
           error: this.resolveErrorMessage(error, 'Unable to start the bulk import.'),
-        })
+        }),
       );
     }
   }
@@ -188,7 +190,11 @@ export class CompaniesBulkImportFacade {
     try {
       const status = await firstValueFrom(this.api.getStatus(jobId));
       this.store.dispatch(CompanyImportBulkActions.statusLoaded({ status }));
-      if (status.state === 'completed' || status.state === 'failed' || status.state === 'cancelled') {
+      if (
+        status.state === 'completed' ||
+        status.state === 'failed' ||
+        status.state === 'cancelled'
+      ) {
         this.teardownRealtime();
         await this.loadReportAndErrors(jobId);
       }
@@ -196,7 +202,7 @@ export class CompaniesBulkImportFacade {
       this.store.dispatch(
         CompanyImportBulkActions.statusFailed({
           error: this.resolveErrorMessage(error, 'Unable to refresh bulk import status.'),
-        })
+        }),
       );
     } finally {
       this.statusInFlight = false;
@@ -220,20 +226,23 @@ export class CompaniesBulkImportFacade {
   }
 
   private buildIdempotencyKey(): string {
-    if (typeof globalThis.crypto !== 'undefined' && typeof globalThis.crypto.randomUUID === 'function') {
+    if (
+      typeof globalThis.crypto !== 'undefined' &&
+      typeof globalThis.crypto.randomUUID === 'function'
+    ) {
       return globalThis.crypto.randomUUID();
     }
     return `bulk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   }
 
   private resolveErrorMessage(error: unknown, fallback: string): string {
-    const maybe = error as { error?: { error?: { message?: string } | string; message?: string }; message?: string };
+    const maybe = error as {
+      error?: { error?: { message?: string } | string; message?: string };
+      message?: string;
+    };
     const nestedErrorMessage =
       typeof maybe?.error?.error === 'object' ? maybe.error.error.message : maybe?.error?.error;
-    const message =
-      nestedErrorMessage ??
-      maybe?.error?.message ??
-      maybe?.message;
+    const message = nestedErrorMessage ?? maybe?.error?.message ?? maybe?.message;
     return typeof message === 'string' && message.trim() ? message.trim() : fallback;
   }
 }

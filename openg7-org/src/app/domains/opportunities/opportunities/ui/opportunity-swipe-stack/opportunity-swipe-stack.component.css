@@ -77,7 +77,9 @@
   height: 12px;
   border-radius: 999px;
   background: rgba(148, 163, 184, 0.35);
-  transition: transform 180ms ease, background 180ms ease;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
 }
 
 .swipe-stack__crumb--active {
@@ -122,7 +124,9 @@
   border-radius: 1.5rem;
   border: 1px solid rgba(226, 232, 240, 0.08);
   box-shadow: 0 18px 36px rgba(15, 23, 42, 0.55);
-  transition: transform 260ms ease, opacity 220ms ease;
+  transition:
+    transform 260ms ease,
+    opacity 220ms ease;
   will-change: transform;
 }
 
@@ -224,7 +228,10 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
 .swipe-stack__action--back {

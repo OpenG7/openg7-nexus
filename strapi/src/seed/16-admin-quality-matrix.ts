@@ -54,7 +54,9 @@ function normalizeEvidence(value: unknown): string[] {
     return [];
   }
 
-  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
+  return value.filter(
+    (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
+  );
 }
 
 function matrixSnapshotPath(): string {
@@ -73,7 +75,9 @@ function matrixSnapshotPath(): string {
 
 export default async function seedAdminQualityMatrix() {
   if (!hasContentType(MATRIX_ENTRY_UID)) {
-    strapi.log?.warn?.('Skipping admin quality matrix seed because the content type is unavailable.');
+    strapi.log?.warn?.(
+      'Skipping admin quality matrix seed because the content type is unavailable.',
+    );
     return;
   }
 

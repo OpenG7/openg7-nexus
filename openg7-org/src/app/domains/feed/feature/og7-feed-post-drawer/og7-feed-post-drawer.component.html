@@ -8,7 +8,7 @@
   >
     <header class="feed-drawer__header">
       <div>
-        <span class="feed-drawer__type">{{ ('feed.type.' + item()?.type) | translate }}</span>
+        <span class="feed-drawer__type">{{ 'feed.type.' + item()?.type | translate }}</span>
         <h2 id="feed-drawer-title">{{ item()?.title || '' }}</h2>
         <p>{{ item()?.createdAt | jsonDateAgo }}</p>
       </div>
@@ -35,19 +35,24 @@
           {{ 'feed.filters.sector' | translate }}: {{ sectorLabel() || item()?.sectorId }}
         </li>
         <li *ngIf="item()?.mode">
-          {{ 'feed.filters.mode' | translate }}: {{ ('feed.mode.' + (item()?.mode | lowercase)) | translate }}
+          {{ 'feed.filters.mode' | translate }}:
+          {{ 'feed.mode.' + (item()?.mode | lowercase) | translate }}
         </li>
         <li *ngIf="item()?.quantity">
-          {{ 'feed.quantity' | translate }}: {{ item()?.quantity?.value }} {{ item()?.quantity?.unit }}
+          {{ 'feed.quantity' | translate }}: {{ item()?.quantity?.value }}
+          {{ item()?.quantity?.unit }}
         </li>
         <li *ngIf="item()?.urgency">
-          {{ 'feed.urgency.label' | translate }}: {{ ('feed.urgency.' + item()?.urgency) | translate }}
+          {{ 'feed.urgency.label' | translate }}:
+          {{ 'feed.urgency.' + item()?.urgency | translate }}
         </li>
         <li *ngIf="item()?.credibility">
-          {{ 'feed.credibility.label' | translate }}: {{ ('feed.credibility.' + item()?.credibility) | translate }}
+          {{ 'feed.credibility.label' | translate }}:
+          {{ 'feed.credibility.' + item()?.credibility | translate }}
         </li>
         <li *ngIf="item()?.source">
-          {{ 'feed.source' | translate }}: {{ item()?.source?.label || ('feed.sourceUnknown' | translate) }}
+          {{ 'feed.source' | translate }}:
+          {{ item()?.source?.label || ('feed.sourceUnknown' | translate) }}
         </li>
       </ul>
     </article>

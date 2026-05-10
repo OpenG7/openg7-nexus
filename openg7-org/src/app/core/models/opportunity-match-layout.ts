@@ -32,5 +32,7 @@ export const DEFAULT_OPPORTUNITY_MATCH_LAYOUT: OpportunityMatchLayout = 'standar
  * @returns True when the candidate matches one of the known layout identifiers.
  */
 export function isOpportunityMatchLayout(value: unknown): value is OpportunityMatchLayout {
-  return typeof value === 'string' && (OPPORTUNITY_MATCH_LAYOUTS as readonly string[]).includes(value);
+  return (
+    typeof value === 'string' && (OPPORTUNITY_MATCH_LAYOUTS as readonly string[]).includes(value)
+  );
 }

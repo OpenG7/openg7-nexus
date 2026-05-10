@@ -30,7 +30,7 @@ export class FeedConnectionMatchService {
   private readonly opportunities = inject(OpportunityService);
 
   async resolveDraftConnectionMatchId(
-    draft: MatchResolutionDraft | FeedComposerDraft
+    draft: MatchResolutionDraft | FeedComposerDraft,
   ): Promise<number | null> {
     const explicitMatchId = this.normalizePositiveInteger(draft.connectionMatchId);
     if (explicitMatchId != null) {
@@ -53,7 +53,8 @@ export class FeedConnectionMatchService {
 
   private buildQuery(draft: MatchResolutionDraft): OpportunityMatchQuery | undefined {
     const sector = this.normalizeSector(draft.sectorId);
-    const province = this.normalizeProvince(draft.toProvinceId) ?? this.normalizeProvince(draft.fromProvinceId);
+    const province =
+      this.normalizeProvince(draft.toProvinceId) ?? this.normalizeProvince(draft.fromProvinceId);
     const mode = this.normalizeMode(draft.mode);
     const q = this.extractSearchQuery(draft.title, draft.summary);
 
@@ -70,7 +71,7 @@ export class FeedConnectionMatchService {
 
   private selectBestCandidate(
     matches: readonly OpportunityMatch[],
-    draft: MatchResolutionDraft
+    draft: MatchResolutionDraft,
   ): OpportunityMatch | null {
     const fromProvince = this.normalizeProvince(draft.fromProvinceId);
     const toProvince = this.normalizeProvince(draft.toProvinceId);
@@ -108,7 +109,11 @@ export class FeedConnectionMatchService {
       }
 
       if (commodityTokens.size > 0) {
-        const matchTokens = this.extractTokens(match.commodity, match.buyer.name, match.seller.name);
+        const matchTokens = this.extractTokens(
+          match.commodity,
+          match.buyer.name,
+          match.seller.name,
+        );
         let overlap = 0;
         for (const token of commodityTokens) {
           if (matchTokens.has(token)) {
@@ -118,7 +123,11 @@ export class FeedConnectionMatchService {
         score += Math.min(overlap, 3);
       }
 
-      if (!bestMatch || score > bestScore || (score === bestScore && match.confidence > bestMatch.confidence)) {
+      if (
+        !bestMatch ||
+        score > bestScore ||
+        (score === bestScore && match.confidence > bestMatch.confidence)
+      ) {
         bestMatch = match;
         bestScore = score;
       }
@@ -151,7 +160,7 @@ export class FeedConnectionMatchService {
   }
 
   private normalizeMode(
-    mode: FlowMode | null | undefined
+    mode: FlowMode | null | undefined,
   ): OpportunityMatchQuery['mode'] | undefined {
     if (mode === 'EXPORT') {
       return 'export';

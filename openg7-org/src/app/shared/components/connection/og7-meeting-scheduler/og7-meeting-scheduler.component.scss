@@ -15,7 +15,10 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   padding: 0.35rem 0.9rem;
-  transition: border-color var(--og7-transition-base), background-color var(--og7-transition-base), color var(--og7-transition-base);
+  transition:
+    border-color var(--og7-transition-base),
+    background-color var(--og7-transition-base),
+    color var(--og7-transition-base);
 }
 
 .og7-scheduler__chip:hover:not(:disabled) {
@@ -41,7 +44,9 @@
   color: var(--og7-color-title);
   font-size: 0.85rem;
   padding: 0.65rem 1.1rem;
-  transition: border-color var(--og7-transition-base), box-shadow var(--og7-transition-base);
+  transition:
+    border-color var(--og7-transition-base),
+    box-shadow var(--og7-transition-base);
 }
 
 .og7-scheduler__field:focus {
@@ -62,7 +67,9 @@
   color: var(--og7-color-on-primary);
   font-size: 1.4rem;
   font-weight: 600;
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base);
 }
 
 .og7-scheduler__add:hover:not(:disabled) {

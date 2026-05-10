@@ -35,42 +35,26 @@ export interface CatalogState {
 
 export const selectCatalogState = createFeatureSelector<CatalogState>('catalog');
 
-export const selectSectors = createSelector(
-  selectCatalogState,
-  (state) => state.sectors
-);
+export const selectSectors = createSelector(selectCatalogState, (state) => state.sectors);
 
-export const selectProvinces = createSelector(
-  selectCatalogState,
-  (state) => state.provinces
-);
+export const selectProvinces = createSelector(selectCatalogState, (state) => state.provinces);
 
-export const selectCompanies = createSelector(
-  selectCatalogState,
-  (state) => state.companies
-);
+export const selectCompanies = createSelector(selectCatalogState, (state) => state.companies);
 
 export const selectCatalogFeedItems = createSelector(
   selectCatalogState,
-  (state) => state.feedItems
+  (state) => state.feedItems,
 );
 
-export const selectCatalogSources = createSelector(
-  selectCatalogState,
-  (state) => state.sources
-);
+export const selectCatalogSources = createSelector(selectCatalogState, (state) => state.sources);
 
 export const selectCatalogFeedSource = createSelector(
   selectCatalogSources,
-  (sources) => sources.feedItems
+  (sources) => sources.feedItems,
 );
 
 export const selectCatalogFeedItemsByType = (type: FeedItemType) =>
-  createSelector(selectCatalogFeedItems, (items) =>
-    items.filter((item) => item.type === type)
-  );
+  createSelector(selectCatalogFeedItems, (items) => items.filter((item) => item.type === type));
 
 export const selectCompanyById = (id: string) =>
-  createSelector(selectCompanies, (companies) =>
-    companies.find((c) => c.id === id) ?? null
-  );
+  createSelector(selectCompanies, (companies) => companies.find((c) => c.id === id) ?? null);

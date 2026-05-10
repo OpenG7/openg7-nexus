@@ -1,8 +1,14 @@
-﻿<header class="opportunity-header" [class.opportunity-header--compact]="compact()" data-og7="opportunity-detail-header">
+﻿<header
+  class="opportunity-header"
+  [class.opportunity-header--compact]="compact()"
+  data-og7="opportunity-detail-header"
+>
   <div class="opportunity-header__breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/feed">{{ 'feed.title' | translate }}</a>
     <span>/</span>
-    <a routerLink="/feed" [queryParams]="breadcrumbQueryParams()">{{ 'feed.opportunity.detail.breadcrumbOpportunities' | translate }}</a>
+    <a routerLink="/feed" [queryParams]="breadcrumbQueryParams()">{{
+      'feed.opportunity.detail.breadcrumbOpportunities' | translate
+    }}</a>
     <span>/</span>
     <strong>{{ 'feed.opportunity.detail.breadcrumbCurrent' | translate }}</strong>
   </div>
@@ -12,9 +18,15 @@
       <h1>{{ title() }}</h1>
       <p>{{ routeLabel() }} · {{ subtitle() }}</p>
       <div class="opportunity-header__badges">
-        <span class="badge badge--open" data-og7-id="opportunity-status-label">{{ 'feed.opportunity.detail.status' | translate }}: {{ statusLabel() }}</span>
-        <span *ngIf="urgencyLabel() as urgency" class="badge badge--warning">{{ 'feed.opportunity.detail.urgency' | translate }}: {{ urgency }}</span>
-        <span class="badge">{{ 'feed.opportunity.detail.visibility' | translate }}: {{ visibilityLabel() }}</span>
+        <span class="badge badge--open" data-og7-id="opportunity-status-label"
+          >{{ 'feed.opportunity.detail.status' | translate }}: {{ statusLabel() }}</span
+        >
+        <span *ngIf="urgencyLabel() as urgency" class="badge badge--warning"
+          >{{ 'feed.opportunity.detail.urgency' | translate }}: {{ urgency }}</span
+        >
+        <span class="badge"
+          >{{ 'feed.opportunity.detail.visibility' | translate }}: {{ visibilityLabel() }}</span
+        >
       </div>
       <div class="opportunity-header__chips">
         <button
@@ -49,7 +61,11 @@
         data-og7="action"
         data-og7-id="opportunity-save"
       >
-        {{ saved() ? ('feed.opportunity.detail.cta.remove' | translate) : ('feed.opportunity.detail.cta.save' | translate) }}
+        {{
+          saved()
+            ? ('feed.opportunity.detail.cta.remove' | translate)
+            : ('feed.opportunity.detail.cta.save' | translate)
+        }}
       </button>
 
       <button
@@ -119,7 +135,7 @@
       </ng-container>
 
       <span class="opportunity-header__sync" [attr.data-og7-state]="syncState()">
-        {{ ('feed.opportunity.detail.sync.' + syncState()) | translate }}
+        {{ 'feed.opportunity.detail.sync.' + syncState() | translate }}
       </span>
     </div>
   </div>

@@ -93,7 +93,9 @@ export class OpportunityMatchesSection {
 
   protected readonly query = computed(() => this.filters.matchQuery());
   protected readonly province = computed<TradeProvinceFilter>(() => this.filters.matchProvince());
-  protected readonly selectedSector = computed<SectorType | 'all'>(() => this.filters.tradeFilters().sector ?? 'all');
+  protected readonly selectedSector = computed<SectorType | 'all'>(
+    () => this.filters.tradeFilters().sector ?? 'all',
+  );
   protected readonly selectedMode = computed<Mode>(() => this.filters.tradeFilters().mode);
   readonly selectedPartnerId = signal<string | null>(null);
   protected readonly filtersOpen = signal(false);
@@ -120,7 +122,7 @@ export class OpportunityMatchesSection {
   });
 
   protected readonly showEmptyState = computed(
-    () => !this.loading() && !this.error() && this.filteredMatches().length === 0
+    () => !this.loading() && !this.error() && this.filteredMatches().length === 0,
   );
   protected readonly hasActiveFilters = computed(() => {
     if (this.query().trim()) {
@@ -135,25 +137,39 @@ export class OpportunityMatchesSection {
     return this.selectedMode() !== 'all';
   });
 
-  protected readonly selectedLayout = computed<OpportunityMatchLayout>(() => this.filters.matchCardLayout());
-  private readonly suggestedLayout = computed<OpportunityMatchLayout>(() =>
-    suggestLayoutForMatches(this.filteredMatches())
+  protected readonly selectedLayout = computed<OpportunityMatchLayout>(() =>
+    this.filters.matchCardLayout(),
   );
-  protected readonly tileViewModels = computed(() => this.filteredMatches().map((match) => createOpportunityTileVm(match)));
-  protected readonly miniMapViewModels = computed(() => this.filteredMatches().map((match) => createOpportunityMiniMapVm(match)));
-  protected readonly subwayViewModels = computed(() => this.filteredMatches().map((match) => createOpportunitySubwayVm(match)));
-  protected readonly radarViewModels = computed(() => this.filteredMatches().map((match) => createOpportunityRadarVm(match)));
+  private readonly suggestedLayout = computed<OpportunityMatchLayout>(() =>
+    suggestLayoutForMatches(this.filteredMatches()),
+  );
+  protected readonly tileViewModels = computed(() =>
+    this.filteredMatches().map((match) => createOpportunityTileVm(match)),
+  );
+  protected readonly miniMapViewModels = computed(() =>
+    this.filteredMatches().map((match) => createOpportunityMiniMapVm(match)),
+  );
+  protected readonly subwayViewModels = computed(() =>
+    this.filteredMatches().map((match) => createOpportunitySubwayVm(match)),
+  );
+  protected readonly radarViewModels = computed(() =>
+    this.filteredMatches().map((match) => createOpportunityRadarVm(match)),
+  );
   protected readonly twoWayViewModels = computed(() =>
-    this.filteredMatches().map((match) => createOpportunityTwoWayComparatorVm(match))
+    this.filteredMatches().map((match) => createOpportunityTwoWayComparatorVm(match)),
   );
   protected readonly timelineViewModels = computed(() =>
-    this.filteredMatches().map((match) => createOpportunityTimelineVm(match))
+    this.filteredMatches().map((match) => createOpportunityTimelineVm(match)),
   );
   protected readonly impactBannerViewModels = computed(() =>
-    this.filteredMatches().map((match) => createOpportunityImpactBannerVm(match))
+    this.filteredMatches().map((match) => createOpportunityImpactBannerVm(match)),
   );
-  protected readonly compactKpiVm = computed(() => createOpportunityCompactKpiListVm(this.filteredMatches()));
-  protected readonly swipeStackVm = computed(() => createOpportunitySwipeStackVm(this.filteredMatches()));
+  protected readonly compactKpiVm = computed(() =>
+    createOpportunityCompactKpiListVm(this.filteredMatches()),
+  );
+  protected readonly swipeStackVm = computed(() =>
+    createOpportunitySwipeStackVm(this.filteredMatches()),
+  );
 
   protected readonly hasError = computed(() => {
     const message = this.error();
@@ -305,7 +321,7 @@ export class OpportunityMatchesSection {
     query: string,
     province: ProvinceCode | 'all',
     sector: SectorType | 'all',
-    mode: Mode
+    mode: Mode,
   ): boolean {
     if (province !== 'all' && !this.matchInProvince(match, province)) {
       return false;
@@ -339,7 +355,6 @@ export class OpportunityMatchesSection {
     }
     return match.mode === mode;
   }
-
 }
 
 function suggestLayoutForMatches(matches: readonly OpportunityMatch[]): OpportunityMatchLayout {
@@ -347,8 +362,12 @@ function suggestLayoutForMatches(matches: readonly OpportunityMatch[]): Opportun
     return DEFAULT_OPPORTUNITY_MATCH_LAYOUT;
   }
 
-  const hasDistanceData = matches.some((match) => Number.isFinite(match.distanceKm ?? NaN) && (match.distanceKm ?? 0) > 0);
-  const hasCo2Data = matches.some((match) => Number.isFinite(match.co2Estimate ?? NaN) && (match.co2Estimate ?? 0) > 0);
+  const hasDistanceData = matches.some(
+    (match) => Number.isFinite(match.distanceKm ?? NaN) && (match.distanceKm ?? 0) > 0,
+  );
+  const hasCo2Data = matches.some(
+    (match) => Number.isFinite(match.co2Estimate ?? NaN) && (match.co2Estimate ?? 0) > 0,
+  );
 
   if (hasDistanceData && hasCo2Data) {
     return 'impact-banner';
@@ -356,14 +375,16 @@ function suggestLayoutForMatches(matches: readonly OpportunityMatch[]): Opportun
 
   if (hasDistanceData) {
     const longHaulShare =
-      matches.filter((match) => (match.distanceKm ?? 0) >= 1500).length / Math.max(matches.length, 1);
+      matches.filter((match) => (match.distanceKm ?? 0) >= 1500).length /
+      Math.max(matches.length, 1);
     if (longHaulShare >= 0.5) {
       return 'mini-map';
     }
   }
 
   const lowConfidenceShare =
-    matches.filter((match) => normalizeConfidencePercent(match.confidence) < 50).length / Math.max(matches.length, 1);
+    matches.filter((match) => normalizeConfidencePercent(match.confidence) < 50).length /
+    Math.max(matches.length, 1);
   if (lowConfidenceShare >= 0.5) {
     return 'radar';
   }

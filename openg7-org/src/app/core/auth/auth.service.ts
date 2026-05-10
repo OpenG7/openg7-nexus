@@ -33,7 +33,6 @@ import {
 } from './auth.types';
 import { OidcProvider, OidcService } from './oidc.service';
 
-
 @Injectable({ providedIn: 'root' })
 /**
  * Contexte : Injecté via Angular DI par les autres briques du dossier « core/auth ».
@@ -75,9 +74,7 @@ export class AuthService {
     try {
       const base64 = token.split('.')[1];
       const json =
-        typeof atob === 'function'
-          ? atob(base64)
-          : Buffer.from(base64, 'base64').toString('utf-8');
+        typeof atob === 'function' ? atob(base64) : Buffer.from(base64, 'base64').toString('utf-8');
       return JSON.parse(json) as JwtPayload;
     } catch {
       return null;
@@ -92,7 +89,7 @@ export class AuthService {
     @Inject(NotificationStore) private notifications: NotificationStoreApi,
     private translate: TranslateService,
     private rbac: RbacFacadeService,
-    private store: Store<AppState>
+    private store: Store<AppState>,
   ) {
     this.restoreSessionPromise = this.restoreSession().catch(() => undefined);
     this.syncRbac(this.userSig());
@@ -128,9 +125,9 @@ export class AuthService {
       password: credentials.password,
     };
 
-    return this.http.post<LoginResponse>(STRAPI_ROUTES.auth.login, payload, { withCredentials: false }).pipe(
-      tap((res) => this.persistAuth(res))
-    );
+    return this.http
+      .post<LoginResponse>(STRAPI_ROUTES.auth.login, payload, { withCredentials: false })
+      .pipe(tap((res) => this.persistAuth(res)));
   }
 
   /**
@@ -139,19 +136,25 @@ export class AuthService {
    * @param credentials Email/password pair provided during sign-up.
    * @returns Observable emitting the register response payload.
    */
-  register(credentials: { email: string; password: string; username?: string }): Observable<RegisterResponse> {
+  register(credentials: {
+    email: string;
+    password: string;
+    username?: string;
+  }): Observable<RegisterResponse> {
     const payload = {
       ...credentials,
       username: credentials.username?.trim() || credentials.email,
     };
 
-    return this.http.post<RegisterResponse>(STRAPI_ROUTES.auth.register, payload, { withCredentials: false }).pipe(
-      tap((res) => {
-        if (this.hasSessionPayload(res)) {
-          this.persistAuth(res);
-        }
-      })
-    );
+    return this.http
+      .post<RegisterResponse>(STRAPI_ROUTES.auth.register, payload, { withCredentials: false })
+      .pipe(
+        tap((res) => {
+          if (this.hasSessionPayload(res)) {
+            this.persistAuth(res);
+          }
+        }),
+      );
   }
 
   /**
@@ -160,13 +163,11 @@ export class AuthService {
    * @param payload Object containing the email address to target.
    * @returns Observable emitting the API acknowledgement.
    */
-  sendEmailConfirmation(payload: {
-    email: string;
-  }): Observable<{ email: string; sent: boolean }> {
+  sendEmailConfirmation(payload: { email: string }): Observable<{ email: string; sent: boolean }> {
     return this.http.post<{ email: string; sent: boolean }>(
       STRAPI_ROUTES.auth.sendEmailConfirmation,
       payload,
-      { withCredentials: false }
+      { withCredentials: false },
     );
   }
 
@@ -177,9 +178,9 @@ export class AuthService {
    * @returns Observable emitting the updated auth payload.
    */
   changePassword(payload: ChangePasswordPayload): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(STRAPI_ROUTES.auth.changePassword, payload).pipe(
-      tap((response) => this.persistAuth(response))
-    );
+    return this.http
+      .post<AuthResponse>(STRAPI_ROUTES.auth.changePassword, payload)
+      .pipe(tap((response) => this.persistAuth(response)));
   }
 
   /**
@@ -275,9 +276,9 @@ export class AuthService {
    * @returns Observable emitting the latest profile payload.
    */
   getProfile(): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(STRAPI_ROUTES.users.meProfile).pipe(
-      tap((user) => this.hydrateUserProfile(user))
-    );
+    return this.http
+      .get<ProfileResponse>(STRAPI_ROUTES.users.meProfile)
+      .pipe(tap((user) => this.hydrateUserProfile(user)));
   }
 
   /**
@@ -287,9 +288,9 @@ export class AuthService {
    * @returns Observable emitting the updated profile.
    */
   updateProfile(payload: UpdateProfilePayload): Observable<ProfileResponse> {
-    return this.http.put<ProfileResponse>(STRAPI_ROUTES.users.meProfile, payload).pipe(
-      tap((user) => this.hydrateUserProfile(user))
-    );
+    return this.http
+      .put<ProfileResponse>(STRAPI_ROUTES.users.meProfile, payload)
+      .pipe(tap((user) => this.hydrateUserProfile(user)));
   }
 
   /**
@@ -299,17 +300,17 @@ export class AuthService {
    * @returns Observable completing once the request is handled.
    */
   requestPasswordReset(payload: { email: string }): Observable<void> {
-    return this.http.post<void>(STRAPI_ROUTES.auth.forgotPassword, payload, { withCredentials: false }).pipe(
-      tap(() =>
-        this.notifications.success(
-          this.translate.instant('auth.forgotPassword.success'),
-          { source: 'auth', metadata: { action: 'forgot-password' } }
-        )
-      ),
-      catchError((error) =>
-        this.handleError(error, 'auth.errors.passwordResetRequest')
-      )
-    );
+    return this.http
+      .post<void>(STRAPI_ROUTES.auth.forgotPassword, payload, { withCredentials: false })
+      .pipe(
+        tap(() =>
+          this.notifications.success(this.translate.instant('auth.forgotPassword.success'), {
+            source: 'auth',
+            metadata: { action: 'forgot-password' },
+          }),
+        ),
+        catchError((error) => this.handleError(error, 'auth.errors.passwordResetRequest')),
+      );
   }
 
   /**
@@ -319,15 +320,17 @@ export class AuthService {
    * @returns Observable completing when the reset has been processed.
    */
   resetPassword(payload: { token: string; password: string }): Observable<void> {
-    return this.http.post<void>(STRAPI_ROUTES.auth.resetPassword, payload, { withCredentials: false }).pipe(
-      tap(() =>
-        this.notifications.success(
-          this.translate.instant('auth.resetPassword.success'),
-          { source: 'auth', metadata: { action: 'reset-password' } }
-        )
-      ),
-      catchError((error) => this.handleError(error, 'auth.errors.resetPassword'))
-    );
+    return this.http
+      .post<void>(STRAPI_ROUTES.auth.resetPassword, payload, { withCredentials: false })
+      .pipe(
+        tap(() =>
+          this.notifications.success(this.translate.instant('auth.resetPassword.success'), {
+            source: 'auth',
+            metadata: { action: 'reset-password' },
+          }),
+        ),
+        catchError((error) => this.handleError(error, 'auth.errors.resetPassword')),
+      );
   }
 
   /**
@@ -371,7 +374,7 @@ export class AuthService {
     const jwtExp = this.jwt()?.exp ?? null;
     this.store.dispatch(AuthActions.sessionHydrated({ user, jwtExp }));
     this.store.dispatch(
-      UserActions.profileHydrated({ profile: user, permissions: user.roles ?? [] })
+      UserActions.profileHydrated({ profile: user, permissions: user.roles ?? [] }),
     );
   }
 
@@ -396,7 +399,7 @@ export class AuthService {
 
     try {
       const profile = await firstValueFrom(
-        this.http.get<ProfileResponse>(STRAPI_ROUTES.users.meProfile)
+        this.http.get<ProfileResponse>(STRAPI_ROUTES.users.meProfile),
       );
 
       // Ignore stale restore cycles when a newer session already took over.
@@ -422,15 +425,13 @@ export class AuthService {
       this.store.dispatch(AuthActions.sessionHydrated({ user, jwtExp }));
     }
     this.store.dispatch(
-      UserActions.profileHydrated({ profile: user, permissions: user.roles ?? [] })
+      UserActions.profileHydrated({ profile: user, permissions: user.roles ?? [] }),
     );
   }
 
   private normalizeUser(rawUser: AuthUser | AuthUserPayload | null | undefined): AuthUser {
     const record =
-      rawUser && typeof rawUser === 'object'
-        ? (rawUser as Record<string, unknown>)
-        : {};
+      rawUser && typeof rawUser === 'object' ? (rawUser as Record<string, unknown>) : {};
 
     const normalizedId =
       typeof record['id'] === 'string' || typeof record['id'] === 'number'

@@ -1,7 +1,4 @@
-import {
-  removeCompanyFromIndex,
-  syncCompanyToIndex,
-} from '../../../../services/search.service';
+import { removeCompanyFromIndex, syncCompanyToIndex } from '../../../../services/search.service';
 
 type VerificationStatus =
   | 'unverified'
@@ -67,13 +64,9 @@ const averageScore = (items: readonly TrustRecord[]): number => {
 
 const deriveStatus = (
   current: VerificationStatus | null,
-  sources: readonly VerificationSource[]
+  sources: readonly VerificationSource[],
 ): VerificationStatus => {
-  if (
-    current === 'suspended' ||
-    current === 'correctionRequested' ||
-    current === 'rejected'
-  ) {
+  if (current === 'suspended' || current === 'correctionRequested' || current === 'rejected') {
     return current;
   }
   const validated = sources.some((source) => source?.status === 'validated');
@@ -100,7 +93,7 @@ const lifecycle = {
       typeof data.verificationStatus === 'string'
         ? (data.verificationStatus as VerificationStatus)
         : null,
-      verificationSources
+      verificationSources,
     );
   },
 
@@ -117,16 +110,16 @@ const lifecycle = {
 
     const trustHistory = Array.isArray(data.trustHistory)
       ? data.trustHistory
-      : previousCompany?.trustHistory ?? [];
+      : (previousCompany?.trustHistory ?? []);
 
     const verificationSources = Array.isArray(data.verificationSources)
       ? data.verificationSources
-      : previousCompany?.verificationSources ?? [];
+      : (previousCompany?.verificationSources ?? []);
 
     data.trustScore = averageScore(trustHistory);
-    const currentStatus = (data.verificationStatus ?? previousCompany?.verificationStatus ?? null) as
-      | VerificationStatus
-      | null;
+    const currentStatus = (data.verificationStatus ??
+      previousCompany?.verificationStatus ??
+      null) as VerificationStatus | null;
     data.verificationStatus = deriveStatus(currentStatus, verificationSources);
   },
 

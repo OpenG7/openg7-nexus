@@ -2,9 +2,15 @@
   class="relative isolate mx-auto w-full max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8"
   data-og7="user-profile"
 >
-  <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.22),transparent_68%)]"></div>
-  <div class="pointer-events-none absolute -left-16 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/40 blur-3xl"></div>
-  <div class="pointer-events-none absolute -right-20 top-16 -z-10 h-64 w-64 rounded-full bg-sky-100/75 blur-3xl"></div>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.22),transparent_68%)]"
+  ></div>
+  <div
+    class="pointer-events-none absolute -left-16 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/40 blur-3xl"
+  ></div>
+  <div
+    class="pointer-events-none absolute -right-20 top-16 -z-10 h-64 w-64 rounded-full bg-sky-100/75 blur-3xl"
+  ></div>
 
   <header
     class="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.45)] backdrop-blur"
@@ -21,871 +27,882 @@
       </div>
 
       @if (profile(); as current) {
-        <div class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3">
-          <div class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 text-base font-semibold text-white">
-            @if (avatarPreview(); as avatarUrl) {
-              <img
-                [src]="avatarUrl"
-                [alt]="'auth.profile.avatar.alt' | translate"
-                class="h-full w-full object-cover"
-                (error)="onAvatarPreviewError()"
-              />
-            } @else {
-              {{ buildInitials(current) }}
-            }
-          </div>
-          <div class="min-w-0">
-            <p class="truncate text-sm font-semibold text-slate-900">
-              {{ ((current.firstName ?? '') + ' ' + (current.lastName ?? '')).trim() || current.email }}
-            </p>
-            <p class="truncate text-xs text-slate-500" data-og7="user-profile-email">
-              {{ current.email }}
-            </p>
-          </div>
+      <div
+        class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3"
+      >
+        <div
+          class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 text-base font-semibold text-white"
+        >
+          @if (avatarPreview(); as avatarUrl) {
+          <img
+            [src]="avatarUrl"
+            [alt]="'auth.profile.avatar.alt' | translate"
+            class="h-full w-full object-cover"
+            (error)="onAvatarPreviewError()"
+          />
+          } @else { {{ buildInitials(current) }} }
         </div>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-semibold text-slate-900">
+            {{ ((current.firstName ?? '') + ' ' + (current.lastName ?? '')).trim() || current.email
+            }}
+          </p>
+          <p class="truncate text-xs text-slate-500" data-og7="user-profile-email">
+            {{ current.email }}
+          </p>
+        </div>
+      </div>
       }
     </div>
   </header>
 
   @if (loading()) {
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-      <div class="space-y-6">
-        <div class="h-56 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
-        <div class="h-80 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
-      </div>
-      <div class="h-96 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
+  <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+    <div class="space-y-6">
+      <div class="h-56 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
+      <div class="h-80 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
     </div>
+    <div class="h-96 animate-pulse rounded-2xl border border-slate-200 bg-white/80"></div>
+  </div>
   } @else {
-    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start">
-      <form
-        class="flex min-w-0 flex-col gap-6"
-        [formGroup]="form"
-        (ngSubmit)="onSubmit()"
-        novalidate
-        data-og7="user-profile-form"
+  <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start">
+    <form
+      class="flex min-w-0 flex-col gap-6"
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+      data-og7="user-profile-form"
+    >
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
+        data-og7="user-profile-avatar"
       >
-        <section
-          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
-          data-og7="user-profile-avatar"
-        >
-          <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <div class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 text-xl font-semibold text-white shadow-lg shadow-sky-300/30">
-              @if (avatarPreview(); as avatarUrl) {
-                <img
-                  [src]="avatarUrl"
-                  [alt]="'auth.profile.avatar.alt' | translate"
-                  class="h-full w-full object-cover"
-                  (error)="onAvatarPreviewError()"
-                />
-              } @else {
-                @if (profile(); as current) {
-                  {{ buildInitials(current) }}
-                }
-              }
-            </div>
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div
+            class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 text-xl font-semibold text-white shadow-lg shadow-sky-300/30"
+          >
+            @if (avatarPreview(); as avatarUrl) {
+            <img
+              [src]="avatarUrl"
+              [alt]="'auth.profile.avatar.alt' | translate"
+              class="h-full w-full object-cover"
+              (error)="onAvatarPreviewError()"
+            />
+            } @else { @if (profile(); as current) { {{ buildInitials(current) }} } }
+          </div>
 
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-slate-700" for="profile-avatar-url">
-                {{ 'auth.profile.avatar.label' | translate }}
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-slate-700" for="profile-avatar-url">
+              {{ 'auth.profile.avatar.label' | translate }}
+            </label>
+            <input
+              id="profile-avatar-url"
+              type="url"
+              class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="avatarUrl"
+              placeholder="{{ 'auth.profile.avatar.placeholder' | translate }}"
+              autocomplete="url"
+            />
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+              <label
+                for="profile-avatar-upload"
+                class="inline-flex cursor-pointer items-center rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                @if (uploadingAvatar()) { {{ 'auth.profile.avatar.uploading' | translate }} } @else
+                { {{ 'auth.profile.avatar.uploadCta' | translate }} }
               </label>
               <input
-                id="profile-avatar-url"
+                id="profile-avatar-upload"
+                type="file"
+                class="sr-only"
+                accept="image/*"
+                (change)="onAvatarFileSelected($event)"
+                [disabled]="uploadingAvatar() || loading()"
+                data-og7="user-profile-avatar-upload"
+              />
+              <p class="text-xs text-slate-500">
+                {{ 'auth.profile.avatar.uploadHint' | translate }}
+              </p>
+            </div>
+            @if (avatarUploadError(); as avatarUploadErrorKey) {
+            <p class="mt-1 text-xs text-error" data-og7="user-profile-avatar-upload-error">
+              {{ avatarUploadErrorKey | translate }}
+            </p>
+            } @if (form.controls.avatarUrl.touched && form.controls.avatarUrl.invalid) {
+            <p class="mt-1 text-xs text-error" data-og7="user-profile-avatar-error">
+              {{ 'validation.url' | translate }}
+            </p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
+        data-og7="user-profile-contact"
+      >
+        <div class="mb-4 space-y-1">
+          <h2 class="text-lg font-semibold text-slate-900">
+            {{ 'auth.profile.contact.title' | translate }}
+          </h2>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-first-name">
+              {{ 'auth.profile.contact.firstName' | translate }}
+            </label>
+            <input
+              id="profile-first-name"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="firstName"
+              autocomplete="given-name"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-last-name">
+              {{ 'auth.profile.contact.lastName' | translate }}
+            </label>
+            <input
+              id="profile-last-name"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="lastName"
+              autocomplete="family-name"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-job-title">
+              {{ 'auth.profile.contact.jobTitle' | translate }}
+            </label>
+            <input
+              id="profile-job-title"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="jobTitle"
+              autocomplete="organization-title"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-organization">
+              {{ 'auth.profile.contact.organization' | translate }}
+            </label>
+            <input
+              id="profile-organization"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="organization"
+              autocomplete="organization"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-phone">
+              {{ 'auth.profile.contact.phone' | translate }}
+            </label>
+            <input
+              id="profile-phone"
+              type="tel"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="phone"
+              autocomplete="tel"
+            />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <p class="text-xs text-error" data-og7="user-profile-phone-error">
+              {{ 'validation.caPhone' | translate }}
+            </p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-email">
+              {{ 'auth.profile.contact.email' | translate }}
+            </label>
+            <input
+              id="profile-email"
+              type="email"
+              class="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 text-sm text-slate-500"
+              formControlName="email"
+              readonly
+            />
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
+        data-og7="user-profile-preferences"
+      >
+        <div class="mb-4 space-y-1">
+          <h2 class="text-lg font-semibold text-slate-900">
+            {{ 'auth.profile.preferences.title' | translate }}
+          </h2>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-sectors">
+              {{ 'auth.profile.preferences.sectors' | translate }}
+            </label>
+            <input
+              id="profile-sectors"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="sectorPreferences"
+              placeholder="energy, manufacturing"
+            />
+            @if (form.controls.sectorPreferences.touched && form.controls.sectorPreferences.invalid)
+            {
+            <p class="text-xs text-error" data-og7="user-profile-sector-preferences-error">
+              {{ 'auth.profile.validation.list' | translate }}
+            </p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-provinces">
+              {{ 'auth.profile.preferences.provinces' | translate }}
+            </label>
+            <input
+              id="profile-provinces"
+              type="text"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="provincePreferences"
+              placeholder="qc, on"
+            />
+            @if (form.controls.provincePreferences.touched &&
+            form.controls.provincePreferences.invalid) {
+            <p class="text-xs text-error" data-og7="user-profile-province-preferences-error">
+              {{ 'auth.profile.validation.list' | translate }}
+            </p>
+            }
+          </div>
+        </div>
+
+        <div
+          class="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-cyan-50/60 p-4"
+          data-og7="user-profile-notifications"
+        >
+          <div class="space-y-1">
+            <h3 class="text-sm font-semibold text-slate-900">
+              {{ 'auth.profile.preferences.alerts.title' | translate }}
+            </h3>
+            <p class="text-sm text-slate-600">
+              {{ 'auth.profile.preferences.alerts.description' | translate }}
+            </p>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-3" data-og7="user-profile-alert-channels">
+            <label
+              class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2"
+            >
+              <input
+                id="profile-alert-channel-inapp"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                formControlName="alertChannelInApp"
+                data-og7-id="alert-channel-inapp"
+              />
+              <span class="text-sm text-slate-700">
+                {{ 'auth.profile.preferences.alerts.channels.inApp' | translate }}
+              </span>
+            </label>
+
+            <label
+              class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2"
+            >
+              <input
+                id="profile-email-notifications"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                formControlName="emailNotifications"
+                data-og7-id="alert-channel-email"
+              />
+              <span class="text-sm text-slate-700">
+                {{ 'auth.profile.preferences.alerts.channels.email' | translate }}
+              </span>
+            </label>
+
+            <label
+              class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2"
+            >
+              <input
+                id="profile-webhook-notifications"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                formControlName="webhookNotifications"
+                data-og7-id="alert-channel-webhook"
+              />
+              <span class="text-sm text-slate-700">
+                {{ 'auth.profile.preferences.alerts.channels.webhook' | translate }}
+              </span>
+            </label>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="flex flex-col gap-1">
+              <label
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+                for="profile-alert-frequency"
+              >
+                {{ 'auth.profile.preferences.alerts.frequency.label' | translate }}
+              </label>
+              <select
+                id="profile-alert-frequency"
+                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                formControlName="alertFrequency"
+                data-og7-id="alerts-frequency"
+              >
+                <option value="instant">
+                  {{ 'auth.profile.preferences.alerts.frequency.instant' | translate }}
+                </option>
+                <option value="daily-digest">
+                  {{ 'auth.profile.preferences.alerts.frequency.dailyDigest' | translate }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+                for="profile-notification-webhook"
+              >
+                {{ 'auth.profile.preferences.email.webhookLabel' | translate }}
+              </label>
+              <input
+                id="profile-notification-webhook"
                 type="url"
-                class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="avatarUrl"
-                placeholder="{{ 'auth.profile.avatar.placeholder' | translate }}"
+                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                formControlName="notificationWebhook"
+                placeholder="https://cms.example.com/api/notifications/email"
                 autocomplete="url"
+                data-og7-id="alerts-webhook-url"
               />
-              <div class="mt-3 flex flex-wrap items-center gap-3">
-                <label
-                  for="profile-avatar-upload"
-                  class="inline-flex cursor-pointer items-center rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                >
-                  @if (uploadingAvatar()) {
-                    {{ 'auth.profile.avatar.uploading' | translate }}
-                  } @else {
-                    {{ 'auth.profile.avatar.uploadCta' | translate }}
-                  }
-                </label>
+              @if (form.controls.notificationWebhook.touched &&
+              form.controls.notificationWebhook.invalid) {
+              <p class="text-xs text-error" data-og7="user-profile-notification-webhook-error">
+                @if (form.controls.notificationWebhook.hasError('invalidHttpsUrl')) { {{
+                'auth.profile.validation.httpsUrl' | translate }} } @else { {{ 'validation.url' |
+                translate }} }
+              </p>
+              }
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500">
+            {{ 'auth.profile.preferences.email.webhookHelp' | translate }}
+          </p>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div
+              class="space-y-2 rounded-xl border border-slate-200 bg-white/80 p-3"
+              data-og7-id="alerts-severity-filters"
+            >
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {{ 'auth.profile.preferences.alerts.filters.severityLabel' | translate }}
+              </p>
+              <label class="flex items-center gap-2 text-sm text-slate-700">
                 <input
-                  id="profile-avatar-upload"
-                  type="file"
-                  class="sr-only"
-                  accept="image/*"
-                  (change)="onAvatarFileSelected($event)"
-                  [disabled]="uploadingAvatar() || loading()"
-                  data-og7="user-profile-avatar-upload"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSeverityInfo"
                 />
-                <p class="text-xs text-slate-500">
-                  {{ 'auth.profile.avatar.uploadHint' | translate }}
-                </p>
-              </div>
-              @if (avatarUploadError(); as avatarUploadErrorKey) {
-                <p class="mt-1 text-xs text-error" data-og7="user-profile-avatar-upload-error">
-                  {{ avatarUploadErrorKey | translate }}
-                </p>
-              }
-              @if (form.controls.avatarUrl.touched && form.controls.avatarUrl.invalid) {
-                <p class="mt-1 text-xs text-error" data-og7="user-profile-avatar-error">
-                  {{ 'validation.url' | translate }}
-                </p>
-              }
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
-          data-og7="user-profile-contact"
-        >
-          <div class="mb-4 space-y-1">
-            <h2 class="text-lg font-semibold text-slate-900">
-              {{ 'auth.profile.contact.title' | translate }}
-            </h2>
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-first-name">
-                {{ 'auth.profile.contact.firstName' | translate }}
+                {{ 'pages.alerts.severity.info' | translate }}
               </label>
-              <input
-                id="profile-first-name"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="firstName"
-                autocomplete="given-name"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-last-name">
-                {{ 'auth.profile.contact.lastName' | translate }}
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSeveritySuccess"
+                />
+                {{ 'pages.alerts.severity.success' | translate }}
               </label>
-              <input
-                id="profile-last-name"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="lastName"
-                autocomplete="family-name"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-job-title">
-                {{ 'auth.profile.contact.jobTitle' | translate }}
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSeverityWarning"
+                />
+                {{ 'pages.alerts.severity.warning' | translate }}
               </label>
-              <input
-                id="profile-job-title"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="jobTitle"
-                autocomplete="organization-title"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-organization">
-                {{ 'auth.profile.contact.organization' | translate }}
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSeverityCritical"
+                />
+                {{ 'pages.alerts.severity.critical' | translate }}
               </label>
-              <input
-                id="profile-organization"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="organization"
-                autocomplete="organization"
-              />
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-phone">
-                {{ 'auth.profile.contact.phone' | translate }}
-              </label>
-              <input
-                id="profile-phone"
-                type="tel"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="phone"
-                autocomplete="tel"
-              />
-              @if (form.controls.phone.touched && form.controls.phone.invalid) {
-                <p class="text-xs text-error" data-og7="user-profile-phone-error">
-                  {{ 'validation.caPhone' | translate }}
-                </p>
+              @if (alertSeveritySelectionError()) {
+              <p class="text-xs text-error" data-og7-id="alerts-severity-error">
+                {{ 'auth.profile.preferences.alerts.filters.severityRequired' | translate }}
+              </p>
               }
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-email">
-                {{ 'auth.profile.contact.email' | translate }}
+            <div
+              class="space-y-2 rounded-xl border border-slate-200 bg-white/80 p-3"
+              data-og7-id="alerts-source-filters"
+            >
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {{ 'auth.profile.preferences.alerts.filters.sourceLabel' | translate }}
+              </p>
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSourceSavedSearch"
+                />
+                {{ 'pages.alerts.sources.savedSearch' | translate }}
               </label>
-              <input
-                id="profile-email"
-                type="email"
-                class="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 text-sm text-slate-500"
-                formControlName="email"
-                readonly
-              />
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
-          data-og7="user-profile-preferences"
-        >
-          <div class="mb-4 space-y-1">
-            <h2 class="text-lg font-semibold text-slate-900">
-              {{ 'auth.profile.preferences.title' | translate }}
-            </h2>
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-sectors">
-                {{ 'auth.profile.preferences.sectors' | translate }}
+              <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                  formControlName="alertSourceSystem"
+                />
+                {{ 'pages.alerts.sources.system' | translate }}
               </label>
-              <input
-                id="profile-sectors"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="sectorPreferences"
-                placeholder="energy, manufacturing"
-              />
-              @if (form.controls.sectorPreferences.touched && form.controls.sectorPreferences.invalid) {
-                <p class="text-xs text-error" data-og7="user-profile-sector-preferences-error">
-                  {{ 'auth.profile.validation.list' | translate }}
-                </p>
-              }
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-provinces">
-                {{ 'auth.profile.preferences.provinces' | translate }}
-              </label>
-              <input
-                id="profile-provinces"
-                type="text"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="provincePreferences"
-                placeholder="qc, on"
-              />
-              @if (form.controls.provincePreferences.touched && form.controls.provincePreferences.invalid) {
-                <p class="text-xs text-error" data-og7="user-profile-province-preferences-error">
-                  {{ 'auth.profile.validation.list' | translate }}
-                </p>
+              @if (alertSourceSelectionError()) {
+              <p class="text-xs text-error" data-og7-id="alerts-source-error">
+                {{ 'auth.profile.preferences.alerts.filters.sourceRequired' | translate }}
+              </p>
               }
             </div>
           </div>
 
           <div
-            class="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-cyan-50/60 p-4"
-            data-og7="user-profile-notifications"
+            class="space-y-3 rounded-xl border border-slate-200 bg-white/80 p-3"
+            data-og7-id="alerts-quiet-hours"
           >
-            <div class="space-y-1">
-              <h3 class="text-sm font-semibold text-slate-900">
-                {{ 'auth.profile.preferences.alerts.title' | translate }}
-              </h3>
-              <p class="text-sm text-slate-600">
-                {{ 'auth.profile.preferences.alerts.description' | translate }}
-              </p>
-            </div>
+            <label
+              class="flex items-center gap-2 text-sm font-semibold text-slate-900"
+              for="profile-quiet-hours-enabled"
+            >
+              <input
+                id="profile-quiet-hours-enabled"
+                type="checkbox"
+                class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
+                formControlName="quietHoursEnabled"
+                data-og7-id="alerts-quiet-hours-enabled"
+              />
+              {{ 'auth.profile.preferences.alerts.quietHours.title' | translate }}
+            </label>
 
-            <div class="grid gap-3 sm:grid-cols-3" data-og7="user-profile-alert-channels">
-              <label class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2">
-                <input
-                  id="profile-alert-channel-inapp"
-                  type="checkbox"
-                  class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
-                  formControlName="alertChannelInApp"
-                  data-og7-id="alert-channel-inapp"
-                />
-                <span class="text-sm text-slate-700">
-                  {{ 'auth.profile.preferences.alerts.channels.inApp' | translate }}
-                </span>
-              </label>
-
-              <label class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2">
-                <input
-                  id="profile-email-notifications"
-                  type="checkbox"
-                  class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
-                  formControlName="emailNotifications"
-                  data-og7-id="alert-channel-email"
-                />
-                <span class="text-sm text-slate-700">
-                  {{ 'auth.profile.preferences.alerts.channels.email' | translate }}
-                </span>
-              </label>
-
-              <label class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2">
-                <input
-                  id="profile-webhook-notifications"
-                  type="checkbox"
-                  class="mt-1 h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
-                  formControlName="webhookNotifications"
-                  data-og7-id="alert-channel-webhook"
-                />
-                <span class="text-sm text-slate-700">
-                  {{ 'auth.profile.preferences.alerts.channels.webhook' | translate }}
-                </span>
-              </label>
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-2">
+            <div class="grid gap-3 sm:grid-cols-3">
               <div class="flex flex-col gap-1">
-                <label class="text-xs font-medium uppercase tracking-wide text-slate-500" for="profile-alert-frequency">
-                  {{ 'auth.profile.preferences.alerts.frequency.label' | translate }}
-                </label>
-                <select
-                  id="profile-alert-frequency"
-                  class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                  formControlName="alertFrequency"
-                  data-og7-id="alerts-frequency"
+                <label
+                  class="text-xs font-medium uppercase tracking-wide text-slate-500"
+                  for="profile-quiet-hours-start"
                 >
-                  <option value="instant">
-                    {{ 'auth.profile.preferences.alerts.frequency.instant' | translate }}
-                  </option>
-                  <option value="daily-digest">
-                    {{ 'auth.profile.preferences.alerts.frequency.dailyDigest' | translate }}
-                  </option>
-                </select>
+                  {{ 'auth.profile.preferences.alerts.quietHours.start' | translate }}
+                </label>
+                <input
+                  id="profile-quiet-hours-start"
+                  type="time"
+                  class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                  formControlName="quietHoursStart"
+                  data-og7-id="alerts-quiet-hours-start"
+                />
               </div>
 
               <div class="flex flex-col gap-1">
                 <label
                   class="text-xs font-medium uppercase tracking-wide text-slate-500"
-                  for="profile-notification-webhook"
+                  for="profile-quiet-hours-end"
                 >
-                  {{ 'auth.profile.preferences.email.webhookLabel' | translate }}
+                  {{ 'auth.profile.preferences.alerts.quietHours.end' | translate }}
                 </label>
                 <input
-                  id="profile-notification-webhook"
-                  type="url"
+                  id="profile-quiet-hours-end"
+                  type="time"
                   class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                  formControlName="notificationWebhook"
-                  placeholder="https://cms.example.com/api/notifications/email"
-                  autocomplete="url"
-                  data-og7-id="alerts-webhook-url"
+                  formControlName="quietHoursEnd"
+                  data-og7-id="alerts-quiet-hours-end"
                 />
-                @if (form.controls.notificationWebhook.touched && form.controls.notificationWebhook.invalid) {
-                  <p class="text-xs text-error" data-og7="user-profile-notification-webhook-error">
-                    @if (form.controls.notificationWebhook.hasError('invalidHttpsUrl')) {
-                      {{ 'auth.profile.validation.httpsUrl' | translate }}
-                    } @else {
-                      {{ 'validation.url' | translate }}
-                    }
-                  </p>
-                }
-              </div>
-            </div>
-
-            <p class="text-xs text-slate-500">
-              {{ 'auth.profile.preferences.email.webhookHelp' | translate }}
-            </p>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <div class="space-y-2 rounded-xl border border-slate-200 bg-white/80 p-3" data-og7-id="alerts-severity-filters">
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {{ 'auth.profile.preferences.alerts.filters.severityLabel' | translate }}
-                </p>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSeverityInfo" />
-                  {{ 'pages.alerts.severity.info' | translate }}
-                </label>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSeveritySuccess" />
-                  {{ 'pages.alerts.severity.success' | translate }}
-                </label>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSeverityWarning" />
-                  {{ 'pages.alerts.severity.warning' | translate }}
-                </label>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSeverityCritical" />
-                  {{ 'pages.alerts.severity.critical' | translate }}
-                </label>
-                @if (alertSeveritySelectionError()) {
-                  <p class="text-xs text-error" data-og7-id="alerts-severity-error">
-                    {{ 'auth.profile.preferences.alerts.filters.severityRequired' | translate }}
-                  </p>
-                }
               </div>
 
-              <div class="space-y-2 rounded-xl border border-slate-200 bg-white/80 p-3" data-og7-id="alerts-source-filters">
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {{ 'auth.profile.preferences.alerts.filters.sourceLabel' | translate }}
-                </p>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSourceSavedSearch" />
-                  {{ 'pages.alerts.sources.savedSearch' | translate }}
+              <div class="flex flex-col gap-1">
+                <label
+                  class="text-xs font-medium uppercase tracking-wide text-slate-500"
+                  for="profile-quiet-hours-timezone"
+                >
+                  {{ 'auth.profile.preferences.alerts.quietHours.timezone' | translate }}
                 </label>
-                <label class="flex items-center gap-2 text-sm text-slate-700">
-                  <input type="checkbox" class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300" formControlName="alertSourceSystem" />
-                  {{ 'pages.alerts.sources.system' | translate }}
-                </label>
-                @if (alertSourceSelectionError()) {
-                  <p class="text-xs text-error" data-og7-id="alerts-source-error">
-                    {{ 'auth.profile.preferences.alerts.filters.sourceRequired' | translate }}
-                  </p>
-                }
-              </div>
-            </div>
-
-            <div class="space-y-3 rounded-xl border border-slate-200 bg-white/80 p-3" data-og7-id="alerts-quiet-hours">
-              <label class="flex items-center gap-2 text-sm font-semibold text-slate-900" for="profile-quiet-hours-enabled">
                 <input
-                  id="profile-quiet-hours-enabled"
-                  type="checkbox"
-                  class="h-4 w-4 rounded border-slate-400 text-sky-600 focus:ring-sky-300"
-                  formControlName="quietHoursEnabled"
-                  data-og7-id="alerts-quiet-hours-enabled"
+                  id="profile-quiet-hours-timezone"
+                  type="text"
+                  class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                  formControlName="quietHoursTimezone"
+                  placeholder="America/Toronto"
+                  data-og7-id="alerts-quiet-hours-timezone"
                 />
-                {{ 'auth.profile.preferences.alerts.quietHours.title' | translate }}
-              </label>
-
-              <div class="grid gap-3 sm:grid-cols-3">
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium uppercase tracking-wide text-slate-500" for="profile-quiet-hours-start">
-                    {{ 'auth.profile.preferences.alerts.quietHours.start' | translate }}
-                  </label>
-                  <input
-                    id="profile-quiet-hours-start"
-                    type="time"
-                    class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                    formControlName="quietHoursStart"
-                    data-og7-id="alerts-quiet-hours-start"
-                  />
-                </div>
-
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium uppercase tracking-wide text-slate-500" for="profile-quiet-hours-end">
-                    {{ 'auth.profile.preferences.alerts.quietHours.end' | translate }}
-                  </label>
-                  <input
-                    id="profile-quiet-hours-end"
-                    type="time"
-                    class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                    formControlName="quietHoursEnd"
-                    data-og7-id="alerts-quiet-hours-end"
-                  />
-                </div>
-
-                <div class="flex flex-col gap-1">
-                  <label class="text-xs font-medium uppercase tracking-wide text-slate-500" for="profile-quiet-hours-timezone">
-                    {{ 'auth.profile.preferences.alerts.quietHours.timezone' | translate }}
-                  </label>
-                  <input
-                    id="profile-quiet-hours-timezone"
-                    type="text"
-                    class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                    formControlName="quietHoursTimezone"
-                    placeholder="America/Toronto"
-                    data-og7-id="alerts-quiet-hours-timezone"
-                  />
-                </div>
               </div>
-
-              @if (quietHoursConfigurationError()) {
-                <p class="text-xs text-error" data-og7-id="alerts-quiet-hours-error">
-                  {{ 'auth.profile.preferences.alerts.quietHours.required' | translate }}
-                </p>
-              } @else if (form.controls.quietHoursTimezone.touched && form.controls.quietHoursTimezone.hasError('invalidTimezone')) {
-                <p class="text-xs text-error" data-og7-id="alerts-quiet-hours-timezone-error">
-                  {{ 'auth.profile.preferences.alerts.quietHours.invalidTimezone' | translate }}
-                </p>
-              }
-            </div>
-          </div>
-        </section>
-
-        <div class="sticky bottom-4 z-20 mt-1 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg shadow-slate-900/5 backdrop-blur">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              @if (hasUnsavedChanges()) {
-                <p class="text-xs font-medium text-amber-700" data-og7="user-profile-unsaved-changes">
-                  {{ 'auth.profile.unsavedChanges' | translate }}
-                </p>
-              }
             </div>
 
-            <div class="flex justify-end gap-3">
-              <button
-                type="button"
-                class="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
-                (click)="resetPendingChanges()"
-                [disabled]="saving()"
-              >
-                {{ 'auth.profile.discard' | translate }}
-              </button>
-              <button
-                type="submit"
-                class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
-                [disabled]="!canSave()"
-              >
-                @if (saving()) {
-                  {{ 'auth.profile.saving' | translate }}
-                } @else {
-                  {{ 'auth.profile.save' | translate }}
-                }
-              </button>
-            </div>
+            @if (quietHoursConfigurationError()) {
+            <p class="text-xs text-error" data-og7-id="alerts-quiet-hours-error">
+              {{ 'auth.profile.preferences.alerts.quietHours.required' | translate }}
+            </p>
+            } @else if (form.controls.quietHoursTimezone.touched &&
+            form.controls.quietHoursTimezone.hasError('invalidTimezone')) {
+            <p class="text-xs text-error" data-og7-id="alerts-quiet-hours-timezone-error">
+              {{ 'auth.profile.preferences.alerts.quietHours.invalidTimezone' | translate }}
+            </p>
+            }
           </div>
         </div>
-      </form>
+      </section>
 
-      <aside class="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">
-        <section
-          class="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
-          data-og7="user-profile-security"
-        >
-          <div class="flex flex-col gap-3" data-og7="user-profile-status">
-            <h2 class="text-lg font-semibold text-slate-900">
-              {{ 'auth.profile.security.title' | translate }}
-            </h2>
-            <p class="text-sm text-slate-600">
-              {{ 'auth.profile.security.subtitle' | translate }}
+      <div
+        class="sticky bottom-4 z-20 mt-1 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg shadow-slate-900/5 backdrop-blur"
+      >
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            @if (hasUnsavedChanges()) {
+            <p class="text-xs font-medium text-amber-700" data-og7="user-profile-unsaved-changes">
+              {{ 'auth.profile.unsavedChanges' | translate }}
             </p>
-
-            <div
-              class="inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold"
-              [attr.data-og7-id]="accountStatusSelector()"
-              [class.bg-emerald-50]="accountStatus() === 'active'"
-              [class.border-emerald-200]="accountStatus() === 'active'"
-              [class.text-emerald-700]="accountStatus() === 'active'"
-              [class.bg-amber-50]="accountStatus() === 'emailNotConfirmed'"
-              [class.border-amber-200]="accountStatus() === 'emailNotConfirmed'"
-              [class.text-amber-700]="accountStatus() === 'emailNotConfirmed'"
-              [class.bg-rose-50]="accountStatus() === 'disabled'"
-              [class.border-rose-200]="accountStatus() === 'disabled'"
-              [class.text-rose-700]="accountStatus() === 'disabled'"
-            >
-              {{ accountStatusKey() | translate }}
-            </div>
-
-            @if (accountStatus() === 'emailNotConfirmed') {
-              <p class="text-sm text-amber-700">
-                {{ 'auth.errors.emailNotConfirmed' | translate }}
-              </p>
-              <div>
-                <button
-                  type="button"
-                  class="inline-flex items-center rounded-xl border border-amber-400 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
-                  data-og7="user-profile-resend-activation"
-                  (click)="onSendActivationEmail()"
-                  [disabled]="!canResendActivation()"
-                >
-                  @if (sendingActivationEmail()) {
-                    {{ 'auth.login.activationEmailSending' | translate }}
-                  } @else {
-                    {{ 'auth.profile.security.activation.cta' | translate }}
-                  }
-                </button>
-              </div>
-            }
-
-            @if (accountStatus() === 'disabled') {
-              <p class="text-sm text-error">
-                {{ 'auth.errors.accountDisabled' | translate }}
-              </p>
             }
           </div>
 
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              (click)="resetPendingChanges()"
+              [disabled]="saving()"
+            >
+              {{ 'auth.profile.discard' | translate }}
+            </button>
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+              [disabled]="!canSave()"
+            >
+              @if (saving()) { {{ 'auth.profile.saving' | translate }} } @else { {{
+              'auth.profile.save' | translate }} }
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <aside class="flex min-w-0 flex-col gap-6 lg:sticky lg:top-24">
+      <section
+        class="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
+        data-og7="user-profile-security"
+      >
+        <div class="flex flex-col gap-3" data-og7="user-profile-status">
+          <h2 class="text-lg font-semibold text-slate-900">
+            {{ 'auth.profile.security.title' | translate }}
+          </h2>
+          <p class="text-sm text-slate-600">{{ 'auth.profile.security.subtitle' | translate }}</p>
+
           <div
-            class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4"
-            data-og7="user-profile-export-data"
+            class="inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold"
+            [attr.data-og7-id]="accountStatusSelector()"
+            [class.bg-emerald-50]="accountStatus() === 'active'"
+            [class.border-emerald-200]="accountStatus() === 'active'"
+            [class.text-emerald-700]="accountStatus() === 'active'"
+            [class.bg-amber-50]="accountStatus() === 'emailNotConfirmed'"
+            [class.border-amber-200]="accountStatus() === 'emailNotConfirmed'"
+            [class.text-amber-700]="accountStatus() === 'emailNotConfirmed'"
+            [class.bg-rose-50]="accountStatus() === 'disabled'"
+            [class.border-rose-200]="accountStatus() === 'disabled'"
+            [class.text-rose-700]="accountStatus() === 'disabled'"
           >
+            {{ accountStatusKey() | translate }}
+          </div>
+
+          @if (accountStatus() === 'emailNotConfirmed') {
+          <p class="text-sm text-amber-700">{{ 'auth.errors.emailNotConfirmed' | translate }}</p>
+          <div>
+            <button
+              type="button"
+              class="inline-flex items-center rounded-xl border border-amber-400 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
+              data-og7="user-profile-resend-activation"
+              (click)="onSendActivationEmail()"
+              [disabled]="!canResendActivation()"
+            >
+              @if (sendingActivationEmail()) { {{ 'auth.login.activationEmailSending' | translate }}
+              } @else { {{ 'auth.profile.security.activation.cta' | translate }} }
+            </button>
+          </div>
+          } @if (accountStatus() === 'disabled') {
+          <p class="text-sm text-error">{{ 'auth.errors.accountDisabled' | translate }}</p>
+          }
+        </div>
+
+        <div
+          class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+          data-og7="user-profile-export-data"
+        >
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">
+              {{ 'auth.profile.security.exportData.title' | translate }}
+            </h3>
+            <p class="text-xs text-slate-600">
+              {{ 'auth.profile.security.exportData.help' | translate }}
+            </p>
+          </div>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              data-og7-id="export-account-data"
+              (click)="onExportProfileData()"
+              [disabled]="loading() || exportingData()"
+            >
+              @if (exportingData()) { {{ 'auth.profile.security.exportData.loading' | translate }} }
+              @else { {{ 'auth.profile.security.exportData.cta' | translate }} }
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+          data-og7="user-profile-sessions"
+        >
+          <div class="flex items-start justify-between gap-3">
             <div>
               <h3 class="text-sm font-semibold text-slate-900">
-                {{ 'auth.profile.security.exportData.title' | translate }}
+                {{ 'auth.profile.security.sessions.title' | translate }}
               </h3>
               <p class="text-xs text-slate-600">
-                {{ 'auth.profile.security.exportData.help' | translate }}
+                {{ 'auth.profile.security.sessions.help' | translate }}
               </p>
             </div>
-            <div class="flex justify-end">
-              <button
-                type="button"
-                class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
-                data-og7-id="export-account-data"
-                (click)="onExportProfileData()"
-                [disabled]="loading() || exportingData()"
-              >
-                @if (exportingData()) {
-                  {{ 'auth.profile.security.exportData.loading' | translate }}
-                } @else {
-                  {{ 'auth.profile.security.exportData.cta' | translate }}
-                }
-              </button>
-            </div>
+            <button
+              type="button"
+              class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              data-og7-id="refresh-sessions"
+              (click)="onRefreshSessions()"
+              [disabled]="loadingSessions() || loggingOutOtherSessions()"
+            >
+              @if (loadingSessions()) { {{ 'auth.profile.security.sessions.refreshLoading' |
+              translate }} } @else { {{ 'auth.profile.security.sessions.refresh' | translate }} }
+            </button>
           </div>
 
-          <div
-            class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4"
-            data-og7="user-profile-sessions"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h3 class="text-sm font-semibold text-slate-900">
-                  {{ 'auth.profile.security.sessions.title' | translate }}
-                </h3>
-                <p class="text-xs text-slate-600">
-                  {{ 'auth.profile.security.sessions.help' | translate }}
+          @if (sessions().length === 0) {
+          <p class="text-xs text-slate-500">
+            {{ 'auth.profile.security.sessions.empty' | translate }}
+          </p>
+          } @else {
+          <ul class="grid gap-2">
+            @for (session of sessions(); track session.id) {
+            <li
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2"
+              data-og7-id="session-item"
+            >
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-xs font-semibold text-slate-800">
+                  {{ session.userAgent || ('auth.profile.security.sessions.unknownDevice' |
+                  translate) }}
                 </p>
+                @if (session.current) {
+                <span
+                  class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700"
+                >
+                  {{ 'auth.profile.security.sessions.current' | translate }}
+                </span>
+                } @if (session.status === 'revoked') {
+                <span
+                  class="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600"
+                >
+                  {{ 'auth.profile.security.sessions.revoked' | translate }}
+                </span>
+                }
               </div>
-              <button
-                type="button"
-                class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
-                data-og7-id="refresh-sessions"
-                (click)="onRefreshSessions()"
-                [disabled]="loadingSessions() || loggingOutOtherSessions()"
-              >
-                @if (loadingSessions()) {
-                  {{ 'auth.profile.security.sessions.refreshLoading' | translate }}
-                } @else {
-                  {{ 'auth.profile.security.sessions.refresh' | translate }}
-                }
-              </button>
-            </div>
-
-            @if (sessions().length === 0) {
-              <p class="text-xs text-slate-500">
-                {{ 'auth.profile.security.sessions.empty' | translate }}
+              <p class="mt-1 text-[11px] text-slate-500">
+                {{ 'auth.profile.security.sessions.lastSeen' | translate }}: {{ session.lastSeenAt |
+                date: 'medium' }}
               </p>
-            } @else {
-              <ul class="grid gap-2">
-                @for (session of sessions(); track session.id) {
-                  <li class="rounded-lg border border-slate-200 bg-white px-3 py-2" data-og7-id="session-item">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <p class="text-xs font-semibold text-slate-800">
-                        {{ session.userAgent || ('auth.profile.security.sessions.unknownDevice' | translate) }}
-                      </p>
-                      @if (session.current) {
-                        <span
-                          class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700"
-                        >
-                          {{ 'auth.profile.security.sessions.current' | translate }}
-                        </span>
-                      }
-                      @if (session.status === 'revoked') {
-                        <span
-                          class="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600"
-                        >
-                          {{ 'auth.profile.security.sessions.revoked' | translate }}
-                        </span>
-                      }
-                    </div>
-                    <p class="mt-1 text-[11px] text-slate-500">
-                      {{ 'auth.profile.security.sessions.lastSeen' | translate }}:
-                      {{ session.lastSeenAt | date: 'medium' }}
-                    </p>
-                    <p class="text-[11px] text-slate-500">
-                      {{ session.ipAddress || ('auth.profile.security.sessions.unknownIp' | translate) }}
-                    </p>
-                  </li>
-                }
-              </ul>
+              <p class="text-[11px] text-slate-500">
+                {{ session.ipAddress || ('auth.profile.security.sessions.unknownIp' | translate) }}
+              </p>
+            </li>
             }
+          </ul>
+          }
 
-            <div class="flex justify-end">
-              <button
-                type="button"
-                class="inline-flex items-center rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
-                data-og7-id="logout-other-sessions"
-                (click)="onLogoutOtherSessions()"
-                [disabled]="loading() || loggingOutOtherSessions() || !hasOtherActiveSessions()"
-              >
-                @if (loggingOutOtherSessions()) {
-                  {{ 'auth.profile.security.sessions.logoutOthersLoading' | translate }}
-                } @else {
-                  {{ 'auth.profile.security.sessions.logoutOthers' | translate }}
-                }
-              </button>
-            </div>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50"
+              data-og7-id="logout-other-sessions"
+              (click)="onLogoutOtherSessions()"
+              [disabled]="loading() || loggingOutOtherSessions() || !hasOtherActiveSessions()"
+            >
+              @if (loggingOutOtherSessions()) { {{
+              'auth.profile.security.sessions.logoutOthersLoading' | translate }} } @else { {{
+              'auth.profile.security.sessions.logoutOthers' | translate }} }
+            </button>
+          </div>
+        </div>
+
+        <form
+          class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2"
+          [formGroup]="passwordForm"
+          (ngSubmit)="onChangePassword()"
+          novalidate
+          data-og7="user-profile-change-password"
+        >
+          <div class="sm:col-span-2">
+            <h3 class="text-sm font-semibold text-slate-900">
+              {{ 'auth.profile.security.password.title' | translate }}
+            </h3>
           </div>
 
-          <form
-            class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2"
-            [formGroup]="passwordForm"
-            (ngSubmit)="onChangePassword()"
-            novalidate
-            data-og7="user-profile-change-password"
-          >
-            <div class="sm:col-span-2">
-              <h3 class="text-sm font-semibold text-slate-900">
-                {{ 'auth.profile.security.password.title' | translate }}
-              </h3>
-            </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-password-current">
+              {{ 'auth.profile.security.password.current' | translate }}
+            </label>
+            <input
+              id="profile-password-current"
+              type="password"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+            />
+            @if ( passwordForm.controls.currentPassword.touched &&
+            passwordForm.controls.currentPassword.hasError('required') ) {
+            <p class="text-xs text-error">{{ 'auth.errors.passwordRequired' | translate }}</p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-password-current">
-                {{ 'auth.profile.security.password.current' | translate }}
-              </label>
-              <input
-                id="profile-password-current"
-                type="password"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="currentPassword"
-                autocomplete="current-password"
-              />
-              @if (
-                passwordForm.controls.currentPassword.touched &&
-                passwordForm.controls.currentPassword.hasError('required')
-              ) {
-                <p class="text-xs text-error">
-                  {{ 'auth.errors.passwordRequired' | translate }}
-                </p>
-              }
-            </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-password-new">
+              {{ 'auth.profile.security.password.next' | translate }}
+            </label>
+            <input
+              id="profile-password-new"
+              type="password"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+            @if (passwordForm.controls.password.touched && passwordForm.controls.password.invalid) {
+            <p class="text-xs text-error">
+              @if (passwordForm.controls.password.hasError('required')) { {{
+              'auth.errors.passwordRequired' | translate }} } @else if
+              (passwordForm.controls.password.hasError('minlength')) { {{
+              'auth.errors.passwordMinLength' | translate }} } @else if
+              (passwordForm.controls.password.hasError('weakPassword')) { {{
+              'auth.profile.security.password.weak' | translate }} } @else if
+              (passwordForm.controls.password.hasError('sameAsCurrent')) { {{
+              'auth.profile.security.password.sameAsCurrent' | translate }} }
+            </p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-password-new">
-                {{ 'auth.profile.security.password.next' | translate }}
-              </label>
-              <input
-                id="profile-password-new"
-                type="password"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="password"
-                autocomplete="new-password"
-              />
-              @if (passwordForm.controls.password.touched && passwordForm.controls.password.invalid) {
-                <p class="text-xs text-error">
-                  @if (passwordForm.controls.password.hasError('required')) {
-                    {{ 'auth.errors.passwordRequired' | translate }}
-                  } @else if (passwordForm.controls.password.hasError('minlength')) {
-                    {{ 'auth.errors.passwordMinLength' | translate }}
-                  } @else if (passwordForm.controls.password.hasError('weakPassword')) {
-                    {{ 'auth.profile.security.password.weak' | translate }}
-                  } @else if (passwordForm.controls.password.hasError('sameAsCurrent')) {
-                    {{ 'auth.profile.security.password.sameAsCurrent' | translate }}
-                  }
-                </p>
-              }
-            </div>
+          <div class="flex flex-col gap-1 sm:col-span-2">
+            <label class="text-sm font-medium text-slate-700" for="profile-password-confirmation">
+              {{ 'auth.profile.security.password.confirm' | translate }}
+            </label>
+            <input
+              id="profile-password-confirmation"
+              type="password"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="passwordConfirmation"
+              autocomplete="new-password"
+            />
+            @if ( passwordForm.controls.passwordConfirmation.touched &&
+            passwordForm.controls.passwordConfirmation.hasError('required') ) {
+            <p class="text-xs text-error">
+              {{ 'auth.errors.confirmPasswordRequired' | translate }}
+            </p>
+            } @if ( passwordForm.touched && passwordForm.hasError('passwordMismatch') &&
+            !passwordForm.controls.passwordConfirmation.hasError('required') ) {
+            <p class="text-xs text-error">{{ 'auth.errors.passwordMismatch' | translate }}</p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-1 sm:col-span-2">
-              <label class="text-sm font-medium text-slate-700" for="profile-password-confirmation">
-                {{ 'auth.profile.security.password.confirm' | translate }}
-              </label>
-              <input
-                id="profile-password-confirmation"
-                type="password"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="passwordConfirmation"
-                autocomplete="new-password"
-              />
-              @if (
-                passwordForm.controls.passwordConfirmation.touched &&
-                passwordForm.controls.passwordConfirmation.hasError('required')
-              ) {
-                <p class="text-xs text-error">
-                  {{ 'auth.errors.confirmPasswordRequired' | translate }}
-                </p>
-              }
-              @if (
-                passwordForm.touched &&
-                passwordForm.hasError('passwordMismatch') &&
-                !passwordForm.controls.passwordConfirmation.hasError('required')
-              ) {
-                <p class="text-xs text-error">
-                  {{ 'auth.errors.passwordMismatch' | translate }}
-                </p>
-              }
-            </div>
+          <div class="sm:col-span-2 flex justify-end">
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+              [disabled]="!canChangePassword()"
+            >
+              @if (changingPassword()) { {{ 'auth.profile.security.password.loading' | translate }}
+              } @else { {{ 'auth.profile.security.password.submit' | translate }} }
+            </button>
+          </div>
+        </form>
 
-            <div class="sm:col-span-2 flex justify-end">
-              <button
-                type="submit"
-                class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
-                [disabled]="!canChangePassword()"
-              >
-                @if (changingPassword()) {
-                  {{ 'auth.profile.security.password.loading' | translate }}
-                } @else {
-                  {{ 'auth.profile.security.password.submit' | translate }}
-                }
-              </button>
-            </div>
-          </form>
+        <form
+          class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2"
+          [formGroup]="emailChangeForm"
+          (ngSubmit)="onRequestEmailChange()"
+          novalidate
+          data-og7="user-profile-change-email"
+        >
+          <div class="sm:col-span-2">
+            <h3 class="text-sm font-semibold text-slate-900">
+              {{ 'auth.profile.security.emailChange.title' | translate }}
+            </h3>
+            <p class="text-xs text-slate-600">
+              {{ 'auth.profile.security.emailChange.help' | translate }}
+            </p>
+          </div>
 
-          <form
-            class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2"
-            [formGroup]="emailChangeForm"
-            (ngSubmit)="onRequestEmailChange()"
-            novalidate
-            data-og7="user-profile-change-email"
-          >
-            <div class="sm:col-span-2">
-              <h3 class="text-sm font-semibold text-slate-900">
-                {{ 'auth.profile.security.emailChange.title' | translate }}
-              </h3>
-              <p class="text-xs text-slate-600">
-                {{ 'auth.profile.security.emailChange.help' | translate }}
-              </p>
-            </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-email-change-new">
+              {{ 'auth.profile.security.emailChange.nextEmail' | translate }}
+            </label>
+            <input
+              id="profile-email-change-new"
+              type="email"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="email"
+              autocomplete="email"
+            />
+            @if (emailChangeForm.controls.email.touched && emailChangeForm.controls.email.invalid) {
+            <p class="text-xs text-error">
+              @if (emailChangeForm.controls.email.hasError('required')) { {{
+              'auth.errors.emailRequired' | translate }} } @else if
+              (emailChangeForm.controls.email.hasError('email')) { {{ 'auth.errors.emailInvalid' |
+              translate }} } @else if (emailChangeForm.controls.email.hasError('sameAsCurrent')) {
+              {{ 'auth.profile.security.emailChange.sameAsCurrent' | translate }} }
+            </p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-email-change-new">
-                {{ 'auth.profile.security.emailChange.nextEmail' | translate }}
-              </label>
-              <input
-                id="profile-email-change-new"
-                type="email"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="email"
-                autocomplete="email"
-              />
-              @if (emailChangeForm.controls.email.touched && emailChangeForm.controls.email.invalid) {
-                <p class="text-xs text-error">
-                  @if (emailChangeForm.controls.email.hasError('required')) {
-                    {{ 'auth.errors.emailRequired' | translate }}
-                  } @else if (emailChangeForm.controls.email.hasError('email')) {
-                    {{ 'auth.errors.emailInvalid' | translate }}
-                  } @else if (emailChangeForm.controls.email.hasError('sameAsCurrent')) {
-                    {{ 'auth.profile.security.emailChange.sameAsCurrent' | translate }}
-                  }
-                </p>
-              }
-            </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium text-slate-700" for="profile-email-change-password">
+              {{ 'auth.profile.security.emailChange.currentPassword' | translate }}
+            </label>
+            <input
+              id="profile-email-change-password"
+              type="password"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+            />
+            @if ( emailChangeForm.controls.currentPassword.touched &&
+            emailChangeForm.controls.currentPassword.hasError('required') ) {
+            <p class="text-xs text-error">{{ 'auth.errors.passwordRequired' | translate }}</p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-sm font-medium text-slate-700" for="profile-email-change-password">
-                {{ 'auth.profile.security.emailChange.currentPassword' | translate }}
-              </label>
-              <input
-                id="profile-email-change-password"
-                type="password"
-                class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                formControlName="currentPassword"
-                autocomplete="current-password"
-              />
-              @if (
-                emailChangeForm.controls.currentPassword.touched &&
-                emailChangeForm.controls.currentPassword.hasError('required')
-              ) {
-                <p class="text-xs text-error">
-                  {{ 'auth.errors.passwordRequired' | translate }}
-                </p>
-              }
-            </div>
-
-            <div class="sm:col-span-2 flex justify-end">
-              <button
-                type="submit"
-                class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
-                [disabled]="!canRequestEmailChange()"
-              >
-                @if (requestingEmailChange()) {
-                  {{ 'auth.profile.security.emailChange.loading' | translate }}
-                } @else {
-                  {{ 'auth.profile.security.emailChange.submit' | translate }}
-                }
-              </button>
-            </div>
-          </form>
-        </section>
-      </aside>
-    </div>
+          <div class="sm:col-span-2 flex justify-end">
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+              [disabled]="!canRequestEmailChange()"
+            >
+              @if (requestingEmailChange()) { {{ 'auth.profile.security.emailChange.loading' |
+              translate }} } @else { {{ 'auth.profile.security.emailChange.submit' | translate }} }
+            </button>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </div>
   }
 </section>

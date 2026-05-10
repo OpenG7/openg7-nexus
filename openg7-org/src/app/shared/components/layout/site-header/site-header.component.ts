@@ -73,8 +73,12 @@ export class SiteHeaderComponent {
   readonly languages: readonly LangCode[] = ['fr', 'en'];
 
   readonly authMode = this.authConfig.authMode;
-  readonly loginLabelKey = computed(() => (this.authMode() === 'sso-only' ? 'header.signin' : 'header.login'));
-  readonly canAccessAdminQuality = computed(() => this.isAuthSig() && this.rbac.hasPermission('admin:settings'));
+  readonly loginLabelKey = computed(() =>
+    this.authMode() === 'sso-only' ? 'header.signin' : 'header.login',
+  );
+  readonly canAccessAdminQuality = computed(
+    () => this.isAuthSig() && this.rbac.hasPermission('admin:settings'),
+  );
 
   readonly userSig = this.auth.user;
   readonly isAuthSig = this.auth.isAuthenticated;
@@ -104,7 +108,7 @@ export class SiteHeaderComponent {
   readonly hasFavoritesSig = computed(() => this.favoritesCountSig() > 0);
 
   readonly unreadCount = computed(() =>
-    this.isAuthSig() ? this.userAlerts.unreadCount() : this.notifications.unreadCount()
+    this.isAuthSig() ? this.userAlerts.unreadCount() : this.notifications.unreadCount(),
   );
   readonly hasUnread = computed(() => this.unreadCount() > 0);
   readonly notificationEntries = computed<ReadonlyArray<HeaderNotificationItem>>(() => {

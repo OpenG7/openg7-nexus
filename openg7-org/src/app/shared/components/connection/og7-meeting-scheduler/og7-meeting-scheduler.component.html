@@ -8,10 +8,8 @@
       </h3>
       <p class="text-xs text-subtle">{{ 'scheduler.subtitle' | translate }}</p>
     </div>
-    <span
-      class="badge-tertiary og7-scheduler__counter"
-    >
-      {{ 'scheduler.count' | translate:{ value: slots().length } }}
+    <span class="badge-tertiary og7-scheduler__counter">
+      {{ 'scheduler.count' | translate: { value: slots().length } }}
     </span>
   </header>
 
@@ -23,7 +21,7 @@
             <button
               type="button"
               class="og7-scheduler__chip"
-              [attr.aria-label]="'scheduler.removeSlot' | translate:{ value: formattedSlot(slot) }"
+              [attr.aria-label]="'scheduler.removeSlot' | translate: { value: formattedSlot(slot) }"
               [disabled]="disabled()"
               (click)="removeSlot(index)"
             >
@@ -48,11 +46,7 @@
           (input)="handleInput($any($event.target).value ?? '')"
         />
       </label>
-      <button
-        type="submit"
-        class="og7-scheduler__add"
-        [disabled]="!canSubmit()"
-      >
+      <button type="submit" class="og7-scheduler__add" [disabled]="!canSubmit()">
         <span aria-hidden="true">+</span>
         <span class="og7-sr-only">{{ 'scheduler.addSlot' | translate }}</span>
       </button>

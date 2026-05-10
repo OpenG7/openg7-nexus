@@ -94,7 +94,10 @@ async function mockStatisticsApi(page: Page): Promise<void> {
         : 'interprovincial';
     const intrantRaw = url.searchParams.get('intrant');
     const intrant: StatisticsIntrant =
-      intrantRaw && ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(intrantRaw.toLowerCase())
+      intrantRaw &&
+      ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(
+        intrantRaw.toLowerCase(),
+      )
         ? (intrantRaw.toLowerCase() as StatisticsIntrant)
         : 'all';
     const period = url.searchParams.get('period');
@@ -156,7 +159,7 @@ async function mockStatisticsApi(page: Page): Promise<void> {
 
 async function installControllableFeedEventSource(
   page: Page,
-  initiallyConnected: boolean
+  initiallyConnected: boolean,
 ): Promise<void> {
   await page.addInitScript(
     ({ connected }: { connected: boolean }) => {
@@ -203,14 +206,20 @@ async function installControllableFeedEventSource(
 
       runtimeWindow.EventSource = ControlledEventSource as unknown as typeof EventSource;
     },
-    { connected: initiallyConnected }
+    { connected: initiallyConnected },
   );
 }
 
 async function expectAssociatedLabel(control: Locator): Promise<void> {
   await expect(control).toBeVisible();
   const hasLabel = await control.evaluate((element) => {
-    if (!(element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement)) {
+    if (
+      !(
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLSelectElement ||
+        element instanceof HTMLTextAreaElement
+      )
+    ) {
       return false;
     }
 
@@ -238,7 +247,9 @@ async function expectNoHorizontalOverflow(page: Page): Promise<void> {
 }
 
 test.describe('Quality breadth', () => {
-  test('recovers the saved-searches surface after a transient network failure and hard reload', async ({ page }) => {
+  test('recovers the saved-searches surface after a transient network failure and hard reload', async ({
+    page,
+  }) => {
     let failSavedSearches = true;
 
     await mockProfileAndFavoritesApis(page);
@@ -305,7 +316,7 @@ test.describe('Quality breadth', () => {
     await saveButton.click();
 
     await expect(
-      page.locator('[data-og7="notification-toast"][data-og7-id="error"]').last()
+      page.locator('[data-og7="notification-toast"][data-og7-id="error"]').last(),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toBeVisible();
     await expect(jobTitleInput).toHaveValue('Offline-ready trade lead');
@@ -315,7 +326,7 @@ test.describe('Quality breadth', () => {
     await saveButton.click();
 
     await expect(
-      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toHaveCount(0);
 
@@ -325,7 +336,9 @@ test.describe('Quality breadth', () => {
     await expect(phoneInput).toHaveValue('+1 438 555 0177');
   });
 
-  test('allows resilient opportunity offer resubmission after a transient publish failure', async ({ page }) => {
+  test('allows resilient opportunity offer resubmission after a transient publish failure', async ({
+    page,
+  }) => {
     let publishAttempt = 0;
 
     await installControllableFeedEventSource(page, true);
@@ -424,11 +437,15 @@ test.describe('Quality breadth', () => {
     await startDateInput.fill('2026-03-20');
     await endDateInput.fill('2026-03-31');
     await pricingModelInput.selectOption('fixed');
-    await commentInput.fill('Offline recovery should preserve this offer draft until the feed reconnects.');
+    await commentInput.fill(
+      'Offline recovery should preserve this offer draft until the feed reconnects.',
+    );
 
     await drawer.locator('[data-og7-id="opportunity-offer-submit"]').click();
 
-    await expect(drawer.locator('[data-og7="opportunity-offer-status"][data-og7-id="error"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="opportunity-offer-status"][data-og7-id="error"]'),
+    ).toBeVisible();
     await expect(page).toHaveURL(/\/feed\/opportunities\/request-001/);
     await expect(drawer).toBeVisible();
 
@@ -436,11 +453,15 @@ test.describe('Quality breadth', () => {
     await startDateInput.fill('2026-03-20');
     await endDateInput.fill('2026-03-31');
     await pricingModelInput.selectOption('fixed');
-    await commentInput.fill('Offline recovery should preserve this offer draft until the feed reconnects.');
+    await commentInput.fill(
+      'Offline recovery should preserve this offer draft until the feed reconnects.',
+    );
     await drawer.locator('[data-og7-id="opportunity-offer-submit"]').click();
 
     await expect(drawer).toBeHidden();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()).toBeVisible();
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="opportunity-qna"]')).toContainText('315 MW');
     await expect(page.locator('[data-og7="opportunity-qna"]')).toContainText('fixed');
   });
@@ -526,7 +547,9 @@ test.describe('Quality breadth', () => {
     await expect(page.locator('[data-og7="opportunity-detail-missing"]')).toHaveCount(0);
   });
 
-  test('exposes baseline accessibility semantics on the profile notification controls', async ({ page }) => {
+  test('exposes baseline accessibility semantics on the profile notification controls', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page);
     await loginAsAuthenticatedE2eUser(page, '/profile');
 
@@ -545,7 +568,9 @@ test.describe('Quality breadth', () => {
     await expectAssociatedLabel(page.locator('#profile-quiet-hours-timezone'));
   });
 
-  test('announces login validation and API failures with accessible error semantics', async ({ page }) => {
+  test('announces login validation and API failures with accessible error semantics', async ({
+    page,
+  }) => {
     await page.route('**/api/auth/local', async (route: Route) => {
       await route.fulfill({
         status: 401,
@@ -608,10 +633,16 @@ test.describe('Quality breadth', () => {
     await Promise.all([
       page.waitForResponse((response) => {
         const url = response.url();
-        return url.includes('/api/statistics') && url.includes('scope=international') && !url.includes('intrant=');
+        return (
+          url.includes('/api/statistics') &&
+          url.includes('scope=international') &&
+          !url.includes('intrant=')
+        );
       }),
       (async () => {
-        const internationalButton = page.locator('[data-og7="statistics-scope-toggle"] button').nth(1);
+        const internationalButton = page
+          .locator('[data-og7="statistics-scope-toggle"] button')
+          .nth(1);
         await internationalButton.focus();
         await page.keyboard.press('Enter');
       })(),
@@ -619,7 +650,7 @@ test.describe('Quality breadth', () => {
 
     await expect(page.locator('[data-og7="statistics-summary-card"]')).toHaveCount(2);
     await expect(page.locator('[data-og7="statistics-scope-toggle"] button').nth(1)).toHaveClass(
-      /statistics-scope-toggle__button--active/
+      /statistics-scope-toggle__button--active/,
     );
     await expect(page.locator('.statistics-context-card[role="complementary"]')).toHaveCount(2);
   });
@@ -628,7 +659,9 @@ test.describe('Quality breadth', () => {
 test.describe('Quality breadth mobile', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('keeps critical mobile account navigation keyboard-usable with correct menu state', async ({ page }) => {
+  test('keeps critical mobile account navigation keyboard-usable with correct menu state', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page);
     await loginAsAuthenticatedE2eUser(page, '/');
 
@@ -660,7 +693,9 @@ test.describe('Quality breadth mobile', () => {
 test.describe('Quality breadth tablet', () => {
   test.use({ viewport: { width: 1024, height: 900 } });
 
-  test('keeps opportunity detail stacked and horizontally stable on tablet widths', async ({ page }) => {
+  test('keeps opportunity detail stacked and horizontally stable on tablet widths', async ({
+    page,
+  }) => {
     await enableMockFeed(page);
     await mockAuthenticatedSessionApis(page);
     await loginAsAuthenticatedE2eUser(page, '/feed/opportunities/request-001');
@@ -680,7 +715,7 @@ test.describe('Quality breadth tablet', () => {
 
     expect(bodyBox).not.toBeNull();
     expect(asideBox).not.toBeNull();
-    expect((asideBox?.y ?? 0)).toBeGreaterThan((bodyBox?.y ?? 0) + 40);
+    expect(asideBox?.y ?? 0).toBeGreaterThan((bodyBox?.y ?? 0) + 40);
 
     await expectNoHorizontalOverflow(page);
   });
@@ -716,7 +751,7 @@ test.describe('Quality breadth tablet', () => {
 
     expect(mainBox).not.toBeNull();
     expect(railBox).not.toBeNull();
-    expect((railBox?.y ?? 0)).toBeGreaterThan((mainBox?.y ?? 0) + 40);
+    expect(railBox?.y ?? 0).toBeGreaterThan((mainBox?.y ?? 0) + 40);
 
     await expectNoHorizontalOverflow(page);
   });

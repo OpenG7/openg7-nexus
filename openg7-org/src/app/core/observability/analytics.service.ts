@@ -42,7 +42,11 @@ export class AnalyticsService {
    * @param options Additional behaviour flags such as priority gating.
    * @returns void
    */
-  emit(eventName: string, detail?: Record<string, unknown>, options?: { priority?: boolean }): void {
+  emit(
+    eventName: string,
+    detail?: Record<string, unknown>,
+    options?: { priority?: boolean },
+  ): void {
     const isPriority = options?.priority ?? false;
     if (isPriority && !this.rbac.hasPermission('premium:analytics')) {
       return;
@@ -62,7 +66,7 @@ export class AnalyticsService {
   private buildEnvelope(
     eventName: string,
     detail: Record<string, unknown> | undefined,
-    priority: boolean
+    priority: boolean,
   ): AnalyticsEnvelope {
     return {
       event: eventName,
@@ -95,7 +99,7 @@ export class AnalyticsService {
         new CustomEvent(envelope.event, {
           detail: envelope.detail,
           bubbles: false,
-        })
+        }),
       );
     } catch {
       // Silently ignore dispatch errors.
@@ -104,9 +108,13 @@ export class AnalyticsService {
     try {
       target.dispatchEvent(
         new CustomEvent('og7-analytics', {
-          detail: { event: envelope.event, payload: envelope.detail, timestamp: envelope.timestamp },
+          detail: {
+            event: envelope.event,
+            payload: envelope.detail,
+            timestamp: envelope.timestamp,
+          },
           bubbles: false,
-        })
+        }),
       );
     } catch {
       // Ignore secondary dispatch failures.
@@ -119,7 +127,8 @@ export class AnalyticsService {
     }
     const payload = { ...envelope };
     try {
-      const navigatorRef: Navigator | undefined = typeof navigator !== 'undefined' ? navigator : undefined;
+      const navigatorRef: Navigator | undefined =
+        typeof navigator !== 'undefined' ? navigator : undefined;
       if (navigatorRef && typeof navigatorRef.sendBeacon === 'function') {
         const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
         const accepted = navigatorRef.sendBeacon(this.endpoint, blob);

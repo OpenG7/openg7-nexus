@@ -4,7 +4,9 @@ import { expect, test } from '@playwright/test';
 import { mockAuthenticatedSessionApis } from './helpers/auth-session';
 
 test.describe('Refactor task regressions', () => {
-  test('task 1 keeps the lazy app background visible after bootstrap readiness', async ({ page }) => {
+  test('task 1 keeps the lazy app background visible after bootstrap readiness', async ({
+    page,
+  }) => {
     await mockAuthenticatedSessionApis(page);
 
     await page.goto('/');
@@ -21,18 +23,22 @@ test.describe('Refactor task regressions', () => {
 
     await page.goto('/');
 
-    const homeSearch = page.locator('og7-home-feed-section [data-og7="search-box"] input[type="search"]');
+    const homeSearch = page.locator(
+      'og7-home-feed-section [data-og7="search-box"] input[type="search"]',
+    );
     await homeSearch.fill('rail');
     await page.waitForTimeout(400);
 
     const alertsPanel = page.locator('[data-og7="home-feed-panel"][data-og7-id="alerts"]');
-    const opportunitiesPanel = page.locator('[data-og7="home-feed-panel"][data-og7-id="opportunities"]');
+    const opportunitiesPanel = page.locator(
+      '[data-og7="home-feed-panel"][data-og7-id="opportunities"]',
+    );
 
     await expect(alertsPanel).toContainText('Wildfire smoke may disrupt rail corridors');
     await expect(opportunitiesPanel).toContainText('Rail freight slots for bulk cargo');
     await expect(opportunitiesPanel).toContainText('Certified welders for rail upgrade');
     await expect(page.locator('[data-og7="home-feed-panels"]')).not.toContainText(
-      'Short-term import of 300 MW'
+      'Short-term import of 300 MW',
     );
 
     await page.goto('/feed?q=rail');
@@ -44,7 +50,9 @@ test.describe('Refactor task regressions', () => {
     await expect(feedStream).not.toContainText('Short-term import of 300 MW');
   });
 
-  test('task 3 keeps the shared compact header behavior across feed detail pages', async ({ page }) => {
+  test('task 3 keeps the shared compact header behavior across feed detail pages', async ({
+    page,
+  }) => {
     await mockAuthenticatedSessionApis(page);
 
     const scenarios = [

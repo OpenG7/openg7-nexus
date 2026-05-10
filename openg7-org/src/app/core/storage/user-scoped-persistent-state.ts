@@ -23,7 +23,7 @@ interface CreateUserScopedPersistentStateOptions<TValue> {
 }
 
 export function createUserScopedPersistentState<TValue>(
-  options: CreateUserScopedPersistentStateOptions<TValue>
+  options: CreateUserScopedPersistentStateOptions<TValue>,
 ): UserScopedPersistentState<TValue> {
   const browser = isPlatformBrowser(options.platformId);
   const valueSig = signal<TValue>(options.createEmptyValue());

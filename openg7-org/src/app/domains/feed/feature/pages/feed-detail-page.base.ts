@@ -29,12 +29,18 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
   protected readonly destroyRef = inject(DestroyRef);
   private readonly collectionFallbackAllowed = signal(true);
 
-  protected readonly itemId = toSignal(this.route.paramMap.pipe(map(params => params.get('itemId'))), {
-    initialValue: this.route.snapshot.paramMap.get('itemId'),
-  });
-  protected readonly detailQueryParamMap = toSignal(this.route.queryParamMap ?? of(this.route.snapshot.queryParamMap), {
-    initialValue: this.route.snapshot.queryParamMap,
-  });
+  protected readonly itemId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('itemId'))),
+    {
+      initialValue: this.route.snapshot.paramMap.get('itemId'),
+    },
+  );
+  protected readonly detailQueryParamMap = toSignal(
+    this.route.queryParamMap ?? of(this.route.snapshot.queryParamMap),
+    {
+      initialValue: this.route.snapshot.queryParamMap,
+    },
+  );
   protected readonly reloadVersion = signal(0);
 
   protected readonly detailItem = signal<TItem | null>(null);
@@ -76,7 +82,7 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
       return null;
     }
 
-    const item = this.feed.items().find(entry => entry.id === id) ?? null;
+    const item = this.feed.items().find((entry) => entry.id === id) ?? null;
     return this.isExpectedItem(item) ? item : null;
   });
 
@@ -97,12 +103,14 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
       this.normalizeDetailQueryParam(this.detailQueryParamMap().get('sectorId')) ??
       item?.sectorId ??
       null;
-    const sectorLabel = sectorId ? this.sectorNameMap().get(sectorId) ?? sectorId : null;
+    const sectorLabel = sectorId ? (this.sectorNameMap().get(sectorId) ?? sectorId) : null;
     const routeLabel = this.resolveTradeMapRouteLabel(item);
     const partner =
       this.normalizeDetailQueryParam(this.detailQueryParamMap().get('partner')) ??
       (item?.source.kind === 'PARTNER' ? item.source.label : null);
-    const headline = [sectorLabel, routeLabel].filter((value): value is string => Boolean(value)).join(' · ');
+    const headline = [sectorLabel, routeLabel]
+      .filter((value): value is string => Boolean(value))
+      .join(' · ');
 
     return {
       corridorId,
@@ -114,7 +122,7 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
   });
 
   constructor() {
-    effect(onCleanup => {
+    effect((onCleanup) => {
       const itemId = this.itemId();
       this.reloadVersion();
       this.beforeItemLoad();
@@ -134,7 +142,7 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
 
       void this.feed
         .findItemById(itemId)
-        .then(item => {
+        .then((item) => {
           if (cancelled) {
             return;
           }
@@ -147,7 +155,7 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
 
           this.detailItem.set(item);
         })
-        .catch(error => {
+        .catch((error) => {
           if (cancelled) {
             return;
           }
@@ -184,7 +192,7 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
   }
 
   protected triggerDetailReload(): void {
-    this.reloadVersion.update(version => version + 1);
+    this.reloadVersion.update((version) => version + 1);
   }
 
   protected updateHeaderCompactFromScroll(): void {
@@ -233,8 +241,12 @@ export abstract class FeedDetailPageBase<TItem extends FeedItem = FeedItem> {
       return null;
     }
 
-    const fromLabel = item.fromProvinceId ? this.provinceNameMap().get(item.fromProvinceId) ?? item.fromProvinceId.toUpperCase() : null;
-    const toLabel = item.toProvinceId ? this.provinceNameMap().get(item.toProvinceId) ?? item.toProvinceId.toUpperCase() : null;
+    const fromLabel = item.fromProvinceId
+      ? (this.provinceNameMap().get(item.fromProvinceId) ?? item.fromProvinceId.toUpperCase())
+      : null;
+    const toLabel = item.toProvinceId
+      ? (this.provinceNameMap().get(item.toProvinceId) ?? item.toProvinceId.toUpperCase())
+      : null;
 
     if (fromLabel && toLabel) {
       return `${fromLabel} -> ${toLabel}`;

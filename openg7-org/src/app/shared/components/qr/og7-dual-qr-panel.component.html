@@ -1,15 +1,28 @@
 <div class="grid gap-6" [class.md:grid-cols-2]="showBothPanels()">
   @if (showBuyerPanel()) {
-    <div class="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 text-center text-body ring-card shadow-card">
-      <div class="relative flex aspect-square w-full max-w-[220px] items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-card ring-card">
+    <div
+      class="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 text-center text-body ring-card shadow-card"
+    >
+      <div
+        class="relative flex aspect-square w-full max-w-[220px] items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-card ring-card"
+      >
         @if (buyerQr(); as dataUrl) {
-          <img [src]="dataUrl" [alt]="buyerLabel() | translate" class="h-full w-full object-contain" loading="lazy" />
+          <img
+            [src]="dataUrl"
+            [alt]="buyerLabel() | translate"
+            class="h-full w-full object-contain"
+            loading="lazy"
+          />
         } @else {
-          <div class="flex h-full w-full items-center justify-center rounded-2xl bg-surface-muted text-sm text-subtle">
+          <div
+            class="flex h-full w-full items-center justify-center rounded-2xl bg-surface-muted text-sm text-subtle"
+          >
             {{ 'introBillboard.qrUnavailable' | translate }}
           </div>
         }
-        <div class="pointer-events-none absolute inset-x-6 top-4 h-1 rounded-full bg-[#22c55e]/70 blur-lg"></div>
+        <div
+          class="pointer-events-none absolute inset-x-6 top-4 h-1 rounded-full bg-[#22c55e]/70 blur-lg"
+        ></div>
       </div>
       <p class="text-sm font-semibold uppercase tracking-[0.3em] text-subtle">
         {{ buyerLabel() | translate }}
@@ -27,16 +40,29 @@
   }
 
   @if (showSupplierPanel()) {
-    <div class="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 text-center text-body ring-card shadow-card">
-      <div class="relative flex aspect-square w-full max-w-[220px] items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-card ring-card">
+    <div
+      class="flex flex-col items-center gap-3 rounded-3xl bg-card p-6 text-center text-body ring-card shadow-card"
+    >
+      <div
+        class="relative flex aspect-square w-full max-w-[220px] items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-card ring-card"
+      >
         @if (supplierQr(); as dataUrl) {
-          <img [src]="dataUrl" [alt]="supplierLabel() | translate" class="h-full w-full object-contain" loading="lazy" />
+          <img
+            [src]="dataUrl"
+            [alt]="supplierLabel() | translate"
+            class="h-full w-full object-contain"
+            loading="lazy"
+          />
         } @else {
-          <div class="flex h-full w-full items-center justify-center rounded-2xl bg-surface-muted text-sm text-subtle">
+          <div
+            class="flex h-full w-full items-center justify-center rounded-2xl bg-surface-muted text-sm text-subtle"
+          >
             {{ 'introBillboard.qrUnavailable' | translate }}
           </div>
         }
-        <div class="pointer-events-none absolute inset-x-6 top-4 h-1 rounded-full bg-[#38bdf8]/70 blur-lg"></div>
+        <div
+          class="pointer-events-none absolute inset-x-6 top-4 h-1 rounded-full bg-[#38bdf8]/70 blur-lg"
+        ></div>
       </div>
       <p class="text-sm font-semibold uppercase tracking-[0.3em] text-subtle">
         {{ supplierLabel() | translate }}

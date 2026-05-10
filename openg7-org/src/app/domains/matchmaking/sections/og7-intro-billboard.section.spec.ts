@@ -5,7 +5,10 @@ import { By } from '@angular/platform-browser';
 import { OpportunityMatch } from '@app/core/models/opportunity';
 import { FinancingBanner, PartnerProfile } from '@app/core/models/partner-profile';
 
-import { IntroductionRequestContext, Og7IntroBillboardSection } from './og7-intro-billboard.section';
+import {
+  IntroductionRequestContext,
+  Og7IntroBillboardSection,
+} from './og7-intro-billboard.section';
 
 @Component({
   selector: 'og7-partner-details-panel',
@@ -67,7 +70,11 @@ describe('Og7IntroBillboardSection', () => {
     })
       .overrideComponent(Og7IntroBillboardSection, {
         set: {
-          imports: [CommonModule, PartnerDetailsPanelStubComponent, PartnerQuickActionsStubComponent],
+          imports: [
+            CommonModule,
+            PartnerDetailsPanelStubComponent,
+            PartnerQuickActionsStubComponent,
+          ],
         },
       })
       .compileComponents();
@@ -83,7 +90,9 @@ describe('Og7IntroBillboardSection', () => {
   }
 
   function getQuickActionsStub(): PartnerQuickActionsStubComponent | null {
-    const quickActionsDebug = fixture.debugElement.query(By.directive(PartnerQuickActionsStubComponent));
+    const quickActionsDebug = fixture.debugElement.query(
+      By.directive(PartnerQuickActionsStubComponent),
+    );
     return quickActionsDebug?.componentInstance ?? null;
   }
 

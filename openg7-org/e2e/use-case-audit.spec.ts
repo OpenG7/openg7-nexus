@@ -85,12 +85,14 @@ test.describe('Use-case audit', () => {
     await expect(page.locator('[data-og7="statistics-filter-bar"]')).toBeVisible();
     await expect
       .poll(async () =>
-        page.locator('[data-og7="statistics-summary-card"], [data-og7="statistics-empty"]').count()
+        page.locator('[data-og7="statistics-summary-card"], [data-og7="statistics-empty"]').count(),
       )
       .toBeGreaterThan(0);
   });
 
-  test('covers company onboarding surface, manual import and bulk import workflows', async ({ page }) => {
+  test('covers company onboarding surface, manual import and bulk import workflows', async ({
+    page,
+  }) => {
     await page.addInitScript(() => {
       Object.defineProperty(globalThis, 'EventSource', {
         value: undefined,
@@ -134,15 +136,22 @@ test.describe('Use-case audit', () => {
             contactName: 'Morgan Lee',
           },
         },
-      ])
+      ]),
     );
-    await importTextarea.locator('xpath=ancestor::form[1]').locator('button[type="submit"]').click();
+    await importTextarea
+      .locator('xpath=ancestor::form[1]')
+      .locator('button[type="submit"]')
+      .click();
     await expect(page.locator('table tbody tr').first()).toContainText('Great Lakes Components');
-    const manualImportResponse = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'POST' &&
-      response.url().includes('/api/import/companies')
+    const manualImportResponse = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'POST' &&
+        response.url().includes('/api/import/companies'),
     );
-    await page.getByRole('button', { name: /Import/i }).last().click();
+    await page
+      .getByRole('button', { name: /Import/i })
+      .last()
+      .click();
     expect((await manualImportResponse).status()).toBe(200);
     await expect(page.locator('table tbody tr')).toHaveCount(1);
 
@@ -164,7 +173,7 @@ test.describe('Use-case audit', () => {
           location: { lat: 43.6532, lng: -79.3832, province: 'ON', country: 'CA' },
           contacts: { website: 'https://ontario-storage.example.test' },
         },
-      ])
+      ]),
     );
     await page.locator('[data-og7-id="bulk-import-start"]').click();
     await expect(page.locator('[data-og7="bulk-import-progress"]')).toBeVisible();
@@ -184,15 +193,27 @@ test.describe('Use-case audit', () => {
     await expect(page.locator('[data-og7="importation-collaboration"]')).toBeVisible();
     await expect(page.locator('[data-og7="importation-knowledge"]')).toBeVisible();
 
-    await page.locator('[data-og7="importation-collaboration"] input[name="watchlistName"]').fill('Critical minerals');
-    await page.locator('[data-og7="importation-collaboration"] button[type="submit"]').first().click();
-    await expect(page.locator('[data-og7="importation-collaboration"]')).toContainText('Critical minerals');
-
-    await page.locator('[data-og7="importation-collaboration"] input[name="recipients"]').fill('ops@openg7.test');
-    const scheduleResponse = page.waitForResponse((response) =>
-      response.url().includes('/api/import-reports/schedule')
+    await page
+      .locator('[data-og7="importation-collaboration"] input[name="watchlistName"]')
+      .fill('Critical minerals');
+    await page
+      .locator('[data-og7="importation-collaboration"] button[type="submit"]')
+      .first()
+      .click();
+    await expect(page.locator('[data-og7="importation-collaboration"]')).toContainText(
+      'Critical minerals',
     );
-    await page.locator('[data-og7="importation-collaboration"] button[type="submit"]').last().click();
+
+    await page
+      .locator('[data-og7="importation-collaboration"] input[name="recipients"]')
+      .fill('ops@openg7.test');
+    const scheduleResponse = page.waitForResponse((response) =>
+      response.url().includes('/api/import-reports/schedule'),
+    );
+    await page
+      .locator('[data-og7="importation-collaboration"] button[type="submit"]')
+      .last()
+      .click();
     expect((await scheduleResponse).status()).toBe(204);
   });
 
@@ -205,7 +226,7 @@ test.describe('Use-case audit', () => {
     await expect(page.locator('#profile-email')).toHaveValue('e2e.user@openg7.test');
 
     const exportResponse = page.waitForResponse((response) =>
-      response.url().includes('/api/users/me/profile/export')
+      response.url().includes('/api/users/me/profile/export'),
     );
     await page.locator('[data-og7-id="export-account-data"]').click();
     expect((await exportResponse).status()).toBe(200);
@@ -250,9 +271,10 @@ test.describe('Use-case audit', () => {
 
     await loginAsAuthenticatedE2eUser(page, '/admin');
     await expect(page.locator('[data-og7="admin-companies"]')).toBeVisible();
-    const moderationUpdate = page.waitForResponse((response) =>
-      response.request().method().toUpperCase() === 'PUT' &&
-      response.url().includes('/api/companies/')
+    const moderationUpdate = page.waitForResponse(
+      (response) =>
+        response.request().method().toUpperCase() === 'PUT' &&
+        response.url().includes('/api/companies/'),
     );
     await page.locator('select').first().selectOption('approved');
     await moderationUpdate;

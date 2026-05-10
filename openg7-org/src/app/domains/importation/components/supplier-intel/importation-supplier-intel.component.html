@@ -7,7 +7,11 @@
   <p *ngIf="viewModel.loading" class="og7-importation-suppliers__loading">
     {{ 'pages.importation.suppliers.loading' | translate }}
   </p>
-  <p *ngIf="!viewModel.loading && viewModel.error" class="og7-importation-suppliers__error" role="status">
+  <p
+    *ngIf="!viewModel.loading && viewModel.error"
+    class="og7-importation-suppliers__error"
+    role="status"
+  >
     {{ viewModel.error | translate }}
   </p>
 
@@ -20,22 +24,36 @@
       <dl>
         <div>
           <dt>{{ 'pages.importation.suppliers.dependency' | translate }}</dt>
-          <dd>{{ supplier.dependencyScore != null ? (supplier.dependencyScore | number:'1.1-1') : '—' }}</dd>
+          <dd>
+            {{
+              supplier.dependencyScore != null ? (supplier.dependencyScore | number: '1.1-1') : '—'
+            }}
+          </dd>
         </div>
         <div>
           <dt>{{ 'pages.importation.suppliers.diversification' | translate }}</dt>
-          <dd>{{ supplier.diversificationScore != null ? (supplier.diversificationScore | number:'1.1-1') : '—' }}</dd>
+          <dd>
+            {{
+              supplier.diversificationScore != null
+                ? (supplier.diversificationScore | number: '1.1-1')
+                : '—'
+            }}
+          </dd>
         </div>
         <div>
           <dt>{{ 'pages.importation.suppliers.reliability' | translate }}</dt>
-          <dd>{{ supplier.reliability != null ? (supplier.reliability | number:'1.1-1') : '—' }}</dd>
+          <dd>
+            {{ supplier.reliability != null ? (supplier.reliability | number: '1.1-1') : '—' }}
+          </dd>
         </div>
       </dl>
       <p class="og7-importation-suppliers__recommendation" *ngIf="supplier.recommendation">
         {{ supplier.recommendation }}
       </p>
       <p class="og7-importation-suppliers__review" *ngIf="supplier.lastReviewed">
-        {{ 'pages.importation.suppliers.lastReviewed' | translate:{ date: supplier.lastReviewed } }}
+        {{
+          'pages.importation.suppliers.lastReviewed' | translate: { date: supplier.lastReviewed }
+        }}
       </p>
     </article>
     <p *ngIf="!viewModel.suppliers.length" class="og7-importation-suppliers__empty">

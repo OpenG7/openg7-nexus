@@ -212,7 +212,9 @@ describe('AlertsPage', () => {
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
-    const toggle = root.querySelector('[data-og7-id="opportunity-offer-toggle-thread"]') as HTMLButtonElement;
+    const toggle = root.querySelector(
+      '[data-og7-id="opportunity-offer-toggle-thread"]',
+    ) as HTMLButtonElement;
     expect(root.querySelector('[data-og7="opportunity-offer-thread"]')).toBeNull();
 
     toggle.click();
@@ -231,7 +233,7 @@ describe('AlertsPage', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     const discussionButton = root.querySelector(
-      '[data-og7-id="opportunity-offer-progress-discussion"]'
+      '[data-og7-id="opportunity-offer-progress-discussion"]',
     ) as HTMLButtonElement;
 
     expect(discussionButton).not.toBeNull();

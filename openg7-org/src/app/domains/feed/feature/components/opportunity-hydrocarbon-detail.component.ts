@@ -31,8 +31,14 @@ interface HydrocarbonRowVm {
 
       <ul *ngIf="badges().length > 0" class="opportunity-body__tags">
         <li *ngFor="let badge of badges()">
-          <span class="hydrocarbon-badge" [class.is-warning]="badge.tone === 'warning'" [class.is-critical]="badge.tone === 'critical'">
-            <ng-container *ngIf="badge.translate; else rawBadge">{{ badge.value | translate }}</ng-container>
+          <span
+            class="hydrocarbon-badge"
+            [class.is-warning]="badge.tone === 'warning'"
+            [class.is-critical]="badge.tone === 'critical'"
+          >
+            <ng-container *ngIf="badge.translate; else rawBadge">{{
+              badge.value | translate
+            }}</ng-container>
           </span>
           <ng-template #rawBadge>{{ badge.value }}</ng-template>
         </li>
@@ -51,7 +57,9 @@ interface HydrocarbonRowVm {
               {{ value | translate }}<ng-container *ngIf="!last">, </ng-container>
             </ng-container>
           </strong>
-          <ng-template #rawRow><strong>{{ row.values.join(', ') }}</strong></ng-template>
+          <ng-template #rawRow
+            ><strong>{{ row.values.join(', ') }}</strong></ng-template
+          >
         </li>
       </ul>
     </article>
@@ -110,7 +118,7 @@ export class Og7OpportunityHydrocarbonDetailComponent {
   });
 
   readonly isHydrocarbonSignal = computed(
-    () => this.metadata()?.publicationForm?.formKey === 'hydrocarbon-surplus-offer'
+    () => this.metadata()?.publicationForm?.formKey === 'hydrocarbon-surplus-offer',
   );
 
   readonly badges = computed<readonly HydrocarbonBadgeVm[]>(() => {
@@ -159,19 +167,74 @@ export class Og7OpportunityHydrocarbonDetailComponent {
 
     const extensions = this.extensions();
     const rows: HydrocarbonRowVm[] = [];
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.companyName.label', this.stringValue(extensions['companyName']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.volumeBarrels.label', this.quantityValue(extensions['volumeBarrels']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.minimumLotBarrels.label', this.quantityValue(extensions['minimumLotBarrels']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.availableFrom.label', this.stringValue(extensions['availableFrom']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.availableUntil.label', this.stringValue(extensions['availableUntil']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.estimatedDelayDays.label', this.dayValue(extensions['estimatedDelayDays']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.originSite.label', this.stringValue(extensions['originSite']));
-    this.pushTranslatedRow(rows, 'forms.hydrocarbonSurplus.fields.qualityGrade.label', 'qualityGrade', extensions['qualityGrade']);
-    this.pushTranslatedListRow(rows, 'forms.hydrocarbonSurplus.fields.logisticsMode.label', 'logisticsMode', extensions['logisticsMode']);
-    this.pushTranslatedListRow(rows, 'forms.hydrocarbonSurplus.fields.targetScope.label', 'targetScope', extensions['targetScope']);
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.priceReference.label', this.stringValue(extensions['priceReference']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.contactChannel.label', this.stringValue(extensions['contactChannel']));
-    this.pushRow(rows, 'forms.hydrocarbonSurplus.fields.notes.label', this.stringValue(extensions['notes']));
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.companyName.label',
+      this.stringValue(extensions['companyName']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.volumeBarrels.label',
+      this.quantityValue(extensions['volumeBarrels']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.minimumLotBarrels.label',
+      this.quantityValue(extensions['minimumLotBarrels']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.availableFrom.label',
+      this.stringValue(extensions['availableFrom']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.availableUntil.label',
+      this.stringValue(extensions['availableUntil']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.estimatedDelayDays.label',
+      this.dayValue(extensions['estimatedDelayDays']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.originSite.label',
+      this.stringValue(extensions['originSite']),
+    );
+    this.pushTranslatedRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.qualityGrade.label',
+      'qualityGrade',
+      extensions['qualityGrade'],
+    );
+    this.pushTranslatedListRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.logisticsMode.label',
+      'logisticsMode',
+      extensions['logisticsMode'],
+    );
+    this.pushTranslatedListRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.targetScope.label',
+      'targetScope',
+      extensions['targetScope'],
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.priceReference.label',
+      this.stringValue(extensions['priceReference']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.contactChannel.label',
+      this.stringValue(extensions['contactChannel']),
+    );
+    this.pushRow(
+      rows,
+      'forms.hydrocarbonSurplus.fields.notes.label',
+      this.stringValue(extensions['notes']),
+    );
     return rows;
   });
 
@@ -182,7 +245,12 @@ export class Og7OpportunityHydrocarbonDetailComponent {
     rows.push({ labelKey, values: [value], translate: false });
   }
 
-  private pushTranslatedRow(rows: HydrocarbonRowVm[], labelKey: string, field: string, value: unknown): void {
+  private pushTranslatedRow(
+    rows: HydrocarbonRowVm[],
+    labelKey: string,
+    field: string,
+    value: unknown,
+  ): void {
     const optionKey = this.optionKey(field, value);
     if (!optionKey) {
       return;
@@ -194,10 +262,12 @@ export class Og7OpportunityHydrocarbonDetailComponent {
     rows: HydrocarbonRowVm[],
     labelKey: string,
     field: string,
-    value: unknown
+    value: unknown,
   ): void {
     const values = Array.isArray(value)
-      ? value.map((entry) => this.optionKey(field, entry)).filter((entry): entry is string => Boolean(entry))
+      ? value
+          .map((entry) => this.optionKey(field, entry))
+          .filter((entry): entry is string => Boolean(entry))
       : [];
 
     if (values.length === 0) {

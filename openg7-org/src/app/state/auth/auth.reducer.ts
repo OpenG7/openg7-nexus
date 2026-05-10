@@ -15,5 +15,5 @@ export const authReducer = createReducer(
     user,
     jwtExp,
   })),
-  on(AuthActions.sessionCleared, () => ({ ...initialAuthState }))
+  on(AuthActions.sessionCleared, () => ({ ...initialAuthState })),
 );

@@ -125,7 +125,9 @@
   font-size: 0.85rem;
   color: #d1def7;
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 
 .og7-importation-overview__segmented button:hover {
@@ -215,7 +217,10 @@
   background: rgba(8, 21, 54, 0.64);
   color: #e6efff;
   cursor: pointer;
-  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
 }
 
 .og7-importation-overview__chips button small {

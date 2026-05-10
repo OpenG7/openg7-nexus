@@ -155,7 +155,7 @@ export default async () => {
     uid: 'api::province.province' | 'api::sector.sector',
     slug: string,
     taxonomyLabel: 'province' | 'sector',
-    companySlug: string
+    companySlug: string,
   ) => {
     const cacheKey = `${uid}:${slug}`;
 
@@ -177,13 +177,13 @@ export default async () => {
       'api::province.province',
       seed.provinceSlug,
       'province',
-      seed.slug
+      seed.slug,
     );
     const sectorId = await ensureTaxonomyPresence(
       'api::sector.sector',
       seed.sectorSlug,
       'sector',
-      seed.slug
+      seed.slug,
     );
 
     await upsertByUID(
@@ -208,7 +208,7 @@ export default async () => {
         unique: {
           slug: seed.slug,
         },
-      }
+      },
     );
   }
 };

@@ -24,10 +24,14 @@ test.describe('Opportunity enrichment lifecycle', () => {
       .fill('Duplicate capacity signal already covered by the latest Ontario balancing notice.');
 
     await page.locator('[data-og7-id="opportunity-report-submit"]').click();
-    await expect(page.locator('[data-og7="opportunity-report-status"][data-og7-id="success"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="opportunity-report-status"][data-og7-id="success"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="opportunity-report-drawer"]')).toBeHidden();
 
-    await expect(page.locator('.opportunity-header__sync[data-og7-state="saved-local"]')).toBeVisible();
+    await expect(
+      page.locator('.opportunity-header__sync[data-og7-state="saved-local"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7-id="opportunity-report"]')).toHaveCount(0);
     await expect(page.locator('[data-og7-id="opportunity-view-my-report"]')).toBeVisible();
     await expect(page.locator('[data-og7-id="opportunity-report-another"]')).toBeVisible();
@@ -43,9 +47,11 @@ test.describe('Opportunity enrichment lifecycle', () => {
 
     await page.locator('[data-og7-id="opportunity-view-my-report"]').click();
     await expect(page.locator('[data-og7="opportunity-report-view"]')).toBeVisible();
-    await expect(page.locator('[data-og7="opportunity-report-status"][data-og7-id="pending"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="opportunity-report-status"][data-og7-id="pending"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="opportunity-report-view"]')).toContainText(
-      'Duplicate capacity signal already covered by the latest Ontario balancing notice.'
+      'Duplicate capacity signal already covered by the latest Ontario balancing notice.',
     );
 
     await page.locator('[data-og7-id="opportunity-report-view-close"]').click();
@@ -64,9 +70,11 @@ test.describe('Opportunity enrichment lifecycle', () => {
 
     await page.locator('[data-og7-id="opportunity-view-my-report"]').click();
     await expect(page.locator('[data-og7="opportunity-report-view"]')).toBeVisible();
-    await expect(page.locator('[data-og7="opportunity-report-status"][data-og7-id="pending"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="opportunity-report-status"][data-og7-id="pending"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="opportunity-report-view"]')).toContainText(
-      'Duplicate capacity signal already covered by the latest Ontario balancing notice.'
+      'Duplicate capacity signal already covered by the latest Ontario balancing notice.',
     );
   });
 });

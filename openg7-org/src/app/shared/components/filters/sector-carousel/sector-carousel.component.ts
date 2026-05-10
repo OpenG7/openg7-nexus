@@ -17,7 +17,7 @@ export interface Sector {
   templateUrl: './sector-carousel.component.html',
   host: { style: 'display:block' },
 })
-/** 
+/**
  * Contexte : Affichée dans les vues du dossier « shared/components/filters » en tant que composant Angular standalone.
  * Raison d’être : Encapsule l'interface utilisateur et la logique propre à « Sector Carousel ».
  * @param dependencies Dépendances injectées automatiquement par Angular.

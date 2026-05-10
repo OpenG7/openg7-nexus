@@ -1,6 +1,7 @@
 **Languages:** [English](#english) | [Français](#francais)
 
 <a id="english"></a>
+
 # Repository ruleset – main (English)
 
 This document describes the GitHub ruleset **“OpenG7 – Main branch protection”**, applied to the `main` branch of the repository.
@@ -22,9 +23,7 @@ Effective source of truth: **GitHub → Settings → Rules → Rulesets**.
   "conditions": {
     "ref_name": {
       "exclude": [],
-      "include": [
-        "refs/heads/main"
-      ]
+      "include": ["refs/heads/main"]
     }
   }
 }
@@ -36,6 +35,7 @@ Effective source of truth: **GitHub → Settings → Rules → Rulesets**.
 - **ref_name.include: ["refs/heads/main"]**: only the `main` branch is targeted.
 
 👉 In practice:
+
 - `main` is treated as the **protected, stable branch** (code that should be deployable).
 - Development happens on feature branches, then flows back into `main` through PRs.
 
@@ -79,8 +79,8 @@ Effective source of truth: **GitHub → Settings → Rules → Rulesets**.
   "parameters": {
     "strict_required_status_checks_policy": true,
     "required_status_checks": [
-      { "context": "ci/lint",  "integration_id": null },
-      { "context": "ci/test",  "integration_id": null },
+      { "context": "ci/lint", "integration_id": null },
+      { "context": "ci/test", "integration_id": null },
       { "context": "ci/build", "integration_id": null }
     ]
   }
@@ -255,13 +255,13 @@ A PR cannot be merged into `main` unless these checks are green:
 
 ### 4.1 Sources of truth
 
-- **Effective configuration**: GitHub Settings → Rules → Rulesets.  
-- **Declarative model**: `docs/governance/repository-ruleset-main.json`.  
+- **Effective configuration**: GitHub Settings → Rules → Rulesets.
+- **Declarative model**: `docs/governance/repository-ruleset-main.json`.
 - **Human explanation**: this markdown file.
 
 In case of divergence, GitHub settings win, but any significant change should:
 
-1. Go through a PR updating the JSON and this document.  
+1. Go through a PR updating the JSON and this document.
 2. Then be reflected in GitHub (import or manual adjustment).
 
 ### 4.2 When to evolve this ruleset?
@@ -283,6 +283,7 @@ In one sentence:
 ---
 
 <a id="francais"></a>
+
 # Ruleset du dépôt – branche main (Français)
 
 Ce document décrit le ruleset GitHub **« OpenG7 – Main branch protection »**, appliqué à la branche `main` du dépôt.
@@ -304,9 +305,7 @@ Source de vérité effective : **GitHub → Settings → Rules → Rulesets**.
   "conditions": {
     "ref_name": {
       "exclude": [],
-      "include": [
-        "refs/heads/main"
-      ]
+      "include": ["refs/heads/main"]
     }
   }
 }
@@ -318,7 +317,8 @@ Source de vérité effective : **GitHub → Settings → Rules → Rulesets**.
 - **ref_name.include: ["refs/heads/main"]** : seule la branche `main` est ciblée.
 
 👉 En pratique :
-- `main` est la branche **protégée et stable** (code supposé déployable).  
+
+- `main` est la branche **protégée et stable** (code supposé déployable).
 - Le développement se fait sur des branches de feature, fusionnées ensuite via PR.
 
 ---
@@ -347,8 +347,8 @@ Source de vérité effective : **GitHub → Settings → Rules → Rulesets**.
 
 **Pourquoi pour OpenG7**
 
-- Empêcher les push directs non relus sur `main`.  
-- Éviter de merger du code qui a changé après la review.  
+- Empêcher les push directs non relus sur `main`.
+- Éviter de merger du code qui a changé après la review.
 - Ancrer une culture de **relecture systématique**, même avec peu de mainteneurs.
 
 ---
@@ -361,8 +361,8 @@ Source de vérité effective : **GitHub → Settings → Rules → Rulesets**.
   "parameters": {
     "strict_required_status_checks_policy": true,
     "required_status_checks": [
-      { "context": "ci/lint",  "integration_id": null },
-      { "context": "ci/test",  "integration_id": null },
+      { "context": "ci/lint", "integration_id": null },
+      { "context": "ci/test", "integration_id": null },
       { "context": "ci/build", "integration_id": null }
     ]
   }
@@ -380,9 +380,9 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 **Pourquoi pour OpenG7**
 
 - Garantir que :
-  - le code **compile**,  
-  - un minimum de **qualité** est respecté,  
-  - les **tests** passent avant d’arriver sur `main`.  
+  - le code **compile**,
+  - un minimum de **qualité** est respecté,
+  - les **tests** passent avant d’arriver sur `main`.
 - Limiter les régressions évidentes sur une branche censée être **déployable et fiable**.
 
 > À noter : après import du ruleset, les noms de checks (`ci/lint`, `ci/test`, `ci/build`) doivent être alignés avec les **noms exacts** des jobs GitHub Actions.
@@ -404,9 +404,9 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 
 **Pourquoi pour OpenG7**
 
-- Protéger l’historique de `main` contre les actions destructrices.  
-- Garder un historique **auditables et reproductible**, important pour :  
-  - la confiance de la communauté,  
+- Protéger l’historique de `main` contre les actions destructrices.
+- Garder un historique **auditables et reproductible**, important pour :
+  - la confiance de la communauté,
   - une réutilisation par des partenaires publics ou institutionnels.
 
 ---
@@ -456,8 +456,8 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 
 **Pourquoi pour OpenG7**
 
-- Renforcer le principe : **« main ne bouge jamais sans pull request »**.  
-- Éviter les erreurs humaines (push accidentel sur `main` au lieu d’une branche de feature).  
+- Renforcer le principe : **« main ne bouge jamais sans pull request »**.
+- Éviter les erreurs humaines (push accidentel sur `main` au lieu d’une branche de feature).
 - Aligner la sécurité de `main` avec la vocation d’OpenG7 comme **infrastructure de confiance**.
 
 ---
@@ -477,7 +477,7 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 
 **Pourquoi pour OpenG7**
 
-- Renforcer l’**authenticité** et la **traçabilité** des contributions.  
+- Renforcer l’**authenticité** et la **traçabilité** des contributions.
 - Utile si le projet est réutilisé par des entités publiques ou régulées, pour lesquelles la provenance du code est critique.
 
 > Si la signature des commits n’est pas encore généralisée, cette règle peut être temporairement désactivée dans GitHub ou documentée comme **objectif cible**.
@@ -501,7 +501,7 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 
 **Pourquoi pour OpenG7**
 
-- S’assurer que l’on relit **le code réellement mergé**, pas une ancienne version.  
+- S’assurer que l’on relit **le code réellement mergé**, pas une ancienne version.
 - Encourager à redemander une review quand l’implémentation a changé.
 
 ---
@@ -528,7 +528,7 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 - Garder une **voie d’urgence maîtrisée** pour :
   - un incident de production nécessitant un hotfix,
   - un bug CI bloquant toutes les PR,
-  - une migration majeure.  
+  - une migration majeure.
 - Ces bypass doivent rester **exceptionnels** et être documentés (commentaire dans la PR, note interne, etc.).
 
 ---
@@ -537,13 +537,13 @@ Une PR ne peut pas être mergée dans `main` tant que ces checks ne sont pas au 
 
 ### 4.1 Sources de vérité
 
-- **Configuration effective** : GitHub Settings → Rules → Rulesets.  
-- **Modèle déclaratif** : `docs/governance/repository-ruleset-main.json`.  
+- **Configuration effective** : GitHub Settings → Rules → Rulesets.
+- **Modèle déclaratif** : `docs/governance/repository-ruleset-main.json`.
 - **Explication humaine** : ce fichier markdown.
 
 En cas de divergence, la configuration GitHub fait foi, mais toute modification importante devrait idéalement :
 
-1. Passer par une PR mettant à jour le JSON et ce document.  
+1. Passer par une PR mettant à jour le JSON et ce document.
 2. Être répercutée ensuite dans GitHub (import ou ajustement manuel).
 
 ### 4.2 Quand faire évoluer ce ruleset ?
@@ -561,4 +561,3 @@ Le ruleset peut évoluer, par exemple lorsque :
 En une phrase :
 
 > Ce ruleset protège `main` pour qu’elle reste un **tronc stable, testé et lisible**, cohérent avec l’ambition d’OpenG7 d’être un nouveau « Hello World » pour la collaboration économique.
-

@@ -2,7 +2,10 @@ import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { AuthService } from '@app/core/auth/auth.service';
-import { UserFavoriteRecord, UserFavoritesApiService } from '@app/core/services/user-favorites-api.service';
+import {
+  UserFavoriteRecord,
+  UserFavoritesApiService,
+} from '@app/core/services/user-favorites-api.service';
 import { finalize } from 'rxjs';
 
 const STORAGE_KEY = 'og7.favorites';
@@ -47,7 +50,7 @@ export class FavoritesService {
     }
 
     const changed = this.applyChange((current) =>
-      current.includes(normalized) ? current : [...current, normalized]
+      current.includes(normalized) ? current : [...current, normalized],
     );
     if (!changed || !this.auth.isAuthenticated()) {
       return;
@@ -69,7 +72,7 @@ export class FavoritesService {
     }
 
     const changed = this.applyChange((current) =>
-      current.includes(normalized) ? current.filter((i) => i !== normalized) : current
+      current.includes(normalized) ? current.filter((i) => i !== normalized) : current,
     );
     if (!changed || !this.auth.isAuthenticated()) {
       return;
@@ -149,7 +152,7 @@ export class FavoritesService {
           this.syncRequestInFlight = false;
           this.loadingSig.set(false);
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (favorites) => this.handleRemoteFavorites(favorites),

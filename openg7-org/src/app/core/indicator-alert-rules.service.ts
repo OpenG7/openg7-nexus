@@ -76,7 +76,7 @@ export class IndicatorAlertRulesService {
     const nextEntries = this.sortEntries([nextEntry, ...this.entries()]);
     this.state.setForCurrentUser(
       nextEntries,
-      'Indicator alert rules require an authenticated session.'
+      'Indicator alert rules require an authenticated session.',
     );
     return nextEntry;
   }
@@ -96,13 +96,13 @@ export class IndicatorAlertRulesService {
               active,
               updatedAt: now,
             }
-          : entry
-      )
+          : entry,
+      ),
     );
 
     this.state.setForCurrentUser(
       nextEntries,
-      'Indicator alert rules require an authenticated session.'
+      'Indicator alert rules require an authenticated session.',
     );
   }
 
@@ -115,7 +115,7 @@ export class IndicatorAlertRulesService {
     const nextEntries = this.entries().filter((entry) => entry.id !== normalizedId);
     this.state.setForCurrentUser(
       nextEntries,
-      'Indicator alert rules require an authenticated session.'
+      'Indicator alert rules require an authenticated session.',
     );
   }
 
@@ -125,9 +125,8 @@ export class IndicatorAlertRulesService {
       return null;
     }
     return (
-      this.entries().find(
-        (entry) => entry.active && entry.indicatorId === normalizedIndicatorId
-      ) ?? null
+      this.entries().find((entry) => entry.active && entry.indicatorId === normalizedIndicatorId) ??
+      null
     );
   }
 
@@ -145,9 +144,7 @@ export class IndicatorAlertRulesService {
 
   private normalizeRecord(candidate: unknown): IndicatorAlertRuleRecord {
     const record =
-      candidate && typeof candidate === 'object'
-        ? (candidate as Record<string, unknown>)
-        : {};
+      candidate && typeof candidate === 'object' ? (candidate as Record<string, unknown>) : {};
     const now = new Date().toISOString();
     const createdAt = this.normalizeIsoTimestamp(record['createdAt']) ?? now;
 
@@ -240,5 +237,4 @@ export class IndicatorAlertRulesService {
     }
     return `indicator-alert-rule-${Date.now()}-${Math.round(Math.random() * 1_000_000)}`;
   }
-
 }

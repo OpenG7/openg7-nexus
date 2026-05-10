@@ -27,16 +27,16 @@ Actions sensibles:
 
 ## Lexique rapide
 
-| Terme | Sens operationnel |
-| --- | --- |
-| `oui` | La couverture est consideree suffisante pour le perimetre courant. |
-| `partiel` | Une partie est couverte, mais il reste un manque de preuve ou de profondeur. |
-| `non` | La ligne ne peut pas etre consideree couverte. |
-| `hors MVP` | Le besoin est connu, mais volontairement hors perimetre actuel. |
-| `Refresh matrice` | Un signal plus recent que la derniere revue existe; la ligne doit etre relue. |
-| `Preuve` | Reference exploitable: spec, E2E, artifact, PR, mission `proof-returned` ou mission `done`. |
-| `Proposition` | Changement de statut propose par le recalcul, a appliquer manuellement. |
-| `Backlog pilote` | Liste d'actions de developpement ou de preuve, meme si aucun statut ne change. |
+| Terme             | Sens operationnel                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `oui`             | La couverture est consideree suffisante pour le perimetre courant.                          |
+| `partiel`         | Une partie est couverte, mais il reste un manque de preuve ou de profondeur.                |
+| `non`             | La ligne ne peut pas etre consideree couverte.                                              |
+| `hors MVP`        | Le besoin est connu, mais volontairement hors perimetre actuel.                             |
+| `Refresh matrice` | Un signal plus recent que la derniere revue existe; la ligne doit etre relue.               |
+| `Preuve`          | Reference exploitable: spec, E2E, artifact, PR, mission `proof-returned` ou mission `done`. |
+| `Proposition`     | Changement de statut propose par le recalcul, a appliquer manuellement.                     |
+| `Backlog pilote`  | Liste d'actions de developpement ou de preuve, meme si aucun statut ne change.              |
 
 ## Quand faire confiance aux voyants
 
@@ -187,11 +187,11 @@ Le bouton a trois effets:
 
 Scopes disponibles:
 
-| Scope | Usage recommande |
-| --- | --- |
-| `Entrees a piloter` | Relecture rapide des lignes marquees par un signal recent. |
-| `Entree active` | Diagnostic cible sur la ligne selectionnee. |
-| `Toute la matrice` | Revue complete apres release, audit ou doute sur la fraicheur globale. |
+| Scope               | Usage recommande                                                       |
+| ------------------- | ---------------------------------------------------------------------- |
+| `Entrees a piloter` | Relecture rapide des lignes marquees par un signal recent.             |
+| `Entree active`     | Diagnostic cible sur la ligne selectionnee.                            |
+| `Toute la matrice`  | Revue complete apres release, audit ou doute sur la fraicheur globale. |
 
 Le message de succes doit etre lu ainsi:
 
@@ -212,22 +212,22 @@ Le bloc `Backlog pilote par la matrice` trie les entrees par priorite puis par s
 
 Priorites:
 
-| Priorite | Sens |
-| --- | --- |
-| `A lancer maintenant` | Action prioritaire; la ligne a un score eleve. |
-| `Prochain lot` | Action utile, mais moins urgente. |
-| `Bloque` | Decision produit ou contrat API requis avant execution. |
-| `Plus tard` | Pas d'action immediate. |
+| Priorite              | Sens                                                    |
+| --------------------- | ------------------------------------------------------- |
+| `A lancer maintenant` | Action prioritaire; la ligne a un score eleve.          |
+| `Prochain lot`        | Action utile, mais moins urgente.                       |
+| `Bloque`              | Decision produit ou contrat API requis avant execution. |
+| `Plus tard`           | Pas d'action immediate.                                 |
 
 Buckets:
 
-| Bucket | Sens |
-| --- | --- |
-| `Pret a developper` | Le prochain mouvement est une implementation. |
-| `Preuve requise` | Il manque une spec, un E2E, un artifact ou une preuve rattachee. |
-| `Decision produit` | Le scope doit etre arbitre avant de changer la matrice. |
-| `Contrat API` | Le contrat ou schema doit etre stabilise avant le front ou les tests. |
-| `Pret a cloturer` | Une proposition peut etre appliquee apres verification humaine. |
+| Bucket              | Sens                                                                  |
+| ------------------- | --------------------------------------------------------------------- |
+| `Pret a developper` | Le prochain mouvement est une implementation.                         |
+| `Preuve requise`    | Il manque une spec, un E2E, un artifact ou une preuve rattachee.      |
+| `Decision produit`  | Le scope doit etre arbitre avant de changer la matrice.               |
+| `Contrat API`       | Le contrat ou schema doit etre stabilise avant le front ou les tests. |
+| `Pret a cloturer`   | Une proposition peut etre appliquee apres verification humaine.       |
 
 Actions possibles:
 

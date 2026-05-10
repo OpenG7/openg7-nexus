@@ -66,7 +66,7 @@ describe('RegisterPage', () => {
   it('submits valid registration, resets the form and navigates to profile', () => {
     const payload = { email: 'new@example.com', password: 'Secur3!Pass' };
     auth.register.and.returnValue(
-      of({ jwt: 'token', user: { id: '2', email: payload.email, roles: [] } })
+      of({ jwt: 'token', user: { id: '2', email: payload.email, roles: [] } }),
     );
 
     const form = (component as any).form;
@@ -82,7 +82,7 @@ describe('RegisterPage', () => {
   it('redirects to login when registration succeeds without JWT (email confirmation flow)', () => {
     const payload = { email: 'pending@example.com', password: 'Secur3!Pass' };
     auth.register.and.returnValue(
-      of({ user: { id: '2', email: payload.email, role: { type: 'authenticated' } } })
+      of({ user: { id: '2', email: payload.email, role: { type: 'authenticated' } } }),
     );
 
     const form = (component as any).form;

@@ -65,12 +65,12 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private readonly feedActions = inject(FeedActionsService);
   private readonly activeLanguage = toSignal(
     this.translate.onLangChange.pipe(
-      map(event => event.lang),
-      startWith(this.translate.currentLang || this.translate.getDefaultLang() || 'en')
+      map((event) => event.lang),
+      startWith(this.translate.currentLang || this.translate.getDefaultLang() || 'en'),
     ),
     {
       initialValue: this.translate.currentLang || this.translate.getDefaultLang() || 'en',
-    }
+    },
   );
 
   private readonly detailErrorKind = signal<'notFound' | 'unavailable' | null>(null);
@@ -205,10 +205,15 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
       subscriptionAlertId: result.entry?.id ?? null,
       result: result.status,
     };
-    void this.recordAlertAction('subscribe', detail, {
-      ...metadata,
-      status: result.status,
-    }, result.status === 'error' || result.status === 'invalid' ? 'failed' : 'completed');
+    void this.recordAlertAction(
+      'subscribe',
+      detail,
+      {
+        ...metadata,
+        status: result.status,
+      },
+      result.status === 'error' || result.status === 'invalid' ? 'failed' : 'completed',
+    );
 
     if (result.status === 'created') {
       this.notifications.success(
@@ -216,7 +221,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         {
           source: 'feed',
           metadata,
-        }
+        },
       );
       return;
     }
@@ -227,7 +232,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         {
           source: 'feed',
           metadata,
-        }
+        },
       );
       return;
     }
@@ -238,7 +243,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         {
           source: 'feed',
           metadata,
-        }
+        },
       );
       return;
     }
@@ -352,21 +357,29 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         route: this.currentInternalUrl(),
         payload,
       });
-      void this.recordAlertAction('report-update', detail, {
-        reportId: record.id,
-        reason: payload.reason,
-      }, 'queued');
-
-      this.reportSubmitState.set('success');
-      this.reportSubmitError.set(null);
-      this.notifications.success(this.translate.instant('feed.alert.detail.report.status.success'), {
-        source: 'feed',
-        metadata: {
-          itemId: detail.item.id,
+      void this.recordAlertAction(
+        'report-update',
+        detail,
+        {
           reportId: record.id,
           reason: payload.reason,
         },
-      });
+        'queued',
+      );
+
+      this.reportSubmitState.set('success');
+      this.reportSubmitError.set(null);
+      this.notifications.success(
+        this.translate.instant('feed.alert.detail.report.status.success'),
+        {
+          source: 'feed',
+          metadata: {
+            itemId: detail.item.id,
+            reportId: record.id,
+            reason: payload.reason,
+          },
+        },
+      );
       this.closeReportDrawerAfterSuccess();
     } catch (error) {
       const message = this.resolveLoadError(error);
@@ -396,7 +409,9 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
           ? 'IMPORT'
           : 'BOTH';
       const fallbackToProvinceId = detail.item.toProvinceId ?? detail.item.fromProvinceId ?? null;
-      const draftTitlePrefix = this.translate.instant('feed.alert.detail.cta.createOpportunityTitlePrefix');
+      const draftTitlePrefix = this.translate.instant(
+        'feed.alert.detail.cta.createOpportunityTitlePrefix',
+      );
       const draftTitle = `${draftTitlePrefix}: ${detail.title}`.slice(0, 160);
       const draftSummary = detail.summaryHeadline.slice(0, 5000);
       const draftTags = this.buildLinkedOpportunityTags(detail.item).join(',');
@@ -437,24 +452,30 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
       });
 
       if (!navigated) {
-        this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
+        this.notifications.error(
+          this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'),
+          {
+            source: 'feed',
+            metadata: {
+              action: 'create-linked-opportunity',
+              itemId: detail.item.id,
+            },
+          },
+        );
+        return;
+      }
+    } catch (error) {
+      this.notifications.error(
+        this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'),
+        {
           source: 'feed',
+          context: error,
           metadata: {
             action: 'create-linked-opportunity',
             itemId: detail.item.id,
           },
-        });
-        return;
-      }
-    } catch (error) {
-      this.notifications.error(this.translate.instant('feed.alert.detail.opportunity.status.errorGeneric'), {
-        source: 'feed',
-        context: error,
-        metadata: {
-          action: 'create-linked-opportunity',
-          itemId: detail.item.id,
         },
-      });
+      );
     }
   }
 
@@ -521,20 +542,20 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private buildSummaryPoints(
     item: FeedItem,
     routeLabel: string,
-    sourceLabel: string
+    sourceLabel: string,
   ): readonly string[] {
     const points = this.toSentenceArray(item.accessibilitySummary).slice(0, 2);
     points.push(
       this.translate.instant('feed.alert.detail.summaryPointSource', {
         source: sourceLabel,
-      })
+      }),
     );
 
     if (item.fromProvinceId || item.toProvinceId) {
       points.push(
         this.translate.instant('feed.alert.detail.summaryPointRoute', {
           route: routeLabel,
-        })
+        }),
       );
     }
 
@@ -543,7 +564,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
       points.push(
         this.translate.instant('feed.alert.detail.summaryPointTags', {
           tags: tagList,
-        })
+        }),
       );
     }
 
@@ -553,7 +574,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private buildImpactPoints(
     severityLabel: string,
     confidenceLabel: string,
-    windowLabel: string
+    windowLabel: string,
   ): readonly string[] {
     return [
       this.translate.instant('feed.alert.detail.impactSeverity', {
@@ -568,11 +589,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
     ];
   }
 
-  private buildZones(
-    item: FeedItem,
-    provinceLabel: string,
-    routeLabel: string
-  ): readonly string[] {
+  private buildZones(item: FeedItem, provinceLabel: string, routeLabel: string): readonly string[] {
     const zones = new Set<string>();
     const from = this.resolveProvinceLabel(item.fromProvinceId);
     const to = this.resolveProvinceLabel(item.toProvinceId);
@@ -668,7 +685,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private buildSources(
     item: FeedItem,
     sourceLabel: string,
-    confidenceLabel: string
+    confidenceLabel: string,
   ): AlertDetailVm['sources'] {
     return [
       {
@@ -684,7 +701,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
     item: FeedItem,
     provinceLabel: string,
     sectorLabel: string,
-    sourceLabel: string
+    sourceLabel: string,
   ): AlertDetailVm['indicators'] {
     return [
       {
@@ -711,13 +728,16 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
     ];
   }
 
-  private buildRelatedAlerts(item: FeedItem, provinceLabel: string): readonly AlertRelatedAlertEntry[] {
+  private buildRelatedAlerts(
+    item: FeedItem,
+    provinceLabel: string,
+  ): readonly AlertRelatedAlertEntry[] {
     return this.rankRelatedEntries(
       item,
-      this.feed.items().filter(entry => entry.type === 'ALERT' && entry.id !== item.id)
+      this.feed.items().filter((entry) => entry.type === 'ALERT' && entry.id !== item.id),
     )
       .slice(0, 2)
-      .map(entry => ({
+      .map((entry) => ({
         id: entry.id,
         title: entry.title,
         region:
@@ -731,30 +751,35 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private buildRelatedOpportunities(item: FeedItem): readonly AlertRelatedOpportunityEntry[] {
     return this.rankRelatedEntries(
       item,
-      this.feed.items().filter(
-        entry =>
-          entry.id !== item.id &&
-          (entry.type === 'REQUEST' ||
-            entry.type === 'OFFER' ||
-            entry.type === 'CAPACITY' ||
-            entry.type === 'TENDER')
-      )
+      this.feed
+        .items()
+        .filter(
+          (entry) =>
+            entry.id !== item.id &&
+            (entry.type === 'REQUEST' ||
+              entry.type === 'OFFER' ||
+              entry.type === 'CAPACITY' ||
+              entry.type === 'TENDER'),
+        ),
     )
       .slice(0, 2)
-      .map(entry => ({
+      .map((entry) => ({
         id: entry.id,
         title: entry.title,
         routeLabel: this.composeRouteLabel(entry),
       }));
   }
 
-  private rankRelatedEntries(source: FeedItem, candidates: readonly FeedItem[]): readonly FeedItem[] {
+  private rankRelatedEntries(
+    source: FeedItem,
+    candidates: readonly FeedItem[],
+  ): readonly FeedItem[] {
     return candidates
-      .map(candidate => ({
+      .map((candidate) => ({
         candidate,
         score: this.computeRelatedScore(source, candidate),
       }))
-      .filter(entry => entry.score >= 5)
+      .filter((entry) => entry.score >= 5)
       .sort((left, right) => {
         if (right.score !== left.score) {
           return right.score - left.score;
@@ -766,7 +791,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         }
         return left.candidate.title.localeCompare(right.candidate.title);
       })
-      .map(entry => entry.candidate);
+      .map((entry) => entry.candidate);
   }
 
   private computeRelatedScore(source: FeedItem, candidate: FeedItem): number {
@@ -783,10 +808,10 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
     const sourceProvinceIds = this.collectComparableIds(source.fromProvinceId, source.toProvinceId);
     const candidateProvinceIds = this.collectComparableIds(
       candidate.fromProvinceId,
-      candidate.toProvinceId
+      candidate.toProvinceId,
     );
-    const sharedProvinceCount = Array.from(sourceProvinceIds).filter(provinceId =>
-      candidateProvinceIds.has(provinceId)
+    const sharedProvinceCount = Array.from(sourceProvinceIds).filter((provinceId) =>
+      candidateProvinceIds.has(provinceId),
     ).length;
     score += sharedProvinceCount * 5;
 
@@ -871,10 +896,10 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
 
   private countSharedTags(
     left: readonly string[] | null | undefined,
-    right: readonly string[] | null | undefined
+    right: readonly string[] | null | undefined,
   ): number {
-    const leftTags = new Set((left ?? []).map(tag => this.toKebabTag(tag)).filter(Boolean));
-    const rightTags = new Set((right ?? []).map(tag => this.toKebabTag(tag)).filter(Boolean));
+    const leftTags = new Set((left ?? []).map((tag) => this.toKebabTag(tag)).filter(Boolean));
+    const rightTags = new Set((right ?? []).map((tag) => this.toKebabTag(tag)).filter(Boolean));
     let shared = 0;
     for (const tag of leftTags) {
       if (rightTags.has(tag)) {
@@ -1002,14 +1027,12 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
 
     return value
       .split(/[.!?]\s+/)
-      .map(entry => entry.trim().replace(/[.!?]+$/g, ''))
+      .map((entry) => entry.trim().replace(/[.!?]+$/g, ''))
       .filter(Boolean);
   }
 
   private formatTagList(tags: readonly string[] | null | undefined): string | null {
-    const normalized = (tags ?? [])
-      .map(tag => tag.trim().replace(/[-_]+/g, ' '))
-      .filter(Boolean);
+    const normalized = (tags ?? []).map((tag) => tag.trim().replace(/[-_]+/g, ' ')).filter(Boolean);
 
     if (!normalized.length) {
       return null;
@@ -1019,7 +1042,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   }
 
   private uniqueStrings(values: readonly string[]): string[] {
-    return Array.from(new Set(values.filter(value => value.trim().length > 0)));
+    return Array.from(new Set(values.filter((value) => value.trim().length > 0)));
   }
 
   private currentUrl(): string {
@@ -1032,7 +1055,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
 
   private buildSubscriptionAlertPayload(detail: AlertDetailVm) {
     const generatedTitlePrefix = this.translate.instant(
-      'feed.alert.detail.subscription.generatedTitlePrefix'
+      'feed.alert.detail.subscription.generatedTitlePrefix',
     );
 
     return {
@@ -1060,7 +1083,8 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
 
   private currentInternalUrl(): string {
     const navigation = this.router.getCurrentNavigation?.();
-    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    const url =
+      navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     if (typeof url === 'string' && url.trim().length > 0) {
       return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
     }

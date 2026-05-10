@@ -108,12 +108,11 @@ export class ChipComponent {
       }
 
       .credits-shell .og7-static-hero {
-        background:
-          linear-gradient(
-            145deg,
-            color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 100%
-          );
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 100%
+        );
         border-color: color-mix(in srgb, var(--og7-color-primary) 14%, var(--og7-color-border));
         box-shadow:
           0 30px 60px -42px rgba(15, 23, 42, 0.26),
@@ -163,18 +162,21 @@ export class ChipComponent {
       }
 
       .credits-shell .og7-static-action-secondary {
-        background: color-mix(in srgb, var(--og7-color-surface-muted) 76%, var(--og7-color-surface));
+        background: color-mix(
+          in srgb,
+          var(--og7-color-surface-muted) 76%,
+          var(--og7-color-surface)
+        );
         border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
         color: var(--og7-color-title);
       }
 
       .credits-shell .og7-static-card--muted {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface-muted) 72%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 100%
+        );
       }
 
       .credits-shell .og7-static-input {
@@ -218,12 +220,11 @@ export class ChipComponent {
       }
 
       .credits-hero-rail {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface) 76%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 100%
+        );
         border-color: color-mix(in srgb, var(--og7-color-primary) 14%, var(--og7-color-border));
         box-shadow: none;
       }
@@ -269,17 +270,17 @@ export class ChipComponent {
       }
 
       .credits-directory {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
+        );
         border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
       }
 
       .credits-directory__header {
-        border-bottom: 1px solid color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
+        border-bottom: 1px solid
+          color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
         padding-bottom: 1rem;
       }
 
@@ -292,12 +293,11 @@ export class ChipComponent {
       }
 
       .credits-toolbar {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface-muted) 68%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
+        );
       }
 
       .credits-filter-chips {
@@ -314,12 +314,11 @@ export class ChipComponent {
       }
 
       .credits-contributor-card {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 100%
+        );
         border-color: color-mix(in srgb, var(--og7-color-primary) 12%, var(--og7-color-border));
         box-shadow: none;
         min-height: 15rem;
@@ -365,12 +364,11 @@ export class ChipComponent {
       }
 
       .contributors-avatar {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface-muted) 66%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 100%
+        );
         border: 1px solid color-mix(in srgb, var(--og7-color-primary) 10%, var(--og7-color-border));
         border-radius: 0.85rem;
         overflow: hidden;
@@ -432,7 +430,8 @@ export class ChipComponent {
       }
 
       .contributors-meta-item {
-        border-top: 1px solid color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
+        border-top: 1px solid
+          color-mix(in srgb, var(--og7-color-primary) 8%, var(--og7-color-border));
         display: grid;
         gap: 0.18rem;
         padding-top: 0.75rem;
@@ -461,21 +460,19 @@ export class ChipComponent {
       }
 
       .credits-pillar-section {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 62%, transparent) 100%
+        );
       }
 
       .credits-community-panel {
-        background:
-          linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--og7-color-primary-soft) 38%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 72%
-          );
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--og7-color-primary-soft) 38%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface) 72%, transparent) 72%
+        );
         position: relative;
       }
 
@@ -484,26 +481,25 @@ export class ChipComponent {
       }
 
       .credits-founder-note--main {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface-muted) 70%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-surface) 78%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface-muted) 70%, transparent) 100%
+        );
       }
 
       .credits-founder-note--side {
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--og7-color-primary-soft) 34%, transparent) 0%,
-            color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
-          );
+        background: linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--og7-color-primary-soft) 34%, transparent) 0%,
+          color-mix(in srgb, var(--og7-color-surface) 74%, transparent) 100%
+        );
       }
 
       .credits-founder-note__quote {
         background: color-mix(in srgb, var(--og7-color-primary-soft) 42%, var(--og7-color-surface));
-        border-left: 4px solid color-mix(in srgb, var(--og7-color-primary) 62%, var(--og7-color-border));
+        border-left: 4px solid
+          color-mix(in srgb, var(--og7-color-primary) 62%, var(--og7-color-border));
         border-radius: 1rem;
         color: var(--og7-color-title);
         margin: 0;
@@ -563,7 +559,11 @@ export class ChipComponent {
 
       .stack-marker {
         align-items: center;
-        background: color-mix(in srgb, var(--og7-color-surface-muted) 84%, var(--og7-color-surface));
+        background: color-mix(
+          in srgb,
+          var(--og7-color-surface-muted) 84%,
+          var(--og7-color-surface)
+        );
         border: 1px solid color-mix(in srgb, var(--og7-color-primary) 18%, var(--og7-color-border));
         border-radius: 0.7rem;
         color: var(--og7-color-primary);
@@ -642,7 +642,12 @@ export class CreditsPage {
 
     return this.contributors().filter((contributor) => {
       const matchesProvince = !province || contributor.province === province;
-      const haystack = [contributor.name, contributor.role, contributor.impact, ...contributor.skills]
+      const haystack = [
+        contributor.name,
+        contributor.role,
+        contributor.impact,
+        ...contributor.skills,
+      ]
         .join(' ')
         .toLowerCase();
       const matchesText = !query || haystack.includes(query);

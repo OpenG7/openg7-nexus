@@ -43,9 +43,7 @@ describe('authGuard', () => {
     });
     auth.isAuthenticated.and.callFake(() => restored);
 
-    const result = await TestBed.runInInjectionContext(() =>
-      authGuard({} as Route, segments)
-    );
+    const result = await TestBed.runInInjectionContext(() => authGuard({} as Route, segments));
 
     expect(auth.ensureSessionRestored).toHaveBeenCalled();
     expect(result).toBeTrue();
@@ -61,9 +59,7 @@ describe('authGuard', () => {
     } as any);
     router.createUrlTree.and.returnValue(tree);
 
-    const result = await TestBed.runInInjectionContext(() =>
-      authGuard({} as Route, segments)
-    );
+    const result = await TestBed.runInInjectionContext(() => authGuard({} as Route, segments));
 
     expect(auth.ensureSessionRestored).toHaveBeenCalled();
     expect(redirect.setRedirectUrl).toHaveBeenCalledWith('/profile');
@@ -82,9 +78,7 @@ describe('authGuard', () => {
     } as any);
     router.createUrlTree.and.returnValue(tree);
 
-    const result = await TestBed.runInInjectionContext(() =>
-      authGuard({} as Route, segments)
-    );
+    const result = await TestBed.runInInjectionContext(() => authGuard({} as Route, segments));
 
     expect(redirect.setRedirectUrl).toHaveBeenCalledWith('/feed/opportunities/request-001');
     expect(router.createUrlTree).toHaveBeenCalledWith(['/login'], {
@@ -99,7 +93,7 @@ describe('authGuard', () => {
     router.createUrlTree.and.returnValue(tree);
 
     const result = await TestBed.runInInjectionContext(() =>
-      authGuard({} as Route, [new UrlSegment('admin', {}), new UrlSegment('ops', {})])
+      authGuard({} as Route, [new UrlSegment('admin', {}), new UrlSegment('ops', {})]),
     );
 
     expect(redirect.setRedirectUrl).toHaveBeenCalledWith('/admin/ops');

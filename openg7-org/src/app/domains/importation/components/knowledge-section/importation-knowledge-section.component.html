@@ -4,8 +4,14 @@
     <p>{{ 'pages.importation.knowledge.subtitle' | translate }}</p>
   </header>
 
-  <p *ngIf="viewModel.loading" class="og7-importation-knowledge__loading">{{ 'pages.importation.knowledge.loading' | translate }}</p>
-  <p *ngIf="!viewModel.loading && viewModel.error" class="og7-importation-knowledge__error" role="status">
+  <p *ngIf="viewModel.loading" class="og7-importation-knowledge__loading">
+    {{ 'pages.importation.knowledge.loading' | translate }}
+  </p>
+  <p
+    *ngIf="!viewModel.loading && viewModel.error"
+    class="og7-importation-knowledge__error"
+    role="status"
+  >
     {{ viewModel.error | translate }}
   </p>
 
@@ -15,7 +21,9 @@
       <h3>{{ article.title }}</h3>
       <p>{{ article.summary }}</p>
       <time>{{ article.publishedAt }}</time>
-      <a [href]="article.link" target="_blank" rel="noopener">{{ 'pages.importation.knowledge.read' | translate }}</a>
+      <a [href]="article.link" target="_blank" rel="noopener">{{
+        'pages.importation.knowledge.read' | translate
+      }}</a>
     </article>
     <p *ngIf="!viewModel.articles.length" class="og7-importation-knowledge__empty">
       {{ 'pages.importation.knowledge.empty' | translate }}

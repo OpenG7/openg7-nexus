@@ -55,10 +55,7 @@ export interface AdminQualityMatrixSnapshot {
   readonly entries: readonly AdminQualityMatrixEntry[];
 }
 
-export type AdminQualityMatrixRecalculationScope =
-  | 'refresh-required'
-  | 'selected-entry'
-  | 'all';
+export type AdminQualityMatrixRecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
 
 export type AdminQualityMatrixRecalculationResult =
   | 'unchanged'

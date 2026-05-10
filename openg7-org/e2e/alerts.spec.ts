@@ -67,7 +67,11 @@ test.describe('Alerts page', () => {
         const generated: AlertRecord[] = [];
 
         for (const saved of savedSearches) {
-          if (alerts.some((entry) => entry.sourceType === 'saved-search' && entry.sourceId === saved.id)) {
+          if (
+            alerts.some(
+              (entry) => entry.sourceType === 'saved-search' && entry.sourceId === saved.id,
+            )
+          ) {
             continue;
           }
 

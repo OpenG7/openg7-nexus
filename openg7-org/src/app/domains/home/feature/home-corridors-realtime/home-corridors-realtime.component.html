@@ -12,7 +12,7 @@
           @if (snapshot().title; as title) {
             {{ title }}
           } @else {
-            {{ (snapshot().titleKey ?? 'home.corridorsRealtime.title') | translate }}
+            {{ snapshot().titleKey ?? 'home.corridorsRealtime.title' | translate }}
           }
         </p>
         @if (snapshot().subtitle || snapshot().subtitleKey) {
@@ -20,7 +20,7 @@
             @if (snapshot().subtitle; as subtitle) {
               {{ subtitle }}
             } @else {
-              {{ (snapshot().subtitleKey ?? 'home.corridorsRealtime.subtitle') | translate }}
+              {{ snapshot().subtitleKey ?? 'home.corridorsRealtime.subtitle' | translate }}
             }
           </p>
         }
@@ -32,9 +32,9 @@
         data-og7-id="fullscreen"
         [attr.aria-pressed]="isFullscreen()"
         [attr.aria-label]="
-          (isFullscreen()
+          isFullscreen()
             ? ('home.corridorsRealtime.fullscreen.exit' | translate)
-            : ('home.corridorsRealtime.fullscreen.enter' | translate))
+            : ('home.corridorsRealtime.fullscreen.enter' | translate)
         "
         [disabled]="!fullscreenAvailable()"
         (click)="toggleFullscreen()"
@@ -71,7 +71,7 @@
                     @if (item.label; as label) {
                       {{ label }}
                     } @else {
-                      {{ (item.labelKey ?? 'home.corridorsRealtime.itemFallback') | translate }}
+                      {{ item.labelKey ?? 'home.corridorsRealtime.itemFallback' | translate }}
                     }
                   </span>
                   @if (item.route || item.routeKey) {
@@ -96,7 +96,13 @@
                     class="ml-auto inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-cyan-200/35 text-cyan-100 transition group-hover:scale-110 group-hover:border-cyan-200 group-hover:bg-cyan-300/15"
                     aria-hidden="true"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" stroke="currentColor" stroke-width="1.8">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      class="h-3.5 w-3.5"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
                       <path d="M4 3l6.7 17 2.3-6.2L21 11 4 3z" stroke-linejoin="round"></path>
                     </svg>
                   </span>
@@ -118,7 +124,7 @@
           @if (status().label; as label) {
             {{ label }}
           } @else {
-            {{ (status().labelKey ?? 'home.corridorsRealtime.status.monitoring') | translate }}
+            {{ status().labelKey ?? 'home.corridorsRealtime.status.monitoring' | translate }}
           }
         </span>
 
@@ -131,7 +137,7 @@
           @if (snapshot().cta?.label; as label) {
             {{ label }}
           } @else {
-            {{ (snapshot().cta?.labelKey ?? 'home.corridorsRealtime.cta.viewMap') | translate }}
+            {{ snapshot().cta?.labelKey ?? 'home.corridorsRealtime.cta.viewMap' | translate }}
           }
         </button>
 
@@ -163,17 +169,28 @@
 
         <div class="og7-corridors-realtime__priority-grid">
           <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-services">
-            <span>{{ 'home.corridorsRealtime.priorityPath.cards.services.label' | translate }}</span>
-            <strong>{{ 'home.corridorsRealtime.priorityPath.cards.services.value' | translate }}</strong>
+            <span>{{
+              'home.corridorsRealtime.priorityPath.cards.services.label' | translate
+            }}</span>
+            <strong>{{
+              'home.corridorsRealtime.priorityPath.cards.services.value' | translate
+            }}</strong>
           </article>
 
           <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-sector">
             <span>{{ 'home.corridorsRealtime.priorityPath.cards.sector.label' | translate }}</span>
-            <strong>{{ 'home.corridorsRealtime.priorityPath.cards.sector.value' | translate }}</strong>
+            <strong>{{
+              'home.corridorsRealtime.priorityPath.cards.sector.value' | translate
+            }}</strong>
           </article>
 
-          <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-dependencies">
-            <span>{{ 'home.corridorsRealtime.priorityPath.cards.dependencies.label' | translate }}</span>
+          <article
+            class="og7-corridors-realtime__priority-card"
+            data-og7-id="priority-dependencies"
+          >
+            <span>{{
+              'home.corridorsRealtime.priorityPath.cards.dependencies.label' | translate
+            }}</span>
             <strong>
               @if (priorityPath.routeLabel; as routeLabel) {
                 {{ 'home.corridorsRealtime.priorityPath.cards.dependencies.value' | translate }}
@@ -188,12 +205,17 @@
           </article>
 
           <article class="og7-corridors-realtime__priority-card" data-og7-id="priority-capacity">
-            <span>{{ 'home.corridorsRealtime.priorityPath.cards.capacity.label' | translate }}</span>
+            <span>{{
+              'home.corridorsRealtime.priorityPath.cards.capacity.label' | translate
+            }}</span>
             <strong>
               @if (priorityPath.capacityLabel; as capacityLabel) {
                 {{ capacityLabel }}
               } @else {
-                {{ (priorityPath.capacityLabelKey ?? 'home.corridorsRealtime.status.monitoring') | translate }}
+                {{
+                  priorityPath.capacityLabelKey ?? 'home.corridorsRealtime.status.monitoring'
+                    | translate
+                }}
               }
             </strong>
           </article>

@@ -118,7 +118,12 @@ export class ImportationPage implements OnInit {
     this.store.createWatchlist(name);
   }
 
-  onScheduleReport(payload: { recipients: readonly string[]; format: 'csv' | 'json' | 'look'; frequency: 'weekly' | 'monthly' | 'quarterly'; notes?: string }): void {
+  onScheduleReport(payload: {
+    recipients: readonly string[];
+    format: 'csv' | 'json' | 'look';
+    frequency: 'weekly' | 'monthly' | 'quarterly';
+    notes?: string;
+  }): void {
     this.store.scheduleReport(payload);
   }
 }

@@ -2,7 +2,11 @@ import './setup';
 import { expect, test, type Page } from '@playwright/test';
 
 import { seedAuthenticatedSession } from './helpers/auth-session';
-import { DEFAULT_PROFILE, mockAdminOpsApis, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
+import {
+  DEFAULT_PROFILE,
+  mockAdminOpsApis,
+  mockProfileAndFavoritesApis,
+} from './helpers/domain-mocks';
 
 type RecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
 
@@ -341,7 +345,9 @@ async function wait(delayMs: number): Promise<void> {
 async function mockAdminQualityPageApis(
   page: Page,
   options: {
-    recalculateResponse: MockHttpResponse | ((payload: RecalculateRequestPayload) => Promise<MockHttpResponse> | MockHttpResponse);
+    recalculateResponse:
+      | MockHttpResponse
+      | ((payload: RecalculateRequestPayload) => Promise<MockHttpResponse> | MockHttpResponse);
   },
 ): Promise<{ recalculateRequests: RecalculateRequestPayload[] }> {
   const recalculateRequests: RecalculateRequestPayload[] = [];
@@ -402,12 +408,16 @@ async function openAdminQualityPage(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin\/quality$/);
   await expect(page.locator('[data-og7="admin-quality-matrix"]')).toBeVisible();
   await expect(
-    page.locator('[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]'),
+    page.locator(
+      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]',
+    ),
   ).toBeVisible();
 }
 
 test.describe('Admin quality matrix recalculation', () => {
-  test('recalculates refresh-required rows and exposes the pending state on the CTA', async ({ page }) => {
+  test('recalculates refresh-required rows and exposes the pending state on the CTA', async ({
+    page,
+  }) => {
     let releasePendingResponse!: () => void;
     const pendingGate = new Promise<void>((resolve) => {
       releasePendingResponse = resolve;
@@ -435,16 +445,22 @@ test.describe('Admin quality matrix recalculation', () => {
     releasePendingResponse();
 
     await expect(button).toBeEnabled();
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toBeVisible();
-    await expect(page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]')).toHaveText(
-      'Entrees a piloter',
-    );
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toContainText(
-      'Propositions',
-    );
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toContainText('1');
     await expect(
-      page.locator('[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]'),
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]'),
+    ).toHaveText('Entrees a piloter');
+    await expect(
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toContainText('Propositions');
+    await expect(
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toContainText('1');
+    await expect(
+      page.locator(
+        '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]',
+      ),
     ).toContainText('Refresh matrice');
   });
 
@@ -461,16 +477,20 @@ test.describe('Admin quality matrix recalculation', () => {
     await page.locator('[data-og7-id="admin-quality-recalculate-matrix"]').click();
 
     expect(recalculateRequests).toEqual([{ scope: 'all', entryId: null }]);
-    await expect(page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]')).toHaveText(
-      'Portee complete',
-    );
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toContainText(
-      'Analysees',
-    );
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toContainText('2');
+    await expect(
+      page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]'),
+    ).toHaveText('Portee complete');
+    await expect(
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toContainText('Analysees');
+    await expect(
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toContainText('2');
   });
 
-  test('uses the active coverage row when the selected-entry scope is requested', async ({ page }) => {
+  test('uses the active coverage row when the selected-entry scope is requested', async ({
+    page,
+  }) => {
     const { recalculateRequests } = await mockAdminQualityPageApis(page, {
       recalculateResponse: {
         body: SELECTED_ENTRY_RECALCULATION,
@@ -479,16 +499,22 @@ test.describe('Admin quality matrix recalculation', () => {
 
     await openAdminQualityPage(page);
 
-    await page.locator('[data-og7-id="admin-quality-recalculate-scope"]').selectOption('selected-entry');
+    await page
+      .locator('[data-og7-id="admin-quality-recalculate-scope"]')
+      .selectOption('selected-entry');
     await page.locator('[data-og7-id="admin-quality-recalculate-matrix"]').click();
 
-    expect(recalculateRequests).toEqual([{ scope: 'selected-entry', entryId: 'advanced-discovery' }]);
-    await expect(page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]')).toHaveText(
-      'Entree ciblee',
-    );
+    expect(recalculateRequests).toEqual([
+      { scope: 'selected-entry', entryId: 'advanced-discovery' },
+    ]);
+    await expect(
+      page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]'),
+    ).toHaveText('Entree ciblee');
   });
 
-  test('targets the selected matrix row and renders the focused proposal details', async ({ page }) => {
+  test('targets the selected matrix row and renders the focused proposal details', async ({
+    page,
+  }) => {
     const { recalculateRequests } = await mockAdminQualityPageApis(page, {
       recalculateResponse: (payload) => ({
         body:
@@ -503,30 +529,39 @@ test.describe('Admin quality matrix recalculation', () => {
     await page
       .locator('[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="trust-validation"]')
       .click();
-    await page.locator('[data-og7-id="admin-quality-recalculate-scope"]').selectOption('selected-entry');
+    await page
+      .locator('[data-og7-id="admin-quality-recalculate-scope"]')
+      .selectOption('selected-entry');
     await page.locator('[data-og7-id="admin-quality-recalculate-matrix"]').click();
 
     expect(recalculateRequests).toEqual([{ scope: 'selected-entry', entryId: 'trust-validation' }]);
-    await expect(page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]')).toHaveText(
-      'Entree ciblee',
-    );
     await expect(
-      page.locator('[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="trust-validation"]'),
+      page.locator('[data-og7-id="admin-quality-matrix-recalculation-scope"]'),
+    ).toHaveText('Entree ciblee');
+    await expect(
+      page.locator(
+        '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="trust-validation"]',
+      ),
     ).toBeVisible();
-    await expect(page.locator('[data-og7-id="admin-quality-matrix-recalculation-reasons"]')).toContainText(
-      'La preuve et la matrice restent alignees.',
-    );
     await expect(
-      page.locator('[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="trust-validation"]'),
+      page.locator('[data-og7-id="admin-quality-matrix-recalculation-reasons"]'),
+    ).toContainText('La preuve et la matrice restent alignees.');
+    await expect(
+      page.locator(
+        '[data-og7="admin-quality-matrix-recalculation-focus"][data-og7-id="trust-validation"]',
+      ),
     ).toContainText('Trust et validation');
   });
 
-  test('surfaces the explicit backend forbidden message returned by the recalculation endpoint', async ({ page }) => {
+  test('surfaces the explicit backend forbidden message returned by the recalculation endpoint', async ({
+    page,
+  }) => {
     await mockAdminQualityPageApis(page, {
       recalculateResponse: {
         status: 403,
         body: {
-          message: 'Owner/Admin required. Authenticated as e2e.viewer@openg7.test with role editor.',
+          message:
+            'Owner/Admin required. Authenticated as e2e.viewer@openg7.test with role editor.',
         },
       },
     });
@@ -545,10 +580,14 @@ test.describe('Admin quality matrix recalculation', () => {
     const response = await recalculationResponse;
     expect(response.status()).toBe(403);
     await expect(button).toBeEnabled();
-    await expect(page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]')).toHaveCount(0);
+    await expect(
+      page.locator('[data-og7="admin-quality-matrix-recalculation-summary"]'),
+    ).toHaveCount(0);
 
-    await expect.poll(async () => await response.json()).toEqual({
-      message: 'Owner/Admin required. Authenticated as e2e.viewer@openg7.test with role editor.',
-    });
+    await expect
+      .poll(async () => await response.json())
+      .toEqual({
+        message: 'Owner/Admin required. Authenticated as e2e.viewer@openg7.test with role editor.',
+      });
   });
 });

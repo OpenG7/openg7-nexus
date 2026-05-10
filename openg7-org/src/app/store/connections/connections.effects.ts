@@ -1,7 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { ConnectionsService, mapStrapiConnectionResponse } from '@app/core/services/connections.service';
+import {
+  ConnectionsService,
+  mapStrapiConnectionResponse,
+} from '@app/core/services/connections.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, exhaustMap, map, of, tap } from 'rxjs';
@@ -33,12 +36,12 @@ export class ConnectionsEffects {
             of(
               ConnectionsActions.createConnectionFailure({
                 error: this.extractMessage(error),
-              })
-            )
-          )
-        )
-      )
-    )
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 
   connectionSuccess$ = createEffect(
@@ -50,10 +53,14 @@ export class ConnectionsEffects {
             source: 'matches',
             metadata: { connectionId: connection.id },
           });
-          this.analytics.emit('connection_created_success', { id: connection.id }, { priority: true });
-        })
+          this.analytics.emit(
+            'connection_created_success',
+            { id: connection.id },
+            { priority: true },
+          );
+        }),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   connectionFailure$ = createEffect(
@@ -68,9 +75,9 @@ export class ConnectionsEffects {
             deliver: { email: true },
           });
           this.analytics.emit('connection_create_failed', { message: error }, { priority: true });
-        })
+        }),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   attachmentsUpdated$ = createEffect(
@@ -78,10 +85,14 @@ export class ConnectionsEffects {
       this.actions$.pipe(
         ofType(ConnectionsActions.attachmentsUpdated),
         tap(({ attachments }) => {
-          this.analytics.emit('attachment_toggled', { attachments: [...attachments] }, { priority: true });
-        })
+          this.analytics.emit(
+            'attachment_toggled',
+            { attachments: [...attachments] },
+            { priority: true },
+          );
+        }),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   meetingSlotsUpdated$ = createEffect(
@@ -89,10 +100,14 @@ export class ConnectionsEffects {
       this.actions$.pipe(
         ofType(ConnectionsActions.meetingSlotsUpdated),
         tap(({ slots }) => {
-          this.analytics.emit('meeting_slots_proposed', { count: slots.length }, { priority: true });
-        })
+          this.analytics.emit(
+            'meeting_slots_proposed',
+            { count: slots.length },
+            { priority: true },
+          );
+        }),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   private extractMessage(error: unknown): string {

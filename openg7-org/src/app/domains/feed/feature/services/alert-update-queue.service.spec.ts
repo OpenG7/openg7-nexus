@@ -12,10 +12,7 @@ describe('AlertUpdateQueueService', () => {
     localStorage.removeItem(STORAGE_KEY);
 
     TestBed.configureTestingModule({
-      providers: [
-        AlertUpdateQueueService,
-        { provide: PLATFORM_ID, useValue: 'browser' },
-      ],
+      providers: [AlertUpdateQueueService, { provide: PLATFORM_ID, useValue: 'browser' }],
     });
 
     service = TestBed.inject(AlertUpdateQueueService);
@@ -52,6 +49,6 @@ describe('AlertUpdateQueueService', () => {
     expect(first.id).not.toBe(second.id);
 
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as Array<{ id: string }>;
-    expect(stored.map(entry => entry.id)).toEqual([second.id, first.id]);
+    expect(stored.map((entry) => entry.id)).toEqual([second.id, first.id]);
   });
 });

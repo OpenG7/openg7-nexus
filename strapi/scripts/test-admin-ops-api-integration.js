@@ -24,7 +24,8 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'admin-ops-test-app-key-a,admin-ops-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'admin-ops-test-app-key-a,admin-ops-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'admin-ops-test-api-token-salt';
   process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'admin-ops-test-admin-jwt-secret';
   process.env.TRANSFER_TOKEN_SALT =
@@ -62,7 +63,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -190,7 +191,8 @@ async function run() {
   const originalFetch = global.fetch.bind(global);
   const workflowDispatchCalls = [];
   global.fetch = async (input, init) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    const url =
+      typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     const parsedUrl = new URL(url);
     if (url === 'https://api.github.test/repos/OpenG7/openg7-nexus/actions/secrets?per_page=100') {
       return new Response(
@@ -256,13 +258,10 @@ async function run() {
       );
     }
     if (parsedUrl.pathname.endsWith('/actions/workflows/gemini-pr.yml/runs')) {
-      return new Response(
-        JSON.stringify({ total_count: 0, workflow_runs: [] }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+      return new Response(JSON.stringify({ total_count: 0, workflow_runs: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
     if (parsedUrl.pathname.endsWith('/actions/workflows/copilot-pr.yml/runs')) {
       return new Response(
@@ -332,13 +331,10 @@ async function run() {
       );
     }
     if (parsedUrl.pathname.endsWith('/actions/runs/701/artifacts')) {
-      return new Response(
-        JSON.stringify({ total_count: 0, artifacts: [] }),
-        {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+      return new Response(JSON.stringify({ total_count: 0, artifacts: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
     if (parsedUrl.pathname.endsWith('/pulls')) {
       const head = parsedUrl.searchParams.get('head');
@@ -422,7 +418,7 @@ async function run() {
     assert.equal(
       forbiddenForAuthenticated.status,
       403,
-      'Expected non-owner/admin authenticated user to be denied.'
+      'Expected non-owner/admin authenticated user to be denied.',
     );
 
     const health = await requestJson(`${baseUrl}/api/admin/ops/health`, {
@@ -451,7 +447,7 @@ async function run() {
     assert.ok(security.body?.data?.users?.total >= 2, 'Expected users total in security snapshot.');
     assert.ok(
       Array.isArray(security.body?.data?.uploads?.allowedMimeTypes),
-      'Expected upload mime type list.'
+      'Expected upload mime type list.',
     );
     assert.ok(Array.isArray(security.body?.data?.aiKeys), 'Expected ignition console modules.');
     assert.equal(
@@ -513,7 +509,8 @@ async function run() {
       'Expected Codex proof package artifacts to be exposed.',
     );
     assert.equal(
-      proofs.body?.data?.providers?.find((entry) => entry.provider === 'codex')?.pullRequest?.number,
+      proofs.body?.data?.providers?.find((entry) => entry.provider === 'codex')?.pullRequest
+        ?.number,
       321,
       'Expected Codex latest proof package to surface its PR.',
     );
@@ -561,7 +558,11 @@ async function run() {
     });
     assert.equal(copilotDispatch.status, 200, 'Expected provider dispatch endpoint access.');
     assert.equal(copilotDispatch.body?.data?.queued, true, 'Expected queued dispatch response.');
-    assert.equal(copilotDispatch.body?.data?.selectedProvider, 'copilot', 'Expected provider echo.');
+    assert.equal(
+      copilotDispatch.body?.data?.selectedProvider,
+      'copilot',
+      'Expected provider echo.',
+    );
     assert.equal(workflowDispatchCalls.length, 1, 'Expected one GitHub workflow dispatch call.');
 
     const dispatchedPayload = JSON.parse(String(workflowDispatchCalls[0]?.init?.body ?? '{}'));
@@ -578,7 +579,7 @@ async function run() {
     assert.equal(dispatchedPayload.inputs?.effort, 'medium', 'Expected forwarded effort.');
     assert.equal(
       workflowDispatchCalls[0]?.url,
-        'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/copilot-pr.yml/dispatches',
+      'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/copilot-pr.yml/dispatches',
       'Expected the copilot workflow to be selected.',
     );
 
@@ -593,7 +594,11 @@ async function run() {
       }),
     });
     assert.equal(legacyCodexDispatch.status, 200, 'Expected legacy codex alias to keep working.');
-    assert.equal(workflowDispatchCalls.length, 2, 'Expected legacy alias dispatch to trigger a second call.');
+    assert.equal(
+      workflowDispatchCalls.length,
+      2,
+      'Expected legacy alias dispatch to trigger a second call.',
+    );
 
     const ownerHealth = await requestJson(`${baseUrl}/api/admin/ops/health`, {
       headers: authHeaders(ownerUser.jwt),

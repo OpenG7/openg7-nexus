@@ -22,7 +22,9 @@ test.describe('Opportunity offer flow', () => {
     await page.locator('[data-og7-id="start-date"]').fill('2026-03-16');
     await page.locator('[data-og7-id="end-date"]').fill('2026-03-30');
     await page.locator('[data-og7-id="pricing-model"]').selectOption('indexed');
-    await page.locator('[data-og7-id="comment"]').fill('Indexed import block for the late-winter balancing window.');
+    await page
+      .locator('[data-og7-id="comment"]')
+      .fill('Indexed import block for the late-winter balancing window.');
     await page.locator('[data-og7-id="attachment"]').setInputFiles({
       name: 'term-sheet.pdf',
       mimeType: 'application/pdf',
@@ -38,7 +40,10 @@ test.describe('Opportunity offer flow', () => {
     await expect(qna).toContainText('indexed');
     await expect(qna).toContainText('term-sheet.pdf');
 
-    await expect(page.locator('[data-og7-id="opportunity-make-offer"]')).toHaveAttribute('data-og7-state', 'existing');
+    await expect(page.locator('[data-og7-id="opportunity-make-offer"]')).toHaveAttribute(
+      'data-og7-state',
+      'existing',
+    );
     await page.locator('[data-og7-id="opportunity-make-offer"]').click();
     await expect(page).toHaveURL(/\/alerts\?section=offers&offerId=/);
 
@@ -49,7 +54,9 @@ test.describe('Opportunity offer flow', () => {
     await expect(offerItem).toContainText('term-sheet.pdf');
     await expect(offerItem).toContainText(/OG7-OFR-/);
     await expect(offerItem).toHaveAttribute('data-og7-state', 'submitted');
-    await expect(offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(/Tracking active|Suivi active/);
+    await expect(
+      offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]'),
+    ).toContainText(/Tracking active|Suivi active/);
 
     const thread = offerItem.locator('[data-og7="opportunity-offer-thread"]');
     await expect(thread).toBeVisible();
@@ -64,10 +71,16 @@ test.describe('Opportunity offer flow', () => {
     const offerItemAfterReturn = page.locator('[data-og7="opportunity-offer-item"]').first();
     await offerItemAfterReturn.locator('[data-og7-id="opportunity-offer-withdraw"]').click();
     await expect(offerItemAfterReturn).toHaveAttribute('data-og7-state', 'withdrawn');
-    await expect(offerItemAfterReturn.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(/Offer withdrawn|Offre retiree/);
+    await expect(
+      offerItemAfterReturn.locator('[data-og7-id="opportunity-offer-last-activity"]'),
+    ).toContainText(/Offer withdrawn|Offre retiree/);
     await offerItemAfterReturn.locator('[data-og7-id="opportunity-offer-toggle-thread"]').click();
-    await expect(offerItemAfterReturn.locator('[data-og7="opportunity-offer-activity"]')).toHaveCount(3);
-    await expect(offerItemAfterReturn.locator('[data-og7="opportunity-offer-thread"]')).toContainText(/Offer withdrawn|Offre retiree/);
+    await expect(
+      offerItemAfterReturn.locator('[data-og7="opportunity-offer-activity"]'),
+    ).toHaveCount(3);
+    await expect(
+      offerItemAfterReturn.locator('[data-og7="opportunity-offer-thread"]'),
+    ).toContainText(/Offer withdrawn|Offre retiree/);
 
     await page.goto('/feed/opportunities/request-001?refresh=1');
     await expect(page).toHaveURL(/\/feed\/opportunities\/request-001\?refresh=1/);
@@ -76,6 +89,8 @@ test.describe('Opportunity offer flow', () => {
     await expect(persistedOfferItem).toHaveAttribute('data-og7-state', 'withdrawn');
     await expect(persistedOfferItem).toContainText(/OG7-OFR-/);
     await persistedOfferItem.locator('[data-og7-id="opportunity-offer-toggle-thread"]').click();
-    await expect(persistedOfferItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(/Offer withdrawn|Offre retiree/);
+    await expect(persistedOfferItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
+      /Offer withdrawn|Offre retiree/,
+    );
   });
 });

@@ -20,23 +20,35 @@
         class="relative flex h-full w-full flex-col overflow-hidden border-l border-white/10 bg-[linear-gradient(180deg,rgba(3,10,24,0.98),rgba(7,17,35,0.98)_42%,rgba(2,6,23,1))] text-slate-100 shadow-[-32px_0_96px_-54px_rgba(15,23,42,0.96)] sm:max-w-145 lg:max-w-170"
         data-og7="admin-quality-workspace-drawer"
       >
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_26%),radial-gradient(circle_at_18%_16%,rgba(251,191,36,0.12),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"></div>
+        <div
+          class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_26%),radial-gradient(circle_at_18%_16%,rgba(251,191,36,0.12),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"
+        ></div>
 
-        <header class="sticky top-0 z-10 border-b border-white/10 bg-slate-950/82 px-5 py-4 backdrop-blur xl:px-6">
+        <header
+          class="sticky top-0 z-10 border-b border-white/10 bg-slate-950/82 px-5 py-4 backdrop-blur xl:px-6"
+        >
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
                   {{ 'admin.quality.workspace.drawer.label' | translate }}
                 </p>
-                <span class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
+                <span
+                  class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
+                >
                   {{ 'admin.quality.workspace.drawer.activeSurface' | translate }}
                 </span>
               </div>
-              <h2 [attr.id]="dialogTitleId" class="mt-3 text-2xl font-semibold tracking-tight text-white">
+              <h2
+                [attr.id]="dialogTitleId"
+                class="mt-3 text-2xl font-semibold tracking-tight text-white"
+              >
                 {{ activeSurfaceTitleKey() | translate }}
               </h2>
-              <p id="{{ dialogDescriptionId }}" class="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+              <p
+                id="{{ dialogDescriptionId }}"
+                class="mt-2 max-w-xl text-sm leading-6 text-slate-300"
+              >
                 {{ activeSurfaceSubtitleKey() | translate }}
               </p>
             </div>
@@ -54,11 +66,18 @@
           </div>
 
           <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-300">
-            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium">
-              {{ 'admin.quality.workspace.drawer.selectedCount' | translate: { count: activeSurfaceCount() } }}
+            <span
+              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
+            >
+              {{
+                'admin.quality.workspace.drawer.selectedCount'
+                  | translate: { count: activeSurfaceCount() }
+              }}
             </span>
             @if (selectedEntry(); as entry) {
-              <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 font-medium text-cyan-100">
+              <span
+                class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 font-medium text-cyan-100"
+              >
                 {{ entry.domain }}
               </span>
             }
@@ -88,7 +107,7 @@
                 data-og7="action"
                 [attr.data-og7-id]="'admin-quality-workspace-tab-' + surface"
               >
-                {{ ('admin.quality.workspace.tabs.' + surface) | translate }}
+                {{ 'admin.quality.workspace.tabs.' + surface | translate }}
               </button>
             }
           </div>
@@ -105,7 +124,9 @@
                 data-og7="admin-quality-workspace-panel"
                 data-og7-id="qaQueue"
               >
-                <article class="rounded-[28px] border border-sky-300/20 bg-sky-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(56,189,248,0.88)]">
+                <article
+                  class="rounded-[28px] border border-sky-300/20 bg-sky-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(56,189,248,0.88)]"
+                >
                   <div class="flex items-start justify-between gap-4">
                     <div>
                       <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
@@ -118,7 +139,9 @@
                         {{ 'admin.quality.workspace.qaQueue.subtitle' | translate }}
                       </p>
                     </div>
-                    <span class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/12 px-3 py-1 text-sm font-semibold text-sky-100">
+                    <span
+                      class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/12 px-3 py-1 text-sm font-semibold text-sky-100"
+                    >
                       {{ qaQueueCount() }}
                     </span>
                   </div>
@@ -130,7 +153,8 @@
                       <article
                         class="rounded-3xl border border-white/10 bg-white/4 p-4"
                         data-og7="admin-quality-workspace-qa-item"
-                        [attr.data-og7-id]="entry.id">
+                        [attr.data-og7-id]="entry.id"
+                      >
                         <div class="flex items-start justify-between gap-3">
                           <div class="min-w-0">
                             <h4 class="text-base font-semibold text-white">{{ entry.domain }}</h4>
@@ -143,14 +167,18 @@
                             {{ qaStatusKey(entry.e2eStatus) | translate }}
                           </span>
                         </div>
-                        <p class="mt-3 rounded-[20px] border border-white/8 bg-slate-950/50 px-3.5 py-3 text-sm leading-6 text-slate-300">
+                        <p
+                          class="mt-3 rounded-[20px] border border-white/8 bg-slate-950/50 px-3.5 py-3 text-sm leading-6 text-slate-300"
+                        >
                           {{ entry.nextMove }}
                         </p>
                       </article>
                     }
                   </div>
                 } @else {
-                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300">
+                  <article
+                    class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300"
+                  >
                     <p class="text-base font-semibold text-white">
                       {{ 'admin.quality.workspace.qaQueue.emptyTitle' | translate }}
                     </p>
@@ -179,7 +207,9 @@
                   >
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div class="min-w-0">
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-sky-200/80">
+                        <p
+                          class="text-xs font-semibold uppercase tracking-[0.24em] text-sky-200/80"
+                        >
                           {{ 'admin.quality.workspace.recalculation.kicker' | translate }}
                         </p>
                         <div class="mt-3 flex flex-wrap items-center gap-2">
@@ -189,7 +219,9 @@
                           >
                             {{ recalculationResultKey(recalculation.result) | translate }}
                           </span>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100"
+                          >
                             {{ recalculationConfidenceKey(recalculation.confidence) | translate }}
                           </span>
                         </div>
@@ -206,7 +238,9 @@
                           data-og7-id="admin-quality-apply-proposal"
                         >
                           @if (applyProposalSubmitting()) {
-                            {{ 'admin.quality.workspace.recalculation.buttons.applying' | translate }}
+                            {{
+                              'admin.quality.workspace.recalculation.buttons.applying' | translate
+                            }}
                           } @else {
                             {{ 'admin.quality.workspace.recalculation.buttons.apply' | translate }}
                           }
@@ -216,8 +250,14 @@
 
                     <div class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       @for (fact of recalculationFactualEntries(recalculation); track fact.label) {
-                        <article class="rounded-[20px] border border-white/10 bg-slate-950/55 px-4 py-3">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">{{ fact.label }}</p>
+                        <article
+                          class="rounded-[20px] border border-white/10 bg-slate-950/55 px-4 py-3"
+                        >
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            {{ fact.label }}
+                          </p>
                           <p class="mt-2 text-sm font-semibold text-white">{{ fact.value }}</p>
                         </article>
                       }
@@ -228,9 +268,13 @@
                       data-og7="admin-quality-workspace-pilot-command"
                       [attr.data-og7-id]="recalculation.entryId"
                     >
-                      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div
+                        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+                      >
                         <div class="min-w-0">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/90">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-100/90"
+                          >
                             Pilotage developpement
                           </p>
                           <div class="mt-3 flex flex-wrap items-center gap-2">
@@ -240,30 +284,48 @@
                             >
                               {{ pilotPriorityLabel(recalculation.pilot.priority) }}
                             </span>
-                            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">
+                            <span
+                              class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100"
+                            >
                               {{ pilotBucketLabel(recalculation.pilot.bucket) }}
                             </span>
-                            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">
+                            <span
+                              class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100"
+                            >
                               {{ pilotActionLabel(recalculation.pilot.actionType) }}
                             </span>
                           </div>
                         </div>
 
-                        <div class="rounded-[20px] border border-cyan-300/20 bg-slate-950/55 px-4 py-3 text-right">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Score</p>
-                          <p class="mt-2 text-2xl font-semibold text-white">{{ recalculation.pilot.score }}/100</p>
+                        <div
+                          class="rounded-[20px] border border-cyan-300/20 bg-slate-950/55 px-4 py-3 text-right"
+                        >
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            Score
+                          </p>
+                          <p class="mt-2 text-2xl font-semibold text-white">
+                            {{ recalculation.pilot.score }}/100
+                          </p>
                         </div>
                       </div>
 
                       @if (recalculation.pilot.blockingReason) {
-                        <p class="mt-4 rounded-[18px] border border-amber-300/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50">
+                        <p
+                          class="mt-4 rounded-[18px] border border-amber-300/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50"
+                        >
                           {{ recalculation.pilot.blockingReason }}
                         </p>
                       }
 
                       <div class="mt-4 grid gap-4 lg:grid-cols-3">
                         <div>
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Fichiers</p>
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            Fichiers
+                          </p>
                           <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
                             @for (item of recalculation.pilot.targetFiles; track $index) {
                               <li class="break-all">{{ item }}</li>
@@ -271,7 +333,11 @@
                           </ul>
                         </div>
                         <div>
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Commandes</p>
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            Commandes
+                          </p>
                           <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
                             @for (item of recalculation.pilot.suggestedCommands; track $index) {
                               <li class="break-all">{{ item }}</li>
@@ -279,7 +345,11 @@
                           </ul>
                         </div>
                         <div>
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Preuves attendues</p>
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            Preuves attendues
+                          </p>
                           <ul class="mt-3 space-y-2 text-sm leading-6 text-cyan-50">
                             @for (item of recalculation.pilot.expectedEvidence; track $index) {
                               <li>{{ item }}</li>
@@ -291,29 +361,100 @@
 
                     <div class="mt-5 grid gap-4 lg:grid-cols-2">
                       <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                        <p
+                          class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                        >
                           {{ 'admin.quality.workspace.recalculation.current' | translate }}
                         </p>
                         <dl class="mt-3 space-y-2 text-sm text-slate-300">
-                          <div class="flex items-center justify-between gap-3"><dt>Summary</dt><dd>{{ recalculation.current.summaryStatus }}</dd></div>
-                          <div class="flex items-center justify-between gap-3"><dt>Business</dt><dd>{{ recalculation.current.businessStatus }}</dd></div>
-                          <div class="flex items-center justify-between gap-3"><dt>Implementation</dt><dd>{{ recalculation.current.implementationStatus }}</dd></div>
-                          <div class="flex items-center justify-between gap-3"><dt>E2E</dt><dd>{{ recalculation.current.e2eStatus }}</dd></div>
-                          <div class="flex items-center justify-between gap-3"><dt>Bucket</dt><dd>{{ recalculation.current.managementBucket }}</dd></div>
+                          <div class="flex items-center justify-between gap-3">
+                            <dt>Summary</dt>
+                            <dd>{{ recalculation.current.summaryStatus }}</dd>
+                          </div>
+                          <div class="flex items-center justify-between gap-3">
+                            <dt>Business</dt>
+                            <dd>{{ recalculation.current.businessStatus }}</dd>
+                          </div>
+                          <div class="flex items-center justify-between gap-3">
+                            <dt>Implementation</dt>
+                            <dd>{{ recalculation.current.implementationStatus }}</dd>
+                          </div>
+                          <div class="flex items-center justify-between gap-3">
+                            <dt>E2E</dt>
+                            <dd>{{ recalculation.current.e2eStatus }}</dd>
+                          </div>
+                          <div class="flex items-center justify-between gap-3">
+                            <dt>Bucket</dt>
+                            <dd>{{ recalculation.current.managementBucket }}</dd>
+                          </div>
                         </dl>
                       </article>
 
                       @if (recalculation.proposed; as proposed) {
-                        <article class="rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/80">
+                        <article
+                          class="rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4"
+                        >
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/80"
+                          >
                             {{ 'admin.quality.workspace.recalculation.proposed' | translate }}
                           </p>
                           <dl class="mt-3 space-y-2 text-sm text-emerald-50">
-                            <div class="flex items-center justify-between gap-3"><dt>Summary</dt><dd>{{ coverageDeltaLabel(recalculation.current.summaryStatus, proposed.summaryStatus) }}</dd></div>
-                            <div class="flex items-center justify-between gap-3"><dt>Business</dt><dd>{{ coverageDeltaLabel(recalculation.current.businessStatus, proposed.businessStatus) }}</dd></div>
-                            <div class="flex items-center justify-between gap-3"><dt>Implementation</dt><dd>{{ coverageDeltaLabel(recalculation.current.implementationStatus, proposed.implementationStatus) }}</dd></div>
-                            <div class="flex items-center justify-between gap-3"><dt>E2E</dt><dd>{{ coverageDeltaLabel(recalculation.current.e2eStatus, proposed.e2eStatus) }}</dd></div>
-                            <div class="flex items-center justify-between gap-3"><dt>Bucket</dt><dd>{{ coverageDeltaLabel(recalculation.current.managementBucket, proposed.managementBucket) }}</dd></div>
+                            <div class="flex items-center justify-between gap-3">
+                              <dt>Summary</dt>
+                              <dd>
+                                {{
+                                  coverageDeltaLabel(
+                                    recalculation.current.summaryStatus,
+                                    proposed.summaryStatus
+                                  )
+                                }}
+                              </dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                              <dt>Business</dt>
+                              <dd>
+                                {{
+                                  coverageDeltaLabel(
+                                    recalculation.current.businessStatus,
+                                    proposed.businessStatus
+                                  )
+                                }}
+                              </dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                              <dt>Implementation</dt>
+                              <dd>
+                                {{
+                                  coverageDeltaLabel(
+                                    recalculation.current.implementationStatus,
+                                    proposed.implementationStatus
+                                  )
+                                }}
+                              </dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                              <dt>E2E</dt>
+                              <dd>
+                                {{
+                                  coverageDeltaLabel(
+                                    recalculation.current.e2eStatus,
+                                    proposed.e2eStatus
+                                  )
+                                }}
+                              </dd>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                              <dt>Bucket</dt>
+                              <dd>
+                                {{
+                                  coverageDeltaLabel(
+                                    recalculation.current.managementBucket,
+                                    proposed.managementBucket
+                                  )
+                                }}
+                              </dd>
+                            </div>
                           </dl>
                         </article>
                       }
@@ -322,10 +463,14 @@
                     <div class="mt-5 grid gap-4 lg:grid-cols-2">
                       <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
                         <div class="flex items-center justify-between gap-3">
-                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                          <h4
+                            class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                          >
                             {{ 'admin.quality.workspace.recalculation.reasons' | translate }}
                           </h4>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300"
+                          >
                             {{ recalculation.reasons.length }}
                           </span>
                         </div>
@@ -338,10 +483,14 @@
 
                       <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
                         <div class="flex items-center justify-between gap-3">
-                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                          <h4
+                            class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                          >
                             {{ 'admin.quality.workspace.recalculation.evidence' | translate }}
                           </h4>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300"
+                          >
                             {{ recalculation.evidence.length }}
                           </span>
                         </div>
@@ -354,12 +503,20 @@
                     </div>
 
                     @if (recalculationRecommendations().length) {
-                      <article class="mt-5 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                      <article
+                        class="mt-5 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4"
+                      >
                         <div class="flex items-center justify-between gap-3">
-                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
-                            {{ 'admin.quality.workspace.recalculation.recommendations' | translate }}
+                          <h4
+                            class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100/90"
+                          >
+                            {{
+                              'admin.quality.workspace.recalculation.recommendations' | translate
+                            }}
                           </h4>
-                          <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                          <span
+                            class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50"
+                          >
                             {{ recalculationRecommendations().length }}
                           </span>
                         </div>
@@ -380,21 +537,34 @@
                       data-og7="admin-quality-workspace-signal-context"
                       [attr.data-og7-id]="signalContext.signalId"
                     >
-                      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div
+                        class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
+                      >
                         <div class="min-w-0">
-                          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                          <p
+                            class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/80"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.signalFocus' | translate }}
                           </p>
                           <div class="mt-3 flex flex-wrap items-center gap-2">
-                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-300/25 bg-cyan-400/12 text-sm font-semibold text-cyan-100">
+                            <span
+                              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-cyan-300/25 bg-cyan-400/12 text-sm font-semibold text-cyan-100"
+                            >
                               {{ signalContext.shortLabel }}
                             </span>
-                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-white">
+                            <span
+                              class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-white"
+                            >
                               {{ signalContext.label }}
                             </span>
                             @if (signalContext.attention) {
-                              <span class="rounded-full border border-amber-300/25 bg-amber-400/12 px-3 py-1 text-sm font-semibold text-amber-100">
-                                {{ 'admin.quality.workspace.delegation.cards.signalAttention' | translate }}
+                              <span
+                                class="rounded-full border border-amber-300/25 bg-amber-400/12 px-3 py-1 text-sm font-semibold text-amber-100"
+                              >
+                                {{
+                                  'admin.quality.workspace.delegation.cards.signalAttention'
+                                    | translate
+                                }}
                               </span>
                             }
                           </div>
@@ -406,9 +576,16 @@
                           </p>
                         </div>
 
-                        <div class="min-w-0 rounded-[22px] border border-white/10 bg-slate-950/55 p-4 lg:max-w-[18rem]">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                            {{ 'admin.quality.workspace.delegation.cards.recommendedAction' | translate }}
+                        <div
+                          class="min-w-0 rounded-[22px] border border-white/10 bg-slate-950/55 p-4 lg:max-w-[18rem]"
+                        >
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            {{
+                              'admin.quality.workspace.delegation.cards.recommendedAction'
+                                | translate
+                            }}
                           </p>
                           <p class="mt-3 text-sm leading-6 text-slate-200">
                             {{ signalContext.recommendedAction }}
@@ -418,7 +595,9 @@
 
                       <div class="mt-4 grid gap-4 lg:grid-cols-2">
                         <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.observedGap' | translate }}
                           </p>
                           <p class="mt-3 text-sm leading-6 text-slate-200">
@@ -427,7 +606,9 @@
                         </article>
 
                         <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.nextMove' | translate }}
                           </p>
                           <p class="mt-3 text-sm leading-6 text-slate-200">
@@ -437,17 +618,29 @@
                       </div>
 
                       @if (signalRecommendations(signalContext).length) {
-                        <article class="mt-4 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4">
+                        <article
+                          class="mt-4 rounded-[22px] border border-emerald-300/20 bg-emerald-400/8 p-4"
+                        >
                           <div class="flex items-center justify-between gap-3">
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-100/90">
-                              {{ 'admin.quality.workspace.delegation.cards.recommendations' | translate }}
+                            <p
+                              class="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-100/90"
+                            >
+                              {{
+                                'admin.quality.workspace.delegation.cards.recommendations'
+                                  | translate
+                              }}
                             </p>
-                            <span class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+                            <span
+                              class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-50"
+                            >
                               {{ signalRecommendations(signalContext).length }}
                             </span>
                           </div>
                           <p class="mt-2 text-sm leading-6 text-emerald-50/80">
-                            {{ 'admin.quality.workspace.delegation.cards.recommendationsBody' | translate }}
+                            {{
+                              'admin.quality.workspace.delegation.cards.recommendationsBody'
+                                | translate
+                            }}
                           </p>
                           <textarea
                             class="og7-scrollbar-elegant mt-3 min-h-32 w-full rounded-[18px] border border-emerald-300/20 bg-slate-950/70 p-3 text-sm leading-6 text-emerald-50 outline-none transition focus:border-emerald-300/35 focus:ring-2 focus:ring-emerald-300/20"
@@ -461,16 +654,25 @@
                     </article>
                   }
 
-                  <article class="rounded-[30px] border border-white/10 bg-white/4 p-5 shadow-[0_28px_84px_-58px_rgba(15,23,42,0.9)]">
+                  <article
+                    class="rounded-[30px] border border-white/10 bg-white/4 p-5 shadow-[0_28px_84px_-58px_rgba(15,23,42,0.9)]"
+                  >
                     <div class="flex flex-col gap-4 border-b border-white/10 pb-5">
-                      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div
+                        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+                      >
                         <div>
-                          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/80">
+                          <p
+                            class="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200/80"
+                          >
                             {{ 'admin.quality.workspace.delegation.header' | translate }}
                           </p>
                           <h3 class="mt-3 text-xl font-semibold text-white">{{ plan.title }}</h3>
                           <p class="mt-3 text-sm leading-7 text-slate-300">
-                            {{ selectedEntry()?.nextMove || ('admin.quality.workspace.delegation.missing' | translate) }}
+                            {{
+                              selectedEntry()?.nextMove ||
+                                ('admin.quality.workspace.delegation.missing' | translate)
+                            }}
                           </p>
                         </div>
 
@@ -481,10 +683,14 @@
                           >
                             {{ delegationModeKey(plan.mode) | translate }}
                           </span>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100"
+                          >
                             {{ plan.track }}
                           </span>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100"
+                          >
                             {{ plan.difficulty }}
                           </span>
                         </div>
@@ -492,28 +698,46 @@
 
                       <div class="grid gap-3 md:grid-cols-2">
                         <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.action' | translate }}
                           </p>
-                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.actionLabel }}</p>
-                        </article>
-                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                            {{ 'admin.quality.workspace.delegation.cards.projectStatus' | translate }}
+                          <p class="mt-2 text-sm font-semibold text-white">
+                            {{ plan.actionLabel }}
                           </p>
-                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.projectStatus }}</p>
                         </article>
                         <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
+                            {{
+                              'admin.quality.workspace.delegation.cards.projectStatus' | translate
+                            }}
+                          </p>
+                          <p class="mt-2 text-sm font-semibold text-white">
+                            {{ plan.projectStatus }}
+                          </p>
+                        </article>
+                        <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.repos' | translate }}
                           </p>
-                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.repos.join(', ') }}</p>
+                          <p class="mt-2 text-sm font-semibold text-white">
+                            {{ plan.repos.join(', ') }}
+                          </p>
                         </article>
                         <article class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
-                          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                          <p
+                            class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.labels' | translate }}
                           </p>
-                          <p class="mt-2 text-sm font-semibold text-white">{{ plan.labels.join(', ') }}</p>
+                          <p class="mt-2 text-sm font-semibold text-white">
+                            {{ plan.labels.join(', ') }}
+                          </p>
                         </article>
                       </div>
                     </div>
@@ -521,11 +745,18 @@
                     <div class="mt-5 grid gap-4">
                       <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4">
                         <div class="flex items-center justify-between gap-3">
-                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                          <h4
+                            class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.acceptance' | translate }}
                           </h4>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
-                            {{ 'admin.quality.workspace.delegation.acceptanceCount' | translate: { count: plan.acceptanceCriteria.length } }}
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300"
+                          >
+                            {{
+                              'admin.quality.workspace.delegation.acceptanceCount'
+                                | translate: { count: plan.acceptanceCriteria.length }
+                            }}
                           </span>
                         </div>
                         <ul class="mt-4 space-y-2 text-sm leading-6 text-slate-300">
@@ -537,16 +768,29 @@
 
                       <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4">
                         <div class="flex items-center justify-between gap-3">
-                          <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                          <h4
+                            class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                          >
                             {{ 'admin.quality.workspace.delegation.cards.execution' | translate }}
                           </h4>
-                          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
-                            {{ 'admin.quality.workspace.delegation.executionCount' | translate: { files: plan.targetFiles.length, commands: plan.commands.length } }}
+                          <span
+                            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300"
+                          >
+                            {{
+                              'admin.quality.workspace.delegation.executionCount'
+                                | translate
+                                  : {
+                                      files: plan.targetFiles.length,
+                                      commands: plan.commands.length,
+                                    }
+                            }}
                           </span>
                         </div>
                         <div class="mt-4 grid gap-4 lg:grid-cols-2">
                           <div>
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            <p
+                              class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                            >
                               {{ 'admin.quality.workspace.delegation.cards.files' | translate }}
                             </p>
                             <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
@@ -556,8 +800,12 @@
                             </ul>
                           </div>
                           <div>
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                              {{ 'admin.quality.workspace.delegation.cards.validation' | translate }}
+                            <p
+                              class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                            >
+                              {{
+                                'admin.quality.workspace.delegation.cards.validation' | translate
+                              }}
                             </p>
                             <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-300">
                               @for (item of plan.commands; track $index) {
@@ -568,10 +816,15 @@
                         </div>
                       </article>
 
-                      <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4" data-og7="admin-quality-delegation-codex">
+                      <article
+                        class="rounded-3xl border border-white/10 bg-slate-950/55 p-4"
+                        data-og7="admin-quality-delegation-codex"
+                      >
                         <div class="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            <h4
+                              class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                            >
                               {{ 'admin.quality.workspace.delegation.cards.brief' | translate }}
                             </h4>
                             <p class="mt-2 text-sm leading-6 text-slate-400">
@@ -586,7 +839,9 @@
                               data-og7="action"
                               data-og7-id="admin-quality-copy-codex"
                             >
-                              {{ 'admin.quality.workspace.delegation.buttons.copyBrief' | translate }}
+                              {{
+                                'admin.quality.workspace.delegation.buttons.copyBrief' | translate
+                              }}
                             </button>
                             @if (selectedSignalContext()) {
                               <button
@@ -599,15 +854,24 @@
                                 data-og7-id="admin-quality-confirm-dispatch"
                               >
                                 @if (dispatchSubmitting()) {
-                                  {{ 'admin.quality.workspace.delegation.buttons.launching' | translate: { provider: dispatchProviderLabel() } }}
+                                  {{
+                                    'admin.quality.workspace.delegation.buttons.launching'
+                                      | translate: { provider: dispatchProviderLabel() }
+                                  }}
                                 } @else {
-                                  {{ 'admin.quality.workspace.delegation.buttons.confirmDispatch' | translate: { provider: dispatchProviderLabel() } }}
+                                  {{
+                                    'admin.quality.workspace.delegation.buttons.confirmDispatch'
+                                      | translate: { provider: dispatchProviderLabel() }
+                                  }}
                                 }
                               </button>
                             }
                           </div>
                         </div>
-                        @if (selectedSignalContext() && dispatchBlockedMessage(); as blockedMessage) {
+                        @if (
+                          selectedSignalContext() && dispatchBlockedMessage();
+                          as blockedMessage
+                        ) {
                           <p
                             class="mt-4 rounded-[18px] border border-amber-300/25 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-50"
                             data-og7-id="admin-quality-dispatch-blocked"
@@ -624,14 +888,22 @@
                             data-og7-id="admin-quality-codex-prompt-editor"
                           ></textarea>
                         } @else {
-                          <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.codexPrompt }}</pre>
+                          <pre
+                            class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300"
+                            >{{ plan.codexPrompt }}</pre
+                          >
                         }
                       </article>
 
-                      <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4" data-og7="admin-quality-delegation-issue">
+                      <article
+                        class="rounded-3xl border border-white/10 bg-slate-950/55 p-4"
+                        data-og7="admin-quality-delegation-issue"
+                      >
                         <div class="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h4 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+                            <h4
+                              class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300"
+                            >
                               {{ 'admin.quality.workspace.delegation.cards.issue' | translate }}
                             </h4>
                             <p class="mt-2 text-sm leading-6 text-slate-400">
@@ -646,7 +918,9 @@
                               data-og7="action"
                               data-og7-id="admin-quality-copy-issue"
                             >
-                              {{ 'admin.quality.workspace.delegation.buttons.copyIssue' | translate }}
+                              {{
+                                'admin.quality.workspace.delegation.buttons.copyIssue' | translate
+                              }}
                             </button>
                             <button
                               type="button"
@@ -657,19 +931,28 @@
                               data-og7="action"
                               data-og7-id="admin-quality-open-issue"
                             >
-                              {{ 'admin.quality.workspace.delegation.buttons.openGithub' | translate }}
+                              {{
+                                'admin.quality.workspace.delegation.buttons.openGithub' | translate
+                              }}
                             </button>
                           </div>
                         </div>
-                        <p class="mt-4 rounded-[20px] border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-white">
+                        <p
+                          class="mt-4 rounded-[20px] border border-white/10 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-white"
+                        >
                           {{ plan.issueTitle }}
                         </p>
-                        <pre class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300">{{ plan.issueBody }}</pre>
+                        <pre
+                          class="og7-scrollbar-elegant mt-4 max-h-64 overflow-auto whitespace-pre-wrap rounded-[20px] border border-white/10 bg-slate-900/80 p-4 text-xs leading-6 text-slate-300"
+                          >{{ plan.issueBody }}</pre
+                        >
                       </article>
                     </div>
                   </article>
                 } @else {
-                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300">
+                  <article
+                    class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300"
+                  >
                     <p class="text-base font-semibold text-white">
                       {{ 'admin.quality.workspace.delegation.emptyTitle' | translate }}
                     </p>
@@ -690,7 +973,9 @@
                 data-og7="admin-quality-workspace-panel"
                 data-og7-id="actions"
               >
-                <article class="rounded-[28px] border border-rose-300/20 bg-rose-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(244,63,94,0.7)]">
+                <article
+                  class="rounded-[28px] border border-rose-300/20 bg-rose-400/8 p-5 shadow-[0_24px_72px_-56px_rgba(244,63,94,0.7)]"
+                >
                   <div class="flex items-start justify-between gap-4">
                     <div>
                       <p class="text-xs font-semibold uppercase tracking-[0.24em] text-rose-200/80">
@@ -703,7 +988,9 @@
                         {{ 'admin.quality.workspace.actions.subtitle' | translate }}
                       </p>
                     </div>
-                    <span class="inline-flex rounded-full border border-rose-300/20 bg-rose-400/12 px-3 py-1 text-sm font-semibold text-rose-100">
+                    <span
+                      class="inline-flex rounded-full border border-rose-300/20 bg-rose-400/12 px-3 py-1 text-sm font-semibold text-rose-100"
+                    >
                       {{ actionsCount() }}
                     </span>
                   </div>
@@ -715,11 +1002,14 @@
                       <article
                         class="rounded-3xl border border-white/10 bg-white/4 p-4"
                         data-og7="admin-quality-workspace-action-item"
-                        [attr.data-og7-id]="action.id">
+                        [attr.data-og7-id]="action.id"
+                      >
                         <div class="flex items-start justify-between gap-3">
                           <div class="min-w-0">
                             <h4 class="text-base font-semibold text-white">{{ action.label }}</h4>
-                            <p class="mt-1 break-all text-xs text-slate-400">{{ action.selector }}</p>
+                            <p class="mt-1 break-all text-xs text-slate-400">
+                              {{ action.selector }}
+                            </p>
                           </div>
                           <span
                             class="inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
@@ -728,12 +1018,16 @@
                             {{ actionStatusKey(action.status) | translate }}
                           </span>
                         </div>
-                        <p class="mt-3 text-sm leading-6 text-slate-300">{{ action.expectedResult }}</p>
+                        <p class="mt-3 text-sm leading-6 text-slate-300">
+                          {{ action.expectedResult }}
+                        </p>
                       </article>
                     }
                   </div>
                 } @else {
-                  <article class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300">
+                  <article
+                    class="rounded-[28px] border border-dashed border-white/14 bg-white/3 px-5 py-8 text-sm text-slate-300"
+                  >
                     <p class="text-base font-semibold text-white">
                       {{ 'admin.quality.workspace.actions.emptyTitle' | translate }}
                     </p>
@@ -747,12 +1041,17 @@
           }
         </div>
 
-        <footer class="sticky bottom-0 z-10 border-t border-white/10 bg-slate-950/88 px-5 py-4 backdrop-blur xl:px-6">
+        <footer
+          class="sticky bottom-0 z-10 border-t border-white/10 bg-slate-950/88 px-5 py-4 backdrop-blur xl:px-6"
+        >
           <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div class="text-sm text-slate-400">
               {{ activeSurfaceTitleKey() | translate }}
               <span class="text-slate-500">&middot;</span>
-              {{ 'admin.quality.workspace.drawer.selectedCount' | translate: { count: activeSurfaceCount() } }}
+              {{
+                'admin.quality.workspace.drawer.selectedCount'
+                  | translate: { count: activeSurfaceCount() }
+              }}
             </div>
 
             <div class="flex flex-wrap gap-2">

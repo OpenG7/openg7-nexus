@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { HeroStatsComponent, StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
+import {
+  HeroStatsComponent,
+  StatMetric,
+} from '@app/shared/components/hero/hero-stats/hero-stats.component';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -18,4 +21,3 @@ import { TranslateModule } from '@ngx-translate/core';
 export class HomeStatisticsSectionComponent {
   readonly stats = input.required<StatMetric[]>();
 }
-

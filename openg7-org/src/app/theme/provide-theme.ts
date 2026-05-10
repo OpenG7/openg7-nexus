@@ -39,7 +39,9 @@ function writeStoredMode(storageKey: string, value: ThemeMode): void {
   }
 }
 
-export function provideTheme(options: { defaultMode?: ThemeMode; storageKey?: string } = {}): EnvironmentProviders {
+export function provideTheme(
+  options: { defaultMode?: ThemeMode; storageKey?: string } = {},
+): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: OG7_THEME,
@@ -50,7 +52,9 @@ export function provideTheme(options: { defaultMode?: ThemeMode; storageKey?: st
         const storageKey = options.storageKey ?? STORAGE_KEY;
         const defaultMode: ThemeMode = options.defaultMode ?? 'light';
 
-        const initial: ThemeMode = browser ? readStoredMode(storageKey) ?? defaultMode : defaultMode;
+        const initial: ThemeMode = browser
+          ? (readStoredMode(storageKey) ?? defaultMode)
+          : defaultMode;
         const mode = signal<ThemeMode>(initial);
 
         if (browser) {

@@ -12,7 +12,12 @@ describe('profilePendingChangesGuard', () => {
 
   it('allows navigation when there are no pending changes', () => {
     const canLeave = TestBed.runInInjectionContext(() =>
-      profilePendingChangesGuard({ hasPendingChanges: () => false }, null as any, null as any, null as any)
+      profilePendingChangesGuard(
+        { hasPendingChanges: () => false },
+        null as any,
+        null as any,
+        null as any,
+      ),
     );
 
     expect(canLeave).toBeTrue();
@@ -22,7 +27,12 @@ describe('profilePendingChangesGuard', () => {
     spyOn(window, 'confirm').and.returnValue(true);
 
     const canLeave = TestBed.runInInjectionContext(() =>
-      profilePendingChangesGuard({ hasPendingChanges: () => true }, null as any, null as any, null as any)
+      profilePendingChangesGuard(
+        { hasPendingChanges: () => true },
+        null as any,
+        null as any,
+        null as any,
+      ),
     );
 
     expect(window.confirm).toHaveBeenCalledWith('auth.profile.unsavedChangesConfirm');

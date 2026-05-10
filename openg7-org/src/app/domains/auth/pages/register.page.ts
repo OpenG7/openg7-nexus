@@ -89,7 +89,7 @@ export class RegisterPage implements OnInit {
       password: ['', [Validators.required, Validators.minLength(10)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: this.passwordsMatchValidator }
+    { validators: this.passwordsMatchValidator },
   );
 
   async ngOnInit(): Promise<void> {
@@ -180,9 +180,7 @@ export class RegisterPage implements OnInit {
     this.form.updateValueAndValidity({ emitEvent: false });
   }
 
-  private passwordsMatchValidator(
-    group: AbstractControl
-  ): ValidationErrors | null {
+  private passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
 
@@ -286,7 +284,13 @@ export class RegisterPage implements OnInit {
     }
 
     const normalized = trimmed.toLowerCase();
-    const duplicatePatterns = ['already taken', 'already registered', 'already exists', 'already used', 'in use'];
+    const duplicatePatterns = [
+      'already taken',
+      'already registered',
+      'already exists',
+      'already used',
+      'in use',
+    ];
     if (normalized.includes('email')) {
       const matchesDuplicate = duplicatePatterns.some((pattern) => normalized.includes(pattern));
       if (matchesDuplicate) {

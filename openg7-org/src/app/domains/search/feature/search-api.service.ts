@@ -80,7 +80,11 @@ export interface SearchRequestOptions {
 export class SearchApiService {
   private readonly http = inject(HttpClientService);
 
-  search(query: string, context: SearchContext, options: SearchRequestOptions = {}): Observable<SearchApiResponse> {
+  search(
+    query: string,
+    context: SearchContext,
+    options: SearchRequestOptions = {},
+  ): Observable<SearchApiResponse> {
     const params: Record<string, string> = {};
 
     params['q'] = query;

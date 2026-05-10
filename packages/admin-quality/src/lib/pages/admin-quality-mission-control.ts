@@ -67,7 +67,7 @@ export interface AdminQualityMissionControlState {
 export function buildMissionControl(
   entry: AdminQualityMatrixEntry,
   plan: AdminQualityDelegationPlan,
-  decisions: AdminQualityMissionDecisionMap
+  decisions: AdminQualityMissionDecisionMap,
 ): AdminQualityMissionControlState {
   const recommendations = buildRecommendations(entry, plan, decisions);
   const phase = resolvePhase(recommendations);
@@ -87,7 +87,7 @@ export function buildMissionControl(
 function buildRecommendations(
   entry: AdminQualityMatrixEntry,
   plan: AdminQualityDelegationPlan,
-  decisions: AdminQualityMissionDecisionMap
+  decisions: AdminQualityMissionDecisionMap,
 ): readonly AdminQualityMissionRecommendation[] {
   const coreId = buildRecommendationId(entry.id, 'core');
   const safetyId = buildRecommendationId(entry.id, 'safety-net');
@@ -119,7 +119,8 @@ function buildRecommendations(
       kind: 'safety-net',
       title: safetyNetTitle(plan),
       summary: safetyNetSummary(plan),
-      whyNow: 'Sans garde-fous explicites, une mission AI peut livrer vite mais fragiliser la preuve existante.',
+      whyNow:
+        'Sans garde-fous explicites, une mission AI peut livrer vite mais fragiliser la preuve existante.',
       rationale: [
         'La mission secondaire protege les preuves existantes, les hooks data-og7 et la stabilite des validations.',
         'Elle limite le risque qu une execution locale ferme un gap en apparence seulement.',
@@ -138,8 +139,10 @@ function buildRecommendations(
       id: governanceId,
       kind: 'governance',
       title: 'Boucler la gouvernance de mission',
-      summary: 'Relier issue, PR, preuve et mise a jour de matrice pour rendre la decision finale explicite.',
-      whyNow: 'Une delegation AI sans retour structure reste un essai technique, pas un cycle de pilotage.',
+      summary:
+        'Relier issue, PR, preuve et mise a jour de matrice pour rendre la decision finale explicite.',
+      whyNow:
+        'Une delegation AI sans retour structure reste un essai technique, pas un cycle de pilotage.',
       rationale: [
         'Cette mission force le retour de preuve avant de toucher au statut metier de la matrice.',
         'Elle garde l humain dans le circuit de validation finale.',
@@ -149,7 +152,9 @@ function buildRecommendations(
         'Le resultat resume ce qui a ete prouve, ce qui reste risque et ce qui doit revenir dans la matrice.',
         'Le changement de statut final reste une decision humaine.',
       ],
-      validationCommands: ['Verifier issue, PR, logs de validation et mise a jour de matrice avant cloture.'],
+      validationCommands: [
+        'Verifier issue, PR, logs de validation et mise a jour de matrice avant cloture.',
+      ],
       targetFiles: [
         'strapi/src/api/admin-quality-matrix/controllers/admin-quality-matrix.ts',
         'openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.ts',
@@ -165,7 +170,9 @@ function buildRecommendations(
   ];
 }
 
-function resolvePhase(recommendations: readonly AdminQualityMissionRecommendation[]): AdminQualityMissionPhase {
+function resolvePhase(
+  recommendations: readonly AdminQualityMissionRecommendation[],
+): AdminQualityMissionPhase {
   const statuses = recommendations.map((recommendation) => recommendation.status);
 
   if (statuses.includes('blocked')) {
@@ -240,7 +247,7 @@ function operatorCue(phase: AdminQualityMissionPhase): string {
 function buildOverview(
   entry: AdminQualityMatrixEntry,
   plan: AdminQualityDelegationPlan,
-  phase: AdminQualityMissionPhase
+  phase: AdminQualityMissionPhase,
 ): string {
   switch (phase) {
     case 'ready':
@@ -261,7 +268,7 @@ function buildOverview(
 function buildSpokenBriefing(
   entry: AdminQualityMatrixEntry,
   plan: AdminQualityDelegationPlan,
-  phase: AdminQualityMissionPhase
+  phase: AdminQualityMissionPhase,
 ): string {
   return [
     `Mission control pour ${entry.domain}.`,
@@ -273,7 +280,9 @@ function buildSpokenBriefing(
   ].join(' ');
 }
 
-function buildTimeline(phase: AdminQualityMissionPhase): readonly AdminQualityMissionTimelineItem[] {
+function buildTimeline(
+  phase: AdminQualityMissionPhase,
+): readonly AdminQualityMissionTimelineItem[] {
   const order: readonly AdminQualityMissionPhase[] = [
     'awaiting-human',
     'ready',
@@ -293,7 +302,14 @@ function buildTimeline(phase: AdminQualityMissionPhase): readonly AdminQualityMi
     {
       id: 'execution',
       label: phase === 'blocked' ? 'Execution bloquee' : 'Execution',
-      status: phase === 'blocked' ? 'current' : currentIndex > 2 ? 'done' : currentIndex === 2 ? 'current' : 'pending',
+      status:
+        phase === 'blocked'
+          ? 'current'
+          : currentIndex > 2
+            ? 'done'
+            : currentIndex === 2
+              ? 'current'
+              : 'pending',
     },
     {
       id: 'review',
@@ -380,7 +396,10 @@ function safetyNetTargetFiles(plan: AdminQualityDelegationPlan): readonly string
   return Array.from(files);
 }
 
-function buildSafetyNetPrompt(entry: AdminQualityMatrixEntry, plan: AdminQualityDelegationPlan): string {
+function buildSafetyNetPrompt(
+  entry: AdminQualityMatrixEntry,
+  plan: AdminQualityDelegationPlan,
+): string {
   return [
     `Objectif: securiser la mission autour de "${entry.domain}" avant extension.`,
     `Mission principale: ${plan.actionLabel}.`,
@@ -401,7 +420,9 @@ function buildGovernancePrompt(entry: AdminQualityMatrixEntry): string {
   ].join('\n');
 }
 
-function impactFromPriority(priority: AdminQualityMatrixEntry['priority']): AdminQualityMissionImpact {
+function impactFromPriority(
+  priority: AdminQualityMatrixEntry['priority'],
+): AdminQualityMissionImpact {
   switch (priority) {
     case 'haute':
       return 'High';

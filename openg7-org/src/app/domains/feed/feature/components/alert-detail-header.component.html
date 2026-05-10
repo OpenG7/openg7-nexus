@@ -1,8 +1,17 @@
-﻿<header class="alert-detail-header" [class.alert-detail-header--compact]="compact()" data-og7="alert-detail-header">
-  <nav class="alert-detail-header__breadcrumb" [attr.aria-label]="'feed.alert.detail.breadcrumbNav' | translate">
+﻿<header
+  class="alert-detail-header"
+  [class.alert-detail-header--compact]="compact()"
+  data-og7="alert-detail-header"
+>
+  <nav
+    class="alert-detail-header__breadcrumb"
+    [attr.aria-label]="'feed.alert.detail.breadcrumbNav' | translate"
+  >
     <a routerLink="/feed">{{ 'feed.title' | translate }}</a>
     <span aria-hidden="true">/</span>
-    <a routerLink="/feed" [queryParams]="{ type: 'ALERT' }">{{ 'feed.alert.detail.breadcrumbAlerts' | translate }}</a>
+    <a routerLink="/feed" [queryParams]="{ type: 'ALERT' }">{{
+      'feed.alert.detail.breadcrumbAlerts' | translate
+    }}</a>
     <span aria-hidden="true">/</span>
     <strong aria-current="page">{{ title() }}</strong>
   </nav>
@@ -12,9 +21,15 @@
       <h1>{{ title() }}</h1>
       <p>{{ subtitle() }}</p>
       <div class="alert-detail-header__badges">
-        <span class="badge badge--severity">{{ 'feed.alert.detail.badges.severity' | translate }}: {{ severityLabel() }}</span>
-        <span class="badge">{{ 'feed.alert.detail.badges.confidence' | translate }}: {{ confidenceLabel() }}</span>
-        <span class="badge">{{ 'feed.alert.detail.badges.window' | translate }}: {{ windowLabel() }}</span>
+        <span class="badge badge--severity"
+          >{{ 'feed.alert.detail.badges.severity' | translate }}: {{ severityLabel() }}</span
+        >
+        <span class="badge"
+          >{{ 'feed.alert.detail.badges.confidence' | translate }}: {{ confidenceLabel() }}</span
+        >
+        <span class="badge"
+          >{{ 'feed.alert.detail.badges.window' | translate }}: {{ windowLabel() }}</span
+        >
       </div>
     </div>
 

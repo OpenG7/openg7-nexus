@@ -202,7 +202,7 @@ export class ProfilePage {
   protected readonly profile = signal<AuthUser | null>(null);
   protected readonly sessions = signal<ActiveSessionRecord[]>([]);
   protected readonly hasOtherActiveSessions = computed(() =>
-    this.sessions().some((session) => !session.current && session.status === 'active')
+    this.sessions().some((session) => !session.current && session.status === 'active'),
   );
   protected readonly accountStatus = computed<AccountStatus>(() => {
     const status = this.profile()?.accountStatus;
@@ -272,7 +272,7 @@ export class ProfilePage {
     phone: this.fb.nonNullable.control('', [optionalPhoneValidator()]),
     email: this.fb.control(
       { value: '', disabled: true },
-      { nonNullable: true, validators: [Validators.required, Validators.email] }
+      { nonNullable: true, validators: [Validators.required, Validators.email] },
     ),
     avatarUrl: this.fb.nonNullable.control('', [optionalUrlValidator()]),
     sectorPreferences: this.fb.nonNullable.control('', [csvListValidator(20, 40)]),
@@ -280,7 +280,9 @@ export class ProfilePage {
     alertChannelInApp: this.fb.nonNullable.control(true),
     emailNotifications: this.fb.nonNullable.control(false),
     webhookNotifications: this.fb.nonNullable.control(false),
-    notificationWebhook: this.fb.nonNullable.control('', [optionalUrlValidator({ httpsOnly: true })]),
+    notificationWebhook: this.fb.nonNullable.control('', [
+      optionalUrlValidator({ httpsOnly: true }),
+    ]),
     alertFrequency: this.fb.nonNullable.control<AlertFrequencyPreference>(ALERT_FREQUENCY_DEFAULT),
     alertSeverityInfo: this.fb.nonNullable.control(true),
     alertSeveritySuccess: this.fb.nonNullable.control(true),
@@ -300,7 +302,7 @@ export class ProfilePage {
       password: ['', [Validators.required, Validators.minLength(10), strongPasswordValidator()]],
       passwordConfirmation: ['', [Validators.required]],
     },
-    { validators: [matchingPasswordsValidator] }
+    { validators: [matchingPasswordsValidator] },
   );
 
   protected readonly emailChangeForm = this.fb.nonNullable.group({
@@ -405,13 +407,19 @@ export class ProfilePage {
     const hasSeveritySelection = selectedSeverities.length > 0;
     const hasSourceSelection = selectedSources.length > 0;
     const hasQuietHoursConfiguration =
-      !quietHoursEnabled || (Boolean(quietHoursStart) && Boolean(quietHoursEnd) && Boolean(quietHoursTimezone));
+      !quietHoursEnabled ||
+      (Boolean(quietHoursStart) && Boolean(quietHoursEnd) && Boolean(quietHoursTimezone));
 
     this.alertSeveritySelectionError.set(!hasSeveritySelection);
     this.alertSourceSelectionError.set(!hasSourceSelection);
     this.quietHoursConfigurationError.set(!hasQuietHoursConfiguration);
 
-    if (this.form.invalid || !hasSeveritySelection || !hasSourceSelection || !hasQuietHoursConfiguration) {
+    if (
+      this.form.invalid ||
+      !hasSeveritySelection ||
+      !hasSourceSelection ||
+      !hasQuietHoursConfiguration
+    ) {
       this.form.markAllAsTouched();
       return;
     }
@@ -454,7 +462,7 @@ export class ProfilePage {
       .updateProfile(payload)
       .pipe(
         finalize(() => this.saving.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (profile) => {
@@ -504,15 +512,18 @@ export class ProfilePage {
       .changePassword(payload)
       .pipe(
         finalize(() => this.changingPassword.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.resetPasswordForm();
-          this.notifications.success(this.translate.instant('auth.profile.security.password.success'), {
-            source: 'auth',
-            metadata: { action: 'change-password' },
-          });
+          this.notifications.success(
+            this.translate.instant('auth.profile.security.password.success'),
+            {
+              source: 'auth',
+              metadata: { action: 'change-password' },
+            },
+          );
         },
         error: (error) => {
           this.notifications.error(
@@ -522,7 +533,7 @@ export class ProfilePage {
               context: error,
               metadata: { action: 'change-password' },
               deliver: { email: true },
-            }
+            },
           );
         },
       });
@@ -558,15 +569,18 @@ export class ProfilePage {
       .requestEmailChange(payload)
       .pipe(
         finalize(() => this.requestingEmailChange.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
           this.resetEmailChangeForm();
-          this.notifications.success(this.translate.instant('auth.profile.security.emailChange.success'), {
-            source: 'auth',
-            metadata: { action: 'email-change-request' },
-          });
+          this.notifications.success(
+            this.translate.instant('auth.profile.security.emailChange.success'),
+            {
+              source: 'auth',
+              metadata: { action: 'email-change-request' },
+            },
+          );
           this.refreshProfile();
         },
         error: (error) => {
@@ -577,7 +591,7 @@ export class ProfilePage {
               context: error,
               metadata: { action: 'email-change-request' },
               deliver: { email: true },
-            }
+            },
           );
         },
       });
@@ -598,7 +612,7 @@ export class ProfilePage {
       .sendEmailConfirmation({ email })
       .pipe(
         finalize(() => this.sendingActivationEmail.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -627,7 +641,7 @@ export class ProfilePage {
       .exportProfileData()
       .pipe(
         finalize(() => this.exportingData.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (blob) => {
@@ -637,7 +651,7 @@ export class ProfilePage {
               {
                 source: 'auth',
                 metadata: { action: 'profile-export-data' },
-              }
+              },
             );
             return;
           }
@@ -648,7 +662,7 @@ export class ProfilePage {
             {
               source: 'auth',
               metadata: { action: 'profile-export-data' },
-            }
+            },
           );
         },
         error: (error) => {
@@ -659,7 +673,7 @@ export class ProfilePage {
               context: error,
               metadata: { action: 'profile-export-data' },
               deliver: { email: true },
-            }
+            },
           );
         },
       });
@@ -683,12 +697,13 @@ export class ProfilePage {
       .logoutOtherSessions()
       .pipe(
         finalize(() => this.loggingOutOtherSessions.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response) => {
           const revokedCount =
-            typeof response.sessionsRevoked === 'number' && Number.isFinite(response.sessionsRevoked)
+            typeof response.sessionsRevoked === 'number' &&
+            Number.isFinite(response.sessionsRevoked)
               ? response.sessionsRevoked
               : 0;
           this.sessions.set(Array.isArray(response.sessions) ? response.sessions : []);
@@ -699,7 +714,7 @@ export class ProfilePage {
             {
               source: 'auth',
               metadata: { action: 'profile-logout-other-sessions', revokedCount },
-            }
+            },
           );
           if (!Array.isArray(response.sessions)) {
             this.fetchSessions({ notifyOnError: false });
@@ -713,7 +728,7 @@ export class ProfilePage {
               context: error,
               metadata: { action: 'profile-logout-other-sessions' },
               deliver: { email: true },
-            }
+            },
           );
         },
       });
@@ -774,7 +789,7 @@ export class ProfilePage {
             input.value = '';
           }
         }),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (files) => {
@@ -782,10 +797,13 @@ export class ProfilePage {
           const normalizedUrl = this.resolveUploadedAvatarUrl(uploaded?.url ?? null);
           if (!normalizedUrl) {
             this.avatarUploadError.set('auth.profile.avatar.uploadMalformed');
-            this.notifications.error(this.translate.instant('auth.profile.avatar.uploadMalformed'), {
-              source: 'auth',
-              metadata: { action: 'profile-avatar-upload-response' },
-            });
+            this.notifications.error(
+              this.translate.instant('auth.profile.avatar.uploadMalformed'),
+              {
+                source: 'auth',
+                metadata: { action: 'profile-avatar-upload-response' },
+              },
+            );
             return;
           }
 
@@ -820,7 +838,7 @@ export class ProfilePage {
       .getActiveSessions()
       .pipe(
         finalize(() => this.loadingSessions.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (snapshot) => {
@@ -837,7 +855,7 @@ export class ProfilePage {
               source: 'auth',
               context: error,
               metadata: { action: 'profile-session-refresh' },
-            }
+            },
           );
         },
       });
@@ -848,7 +866,7 @@ export class ProfilePage {
       .getProfile()
       .pipe(
         finalize(() => onFinalize?.()),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (profile) => this.applyProfile(profile),
@@ -899,7 +917,7 @@ export class ProfilePage {
         quietHoursEnd: preferences.quietHours.end ?? '',
         quietHoursTimezone: preferences.quietHours.timezone ?? '',
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
 
     this.avatarPreview.set(this.normalizeString(profile.avatarUrl));
@@ -1041,12 +1059,18 @@ export class ProfilePage {
     channels: { inApp: boolean; email: boolean; webhook: boolean };
     filters: { severities: AlertSeverityPreference[]; sources: AlertSourcePreference[] };
     frequency: AlertFrequencyPreference;
-    quietHours: { enabled: boolean; start: string | null; end: string | null; timezone: string | null };
+    quietHours: {
+      enabled: boolean;
+      start: string | null;
+      end: string | null;
+      timezone: string | null;
+    };
     webhookUrl: string | null;
   } {
     const prefs = profile.notificationPreferences ?? null;
     const channels = prefs?.channels ?? null;
-    const email = typeof channels?.email === 'boolean' ? channels.email : Boolean(prefs?.emailOptIn);
+    const email =
+      typeof channels?.email === 'boolean' ? channels.email : Boolean(prefs?.emailOptIn);
     const webhookUrl = this.normalizeString(prefs?.webhookUrl);
     const webhook = typeof channels?.webhook === 'boolean' ? channels.webhook : Boolean(webhookUrl);
     const inApp = typeof channels?.inApp === 'boolean' ? channels.inApp : true;
@@ -1054,11 +1078,8 @@ export class ProfilePage {
     const severitiesRaw = Array.isArray(prefs?.filters?.severities)
       ? prefs?.filters?.severities
       : [];
-    const severities = ALERT_SEVERITY_OPTIONS.filter((entry) =>
-      severitiesRaw.includes(entry)
-    );
-    const normalizedSeverities =
-      severities.length > 0 ? severities : [...ALERT_SEVERITY_OPTIONS];
+    const severities = ALERT_SEVERITY_OPTIONS.filter((entry) => severitiesRaw.includes(entry));
+    const normalizedSeverities = severities.length > 0 ? severities : [...ALERT_SEVERITY_OPTIONS];
 
     const sourcesRaw = Array.isArray(prefs?.filters?.sources) ? prefs?.filters?.sources : [];
     const sources = ALERT_SOURCE_OPTIONS.filter((entry) => sourcesRaw.includes(entry));
@@ -1087,7 +1108,7 @@ export class ProfilePage {
         enabled: quietHoursEnabled,
         start: quietHoursEnabled ? quietHoursStart : null,
         end: quietHoursEnabled ? quietHoursEnd : null,
-        timezone: quietHoursEnabled ? quietHoursTimezone ?? this.detectBrowserTimezone() : null,
+        timezone: quietHoursEnabled ? (quietHoursTimezone ?? this.detectBrowserTimezone()) : null,
       },
       webhookUrl,
     };
@@ -1116,7 +1137,7 @@ export class ProfilePage {
       value
         .split(',')
         .map((item) => item.trim())
-        .filter((item) => item.length > 0)
+        .filter((item) => item.length > 0),
     );
     return Array.from(unique);
   }
@@ -1160,7 +1181,11 @@ export class ProfilePage {
     if (normalized.includes('already confirmed')) {
       return this.translate.instant('auth.login.activationAlreadyConfirmed');
     }
-    if (normalized.includes('blocked') || normalized.includes('inactive') || normalized.includes('disabled')) {
+    if (
+      normalized.includes('blocked') ||
+      normalized.includes('inactive') ||
+      normalized.includes('disabled')
+    ) {
       return this.translate.instant('auth.errors.accountDisabled');
     }
     if (normalized.includes('too many') || normalized.includes('rate')) {

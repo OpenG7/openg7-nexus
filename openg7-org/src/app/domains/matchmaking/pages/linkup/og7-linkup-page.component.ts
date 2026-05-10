@@ -1,8 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DEMO_OPPORTUNITY_MATCHES, findDemoFinancingBanner } from '@app/core/fixtures/opportunity-demo';
+import {
+  DEMO_OPPORTUNITY_MATCHES,
+  findDemoFinancingBanner,
+} from '@app/core/fixtures/opportunity-demo';
 import { OpportunityMatch } from '@app/core/models/opportunity';
 import { OpportunityService } from '@app/core/services/opportunity.service';
 import { Og7IntroStepperComponent } from '@app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component';
@@ -15,12 +25,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   standalone: true,
   selector: 'og7-linkup-page',
-  imports: [
-    CommonModule,
-    TranslateModule,
-    Og7IntroStepperComponent,
-    Og7SparksBackgroundDirective,
-  ],
+  imports: [CommonModule, TranslateModule, Og7IntroStepperComponent, Og7SparksBackgroundDirective],
   templateUrl: './og7-linkup-page.component.html',
   styleUrls: ['./og7-linkup-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,7 +46,9 @@ export class Og7LinkupPageComponent {
   private readonly activeMatchFallback = signal<OpportunityMatch | null>(null);
   protected readonly loadingMatches = this.opportunities.loading();
   protected readonly loadingActiveMatch = this.activeMatchLoading.asReadonly();
-  private readonly activeMatchState = signal<'idle' | 'loading' | 'match-id' | 'partner-id' | 'not-found' | 'invalid'>('idle');
+  private readonly activeMatchState = signal<
+    'idle' | 'loading' | 'match-id' | 'partner-id' | 'not-found' | 'invalid'
+  >('idle');
   protected readonly matchState = this.activeMatchState.asReadonly();
   private readonly defaultMatchesRequested = signal(false);
   private readonly pendingMatchRequests = new Set<number>();
@@ -50,7 +57,7 @@ export class Og7LinkupPageComponent {
 
   private readonly routeMatchParam = toSignal(
     this.route.paramMap.pipe(
-      map(params => params.get('id')),
+      map((params) => params.get('id')),
       distinctUntilChanged(),
     ),
     { initialValue: this.route.snapshot.paramMap.get('id') },
@@ -71,7 +78,9 @@ export class Og7LinkupPageComponent {
     if (!fallback) {
       return null;
     }
-    return fallback.id === id || fallback.seller.id === id || fallback.buyer.id === id ? fallback : null;
+    return fallback.id === id || fallback.seller.id === id || fallback.buyer.id === id
+      ? fallback
+      : null;
   });
 
   private readonly ensureActiveMatchEffect = effect(() => {
@@ -168,7 +177,11 @@ export class Og7LinkupPageComponent {
   }
 
   private requestActiveMatch(id: number): void {
-    if (!Number.isFinite(id) || this.pendingMatchRequests.has(id) || this.partnerIdentifierCache.has(id)) {
+    if (
+      !Number.isFinite(id) ||
+      this.pendingMatchRequests.has(id) ||
+      this.partnerIdentifierCache.has(id)
+    ) {
       return;
     }
 
@@ -201,7 +214,7 @@ export class Og7LinkupPageComponent {
           }
         }),
       )
-      .subscribe(match => {
+      .subscribe((match) => {
         if (this.routeMatchId() !== id) {
           return;
         }
@@ -227,15 +240,15 @@ export class Og7LinkupPageComponent {
 
   private findMatchByRouteIdentifier(id: number): OpportunityMatch | null {
     const list = this.matches();
-    const byMatchId = list.find(item => item.id === id);
+    const byMatchId = list.find((item) => item.id === id);
     if (byMatchId) {
       return byMatchId;
     }
-    const bySellerId = list.find(item => item.seller.id === id);
+    const bySellerId = list.find((item) => item.seller.id === id);
     if (bySellerId) {
       return bySellerId;
     }
-    const byBuyerId = list.find(item => item.buyer.id === id);
+    const byBuyerId = list.find((item) => item.buyer.id === id);
     return byBuyerId ?? null;
   }
 }

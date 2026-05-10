@@ -29,14 +29,21 @@ export interface AdminQualityCommandMetric {
       data-og7="admin-quality-command-rail"
       data-og7-density="compact"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.16),transparent_22%),linear-gradient(180deg,rgba(3,7,18,0.34),rgba(3,7,18,0.04))]"></div>
-      <div class="pointer-events-none absolute inset-x-5 top-10 h-px bg-linear-to-r from-transparent via-white/12 to-transparent"></div>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.16),transparent_22%),linear-gradient(180deg,rgba(3,7,18,0.34),rgba(3,7,18,0.04))]"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-5 top-10 h-px bg-linear-to-r from-transparent via-white/12 to-transparent"
+      ></div>
 
       <div class="sr-only" data-og7-id="rail-heading">
         {{ scope().filtered ? 'Scope actif' : 'Vue globale' }}
       </div>
 
-      <div class="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" data-og7-layout="compact-six">
+      <div
+        class="relative grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+        data-og7-layout="compact-six"
+      >
         @for (metric of metrics(); track metric.id) {
           <article
             class="relative min-w-0 overflow-hidden rounded-2xl border px-3 py-2.5"
@@ -44,10 +51,20 @@ export interface AdminQualityCommandMetric {
             data-og7="admin-quality-summary"
             [attr.data-og7-id]="metric.id"
             data-og7-density="compact"
-            [attr.aria-label]="metric.activeValue + ' actif pour ' + metric.label + '. Global ' + metric.totalValue + '. ' + metric.detail"
+            [attr.aria-label]="
+              metric.activeValue +
+              ' actif pour ' +
+              metric.label +
+              '. Global ' +
+              metric.totalValue +
+              '. ' +
+              metric.detail
+            "
             [attr.title]="metric.detail"
           >
-            <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-white/18 to-transparent"></div>
+            <div
+              class="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-white/18 to-transparent"
+            ></div>
             <div class="flex h-full flex-col gap-2">
               <div class="flex min-w-0 items-center gap-2.5">
                 <span
@@ -58,7 +75,10 @@ export interface AdminQualityCommandMetric {
                   {{ iconLabel(metric.id) }}
                 </span>
                 <div class="min-w-0">
-                  <p class="truncate text-[1.85rem] font-semibold leading-none tracking-tight" [class]="valueClasses(metric.accent)">
+                  <p
+                    class="truncate text-[1.85rem] font-semibold leading-none tracking-tight"
+                    [class]="valueClasses(metric.accent)"
+                  >
                     {{ metric.activeValue }}
                   </p>
                   <span class="sr-only">Global {{ metric.totalValue }}</span>
@@ -67,7 +87,9 @@ export interface AdminQualityCommandMetric {
 
               <div class="min-w-0 space-y-0.5">
                 <p class="truncate text-sm font-semibold text-white">{{ titleLabel(metric.id) }}</p>
-                <p class="truncate text-xs" [class]="detailClasses(metric.accent)">{{ subtitleLabel(metric.id) }}</p>
+                <p class="truncate text-xs" [class]="detailClasses(metric.accent)">
+                  {{ subtitleLabel(metric.id) }}
+                </p>
               </div>
 
               <div class="mt-auto flex items-end justify-between gap-2 pt-1">
@@ -260,7 +282,9 @@ export class AdminQualityCommandRailComponent {
   }
 
   footerLabel(id: AdminQualityCommandMetric['id']): string {
-    return id === 'total-domains' ? 'Total' : `Global ${this.metrics().find((metric) => metric.id === id)?.totalValue ?? 0}`;
+    return id === 'total-domains'
+      ? 'Total'
+      : `Global ${this.metrics().find((metric) => metric.id === id)?.totalValue ?? 0}`;
   }
 
   deltaLabel(metric: AdminQualityCommandMetric): string {

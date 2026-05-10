@@ -1,6 +1,14 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, PLATFORM_ID, Type, computed, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  PLATFORM_ID,
+  Type,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -87,9 +95,10 @@ export class AppComponent {
       return;
     }
 
-    const component = await import(
-      '@app/domains/developer/pages/component-lab/og7-component-lab-page.component'
-    ).then((m) => m.Og7ComponentLabPageComponent);
+    const component =
+      await import('@app/domains/developer/pages/component-lab/og7-component-lab-page.component').then(
+        (m) => m.Og7ComponentLabPageComponent,
+      );
 
     this.componentLabComponent.set(component);
   }
@@ -99,9 +108,10 @@ export class AppComponent {
       return;
     }
 
-    const component = await import(
-      '@app/shared/components/layout/app-starry-background.component'
-    ).then((m) => m.AppStarryBackgroundComponent);
+    const component =
+      await import('@app/shared/components/layout/app-starry-background.component').then(
+        (m) => m.AppStarryBackgroundComponent,
+      );
 
     this.backgroundComponent.set(component);
   }
@@ -128,7 +138,9 @@ function isImmersiveMainContentUrl(url: string): boolean {
     return true;
   }
 
-  return IMMERSIVE_MAIN_CONTENT_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
+  return IMMERSIVE_MAIN_CONTENT_PREFIXES.some(
+    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
+  );
 }
 
 function normalizeUrlPath(url: string): string {

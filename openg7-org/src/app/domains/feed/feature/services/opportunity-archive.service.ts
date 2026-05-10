@@ -60,7 +60,7 @@ export class OpportunityArchiveService {
 
       return parsed
         .filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
-        .map(entry => entry.trim())
+        .map((entry) => entry.trim())
         .slice(0, MAX_ARCHIVED_IDS);
     } catch {
       return [];

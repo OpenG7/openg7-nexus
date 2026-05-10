@@ -8,10 +8,8 @@
       </h3>
       <p class="text-xs text-subtle">{{ 'attachments.subtitle' | translate }}</p>
     </div>
-    <span
-      class="og7-compliance__counter badge-tertiary"
-    >
-      {{ 'attachments.count' | translate:{ value: selectionCount() } }}
+    <span class="og7-compliance__counter badge-tertiary">
+      {{ 'attachments.count' | translate: { value: selectionCount() } }}
     </span>
   </header>
 
@@ -27,15 +25,23 @@
         />
         <div class="og7-compliance__content">
           <div class="og7-compliance__header">
-            <span class="og7-compliance__title text-title">{{ 'attachments.nda.title' | translate }}</span>
+            <span class="og7-compliance__title text-title">{{
+              'attachments.nda.title' | translate
+            }}</span>
             <span
               class="og7-compliance__status"
               [class.og7-compliance__status--active]="ndaChecked()"
             >
-              {{ ndaChecked() ? ('attachments.selected' | translate) : ('attachments.optional' | translate) }}
+              {{
+                ndaChecked()
+                  ? ('attachments.selected' | translate)
+                  : ('attachments.optional' | translate)
+              }}
             </span>
           </div>
-          <p class="og7-compliance__description text-subtle">{{ 'attachments.nda.description' | translate }}</p>
+          <p class="og7-compliance__description text-subtle">
+            {{ 'attachments.nda.description' | translate }}
+          </p>
           <div class="og7-compliance__actions">
             <button
               type="button"
@@ -43,7 +49,11 @@
               [disabled]="disabled()"
               (click)="toggleNda()"
             >
-              {{ ndaChecked() ? ('attachments.deselect' | translate) : ('attachments.select' | translate) }}
+              {{
+                ndaChecked()
+                  ? ('attachments.deselect' | translate)
+                  : ('attachments.select' | translate)
+              }}
             </button>
             @if (ndaPreview(); as link) {
               <a
@@ -71,15 +81,23 @@
         />
         <div class="og7-compliance__content">
           <div class="og7-compliance__header">
-            <span class="og7-compliance__title text-title">{{ 'attachments.rfq.title' | translate }}</span>
+            <span class="og7-compliance__title text-title">{{
+              'attachments.rfq.title' | translate
+            }}</span>
             <span
               class="og7-compliance__status"
               [class.og7-compliance__status--active]="rfqChecked()"
             >
-              {{ rfqChecked() ? ('attachments.selected' | translate) : ('attachments.optional' | translate) }}
+              {{
+                rfqChecked()
+                  ? ('attachments.selected' | translate)
+                  : ('attachments.optional' | translate)
+              }}
             </span>
           </div>
-          <p class="og7-compliance__description text-subtle">{{ 'attachments.rfq.description' | translate }}</p>
+          <p class="og7-compliance__description text-subtle">
+            {{ 'attachments.rfq.description' | translate }}
+          </p>
           <div class="og7-compliance__actions">
             <button
               type="button"
@@ -87,15 +105,14 @@
               [disabled]="disabled()"
               (click)="toggleRfq()"
             >
-              {{ rfqChecked() ? ('attachments.deselect' | translate) : ('attachments.select' | translate) }}
+              {{
+                rfqChecked()
+                  ? ('attachments.deselect' | translate)
+                  : ('attachments.select' | translate)
+              }}
             </button>
             @if (rfqPreview(); as link) {
-              <a
-                class="og7-compliance__preview"
-                [href]="link"
-                target="_blank"
-                rel="noopener"
-              >
+              <a class="og7-compliance__preview" [href]="link" target="_blank" rel="noopener">
                 {{ 'attachments.preview' | translate }}
               </a>
             }

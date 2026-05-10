@@ -1,6 +1,9 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
-import { OpportunityReportPayload, OpportunityReportReason } from '../components/opportunity-detail.models';
+import {
+  OpportunityReportPayload,
+  OpportunityReportReason,
+} from '../components/opportunity-detail.models';
 
 import {
   createLocalPendingSubmissionQueueStore,
@@ -76,7 +79,7 @@ export class OpportunityReportQueueService {
     }
 
     return this.queueStore.latestMatching(
-      record => record.itemId === normalizedItemId && record.status === 'pending'
+      (record) => record.itemId === normalizedItemId && record.status === 'pending',
     );
   }
 }

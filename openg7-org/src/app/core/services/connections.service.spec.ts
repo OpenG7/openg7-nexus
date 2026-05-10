@@ -94,18 +94,22 @@ describe('ConnectionsService', () => {
     expect(responseBody).toEqual(
       jasmine.objectContaining({
         data: jasmine.objectContaining({ id: 55 }),
-      })
+      }),
     );
   });
 
   it('maps connection history pages returned by the backend', () => {
     let historyPage: unknown;
 
-    service.getConnectionHistoryPage({ limit: 2, offset: 10, status: 'pending' }).subscribe((response) => {
-      historyPage = response as never;
-    });
+    service
+      .getConnectionHistoryPage({ limit: 2, offset: 10, status: 'pending' })
+      .subscribe((response) => {
+        historyPage = response as never;
+      });
 
-    const request = httpMock.expectOne('https://cms.local/api/connections?limit=2&offset=10&status=pending');
+    const request = httpMock.expectOne(
+      'https://cms.local/api/connections?limit=2&offset=10&status=pending',
+    );
     expect(request.request.method).toBe('GET');
 
     request.flush({
@@ -221,16 +225,18 @@ describe('ConnectionsService', () => {
         matchId: 73,
         stage: 'reply',
         status: 'pending',
-      })
+      }),
     );
   });
 
   it('patches the status endpoint and forwards the optional note', () => {
     let connection: unknown;
 
-    service.updateConnectionStatus('lkp-001', 'completed', 'Ready for partner handoff').subscribe((response) => {
-      connection = response;
-    });
+    service
+      .updateConnectionStatus('lkp-001', 'completed', 'Ready for partner handoff')
+      .subscribe((response) => {
+        connection = response;
+      });
 
     const request = httpMock.expectOne('https://cms.local/api/connections/lkp-001/status');
     expect(request.request.method).toBe('PATCH');
@@ -285,7 +291,7 @@ describe('ConnectionsService', () => {
             note: 'Ready for partner handoff',
           }),
         ],
-      })
+      }),
     );
   });
 });

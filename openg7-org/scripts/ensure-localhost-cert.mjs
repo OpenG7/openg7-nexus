@@ -48,15 +48,7 @@ function hasFile(path) {
 function createTrustedCertificateWithMkcert() {
   console.log('[https] mkcert detected, generating a trusted localhost certificate');
   runMkcert(['-install']);
-  runMkcert([
-    '-cert-file',
-    certPath,
-    '-key-file',
-    keyPath,
-    'localhost',
-    '127.0.0.1',
-    '::1',
-  ]);
+  runMkcert(['-cert-file', certPath, '-key-file', keyPath, 'localhost', '127.0.0.1', '::1']);
   writeProviderMetadata('mkcert');
   console.log(`[https] Trusted certificate written to ${certDir}`);
 }
@@ -81,43 +73,42 @@ function runMkcert(args) {
 
 function createSelfSignedCertificate() {
   console.log('[https] mkcert not found, generating a self-signed localhost certificate');
-  const pems = selfsigned.generate(
-    [{ name: 'commonName', value: 'localhost' }],
-    {
-      algorithm: 'sha256',
-      days: 30,
-      keySize: 2048,
-      extensions: [
-        {
-          name: 'basicConstraints',
-          cA: false,
-        },
-        {
-          name: 'keyUsage',
-          digitalSignature: true,
-          keyEncipherment: true,
-        },
-        {
-          name: 'extKeyUsage',
-          serverAuth: true,
-        },
-        {
-          name: 'subjectAltName',
-          altNames: [
-            { type: 2, value: 'localhost' },
-            { type: 7, ip: '127.0.0.1' },
-            { type: 7, ip: '::1' },
-          ],
-        },
-      ],
-    }
-  );
+  const pems = selfsigned.generate([{ name: 'commonName', value: 'localhost' }], {
+    algorithm: 'sha256',
+    days: 30,
+    keySize: 2048,
+    extensions: [
+      {
+        name: 'basicConstraints',
+        cA: false,
+      },
+      {
+        name: 'keyUsage',
+        digitalSignature: true,
+        keyEncipherment: true,
+      },
+      {
+        name: 'extKeyUsage',
+        serverAuth: true,
+      },
+      {
+        name: 'subjectAltName',
+        altNames: [
+          { type: 2, value: 'localhost' },
+          { type: 7, ip: '127.0.0.1' },
+          { type: 7, ip: '::1' },
+        ],
+      },
+    ],
+  });
 
   writeFileSync(certPath, `${pems.cert}\n`, 'utf8');
   writeFileSync(keyPath, `${pems.private}\n`, 'utf8');
   writeProviderMetadata('selfsigned');
 
-  console.warn('[https] Browser trust will still warn until you install mkcert and regenerate the cert.');
+  console.warn(
+    '[https] Browser trust will still warn until you install mkcert and regenerate the cert.',
+  );
   console.warn('[https] Run `yarn --cwd openg7-org cert:localhost` again after installing mkcert.');
   console.log(`[https] Self-signed certificate written to ${certDir}`);
 }
@@ -143,7 +134,7 @@ function writeProviderMetadata(provider) {
   writeFileSync(
     metaPath,
     `${JSON.stringify({ provider, generatedAt: new Date().toISOString() }, null, 2)}\n`,
-    'utf8'
+    'utf8',
   );
 }
 
@@ -157,7 +148,7 @@ function resolveMkcertCommand() {
       'WinGet',
       'Packages',
       'FiloSottile.mkcert_Microsoft.Winget.Source_8wekyb3d8bbwe',
-      'mkcert.exe'
+      'mkcert.exe',
     ),
     resolve(process.env.LOCALAPPDATA ?? '', 'Microsoft', 'WindowsApps', 'mkcert.exe'),
   ];

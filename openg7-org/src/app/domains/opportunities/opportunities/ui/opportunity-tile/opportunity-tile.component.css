@@ -12,7 +12,10 @@
   background: linear-gradient(160deg, rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.92));
   border: 1px solid rgba(148, 163, 184, 0.14);
   box-shadow: 0 35px 50px rgba(2, 6, 23, 0.35);
-  transition: border-color 180ms ease, box-shadow 220ms ease, transform 220ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
 }
 
 .opportunity-tile::after {
@@ -21,7 +24,9 @@
   inset: 1px;
   border-radius: inherit;
   border: 1px solid transparent;
-  transition: border-color 180ms ease, opacity 180ms ease;
+  transition:
+    border-color 180ms ease,
+    opacity 180ms ease;
   pointer-events: none;
 }
 
@@ -211,7 +216,10 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 180ms ease, background-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 180ms ease,
+    background-color 160ms ease;
 }
 
 .opportunity-tile__action:focus-visible {

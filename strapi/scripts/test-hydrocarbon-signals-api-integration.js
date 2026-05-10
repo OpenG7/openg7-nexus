@@ -20,25 +20,29 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'hydrocarbon-test-app-key-a,hydrocarbon-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'hydrocarbon-test-app-key-a,hydrocarbon-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'hydrocarbon-test-api-token-salt';
-  process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'hydrocarbon-test-admin-jwt-secret';
-  process.env.TRANSFER_TOKEN_SALT = process.env.TRANSFER_TOKEN_SALT || 'hydrocarbon-test-transfer-token-salt';
+  process.env.ADMIN_JWT_SECRET =
+    process.env.ADMIN_JWT_SECRET || 'hydrocarbon-test-admin-jwt-secret';
+  process.env.TRANSFER_TOKEN_SALT =
+    process.env.TRANSFER_TOKEN_SALT || 'hydrocarbon-test-transfer-token-salt';
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'hydrocarbon-test-jwt-secret';
-  process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'hydrocarbon-test-encryption-key-1234567';
+  process.env.ENCRYPTION_KEY =
+    process.env.ENCRYPTION_KEY || 'hydrocarbon-test-encryption-key-1234567';
 }
 
 async function cleanupDatabase() {
   const basePath = path.join(__dirname, '..', 'data', TEST_DB_FILENAME);
   const candidates = [basePath, `${basePath}-wal`, `${basePath}-shm`];
   await Promise.all(
-    candidates.map(async candidate => {
+    candidates.map(async (candidate) => {
       try {
         await fs.rm(candidate, { force: true });
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -194,7 +198,11 @@ async function run() {
     const runId = String(Date.now());
 
     const empty = await requestJson(`${baseUrl}/api/hydrocarbon-signals`);
-    assert.equal(empty.status, 200, 'Expected public hydrocarbon endpoint to succeed without data.');
+    assert.equal(
+      empty.status,
+      200,
+      'Expected public hydrocarbon endpoint to succeed without data.',
+    );
     assert.deepEqual(empty.body?.data, [], 'Expected no hydrocarbon signals before seeding.');
 
     const userId = await createAuthenticatedUser(baseUrl, runId);
@@ -228,15 +236,23 @@ async function run() {
       },
     });
 
-    const list = await requestJson(`${baseUrl}/api/hydrocarbon-signals?publicationType=surplus&originProvinceId=ab&limit=5`);
+    const list = await requestJson(
+      `${baseUrl}/api/hydrocarbon-signals?publicationType=surplus&originProvinceId=ab&limit=5`,
+    );
     assert.equal(list.status, 200, 'Expected hydrocarbon list endpoint to succeed.');
     assert.equal(list.body?.meta?.limit, 5, 'Expected limit to round-trip in response metadata.');
-    assert.equal(list.body?.data?.length, 1, 'Expected publicationType filter to narrow the results.');
+    assert.equal(
+      list.body?.data?.length,
+      1,
+      'Expected publicationType filter to narrow the results.',
+    );
     assert.equal(list.body?.data?.[0]?.publicationType, 'surplus');
     assert.equal(list.body?.data?.[0]?.quantityUnit, 'bbl');
     assert.equal(list.body?.data?.[0]?.originProvinceId, 'ab');
 
-    const detailById = await requestJson(`${baseUrl}/api/hydrocarbon-signals/${encodeURIComponent(String(first.id))}`);
+    const detailById = await requestJson(
+      `${baseUrl}/api/hydrocarbon-signals/${encodeURIComponent(String(first.id))}`,
+    );
     assert.equal(detailById.status, 200, 'Expected detail endpoint to resolve by feed item id.');
     assert.equal(detailById.body?.data?.feedItemId, String(first.id));
     assert.equal(detailById.body?.data?.companyName, 'Northern Prairie Energy');
@@ -251,7 +267,7 @@ async function run() {
   }
 }
 
-run().catch(error => {
+run().catch((error) => {
   console.error(error);
   process.exit(1);
 });

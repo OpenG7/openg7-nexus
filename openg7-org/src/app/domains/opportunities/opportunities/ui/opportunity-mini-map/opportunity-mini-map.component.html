@@ -6,13 +6,15 @@
   <header class="opportunity-mini-map__header">
     <div class="opportunity-mini-map__title-group">
       <h3 class="opportunity-mini-map__title" [id]="titleId()">{{ vm().title }}</h3>
-      <p class="opportunity-mini-map__subtitle">{{ 'opportunities.miniMap.prototypeLabel' | translate }}</p>
+      <p class="opportunity-mini-map__subtitle">
+        {{ 'opportunities.miniMap.prototypeLabel' | translate }}
+      </p>
     </div>
 
     <div
       class="opportunity-mini-map__score"
       role="img"
-      [attr.aria-label]="'opportunities.miniMap.scoreLabel' | translate:{ value: scoreLabel() }"
+      [attr.aria-label]="'opportunities.miniMap.scoreLabel' | translate: { value: scoreLabel() }"
       [id]="scoreId()"
     >
       <svg viewBox="0 0 72 72" class="opportunity-mini-map__score-chart" aria-hidden="true">
@@ -21,7 +23,13 @@
             <stop offset="0%" stop-color="#0ea5e9" />
             <stop offset="100%" stop-color="#2dd4bf" />
           </linearGradient>
-          <linearGradient id="opportunity-mini-map-score-medium" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id="opportunity-mini-map-score-medium"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stop-color="#facc15" />
             <stop offset="100%" stop-color="#fb923c" />
           </linearGradient>
@@ -40,7 +48,9 @@
           [attr.stroke-dashoffset]="scoreStrokeDashoffset()"
           [attr.stroke]="scoreStroke()"
         ></circle>
-        <text x="36" y="42" class="opportunity-mini-map__score-value" text-anchor="middle">{{ scoreLabel() }}</text>
+        <text x="36" y="42" class="opportunity-mini-map__score-value" text-anchor="middle">
+          {{ scoreLabel() }}
+        </text>
       </svg>
     </div>
   </header>
@@ -48,14 +58,22 @@
   <section class="opportunity-mini-map__body">
     <div class="opportunity-mini-map__details">
       <div class="opportunity-mini-map__actor">
-        <div class="opportunity-mini-map__actor-label">{{ 'opportunities.timeline.buyer' | translate }}</div>
+        <div class="opportunity-mini-map__actor-label">
+          {{ 'opportunities.timeline.buyer' | translate }}
+        </div>
         <p class="opportunity-mini-map__actor-name">
-          <span class="opportunity-mini-map__actor-icon" aria-hidden="true">{{ vm().buyer.sectorIcon }}</span>
+          <span class="opportunity-mini-map__actor-icon" aria-hidden="true">{{
+            vm().buyer.sectorIcon
+          }}</span>
           {{ vm().buyer.name }}
         </p>
         <div class="opportunity-mini-map__chips">
-          <span class="opportunity-mini-map__chip">{{ vm().buyer.provinceLabelKey | translate }}</span>
-          <span class="opportunity-mini-map__chip">{{ vm().buyer.sectorLabelKey | translate }}</span>
+          <span class="opportunity-mini-map__chip">{{
+            vm().buyer.provinceLabelKey | translate
+          }}</span>
+          <span class="opportunity-mini-map__chip">{{
+            vm().buyer.sectorLabelKey | translate
+          }}</span>
         </div>
       </div>
 
@@ -65,26 +83,34 @@
           class="opportunity-mini-map__metric opportunity-mini-map__metric--cta"
           role="listitem"
           (click)="handleDistanceClick()"
-          [attr.aria-label]="'opportunities.miniMap.distanceAction' | translate:{ value: distanceLabel() }"
+          [attr.aria-label]="
+            'opportunities.miniMap.distanceAction' | translate: { value: distanceLabel() }
+          "
         >
-          <span class="opportunity-mini-map__metric-label">{{ 'opportunities.timeline.distance' | translate }}</span>
+          <span class="opportunity-mini-map__metric-label">{{
+            'opportunities.timeline.distance' | translate
+          }}</span>
           <span class="opportunity-mini-map__metric-value">{{ distanceLabel() }}</span>
         </button>
 
         <div *ngIf="vm().leadTime as leadTime" class="opportunity-mini-map__metric" role="listitem">
-          <span class="opportunity-mini-map__metric-label">{{ 'opportunities.timeline.leadTime' | translate }}</span>
+          <span class="opportunity-mini-map__metric-label">{{
+            'opportunities.timeline.leadTime' | translate
+          }}</span>
           <span class="opportunity-mini-map__metric-value">
             <ng-container *ngIf="leadTime.approximate">~</ng-container>
-            {{ leadTime.value | number:'1.0-0' }}
-            {{ ('opportunities.miniMap.units.' + leadTime.unit) | translate }}
+            {{ leadTime.value | number: '1.0-0' }}
+            {{ 'opportunities.miniMap.units.' + leadTime.unit | translate }}
           </span>
         </div>
 
         <div *ngIf="vm().co2Saved as co2" class="opportunity-mini-map__metric" role="listitem">
-          <span class="opportunity-mini-map__metric-label">{{ 'opportunities.timeline.co2Savings' | translate }}</span>
+          <span class="opportunity-mini-map__metric-label">{{
+            'opportunities.timeline.co2Savings' | translate
+          }}</span>
           <span class="opportunity-mini-map__metric-value">
             <ng-container *ngIf="co2.approximate">~</ng-container>
-            {{ co2.value | number:'1.0-0' }}
+            {{ co2.value | number: '1.0-0' }}
             {{ 'opportunities.miniMap.units.tco2e' | translate }}
           </span>
         </div>
@@ -95,29 +121,42 @@
           role="listitem"
           (click)="emitConnect()"
         >
-          <span class="opportunity-mini-map__metric-label">{{ 'opportunities.timeline.connect' | translate }}</span>
+          <span class="opportunity-mini-map__metric-label">{{
+            'opportunities.timeline.connect' | translate
+          }}</span>
         </button>
       </div>
 
       <div class="opportunity-mini-map__actor opportunity-mini-map__actor--supplier">
-        <div class="opportunity-mini-map__actor-label">{{ 'opportunities.timeline.supplier' | translate }}</div>
+        <div class="opportunity-mini-map__actor-label">
+          {{ 'opportunities.timeline.supplier' | translate }}
+        </div>
         <p class="opportunity-mini-map__actor-name">
-          <span class="opportunity-mini-map__actor-icon" aria-hidden="true">{{ vm().supplier.sectorIcon }}</span>
+          <span class="opportunity-mini-map__actor-icon" aria-hidden="true">{{
+            vm().supplier.sectorIcon
+          }}</span>
           {{ vm().supplier.name }}
         </p>
         <div class="opportunity-mini-map__chips">
-          <span class="opportunity-mini-map__chip">{{ vm().supplier.provinceLabelKey | translate }}</span>
-          <span class="opportunity-mini-map__chip">{{ vm().supplier.sectorLabelKey | translate }}</span>
+          <span class="opportunity-mini-map__chip">{{
+            vm().supplier.provinceLabelKey | translate
+          }}</span>
+          <span class="opportunity-mini-map__chip">{{
+            vm().supplier.sectorLabelKey | translate
+          }}</span>
         </div>
       </div>
     </div>
 
     <div class="opportunity-mini-map__map-shell">
-      <figure class="opportunity-mini-map__preview" [class.opportunity-mini-map__preview--expanded]="isExpanded()">
+      <figure
+        class="opportunity-mini-map__preview"
+        [class.opportunity-mini-map__preview--expanded]="isExpanded()"
+      >
         <img
           class="opportunity-mini-map__preview-image"
           [src]="vm().mapPreviewUrl"
-          [alt]="'opportunities.miniMap.mapAlt' | translate:{ title: vm().title }"
+          [alt]="'opportunities.miniMap.mapAlt' | translate: { title: vm().title }"
           loading="lazy"
           decoding="async"
         />
@@ -133,10 +172,20 @@
               <stop offset="100%" stop-color="#10b981" />
             </linearGradient>
           </defs>
-          <rect width="320" height="200" rx="28" ry="28" fill="url(#opportunity-mini-map-sparkline-bg)"></rect>
+          <rect
+            width="320"
+            height="200"
+            rx="28"
+            ry="28"
+            fill="url(#opportunity-mini-map-sparkline-bg)"
+          ></rect>
           <path [attr.d]="sparklinePath()" class="opportunity-mini-map__sparkline-path"></path>
           <g class="opportunity-mini-map__sparkline-marker">
-            <circle [attr.cx]="buyerMarkerPosition().x" [attr.cy]="buyerMarkerPosition().y" r="10"></circle>
+            <circle
+              [attr.cx]="buyerMarkerPosition().x"
+              [attr.cy]="buyerMarkerPosition().y"
+              r="10"
+            ></circle>
             <text
               [attr.x]="buyerMarkerPosition().x"
               [attr.y]="buyerMarkerPosition().y"
@@ -156,8 +205,14 @@
               {{ vm().buyer.sectorIcon }}
             </text>
           </g>
-          <g class="opportunity-mini-map__sparkline-marker opportunity-mini-map__sparkline-marker--supplier">
-            <circle [attr.cx]="supplierMarkerPosition().x" [attr.cy]="supplierMarkerPosition().y" r="10"></circle>
+          <g
+            class="opportunity-mini-map__sparkline-marker opportunity-mini-map__sparkline-marker--supplier"
+          >
+            <circle
+              [attr.cx]="supplierMarkerPosition().x"
+              [attr.cy]="supplierMarkerPosition().y"
+              r="10"
+            ></circle>
             <text
               [attr.x]="supplierMarkerPosition().x"
               [attr.y]="supplierMarkerPosition().y"
@@ -190,7 +245,12 @@
 
         <div class="opportunity-mini-map__interactive" *ngIf="isExpanded()">
           <div #mapHost class="opportunity-mini-map__map" role="presentation"></div>
-          <div class="opportunity-mini-map__interactive-overlay" *ngIf="isLoadingMap()" role="status" aria-live="polite">
+          <div
+            class="opportunity-mini-map__interactive-overlay"
+            *ngIf="isLoadingMap()"
+            role="status"
+            aria-live="polite"
+          >
             {{ 'opportunities.miniMap.loadingMap' | translate }}
           </div>
         </div>

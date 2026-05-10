@@ -23,11 +23,31 @@ const TRANSPORT_OPTIONS: readonly TransportOption[] = [
 ];
 
 const INCOTERM_OPTIONS: readonly IncotermOption[] = [
-  { code: 'FCA', labelKey: 'introBillboard.incoterms.FCA', descriptionKey: 'introBillboard.incotermsDesc.FCA' },
-  { code: 'FOB', labelKey: 'introBillboard.incoterms.FOB', descriptionKey: 'introBillboard.incotermsDesc.FOB' },
-  { code: 'DDP', labelKey: 'introBillboard.incoterms.DDP', descriptionKey: 'introBillboard.incotermsDesc.DDP' },
-  { code: 'CPT', labelKey: 'introBillboard.incoterms.CPT', descriptionKey: 'introBillboard.incotermsDesc.CPT' },
-  { code: 'DAP', labelKey: 'introBillboard.incoterms.DAP', descriptionKey: 'introBillboard.incotermsDesc.DAP' },
+  {
+    code: 'FCA',
+    labelKey: 'introBillboard.incoterms.FCA',
+    descriptionKey: 'introBillboard.incotermsDesc.FCA',
+  },
+  {
+    code: 'FOB',
+    labelKey: 'introBillboard.incoterms.FOB',
+    descriptionKey: 'introBillboard.incotermsDesc.FOB',
+  },
+  {
+    code: 'DDP',
+    labelKey: 'introBillboard.incoterms.DDP',
+    descriptionKey: 'introBillboard.incotermsDesc.DDP',
+  },
+  {
+    code: 'CPT',
+    labelKey: 'introBillboard.incoterms.CPT',
+    descriptionKey: 'introBillboard.incotermsDesc.CPT',
+  },
+  {
+    code: 'DAP',
+    labelKey: 'introBillboard.incoterms.DAP',
+    descriptionKey: 'introBillboard.incotermsDesc.DAP',
+  },
 ];
 
 @Component({

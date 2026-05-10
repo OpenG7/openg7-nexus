@@ -1,6 +1,10 @@
 <section class="mx-auto flex w-full max-w-6xl flex-col gap-8" data-og7="admin-companies">
-  <header class="og7-admin-shell relative overflow-hidden rounded-4xl border border-white/14 bg-[linear-gradient(145deg,#081225_0%,#10203d_46%,#0a1730_74%,#071121_100%)] p-6 text-white shadow-[0_38px_120px_rgba(15,23,42,0.3)] sm:p-8">
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-size-[72px_72px] opacity-35"></div>
+  <header
+    class="og7-admin-shell relative overflow-hidden rounded-4xl border border-white/14 bg-[linear-gradient(145deg,#081225_0%,#10203d_46%,#0a1730_74%,#071121_100%)] p-6 text-white shadow-[0_38px_120px_rgba(15,23,42,0.3)] sm:p-8"
+  >
+    <div
+      class="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-size-[72px_72px] opacity-35"
+    ></div>
     <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
       <div class="og7-admin-motion-rise max-w-3xl space-y-4" style="animation-delay: 40ms">
         <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-cyan-100">
@@ -13,17 +17,20 @@
             quality without losing the operational picture.
           </p>
         </div>
-        <div class="rounded-3xl border border-cyan-300/16 bg-slate-950/18 px-4 py-4 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <div
+          class="rounded-3xl border border-cyan-300/16 bg-slate-950/18 px-4 py-4 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        >
           <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100">
             Queue guidance
           </p>
-          <p class="mt-2 text-base font-medium leading-7 text-white">
-            {{ moderationHeadline() }}
-          </p>
+          <p class="mt-2 text-base font-medium leading-7 text-white">{{ moderationHeadline() }}</p>
         </div>
       </div>
 
-      <div class="og7-admin-motion-rise flex w-full max-w-xs flex-col gap-3 lg:items-end" style="animation-delay: 120ms">
+      <div
+        class="og7-admin-motion-rise flex w-full max-w-xs flex-col gap-3 lg:items-end"
+        style="animation-delay: 120ms"
+      >
         <button
           type="button"
           class="inline-flex min-w-44 items-center justify-center rounded-xl border border-white/12 bg-white/9 px-4 py-3 text-sm font-medium text-white shadow-[0_18px_40px_-28px_rgba(14,165,233,0.5)] transition hover:bg-white/14"
@@ -41,118 +48,197 @@
     </div>
 
     <div class="relative mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <article class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5" style="animation-delay: 140ms" [ngClass]="summaryCardClasses('neutral')">
+      <article
+        class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5"
+        style="animation-delay: 140ms"
+        [ngClass]="summaryCardClasses('neutral')"
+      >
         <div class="flex items-start justify-between gap-3">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">Queue size</p>
-          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-summary-badge" data-og7-id="neutral" [ngClass]="summaryBadgeClasses('neutral')">{{ summaryToneLabel('neutral') }}</span>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">
+            Queue size
+          </p>
+          <span
+            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            data-og7="admin-summary-badge"
+            data-og7-id="neutral"
+            [ngClass]="summaryBadgeClasses('neutral')"
+            >{{ summaryToneLabel('neutral') }}</span
+          >
         </div>
-        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">{{ moderationSummary().total }}</p>
-        <p class="mt-3 text-sm leading-6 text-slate-50/92">Total organisations currently visible to admin moderation.</p>
+        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">
+          {{ moderationSummary().total }}
+        </p>
+        <p class="mt-3 text-sm leading-6 text-slate-50/92">
+          Total organisations currently visible to admin moderation.
+        </p>
       </article>
-      <article class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5" style="animation-delay: 210ms" [ngClass]="summaryCardClasses('warning')">
+      <article
+        class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5"
+        style="animation-delay: 210ms"
+        [ngClass]="summaryCardClasses('warning')"
+      >
         <div class="flex items-start justify-between gap-3">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">Pending review</p>
-          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-summary-badge" data-og7-id="warning" [ngClass]="summaryBadgeClasses('warning')">{{ summaryToneLabel('warning') }}</span>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">
+            Pending review
+          </p>
+          <span
+            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            data-og7="admin-summary-badge"
+            data-og7-id="warning"
+            [ngClass]="summaryBadgeClasses('warning')"
+            >{{ summaryToneLabel('warning') }}</span
+          >
         </div>
-        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">{{ moderationSummary().pending }}</p>
-        <p class="mt-3 text-sm leading-6 text-slate-50/92">Requires owner decision before public exposure.</p>
+        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">
+          {{ moderationSummary().pending }}
+        </p>
+        <p class="mt-3 text-sm leading-6 text-slate-50/92">
+          Requires owner decision before public exposure.
+        </p>
       </article>
-      <article class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5" style="animation-delay: 280ms" [ngClass]="summaryCardClasses('ready')">
+      <article
+        class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5"
+        style="animation-delay: 280ms"
+        [ngClass]="summaryCardClasses('ready')"
+      >
         <div class="flex items-start justify-between gap-3">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">Approved</p>
-          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-summary-badge" data-og7-id="ready" [ngClass]="summaryBadgeClasses('ready')">{{ summaryToneLabel('ready') }}</span>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">
+            Approved
+          </p>
+          <span
+            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            data-og7="admin-summary-badge"
+            data-og7-id="ready"
+            [ngClass]="summaryBadgeClasses('ready')"
+            >{{ summaryToneLabel('ready') }}</span
+          >
         </div>
-        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">{{ moderationSummary().approved }}</p>
-        <p class="mt-3 text-sm leading-6 text-slate-50/92">Published organisations contributing to the live directory.</p>
+        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">
+          {{ moderationSummary().approved }}
+        </p>
+        <p class="mt-3 text-sm leading-6 text-slate-50/92">
+          Published organisations contributing to the live directory.
+        </p>
       </article>
-      <article class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5" style="animation-delay: 350ms" [ngClass]="summaryCardClasses('critical')">
+      <article
+        class="og7-admin-summary-card og7-admin-motion-rise relative rounded-3xl border p-5"
+        style="animation-delay: 350ms"
+        [ngClass]="summaryCardClasses('critical')"
+      >
         <div class="flex items-start justify-between gap-3">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">Suspended</p>
-          <span class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]" data-og7="admin-summary-badge" data-og7-id="critical" [ngClass]="summaryBadgeClasses('critical')">{{ summaryToneLabel('critical') }}</span>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/88">
+            Suspended
+          </p>
+          <span
+            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            data-og7="admin-summary-badge"
+            data-og7-id="critical"
+            [ngClass]="summaryBadgeClasses('critical')"
+            >{{ summaryToneLabel('critical') }}</span
+          >
         </div>
-        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">{{ moderationSummary().suspended }}</p>
-        <p class="mt-3 text-sm leading-6 text-slate-50/92">Keep these records aligned with Ops and trust investigations.</p>
+        <p class="mt-4 text-3xl font-semibold tracking-tight text-white">
+          {{ moderationSummary().suspended }}
+        </p>
+        <p class="mt-3 text-sm leading-6 text-slate-50/92">
+          Keep these records aligned with Ops and trust investigations.
+        </p>
       </article>
     </div>
   </header>
 
-  <div class="sticky top-4 z-20 rounded-[1.4rem] border border-slate-200 bg-white/90 p-2 shadow-[0_16px_44px_rgba(15,23,42,0.08)] backdrop-blur-md">
-    <og7-admin-navigation-pills [items]="adminCircuitItems" ariaLabel="Admin areas" dataOg7="admin-circuit-nav" />
+  <div
+    class="sticky top-4 z-20 rounded-[1.4rem] border border-slate-200 bg-white/90 p-2 shadow-[0_16px_44px_rgba(15,23,42,0.08)] backdrop-blur-md"
+  >
+    <og7-admin-navigation-pills
+      [items]="adminCircuitItems"
+      ariaLabel="Admin areas"
+      dataOg7="admin-circuit-nav"
+    />
   </div>
 
   @if (error(); as message) {
-    <p class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ resolveError(message) }}
-    </p>
+  <p class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    {{ resolveError(message) }}
+  </p>
   }
 
   <section class="space-y-3">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Moderation surface</p>
-        <h2 class="mt-2 text-xl font-semibold text-slate-900">Review queue and publication state</h2>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+          Moderation surface
+        </p>
+        <h2 class="mt-2 text-xl font-semibold text-slate-900">
+          Review queue and publication state
+        </h2>
       </div>
       <div class="flex items-center gap-3 text-sm text-slate-500">
         @if (loading()) {
-          <span>Loading companies…</span>
+        <span>Loading companies…</span>
         } @else {
-          <span>{{ moderationSummary().pending }} pending · {{ moderationSummary().approved }} approved</span>
+        <span
+          >{{ moderationSummary().pending }} pending · {{ moderationSummary().approved }}
+          approved</span
+        >
         }
       </div>
     </div>
 
-  <div class="og7-admin-surface og7-scrollbar-elegant overflow-x-auto rounded-3xl border border-slate-200">
-    <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600">
-      <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-        <tr>
-          <th scope="col" class="px-4 py-3">Company</th>
-          <th scope="col" class="px-4 py-3">Sector</th>
-          <th scope="col" class="px-4 py-3">Country</th>
-          <th scope="col" class="px-4 py-3">Province</th>
-          <th scope="col" class="px-4 py-3">Status</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-        @if (!companies().length && !loading()) {
+    <div
+      class="og7-admin-surface og7-scrollbar-elegant overflow-x-auto rounded-3xl border border-slate-200"
+    >
+      <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
-            <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">No companies have been submitted yet.</td>
+            <th scope="col" class="px-4 py-3">Company</th>
+            <th scope="col" class="px-4 py-3">Sector</th>
+            <th scope="col" class="px-4 py-3">Country</th>
+            <th scope="col" class="px-4 py-3">Province</th>
+            <th scope="col" class="px-4 py-3">Status</th>
           </tr>
-        } @else {
-          @for (company of companies(); track company.id) {
-            <tr>
-              <td class="px-4 py-3">
-                <p class="font-medium text-slate-900">{{ company.name }}</p>
-                @if (company.description) {
-                  <p class="text-xs text-slate-500">{{ company.description }}</p>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @if (!companies().length && !loading()) {
+          <tr>
+            <td colspan="4" class="px-4 py-6 text-center text-sm text-slate-500">
+              No companies have been submitted yet.
+            </td>
+          </tr>
+          } @else { @for (company of companies(); track company.id) {
+          <tr>
+            <td class="px-4 py-3">
+              <p class="font-medium text-slate-900">{{ company.name }}</p>
+              @if (company.description) {
+              <p class="text-xs text-slate-500">{{ company.description }}</p>
+              }
+            </td>
+            <td class="px-4 py-3">{{ company.sector?.name ?? '—' }}</td>
+            <td class="px-4 py-3">
+              {{ company.country ? (('countries.' + company.country) | translate) : '—' }}
+            </td>
+            <td class="px-4 py-3">{{ company.province?.name ?? '—' }}</td>
+            <td class="px-4 py-3">
+              <label class="sr-only" [for]="'status-' + company.id">Status</label>
+              <select
+                class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                [id]="'status-' + company.id"
+                [value]="company.status"
+                (change)="onStatusChange(company, $event)"
+                [disabled]="isUpdating(company.id)"
+              >
+                @for (status of statuses; track status) {
+                <option [value]="status">{{ statusLabel(status) }}</option>
                 }
-              </td>
-              <td class="px-4 py-3">{{ company.sector?.name ?? '—' }}</td>
-              <td class="px-4 py-3">
-                {{ company.country ? (('countries.' + company.country) | translate) : '—' }}
-              </td>
-              <td class="px-4 py-3">{{ company.province?.name ?? '—' }}</td>
-              <td class="px-4 py-3">
-                <label class="sr-only" [for]="'status-' + company.id">Status</label>
-                <select
-                  class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                  [id]="'status-' + company.id"
-                  [value]="company.status"
-                  (change)="onStatusChange(company, $event)"
-                  [disabled]="isUpdating(company.id)"
-                >
-                  @for (status of statuses; track status) {
-                    <option [value]="status">{{ statusLabel(status) }}</option>
-                  }
-                </select>
-                @if (isUpdating(company.id)) {
-                  <span class="ml-2 text-xs text-slate-400">Saving…</span>
-                }
-              </td>
-            </tr>
-          }
-        }
-      </tbody>
-    </table>
-  </div>
+              </select>
+              @if (isUpdating(company.id)) {
+              <span class="ml-2 text-xs text-slate-400">Saving…</span>
+              }
+            </td>
+          </tr>
+          } }
+        </tbody>
+      </table>
+    </div>
   </section>
 </section>

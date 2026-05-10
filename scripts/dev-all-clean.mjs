@@ -97,25 +97,23 @@ function getPortOwners() {
     throw new Error(result.stderr.trim() || 'Failed to inspect TCP listeners with lsof.');
   }
 
-  const normalized = result.stdout
-    .split(/\r?\n/)
-    .reduce(
-      (state, line) => {
-        if (line.startsWith('p')) {
-          state.currentPid = line.slice(1);
-          return state;
-        }
-        if (line.startsWith('n')) {
-          const raw = line.slice(1);
-          const separatorIndex = raw.lastIndexOf(':');
-          if (separatorIndex >= 0 && state.currentPid) {
-            state.lines.push(`${state.currentPid} ${raw.slice(separatorIndex + 1)}`);
-          }
-        }
+  const normalized = result.stdout.split(/\r?\n/).reduce(
+    (state, line) => {
+      if (line.startsWith('p')) {
+        state.currentPid = line.slice(1);
         return state;
-      },
-      { currentPid: '', lines: [] },
-    );
+      }
+      if (line.startsWith('n')) {
+        const raw = line.slice(1);
+        const separatorIndex = raw.lastIndexOf(':');
+        if (separatorIndex >= 0 && state.currentPid) {
+          state.lines.push(`${state.currentPid} ${raw.slice(separatorIndex + 1)}`);
+        }
+      }
+      return state;
+    },
+    { currentPid: '', lines: [] },
+  );
 
   return parseUnixPortOwners(normalized.lines.join('\n'));
 }

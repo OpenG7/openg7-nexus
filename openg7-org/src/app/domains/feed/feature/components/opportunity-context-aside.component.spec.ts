@@ -31,8 +31,9 @@ describe('OpportunityContextAsideComponent', () => {
     ]);
     fixture.detectChanges();
 
-    const alertButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="opportunity-alert-open-0"]');
+    const alertButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-alert-open-0"]',
+    );
     expect(alertButton).toBeTruthy();
 
     alertButton?.click();

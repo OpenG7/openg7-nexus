@@ -30,7 +30,9 @@ export class Og7ComplianceChecklistComponent {
   protected readonly rfqChecked = computed(() => Boolean(this.rfqSelected()));
   protected readonly ndaPreview = computed(() => this.normalizeUrl(this.ndaPreviewUrl()));
   protected readonly rfqPreview = computed(() => this.normalizeUrl(this.rfqPreviewUrl()));
-  protected readonly selectionCount = computed(() => Number(this.ndaChecked()) + Number(this.rfqChecked()));
+  protected readonly selectionCount = computed(
+    () => Number(this.ndaChecked()) + Number(this.rfqChecked()),
+  );
 
   protected onNdaToggle(event: Event): void {
     const inputElement = event.target as HTMLInputElement | null;

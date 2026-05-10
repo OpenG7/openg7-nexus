@@ -66,10 +66,14 @@ describe('feedReducer', () => {
         items: [highVolumeOlder, mediumVolumeOldest, lowVolumeNewest],
         cursor: null,
         append: false,
-      })
+      }),
     );
 
-    expect(state.items.map(item => item.id)).toEqual(['request-002', 'request-008', 'request-001']);
+    expect(state.items.map((item) => item.id)).toEqual([
+      'request-002',
+      'request-008',
+      'request-001',
+    ]);
   });
 
   it('preserves server order when appending a follow-up page', () => {
@@ -88,7 +92,7 @@ describe('feedReducer', () => {
         ],
         cursor: 'cursor-1',
         append: false,
-      })
+      }),
     );
 
     const appended = feedReducer(
@@ -106,10 +110,10 @@ describe('feedReducer', () => {
         ],
         cursor: null,
         append: true,
-      })
+      }),
     );
 
-    expect(appended.items.map(item => item.id)).toEqual([
+    expect(appended.items.map((item) => item.id)).toEqual([
       'request-002',
       'request-008',
       'request-001',
@@ -131,14 +135,14 @@ describe('feedReducer', () => {
         draft: createDraft(),
         item: optimisticItem,
         idempotencyKey: optimisticIdempotencyKey,
-      })
+      }),
     );
     const confirmedState = feedReducer(
       optimisticState,
       FeedActions.publishSuccess({
         tempId: optimisticItem.id,
         item: confirmedItem,
-      })
+      }),
     );
     const realtimeState = feedReducer(
       confirmedState,
@@ -148,7 +152,7 @@ describe('feedReducer', () => {
           payload: confirmedItem,
           cursor: null,
         },
-      })
+      }),
     );
 
     expect(confirmedState.unseenIds).toEqual([]);
@@ -173,7 +177,7 @@ describe('feedReducer', () => {
           payload: remoteItem,
           cursor: null,
         },
-      })
+      }),
     );
 
     expect(state.unseenIds).toEqual([remoteItem.id]);

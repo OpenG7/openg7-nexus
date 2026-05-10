@@ -39,7 +39,7 @@
         >
           <th scope="row">{{ row.label }}</th>
           <td>{{ row.hsCode }}</td>
-          <td>{{ row.value | number:'1.0-0' }}</td>
+          <td>{{ row.value | number: '1.0-0' }}</td>
           <td [class.is-negative]="(row.yoyDelta ?? 0) < 0">{{ formatDelta(row.yoyDelta) }}</td>
           <td>{{ row.riskScore != null ? row.riskScore.toFixed(1) : '—' }}</td>
         </tr>
@@ -53,7 +53,9 @@
   </div>
 
   <ng-template #loading>
-    <p class="og7-importation-commodities__loading">{{ 'pages.importation.commodities.loading' | translate }}</p>
+    <p class="og7-importation-commodities__loading">
+      {{ 'pages.importation.commodities.loading' | translate }}
+    </p>
   </ng-template>
 
   <section

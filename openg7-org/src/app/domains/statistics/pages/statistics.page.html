@@ -2,15 +2,9 @@
   <section class="statistics-panel statistics-hero">
     <div class="statistics-hero__inner">
       <div class="statistics-hero__copy">
-        <p class="statistics-kicker">
-          {{ 'pages.statistics.hero.kicker' | translate }}
-        </p>
-        <h1 class="statistics-hero__title">
-          {{ 'pages.statistics.hero.title' | translate }}
-        </h1>
-        <p class="statistics-hero__subtitle">
-          {{ 'pages.statistics.hero.subtitle' | translate }}
-        </p>
+        <p class="statistics-kicker">{{ 'pages.statistics.hero.kicker' | translate }}</p>
+        <h1 class="statistics-hero__title">{{ 'pages.statistics.hero.title' | translate }}</h1>
+        <p class="statistics-hero__subtitle">{{ 'pages.statistics.hero.subtitle' | translate }}</p>
         <p class="statistics-hero__description">
           {{ 'pages.statistics.hero.description' | translate }}
         </p>
@@ -65,7 +59,8 @@
                 {{ formatNumber(snapshotSig()?.totalFlows) }}
               </p>
               <p class="statistics-kpi-tile__unit">
-                {{ snapshotSig()?.totalFlowsUnitKey ? (snapshotSig()?.totalFlowsUnitKey | translate) : ('pages.statistics.units.billionCAD' | translate) }}
+                {{ snapshotSig()?.totalFlowsUnitKey ? (snapshotSig()?.totalFlowsUnitKey | translate)
+                : ('pages.statistics.units.billionCAD' | translate) }}
               </p>
             </div>
           </article>
@@ -75,9 +70,7 @@
               {{ 'pages.statistics.hero.snapshot.activeCorridors' | translate }}
             </p>
             <div class="statistics-kpi-tile__value-group">
-              <p class="statistics-kpi-tile__value">
-                {{ snapshotSig()?.activeCorridors ?? '--' }}
-              </p>
+              <p class="statistics-kpi-tile__value">{{ snapshotSig()?.activeCorridors ?? '--' }}</p>
               <p class="statistics-kpi-tile__unit">
                 {{ 'pages.statistics.units.corridors' | translate }}
               </p>
@@ -138,9 +131,7 @@
             class="statistics-filter-select__control"
             (change)="onPeriodChange($any($event.target).value)"
           >
-            <option value="">
-              {{ 'pages.statistics.filters.periodAll' | translate }}
-            </option>
+            <option value="">{{ 'pages.statistics.filters.periodAll' | translate }}</option>
             <option
               *ngFor="let period of periodOptions()"
               [selected]="filtersSig().period === period"
@@ -159,9 +150,7 @@
             class="statistics-filter-select__control"
             (change)="onCountryChange($any($event.target).value)"
           >
-            <option value="">
-              {{ 'pages.statistics.filters.countryAll' | translate }}
-            </option>
+            <option value="">{{ 'pages.statistics.filters.countryAll' | translate }}</option>
             <option
               *ngFor="let country of countryOptions()"
               [selected]="filtersSig().country === country"
@@ -180,9 +169,7 @@
             class="statistics-filter-select__control"
             (change)="onProvinceChange($any($event.target).value)"
           >
-            <option value="">
-              {{ 'pages.statistics.filters.provinceAll' | translate }}
-            </option>
+            <option value="">{{ 'pages.statistics.filters.provinceAll' | translate }}</option>
             <option
               *ngFor="let province of provinceOptions()"
               [selected]="filtersSig().province === province"
@@ -227,11 +214,21 @@
                 *ngFor="let skeleton of loadingSkeletons; trackBy: trackLoadingSkeleton"
                 class="statistics-card-skeleton"
               >
-                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--eyebrow"></div>
-                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--title"></div>
-                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--body"></div>
-                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--body-short"></div>
-                <div class="statistics-card-skeleton__line statistics-card-skeleton__line--value"></div>
+                <div
+                  class="statistics-card-skeleton__line statistics-card-skeleton__line--eyebrow"
+                ></div>
+                <div
+                  class="statistics-card-skeleton__line statistics-card-skeleton__line--title"
+                ></div>
+                <div
+                  class="statistics-card-skeleton__line statistics-card-skeleton__line--body"
+                ></div>
+                <div
+                  class="statistics-card-skeleton__line statistics-card-skeleton__line--body-short"
+                ></div>
+                <div
+                  class="statistics-card-skeleton__line statistics-card-skeleton__line--value"
+                ></div>
               </article>
             </div>
           </div>
@@ -302,7 +299,8 @@
                         {{ formatNumber(summary.value) }}
                       </p>
                       <p class="statistics-summary-card__unit">
-                        {{ summary.unitKey ? (summary.unitKey | translate) : ('pages.statistics.units.billionCAD' | translate) }}
+                        {{ summary.unitKey ? (summary.unitKey | translate) :
+                        ('pages.statistics.units.billionCAD' | translate) }}
                       </p>
                     </div>
                   </div>
@@ -405,12 +403,8 @@
           <p class="statistics-insight-card__eyebrow">
             {{ ('pages.statistics.filters.' + insight.intrant) | translate }}
           </p>
-          <h3 class="statistics-insight-card__title">
-            {{ insight.titleKey | translate }}
-          </h3>
-          <p class="statistics-insight-card__body">
-            {{ insight.descriptionKey | translate }}
-          </p>
+          <h3 class="statistics-insight-card__title">{{ insight.titleKey | translate }}</h3>
+          <p class="statistics-insight-card__body">{{ insight.descriptionKey | translate }}</p>
         </article>
       </div>
     </div>
@@ -428,10 +422,7 @@
 
     <div class="statistics-conclusion__actions">
       <div class="statistics-conclusion__card">
-        <a
-          routerLink="/register"
-          class="statistics-conclusion__cta"
-        >
+        <a routerLink="/register" class="statistics-conclusion__cta">
           {{ 'pages.statistics.conclusion.cta' | translate }}
         </a>
         <p class="statistics-conclusion__supporting">

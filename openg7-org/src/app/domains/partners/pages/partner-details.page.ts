@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { createPartnerSelection } from '@app/core/models/partner-selection';
@@ -34,7 +28,7 @@ export class PartnerDetailsPage {
 
   private readonly routeId = toSignal(
     this.route.paramMap.pipe(
-      map(params => params.get('id')),
+      map((params) => params.get('id')),
       distinctUntilChanged(),
     ),
     { initialValue: this.route.snapshot.paramMap.get('id') },
@@ -42,7 +36,7 @@ export class PartnerDetailsPage {
 
   private readonly routeRole = toSignal(
     this.route.queryParamMap.pipe(
-      map(params => this.normalizeRole(params.get('role'))),
+      map((params) => this.normalizeRole(params.get('role'))),
       distinctUntilChanged(),
     ),
     { initialValue: this.normalizeRole(this.route.snapshot.queryParamMap.get('role')) },

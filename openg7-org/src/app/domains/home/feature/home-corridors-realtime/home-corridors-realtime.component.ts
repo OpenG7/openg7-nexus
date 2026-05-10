@@ -77,10 +77,13 @@ export class HomeCorridorsRealtimeComponent {
   protected readonly fullscreenAvailable = signal(false);
 
   protected readonly items = computed(() => this.snapshot().items ?? []);
-  protected readonly status = computed<CorridorsRealtimeStatus>(() => this.snapshot().status ?? FALLBACK_SNAPSHOT.status);
+  protected readonly status = computed<CorridorsRealtimeStatus>(
+    () => this.snapshot().status ?? FALLBACK_SNAPSHOT.status,
+  );
   protected readonly priorityPath = computed<CorridorPriorityPathVm | null>(() => {
     const item = this.items().find(
-      (entry) => resolveCorridorContext(entry.id)?.id === ESSENTIAL_SERVICES_PRIORITY_PATH.corridorId
+      (entry) =>
+        resolveCorridorContext(entry.id)?.id === ESSENTIAL_SERVICES_PRIORITY_PATH.corridorId,
     );
     const corridor = item ? resolveCorridorContext(item.id) : null;
     if (!item || !corridor) {
@@ -129,7 +132,9 @@ export class HomeCorridorsRealtimeComponent {
       this.fullscreenAvailable.set(Boolean(this.document.fullscreenEnabled));
       const handler = () => this.syncFullscreen();
       this.document.addEventListener('fullscreenchange', handler);
-      this.destroyRef.onDestroy(() => this.document.removeEventListener('fullscreenchange', handler));
+      this.destroyRef.onDestroy(() =>
+        this.document.removeEventListener('fullscreenchange', handler),
+      );
       this.syncFullscreen();
     }
 

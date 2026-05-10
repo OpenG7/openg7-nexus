@@ -26,13 +26,7 @@ interface TradeModeFilterOption {
 @Component({
   standalone: true,
   selector: 'og7-linkup-history-page',
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    TranslateModule,
-    Og7SearchFieldComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterModule, TranslateModule, Og7SearchFieldComponent],
   templateUrl: './og7-linkup-history-page.component.html',
   styleUrls: ['./og7-linkup-history-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,9 +83,9 @@ export class Og7LinkupHistoryPageComponent {
 
   protected readonly hasActiveFilters = computed(() => {
     return (
-      this.filterStatusSignal() !== 'all'
-      || this.filterModeSignal() !== 'all'
-      || Boolean(this.searchTermSignal().trim())
+      this.filterStatusSignal() !== 'all' ||
+      this.filterModeSignal() !== 'all' ||
+      Boolean(this.searchTermSignal().trim())
     );
   });
 

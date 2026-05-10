@@ -1,5 +1,10 @@
 <div class="indicator-alert-drawer" *ngIf="open()" data-og7="indicator-alert-drawer">
-  <button class="indicator-alert-drawer__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+  <button
+    class="indicator-alert-drawer__backdrop"
+    type="button"
+    (click)="onBackdropClick()"
+    aria-hidden="true"
+  ></button>
 
   <section class="indicator-alert-drawer__panel" role="dialog" [attr.aria-modal]="true">
     <header>
@@ -11,11 +16,19 @@
         }}
       </h2>
       <small *ngIf="indicatorTitle()">{{ indicatorTitle() }}</small>
-      <button type="button" [attr.aria-label]="'feed.drawer.close' | translate" (click)="closed.emit()">x</button>
+      <button
+        type="button"
+        [attr.aria-label]="'feed.drawer.close' | translate"
+        (click)="closed.emit()"
+      >
+        x
+      </button>
     </header>
 
     <ng-container *ngIf="viewingRule() && existingRule() as rule; else composeForm">
-      <p class="indicator-alert-drawer__hint">{{ 'feed.indicator.detail.drawer.viewHint' | translate }}</p>
+      <p class="indicator-alert-drawer__hint">
+        {{ 'feed.indicator.detail.drawer.viewHint' | translate }}
+      </p>
 
       <article class="indicator-alert-drawer__rule-card" data-og7="indicator-alert-view">
         <span
@@ -24,7 +37,8 @@
           [attr.data-og7-id]="rule.active ? 'active' : 'inactive'"
         >
           {{
-            ('feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')) | translate
+            'feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')
+              | translate
           }}
         </span>
 
@@ -33,14 +47,15 @@
             <dt>{{ 'feed.indicator.detail.drawer.statusLabel' | translate }}</dt>
             <dd>
               {{
-                ('feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')) | translate
+                'feed.indicator.detail.drawer.ruleState.' + (rule.active ? 'active' : 'inactive')
+                  | translate
               }}
             </dd>
           </div>
           <div>
             <dt>{{ 'feed.indicator.detail.drawer.thresholdDirection' | translate }}</dt>
             <dd>
-              {{ ('feed.indicator.detail.drawer.direction.' + rule.thresholdDirection) | translate }}
+              {{ 'feed.indicator.detail.drawer.direction.' + rule.thresholdDirection | translate }}
               {{ rule.thresholdValue }}%
             </dd>
           </div>
@@ -70,13 +85,14 @@
             <dt>{{ 'feed.indicator.detail.drawer.notifyDelta' | translate }}</dt>
             <dd>
               {{
-                ('feed.indicator.detail.drawer.notifyDeltaState.' + (rule.notifyDelta ? 'on' : 'off')) | translate
+                'feed.indicator.detail.drawer.notifyDeltaState.' + (rule.notifyDelta ? 'on' : 'off')
+                  | translate
               }}
             </dd>
           </div>
           <div>
             <dt>{{ 'feed.indicator.detail.drawer.createdAt' | translate }}</dt>
-            <dd>{{ rule.createdAt | date:'medium' }}</dd>
+            <dd>{{ rule.createdAt | date: 'medium' }}</dd>
           </div>
           <div *ngIf="rule.note">
             <dt>{{ 'feed.indicator.detail.drawer.note' | translate }}</dt>
@@ -107,8 +123,12 @@
             data-og7="indicator-alert-field"
             data-og7-id="threshold-direction"
           >
-            <option value="gt">{{ 'feed.indicator.detail.drawer.direction.gt' | translate }}</option>
-            <option value="lt">{{ 'feed.indicator.detail.drawer.direction.lt' | translate }}</option>
+            <option value="gt">
+              {{ 'feed.indicator.detail.drawer.direction.gt' | translate }}
+            </option>
+            <option value="lt">
+              {{ 'feed.indicator.detail.drawer.direction.lt' | translate }}
+            </option>
           </select>
         </label>
 
@@ -132,16 +152,28 @@
             <span>{{ 'feed.indicator.detail.drawer.window' | translate }}</span>
             <select formControlName="window" data-og7="indicator-alert-field" data-og7-id="window">
               <option value="1h">{{ 'feed.indicator.detail.drawer.window1h' | translate }}</option>
-              <option value="24h">{{ 'feed.indicator.detail.drawer.window24h' | translate }}</option>
+              <option value="24h">
+                {{ 'feed.indicator.detail.drawer.window24h' | translate }}
+              </option>
             </select>
           </label>
 
           <label>
             <span>{{ 'feed.indicator.detail.drawer.frequency' | translate }}</span>
-            <select formControlName="frequency" data-og7="indicator-alert-field" data-og7-id="frequency">
-              <option value="instant">{{ 'feed.indicator.detail.drawer.frequencyInstant' | translate }}</option>
-              <option value="hourly">{{ 'feed.indicator.detail.drawer.frequencyHourly' | translate }}</option>
-              <option value="daily">{{ 'feed.indicator.detail.drawer.frequencyDaily' | translate }}</option>
+            <select
+              formControlName="frequency"
+              data-og7="indicator-alert-field"
+              data-og7-id="frequency"
+            >
+              <option value="instant">
+                {{ 'feed.indicator.detail.drawer.frequencyInstant' | translate }}
+              </option>
+              <option value="hourly">
+                {{ 'feed.indicator.detail.drawer.frequencyHourly' | translate }}
+              </option>
+              <option value="daily">
+                {{ 'feed.indicator.detail.drawer.frequencyDaily' | translate }}
+              </option>
             </select>
           </label>
         </div>
@@ -158,7 +190,12 @@
 
         <label>
           <span>{{ 'feed.indicator.detail.drawer.note' | translate }}</span>
-          <textarea rows="4" formControlName="note" data-og7="indicator-alert-field" data-og7-id="note"></textarea>
+          <textarea
+            rows="4"
+            formControlName="note"
+            data-og7="indicator-alert-field"
+            data-og7-id="note"
+          ></textarea>
         </label>
 
         <p
@@ -198,8 +235,17 @@
           >
             {{ 'feed.indicator.detail.drawer.retry' | translate }}
           </button>
-          <button type="submit" [disabled]="submitting()" data-og7="action" data-og7-id="indicator-alert-submit">
-            {{ submitting() ? ('feed.indicator.detail.drawer.submitting' | translate) : ('feed.indicator.detail.drawer.submit' | translate) }}
+          <button
+            type="submit"
+            [disabled]="submitting()"
+            data-og7="action"
+            data-og7-id="indicator-alert-submit"
+          >
+            {{
+              submitting()
+                ? ('feed.indicator.detail.drawer.submitting' | translate)
+                : ('feed.indicator.detail.drawer.submit' | translate)
+            }}
           </button>
         </div>
       </form>

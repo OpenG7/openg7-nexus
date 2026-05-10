@@ -26,7 +26,10 @@ const PROFILE = {
   },
 } as const;
 
-async function mockSessionApis(page: Parameters<typeof test>[0]['page'], options: MockSessionOptions = {}): Promise<void> {
+async function mockSessionApis(
+  page: Parameters<typeof test>[0]['page'],
+  options: MockSessionOptions = {},
+): Promise<void> {
   const sessions = [
     {
       id: 'session-current',
@@ -47,28 +50,28 @@ async function mockSessionApis(page: Parameters<typeof test>[0]['page'], options
     body: JSON.stringify(body),
   });
 
-  await page.route('**/api/sectors**', async route => {
+  await page.route('**/api/sectors**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/provinces**', async route => {
+  await page.route('**/api/provinces**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/companies**', async route => {
+  await page.route('**/api/companies**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/auth/local**', async route => {
+  await page.route('**/api/auth/local**', async (route) => {
     await route.fulfill(
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: PROFILE,
-      })
+      }),
     );
   });
 
-  await page.route('**/api/users/me**', async route => {
+  await page.route('**/api/users/me**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const path = new URL(request.url()).pathname.toLowerCase();
@@ -108,7 +111,7 @@ async function mockSessionApis(page: Parameters<typeof test>[0]['page'], options
         json({
           version: 1,
           sessions,
-        })
+        }),
       );
       return;
     }
@@ -136,7 +139,7 @@ async function mockSessionApis(page: Parameters<typeof test>[0]['page'], options
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions,
-        })
+        }),
       );
       return;
     }
@@ -146,7 +149,9 @@ async function mockSessionApis(page: Parameters<typeof test>[0]['page'], options
 }
 
 test.describe('Resilience', () => {
-  test('redirects to login with a session-expired notice when a protected refresh returns 401', async ({ page }) => {
+  test('redirects to login with a session-expired notice when a protected refresh returns 401', async ({
+    page,
+  }) => {
     let sessionsUnauthorized = false;
 
     await mockSessionApis(page, {
@@ -166,14 +171,16 @@ test.describe('Resilience', () => {
     await expect.poll(() => new URL(page.url()).searchParams.get('reason')).toBe('session-expired');
     await expect.poll(() => new URL(page.url()).searchParams.get('redirect')).toBe('/profile');
     await expect(page.locator('[data-og7="auth-login-notice"]')).toContainText(
-      /Your session has expired|Votre session a expire/i
+      /Your session has expired|Votre session a expire/i,
     );
     await expect(page.locator('[data-og7="notification-toast"][data-og7-id="info"]')).toContainText(
-      /Your session has expired|Votre session a expire/i
+      /Your session has expired|Votre session a expire/i,
     );
   });
 
-  test('shows an error state when a protected saved-searches request fails at the network layer', async ({ page }) => {
+  test('shows an error state when a protected saved-searches request fails at the network layer', async ({
+    page,
+  }) => {
     await mockSessionApis(page, { savedSearchesNetworkFailure: true });
     await seedAuthenticatedSession(page, PROFILE);
 
@@ -182,14 +189,18 @@ test.describe('Resilience', () => {
     await expect(page).toHaveURL(/\/saved-searches$/);
     await expect(page.locator('[data-og7="saved-searches"]')).toBeVisible();
     await expect(page.locator('[data-og7-id="saved-search-error"]')).toBeVisible();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(1);
+    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="error"]')).toHaveCount(
+      1,
+    );
   });
 });
 
 test.describe('Resilience mobile', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('keeps the mobile account navigation usable and exposes the alerts empty state', async ({ page }) => {
+  test('keeps the mobile account navigation usable and exposes the alerts empty state', async ({
+    page,
+  }) => {
     await mockSessionApis(page, { alerts: [] });
     await seedAuthenticatedSession(page, PROFILE);
 

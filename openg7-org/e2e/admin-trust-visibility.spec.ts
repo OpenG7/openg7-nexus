@@ -157,7 +157,7 @@ function recomputeTrustScore(status: VerificationStatus, history: readonly Trust
 
 async function mockAdminTrustVisibilityApis(
   page: Parameters<typeof test>[0]['page'],
-  company: MutableTrustCompany
+  company: MutableTrustCompany,
 ): Promise<void> {
   await page.route('**/api/companies**', async (route) => {
     const request = route.request();
@@ -210,7 +210,9 @@ async function mockAdminTrustVisibilityApis(
 }
 
 test.describe('Admin trust visibility', () => {
-  test('persists a trust decision and exposes it on the partner detail surface', async ({ page }) => {
+  test('persists a trust decision and exposes it on the partner detail surface', async ({
+    page,
+  }) => {
     const company: MutableTrustCompany = {
       id: 1001,
       name: 'Northern Grid Systems',
@@ -263,7 +265,9 @@ test.describe('Admin trust visibility', () => {
     await newSourceForm.locator('[formcontrolname="type"]').selectOption('audit');
     await newSourceForm.locator('[formcontrolname="status"]').selectOption('revoked');
     await newSourceForm.locator('[formcontrolname="referenceId"]').fill('AUD-2026-04');
-    await newSourceForm.locator('[formcontrolname="notes"]').fill('Verification badge suspended pending corrective review.');
+    await newSourceForm
+      .locator('[formcontrolname="notes"]')
+      .fill('Verification badge suspended pending corrective review.');
     await newSourceForm.getByRole('button', { name: 'Add source' }).click();
 
     const newHistoryForm = page.locator('[data-og7="admin-trust-new-history"]');
@@ -272,15 +276,20 @@ test.describe('Admin trust visibility', () => {
     await newHistoryForm.locator('[formcontrolname="direction"]').selectOption('inbound');
     await newHistoryForm.locator('[formcontrolname="occurredAt"]').fill('2026-04-01');
     await newHistoryForm.locator('[formcontrolname="score"]').fill('61');
-    await newHistoryForm.locator('[formcontrolname="notes"]').fill('Operations team requested remediation evidence.');
+    await newHistoryForm
+      .locator('[formcontrolname="notes"]')
+      .fill('Operations team requested remediation evidence.');
     await newHistoryForm.getByRole('button', { name: 'Add entry' }).click();
 
     const [saveRequest, saveResponse] = await Promise.all([
-      page.waitForRequest((request) =>
-        request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001'),
       ),
-      page.waitForResponse((response) =>
-        response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/companies/1001')
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/companies/1001'),
       ),
       page.locator('[data-og7-id="admin-trust-save"]').click(),
     ]);
@@ -302,7 +311,7 @@ test.describe('Admin trust visibility', () => {
           status: 'revoked',
           referenceId: 'AUD-2026-04',
         }),
-      ])
+      ]),
     );
     expect(savePayload.data?.trustHistory).toEqual(
       expect.arrayContaining([
@@ -311,7 +320,7 @@ test.describe('Admin trust visibility', () => {
           score: 61,
           occurredAt: '2026-04-01',
         }),
-      ])
+      ]),
     );
 
     await page.goto('/partners/1001?role=supplier');
@@ -379,12 +388,14 @@ test.describe('Admin trust visibility', () => {
       .fill('Provide renewed chamber certificate and insurance evidence.');
 
     const [correctionRequest, correctionResponse] = await Promise.all([
-      page.waitForRequest((request) =>
-        request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001'),
       ),
-      page.waitForResponse((response) =>
-        response.request().method().toUpperCase() === 'PUT' &&
-        response.url().includes('/api/companies/1001')
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/companies/1001'),
       ),
       page.locator('[data-og7-id="admin-trust-save"]').click(),
     ]);
@@ -404,7 +415,7 @@ test.describe('Admin trust visibility', () => {
           label: 'Corrections requested',
           notes: 'Provide renewed chamber certificate and insurance evidence.',
         }),
-      ])
+      ]),
     );
 
     await page.goto('/partners/1001?role=supplier');
@@ -412,7 +423,9 @@ test.describe('Admin trust visibility', () => {
     const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
     await expect(statusBadge).toHaveAttribute('data-og7-state', 'correctionRequested');
     await expect(reviewDecision).toContainText('Corrections requested');
-    await expect(reviewDecision).toContainText('Provide renewed chamber certificate and insurance evidence.');
+    await expect(reviewDecision).toContainText(
+      'Provide renewed chamber certificate and insurance evidence.',
+    );
 
     await page.goto('/admin/trust');
     await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
@@ -422,12 +435,14 @@ test.describe('Admin trust visibility', () => {
       .fill('Submission rejected because incorporation documents remain expired.');
 
     const [rejectionRequest, rejectionResponse] = await Promise.all([
-      page.waitForRequest((request) =>
-        request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001'),
       ),
-      page.waitForResponse((response) =>
-        response.request().method().toUpperCase() === 'PUT' &&
-        response.url().includes('/api/companies/1001')
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/companies/1001'),
       ),
       page.locator('[data-og7-id="admin-trust-save"]').click(),
     ]);
@@ -447,14 +462,14 @@ test.describe('Admin trust visibility', () => {
           label: 'Verification rejected',
           notes: 'Submission rejected because incorporation documents remain expired.',
         }),
-      ])
+      ]),
     );
 
     await page.goto('/partners/1001?role=supplier');
     await expect(statusBadge).toHaveAttribute('data-og7-state', 'rejected');
     await expect(reviewDecision).toContainText('Verification rejected');
     await expect(reviewDecision).toContainText(
-      'Submission rejected because incorporation documents remain expired.'
+      'Submission rejected because incorporation documents remain expired.',
     );
   });
 });

@@ -33,7 +33,14 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { buildFeedFavoriteKey } from '../feed-item.helpers';
 import { PublicationFormConfigService } from '../form-config/publication-form-config.service';
-import { FeedFilterState, FeedItem, FeedItemType, FeedRealtimeConnectionState, FeedSort, FlowMode } from '../models/feed.models';
+import {
+  FeedFilterState,
+  FeedItem,
+  FeedItemType,
+  FeedRealtimeConnectionState,
+  FeedSort,
+  FlowMode,
+} from '../models/feed.models';
 import { Og7FeedCardComponent } from '../og7-feed-card/og7-feed-card.component';
 import { Og7FeedPostDrawerComponent } from '../og7-feed-post-drawer/og7-feed-post-drawer.component';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
@@ -146,7 +153,7 @@ export class Og7FeedStreamComponent {
     if (!id) {
       return null;
     }
-    return this.items().find(item => item.id === id) ?? null;
+    return this.items().find((item) => item.id === id) ?? null;
   });
 
   protected readonly typeOptions: FeedItemType[] = [
@@ -181,7 +188,7 @@ export class Og7FeedStreamComponent {
       if (this.lastScrolledHighlightedId === highlightedItemId) {
         return;
       }
-      if (!this.items().some(item => item.id === highlightedItemId)) {
+      if (!this.items().some((item) => item.id === highlightedItemId)) {
         return;
       }
 
@@ -304,7 +311,9 @@ export class Og7FeedStreamComponent {
   }
 
   protected resolveTemplateTitleKey(formKey: string | null | undefined): string {
-    return this.formConfigService.get(formKey)?.titleKey ?? (formKey || 'feed.filters.unknownTemplate');
+    return (
+      this.formConfigService.get(formKey)?.titleKey ?? (formKey || 'feed.filters.unknownTemplate')
+    );
   }
 
   protected isSaved(item: FeedItem): boolean {
@@ -322,7 +331,7 @@ export class Og7FeedStreamComponent {
       return;
     }
     this.zone.runOutsideAngular(() => {
-      this.observer = new IntersectionObserver(entries => {
+      this.observer = new IntersectionObserver((entries) => {
         const [entry] = entries;
         if (!entry?.isIntersecting) {
           return;
@@ -366,7 +375,8 @@ export class Og7FeedStreamComponent {
   private scrollHighlightedCardIntoView(itemId: string): void {
     const cards = this.hostRef.nativeElement.querySelectorAll('[data-feed-item-id]');
     const target = Array.from(cards).find(
-      (card): card is HTMLElement => card instanceof HTMLElement && card.dataset['feedItemId'] === itemId
+      (card): card is HTMLElement =>
+        card instanceof HTMLElement && card.dataset['feedItemId'] === itemId,
     );
     if (!target) {
       return;

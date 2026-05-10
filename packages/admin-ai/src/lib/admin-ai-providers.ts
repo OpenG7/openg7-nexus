@@ -19,7 +19,8 @@ export const ADMIN_AI_PROVIDER_OPTIONS: readonly AdminAiProviderOption[] = [
   {
     id: 'copilot',
     label: 'GitHub Copilot',
-    caption: 'Bon relais quand le quota Codex est sature et qu il faut rester dans l environnement GitHub.',
+    caption:
+      'Bon relais quand le quota Codex est sature et qu il faut rester dans l environnement GitHub.',
     defaultModel: 'gpt-5.4',
     defaultQuotaUnits: 180,
   },

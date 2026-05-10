@@ -1,4 +1,11 @@
-import { FeedFilterState, FeedItem, FeedItemCategory, FeedSort, FeedItemType, FlowMode } from './models/feed.models';
+import {
+  FeedFilterState,
+  FeedItem,
+  FeedItemCategory,
+  FeedSort,
+  FeedItemType,
+  FlowMode,
+} from './models/feed.models';
 
 export type FeedItemSourceKind = FeedItem['source']['kind'];
 
@@ -116,7 +123,11 @@ export function matchesFeedItemQuery(item: FeedItem, query: FeedItemsQuery): boo
   return true;
 }
 
-export function compareFeedItems(left: FeedItem, right: FeedItem, sort: FeedSort = 'NEWEST'): number {
+export function compareFeedItems(
+  left: FeedItem,
+  right: FeedItem,
+  sort: FeedSort = 'NEWEST',
+): number {
   if (sort !== 'NEWEST') {
     const scoreDiff = resolveFeedSortScore(right, sort) - resolveFeedSortScore(left, sort);
     if (scoreDiff !== 0) {
@@ -158,7 +169,12 @@ export function matchesFeedItemCategory(item: FeedItem, category: FeedItemCatego
     case 'INDICATOR':
       return item.type === 'INDICATOR';
     case 'OPPORTUNITY':
-      return item.type === 'OFFER' || item.type === 'REQUEST' || item.type === 'CAPACITY' || item.type === 'TENDER';
+      return (
+        item.type === 'OFFER' ||
+        item.type === 'REQUEST' ||
+        item.type === 'CAPACITY' ||
+        item.type === 'TENDER'
+      );
     default:
       return false;
   }

@@ -5,7 +5,9 @@
         {{ 'notifications.panel.title' | translate }}
       </h3>
       <p class="notification-panel__subtitle">
-        {{ 'notifications.panel.subtitle' | translate: { unread: unreadCount(), total: totalCount() } }}
+        {{
+          'notifications.panel.subtitle' | translate: { unread: unreadCount(), total: totalCount() }
+        }}
       </p>
     </div>
     <div class="notification-panel__header-actions">
@@ -18,7 +20,11 @@
     </div>
   </header>
 
-  <div *ngIf="lastDeliveryError(); let deliveryError" class="notification-panel__alert" role="alert">
+  <div
+    *ngIf="lastDeliveryError(); let deliveryError"
+    class="notification-panel__alert"
+    role="alert"
+  >
     <mat-icon fontSet="material-symbols-outlined" fontIcon="mail"></mat-icon>
     <div>
       <p>
@@ -37,7 +43,10 @@
       [class.notification-panel__item--unread]="!item.read"
       [ngClass]="'notification-panel__item--' + item.type"
     >
-      <div class="notification-panel__item-icon" [ngClass]="'notification-panel__item-icon--' + item.type">
+      <div
+        class="notification-panel__item-icon"
+        [ngClass]="'notification-panel__item-icon--' + item.type"
+      >
         <mat-icon fontSet="material-symbols-outlined" [fontIcon]="iconFor(item.type)"></mat-icon>
       </div>
       <div class="notification-panel__item-body">

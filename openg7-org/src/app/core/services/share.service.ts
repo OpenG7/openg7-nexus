@@ -89,7 +89,8 @@ export class ShareService {
       throw new Error('share_unavailable');
     }
 
-    const globalRef: typeof globalThis | undefined = typeof globalThis !== 'undefined' ? globalThis : undefined;
+    const globalRef: typeof globalThis | undefined =
+      typeof globalThis !== 'undefined' ? globalThis : undefined;
     const locationRef: Location | undefined =
       typeof window !== 'undefined'
         ? window.location

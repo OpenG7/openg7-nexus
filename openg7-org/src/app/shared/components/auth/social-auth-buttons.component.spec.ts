@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/
 import { AuthRedirectService } from '@app/core/auth/auth-redirect.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
-import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
+import {
+  NotificationStore,
+  NotificationStoreApi,
+} from '@app/core/observability/notification.store';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 
@@ -37,7 +40,7 @@ describe('SocialAuthButtonsComponent', () => {
 
   const translateGet = (
     key: string | string[],
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ): Observable<string | Record<string, string>> => {
     if (Array.isArray(key)) {
       return of(Object.fromEntries(key.map((entry) => [entry, translateInstant(entry, params)])));
@@ -61,7 +64,10 @@ describe('SocialAuthButtonsComponent', () => {
       'consumeRedirectUrl',
       'setRedirectUrl',
     ]);
-    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', ['info', 'error']);
+    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStoreApi', [
+      'info',
+      'error',
+    ]);
     analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['emit']);
 
     auth.loginWithOidc.and.resolveTo();
@@ -88,11 +94,13 @@ describe('SocialAuthButtonsComponent', () => {
 
     expect(component['inProgress']()).toBe('microsoft');
     expect(authRedirect.consumeRedirectUrl).toHaveBeenCalledWith('/profile');
-    expect(auth.loginWithOidc).toHaveBeenCalledWith('microsoft', { redirectUrl: '/requested-destination' });
-    expect(notifications.info).toHaveBeenCalledWith(
-      'Redirecting to Continue with Microsoft...',
-      { source: 'auth', metadata: { action: 'sso-start', provider: 'microsoft' } }
-    );
+    expect(auth.loginWithOidc).toHaveBeenCalledWith('microsoft', {
+      redirectUrl: '/requested-destination',
+    });
+    expect(notifications.info).toHaveBeenCalledWith('Redirecting to Continue with Microsoft...', {
+      source: 'auth',
+      metadata: { action: 'sso-start', provider: 'microsoft' },
+    });
     expect(analytics.emit).toHaveBeenCalledWith('auth_sso_attempt', {
       provider: 'microsoft',
       source: 'social-buttons',
@@ -115,7 +123,7 @@ describe('SocialAuthButtonsComponent', () => {
         context: error,
         metadata: { action: 'sso-error', provider: 'google' },
         deliver: { email: true },
-      }
+      },
     );
     expect(analytics.emit).toHaveBeenCalledWith('auth_sso_failed', {
       provider: 'google',

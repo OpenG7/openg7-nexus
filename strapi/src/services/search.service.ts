@@ -225,7 +225,7 @@ const logError = (message: string, meta?: Record<string, unknown>) => {
     strapi.log.error(message, meta);
     return;
   }
-   
+
   console.error(message, meta ?? {});
 };
 
@@ -240,7 +240,10 @@ const ensureEnabled = (): boolean => {
   return false;
 };
 
-const buildUrl = (path: string, query?: Record<string, string | number | boolean | undefined>): string => {
+const buildUrl = (
+  path: string,
+  query?: Record<string, string | number | boolean | undefined>,
+): string => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const base = searchConfig.baseUrl;
   if (!query) {
@@ -259,7 +262,7 @@ const buildUrl = (path: string, query?: Record<string, string | number | boolean
 async function sendRequest<T>(
   method: string,
   path: string,
-  options: RequestOptions<T> = {}
+  options: RequestOptions<T> = {},
 ): Promise<T | null> {
   if (!ensureEnabled()) {
     return null;
@@ -278,7 +281,9 @@ async function sendRequest<T>(
 
   if (searchConfig.apiKey) {
     const scheme = searchConfig.authScheme;
-    headers[searchConfig.authHeader] = scheme ? `${scheme} ${searchConfig.apiKey}` : searchConfig.apiKey;
+    headers[searchConfig.authHeader] = scheme
+      ? `${scheme} ${searchConfig.apiKey}`
+      : searchConfig.apiKey;
   }
 
   try {
@@ -369,7 +374,7 @@ const toCompanyDocument = (entity: CompanyEntity | null): CompanyDocument | null
   return {
     id: entity.id,
     slug: entity.slug ?? null,
-    name: typeof entity.name === 'string' ? entity.name : entity.slug ?? null,
+    name: typeof entity.name === 'string' ? entity.name : (entity.slug ?? null),
     description: typeof entity.description === 'string' ? entity.description : null,
     website: typeof entity.website === 'string' ? entity.website : null,
     country: typeof entity.country === 'string' ? entity.country : null,
@@ -430,7 +435,7 @@ const ensureCompanyEntity = async (value: CompanyEntity | PrimitiveId | null | u
   if (!id) {
     return null;
   }
-  const locale = typeof value === 'object' ? value.locale ?? undefined : undefined;
+  const locale = typeof value === 'object' ? (value.locale ?? undefined) : undefined;
   try {
     const entity = (await strapi.entityService.findOne('api::company.company', id, {
       populate: {
@@ -508,14 +513,19 @@ const deleteDocument = async (indexName: string, id: PrimitiveId) => {
   }
 
   if (searchConfig.driver === 'meilisearch') {
-    await sendRequest('DELETE', `/indexes/${indexName}/documents/${encodeURIComponent(String(id))}`);
+    await sendRequest(
+      'DELETE',
+      `/indexes/${indexName}/documents/${encodeURIComponent(String(id))}`,
+    );
     return;
   }
 
   await sendRequest('DELETE', `/${indexName}/_doc/${encodeURIComponent(String(id))}`);
 };
 
-const mapMeiliHighlights = (formatted: Record<string, string> | null | undefined): HighlightMap | undefined => {
+const mapMeiliHighlights = (
+  formatted: Record<string, string> | null | undefined,
+): HighlightMap | undefined => {
   if (!formatted) {
     return undefined;
   }
@@ -528,7 +538,9 @@ const mapMeiliHighlights = (formatted: Record<string, string> | null | undefined
   }, {});
 };
 
-const mapOpenSearchHighlights = (highlight: Record<string, string[]> | undefined): HighlightMap | undefined => {
+const mapOpenSearchHighlights = (
+  highlight: Record<string, string[]> | undefined,
+): HighlightMap | undefined => {
   if (!highlight) {
     return undefined;
   }
@@ -544,7 +556,7 @@ const mapOpenSearchHighlights = (highlight: Record<string, string[]> | undefined
 const searchCompaniesMeili = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<CompanyDocument & { highlights?: HighlightMap }>> => {
   const filters = locale ? [`locale = "${locale}"`] : undefined;
   const response = await sendRequest<MeiliSearchResponse<CompanyDocument>>(
@@ -558,7 +570,7 @@ const searchCompaniesMeili = async (
         attributesToHighlight: ['name', 'description'],
       },
       parseJson: true,
-    }
+    },
   );
 
   if (!response) {
@@ -580,7 +592,7 @@ const searchCompaniesMeili = async (
 const searchExchangesMeili = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<ExchangeDocument & { highlights?: HighlightMap }>> => {
   const filters = locale ? [`locale = "${locale}"`] : undefined;
   const response = await sendRequest<MeiliSearchResponse<ExchangeDocument>>(
@@ -594,7 +606,7 @@ const searchExchangesMeili = async (
         attributesToHighlight: ['searchText'],
       },
       parseJson: true,
-    }
+    },
   );
 
   if (!response) {
@@ -616,13 +628,20 @@ const searchExchangesMeili = async (
 const searchCompaniesOpenSearch = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<CompanyDocument & { highlights?: HighlightMap }>> => {
   const must = query
     ? {
         multi_match: {
           query,
-          fields: ['name^3', 'description^2', 'province.name', 'province.code', 'sector.name', 'searchText'],
+          fields: [
+            'name^3',
+            'description^2',
+            'province.name',
+            'province.code',
+            'sector.name',
+            'searchText',
+          ],
           fuzziness: 'AUTO',
         },
       }
@@ -652,7 +671,7 @@ const searchCompaniesOpenSearch = async (
   const response = await sendRequest<OpenSearchResponse<CompanyDocument>>(
     'POST',
     `/${searchConfig.indices.companies}/_search`,
-    { body, parseJson: true }
+    { body, parseJson: true },
   );
 
   if (!response?.hits?.hits) {
@@ -665,7 +684,7 @@ const searchCompaniesOpenSearch = async (
   }));
 
   const totalRaw = response.hits.total;
-  const total = typeof totalRaw === 'number' ? totalRaw : totalRaw?.value ?? hits.length;
+  const total = typeof totalRaw === 'number' ? totalRaw : (totalRaw?.value ?? hits.length);
 
   return {
     hits,
@@ -677,7 +696,7 @@ const searchCompaniesOpenSearch = async (
 const searchExchangesOpenSearch = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<ExchangeDocument & { highlights?: HighlightMap }>> => {
   const must = query
     ? {
@@ -719,7 +738,7 @@ const searchExchangesOpenSearch = async (
   const response = await sendRequest<OpenSearchResponse<ExchangeDocument>>(
     'POST',
     `/${searchConfig.indices.exchanges}/_search`,
-    { body, parseJson: true }
+    { body, parseJson: true },
   );
 
   if (!response?.hits?.hits) {
@@ -732,7 +751,7 @@ const searchExchangesOpenSearch = async (
   }));
 
   const totalRaw = response.hits.total;
-  const total = typeof totalRaw === 'number' ? totalRaw : totalRaw?.value ?? hits.length;
+  const total = typeof totalRaw === 'number' ? totalRaw : (totalRaw?.value ?? hits.length);
 
   return {
     hits,
@@ -744,7 +763,7 @@ const searchExchangesOpenSearch = async (
 const searchCompanies = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<CompanyDocument & { highlights?: HighlightMap }>> => {
   if (!ensureEnabled()) {
     return { hits: [], took: 0, total: 0 };
@@ -758,7 +777,7 @@ const searchCompanies = async (
 const searchExchanges = async (
   query: string,
   limit: number,
-  locale: string | null
+  locale: string | null,
 ): Promise<SearchResponse<ExchangeDocument & { highlights?: HighlightMap }>> => {
   if (!ensureEnabled()) {
     return { hits: [], took: 0, total: 0 };
@@ -784,7 +803,9 @@ export const syncCompanyToIndex = async (input: CompanyEntity | PrimitiveId | nu
   await indexDocument(searchConfig.indices.companies, document);
 };
 
-export const removeCompanyFromIndex = async (input: CompanyEntity | PrimitiveId | null | undefined) => {
+export const removeCompanyFromIndex = async (
+  input: CompanyEntity | PrimitiveId | null | undefined,
+) => {
   const id = typeof input === 'number' || typeof input === 'string' ? input : input?.id;
   if (!id) {
     return;
@@ -792,7 +813,9 @@ export const removeCompanyFromIndex = async (input: CompanyEntity | PrimitiveId 
   await deleteDocument(searchConfig.indices.companies, id);
 };
 
-export const syncExchangeToIndex = async (input: ExchangeEntity | PrimitiveId | null | undefined) => {
+export const syncExchangeToIndex = async (
+  input: ExchangeEntity | PrimitiveId | null | undefined,
+) => {
   const entity = await ensureExchangeEntity(input);
   if (!entity?.id) {
     return;
@@ -807,7 +830,9 @@ export const syncExchangeToIndex = async (input: ExchangeEntity | PrimitiveId | 
   await indexDocument(searchConfig.indices.exchanges, document);
 };
 
-export const removeExchangeFromIndex = async (input: ExchangeEntity | PrimitiveId | null | undefined) => {
+export const removeExchangeFromIndex = async (
+  input: ExchangeEntity | PrimitiveId | null | undefined,
+) => {
   const id = typeof input === 'number' || typeof input === 'string' ? input : input?.id;
   if (!id) {
     return;
@@ -824,7 +849,7 @@ const clampLimit = (value: number | undefined, fallback: number): number => {
 
 export const performSearch = async (
   query: string,
-  options: SearchOptions = {}
+  options: SearchOptions = {},
 ): Promise<SearchResultPayload> => {
   const normalized = typeof query === 'string' ? query.trim() : '';
   const limit = clampLimit(options.limit, 5);
@@ -847,8 +872,12 @@ export const performSearch = async (
   }
 
   const [companyResult, exchangeResult] = await Promise.all([
-    type === 'exchanges' ? Promise.resolve({ hits: [], took: 0, total: 0 }) : searchCompanies(normalized, limit, locale),
-    type === 'companies' ? Promise.resolve({ hits: [], took: 0, total: 0 }) : searchExchanges(normalized, limit, locale),
+    type === 'exchanges'
+      ? Promise.resolve({ hits: [], took: 0, total: 0 })
+      : searchCompanies(normalized, limit, locale),
+    type === 'companies'
+      ? Promise.resolve({ hits: [], took: 0, total: 0 })
+      : searchExchanges(normalized, limit, locale),
   ]);
 
   return {

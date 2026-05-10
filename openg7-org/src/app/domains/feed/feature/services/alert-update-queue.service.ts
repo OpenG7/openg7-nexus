@@ -67,7 +67,7 @@ export class AlertUpdateQueueService {
     }
 
     return this.queueStore.latestMatching(
-      record => record.alertId === normalizedAlertId && record.status === 'pending'
+      (record) => record.alertId === normalizedAlertId && record.status === 'pending',
     );
   }
 }

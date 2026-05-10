@@ -25,8 +25,13 @@
       class="pointer-events-none absolute right-6 bottom-5 h-7 w-7 rounded-full bg-sky-400/80 blur-[10px]"
     ></div>
 
-    <div class="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(30rem,0.92fr)] lg:items-start">
-      <div class="og7-admin-quality-motion-rise max-w-3xl space-y-3 lg:pr-6" style="animation-delay: 40ms">
+    <div
+      class="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(30rem,0.92fr)] lg:items-start"
+    >
+      <div
+        class="og7-admin-quality-motion-rise max-w-3xl space-y-3 lg:pr-6"
+        style="animation-delay: 40ms"
+      >
         <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-200">
           Gestion de la qualite
         </p>
@@ -54,7 +59,10 @@
         data-og7="admin-quality-hero-briefing"
         style="animation-delay: 120ms"
       >
-        <div class="flex flex-wrap items-center gap-2 lg:justify-end" data-og7="admin-quality-hero-status">
+        <div
+          class="flex flex-wrap items-center gap-2 lg:justify-end"
+          data-og7="admin-quality-hero-status"
+        >
           @if (snapshot(); as data) {
           <div
             class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-white/12 bg-slate-950/56 px-3 py-2 text-xs text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -141,29 +149,40 @@
 
         <div class="grid gap-2 sm:grid-cols-2" data-og7="admin-quality-hero-summary">
           <div class="rounded-2xl border border-cyan-300/16 bg-cyan-400/8 px-3 py-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">Chantiers</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+              Chantiers
+            </p>
             <p class="mt-1 text-2xl font-semibold text-white">{{ buildNowAllItems().length }}</p>
             <p class="mt-1 text-xs text-slate-400">A traiter maintenant</p>
           </div>
           <div class="rounded-2xl border border-sky-300/16 bg-sky-400/8 px-3 py-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">Preuves</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">
+              Preuves
+            </p>
             <p class="mt-1 text-2xl font-semibold text-white">{{ proofGapCount() }}</p>
             <p class="mt-1 text-xs text-slate-400">Domaines a prouver</p>
           </div>
           <div class="rounded-2xl border border-indigo-300/16 bg-indigo-400/8 px-3 py-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-200">Produit</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-indigo-200">
+              Produit
+            </p>
             <p class="mt-1 text-2xl font-semibold text-white">{{ productWorkCount() }}</p>
             <p class="mt-1 text-xs text-slate-400">Surfaces a construire</p>
           </div>
           <div class="rounded-2xl border border-amber-300/16 bg-amber-400/8 px-3 py-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">Signaux</p>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">
+              Signaux
+            </p>
             <p class="mt-1 text-2xl font-semibold text-white">{{ matrixRefreshRequiredCount() }}</p>
             <p class="mt-1 text-xs text-slate-400">Lignes a relire</p>
           </div>
         </div>
       </aside>
 
-      <div class="og7-admin-quality-motion-rise flex flex-col gap-3 lg:col-span-2" style="animation-delay: 180ms">
+      <div
+        class="og7-admin-quality-motion-rise flex flex-col gap-3 lg:col-span-2"
+        style="animation-delay: 180ms"
+      >
         <og7-admin-navigation-pills
           [items]="adminCircuitItems"
           variant="dark"
@@ -209,11 +228,16 @@
   >
     <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">A construire maintenant</p>
-        <h2 class="mt-1 text-xl font-semibold tracking-tight text-white">Priorites lisibles sans filtre</h2>
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+          A construire maintenant
+        </p>
+        <h2 class="mt-1 text-xl font-semibold tracking-tight text-white">
+          Priorites lisibles sans filtre
+        </h2>
       </div>
       <p class="max-w-xl text-sm leading-6 text-slate-300">
-        {{ buildNowAllItems().length }} chantier(s) ressortent du signal matrice, de la priorite et du gap courant.
+        {{ buildNowAllItems().length }} chantier(s) ressortent du signal matrice, de la priorite et
+        du gap courant.
       </p>
     </div>
 
@@ -223,12 +247,17 @@
       [attr.data-og7-id]="primaryAction.entryId"
     >
       <div class="min-w-0">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">Prochaine meilleure action</p>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+          Prochaine meilleure action
+        </p>
         <p class="mt-1 text-lg font-semibold leading-7 text-white">
           {{ primaryAction.actionLabel }} sur {{ primaryAction.domain }}
         </p>
         <p class="mt-2 text-sm leading-6 text-slate-300">{{ primaryAction.nextMove }}</p>
-        <p class="mt-2 text-sm leading-6 text-cyan-50" data-og7-id="admin-quality-build-now-primary-summary">
+        <p
+          class="mt-2 text-sm leading-6 text-cyan-50"
+          data-og7-id="admin-quality-build-now-primary-summary"
+        >
           {{ primaryAction.summarySentence }}
         </p>
       </div>
@@ -260,7 +289,10 @@
       </div>
     </div>
 
-    <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4" data-og7="admin-quality-build-now-groups">
+    <div
+      class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4"
+      data-og7="admin-quality-build-now-groups"
+    >
       @for (group of buildNowGroups(); track group.tone) {
       <div
         class="rounded-2xl border px-3 py-2"
@@ -284,10 +316,18 @@
         <span class="flex items-start justify-between gap-3">
           <span class="min-w-0">
             <span class="flex items-center gap-2">
-              <span class="h-2.5 w-2.5 rounded-full" [class]="buildNowPulseClasses(item.tone)" aria-hidden="true"></span>
-              <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">{{ item.actionLabel }}</span>
+              <span
+                class="h-2.5 w-2.5 rounded-full"
+                [class]="buildNowPulseClasses(item.tone)"
+                aria-hidden="true"
+              ></span>
+              <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400"
+                >{{ item.actionLabel }}</span
+              >
             </span>
-            <span class="mt-2 block text-base font-semibold leading-6 text-white">{{ item.domain }}</span>
+            <span class="mt-2 block text-base font-semibold leading-6 text-white"
+              >{{ item.domain }}</span
+            >
           </span>
           <span
             class="inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
@@ -306,21 +346,28 @@
           {{ item.automationLabel }}
         </span>
 
-        <span class="block text-sm leading-6 text-cyan-50" data-og7="admin-quality-build-now-summary">
+        <span
+          class="block text-sm leading-6 text-cyan-50"
+          data-og7="admin-quality-build-now-summary"
+        >
           {{ item.summarySentence }}
         </span>
         <span class="block text-sm leading-6 text-slate-300">{{ item.detail }}</span>
 
         <span class="flex flex-wrap gap-1.5" data-og7="admin-quality-build-now-reasons">
           @for (tag of item.reasonTags; track tag) {
-          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-slate-300">
+          <span
+            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-slate-300"
+          >
             {{ tag }}
           </span>
           }
         </span>
 
         <span class="mt-auto grid gap-2 border-t border-white/10 pt-3">
-          <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Prochaine action</span>
+          <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500"
+            >Prochaine action</span
+          >
           <span class="text-sm font-medium leading-6 text-cyan-50">{{ item.nextMove }}</span>
           <span class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-400">
             <span>{{ item.readinessLabel }}</span>
@@ -365,8 +412,12 @@
   >
     <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-200">Aucun chantier critique</p>
-        <h2 class="mt-1 text-xl font-semibold tracking-tight text-white">La matrice ne remonte rien a construire maintenant</h2>
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-200">
+          Aucun chantier critique
+        </p>
+        <h2 class="mt-1 text-xl font-semibold tracking-tight text-white">
+          La matrice ne remonte rien a construire maintenant
+        </h2>
       </div>
       <button
         type="button"
@@ -386,7 +437,9 @@
     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div class="space-y-2">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-300">Recalcul matrice</span>
+          <span class="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-300"
+            >Recalcul matrice</span
+          >
           <span
             class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100"
             data-og7-id="admin-quality-matrix-recalculation-scope"
@@ -402,7 +455,9 @@
       <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         @for (item of matrixRecalculationHighlights(); track item.label) {
         <div class="rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{{ item.label }}</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            {{ item.label }}
+          </p>
           <p class="mt-1 text-lg font-semibold text-white">{{ item.value }}</p>
         </div>
         }
@@ -414,8 +469,12 @@
         data-og7="admin-quality-matrix-pilot-backlog"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">Backlog pilote par la matrice</p>
-          <p class="text-xs text-slate-400">Top {{ matrixPilotBacklogEntries().length }} par priorite et score</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
+            Backlog pilote par la matrice
+          </p>
+          <p class="text-xs text-slate-400">
+            Top {{ matrixPilotBacklogEntries().length }} par priorite et score
+          </p>
         </div>
         <div class="mt-3 grid gap-2 xl:grid-cols-2">
           @for (item of matrixPilotBacklogEntries(); track item.entryId) {
@@ -428,7 +487,9 @@
           >
             <span class="min-w-0">
               <span class="block truncate text-sm font-semibold text-white">{{ item.domain }}</span>
-              <span class="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300">
+              <span
+                class="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300"
+              >
                 <span>{{ matrixPilotBucketLabel(item.pilot.bucket) }}</span>
                 <span class="text-slate-600">/</span>
                 <span>{{ matrixPilotActionLabel(item.pilot.actionType) }}</span>
@@ -441,7 +502,9 @@
               >
                 {{ matrixPilotPriorityLabel(item.pilot.priority) }}
               </span>
-              <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100">
+              <span
+                class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100"
+              >
                 {{ item.pilot.score }}/100
               </span>
             </span>
@@ -465,7 +528,9 @@
         >
           {{ matrixRecalculationResultLabel(focus.result) }}
         </span>
-        <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+        <span
+          class="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200"
+        >
           {{ matrixRecalculationConfidenceLabel(focus.confidence) }}
         </span>
         <span
@@ -475,7 +540,9 @@
         >
           {{ matrixPilotPriorityLabel(focus.pilot.priority) }}
         </span>
-        <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+        <span
+          class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100"
+        >
           Score {{ focus.pilot.score }}/100
         </span>
         <span class="text-sm text-slate-300">{{ focus.domain }}</span>
@@ -484,43 +551,73 @@
       @if (focus.proposed) {
       <div class="mt-3 grid gap-2 lg:grid-cols-5">
         <div class="rounded-[14px] border border-white/10 bg-white/4 px-3 py-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Synthese</p>
-          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.summaryStatus, focus.proposed.summaryStatus) }}</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            Synthese
+          </p>
+          <p class="mt-1 text-sm text-white">
+            {{ matrixCoverageDeltaLabel(focus.current.summaryStatus, focus.proposed.summaryStatus)
+            }}
+          </p>
         </div>
         <div class="rounded-[14px] border border-white/10 bg-white/4 px-3 py-2">
           <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Metier</p>
-          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.businessStatus, focus.proposed.businessStatus) }}</p>
+          <p class="mt-1 text-sm text-white">
+            {{ matrixCoverageDeltaLabel(focus.current.businessStatus, focus.proposed.businessStatus)
+            }}
+          </p>
         </div>
         <div class="rounded-[14px] border border-white/10 bg-white/4 px-3 py-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Implementation</p>
-          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.implementationStatus, focus.proposed.implementationStatus) }}</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            Implementation
+          </p>
+          <p class="mt-1 text-sm text-white">
+            {{ matrixCoverageDeltaLabel(focus.current.implementationStatus,
+            focus.proposed.implementationStatus) }}
+          </p>
         </div>
         <div class="rounded-[14px] border border-white/10 bg-white/4 px-3 py-2">
           <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">E2E</p>
-          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.e2eStatus, focus.proposed.e2eStatus) }}</p>
+          <p class="mt-1 text-sm text-white">
+            {{ matrixCoverageDeltaLabel(focus.current.e2eStatus, focus.proposed.e2eStatus) }}
+          </p>
         </div>
         <div class="rounded-[14px] border border-white/10 bg-white/4 px-3 py-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Gestion</p>
-          <p class="mt-1 text-sm text-white">{{ matrixCoverageDeltaLabel(focus.current.managementBucket, focus.proposed.managementBucket) }}</p>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            Gestion
+          </p>
+          <p class="mt-1 text-sm text-white">
+            {{ matrixCoverageDeltaLabel(focus.current.managementBucket,
+            focus.proposed.managementBucket) }}
+          </p>
         </div>
       </div>
-      }
-
-      @if (focus.reasons.length) {
-      <ul class="mt-3 space-y-1 text-sm text-slate-300" data-og7-id="admin-quality-matrix-recalculation-reasons">
+      } @if (focus.reasons.length) {
+      <ul
+        class="mt-3 space-y-1 text-sm text-slate-300"
+        data-og7-id="admin-quality-matrix-recalculation-reasons"
+      >
         @for (reason of focus.reasons; track reason) {
         <li>• {{ reason }}</li>
         }
       </ul>
       }
 
-      <div class="mt-3 rounded-[18px] border border-cyan-300/20 bg-cyan-400/8 px-4 py-3" data-og7-id="admin-quality-matrix-pilot-command">
+      <div
+        class="mt-3 rounded-[18px] border border-cyan-300/20 bg-cyan-400/8 px-4 py-3"
+        data-og7-id="admin-quality-matrix-pilot-command"
+      >
         <div class="flex flex-wrap items-center gap-2">
-          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">Pilotage developpement</p>
-          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
+            Pilotage developpement
+          </p>
+          <span
+            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100"
+          >
             {{ matrixPilotBucketLabel(focus.pilot.bucket) }}
           </span>
-          <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100">
+          <span
+            class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-100"
+          >
             {{ matrixPilotActionLabel(focus.pilot.actionType) }}
           </span>
         </div>
@@ -531,7 +628,9 @@
 
         <div class="mt-3 grid gap-3 lg:grid-cols-3">
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Fichiers</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Fichiers
+            </p>
             <ul class="mt-2 space-y-1 text-sm text-cyan-50">
               @for (item of focus.pilot.targetFiles; track item) {
               <li class="break-all">{{ item }}</li>
@@ -539,7 +638,9 @@
             </ul>
           </div>
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Commandes</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Commandes
+            </p>
             <ul class="mt-2 space-y-1 text-sm text-cyan-50">
               @for (item of focus.pilot.suggestedCommands; track item) {
               <li>{{ item }}</li>
@@ -547,7 +648,9 @@
             </ul>
           </div>
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Preuves</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Preuves
+            </p>
             <ul class="mt-2 space-y-1 text-sm text-cyan-50">
               @for (item of focus.pilot.expectedEvidence; track item) {
               <li>{{ item }}</li>
@@ -558,8 +661,13 @@
       </div>
 
       @if (selectedMatrixRecalculationRecommendations().length) {
-      <div class="mt-3 rounded-[18px] border border-emerald-300/20 bg-emerald-400/8 px-4 py-3" data-og7-id="admin-quality-matrix-recalculation-recommendations">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/90">Recommandations</p>
+      <div
+        class="mt-3 rounded-[18px] border border-emerald-300/20 bg-emerald-400/8 px-4 py-3"
+        data-og7-id="admin-quality-matrix-recalculation-recommendations"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/90">
+          Recommandations
+        </p>
         <ul class="mt-2 space-y-1 text-sm text-emerald-50">
           @for (item of selectedMatrixRecalculationRecommendations(); track item) {
           <li>• {{ item }}</li>
@@ -651,19 +759,21 @@
 
       <div class="h-px bg-white/10"></div>
 
-      <div class="flex flex-wrap items-center gap-3 rounded-[18px] border border-white/10 bg-[#0c1729]/72 px-4 py-3 text-xs text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-          <span
-            class="inline-flex items-center rounded-full px-0 py-0 font-medium text-slate-200"
-            data-og7-id="admin-quality-filter-count"
-          >
-            {{ filteredEntries().length }} domaines visibles sur {{ totalDomains() }}
-          </span>
-          <span class="hidden h-4 w-px bg-white/10 lg:block" aria-hidden="true"></span>
-          @if (selectedEntry(); as entry) {
-          <span class="inline-flex items-center gap-1 text-xs font-medium">
-            Domaine actif : <span class="text-emerald-300">{{ entry.domain }}</span>
-          </span>
-          }
+      <div
+        class="flex flex-wrap items-center gap-3 rounded-[18px] border border-white/10 bg-[#0c1729]/72 px-4 py-3 text-xs text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+      >
+        <span
+          class="inline-flex items-center rounded-full px-0 py-0 font-medium text-slate-200"
+          data-og7-id="admin-quality-filter-count"
+        >
+          {{ filteredEntries().length }} domaines visibles sur {{ totalDomains() }}
+        </span>
+        <span class="hidden h-4 w-px bg-white/10 lg:block" aria-hidden="true"></span>
+        @if (selectedEntry(); as entry) {
+        <span class="inline-flex items-center gap-1 text-xs font-medium">
+          Domaine actif : <span class="text-emerald-300">{{ entry.domain }}</span>
+        </span>
+        }
       </div>
 
       @if (selectedMission(); as mission) {
@@ -673,623 +783,692 @@
         class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_17rem] 2xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start"
         data-og7="admin-quality-mission-command-deck"
       >
-      <div class="grid min-w-0 gap-3">
-      <section
-        class="og7-cockpit-surface relative overflow-hidden rounded-[18px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(7,20,38,0.94))] px-3 py-2.5 shadow-[0_18px_54px_-42px_rgba(34,211,238,0.32)] transition-[box-shadow,border-color,transform] duration-500"
-        data-og7="admin-quality-mission-hud"
-        data-og7-layout="compact-radar-strip"
-        [attr.data-og7-expanded]="missionHudExpanded()"
-        [attr.data-og7-ambient]="missionHudAmbientTone()"
-        [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
-        [ngStyle]="missionCockpitStyleVars()"
-      >
-        <div
-          class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
-          data-og7="admin-quality-cockpit-sync-band"
-          data-og7-surface="hud"
-        ></div>
-        <div
-          class="pointer-events-none absolute inset-0 opacity-95 transition-opacity duration-500"
-          [class]="missionHudAmbientOverlayClasses()"
-          data-og7="admin-quality-hud-ambient-layer"
-        ></div>
+        <div class="grid min-w-0 gap-3">
+          <section
+            class="og7-cockpit-surface relative overflow-hidden rounded-[18px] border border-cyan-300/20 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(7,20,38,0.94))] px-3 py-2.5 shadow-[0_18px_54px_-42px_rgba(34,211,238,0.32)] transition-[box-shadow,border-color,transform] duration-500"
+            data-og7="admin-quality-mission-hud"
+            data-og7-layout="compact-radar-strip"
+            [attr.data-og7-expanded]="missionHudExpanded()"
+            [attr.data-og7-ambient]="missionHudAmbientTone()"
+            [attr.data-og7-cockpit-tone]="missionCockpitToneKey()"
+            [ngStyle]="missionCockpitStyleVars()"
+          >
+            <div
+              class="og7-cockpit-sync-band pointer-events-none absolute inset-x-8 top-0 h-px"
+              data-og7="admin-quality-cockpit-sync-band"
+              data-og7-surface="hud"
+            ></div>
+            <div
+              class="pointer-events-none absolute inset-0 opacity-95 transition-opacity duration-500"
+              [class]="missionHudAmbientOverlayClasses()"
+              data-og7="admin-quality-hud-ambient-layer"
+            ></div>
 
-        <div
-          class="relative rounded-2xl border border-white/10 bg-slate-950/28 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:pr-72"
-          data-og7="admin-quality-hud-radar-strip"
-          data-og7-layout="radar-indicator"
-        >
-          <div class="min-w-0 space-y-1.5">
-            <div class="flex flex-wrap items-center gap-2 pr-0 sm:pr-2">
-              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
-                Mission HUD
-              </p>
-            </div>
+            <div
+              class="relative rounded-2xl border border-white/10 bg-slate-950/28 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:pr-72"
+              data-og7="admin-quality-hud-radar-strip"
+              data-og7-layout="radar-indicator"
+            >
+              <div class="min-w-0 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2 pr-0 sm:pr-2">
+                  <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                    Mission HUD
+                  </p>
+                </div>
 
-            <div class="min-w-0">
-              <h2 class="truncate text-lg font-semibold text-white" data-og7-id="admin-quality-hud-title">
-                {{ mission.title }}
-              </h2>
-              <p class="mt-1 max-w-3xl text-sm leading-5 text-slate-300" data-og7-id="admin-quality-hud-summary">
-                @if (missionHudExpanded()) {
-                {{ selectedEntry()?.domain ?? 'Mission active' }} · {{ selectedAiDispatchWorkflow() }}
-                } @else {
-                {{ missionHudCompactSummary() }}
-                }
-              </p>
-              @if (selectedMissionQuotaSummary(); as quota) {
-              <div
-                class="mt-2 flex flex-wrap gap-1.5"
-                data-og7="admin-quality-hud-codex-labels"
-              >
-                <span
-                  class="inline-flex items-center gap-1 rounded-full border border-cyan-300/24 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-100"
-                  data-og7-id="admin-quality-generated-task-count"
-                >
-                  Taches {{ quota.taskCount }}
-                </span>
-                <span
-                  class="inline-flex items-center gap-1 rounded-full border border-sky-300/24 bg-sky-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-100"
-                  data-og7-id="admin-quality-hud-codex-units"
-                >
-                  {{ quota.requiredUnits }} unites
-                </span>
-                <span
-                  class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]"
-                  [class]="
+                <div class="min-w-0">
+                  <h2
+                    class="truncate text-lg font-semibold text-white"
+                    data-og7-id="admin-quality-hud-title"
+                  >
+                    {{ mission.title }}
+                  </h2>
+                  <p
+                    class="mt-1 max-w-3xl text-sm leading-5 text-slate-300"
+                    data-og7-id="admin-quality-hud-summary"
+                  >
+                    @if (missionHudExpanded()) { {{ selectedEntry()?.domain ?? 'Mission active' }} ·
+                    {{ selectedAiDispatchWorkflow() }} } @else { {{ missionHudCompactSummary() }} }
+                  </p>
+                  @if (selectedMissionQuotaSummary(); as quota) {
+                  <div
+                    class="mt-2 flex flex-wrap gap-1.5"
+                    data-og7="admin-quality-hud-codex-labels"
+                  >
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full border border-cyan-300/24 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-100"
+                      data-og7-id="admin-quality-generated-task-count"
+                    >
+                      Taches {{ quota.taskCount }}
+                    </span>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full border border-sky-300/24 bg-sky-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-100"
+                      data-og7-id="admin-quality-hud-codex-units"
+                    >
+                      {{ quota.requiredUnits }} unites
+                    </span>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]"
+                      [class]="
                     selectedAiDispatchReady()
                       ? 'border-emerald-300/30 bg-emerald-400/12 text-emerald-100'
                       : 'border-amber-300/30 bg-amber-400/12 text-amber-100'
                   "
-                  data-og7-id="admin-quality-codex-quota-status"
-                >
-                  {{
-                    (selectedAiDispatchReady()
-                      ? 'admin.quality.codex.runway.status.sufficient'
-                      : 'admin.quality.codex.runway.status.insufficient'
-                    ) | translate
-                  }}
-                </span>
-                <span
-                  class="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-emerald-100"
-                  data-og7-id="admin-quality-codex-ops-status"
-                >
-                  {{ selectedAiDispatchStatusLabel() }}
-                </span>
-                <span
-                  class="inline-flex max-w-52 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-200"
-                  data-og7-id="admin-quality-hud-codex-workflow"
-                >
-                  <span class="truncate">{{ selectedAiDispatchWorkflow() }}</span>
-                </span>
-              </div>
-              }
-
-              <div
-                class="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_9.5rem]"
-                data-og7="admin-quality-hud-mission-brief"
-                data-og7-layout="strategic-brief"
-              >
-                <article
-                  class="min-w-0 rounded-[14px] border border-rose-300/18 bg-rose-400/8 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                  data-og7-id="admin-quality-hud-gap-card"
-                >
-                  <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-rose-100/80">
-                    Gap constate
-                  </p>
-                  <p class="mt-1 line-clamp-2 text-[11px] leading-5 text-rose-50/90">
-                    {{ mission.whyNow }}
-                  </p>
-                </article>
-
-                <article
-                  class="min-w-0 rounded-[14px] border border-emerald-300/18 bg-emerald-400/8 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                  data-og7-id="admin-quality-hud-suggested-mission-card"
-                >
-                  <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
-                    Mission suggeree
-                  </p>
-                  <p class="mt-1 line-clamp-2 text-[11px] leading-5 text-emerald-50/90">
-                    {{ mission.summary }}
-                  </p>
-                </article>
-
-                <article
-                  class="grid min-w-0 grid-cols-[2.45rem_minmax(0,1fr)] items-center gap-2 rounded-[14px] border border-white/10 bg-white/5 px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                  data-og7-id="admin-quality-hud-ai-confidence-card"
-                >
-                  <div
-                    class="relative flex h-9 w-9 items-center justify-center rounded-full shadow-[0_12px_24px_-18px_rgba(14,165,233,0.9)]"
-                    [style.background]="missionHudConfidenceRingBackground(mission.confidence)"
-                  >
-                    <div class="absolute inset-1 rounded-full bg-[#071120]"></div>
-                    <p class="relative text-[11px] font-semibold text-white">
-                      {{ missionHudConfidencePercent(mission.confidence) }}%
-                    </p>
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                      Confiance AI
-                    </p>
-                    <div class="mt-1 flex min-w-0 flex-wrap gap-1">
-                      <span
-                        class="inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
-                        [class]="missionHudConfidenceClasses(mission.confidence)"
-                      >
-                        {{ mission.confidence }}
-                      </span>
-                      <span
-                        class="inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
-                        [class]="missionHudImpactClasses(mission.impact)"
-                      >
-                        Impact {{ mission.impact }}
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              </div>
-
-              <div
-                class="mt-3 rounded-[14px] border border-cyan-300/14 bg-slate-950/34 px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                data-og7="admin-quality-hud-contact-log-shell"
-              >
-                <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-                  <div class="flex min-w-0 flex-wrap items-center gap-2">
-                    <span class="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-200/78">
-                      Historique recent
+                      data-og7-id="admin-quality-codex-quota-status"
+                    >
+                      {{ (selectedAiDispatchReady() ? 'admin.quality.codex.runway.status.sufficient'
+                      : 'admin.quality.codex.runway.status.insufficient' ) | translate }}
                     </span>
                     <span
-                      class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-300"
-                      data-og7="admin-quality-mission-control-contact-log-count"
+                      class="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-emerald-100"
+                      data-og7-id="admin-quality-codex-ops-status"
                     >
-                      {{ missionControlRadarLockLog().length }} {{ missionControlRadarLockLog().length > 1 ? 'evenements' : 'evenement' }}
+                      {{ selectedAiDispatchStatusLabel() }}
+                    </span>
+                    <span
+                      class="inline-flex max-w-52 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-200"
+                      data-og7-id="admin-quality-hud-codex-workflow"
+                    >
+                      <span class="truncate">{{ selectedAiDispatchWorkflow() }}</span>
                     </span>
                   </div>
-                  <span
-                    class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
-                    [class]="missionControlContactLogSignalClasses(missionControlDisplaySignalTone())"
-                    data-og7="admin-quality-mission-control-contact-log-signal"
-                  >
-                    {{ missionControlRadarSignalTone() === 'idle' ? 'idle' : 'live pulse' }}
-                  </span>
-                </div>
+                  }
 
-                <div
-                  class="grid gap-1.5 lg:grid-cols-2"
-                  data-og7="admin-quality-mission-control-contact-log"
-                  data-og7-layout="micro-rail"
-                >
-                  @for (entry of missionControlRadarLockLog(); track entry.sequence; let index = $index) {
-                  <button
-                    type="button"
-                    class="grid min-w-0 gap-2 rounded-xl border px-2.5 py-2 text-left transition hover:border-white/20 hover:bg-white/8 sm:grid-cols-[auto_minmax(0,1fr)]"
-                    [class]="missionControlContactLogEntryClasses(index)"
-                    [attr.data-og7-age]="missionControlContactLogAge(index)"
-                    [attr.data-og7-id]="entry.id"
-                    [attr.data-og7-kind]="entry.kind"
-                    [attr.data-og7-state]="entry.stateLabel.toLowerCase()"
-                    [attr.data-og7-reason]="entry.reason ?? null"
-                    [attr.data-og7-signal]="entry.signalTone"
-                    data-og7="admin-quality-mission-control-contact-log-entry"
-                    (click)="focusMissionControlLockEntry(entry.id)"
+                  <div
+                    class="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_9.5rem]"
+                    data-og7="admin-quality-hud-mission-brief"
+                    data-og7-layout="strategic-brief"
                   >
-                    <div class="flex flex-wrap items-center gap-1.5 sm:flex-col sm:items-start sm:justify-start">
-                      <span
-                        class="inline-flex rounded-full border px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.18em]"
-                        [class]="missionControlContactLogTimeClasses(index)"
-                        [attr.data-og7-age]="missionControlContactLogAge(index)"
-                        data-og7="admin-quality-mission-control-contact-log-time"
+                    <article
+                      class="min-w-0 rounded-[14px] border border-rose-300/18 bg-rose-400/8 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      data-og7-id="admin-quality-hud-gap-card"
+                    >
+                      <p
+                        class="text-[9px] font-semibold uppercase tracking-[0.18em] text-rose-100/80"
                       >
-                        {{ missionControlTimelineSlotLabel(index) }}
-                      </span>
-                      <span
-                        class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
-                        [class]="missionControlContactLogSignalClasses(entry.signalTone)"
-                        data-og7="admin-quality-mission-control-contact-log-reason"
-                      >
-                        {{ entry.reasonLabel }}
-                      </span>
-                    </div>
+                        Gap constate
+                      </p>
+                      <p class="mt-1 line-clamp-2 text-[11px] leading-5 text-rose-50/90">
+                        {{ mission.whyNow }}
+                      </p>
+                    </article>
 
-                    <div class="min-w-0 space-y-0.5">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200/80">
-                          {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` : `T-${index} ${entry.kindLabel.toLowerCase()}` }}
+                    <article
+                      class="min-w-0 rounded-[14px] border border-emerald-300/18 bg-emerald-400/8 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      data-og7-id="admin-quality-hud-suggested-mission-card"
+                    >
+                      <p
+                        class="text-[9px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80"
+                      >
+                        Mission suggeree
+                      </p>
+                      <p class="mt-1 line-clamp-2 text-[11px] leading-5 text-emerald-50/90">
+                        {{ mission.summary }}
+                      </p>
+                    </article>
+
+                    <article
+                      class="grid min-w-0 grid-cols-[2.45rem_minmax(0,1fr)] items-center gap-2 rounded-[14px] border border-white/10 bg-white/5 px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      data-og7-id="admin-quality-hud-ai-confidence-card"
+                    >
+                      <div
+                        class="relative flex h-9 w-9 items-center justify-center rounded-full shadow-[0_12px_24px_-18px_rgba(14,165,233,0.9)]"
+                        [style.background]="missionHudConfidenceRingBackground(mission.confidence)"
+                      >
+                        <div class="absolute inset-1 rounded-full bg-[#071120]"></div>
+                        <p class="relative text-[11px] font-semibold text-white">
+                          {{ missionHudConfidencePercent(mission.confidence) }}%
+                        </p>
+                      </div>
+                      <div class="min-w-0">
+                        <p
+                          class="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400"
+                        >
+                          Confiance AI
+                        </p>
+                        <div class="mt-1 flex min-w-0 flex-wrap gap-1">
+                          <span
+                            class="inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
+                            [class]="missionHudConfidenceClasses(mission.confidence)"
+                          >
+                            {{ mission.confidence }}
+                          </span>
+                          <span
+                            class="inline-flex rounded-full border px-1.5 py-0.5 text-[9px] font-semibold"
+                            [class]="missionHudImpactClasses(mission.impact)"
+                          >
+                            Impact {{ mission.impact }}
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+
+                  <div
+                    class="mt-3 rounded-[14px] border border-cyan-300/14 bg-slate-950/34 px-2.5 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    data-og7="admin-quality-hud-contact-log-shell"
+                  >
+                    <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2">
+                        <span
+                          class="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-200/78"
+                        >
+                          Historique recent
                         </span>
-                        <span class="text-[10px] text-slate-400/90">
-                          {{ missionControlTimelineCadenceLabel(index) }}
+                        <span
+                          class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-300"
+                          data-og7="admin-quality-mission-control-contact-log-count"
+                        >
+                          {{ missionControlRadarLockLog().length }} {{
+                          missionControlRadarLockLog().length > 1 ? 'evenements' : 'evenement' }}
                         </span>
                       </div>
-                      <p class="text-[11px] leading-4 text-slate-100/95">{{ entry.detailLabel }}</p>
-                      <p class="text-[10px] leading-4 text-slate-400/90">
-                        {{ entry.metricLabel }} · proof {{ entry.proofStream }}
-                      </p>
+                      <span
+                        class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                        [class]="missionControlContactLogSignalClasses(missionControlDisplaySignalTone())"
+                        data-og7="admin-quality-mission-control-contact-log-signal"
+                      >
+                        {{ missionControlRadarSignalTone() === 'idle' ? 'idle' : 'live pulse' }}
+                      </span>
                     </div>
+
+                    <div
+                      class="grid gap-1.5 lg:grid-cols-2"
+                      data-og7="admin-quality-mission-control-contact-log"
+                      data-og7-layout="micro-rail"
+                    >
+                      @for (entry of missionControlRadarLockLog(); track entry.sequence; let index =
+                      $index) {
+                      <button
+                        type="button"
+                        class="grid min-w-0 gap-2 rounded-xl border px-2.5 py-2 text-left transition hover:border-white/20 hover:bg-white/8 sm:grid-cols-[auto_minmax(0,1fr)]"
+                        [class]="missionControlContactLogEntryClasses(index)"
+                        [attr.data-og7-age]="missionControlContactLogAge(index)"
+                        [attr.data-og7-id]="entry.id"
+                        [attr.data-og7-kind]="entry.kind"
+                        [attr.data-og7-state]="entry.stateLabel.toLowerCase()"
+                        [attr.data-og7-reason]="entry.reason ?? null"
+                        [attr.data-og7-signal]="entry.signalTone"
+                        data-og7="admin-quality-mission-control-contact-log-entry"
+                        (click)="focusMissionControlLockEntry(entry.id)"
+                      >
+                        <div
+                          class="flex flex-wrap items-center gap-1.5 sm:flex-col sm:items-start sm:justify-start"
+                        >
+                          <span
+                            class="inline-flex rounded-full border px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.18em]"
+                            [class]="missionControlContactLogTimeClasses(index)"
+                            [attr.data-og7-age]="missionControlContactLogAge(index)"
+                            data-og7="admin-quality-mission-control-contact-log-time"
+                          >
+                            {{ missionControlTimelineSlotLabel(index) }}
+                          </span>
+                          <span
+                            class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em]"
+                            [class]="missionControlContactLogSignalClasses(entry.signalTone)"
+                            data-og7="admin-quality-mission-control-contact-log-reason"
+                          >
+                            {{ entry.reasonLabel }}
+                          </span>
+                        </div>
+
+                        <div class="min-w-0 space-y-0.5">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span
+                              class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200/80"
+                            >
+                              {{ index === 0 ? `Latest ${entry.kindLabel.toLowerCase()}` :
+                              `T-${index} ${entry.kindLabel.toLowerCase()}` }}
+                            </span>
+                            <span class="text-[10px] text-slate-400/90">
+                              {{ missionControlTimelineCadenceLabel(index) }}
+                            </span>
+                          </div>
+                          <p class="text-[11px] leading-4 text-slate-100/95">
+                            {{ entry.detailLabel }}
+                          </p>
+                          <p class="text-[10px] leading-4 text-slate-400/90">
+                            {{ entry.metricLabel }} · proof {{ entry.proofStream }}
+                          </p>
+                        </div>
+                      </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="mt-2 flex flex-wrap gap-1.5 sm:absolute sm:right-3 sm:top-3 sm:mt-0 sm:max-w-64 sm:justify-end"
+                data-og7="admin-quality-hud-radar-indicators"
+              >
+                <span
+                  class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
+                  [class]="missionHudStatusClasses(mission.status)"
+                  data-og7-id="admin-quality-hud-mission-status"
+                >
+                  {{ missionHudStatusLabel(mission.status) }}
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-cyan-100"
+                >
+                  {{ selectedAiProviderLabel() }}
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-200"
+                  data-og7-id="admin-quality-hud-active-section-label"
+                >
+                  Zone active · {{ missionHudSectionLabel() }}
+                </span>
+              </div>
+            </div>
+
+            <div
+              class="relative mt-2 rounded-2xl border border-cyan-300/14 bg-slate-950/30 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+              data-og7="admin-quality-hud-mission-timeline"
+              data-og7-layout="embedded-compact"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-200/78">
+                  Timeline de la mission
+                </p>
+                <span
+                  class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-200"
+                  data-og7-id="admin-quality-hud-active-timeline-step"
+                >
+                  {{ activeMissionHudTimelineStep()?.shortLabel ?? missionHudSectionLabel() }}
+                </span>
+              </div>
+
+              <div
+                class="mt-2 hidden items-start sm:flex"
+                data-og7="admin-quality-hud-timeline-track"
+                data-og7-layout="desktop"
+              >
+                @for (step of missionHudTimelineSteps(); track step.id; let index = $index) {
+                <div
+                  class="flex min-w-0 flex-1 items-start"
+                  data-og7="admin-quality-hud-timeline-step"
+                  [attr.data-og7-id]="step.id"
+                  [attr.data-og7-status]="step.status"
+                >
+                  <div class="flex min-w-0 flex-col items-center text-center">
+                    <span
+                      class="inline-flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold"
+                      [class]="missionHudTimelineMarkerClasses(step.status)"
+                    >
+                      {{ missionHudTimelineMarkerText(step.status, index) }}
+                    </span>
+                    <span
+                      class="mt-1 block max-w-24 truncate text-[10px] font-semibold"
+                      [class]="missionHudTimelineTextClasses(step.status)"
+                    >
+                      {{ step.shortLabel }}
+                    </span>
+                  </div>
+
+                  @if (!$last) {
+                  <span
+                    class="mx-2 mt-3 block h-px min-w-6 flex-1"
+                    [class]="missionHudTimelineConnectorClasses(step.status)"
+                    data-og7="admin-quality-hud-timeline-connector"
+                  ></span>
+                  }
+                </div>
+                }
+              </div>
+
+              <div
+                class="mt-2 grid gap-1 sm:hidden"
+                data-og7="admin-quality-hud-timeline-track"
+                data-og7-layout="mobile"
+              >
+                @for (step of missionHudTimelineSteps(); track step.id; let index = $index) {
+                <div
+                  class="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-white/10 bg-white/4 px-2 py-1.5"
+                  data-og7="admin-quality-hud-timeline-step"
+                  [attr.data-og7-id]="step.id"
+                  [attr.data-og7-status]="step.status"
+                >
+                  <span
+                    class="inline-flex h-6 w-6 items-center justify-center rounded-full border text-[9px] font-semibold"
+                    [class]="missionHudTimelineMarkerClasses(step.status)"
+                  >
+                    {{ missionHudTimelineMarkerText(step.status, index) }}
+                  </span>
+                  <span
+                    class="truncate text-[11px] font-semibold"
+                    [class]="missionHudTimelineTextClasses(step.status)"
+                  >
+                    {{ step.shortLabel }}
+                  </span>
+                  <span class="text-[9px] font-medium text-slate-500"> {{ step.status }} </span>
+                </div>
+                }
+              </div>
+            </div>
+
+            @if (missionHudExpanded()) {
+            <div
+              class="mt-2 flex flex-col gap-3 border-t border-white/10 pt-2 lg:flex-row lg:items-center lg:justify-between"
+            >
+              <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
+                @if (selectedAiProofDisplay(); as proof) { @if (proof.runUrl) {
+                <a
+                  class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/10 px-2.5 py-1 text-sky-100 underline-offset-4 hover:underline"
+                  [href]="proof.runUrl"
+                  target="_blank"
+                  rel="noreferrer"
+                  data-og7-id="admin-quality-hud-proof-run"
+                >
+                  {{ proof.runLabel }}
+                </a>
+                } @else {
+                <span
+                  class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/10 px-2.5 py-1 text-sky-100"
+                  data-og7-id="admin-quality-hud-proof-run"
+                >
+                  {{ proof.runLabel }}
+                </span>
+                }
+                <span
+                  class="inline-flex rounded-full border border-violet-300/20 bg-violet-400/10 px-2.5 py-1 text-violet-100"
+                  data-og7-id="admin-quality-hud-proof-artifacts"
+                >
+                  {{ proof.artifactLabel }}
+                </span>
+                @if (proof.pullRequestUrl) {
+                <a
+                  class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-100 underline-offset-4 hover:underline"
+                  [href]="proof.pullRequestUrl"
+                  target="_blank"
+                  rel="noreferrer"
+                  data-og7-id="admin-quality-hud-proof-pr"
+                >
+                  {{ proof.pullRequestLabel }}
+                </a>
+                } @else {
+                <span
+                  class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-100"
+                  data-og7-id="admin-quality-hud-proof-pr"
+                >
+                  {{ proof.pullRequestLabel }}
+                </span>
+                } }
+              </div>
+            </div>
+            }
+          </section>
+
+          <div class="border-t border-white/10 pt-3">
+            <og7-admin-quality-command-rail
+              [scope]="commandScopeSummary()"
+              [metrics]="commandMetrics()"
+            />
+          </div>
+        </div>
+
+        <nav
+          class="relative h-fit overflow-hidden rounded-2xl border border-cyan-300/24 bg-[linear-gradient(180deg,rgba(3,10,22,0.96),rgba(6,18,34,0.92))] p-1.5 shadow-[0_20px_64px_-50px_rgba(34,211,238,0.5)]"
+          aria-label="Console de pilotage QA"
+          data-og7="admin-quality-console-remote"
+          data-og7-layout="command-deck"
+          data-og7-density="near-hud"
+        >
+          <div
+            class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.08),transparent_26%,transparent_74%,rgba(14,165,233,0.08)),radial-gradient(circle_at_16%_10%,rgba(56,189,248,0.18),transparent_24%)]"
+          ></div>
+          <div class="relative grid gap-1">
+            <section
+              class="relative overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950/78 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+              data-og7="admin-quality-console-screen"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+                  Console de pilotage
+                </p>
+                <span
+                  class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/10 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em] text-cyan-100"
+                >
+                  HUD
+                </span>
+              </div>
+              <div class="mt-1 grid grid-cols-[minmax(0,1fr)_4.75rem] gap-1">
+                <div
+                  class="relative min-h-10 overflow-hidden rounded-lg border border-cyan-300/16 bg-[radial-gradient(circle_at_22%_20%,rgba(34,211,238,0.24),transparent_18%),radial-gradient(circle_at_78%_38%,rgba(16,185,129,0.18),transparent_16%),linear-gradient(135deg,rgba(8,47,73,0.55),rgba(15,23,42,0.88))]"
+                >
+                  <div
+                    class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-size-[1.25rem_1.25rem]"
+                  ></div>
+                  <div
+                    class="og7-console-map-beacon og7-console-map-beacon--cyan absolute left-[18%] top-[24%] h-1 w-1 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.74)]"
+                    data-og7="admin-quality-console-map-beacon"
+                    data-og7-id="primary"
+                    data-og7-beat="lead"
+                  ></div>
+                  <div
+                    class="og7-console-map-beacon og7-console-map-beacon--emerald absolute right-[18%] top-[36%] h-1 w-1 rounded-full bg-emerald-300 shadow-[0_0_14px_rgba(16,185,129,0.65)]"
+                    data-og7="admin-quality-console-map-beacon"
+                    data-og7-id="secondary"
+                    data-og7-beat="echo"
+                  ></div>
+                  <div
+                    class="absolute bottom-1 left-1 right-1 rounded-md border border-white/10 bg-slate-950/70 px-1 py-0.5"
+                  >
+                    <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                      Mode actif
+                    </p>
+                    <p
+                      class="truncate text-[11px] font-semibold text-white"
+                      data-og7-id="admin-quality-console-active-surface"
+                    >
+                      {{ activeConsoleSurfaceOption().label }} / {{ missionHudSectionLabel() }}
+                    </p>
+                  </div>
+                </div>
+                <div class="grid min-w-0 gap-1">
+                  <div
+                    class="min-w-0 rounded-md border border-white/10 bg-white/5 px-1 py-0.5 text-center"
+                  >
+                    <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      Visible
+                    </p>
+                    <p class="text-[11px] font-semibold text-cyan-100">
+                      {{ filteredEntries().length }}
+                    </p>
+                  </div>
+                  <div
+                    class="min-w-0 rounded-md border border-white/10 bg-white/5 px-1 py-0.5 text-center"
+                  >
+                    <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      AI
+                    </p>
+                    <p class="truncate text-[11px] font-semibold text-cyan-100">
+                      {{ selectedAiProviderLabel() }}
+                    </p>
+                  </div>
+                  <div
+                    class="min-w-0 rounded-md border px-1 py-0.5 text-center"
+                    [class]="missionHudStatusClasses(mission.status)"
+                  >
+                    <p class="text-[8px] font-semibold uppercase tracking-[0.14em] opacity-75">
+                      Mission
+                    </p>
+                    <p class="text-[9px] font-semibold leading-3 wrap-break-word">
+                      {{ missionHudStatusLabel(mission.status) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section
+              class="rounded-xl border border-white/10 bg-white/4 p-0.5"
+              data-og7="admin-quality-console-actions"
+              data-og7-layout="command-grid"
+            >
+              <div class="grid grid-cols-4 gap-1">
+                @for (surface of consoleSurfaceOptions; track surface.id) {
+                <button
+                  type="button"
+                  class="grid min-h-8 gap-0.5 rounded-lg border px-1 py-0.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+                  [class]="consoleSurfaceClasses(surface.id)"
+                  [attr.aria-pressed]="activeConsoleSurface() === surface.id"
+                  [attr.data-og7-active]="activeConsoleSurface() === surface.id"
+                  [attr.data-og7-id]="'admin-quality-console-' + surface.id"
+                  data-og7="action"
+                  (click)="activateConsoleSurface(surface.id)"
+                >
+                  <span
+                    class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/60 text-[8px] font-semibold tracking-widest"
+                  >
+                    {{ surface.iconLabel }}
+                  </span>
+                  <span class="block truncate text-[9px] font-semibold">{{ surface.label }}</span>
+                  <span class="sr-only">{{ surface.detail }}</span>
+                </button>
+                }
+              </div>
+            </section>
+
+            <div
+              class="grid gap-1 sm:grid-cols-[minmax(0,1fr)_minmax(7rem,0.62fr)] xl:grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_minmax(7rem,0.62fr)]"
+            >
+              <section
+                class="rounded-xl border border-white/10 bg-slate-950/48 p-0.5"
+                data-og7="admin-quality-console-hud-controls"
+              >
+                <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                  <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+                    HUD
+                  </p>
+                  <button
+                    type="button"
+                    class="inline-flex h-6 items-center justify-center rounded-md border border-white/12 bg-white/5 px-1.5 py-0.5 text-[8px] font-semibold uppercase leading-none tracking-[0.08em] text-slate-100 transition hover:bg-white/8"
+                    (click)="toggleMissionHud()"
+                    data-og7="action"
+                    data-og7-id="admin-quality-hud-toggle"
+                  >
+                    {{ missionHudExpanded() ? 'Compact' : 'Expand' }}
+                  </button>
+                </div>
+
+                <div class="mt-1 grid grid-cols-3 gap-1">
+                  @for (section of missionHudSectionOptions; track section.id) {
+                  <button
+                    type="button"
+                    class="grid min-h-7 content-center gap-0.5 rounded-lg border px-1 py-0.5 text-left font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+                    [class]="missionHudSectionClasses(section.id)"
+                    [attr.data-og7-active]="missionHudActiveSection() === section.id"
+                    [attr.data-og7-pulse]="missionHudSectionPulse(section.id)"
+                    [attr.data-og7-id]="'admin-quality-hud-section-' + section.id"
+                    [attr.aria-label]="section.label"
+                    data-og7="admin-quality-hud-section-chip"
+                    (click)="scrollMissionHudToSection(section.id)"
+                  >
+                    <span
+                      class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/55 text-[7px]"
+                    >
+                      {{ section.iconLabel }}
+                    </span>
+                    <span class="whitespace-nowrap text-[7px] leading-3 tracking-normal">
+                      {{ section.shortLabel }}
+                    </span>
                   </button>
                   }
                 </div>
-              </div>
+              </section>
+
+              <section
+                class="rounded-xl border border-white/10 bg-white/4 p-0.5"
+                data-og7="admin-quality-console-desk-actions"
+              >
+                <div class="grid grid-cols-2 gap-1">
+                  <button
+                    type="button"
+                    class="grid min-h-8 gap-0.5 rounded-lg border border-white/12 bg-[#10192b] px-1 py-0.5 text-left text-[9px] font-medium text-slate-100 transition hover:bg-[#16233a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+                    (click)="openWorkspace('delegation')"
+                    data-og7="action"
+                    data-og7-id="admin-quality-hud-open-workspace"
+                  >
+                    <span
+                      class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/60 text-[7px] font-semibold"
+                      >MD</span
+                    >
+                    <span class="truncate">Mission</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="grid min-h-8 gap-0.5 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-1 py-0.5 text-left text-[9px] font-semibold text-cyan-100 transition hover:bg-cyan-400/16 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+                    (click)="openWorkspace('actions')"
+                    data-og7="action"
+                    data-og7-id="admin-quality-hud-open-actions"
+                  >
+                    <span
+                      class="inline-flex h-4 w-4 items-center justify-center rounded border border-cyan-300/20 bg-slate-950/60 text-[7px] font-semibold"
+                      >PD</span
+                    >
+                    <span class="truncate">Proof</span>
+                  </button>
+                </div>
+              </section>
             </div>
-          </div>
 
-          <div
-            class="mt-2 flex flex-wrap gap-1.5 sm:absolute sm:right-3 sm:top-3 sm:mt-0 sm:max-w-64 sm:justify-end"
-            data-og7="admin-quality-hud-radar-indicators"
-          >
-              <span
-                class="inline-flex rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em]"
-                [class]="missionHudStatusClasses(mission.status)"
-                data-og7-id="admin-quality-hud-mission-status"
-              >
-                {{ missionHudStatusLabel(mission.status) }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-cyan-100"
-              >
-                {{ selectedAiProviderLabel() }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-200"
-                data-og7-id="admin-quality-hud-active-section-label"
-              >
-                Zone active · {{ missionHudSectionLabel() }}
-              </span>
-          </div>
-        </div>
-
-        <div
-          class="relative mt-2 rounded-2xl border border-cyan-300/14 bg-slate-950/30 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-          data-og7="admin-quality-hud-mission-timeline"
-          data-og7-layout="embedded-compact"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <p class="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-200/78">
-              Timeline de la mission
-            </p>
-            <span
-              class="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-200"
-              data-og7-id="admin-quality-hud-active-timeline-step"
+            <section
+              class="rounded-xl border border-white/10 bg-slate-950/58 p-0.5"
+              data-og7="admin-quality-console-mission-actions"
+              data-og7-layout="command-bar"
             >
-              {{ activeMissionHudTimelineStep()?.shortLabel ?? missionHudSectionLabel() }}
-            </span>
-          </div>
-
-          <div
-            class="mt-2 hidden items-start sm:flex"
-            data-og7="admin-quality-hud-timeline-track"
-            data-og7-layout="desktop"
-          >
-            @for (step of missionHudTimelineSteps(); track step.id; let index = $index) {
-            <div
-              class="flex min-w-0 flex-1 items-start"
-              data-og7="admin-quality-hud-timeline-step"
-              [attr.data-og7-id]="step.id"
-              [attr.data-og7-status]="step.status"
-            >
-              <div class="flex min-w-0 flex-col items-center text-center">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+                  Commandes
+                </p>
                 <span
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold"
-                  [class]="missionHudTimelineMarkerClasses(step.status)"
+                  class="inline-flex rounded-full border px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em]"
+                  [class]="missionHudStatusClasses(mission.status)"
                 >
-                  {{ missionHudTimelineMarkerText(step.status, index) }}
-                </span>
-                <span
-                  class="mt-1 block max-w-24 truncate text-[10px] font-semibold"
-                  [class]="missionHudTimelineTextClasses(step.status)"
-                >
-                  {{ step.shortLabel }}
+                  {{ missionHudStatusLabel(mission.status) }}
                 </span>
               </div>
 
-              @if (!$last) {
-              <span
-                class="mx-2 mt-3 block h-px min-w-6 flex-1"
-                [class]="missionHudTimelineConnectorClasses(step.status)"
-                data-og7="admin-quality-hud-timeline-connector"
-              ></span>
-              }
-            </div>
-            }
-          </div>
-
-          <div
-            class="mt-2 grid gap-1 sm:hidden"
-            data-og7="admin-quality-hud-timeline-track"
-            data-og7-layout="mobile"
-          >
-            @for (step of missionHudTimelineSteps(); track step.id; let index = $index) {
-            <div
-              class="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-white/10 bg-white/4 px-2 py-1.5"
-              data-og7="admin-quality-hud-timeline-step"
-              [attr.data-og7-id]="step.id"
-              [attr.data-og7-status]="step.status"
-            >
-              <span
-                class="inline-flex h-6 w-6 items-center justify-center rounded-full border text-[9px] font-semibold"
-                [class]="missionHudTimelineMarkerClasses(step.status)"
-              >
-                {{ missionHudTimelineMarkerText(step.status, index) }}
-              </span>
-              <span class="truncate text-[11px] font-semibold" [class]="missionHudTimelineTextClasses(step.status)">
-                {{ step.shortLabel }}
-              </span>
-              <span class="text-[9px] font-medium text-slate-500">
-                {{ step.status }}
-              </span>
-            </div>
-            }
-          </div>
-        </div>
-
-        @if (missionHudExpanded()) {
-        <div class="mt-2 flex flex-col gap-3 border-t border-white/10 pt-2 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
-            @if (selectedAiProofDisplay(); as proof) {
-            @if (proof.runUrl) {
-            <a
-              class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/10 px-2.5 py-1 text-sky-100 underline-offset-4 hover:underline"
-              [href]="proof.runUrl"
-              target="_blank"
-              rel="noreferrer"
-              data-og7-id="admin-quality-hud-proof-run"
-            >
-              {{ proof.runLabel }}
-            </a>
-            } @else {
-            <span
-              class="inline-flex rounded-full border border-sky-300/20 bg-sky-400/10 px-2.5 py-1 text-sky-100"
-              data-og7-id="admin-quality-hud-proof-run"
-            >
-              {{ proof.runLabel }}
-            </span>
-            }
-            <span
-              class="inline-flex rounded-full border border-violet-300/20 bg-violet-400/10 px-2.5 py-1 text-violet-100"
-              data-og7-id="admin-quality-hud-proof-artifacts"
-            >
-              {{ proof.artifactLabel }}
-            </span>
-            @if (proof.pullRequestUrl) {
-            <a
-              class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-100 underline-offset-4 hover:underline"
-              [href]="proof.pullRequestUrl"
-              target="_blank"
-              rel="noreferrer"
-              data-og7-id="admin-quality-hud-proof-pr"
-            >
-              {{ proof.pullRequestLabel }}
-            </a>
-            } @else {
-            <span
-              class="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-100"
-              data-og7-id="admin-quality-hud-proof-pr"
-            >
-              {{ proof.pullRequestLabel }}
-            </span>
-            }
-            }
-          </div>
-        </div>
-        }
-      </section>
-
-      <div class="border-t border-white/10 pt-3">
-        <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
-      </div>
-      </div>
-
-      <nav
-        class="relative h-fit overflow-hidden rounded-2xl border border-cyan-300/24 bg-[linear-gradient(180deg,rgba(3,10,22,0.96),rgba(6,18,34,0.92))] p-1.5 shadow-[0_20px_64px_-50px_rgba(34,211,238,0.5)]"
-        aria-label="Console de pilotage QA"
-        data-og7="admin-quality-console-remote"
-        data-og7-layout="command-deck"
-        data-og7-density="near-hud"
-      >
-        <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.08),transparent_26%,transparent_74%,rgba(14,165,233,0.08)),radial-gradient(circle_at_16%_10%,rgba(56,189,248,0.18),transparent_24%)]"></div>
-        <div class="relative grid gap-1">
-          <section
-            class="relative overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950/78 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-            data-og7="admin-quality-console-screen"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
-                Console de pilotage
-              </p>
-              <span class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/10 px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.14em] text-cyan-100">
-                HUD
-              </span>
-            </div>
-            <div class="mt-1 grid grid-cols-[minmax(0,1fr)_4.75rem] gap-1">
-              <div class="relative min-h-10 overflow-hidden rounded-lg border border-cyan-300/16 bg-[radial-gradient(circle_at_22%_20%,rgba(34,211,238,0.24),transparent_18%),radial-gradient(circle_at_78%_38%,rgba(16,185,129,0.18),transparent_16%),linear-gradient(135deg,rgba(8,47,73,0.55),rgba(15,23,42,0.88))]">
-                <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-size-[1.25rem_1.25rem]"></div>
-                <div
-                  class="og7-console-map-beacon og7-console-map-beacon--cyan absolute left-[18%] top-[24%] h-1 w-1 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.74)]"
-                  data-og7="admin-quality-console-map-beacon"
-                  data-og7-id="primary"
-                  data-og7-beat="lead"
-                ></div>
-                <div
-                  class="og7-console-map-beacon og7-console-map-beacon--emerald absolute right-[18%] top-[36%] h-1 w-1 rounded-full bg-emerald-300 shadow-[0_0_14px_rgba(16,185,129,0.65)]"
-                  data-og7="admin-quality-console-map-beacon"
-                  data-og7-id="secondary"
-                  data-og7-beat="echo"
-                ></div>
-                <div class="absolute bottom-1 left-1 right-1 rounded-md border border-white/10 bg-slate-950/70 px-1 py-0.5">
-                  <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-400">Mode actif</p>
-                  <p class="truncate text-[11px] font-semibold text-white" data-og7-id="admin-quality-console-active-surface">
-                    {{ activeConsoleSurfaceOption().label }} / {{ missionHudSectionLabel() }}
-                  </p>
-                </div>
-              </div>
-              <div class="grid min-w-0 gap-1">
-                <div class="min-w-0 rounded-md border border-white/10 bg-white/5 px-1 py-0.5 text-center">
-                  <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">Visible</p>
-                  <p class="text-[11px] font-semibold text-cyan-100">{{ filteredEntries().length }}</p>
-                </div>
-                <div class="min-w-0 rounded-md border border-white/10 bg-white/5 px-1 py-0.5 text-center">
-                  <p class="text-[8px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI</p>
-                  <p class="truncate text-[11px] font-semibold text-cyan-100">{{ selectedAiProviderLabel() }}</p>
-                </div>
-                <div class="min-w-0 rounded-md border px-1 py-0.5 text-center" [class]="missionHudStatusClasses(mission.status)">
-                  <p class="text-[8px] font-semibold uppercase tracking-[0.14em] opacity-75">Mission</p>
-                  <p class="text-[9px] font-semibold leading-3 wrap-break-word">{{ missionHudStatusLabel(mission.status) }}</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section
-            class="rounded-xl border border-white/10 bg-white/4 p-0.5"
-            data-og7="admin-quality-console-actions"
-            data-og7-layout="command-grid"
-          >
-            <div class="grid grid-cols-4 gap-1">
-              @for (surface of consoleSurfaceOptions; track surface.id) {
-              <button
-                type="button"
-                class="grid min-h-8 gap-0.5 rounded-lg border px-1 py-0.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-                [class]="consoleSurfaceClasses(surface.id)"
-                [attr.aria-pressed]="activeConsoleSurface() === surface.id"
-                [attr.data-og7-active]="activeConsoleSurface() === surface.id"
-                [attr.data-og7-id]="'admin-quality-console-' + surface.id"
-                data-og7="action"
-                (click)="activateConsoleSurface(surface.id)"
-              >
-                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/60 text-[8px] font-semibold tracking-widest">
-                  {{ surface.iconLabel }}
-                </span>
-                <span class="block truncate text-[9px] font-semibold">{{ surface.label }}</span>
-                <span class="sr-only">{{ surface.detail }}</span>
-              </button>
-              }
-            </div>
-          </section>
-
-          <div class="grid gap-1 sm:grid-cols-[minmax(0,1fr)_minmax(7rem,0.62fr)] xl:grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_minmax(7rem,0.62fr)]">
-          <section
-            class="rounded-xl border border-white/10 bg-slate-950/48 p-0.5"
-            data-og7="admin-quality-console-hud-controls"
-          >
-            <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-              <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
-                HUD
-              </p>
-              <button
-                type="button"
-                class="inline-flex h-6 items-center justify-center rounded-md border border-white/12 bg-white/5 px-1.5 py-0.5 text-[8px] font-semibold uppercase leading-none tracking-[0.08em] text-slate-100 transition hover:bg-white/8"
-                (click)="toggleMissionHud()"
-                data-og7="action"
-                data-og7-id="admin-quality-hud-toggle"
-              >
-                {{ missionHudExpanded() ? 'Compact' : 'Expand' }}
-              </button>
-            </div>
-
-            <div class="mt-1 grid grid-cols-3 gap-1">
-              @for (section of missionHudSectionOptions; track section.id) {
-              <button
-                type="button"
-                class="grid min-h-7 content-center gap-0.5 rounded-lg border px-1 py-0.5 text-left font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-                [class]="missionHudSectionClasses(section.id)"
-                [attr.data-og7-active]="missionHudActiveSection() === section.id"
-                [attr.data-og7-pulse]="missionHudSectionPulse(section.id)"
-                [attr.data-og7-id]="'admin-quality-hud-section-' + section.id"
-                [attr.aria-label]="section.label"
-                data-og7="admin-quality-hud-section-chip"
-                (click)="scrollMissionHudToSection(section.id)"
-              >
-                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/55 text-[7px]">
-                  {{ section.iconLabel }}
-                </span>
-                <span class="whitespace-nowrap text-[7px] leading-3 tracking-normal">
-                  {{ section.shortLabel }}
-                </span>
-              </button>
-              }
-            </div>
-          </section>
-
-          <section
-            class="rounded-xl border border-white/10 bg-white/4 p-0.5"
-            data-og7="admin-quality-console-desk-actions"
-          >
-            <div class="grid grid-cols-2 gap-1">
-              <button
-                type="button"
-                class="grid min-h-8 gap-0.5 rounded-lg border border-white/12 bg-[#10192b] px-1 py-0.5 text-left text-[9px] font-medium text-slate-100 transition hover:bg-[#16233a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-                (click)="openWorkspace('delegation')"
-                data-og7="action"
-                data-og7-id="admin-quality-hud-open-workspace"
-              >
-                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/60 text-[7px] font-semibold">MD</span>
-                <span class="truncate">Mission</span>
-              </button>
-              <button
-                type="button"
-                class="grid min-h-8 gap-0.5 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-1 py-0.5 text-left text-[9px] font-semibold text-cyan-100 transition hover:bg-cyan-400/16 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-                (click)="openWorkspace('actions')"
-                data-og7="action"
-                data-og7-id="admin-quality-hud-open-actions"
-              >
-                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-cyan-300/20 bg-slate-950/60 text-[7px] font-semibold">PD</span>
-                <span class="truncate">Proof</span>
-              </button>
-            </div>
-          </section>
-          </div>
-
-          <section
-            class="rounded-xl border border-white/10 bg-slate-950/58 p-0.5"
-            data-og7="admin-quality-console-mission-actions"
-            data-og7-layout="command-bar"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <p class="text-[9px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
-                Commandes
-              </p>
-              <span
-                class="inline-flex rounded-full border px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em]"
-                [class]="missionHudStatusClasses(mission.status)"
-              >
-                {{ missionHudStatusLabel(mission.status) }}
-              </span>
-            </div>
-
-            <div class="mt-1 grid grid-cols-3 gap-1">
-              @for (action of consoleMissionActions(); track action.action) {
-              <button
-                type="button"
-                class="grid min-h-8 gap-0.5 rounded-lg border px-1 py-0.5 text-left text-[8px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-55"
-                [class]="consoleMissionActionClasses(action.tone)"
-                [disabled]="isConsoleMissionActionDisabled(action.action, mission)"
-                [attr.aria-disabled]="isConsoleMissionActionBlocked(action.action, mission)"
-                [attr.title]="
+              <div class="mt-1 grid grid-cols-3 gap-1">
+                @for (action of consoleMissionActions(); track action.action) {
+                <button
+                  type="button"
+                  class="grid min-h-8 gap-0.5 rounded-lg border px-1 py-0.5 text-left text-[8px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-55"
+                  [class]="consoleMissionActionClasses(action.tone)"
+                  [disabled]="isConsoleMissionActionDisabled(action.action, mission)"
+                  [attr.aria-disabled]="isConsoleMissionActionBlocked(action.action, mission)"
+                  [attr.title]="
                   isConsoleMissionActionBlocked(action.action, mission)
                     ? selectedAiDispatchStatusDetail()
                     : null
                 "
-                data-og7="action"
-                [attr.data-og7-id]="action.hookId ?? null"
-                (click)="triggerConsoleMissionAction(action.action, mission)"
-              >
-                <span class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/55 text-[7px] uppercase tracking-widest">
-                  {{ consoleMissionActionIconLabel(action.action) }}
-                </span>
-                <span class="truncate">{{ consoleMissionActionLabel(action) }}</span>
-              </button>
-              }
-            </div>
-          </section>
-        </div>
-      </nav>
+                  data-og7="action"
+                  [attr.data-og7-id]="action.hookId ?? null"
+                  (click)="triggerConsoleMissionAction(action.action, mission)"
+                >
+                  <span
+                    class="inline-flex h-4 w-4 items-center justify-center rounded border border-white/12 bg-slate-950/55 text-[7px] uppercase tracking-widest"
+                  >
+                    {{ consoleMissionActionIconLabel(action.action) }}
+                  </span>
+                  <span class="truncate">{{ consoleMissionActionLabel(action) }}</span>
+                </button>
+                }
+              </div>
+            </section>
+          </div>
+        </nav>
       </div>
       } @else {
       <div class="border-t border-white/10 pt-3">
-        <og7-admin-quality-command-rail [scope]="commandScopeSummary()" [metrics]="commandMetrics()" />
+        <og7-admin-quality-command-rail
+          [scope]="commandScopeSummary()"
+          [metrics]="commandMetrics()"
+        />
       </div>
-      }
-
-      @if (hasActiveFilters()) {
+      } @if (hasActiveFilters()) {
       <div class="sr-only" data-og7="admin-quality-active-filters">
         @for (chip of activeFilterChips(); track chip.id) {
         <span
@@ -1304,7 +1483,6 @@
       } @else {
       <p class="sr-only">Aucun filtre actif. La vue montre tout le portefeuille QA.</p>
       }
-
     </div>
   </section>
 
@@ -1342,455 +1520,501 @@
       class="flex min-w-0 flex-col gap-3 xl:sticky xl:top-58 xl:w-68 xl:justify-self-end 2xl:w-72"
       data-og7="admin-quality-mission-inspector"
     >
-      <div
-        class="grid gap-3"
-        data-og7="admin-quality-console-stage"
-      >
-      <section
-        class="rounded-3xl border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(6,18,34,0.92))] px-4 py-4 shadow-[0_24px_72px_-50px_rgba(34,211,238,0.42)]"
-        data-og7="admin-quality-side-panel"
-        data-og7-visible="true"
-      >
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
-              Panneau lateral
-            </p>
-            <h2 class="mt-2 text-lg font-semibold text-white">Contexte actif</h2>
-          </div>
-          <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
-            Decision
-          </span>
-        </div>
-
-        @if (selectedEntry(); as entry) {
-        <div class="mt-4 space-y-3" data-og7-id="admin-quality-side-panel-entry">
-          <div>
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Domaine</p>
-            <p class="mt-1 text-base font-semibold leading-6 text-white">{{ entry.domain }}</p>
-            <p class="mt-2 text-sm leading-6 text-slate-300">{{ entry.need }}</p>
-          </div>
-
-          <div class="flex flex-wrap gap-1.5 text-[10px] font-semibold">
-            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.businessStatus)">
-              M {{ statusLabel(entry.businessStatus) }}
-            </span>
-            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.implementationStatus)">
-              I {{ statusLabel(entry.implementationStatus) }}
-            </span>
-            <span class="inline-flex rounded-full border px-2 py-1" [class]="statusClasses(entry.e2eStatus)">
-              E {{ statusLabel(entry.e2eStatus) }}
-            </span>
-          </div>
-
-          <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
-            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Prochaine action</p>
-            <p class="mt-2 text-sm leading-6 text-cyan-50">{{ entry.nextMove }}</p>
-          </div>
-        </div>
-        }
-
-        <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-          <button
-            type="button"
-            class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-50 transition hover:bg-cyan-400/16"
-            data-og7-id="admin-quality-side-panel-open-mission"
-            (click)="activateConsoleSurface('workspace', 'delegation')"
-          >
-            Mission desk
-          </button>
-          <button
-            type="button"
-            class="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/8"
-            data-og7-id="admin-quality-side-panel-open-proof"
-            (click)="activateConsoleSurface('workspace', 'actions')"
-          >
-            Proof desk
-          </button>
-        </div>
-      </section>
-
-      <div class="grid gap-4" data-og7="admin-quality-console-surface-stage">
-        <details
-          class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/58 shadow-[0_22px_72px_-52px_rgba(56,189,248,0.34)]"
-          data-og7="admin-quality-secondary-queue"
-          [open]="activeConsoleSurface() === 'queue'"
-          [class.hidden]="activeConsoleSurface() !== 'queue'"
-          [attr.aria-hidden]="activeConsoleSurface() !== 'queue'"
-          [attr.data-og7-visible]="activeConsoleSurface() === 'queue'"
-        >
-          <summary
-            class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-            data-og7-id="admin-quality-secondary-queue-toggle"
-          >
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">
-                Surface secondaire
-              </p>
-              <h2 class="mt-1 text-lg font-semibold text-white">QA Queue detaillee</h2>
-              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-                Relecture complete de la matrice pour reselectionner un domaine, relire le gap et preparer
-                la prochaine action sans concurrencer la surface principale.
-              </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
-              >
-                {{ filteredEntries().length }} domaine(s)
-              </span>
-              <span
-                class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/8 px-2.5 py-1 font-medium text-cyan-100"
-              >
-                Reselection manuelle
-              </span>
-            </div>
-          </summary>
-
-          <div class="border-t border-white/10 px-4 py-4 sm:px-5">
-            <section
-              class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/72 shadow-[0_24px_72px_-48px_rgba(8,47,73,0.48)] backdrop-blur"
-            >
-              <div class="og7-admin-quality-scrollbar og7-scrollbar-elegant max-h-160 overflow-auto">
-                <table class="min-w-225 divide-y divide-white/10 text-left text-sm text-slate-300">
-                  <thead
-                    class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-wide text-slate-400"
-                  >
-                    <tr>
-                      <th class="px-4 py-3">Domaine</th>
-                      <th class="px-4 py-3">Diagnostic</th>
-                      <th class="px-4 py-3">Lecture</th>
-                      <th class="px-4 py-3">Prochaine action</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-white/10">
-                    @if (!filteredEntries().length) {
-                    <tr>
-                      <td
-                        colspan="4"
-                        class="px-4 py-8 text-center text-sm text-slate-400"
-                        data-og7-id="admin-quality-empty"
-                      >
-                        Aucun domaine ne correspond aux filtres actifs.
-                      </td>
-                    </tr>
-                    } @else { @for (entry of filteredEntries(); track entry.id) {
-                    <tr
-                      data-og7="admin-quality-row"
-                      [attr.data-og7-id]="entry.id"
-                      [attr.data-og7-state]="entry.e2eStatus"
-                      [class.bg-cyan-400/8]="isSelected(entry)"
-                    >
-                      <td class="px-4 py-4 align-top">
-                        <button
-                          type="button"
-                          class="w-full text-left"
-                          (click)="selectEntry(entry)"
-                          [attr.aria-pressed]="isSelected(entry)"
-                          data-og7="action"
-                          data-og7-id="admin-quality-select-row"
-                        >
-                          <div class="flex items-start gap-3">
-                            <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
-                            <div class="min-w-0">
-                              <p class="font-semibold text-white">{{ entry.domain }}</p>
-                              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                                <p>Revu le {{ entry.reviewedAt }}</p>
-                                @if (entryNeedsMatrixRefresh(entry)) {
-                                <span
-                                  class="inline-flex rounded-full border border-rose-300/22 bg-rose-400/10 px-2 py-0.5 font-semibold text-rose-100"
-                                  data-og7="admin-quality-row-refresh-required"
-                                  [attr.data-og7-id]="entry.id"
-                                  title="Une mission cloturee est plus recente que la derniere revue de matrice."
-                                >
-                                  Refresh matrice
-                                </span>
-                                }
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      </td>
-                      <td class="px-4 py-4 align-top">
-                        <p class="font-medium leading-relaxed text-white">{{ entry.need }}</p>
-                        <p class="mt-2 text-xs leading-relaxed text-slate-400">{{ entry.observedGap }}</p>
-                      </td>
-                      <td class="px-4 py-4 align-top">
-                        <div class="flex flex-wrap gap-1.5">
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="statusClasses(entry.summaryStatus)"
-                            >S {{ statusLabel(entry.summaryStatus) }}</span
-                          >
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="statusClasses(entry.businessStatus)"
-                            >M {{ statusLabel(entry.businessStatus) }}</span
-                          >
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="statusClasses(entry.implementationStatus)"
-                            >I {{ statusLabel(entry.implementationStatus) }}</span
-                          >
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="statusClasses(entry.e2eStatus)"
-                            >E {{ statusLabel(entry.e2eStatus) }}</span
-                          >
-                        </div>
-                        <div class="mt-3 flex flex-wrap gap-1.5">
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="priorityClasses(entry.priority)"
-                            >Priorite {{ priorityLabel(entry.priority) }}</span
-                          >
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="bucketClasses(entry.managementBucket)"
-                            >{{ bucketLabel(entry.managementBucket) }}</span
-                          >
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
-                            [class]="readinessClasses(entry)"
-                            >{{ readinessLabel(entry) }}</span
-                          >
-                        </div>
-                        @if (entry.evidence.length) {
-                        <div class="mt-3 space-y-1">
-                          <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                            Preuve
-                          </p>
-                          <p class="text-xs leading-relaxed text-slate-400">
-                            {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
-                            firstEvidence) {
-                            <span class="text-slate-500"> - {{ firstEvidence }}</span>
-                            }
-                          </p>
-                        </div>
-                        }
-                      </td>
-                      <td class="px-4 py-4 align-top">
-                        <p class="leading-relaxed text-slate-300">{{ entry.nextMove }}</p>
-                      </td>
-                    </tr>
-                    } }
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </details>
-
+      <div class="grid gap-3" data-og7="admin-quality-console-stage">
         <section
-          class="rounded-[20px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(8,21,39,0.92))] px-4 py-4 shadow-[0_20px_60px_-42px_rgba(34,211,238,0.38)]"
-          data-og7="admin-quality-ai-pilot-block"
-          [class.hidden]="activeConsoleSurface() !== 'ai'"
-          [attr.aria-hidden]="activeConsoleSurface() !== 'ai'"
-          [attr.data-og7-visible]="activeConsoleSurface() === 'ai'"
+          class="rounded-3xl border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.96),rgba(6,18,34,0.92))] px-4 py-4 shadow-[0_24px_72px_-50px_rgba(34,211,238,0.42)]"
+          data-og7="admin-quality-side-panel"
+          data-og7-visible="true"
         >
-          <div class="flex flex-col gap-3">
-            <div class="min-w-0 space-y-1.5">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100">
-                  Pilotage AI
-                </span>
-                <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200">
-                  {{ selectedAiProviderLabel() }}
-                </span>
-              </div>
-              <p class="text-sm font-semibold text-white">Canal operateur actif pour la mission et les preuves</p>
-              <p
-                class="max-w-xl text-[11px] leading-5 text-slate-400"
-                data-og7-id="admin-quality-ai-provider-caption"
-              >
-                {{ selectedAiProviderCaption() }}
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
+                Panneau lateral
               </p>
+              <h2 class="mt-2 text-lg font-semibold text-white">Contexte actif</h2>
             </div>
-
-            <og7-admin-quality-combobox
-              label="AI"
-              dataOg7Id="admin-quality-ai-provider"
-              [options]="aiProviderSelectOptions()"
-              [value]="selectedAiProvider()"
-              (valueChange)="setAiProviderValue($event)"
-            />
+            <span
+              class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100"
+            >
+              Decision
+            </span>
           </div>
 
-          <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
-            <span class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium text-slate-200">
-              Workflow {{ selectedAiDispatchWorkflow() }}
-            </span>
-            <span
-              class="inline-flex rounded-full border px-2.5 py-1 font-medium"
-              [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
+          @if (selectedEntry(); as entry) {
+          <div class="mt-4 space-y-3" data-og7-id="admin-quality-side-panel-entry">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Domaine
+              </p>
+              <p class="mt-1 text-base font-semibold leading-6 text-white">{{ entry.domain }}</p>
+              <p class="mt-2 text-sm leading-6 text-slate-300">{{ entry.need }}</p>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 text-[10px] font-semibold">
+              <span
+                class="inline-flex rounded-full border px-2 py-1"
+                [class]="statusClasses(entry.businessStatus)"
+              >
+                M {{ statusLabel(entry.businessStatus) }}
+              </span>
+              <span
+                class="inline-flex rounded-full border px-2 py-1"
+                [class]="statusClasses(entry.implementationStatus)"
+              >
+                I {{ statusLabel(entry.implementationStatus) }}
+              </span>
+              <span
+                class="inline-flex rounded-full border px-2 py-1"
+                [class]="statusClasses(entry.e2eStatus)"
+              >
+                E {{ statusLabel(entry.e2eStatus) }}
+              </span>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+              <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Prochaine action
+              </p>
+              <p class="mt-2 text-sm leading-6 text-cyan-50">{{ entry.nextMove }}</p>
+            </div>
+          </div>
+          }
+
+          <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-50 transition hover:bg-cyan-400/16"
+              data-og7-id="admin-quality-side-panel-open-mission"
+              (click)="activateConsoleSurface('workspace', 'delegation')"
             >
-              {{ selectedAiTelemetryLabel() }}
-            </span>
-            @if (hasActiveFilters()) {
-            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 font-medium text-emerald-100">
-              <span class="text-emerald-300" aria-hidden="true">•</span>
-              Filtres actifs : {{ activeFilterChips().length }}
-            </span>
-            } @else {
-            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium text-slate-400">
-              <span class="text-slate-500" aria-hidden="true">•</span>
-              Aucun filtre actif
-            </span>
-            }
+              Mission desk
+            </button>
+            <button
+              type="button"
+              class="inline-flex min-h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-white/8"
+              data-og7-id="admin-quality-side-panel-open-proof"
+              (click)="activateConsoleSurface('workspace', 'actions')"
+            >
+              Proof desk
+            </button>
           </div>
         </section>
 
-        <section
-          #workspaceSection
-          id="admin-quality-workspace"
-          class="og7-radar-lock-focus-shell relative overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
-          data-og7="admin-quality-workspace-bar"
-          data-og7-id="workspace"
-          [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
-          [class.hidden]="activeConsoleSurface() !== 'workspace'"
-          [attr.aria-hidden]="activeConsoleSurface() !== 'workspace'"
-          [attr.data-og7-visible]="activeConsoleSurface() === 'workspace'"
-        >
-        <div
-          class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.1),transparent_22%)]"
-        ></div>
-
-        <div class="relative flex flex-col gap-4">
-          <div class="min-w-0 space-y-3">
-            <div class="flex flex-wrap items-center gap-2">
-              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
-                {{ 'admin.quality.workspace.compact.label' | translate }}
-              </p>
-              <span
-                class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
-              >
-                {{ 'admin.quality.workspace.compact.primarySurface' | translate: { surface:
-                (selectedWorkspaceTitle() | translate) } }}
-              </span>
-            </div>
-
-            <div class="space-y-1">
-              <h2 class="text-xl font-semibold tracking-tight text-white">
-                {{ 'admin.quality.workspace.compact.title' | translate }}
-              </h2>
-              <p class="text-sm leading-6 text-slate-300">
-                {{ 'admin.quality.workspace.compact.subtitle' | translate }}
-              </p>
-            </div>
-
-            <div class="flex flex-wrap gap-2 text-sm text-slate-200">
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
-              >
-                {{ 'admin.quality.workspace.compact.domains' | translate: { count:
-                filteredEntries().length } }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
-              >
-                {{ 'admin.quality.workspace.compact.actions' | translate: { count:
-                selectedEntryActions().length } }}
-              </span>
-              <span
-                class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100"
-              >
-                {{ 'admin.quality.workspace.compact.activeSurface' | translate: { surface:
-                (selectedWorkspaceTitle() | translate) } }}
-              </span>
-            </div>
-          </div>
-
-          <div
-            class="grid grid-cols-1 gap-1.5 rounded-[22px] border border-white/10 bg-white/4 p-1.5"
-            role="tablist"
-            aria-label="Workspace inspector"
-            data-og7="admin-quality-workspace-inspector-tabs"
-            data-og7-layout="vertical-list"
+        <div class="grid gap-4" data-og7="admin-quality-console-surface-stage">
+          <details
+            class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/58 shadow-[0_22px_72px_-52px_rgba(56,189,248,0.34)]"
+            data-og7="admin-quality-secondary-queue"
+            [open]="activeConsoleSurface() === 'queue'"
+            [class.hidden]="activeConsoleSurface() !== 'queue'"
+            [attr.aria-hidden]="activeConsoleSurface() !== 'queue'"
+            [attr.data-og7-visible]="activeConsoleSurface() === 'queue'"
           >
-            <button
-              type="button"
-              role="tab"
-              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
-              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'qaQueue'"
-              [class.border]="true"
-              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'qaQueue'"
-              [class.text-white]="activeWorkspaceSurface() === 'qaQueue'"
-              [class.border-transparent]="activeWorkspaceSurface() !== 'qaQueue'"
-              [class.text-slate-300]="activeWorkspaceSurface() !== 'qaQueue'"
-              [attr.aria-selected]="activeWorkspaceSurface() === 'qaQueue'"
-              data-og7="action"
-              data-og7-id="admin-quality-inspector-tab-qaQueue"
-              (click)="setActiveWorkspaceSurface('qaQueue')"
+            <summary
+              class="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+              data-og7-id="admin-quality-secondary-queue-toggle"
             >
-              {{ 'admin.quality.workspace.tabs.qaQueue' | translate }}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
-              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'delegation'"
-              [class.border]="true"
-              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'delegation'"
-              [class.text-white]="activeWorkspaceSurface() === 'delegation'"
-              [class.border-transparent]="activeWorkspaceSurface() !== 'delegation'"
-              [class.text-slate-300]="activeWorkspaceSurface() !== 'delegation'"
-              [attr.aria-selected]="activeWorkspaceSurface() === 'delegation'"
-              data-og7="action"
-              data-og7-id="admin-quality-inspector-tab-delegation"
-              (click)="setActiveWorkspaceSurface('delegation')"
-            >
-              {{ 'admin.quality.workspace.tabs.delegation' | translate }}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
-              [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'actions'"
-              [class.border]="true"
-              [class.border-cyan-300/20]="activeWorkspaceSurface() === 'actions'"
-              [class.text-white]="activeWorkspaceSurface() === 'actions'"
-              [class.border-transparent]="activeWorkspaceSurface() !== 'actions'"
-              [class.text-slate-300]="activeWorkspaceSurface() !== 'actions'"
-              [attr.aria-selected]="activeWorkspaceSurface() === 'actions'"
-              data-og7="action"
-              data-og7-id="admin-quality-inspector-tab-actions"
-              (click)="setActiveWorkspaceSurface('actions')"
-            >
-              {{ 'admin.quality.workspace.tabs.actions' | translate }}
-            </button>
-          </div>
-
-          <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4 text-left">
-            <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  {{ 'admin.quality.workspace.compact.activePanel' | translate }}
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">
+                  Surface secondaire
                 </p>
-                <p class="mt-2 text-lg font-semibold text-white">
-                  {{ selectedWorkspaceTitle() | translate }}
-                </p>
-                <p class="mt-2 text-sm leading-6 text-slate-300">
-                  {{ selectedWorkspaceSubtitle() | translate }}
+                <h2 class="mt-1 text-lg font-semibold text-white">QA Queue detaillee</h2>
+                <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
+                  Relecture complete de la matrice pour reselectionner un domaine, relire le gap et
+                  preparer la prochaine action sans concurrencer la surface principale.
                 </p>
               </div>
-              <span class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100">
-                {{ selectedWorkspaceCount() }}
-              </span>
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                <span
+                  class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium"
+                >
+                  {{ filteredEntries().length }} domaine(s)
+                </span>
+                <span
+                  class="inline-flex rounded-full border border-cyan-300/18 bg-cyan-400/8 px-2.5 py-1 font-medium text-cyan-100"
+                >
+                  Reselection manuelle
+                </span>
+              </div>
+            </summary>
+
+            <div class="border-t border-white/10 px-4 py-4 sm:px-5">
+              <section
+                class="relative overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/72 shadow-[0_24px_72px_-48px_rgba(8,47,73,0.48)] backdrop-blur"
+              >
+                <div
+                  class="og7-admin-quality-scrollbar og7-scrollbar-elegant max-h-160 overflow-auto"
+                >
+                  <table
+                    class="min-w-225 divide-y divide-white/10 text-left text-sm text-slate-300"
+                  >
+                    <thead
+                      class="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-wide text-slate-400"
+                    >
+                      <tr>
+                        <th class="px-4 py-3">Domaine</th>
+                        <th class="px-4 py-3">Diagnostic</th>
+                        <th class="px-4 py-3">Lecture</th>
+                        <th class="px-4 py-3">Prochaine action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                      @if (!filteredEntries().length) {
+                      <tr>
+                        <td
+                          colspan="4"
+                          class="px-4 py-8 text-center text-sm text-slate-400"
+                          data-og7-id="admin-quality-empty"
+                        >
+                          Aucun domaine ne correspond aux filtres actifs.
+                        </td>
+                      </tr>
+                      } @else { @for (entry of filteredEntries(); track entry.id) {
+                      <tr
+                        data-og7="admin-quality-row"
+                        [attr.data-og7-id]="entry.id"
+                        [attr.data-og7-state]="entry.e2eStatus"
+                        [class.bg-cyan-400/8]="isSelected(entry)"
+                      >
+                        <td class="px-4 py-4 align-top">
+                          <button
+                            type="button"
+                            class="w-full text-left"
+                            (click)="selectEntry(entry)"
+                            [attr.aria-pressed]="isSelected(entry)"
+                            data-og7="action"
+                            data-og7-id="admin-quality-select-row"
+                          >
+                            <div class="flex items-start gap-3">
+                              <og7-admin-quality-domain-icon [entryId]="entry.id" size="sm" />
+                              <div class="min-w-0">
+                                <p class="font-semibold text-white">{{ entry.domain }}</p>
+                                <div
+                                  class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400"
+                                >
+                                  <p>Revu le {{ entry.reviewedAt }}</p>
+                                  @if (entryNeedsMatrixRefresh(entry)) {
+                                  <span
+                                    class="inline-flex rounded-full border border-rose-300/22 bg-rose-400/10 px-2 py-0.5 font-semibold text-rose-100"
+                                    data-og7="admin-quality-row-refresh-required"
+                                    [attr.data-og7-id]="entry.id"
+                                    title="Une mission cloturee est plus recente que la derniere revue de matrice."
+                                  >
+                                    Refresh matrice
+                                  </span>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                          <p class="font-medium leading-relaxed text-white">{{ entry.need }}</p>
+                          <p class="mt-2 text-xs leading-relaxed text-slate-400">
+                            {{ entry.observedGap }}
+                          </p>
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                          <div class="flex flex-wrap gap-1.5">
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="statusClasses(entry.summaryStatus)"
+                              >S {{ statusLabel(entry.summaryStatus) }}</span
+                            >
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="statusClasses(entry.businessStatus)"
+                              >M {{ statusLabel(entry.businessStatus) }}</span
+                            >
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="statusClasses(entry.implementationStatus)"
+                              >I {{ statusLabel(entry.implementationStatus) }}</span
+                            >
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="statusClasses(entry.e2eStatus)"
+                              >E {{ statusLabel(entry.e2eStatus) }}</span
+                            >
+                          </div>
+                          <div class="mt-3 flex flex-wrap gap-1.5">
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="priorityClasses(entry.priority)"
+                              >Priorite {{ priorityLabel(entry.priority) }}</span
+                            >
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="bucketClasses(entry.managementBucket)"
+                              >{{ bucketLabel(entry.managementBucket) }}</span
+                            >
+                            <span
+                              class="inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold"
+                              [class]="readinessClasses(entry)"
+                              >{{ readinessLabel(entry) }}</span
+                            >
+                          </div>
+                          @if (entry.evidence.length) {
+                          <div class="mt-3 space-y-1">
+                            <p
+                              class="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400"
+                            >
+                              Preuve
+                            </p>
+                            <p class="text-xs leading-relaxed text-slate-400">
+                              {{ entry.evidence.length }} reference(s) @if (entry.evidence[0]; as
+                              firstEvidence) {
+                              <span class="text-slate-500"> - {{ firstEvidence }}</span>
+                              }
+                            </p>
+                          </div>
+                          }
+                        </td>
+                        <td class="px-4 py-4 align-top">
+                          <p class="leading-relaxed text-slate-300">{{ entry.nextMove }}</p>
+                        </td>
+                      </tr>
+                      } }
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </details>
+
+          <section
+            class="rounded-[20px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,30,0.94),rgba(8,21,39,0.92))] px-4 py-4 shadow-[0_20px_60px_-42px_rgba(34,211,238,0.38)]"
+            data-og7="admin-quality-ai-pilot-block"
+            [class.hidden]="activeConsoleSurface() !== 'ai'"
+            [attr.aria-hidden]="activeConsoleSurface() !== 'ai'"
+            [attr.data-og7-visible]="activeConsoleSurface() === 'ai'"
+          >
+            <div class="flex flex-col gap-3">
+              <div class="min-w-0 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span
+                    class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-100"
+                  >
+                    Pilotage AI
+                  </span>
+                  <span
+                    class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-200"
+                  >
+                    {{ selectedAiProviderLabel() }}
+                  </span>
+                </div>
+                <p class="text-sm font-semibold text-white">
+                  Canal operateur actif pour la mission et les preuves
+                </p>
+                <p
+                  class="max-w-xl text-[11px] leading-5 text-slate-400"
+                  data-og7-id="admin-quality-ai-provider-caption"
+                >
+                  {{ selectedAiProviderCaption() }}
+                </p>
+              </div>
+
+              <og7-admin-quality-combobox
+                label="AI"
+                dataOg7Id="admin-quality-ai-provider"
+                [options]="aiProviderSelectOptions()"
+                [value]="selectedAiProvider()"
+                (valueChange)="setAiProviderValue($event)"
+              />
             </div>
 
-            <div class="mt-4" data-og7="admin-quality-workspace-inspector-panel" [attr.data-og7-id]="activeWorkspaceSurface()">
-              @switch (activeWorkspaceSurface()) {
-                @case ('qaQueue') {
-                  @if (qaQueuePreviewItems().length) {
+            <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+              <span
+                class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium text-slate-200"
+              >
+                Workflow {{ selectedAiDispatchWorkflow() }}
+              </span>
+              <span
+                class="inline-flex rounded-full border px-2.5 py-1 font-medium"
+                [class]="missionHudTelemetryClasses(selectedAiTelemetryState())"
+              >
+                {{ selectedAiTelemetryLabel() }}
+              </span>
+              @if (hasActiveFilters()) {
+              <span
+                class="inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 font-medium text-emerald-100"
+              >
+                <span class="text-emerald-300" aria-hidden="true">•</span>
+                Filtres actifs : {{ activeFilterChips().length }}
+              </span>
+              } @else {
+              <span
+                class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-medium text-slate-400"
+              >
+                <span class="text-slate-500" aria-hidden="true">•</span>
+                Aucun filtre actif
+              </span>
+              }
+            </div>
+          </section>
+
+          <section
+            #workspaceSection
+            id="admin-quality-workspace"
+            class="og7-radar-lock-focus-shell relative overflow-hidden rounded-[30px] border border-cyan-400/25 bg-[linear-gradient(180deg,rgba(4,12,28,0.98),rgba(4,13,30,0.96)_50%,rgba(2,8,20,0.98))] p-4 shadow-[0_34px_96px_-60px_rgba(56,189,248,0.42)] xl:p-5"
+            data-og7="admin-quality-workspace-bar"
+            data-og7-id="workspace"
+            [attr.data-og7-lock-focus]="missionControlPanelFocused('workspace')"
+            [class.hidden]="activeConsoleSurface() !== 'workspace'"
+            [attr.aria-hidden]="activeConsoleSurface() !== 'workspace'"
+            [attr.data-og7-visible]="activeConsoleSurface() === 'workspace'"
+          >
+            <div
+              class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%),radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.1),transparent_22%)]"
+            ></div>
+
+            <div class="relative flex flex-col gap-4">
+              <div class="min-w-0 space-y-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200/80">
+                    {{ 'admin.quality.workspace.compact.label' | translate }}
+                  </p>
+                  <span
+                    class="inline-flex rounded-full border border-amber-300/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-100"
+                  >
+                    {{ 'admin.quality.workspace.compact.primarySurface' | translate: { surface:
+                    (selectedWorkspaceTitle() | translate) } }}
+                  </span>
+                </div>
+
+                <div class="space-y-1">
+                  <h2 class="text-xl font-semibold tracking-tight text-white">
+                    {{ 'admin.quality.workspace.compact.title' | translate }}
+                  </h2>
+                  <p class="text-sm leading-6 text-slate-300">
+                    {{ 'admin.quality.workspace.compact.subtitle' | translate }}
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-sm text-slate-200">
+                  <span
+                    class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
+                  >
+                    {{ 'admin.quality.workspace.compact.domains' | translate: { count:
+                    filteredEntries().length } }}
+                  </span>
+                  <span
+                    class="inline-flex rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-200"
+                  >
+                    {{ 'admin.quality.workspace.compact.actions' | translate: { count:
+                    selectedEntryActions().length } }}
+                  </span>
+                  <span
+                    class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100"
+                  >
+                    {{ 'admin.quality.workspace.compact.activeSurface' | translate: { surface:
+                    (selectedWorkspaceTitle() | translate) } }}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                class="grid grid-cols-1 gap-1.5 rounded-[22px] border border-white/10 bg-white/4 p-1.5"
+                role="tablist"
+                aria-label="Workspace inspector"
+                data-og7="admin-quality-workspace-inspector-tabs"
+                data-og7-layout="vertical-list"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
+                  [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'qaQueue'"
+                  [class.border]="true"
+                  [class.border-cyan-300/20]="activeWorkspaceSurface() === 'qaQueue'"
+                  [class.text-white]="activeWorkspaceSurface() === 'qaQueue'"
+                  [class.border-transparent]="activeWorkspaceSurface() !== 'qaQueue'"
+                  [class.text-slate-300]="activeWorkspaceSurface() !== 'qaQueue'"
+                  [attr.aria-selected]="activeWorkspaceSurface() === 'qaQueue'"
+                  data-og7="action"
+                  data-og7-id="admin-quality-inspector-tab-qaQueue"
+                  (click)="setActiveWorkspaceSurface('qaQueue')"
+                >
+                  {{ 'admin.quality.workspace.tabs.qaQueue' | translate }}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
+                  [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'delegation'"
+                  [class.border]="true"
+                  [class.border-cyan-300/20]="activeWorkspaceSurface() === 'delegation'"
+                  [class.text-white]="activeWorkspaceSurface() === 'delegation'"
+                  [class.border-transparent]="activeWorkspaceSurface() !== 'delegation'"
+                  [class.text-slate-300]="activeWorkspaceSurface() !== 'delegation'"
+                  [attr.aria-selected]="activeWorkspaceSurface() === 'delegation'"
+                  data-og7="action"
+                  data-og7-id="admin-quality-inspector-tab-delegation"
+                  (click)="setActiveWorkspaceSurface('delegation')"
+                >
+                  {{ 'admin.quality.workspace.tabs.delegation' | translate }}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class="flex min-h-11 items-center justify-between rounded-[18px] px-3 py-2.5 text-left text-sm font-medium leading-5 transition"
+                  [class.bg-cyan-400/12]="activeWorkspaceSurface() === 'actions'"
+                  [class.border]="true"
+                  [class.border-cyan-300/20]="activeWorkspaceSurface() === 'actions'"
+                  [class.text-white]="activeWorkspaceSurface() === 'actions'"
+                  [class.border-transparent]="activeWorkspaceSurface() !== 'actions'"
+                  [class.text-slate-300]="activeWorkspaceSurface() !== 'actions'"
+                  [attr.aria-selected]="activeWorkspaceSurface() === 'actions'"
+                  data-og7="action"
+                  data-og7-id="admin-quality-inspector-tab-actions"
+                  (click)="setActiveWorkspaceSurface('actions')"
+                >
+                  {{ 'admin.quality.workspace.tabs.actions' | translate }}
+                </button>
+              </div>
+
+              <article class="rounded-3xl border border-white/10 bg-slate-950/55 p-4 text-left">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                      {{ 'admin.quality.workspace.compact.activePanel' | translate }}
+                    </p>
+                    <p class="mt-2 text-lg font-semibold text-white">
+                      {{ selectedWorkspaceTitle() | translate }}
+                    </p>
+                    <p class="mt-2 text-sm leading-6 text-slate-300">
+                      {{ selectedWorkspaceSubtitle() | translate }}
+                    </p>
+                  </div>
+                  <span
+                    class="inline-flex rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-100"
+                  >
+                    {{ selectedWorkspaceCount() }}
+                  </span>
+                </div>
+
+                <div
+                  class="mt-4"
+                  data-og7="admin-quality-workspace-inspector-panel"
+                  [attr.data-og7-id]="activeWorkspaceSurface()"
+                >
+                  @switch (activeWorkspaceSurface()) { @case ('qaQueue') { @if
+                  (qaQueuePreviewItems().length) {
                   <div class="space-y-3">
                     @for (entry of qaQueuePreviewItems(); track entry.id) {
-                    <article class="rounded-[20px] border border-white/10 bg-white/4 p-3.5" data-og7="admin-quality-workspace-inspector-qa-item" [attr.data-og7-id]="entry.id">
+                    <article
+                      class="rounded-[20px] border border-white/10 bg-white/4 p-3.5"
+                      data-og7="admin-quality-workspace-inspector-qa-item"
+                      [attr.data-og7-id]="entry.id"
+                    >
                       <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                           <h3 class="text-sm font-semibold text-white">{{ entry.domain }}</h3>
                           <p class="mt-1 text-xs leading-5 text-slate-300">{{ entry.need }}</p>
                         </div>
-                        <span class="inline-flex shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold" [class]="statusClasses(entry.e2eStatus)">
+                        <span
+                          class="inline-flex shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
+                          [class]="statusClasses(entry.e2eStatus)"
+                        >
                           {{ statusLabel(entry.e2eStatus) }}
                         </span>
                       </div>
@@ -1799,20 +2023,25 @@
                     }
                   </div>
                   } @else {
-                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300">
+                  <p
+                    class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300"
+                  >
                     {{ 'admin.quality.workspace.qaQueue.emptyBody' | translate }}
                   </p>
-                  }
-                }
-                @case ('actions') {
-                  @if (actionPreviewItems().length) {
+                  } } @case ('actions') { @if (actionPreviewItems().length) {
                   <div class="space-y-3">
                     @for (action of actionPreviewItems(); track action.id) {
-                    <article class="rounded-[20px] border border-white/10 bg-white/4 p-3.5" data-og7="admin-quality-workspace-inspector-action-item" [attr.data-og7-id]="action.id">
+                    <article
+                      class="rounded-[20px] border border-white/10 bg-white/4 p-3.5"
+                      data-og7="admin-quality-workspace-inspector-action-item"
+                      [attr.data-og7-id]="action.id"
+                    >
                       <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                           <h3 class="text-sm font-semibold text-white">{{ action.label }}</h3>
-                          <p class="mt-1 break-all text-[11px] text-slate-400">{{ action.selector }}</p>
+                          <p class="mt-1 break-all text-[11px] text-slate-400">
+                            {{ action.selector }}
+                          </p>
                         </div>
                         <span
                           class="inline-flex shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold"
@@ -1829,30 +2058,36 @@
                           {{ action.status }}
                         </span>
                       </div>
-                      <p class="mt-3 text-xs leading-5 text-slate-300">{{ action.expectedResult }}</p>
+                      <p class="mt-3 text-xs leading-5 text-slate-300">
+                        {{ action.expectedResult }}
+                      </p>
                     </article>
                     }
                   </div>
                   } @else {
-                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300">
+                  <p
+                    class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300"
+                  >
                     {{ 'admin.quality.workspace.actions.emptyBody' | translate }}
                   </p>
-                  }
-                }
-                @default {
-                  @if (selectedDelegation(); as plan) {
+                  } } @default { @if (selectedDelegation(); as plan) {
                   <div class="space-y-3">
                     <article class="rounded-[20px] border border-white/10 bg-white/4 p-3.5">
-                      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-200/80">
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-200/80"
+                      >
                         {{ plan.track }}
                       </p>
                       <h3 class="mt-2 text-sm font-semibold text-white">{{ plan.title }}</h3>
                       <p class="mt-2 text-xs leading-6 text-slate-300">
-                        {{ selectedEntry()?.nextMove || ('admin.quality.workspace.delegation.missing' | translate) }}
+                        {{ selectedEntry()?.nextMove ||
+                        ('admin.quality.workspace.delegation.missing' | translate) }}
                       </p>
                     </article>
                     <article class="rounded-[20px] border border-white/10 bg-slate-950/55 p-3.5">
-                      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                      <p
+                        class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+                      >
                         {{ 'admin.quality.workspace.delegation.cards.validation' | translate }}
                       </p>
                       <ul class="mt-3 space-y-2 text-xs leading-6 text-slate-300">
@@ -1863,27 +2098,27 @@
                     </article>
                   </div>
                   } @else {
-                  <p class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300">
+                  <p
+                    class="rounded-[18px] border border-dashed border-white/14 bg-white/3 px-4 py-5 text-sm leading-6 text-slate-300"
+                  >
                     {{ 'admin.quality.workspace.delegation.missing' | translate }}
                   </p>
-                  }
-                }
-              }
-            </div>
-          </article>
+                  } } }
+                </div>
+              </article>
 
-          <button
-            type="button"
-            class="inline-flex min-h-12 items-center justify-center rounded-[18px] border border-cyan-300/25 bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-blue-400"
-            (click)="openWorkspace()"
-            data-og7="action"
-            data-og7-id="admin-quality-open-workspace"
-          >
-            {{ 'admin.quality.workspace.compact.open' | translate }}
-          </button>
-          </div>
-        </section>
-      </div>
+              <button
+                type="button"
+                class="inline-flex min-h-12 items-center justify-center rounded-[18px] border border-cyan-300/25 bg-linear-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:from-cyan-400 hover:to-blue-400"
+                (click)="openWorkspace()"
+                data-og7="action"
+                data-og7-id="admin-quality-open-workspace"
+              >
+                {{ 'admin.quality.workspace.compact.open' | translate }}
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
     </aside>
   </div>

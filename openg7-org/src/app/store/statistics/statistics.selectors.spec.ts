@@ -45,7 +45,13 @@ describe('Statistics selectors', () => {
   } as const;
 
   const state: StatisticsState = {
-    filters: { scope: 'interprovincial', intrant: 'energy', period: null, province: null, country: null },
+    filters: {
+      scope: 'interprovincial',
+      intrant: 'energy',
+      period: null,
+      province: null,
+      country: null,
+    },
     summaries: [summaryA, summaryB],
     insights: [
       {
@@ -103,7 +109,10 @@ describe('Statistics selectors', () => {
   });
 
   it('selectStatisticsHeroSnapshot computes fallback when snapshot missing', () => {
-    const snapshot = selectStatisticsHeroSnapshot.projector(null, [summaryA, summaryB]) as StatisticsSnapshot;
+    const snapshot = selectStatisticsHeroSnapshot.projector(null, [
+      summaryA,
+      summaryB,
+    ]) as StatisticsSnapshot;
     expect(snapshot.totalFlows).toBe(200);
     expect(snapshot.activeCorridors).toBe(2);
     expect(snapshot.totalFlowsUnitKey).toBe('pages.statistics.units.billionCAD');

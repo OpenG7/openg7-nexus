@@ -1,6 +1,7 @@
 import type { Core, Modules } from '@strapi/strapi';
 
-const deepPopulate = 'deep' as unknown as Modules.EntityService.Params.Populate.Any<'api::homepage.homepage'>;
+const deepPopulate =
+  'deep' as unknown as Modules.EntityService.Params.Populate.Any<'api::homepage.homepage'>;
 
 interface PreviewQuery {
   secret?: string;

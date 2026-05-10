@@ -4,15 +4,15 @@ This repository (`openg7-nexus`) is the orchestration and integration layer. It 
 
 ## Capability -> Canonical Repository
 
-| Capability | Canonical repo | Notes |
-| --- | --- | --- |
-| evidence_capsules | openg7-open-evidence | Claim -> evidence capsule definitions and formats |
-| audit_trail | openg7-audit-ledger | Audit event schema, hashing/signing |
-| attention_signals | openg7-attention-metrics | Signal definitions and aggregation |
-| friction_guardrails | openg7-friction-engine | UX/process friction rules |
-| ranking_policy | openg7-ranking-policy | Ranking rules and provenance |
-| privacy_methods | openg7-privacy-lab | Privacy-by-design methods |
-| community_thermometer | openg7-community-health-dashboard | Community health metrics |
+| Capability            | Canonical repo                    | Notes                                             |
+| --------------------- | --------------------------------- | ------------------------------------------------- |
+| evidence_capsules     | openg7-open-evidence              | Claim -> evidence capsule definitions and formats |
+| audit_trail           | openg7-audit-ledger               | Audit event schema, hashing/signing               |
+| attention_signals     | openg7-attention-metrics          | Signal definitions and aggregation                |
+| friction_guardrails   | openg7-friction-engine            | UX/process friction rules                         |
+| ranking_policy        | openg7-ranking-policy             | Ranking rules and provenance                      |
+| privacy_methods       | openg7-privacy-lab                | Privacy-by-design methods                         |
+| community_thermometer | openg7-community-health-dashboard | Community health metrics                          |
 
 ## What is allowed in openg7-nexus
 

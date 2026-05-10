@@ -36,9 +36,20 @@ describe('StatisticsService', () => {
     service.fetch().subscribe();
 
     const request = httpMock.expectOne(
-      (pending) => pending.url === 'https://cms.local/api/statistics' && pending.params.get('scope') === 'interprovincial'
+      (pending) =>
+        pending.url === 'https://cms.local/api/statistics' &&
+        pending.params.get('scope') === 'interprovincial',
     );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
-    request.flush({ data: { summaries: [], insights: [], snapshot: null, availablePeriods: [], availableProvinces: [], availableCountries: [] } });
+    request.flush({
+      data: {
+        summaries: [],
+        insights: [],
+        snapshot: null,
+        availablePeriods: [],
+        availableProvinces: [],
+        availableCountries: [],
+      },
+    });
   });
 });

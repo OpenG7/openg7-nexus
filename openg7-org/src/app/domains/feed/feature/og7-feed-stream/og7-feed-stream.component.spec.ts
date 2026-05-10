@@ -136,7 +136,7 @@ describe('Og7FeedStreamComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('fr');
   });
@@ -155,7 +155,10 @@ describe('Og7FeedStreamComponent', () => {
 
   it('shows the retry button when the realtime connection is degraded', () => {
     const fixture = TestBed.createComponent(Og7FeedStreamComponent);
-    fixture.componentRef.setInput('connectionState', createConnectionState({ connected: true, error: 'Lag detected' }));
+    fixture.componentRef.setInput(
+      'connectionState',
+      createConnectionState({ connected: true, error: 'Lag detected' }),
+    );
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.feed-stream__status button')).not.toBeNull();
@@ -174,7 +177,9 @@ describe('Og7FeedStreamComponent', () => {
     fixture.componentRef.setInput('connectionState', createConnectionState({ connected: false }));
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('.feed-stream__status button') as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector(
+      '.feed-stream__status button',
+    ) as HTMLButtonElement;
 
     expect(button.textContent?.trim()).toBe('Reessayer la connexion');
   });
@@ -242,7 +247,9 @@ describe('Og7FeedStreamComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const clearButton = fixture.nativeElement.querySelector('[data-og7-id="feed-clear-filters"]') as HTMLButtonElement;
+    const clearButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-clear-filters"]',
+    ) as HTMLButtonElement;
     clearButton.click();
     fixture.detectChanges();
 

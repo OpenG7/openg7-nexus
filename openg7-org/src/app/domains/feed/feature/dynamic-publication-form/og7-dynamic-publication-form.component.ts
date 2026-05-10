@@ -29,7 +29,10 @@ import {
 })
 export class Og7DynamicPublicationFormComponent {
   private readonly fb = new FormBuilder();
-  private readonly primaryFieldRef = viewChild<ElementRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>('primaryField');
+  private readonly primaryFieldRef =
+    viewChild<ElementRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>>(
+      'primaryField',
+    );
 
   readonly config = input.required<PublicationFormConfig>();
   readonly fieldOptions = input<Record<string, readonly PublicationFieldOption[]>>({});
@@ -49,8 +52,8 @@ export class Og7DynamicPublicationFormComponent {
       const config = this.config();
       const controls = Object.fromEntries(
         config.sections.flatMap((section) =>
-          section.fields.map((field) => [field.key, this.createControl(field)])
-        )
+          section.fields.map((field) => [field.key, this.createControl(field)]),
+        ),
       );
       this.form.set(this.fb.group(controls));
       this.submitAttempted.set(false);
@@ -74,7 +77,7 @@ export class Og7DynamicPublicationFormComponent {
     if (!target) {
       return;
     }
-    const values = Array.from(target.selectedOptions).map(option => option.value);
+    const values = Array.from(target.selectedOptions).map((option) => option.value);
     this.controlFor(fieldKey)?.setValue(values);
     this.controlFor(fieldKey)?.markAsDirty();
   }
@@ -160,7 +163,7 @@ export class Og7DynamicPublicationFormComponent {
     this.form().markAllAsTouched();
 
     const hasDateOrderIssues = this.config().sections.some((section) =>
-      section.fields.some((field) => this.hasDateOrderError(field))
+      section.fields.some((field) => this.hasDateOrderError(field)),
     );
 
     if (this.form().invalid || hasDateOrderIssues) {
@@ -201,7 +204,9 @@ export class Og7DynamicPublicationFormComponent {
   }
 
   private hasDateOrderError(field: PublicationFieldConfig): boolean {
-    const dateOrderValidator = (field.validators ?? []).find((validator) => validator.type === 'dateOrder');
+    const dateOrderValidator = (field.validators ?? []).find(
+      (validator) => validator.type === 'dateOrder',
+    );
     if (!dateOrderValidator?.compareWithField) {
       return false;
     }

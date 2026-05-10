@@ -14,7 +14,11 @@
   <p class="og7-feed__hydrocarbon-panel-copy">
     {{ 'feed.views.hydrocarbons.panel.description' | translate }}
   </p>
-  <p *ngIf="loading()" class="og7-feed__hydrocarbon-panel-state" data-og7="hydrocarbon-signals-loading">
+  <p
+    *ngIf="loading()"
+    class="og7-feed__hydrocarbon-panel-state"
+    data-og7="hydrocarbon-signals-loading"
+  >
     {{ 'feed.views.hydrocarbons.panel.loading' | translate }}
   </p>
   <p
@@ -43,13 +47,21 @@
     >
       <div class="og7-feed__hydrocarbon-item-header">
         <p class="og7-feed__hydrocarbon-item-title">{{ signal.title }}</p>
-        <span class="og7-feed__hydrocarbon-badge" [class.og7-feed__hydrocarbon-badge--warning]="signal.publicationType === 'slowdown'">
-          {{ ('feed.views.hydrocarbons.panel.publicationType.' + signal.publicationType) | translate }}
+        <span
+          class="og7-feed__hydrocarbon-badge"
+          [class.og7-feed__hydrocarbon-badge--warning]="signal.publicationType === 'slowdown'"
+        >
+          {{
+            'feed.views.hydrocarbons.panel.publicationType.' + signal.publicationType | translate
+          }}
         </span>
       </div>
       <p class="og7-feed__hydrocarbon-item-meta">
-        {{ signal.companyName }} · {{ signal.volumeBarrels }} {{ signal.quantityUnit }} · {{ signal.originProvinceId | uppercase }}
-        <ng-container *ngIf="signal.targetProvinceId">-> {{ signal.targetProvinceId | uppercase }}</ng-container>
+        {{ signal.companyName }} · {{ signal.volumeBarrels }} {{ signal.quantityUnit }} ·
+        {{ signal.originProvinceId | uppercase }}
+        <ng-container *ngIf="signal.targetProvinceId"
+          >-> {{ signal.targetProvinceId | uppercase }}</ng-container
+        >
       </p>
       <p class="og7-feed__hydrocarbon-item-summary">{{ signal.summary }}</p>
     </li>

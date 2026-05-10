@@ -159,7 +159,10 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border: 1px solid rgba(148, 163, 184, 0.35);
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
 .impact-banner__action:focus-visible {

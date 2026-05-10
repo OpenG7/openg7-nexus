@@ -102,7 +102,12 @@ describe('StrategicSectorsPage', () => {
 
     const [commands, extras] = router.navigate.calls.mostRecent().args as [
       string[],
-      { queryParams: Record<string, string | null>; relativeTo: unknown; queryParamsHandling: string; replaceUrl: boolean },
+      {
+        queryParams: Record<string, string | null>;
+        relativeTo: unknown;
+        queryParamsHandling: string;
+        replaceUrl: boolean;
+      },
     ];
 
     expect(commands).toEqual([]);

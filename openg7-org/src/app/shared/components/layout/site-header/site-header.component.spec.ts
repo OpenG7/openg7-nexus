@@ -156,7 +156,7 @@ describe('SiteHeaderComponent', () => {
         { provide: NotificationStore, useClass: MockNotificationStore },
         { provide: UserAlertsService, useClass: MockUserAlertsService },
         { provide: QuickSearchLauncherService, useClass: MockQuickSearchLauncherService },
-      ]
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -168,7 +168,9 @@ describe('SiteHeaderComponent', () => {
     notifications = TestBed.inject(NotificationStore) as unknown as MockNotificationStore;
     rbac = TestBed.inject(RbacFacadeService) as unknown as MockRbacFacadeService;
     userAlerts = TestBed.inject(UserAlertsService) as unknown as MockUserAlertsService;
-    quickSearch = TestBed.inject(QuickSearchLauncherService) as unknown as MockQuickSearchLauncherService;
+    quickSearch = TestBed.inject(
+      QuickSearchLauncherService,
+    ) as unknown as MockQuickSearchLauncherService;
 
     fixture = TestBed.createComponent(SiteHeaderComponent);
     component = fixture.componentInstance;
@@ -197,10 +199,13 @@ describe('SiteHeaderComponent', () => {
   }));
 
   it('opens quick search when pressing Enter on the desktop search box', () => {
-    const desktopSearchButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('#desktop-search');
+    const desktopSearchButton: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('#desktop-search');
     quickSearch.open.calls.reset();
 
-    desktopSearchButton?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    desktopSearchButton?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+    );
     fixture.detectChanges();
 
     expect(quickSearch.open).toHaveBeenCalledWith({ source: 'site-header' });
@@ -210,10 +215,13 @@ describe('SiteHeaderComponent', () => {
   it('opens quick search when pressing Enter on the mobile search box', () => {
     component.toggleMobileMenu();
     fixture.detectChanges();
-    const mobileSearchButton: HTMLButtonElement | null = fixture.nativeElement.querySelector('#mobile-search');
+    const mobileSearchButton: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('#mobile-search');
     quickSearch.open.calls.reset();
 
-    mobileSearchButton?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    mobileSearchButton?.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+    );
     fixture.detectChanges();
 
     expect(quickSearch.open).toHaveBeenCalledWith({ source: 'site-header' });
@@ -231,7 +239,9 @@ describe('SiteHeaderComponent', () => {
   });
 
   it('shows notification badge only when unread count is > 0', () => {
-    const notifButton: HTMLElement | null = fixture.nativeElement.querySelector('button[data-og7="notif"]');
+    const notifButton: HTMLElement | null = fixture.nativeElement.querySelector(
+      'button[data-og7="notif"]',
+    );
     expect(notifButton?.querySelector('span.absolute')).toBeNull();
 
     notifications.unreadCount.set(3);
@@ -247,10 +257,14 @@ describe('SiteHeaderComponent', () => {
     component.toggleProfile();
     fixture.detectChanges();
 
-    const profileButton: HTMLElement | null = fixture.nativeElement.querySelector('[data-og7="profile"] > button');
-    const reminder: HTMLElement | null = fixture.nativeElement.querySelector('.site-header__favorites-reminder');
+    const profileButton: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-og7="profile"] > button',
+    );
+    const reminder: HTMLElement | null = fixture.nativeElement.querySelector(
+      '.site-header__favorites-reminder',
+    );
     const favoritesBadge: HTMLElement | null = fixture.nativeElement.querySelector(
-      '[data-og7="profile"] [data-og7-id="favorites"] .site-header__favorites-count'
+      '[data-og7="profile"] [data-og7-id="favorites"] .site-header__favorites-count',
     );
 
     expect(profileButton?.classList.contains('site-header__profile-button--favorites')).toBeTrue();
@@ -289,7 +303,7 @@ describe('SiteHeaderComponent', () => {
 
     const qualityLinkDebugEl = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .find(debugEl => debugEl.nativeElement.dataset.og7Id === 'admin-quality');
+      .find((debugEl) => debugEl.nativeElement.dataset.og7Id === 'admin-quality');
     const qualityLink = qualityLinkDebugEl?.nativeElement as HTMLAnchorElement | undefined;
 
     expect(qualityLink).toBeDefined();
@@ -310,7 +324,9 @@ describe('SiteHeaderComponent', () => {
 
     fixture.detectChanges();
 
-    const notifButton: HTMLElement | null = fixture.nativeElement.querySelector('button[data-og7="notif"]');
+    const notifButton: HTMLElement | null = fixture.nativeElement.querySelector(
+      'button[data-og7="notif"]',
+    );
     const badge = notifButton?.querySelector('span.absolute');
     expect(badge?.textContent?.trim()).toBe('2');
   });
@@ -354,7 +370,9 @@ describe('SiteHeaderComponent', () => {
     component.toggleNotif();
     fixture.detectChanges();
 
-    const mobileAlertItem = fixture.nativeElement.querySelector('[data-og7-id="header-alert-item-mobile"]');
+    const mobileAlertItem = fixture.nativeElement.querySelector(
+      '[data-og7-id="header-alert-item-mobile"]',
+    );
     expect(mobileAlertItem?.textContent).toContain('Saved search update');
     expect(mobileAlertItem?.textContent).toContain('New activity detected in map.');
   });
@@ -363,7 +381,7 @@ describe('SiteHeaderComponent', () => {
     const authConfig = TestBed.inject(AuthConfigService) as unknown as MockAuthConfigService;
     const loginLinks = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/login');
+      .filter((debugEl) => debugEl.injector.get(RouterLink).urlTree?.toString() === '/login');
 
     expect(loginLinks.length).toBeGreaterThan(0);
     const accountLink: HTMLElement = loginLinks[0].nativeElement;
@@ -377,14 +395,16 @@ describe('SiteHeaderComponent', () => {
   });
 
   it('binds router links to configured routes', () => {
-    const configuredPaths = new Set(appRoutes.map(route => (route.path ? `/${route.path}` : '/')));
+    const configuredPaths = new Set(
+      appRoutes.map((route) => (route.path ? `/${route.path}` : '/')),
+    );
     configuredPaths.add('/docs');
     const routerLinks = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .map(debugEl => debugEl.injector.get(RouterLink));
+      .map((debugEl) => debugEl.injector.get(RouterLink));
 
-    const linkTargets = routerLinks.map(link => link.urlTree?.toString() ?? '');
-    linkTargets.forEach(target => {
+    const linkTargets = routerLinks.map((link) => link.urlTree?.toString() ?? '');
+    linkTargets.forEach((target) => {
       expect(configuredPaths.has(target)).withContext(`Missing route for ${target}`).toBeTrue();
     });
   });
@@ -395,7 +415,7 @@ describe('SiteHeaderComponent', () => {
 
     const registerLinksForGuests = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
+      .filter((debugEl) => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
 
     expect(registerLinksForGuests.length).toBe(1);
 
@@ -404,7 +424,7 @@ describe('SiteHeaderComponent', () => {
 
     const registerLinksForAuthenticatedUsers = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
+      .filter((debugEl) => debugEl.injector.get(RouterLink).urlTree?.toString() === '/register');
 
     expect(registerLinksForAuthenticatedUsers.length).toBe(0);
   });
@@ -416,9 +436,10 @@ describe('SiteHeaderComponent', () => {
 
     const hydrocarbonLinks = fixture.debugElement
       .queryAll(By.directive(RouterLink))
-      .filter(debugEl => debugEl.injector.get(RouterLink).urlTree?.toString() === '/feed/hydrocarbons');
+      .filter(
+        (debugEl) => debugEl.injector.get(RouterLink).urlTree?.toString() === '/feed/hydrocarbons',
+      );
 
     expect(hydrocarbonLinks.length).toBe(2);
   });
 });
-

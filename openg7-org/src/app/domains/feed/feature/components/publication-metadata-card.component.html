@@ -1,16 +1,25 @@
-<article *ngIf="metadata() && (publicationConfig() || rows().length)" class="publication-metadata" data-og7="publication-metadata-card">
+<article
+  *ngIf="metadata() && (publicationConfig() || rows().length)"
+  class="publication-metadata"
+  data-og7="publication-metadata-card"
+>
   <header class="publication-metadata__header">
     <div>
       <h2>{{ 'feed.publicationMetadata.title' | translate }}</h2>
       <p *ngIf="publicationConfig() as config">{{ config.titleKey | translate }}</p>
-      <p *ngIf="!publicationConfig() && metadata()?.publicationForm?.formKey as formKey">{{ formKey }}</p>
+      <p *ngIf="!publicationConfig() && metadata()?.publicationForm?.formKey as formKey">
+        {{ formKey }}
+      </p>
     </div>
     <small *ngIf="resolveSchemaVersion() as schemaVersion">
-      {{ 'feed.publicationMetadata.schemaVersion' | translate:{ value: schemaVersion } }}
+      {{ 'feed.publicationMetadata.schemaVersion' | translate: { value: schemaVersion } }}
     </small>
   </header>
 
-  <p *ngIf="publicationConfig()?.descriptionKey as descriptionKey" class="publication-metadata__description">
+  <p
+    *ngIf="publicationConfig()?.descriptionKey as descriptionKey"
+    class="publication-metadata__description"
+  >
     {{ descriptionKey | translate }}
   </p>
 
@@ -19,7 +28,9 @@
       <span>{{ row.label | translate }}</span>
       <strong>
         <ng-container *ngFor="let value of row.values; let last = last">
-          <ng-container *ngIf="value.translate; else rawValue">{{ value.value | translate }}</ng-container>
+          <ng-container *ngIf="value.translate; else rawValue">{{
+            value.value | translate
+          }}</ng-container>
           <ng-template #rawValue>{{ value.value }}</ng-template>
           <ng-container *ngIf="!last">, </ng-container>
         </ng-container>

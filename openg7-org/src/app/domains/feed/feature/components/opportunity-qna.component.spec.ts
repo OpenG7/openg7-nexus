@@ -33,7 +33,7 @@ describe('OpportunityQnaComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -46,7 +46,9 @@ describe('OpportunityQnaComponent', () => {
     fixture.componentRef.setInput('messages', []);
     fixture.detectChanges();
 
-    const historyTab: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-og7-id="opportunity-tab-history"]');
+    const historyTab: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-tab-history"]',
+    );
     expect(historyTab).toBeTruthy();
 
     historyTab?.click();
@@ -62,7 +64,9 @@ describe('OpportunityQnaComponent', () => {
     fixture.componentRef.setInput('messages', []);
     fixture.detectChanges();
 
-    const composer: HTMLTextAreaElement | null = fixture.nativeElement.querySelector('#opportunity-qna-composer');
+    const composer: HTMLTextAreaElement | null = fixture.nativeElement.querySelector(
+      '#opportunity-qna-composer',
+    );
     expect(composer).toBeTruthy();
 
     if (!composer) {

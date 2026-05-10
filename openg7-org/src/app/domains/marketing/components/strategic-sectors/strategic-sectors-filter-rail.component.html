@@ -7,7 +7,9 @@
       {{ 'pages.strategicSectors.filters.title' | translate }}
     </p>
     @if (activeFilterCount() > 0) {
-      <span class="rounded-full border border-cyan-200/35 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-50">
+      <span
+        class="rounded-full border border-cyan-200/35 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-50"
+      >
         {{ activeFilterCount() }}
       </span>
     }
@@ -17,7 +19,7 @@
     @for (filterKey of filterKeys(); track filterKey) {
       <div class="space-y-1.5">
         <label class="block px-1 text-[11px] uppercase tracking-[0.15em] text-cyan-100/70">
-          {{ ('pages.strategicSectors.filters.' + filterKey) | translate }}
+          {{ 'pages.strategicSectors.filters.' + filterKey | translate }}
         </label>
         <select
           class="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-slate-200 outline-none transition hover:border-cyan-200/30 focus:border-cyan-200/30"

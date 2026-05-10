@@ -28,7 +28,7 @@ export class LinkupDataService {
     const items = await this.loadAllConnections();
     const matches = await this.resolveMatches(items);
     return items.map((connection) =>
-      mapConnectionToLinkupRecord(connection, matches.get(connection.matchId ?? -1) ?? null)
+      mapConnectionToLinkupRecord(connection, matches.get(connection.matchId ?? -1) ?? null),
     );
   }
 
@@ -59,7 +59,7 @@ export class LinkupDataService {
       return this.loadById(id);
     }
     const connection = await firstValueFrom(
-      this.connections.updateConnectionStatus(id, currentStatus, trimmed)
+      this.connections.updateConnectionStatus(id, currentStatus, trimmed),
     );
     return this.mapConnection(connection);
   }
@@ -73,7 +73,7 @@ export class LinkupDataService {
         this.connections.getConnectionHistoryPage({
           limit: HISTORY_PAGE_SIZE,
           offset,
-        })
+        }),
       );
       items.push(...page.items);
       if (!page.meta.hasMore || page.items.length === 0) {
@@ -86,22 +86,24 @@ export class LinkupDataService {
   }
 
   private async resolveMatches(
-    connections: readonly ConnectionDetails[]
+    connections: readonly ConnectionDetails[],
   ): Promise<ReadonlyMap<number, OpportunityMatch>> {
     const uniqueMatchIds = Array.from(
       new Set(
         connections
           .map((connection) => connection.matchId)
-          .filter((matchId): matchId is number => typeof matchId === 'number' && matchId > 0)
-      )
+          .filter((matchId): matchId is number => typeof matchId === 'number' && matchId > 0),
+      ),
     );
 
     const entries = await Promise.all(
-      uniqueMatchIds.map(async (matchId) => [matchId, await this.opportunities.findMatchById(matchId)] as const)
+      uniqueMatchIds.map(
+        async (matchId) => [matchId, await this.opportunities.findMatchById(matchId)] as const,
+      ),
     );
 
     return new Map(
-      entries.filter((entry): entry is readonly [number, OpportunityMatch] => entry[1] !== null)
+      entries.filter((entry): entry is readonly [number, OpportunityMatch] => entry[1] !== null),
     );
   }
 
@@ -225,7 +227,9 @@ function buildTimeline(connection: ConnectionDetails): readonly LinkupTimelineEn
 
 function buildNotes(connection: ConnectionDetails): readonly LinkupNoteEntry[] {
   return connection.statusHistory
-    .filter((entry): entry is ConnectionDetails['statusHistory'][number] & { note: string } => Boolean(entry.note))
+    .filter((entry): entry is ConnectionDetails['statusHistory'][number] & { note: string } =>
+      Boolean(entry.note),
+    )
     .map((entry, index) => ({
       id: `note-${connection.id}-${index}`,
       date: entry.timestamp,

@@ -115,13 +115,15 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     }
 
     const extensions = this.metadataExtensions(detail.item);
-    const corridorContext = resolveCorridorContext(this.normalizeQueryParam(this.queryParamMap().get('corridorId')));
+    const corridorContext = resolveCorridorContext(
+      this.normalizeQueryParam(this.queryParamMap().get('corridorId')),
+    );
     const metadataSteps = this.stringListExtension(extensions['decisionSteps']);
     const metadataDriven = Boolean(
       this.stringExtension(extensions['decisionTitle']) ||
-        this.stringExtension(extensions['decisionSummary']) ||
-        this.stringExtension(extensions['decisionActionItemId']) ||
-        metadataSteps.length
+      this.stringExtension(extensions['decisionSummary']) ||
+      this.stringExtension(extensions['decisionActionItemId']) ||
+      metadataSteps.length,
     );
 
     if (!metadataDriven && corridorContext?.id !== 'essential-services') {
@@ -130,8 +132,12 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
 
     const actionItemId =
       this.stringExtension(extensions['decisionActionItemId']) ??
-      (corridorContext?.id === 'essential-services' ? 'request-001' : this.firstRelatedOpportunityId(detail));
-    const routeLabel = corridorContext?.routeKey ? this.translate.instant(corridorContext.routeKey) : detail.provinceLabel;
+      (corridorContext?.id === 'essential-services'
+        ? 'request-001'
+        : this.firstRelatedOpportunityId(detail));
+    const routeLabel = corridorContext?.routeKey
+      ? this.translate.instant(corridorContext.routeKey)
+      : detail.provinceLabel;
 
     return {
       title:
@@ -252,7 +258,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   protected readonly windowHours = computed(() => this.resolveWindowHours(this.timeframe()));
 
   protected readonly granularityLabel = computed(() =>
-    this.translate.instant(`feed.indicator.detail.granularity.${this.granularity()}`)
+    this.translate.instant(`feed.indicator.detail.granularity.${this.granularity()}`),
   );
 
   protected readonly lastUpdatedLabel = computed(() => {
@@ -280,7 +286,9 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     });
   });
 
-  protected readonly keyCurrentValueLabel = computed(() => `${this.lastValueLabel()} ${this.unitLabel()}`);
+  protected readonly keyCurrentValueLabel = computed(
+    () => `${this.lastValueLabel()} ${this.unitLabel()}`,
+  );
 
   protected readonly keyVariationLabel = computed(() => this.deltaPctLabel());
 
@@ -290,7 +298,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   });
 
   protected readonly miniStatLabel = computed(() =>
-    this.translate.instant('feed.indicator.detail.keyData.secondaryStat')
+    this.translate.instant('feed.indicator.detail.keyData.secondaryStat'),
   );
 
   protected readonly miniStatDelta = computed(() => {
@@ -459,14 +467,17 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
 
     try {
       const record = this.indicatorAlertRules.create(rulePayload);
-      this.notifications.success(this.translate.instant('feed.indicator.detail.drawer.status.success'), {
-        source: 'feed',
-        metadata: {
-          action: 'create-indicator-alert',
-          itemId: detail.item.id,
-          indicatorAlertRuleId: record.id,
+      this.notifications.success(
+        this.translate.instant('feed.indicator.detail.drawer.status.success'),
+        {
+          source: 'feed',
+          metadata: {
+            action: 'create-indicator-alert',
+            itemId: detail.item.id,
+            indicatorAlertRuleId: record.id,
+          },
         },
-      });
+      );
       void this.recordIndicatorAction('subscribe', detail, {
         indicatorAlertRuleId: record.id,
         thresholdDirection: draft.thresholdDirection,
@@ -498,7 +509,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
 
   private buildIndicatorAlertRulePayload(
     detail: IndicatorDetailVm,
-    draft: IndicatorAlertDraft
+    draft: IndicatorAlertDraft,
   ): CreateIndicatorAlertRulePayload {
     return {
       indicatorId: detail.item.id,
@@ -675,12 +686,15 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     };
   }
 
-  private buildRelatedAlerts(item: FeedItem, provinceLabel: string): readonly IndicatorRelatedEntry[] {
+  private buildRelatedAlerts(
+    item: FeedItem,
+    provinceLabel: string,
+  ): readonly IndicatorRelatedEntry[] {
     const related = this.feed
       .items()
-      .filter(entry => entry.type === 'ALERT' && entry.id !== item.id)
+      .filter((entry) => entry.type === 'ALERT' && entry.id !== item.id)
       .slice(0, 2)
-      .map(entry => ({
+      .map((entry) => ({
         id: entry.id,
         title: entry.title,
         context:
@@ -716,9 +730,11 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   private buildRelatedOpportunities(item: FeedItem): readonly IndicatorRelatedEntry[] {
     const related = this.feed
       .items()
-      .filter(entry => entry.type !== 'ALERT' && entry.type !== 'INDICATOR' && entry.id !== item.id)
+      .filter(
+        (entry) => entry.type !== 'ALERT' && entry.type !== 'INDICATOR' && entry.id !== item.id,
+      )
       .slice(0, 2)
-      .map(entry => ({
+      .map((entry) => ({
         id: entry.id,
         title: entry.title,
         context: this.composeRouteLabel(entry),
@@ -773,7 +789,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   private resampleSeries(
     points: readonly IndicatorPoint[],
     timeframe: IndicatorTimeframe,
-    granularity: IndicatorGranularity
+    granularity: IndicatorGranularity,
   ): readonly IndicatorPoint[] {
     if (!points.length) {
       return [];
@@ -822,7 +838,10 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     return result;
   }
 
-  private aggregateDaily(points: readonly IndicatorPoint[], timeframe: IndicatorTimeframe): readonly IndicatorPoint[] {
+  private aggregateDaily(
+    points: readonly IndicatorPoint[],
+    timeframe: IndicatorTimeframe,
+  ): readonly IndicatorPoint[] {
     if (!points.length) {
       return [];
     }
@@ -918,7 +937,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     }
 
     return value
-      .map(entry => (typeof entry === 'string' ? entry.trim() : ''))
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
       .filter((entry): entry is string => entry.length > 0);
   }
 
@@ -934,7 +953,11 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   }
 
   private firstRelatedOpportunityId(detail: IndicatorDetailVm): string | null {
-    return detail.relatedOpportunities.find(entry => typeof entry.id === 'string' && entry.id.trim().length > 0)?.id ?? null;
+    return (
+      detail.relatedOpportunities.find(
+        (entry) => typeof entry.id === 'string' && entry.id.trim().length > 0,
+      )?.id ?? null
+    );
   }
 
   private composeRouteLabel(item: FeedItem): string {
@@ -1005,7 +1028,8 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
 
   private currentInternalUrl(): string {
     const navigation = this.router.getCurrentNavigation();
-    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    const url =
+      navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     if (typeof url === 'string' && url.trim().length > 0) {
       return url.startsWith('/') ? url : `/${url.replace(/^\/+/, '')}`;
     }

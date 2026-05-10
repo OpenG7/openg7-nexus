@@ -1,9 +1,6 @@
 import type { Core } from '@strapi/strapi';
 
-import {
-  readWebhookSecurityConfig,
-  validateWebhookUrl,
-} from '../../../utils/webhook-url';
+import { readWebhookSecurityConfig, validateWebhookUrl } from '../../../utils/webhook-url';
 
 const USER_ALERT_UID = 'api::user-alert.user-alert' as any;
 const SAVED_SEARCH_UID = 'api::saved-search.saved-search' as any;
@@ -134,7 +131,7 @@ function normalizeBoolean(value: unknown, fallback: boolean): boolean {
 function normalizeAllowedList<T extends string>(
   value: unknown,
   allowed: readonly T[],
-  fallback: readonly T[]
+  fallback: readonly T[],
 ): T[] {
   if (!Array.isArray(value)) {
     return [...fallback];
@@ -244,12 +241,13 @@ function resolveNotificationPreferences(rawValue: unknown): NotificationPreferen
       severities: normalizeAllowedList(
         filtersRaw.severities,
         ['info', 'success', 'warning', 'critical'],
-        ['info', 'success', 'warning', 'critical']
+        ['info', 'success', 'warning', 'critical'],
       ),
-      sources: normalizeAllowedList(filtersRaw.sources, ['saved-search', 'system'], [
-        'saved-search',
-        'system',
-      ]),
+      sources: normalizeAllowedList(
+        filtersRaw.sources,
+        ['saved-search', 'system'],
+        ['saved-search', 'system'],
+      ),
     },
     frequency,
     quietHours: {
@@ -454,7 +452,7 @@ function buildDigestSourceId(dateKey: string): string {
 function buildDigestPayload(
   entries: readonly UserAlertEntity[],
   digestSourceId: string,
-  dateKey: string
+  dateKey: string,
 ): CreateUserAlertPayload {
   const count = entries.length;
   const topTitles = entries
@@ -486,7 +484,7 @@ function buildDigestPayload(
 
 function mergeDigestMetadata(
   payloadMetadata: Record<string, unknown> | null,
-  existingMetadata: unknown
+  existingMetadata: unknown,
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = { ...(payloadMetadata ?? {}) };
   const existing = sanitizeMetadata(existingMetadata);
@@ -521,7 +519,7 @@ function isDigestDispatchedForDate(entry: UserAlertEntity | null, dateKey: strin
 function withDigestDispatchMetadata(
   metadata: unknown,
   dateKey: string,
-  dispatchedAt: string
+  dispatchedAt: string,
 ): Record<string, unknown> {
   return {
     ...(sanitizeMetadata(metadata) ?? {}),
@@ -532,7 +530,7 @@ function withDigestDispatchMetadata(
 
 async function fetchNotificationPreferences(
   strapi: Core.Strapi,
-  userId: number | string
+  userId: number | string,
 ): Promise<NotificationPreferences> {
   const profile = await strapi.entityService.findMany(ACCOUNT_PROFILE_UID, {
     filters: {
@@ -548,7 +546,10 @@ async function fetchNotificationPreferences(
   return resolveNotificationPreferences(first?.notificationPreferences);
 }
 
-async function fetchUserEmail(strapi: Core.Strapi, userId: number | string): Promise<string | null> {
+async function fetchUserEmail(
+  strapi: Core.Strapi,
+  userId: number | string,
+): Promise<string | null> {
   const user = await strapi.db.query('plugin::users-permissions.user').findOne({
     where: { id: userId },
     select: ['email'],
@@ -560,7 +561,7 @@ async function fetchUserEmail(strapi: Core.Strapi, userId: number | string): Pro
 async function findDigestAlertForUser(
   strapi: Core.Strapi,
   userId: number | string,
-  sourceId: string
+  sourceId: string,
 ): Promise<UserAlertEntity | null> {
   const entries = await strapi.entityService.findMany(USER_ALERT_UID, {
     filters: {
@@ -582,7 +583,7 @@ async function dispatchAlerts(
   userId: number | string,
   preferences: NotificationPreferences,
   generatedAlerts: readonly UserAlertEntity[],
-  options: { quietHoursActive: boolean; digestMode: boolean }
+  options: { quietHoursActive: boolean; digestMode: boolean },
 ): Promise<{ emailSent: boolean; webhookSent: boolean; failures: string[] }> {
   const failures: string[] = [];
 
@@ -614,25 +615,20 @@ async function dispatchAlerts(
         });
         emailSent = true;
       } catch (error: unknown) {
-        failures.push(
-          error instanceof Error ? `email:${error.message}` : 'email:delivery_failed'
-        );
+        failures.push(error instanceof Error ? `email:${error.message}` : 'email:delivery_failed');
       }
     }
   }
 
   let webhookSent = false;
   if (preferences.channels.webhook && preferences.webhookUrl) {
-    const webhookValidation = validateWebhookUrl(
-      preferences.webhookUrl,
-      WEBHOOK_SECURITY_CONFIG
-    );
+    const webhookValidation = validateWebhookUrl(preferences.webhookUrl, WEBHOOK_SECURITY_CONFIG);
     if (!webhookValidation.valid || !webhookValidation.normalizedUrl) {
       failures.push(`webhook:blocked_${webhookValidation.code}`);
       strapi.log?.warn?.(
         `[security] Webhook delivery blocked for user ${String(
-          userId
-        )}: ${webhookValidation.message}`
+          userId,
+        )}: ${webhookValidation.message}`,
       );
       return { emailSent, webhookSent: false, failures };
     }
@@ -663,7 +659,7 @@ async function dispatchAlerts(
       }
     } catch (error: unknown) {
       failures.push(
-        error instanceof Error ? `webhook:${error.message}` : 'webhook:delivery_failed'
+        error instanceof Error ? `webhook:${error.message}` : 'webhook:delivery_failed',
       );
     } finally {
       clearTimeout(timeout);
@@ -676,7 +672,7 @@ async function dispatchAlerts(
 async function findAlertForUser(
   strapi: Core.Strapi,
   userId: number | string,
-  alertId: number | string
+  alertId: number | string,
 ): Promise<UserAlertEntity | null> {
   const existing = await strapi.entityService.findMany(USER_ALERT_UID, {
     filters: {
@@ -696,7 +692,7 @@ async function findAlertsForUser(
   strapi: Core.Strapi,
   userId: number | string,
   filters: Record<string, unknown>,
-  limit = 100
+  limit = 100,
 ): Promise<UserAlertEntity[]> {
   const existing = await strapi.entityService.findMany(USER_ALERT_UID, {
     filters: {
@@ -715,7 +711,7 @@ async function findAlertsForUser(
 async function hasRecentSavedSearchAlert(
   strapi: Core.Strapi,
   userId: number | string,
-  sourceId: string
+  sourceId: string,
 ): Promise<boolean> {
   const threshold = new Date(Date.now() - RECENT_ALERT_WINDOW_MS).toISOString();
   const existing = await strapi.entityService.findMany(USER_ALERT_UID, {
@@ -955,7 +951,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
             message: digestPayload.message,
             severity: digestPayload.severity,
             metadata: digestMetadata,
-            readAt: inAppEnabled ? null : existingDigest.readAt ?? null,
+            readAt: inAppEnabled ? null : (existingDigest.readAt ?? null),
           } as any,
         });
         digestAlertRecord = updated as UserAlertEntity;
@@ -997,19 +993,23 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       (delivery.emailSent || delivery.webhookSent)
     ) {
       const dispatchedAt = new Date().toISOString();
-      const refreshedDigest = (await strapi.entityService.update(USER_ALERT_UID, digestAlertRecord.id, {
-        data: {
-          metadata: withDigestDispatchMetadata(
-            digestAlertRecord.metadata,
-            digestDateKey,
-            dispatchedAt
-          ),
-        } as any,
-      })) as UserAlertEntity;
+      const refreshedDigest = (await strapi.entityService.update(
+        USER_ALERT_UID,
+        digestAlertRecord.id,
+        {
+          data: {
+            metadata: withDigestDispatchMetadata(
+              digestAlertRecord.metadata,
+              digestDateKey,
+              dispatchedAt,
+            ),
+          } as any,
+        },
+      )) as UserAlertEntity;
 
       if (inAppEnabled) {
         const digestIndex = generated.findIndex(
-          (entry) => String(entry.id) === String(refreshedDigest.id)
+          (entry) => String(entry.id) === String(refreshedDigest.id),
         );
         if (digestIndex >= 0) {
           generated[digestIndex] = toAlertResponse(refreshedDigest);
@@ -1091,7 +1091,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
             $null: true,
           },
         },
-        100
+        100,
       );
 
       if (!unread.length) {
@@ -1135,7 +1135,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
             $notNull: true,
           },
         },
-        100
+        100,
       );
 
       if (!readEntries.length) {

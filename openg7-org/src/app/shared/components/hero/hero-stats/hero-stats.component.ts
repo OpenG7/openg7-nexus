@@ -62,7 +62,7 @@ export class HeroStatsComponent {
     return list.map((s) => {
       const display =
         s.kind === 'money'
-          ? this.currency.transform(s.value, 'CAD', 'symbol', '1.0-1', loc) ?? String(s.value)
+          ? (this.currency.transform(s.value, 'CAD', 'symbol', '1.0-1', loc) ?? String(s.value))
           : new Intl.NumberFormat(loc, {
               notation: 'compact',
               maximumFractionDigits: 1,
@@ -100,7 +100,9 @@ function makeSparkPaths(series: number[], width = 120, height = 28) {
 
   const path = 'M ' + points.map((p) => `${p[0]} ${p[1]}`).join(' L ');
   const area =
-    `M 0 ${height} L ` + points.map((p) => `${p[0]} ${p[1]}`).join(' L ') + ` L ${width} ${height} Z`;
+    `M 0 ${height} L ` +
+    points.map((p) => `${p[0]} ${p[1]}`).join(' L ') +
+    ` L ${width} ${height} Z`;
 
   return { path, area };
 }

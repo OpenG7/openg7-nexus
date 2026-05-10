@@ -47,7 +47,11 @@ const STATIC_SECTIONS: SectionDefinition[] = [
         badgeClass: 'bg-emerald-500/15 text-emerald-400',
         keywords: ['enbridge', 'ontario', 'energy'],
         defaultRank: 10,
-        action: { type: 'route', commands: ['/companies/register'], extras: { queryParams: { highlight: 'enbridge' } } },
+        action: {
+          type: 'route',
+          commands: ['/companies/register'],
+          extras: { queryParams: { highlight: 'enbridge' } },
+        },
       },
       {
         id: 'company-magna',
@@ -57,7 +61,11 @@ const STATIC_SECTIONS: SectionDefinition[] = [
         badgeClass: 'bg-sky-500/15 text-sky-300',
         keywords: ['magna', 'automotive', 'ontario'],
         defaultRank: 15,
-        action: { type: 'route', commands: ['/companies/register'], extras: { queryParams: { highlight: 'magna' } } },
+        action: {
+          type: 'route',
+          commands: ['/companies/register'],
+          extras: { queryParams: { highlight: 'magna' } },
+        },
       },
     ],
   },
@@ -84,7 +92,11 @@ const STATIC_SECTIONS: SectionDefinition[] = [
         badgeClass: 'bg-fuchsia-500/15 text-fuchsia-300',
         keywords: ['digital services', 'technology', 'digital', 'software'],
         defaultRank: 12,
-        action: { type: 'route', commands: ['/statistics'], extras: { fragment: 'digital-services' } },
+        action: {
+          type: 'route',
+          commands: ['/statistics'],
+          extras: { fragment: 'digital-services' },
+        },
       },
     ],
   },
@@ -243,7 +255,10 @@ export class SearchService {
       this.translate.instant('search.quick.results.companyFallback', { id: hit.id });
 
     const highlightDescription = this.stripHighlight(hit.highlights?.['description']);
-    const locationParts = [hit.sector?.name ?? null, hit.province?.name ?? hit.province?.code ?? null]
+    const locationParts = [
+      hit.sector?.name ?? null,
+      hit.province?.name ?? hit.province?.code ?? null,
+    ]
       .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
       .map((value) => value.trim());
 
@@ -262,8 +277,11 @@ export class SearchService {
       description: description || undefined,
       badge: hit.province?.code ?? hit.province?.name ?? undefined,
       badgeClass: 'bg-emerald-500/15 text-emerald-400',
-      keywords: [hit.slug ?? undefined, hit.province?.name ?? undefined, hit.sector?.name ?? undefined]
-        .filter((value): value is string => typeof value === 'string' && value.length > 0),
+      keywords: [
+        hit.slug ?? undefined,
+        hit.province?.name ?? undefined,
+        hit.sector?.name ?? undefined,
+      ].filter((value): value is string => typeof value === 'string' && value.length > 0),
       action: {
         type: 'route',
         commands: ['/companies/register'],
@@ -273,8 +291,14 @@ export class SearchService {
   }
 
   private mapExchangeHit(hit: SearchExchangeHit): SearchItem {
-    const source = hit.sourceProvince?.name ?? hit.sourceProvince?.code ?? this.translate.instant('search.quick.results.exchange.source');
-    const target = hit.targetProvince?.name ?? hit.targetProvince?.code ?? this.translate.instant('search.quick.results.exchange.target');
+    const source =
+      hit.sourceProvince?.name ??
+      hit.sourceProvince?.code ??
+      this.translate.instant('search.quick.results.exchange.source');
+    const target =
+      hit.targetProvince?.name ??
+      hit.targetProvince?.code ??
+      this.translate.instant('search.quick.results.exchange.target');
     const title = `${source} → ${target}`;
 
     const valueText = hit.value != null ? `${hit.value}` : null;
@@ -303,8 +327,11 @@ export class SearchService {
       description: description || undefined,
       badge: this.translate.instant('search.quick.sections.remoteExchanges.badge'),
       badgeClass: 'bg-sky-500/15 text-sky-300',
-      keywords: [hit.unit ?? undefined, hit.sourceProvince?.name ?? undefined, hit.targetProvince?.name ?? undefined]
-        .filter((value): value is string => typeof value === 'string' && value.length > 0),
+      keywords: [
+        hit.unit ?? undefined,
+        hit.sourceProvince?.name ?? undefined,
+        hit.targetProvince?.name ?? undefined,
+      ].filter((value): value is string => typeof value === 'string' && value.length > 0),
       action: {
         type: 'route',
         commands: ['/repertoire'],
@@ -324,7 +351,9 @@ export class SearchService {
     return {
       id: definition.id,
       title: this.translate.instant(definition.titleKey),
-      description: definition.descriptionKey ? this.translate.instant(definition.descriptionKey) : undefined,
+      description: definition.descriptionKey
+        ? this.translate.instant(definition.descriptionKey)
+        : undefined,
       badge: definition.badgeKey ? this.translate.instant(definition.badgeKey) : undefined,
       badgeClass: definition.badgeClass,
       shortcut: definition.shortcutKey ? this.translate.instant(definition.shortcutKey) : undefined,
@@ -335,7 +364,11 @@ export class SearchService {
     } satisfies SearchItem;
   }
 
-  private filterSections(query: string, context: SearchContext, useDefaults: boolean): SearchSection[] {
+  private filterSections(
+    query: string,
+    context: SearchContext,
+    useDefaults: boolean,
+  ): SearchSection[] {
     const normalized = query.trim().toLowerCase();
     const sections = this.sectionsSig();
     return sections
@@ -369,9 +402,16 @@ export class SearchService {
     return haystack.includes(normalizedQuery);
   }
 
-  private sortItems(a: SearchItem, b: SearchItem, normalizedQuery: string, useDefaults: boolean): number {
+  private sortItems(
+    a: SearchItem,
+    b: SearchItem,
+    normalizedQuery: string,
+    useDefaults: boolean,
+  ): number {
     if (!normalizedQuery && useDefaults) {
-      return (a.defaultRank ?? Number.MAX_SAFE_INTEGER) - (b.defaultRank ?? Number.MAX_SAFE_INTEGER);
+      return (
+        (a.defaultRank ?? Number.MAX_SAFE_INTEGER) - (b.defaultRank ?? Number.MAX_SAFE_INTEGER)
+      );
     }
     return a.title.localeCompare(b.title);
   }

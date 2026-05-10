@@ -15,7 +15,7 @@ interface CreateLocalPendingSubmissionQueueStoreOptions<TRecord> {
 }
 
 export function createLocalPendingSubmissionQueueStore<TRecord>(
-  options: CreateLocalPendingSubmissionQueueStoreOptions<TRecord>
+  options: CreateLocalPendingSubmissionQueueStoreOptions<TRecord>,
 ): LocalPendingSubmissionQueueStore<TRecord> {
   const browser = isPlatformBrowser(options.platformId);
 

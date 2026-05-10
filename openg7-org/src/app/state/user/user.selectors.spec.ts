@@ -1,4 +1,10 @@
-import { selectUserState, selectUserProfile, selectUserPermissions, UserProfile, UserState } from './user.selectors';
+import {
+  selectUserState,
+  selectUserProfile,
+  selectUserPermissions,
+  UserProfile,
+  UserState,
+} from './user.selectors';
 
 describe('User Selectors', () => {
   const profile: UserProfile = { id: '1', email: 'alice@example.com', roles: ['reader'] };

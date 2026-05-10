@@ -110,12 +110,18 @@ async function mockSearchApis(page: Page, savedSearches: SavedSearchRecord[]): P
 
 async function openQuickSearchWithInitialQuery(page: Page, query: string): Promise<void> {
   const opened = await page.evaluate((nextQuery) => {
-    const ngApi = (window as Window & {
-      ng?: {
-        getComponent?: (target: Element) => { quickSearchLauncher?: { open: (data?: unknown) => void } } | null;
-        getOwningComponent?: (target: Element) => { quickSearchLauncher?: { open: (data?: unknown) => void } } | null;
-      };
-    }).ng;
+    const ngApi = (
+      window as Window & {
+        ng?: {
+          getComponent?: (
+            target: Element,
+          ) => { quickSearchLauncher?: { open: (data?: unknown) => void } } | null;
+          getOwningComponent?: (
+            target: Element,
+          ) => { quickSearchLauncher?: { open: (data?: unknown) => void } } | null;
+        };
+      }
+    ).ng;
     const headerHost = document.querySelector('og7-site-header');
     const headerContent = document.querySelector('[data-og7="site-header"]');
     const headerComponent =
@@ -139,12 +145,14 @@ async function openQuickSearchWithInitialQuery(page: Page, query: string): Promi
 
 async function saveQuickSearchCurrentQuery(page: Page): Promise<void> {
   const saved = await page.evaluate(() => {
-    const ngApi = (window as Window & {
-      ng?: {
-        getComponent?: (target: Element) => { saveCurrentQuery?: () => void } | null;
-        getOwningComponent?: (target: Element) => { saveCurrentQuery?: () => void } | null;
-      };
-    }).ng;
+    const ngApi = (
+      window as Window & {
+        ng?: {
+          getComponent?: (target: Element) => { saveCurrentQuery?: () => void } | null;
+          getOwningComponent?: (target: Element) => { saveCurrentQuery?: () => void } | null;
+        };
+      }
+    ).ng;
     const modalHost = document.querySelector('og7-quick-search-modal');
     const modalContent = document.querySelector('[data-og7="quick-search-modal"]');
     const modalComponent =
@@ -192,7 +200,9 @@ test.describe('Quick search modal', () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test('navigates with keyboard, then saves the query and exposes it in /saved-searches', async ({ page }) => {
+  test('navigates with keyboard, then saves the query and exposes it in /saved-searches', async ({
+    page,
+  }) => {
     const savedSearches: SavedSearchRecord[] = [];
 
     await mockAuthenticatedSessionApis(page);
@@ -207,7 +217,7 @@ test.describe('Quick search modal', () => {
     await expect(page.locator('[data-og7-id="quick-search-save"]')).toBeEnabled();
 
     const createCompanyResult = page.locator(
-      '[data-og7-id="quick-search-result-action-create-company"]'
+      '[data-og7-id="quick-search-result-action-create-company"]',
     );
     await expect(createCompanyResult).toBeVisible();
     await expect.poll(() => page.locator('[data-og7="quick-search-result"]').count()).toBe(1);

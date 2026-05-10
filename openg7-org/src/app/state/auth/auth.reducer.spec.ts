@@ -9,7 +9,7 @@ describe('authReducer', () => {
   it('should hydrate session state', () => {
     const state = authReducer(
       initialAuthState,
-      AuthActions.sessionHydrated({ user, jwtExp: 1234 })
+      AuthActions.sessionHydrated({ user, jwtExp: 1234 }),
     );
 
     expect(state).toEqual({ user, jwtExp: 1234 });
@@ -18,7 +18,7 @@ describe('authReducer', () => {
   it('should clear session state', () => {
     const hydrated = authReducer(
       initialAuthState,
-      AuthActions.sessionHydrated({ user, jwtExp: 1234 })
+      AuthActions.sessionHydrated({ user, jwtExp: 1234 }),
     );
 
     const cleared = authReducer(hydrated, AuthActions.sessionCleared());

@@ -29,10 +29,7 @@ describe('FavoritesPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [FavoritesPage, TranslateModule.forRoot()],
-      providers: [
-        provideRouter([]),
-        { provide: FavoritesService, useValue: favorites },
-      ],
+      providers: [provideRouter([]), { provide: FavoritesService, useValue: favorites }],
     }).compileComponents();
 
     const translate = TestBed.inject(TranslateService);
@@ -64,7 +61,7 @@ describe('FavoritesPage', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('fr');
   });
@@ -73,7 +70,9 @@ describe('FavoritesPage', () => {
     const fixture = TestBed.createComponent(FavoritesPage);
     fixture.detectChanges();
 
-    const feedLink = fixture.nativeElement.querySelector('[data-og7-id="favorites-empty-feed"]') as HTMLAnchorElement;
+    const feedLink = fixture.nativeElement.querySelector(
+      '[data-og7-id="favorites-empty-feed"]',
+    ) as HTMLAnchorElement;
 
     expect(feedLink).toBeTruthy();
     expect(feedLink.className).toContain('bg-gradient-to-r');
@@ -88,7 +87,9 @@ describe('FavoritesPage', () => {
     fixture.detectChanges();
 
     const card = fixture.nativeElement.querySelector('[data-og7="favorites-item"]') as HTMLElement;
-    const openLink = fixture.nativeElement.querySelector('[data-og7-id="favorites-open"]') as HTMLAnchorElement;
+    const openLink = fixture.nativeElement.querySelector(
+      '[data-og7-id="favorites-open"]',
+    ) as HTMLAnchorElement;
 
     expect(card.className).toContain('bg-gradient-to-br');
     expect(card.className).toContain('to-cyan-50/45');

@@ -37,7 +37,10 @@ export class MapStatsService {
         labelKey: 'metrics.exchangeQty',
         value: summary.tradeVolume ?? 0,
         kind: 'count',
-        suffixKey: summary.tradeVolume != null ? this.resolveVolumeSuffix(summary.tradeVolumeUnit) : undefined,
+        suffixKey:
+          summary.tradeVolume != null
+            ? this.resolveVolumeSuffix(summary.tradeVolumeUnit)
+            : undefined,
         color: 'bg-amber-500',
         series: this.buildQuantitySeries(relevantFlows),
       },
@@ -59,7 +62,10 @@ export class MapStatsService {
     return flows.filter((flow) => !flow.partner || flow.partner === partner);
   }
 
-  private resolveFallbackSnapshot(partner: string | null | undefined, dictionary: MapKpis): MapKpiSnapshot | undefined {
+  private resolveFallbackSnapshot(
+    partner: string | null | undefined,
+    dictionary: MapKpis,
+  ): MapKpiSnapshot | undefined {
     if (partner && dictionary[partner]) {
       return dictionary[partner];
     }
@@ -119,4 +125,3 @@ export class MapStatsService {
     return `map.badges.units.${normalized}`;
   }
 }
-

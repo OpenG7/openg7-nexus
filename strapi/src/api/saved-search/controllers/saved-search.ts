@@ -200,7 +200,7 @@ function toSavedSearchResponse(entity: SavedSearchEntity) {
 async function findSavedSearchForUser(
   strapi: Core.Strapi,
   userId: number | string,
-  savedSearchId: number | string
+  savedSearchId: number | string,
 ): Promise<SavedSearchEntity | null> {
   const existing = await strapi.entityService.findMany(SAVED_SEARCH_UID, {
     filters: {
@@ -233,7 +233,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     });
 
     ctx.body = normalizeFindManyResult(entries).map((entry) =>
-      toSavedSearchResponse(entry as SavedSearchEntity)
+      toSavedSearchResponse(entry as SavedSearchEntity),
     );
   },
 

@@ -50,7 +50,9 @@ test.describe('Saved searches page', () => {
           name: String(payload.name ?? 'Saved search'),
           scope: (payload.scope as SavedSearchRecord['scope']) ?? 'all',
           filters:
-            payload.filters && typeof payload.filters === 'object' && !Array.isArray(payload.filters)
+            payload.filters &&
+            typeof payload.filters === 'object' &&
+            !Array.isArray(payload.filters)
               ? payload.filters
               : {},
           notifyEnabled: Boolean(payload.notifyEnabled),

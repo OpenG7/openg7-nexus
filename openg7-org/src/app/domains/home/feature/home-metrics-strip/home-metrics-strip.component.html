@@ -1,8 +1,14 @@
 <section class="mx-auto w-full max-w-6xl -mt-2 -mb-2 sm:-mt-3 sm:-mb-3 lg:-mt-4 lg:-mb-4">
-  <div class="rounded-2xl border border-white/10 bg-gradient-to-b from-slate-950/90 via-slate-950/80 to-slate-950/70 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)]">
+  <div
+    class="rounded-2xl border border-white/10 bg-gradient-to-b from-slate-950/90 via-slate-950/80 to-slate-950/70 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)]"
+  >
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-      <div class="flex items-center gap-3 border-b border-white/10 pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-6">
-        <span class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-200/30 bg-amber-200/10 text-amber-200">
+      <div
+        class="flex items-center gap-3 border-b border-white/10 pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-6"
+      >
+        <span
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-200/30 bg-amber-200/10 text-amber-200"
+        >
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <path
               fill="currentColor"
@@ -23,23 +29,33 @@
       <div class="flex flex-wrap items-center gap-4 text-sm lg:flex-1 lg:gap-6 lg:px-6">
         <div class="flex items-baseline gap-2 border-l border-white/10 pl-4 lg:pl-6">
           <span class="text-lg font-semibold">{{ offersCount() }}</span>
-          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{ 'metrics.offers' | translate }}</span>
+          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{
+            'metrics.offers' | translate
+          }}</span>
         </div>
         <div class="flex items-baseline gap-2 border-l border-white/10 pl-4 lg:pl-6">
           <span class="text-lg font-semibold">{{ activeCount() }}</span>
-          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{ 'metrics.active' | translate }}</span>
+          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{
+            'metrics.active' | translate
+          }}</span>
         </div>
         <div class="flex items-baseline gap-2 border-l border-white/10 pl-4 lg:pl-6">
           <span class="text-lg font-semibold">{{ requestsCount() }}</span>
-          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{ 'metrics.requests' | translate }}</span>
+          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{
+            'metrics.requests' | translate
+          }}</span>
         </div>
         <div class="flex items-baseline gap-2 border-l border-white/10 pl-4 lg:pl-6">
           <span class="text-lg font-semibold">{{ corridorsCount() }}</span>
-          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{ 'metrics.corridors' | translate }}</span>
+          <span class="text-[11px] uppercase tracking-[0.22em] text-slate-400">{{
+            'metrics.corridors' | translate
+          }}</span>
         </div>
       </div>
 
-      <div class="flex flex-col gap-1 text-xs text-slate-300 lg:ml-auto lg:border-l lg:border-white/10 lg:pl-6 lg:text-right">
+      <div
+        class="flex flex-col gap-1 text-xs text-slate-300 lg:ml-auto lg:border-l lg:border-white/10 lg:pl-6 lg:text-right"
+      >
         <div>
           <span class="text-slate-400">{{ 'metrics.updatedAt' | translate }}</span>
           {{ lastFeedUpdate() | jsonDateAgo }}

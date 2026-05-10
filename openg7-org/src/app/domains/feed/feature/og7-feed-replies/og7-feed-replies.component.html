@@ -1,7 +1,4 @@
-<section
-  class="feed-replies"
-  [attr.aria-label]="'feed.replies.title' | translate"
->
+<section class="feed-replies" [attr.aria-label]="'feed.replies.title' | translate">
   <h3>{{ 'feed.replies.title' | translate }} ({{ replies().length }})</h3>
   <ol class="feed-replies__list">
     <li *ngFor="let reply of replies()">

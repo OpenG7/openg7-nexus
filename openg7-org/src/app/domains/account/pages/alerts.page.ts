@@ -55,7 +55,7 @@ export class AlertsPage {
     this.route.queryParamMap.pipe(map((params) => params.get('offerId'))),
     {
       initialValue: this.route.snapshot.queryParamMap.get('offerId'),
-    }
+    },
   );
 
   constructor() {
@@ -194,7 +194,9 @@ export class AlertsPage {
 
   protected indicatorRuleNotifyDeltaLabel(entry: IndicatorAlertRuleRecord): string {
     return this.translate.instant(
-      entry.notifyDelta ? 'pages.alerts.rules.notifyDelta.on' : 'pages.alerts.rules.notifyDelta.off'
+      entry.notifyDelta
+        ? 'pages.alerts.rules.notifyDelta.on'
+        : 'pages.alerts.rules.notifyDelta.off',
     );
   }
 
@@ -208,7 +210,9 @@ export class AlertsPage {
     });
   }
 
-  protected opportunityOfferLastActivity(entry: OpportunityOfferRecord): OpportunityOfferActivityRecord | null {
+  protected opportunityOfferLastActivity(
+    entry: OpportunityOfferRecord,
+  ): OpportunityOfferActivityRecord | null {
     return entry.activities[0] ?? null;
   }
 
@@ -226,7 +230,7 @@ export class AlertsPage {
 
   protected opportunityOfferActivityBody(
     offer: OpportunityOfferRecord,
-    activity: OpportunityOfferActivityRecord
+    activity: OpportunityOfferActivityRecord,
   ): string {
     return this.translate.instant(`pages.alerts.offers.activity.types.${activity.type}.body`, {
       reference: offer.reference,
@@ -261,5 +265,8 @@ export class AlertsPage {
   protected trackById = (_: number, entry: UserAlertRecord) => entry.id;
   protected trackIndicatorRuleById = (_: number, entry: IndicatorAlertRuleRecord) => entry.id;
   protected trackOpportunityOfferById = (_: number, entry: OpportunityOfferRecord) => entry.id;
-  protected trackOpportunityOfferActivityById = (_: number, entry: OpportunityOfferActivityRecord) => entry.id;
+  protected trackOpportunityOfferActivityById = (
+    _: number,
+    entry: OpportunityOfferActivityRecord,
+  ) => entry.id;
 }

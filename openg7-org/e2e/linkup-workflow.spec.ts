@@ -25,12 +25,12 @@ test.describe('Linkup workflow', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PATCH' &&
-          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(request.url()).pathname)
+          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(request.url()).pathname),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PATCH' &&
-          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(response.url()).pathname)
+          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(response.url()).pathname),
       ),
       page.locator('[data-og7-id="linkup-note-save"]').click(),
     ]);
@@ -52,12 +52,12 @@ test.describe('Linkup workflow', () => {
       page.waitForRequest(
         (request) =>
           request.method().toUpperCase() === 'PATCH' &&
-          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(request.url()).pathname)
+          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(request.url()).pathname),
       ),
       page.waitForResponse(
         (response) =>
           response.request().method().toUpperCase() === 'PATCH' &&
-          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(response.url()).pathname)
+          /\/api\/connections\/lkp-001\/status\/?$/i.test(new URL(response.url()).pathname),
       ),
       page.locator('[data-og7-id="linkup-status-save"]').click(),
     ]);
@@ -68,18 +68,25 @@ test.describe('Linkup workflow', () => {
         status: 'completed',
       },
     });
-    await expect(page.locator('[data-og7="linkup-detail-page"] .og7-linkup-status--completed')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="linkup-detail-page"] .og7-linkup-status--completed'),
+    ).toBeVisible();
 
     await page.locator('.og7-linkup-detail__back').click();
     await expect(page).toHaveURL(/\/linkups$/);
     await expect(page.locator('[data-og7="linkup-history-page"]')).toBeVisible();
     await expect(
-      page.locator('.og7-linkup-history__table tbody tr').first().locator('.og7-linkup-status--completed')
+      page
+        .locator('.og7-linkup-history__table tbody tr')
+        .first()
+        .locator('.og7-linkup-status--completed'),
     ).toBeVisible();
 
     await page.locator('.og7-linkup-history__action').first().click();
     await expect(page.locator('[data-og7="linkup-detail-page"]')).toBeVisible();
     await expect(page.locator('.og7-linkup-detail__note').first()).toContainText(noteText);
-    await expect(page.locator('[data-og7="linkup-detail-page"] .og7-linkup-status--completed')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="linkup-detail-page"] .og7-linkup-status--completed'),
+    ).toBeVisible();
   });
 });

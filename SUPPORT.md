@@ -3,6 +3,7 @@
 ---
 
 <a id="english"></a>
+
 # Support & Public Channels
 
 ## Where to ask your questions
@@ -27,8 +28,8 @@
   PRs are merged when (1) all checks pass, (2) the description is complete, and (3) product/technical impact is documented.
 - **Release cadence**: target is bi-monthly.  
   Release notes will be published at the start of each cycle.
-- **Labels**:  
-  - `good first issue` and `help wanted` highlight topics suitable for new contributors.  
+- **Labels**:
+  - `good first issue` and `help wanted` highlight topics suitable for new contributors.
   - `needs-triage` is applied by default when an issue is created.
 
 ## Escalation
@@ -38,6 +39,7 @@ For critical blockages (e.g. production outage or data leak), open an issue with
 ---
 
 <a id="francais"></a>
+
 # Support & canaux publics
 
 ## Où poser vos questions
@@ -62,8 +64,8 @@ For critical blockages (e.g. production outage or data leak), open an issue with
   Les PR sont fusionnées lorsque (1) les checks passent, (2) la description est complète, (3) l’impact produit/technique est documenté.
 - **Cadence de release** : cible bimensuelle.  
   Les notes de version sont publiées à l’ouverture de chaque cycle.
-- **Labels** :  
-  - `good first issue` et `help wanted` signalent des sujets adaptés aux nouveaux contributeurs ;  
+- **Labels** :
+  - `good first issue` et `help wanted` signalent des sujets adaptés aux nouveaux contributeurs ;
   - `needs-triage` est appliqué par défaut lors de la création d’une issue.
 
 ## Escalade

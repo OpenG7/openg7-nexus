@@ -19,6 +19,7 @@ Utilisez cette approche lorsque la base staging doit rester alignée sur les don
    ```
 
    Le script `seed:dev` compile Strapi en mode "headless", exécute `runSeeds()` puis s'arrête. 【F:strapi/package.json†L7-L17】【F:strapi/scripts/seed.ts†L1-L18】
+
 3. Vérifiez les journaux Strapi : chaque seed annonce son succès ou remonte l'erreur qui a déclenché l'arrêt.
 4. Repassez `STRAPI_SEED_ADMIN_ALLOWED=false` dans l'environnement staging pour empêcher la recréation accidentelle du compte admin lors de futurs déclenchements manuels.
 

@@ -294,7 +294,6 @@ const insights: InsightSeed[] = [
 
 export default async () => {
   for (const insight of insights) {
-     
     await upsertByUID('api::statistic-insight.statistic-insight', insight, {
       unique: { slug: insight.slug },
     });

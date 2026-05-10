@@ -29,9 +29,7 @@ describe('permissionsGuard', () => {
   });
 
   it('allows navigation when no permissions are configured', () => {
-    const allowed = TestBed.runInInjectionContext(() =>
-      permissionsGuard({} as Route, segments)
-    );
+    const allowed = TestBed.runInInjectionContext(() => permissionsGuard({} as Route, segments));
 
     expect(allowed).toBeTrue();
     expect(rbac.hasPermission).not.toHaveBeenCalled();

@@ -14,4 +14,3 @@ import { TranslateModule } from '@ngx-translate/core';
  * @returns AccessDeniedPage gérée par le framework.
  */
 export class AccessDeniedPage {}
-

@@ -1,11 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StrapiClient } from '@app/core/api/strapi-client';
 import { G7_COUNTRY_CODES, CountryCode, isCountryCode } from '@app/core/models/country';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { CompanyCapacity, CompanyPayload, CompanyService } from '@app/core/services/company.service';
+import {
+  CompanyCapacity,
+  CompanyPayload,
+  CompanyService,
+} from '@app/core/services/company.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 interface SelectOption {
@@ -42,8 +53,14 @@ export class CompanyRegisterPage implements OnInit {
   protected readonly countries = signal<readonly CountryCode[]>(G7_COUNTRY_CODES);
 
   protected readonly stepOrder: readonly Step[] = ['general', 'capacities', 'logos'];
-  protected readonly stepLabels = computed(() => ['General information', 'Capabilities', 'Logos & branding']);
-  protected readonly currentStep = computed<Step>(() => this.stepOrder[this.stepIndex()] ?? 'general');
+  protected readonly stepLabels = computed(() => [
+    'General information',
+    'Capabilities',
+    'Logos & branding',
+  ]);
+  protected readonly currentStep = computed<Step>(
+    () => this.stepOrder[this.stepIndex()] ?? 'general',
+  );
   protected readonly currentStepIndex = this.stepIndex.asReadonly();
 
   protected readonly form = this.fb.group({
@@ -127,7 +144,14 @@ export class CompanyRegisterPage implements OnInit {
           metadata: { companyId: company?.id },
         });
         this.form.reset();
-        this.generalGroup().reset({ name: '', description: '', website: '', sectorId: '', provinceId: '', country: '' });
+        this.generalGroup().reset({
+          name: '',
+          description: '',
+          website: '',
+          sectorId: '',
+          provinceId: '',
+          country: '',
+        });
         this.logosGroup().reset({ logoUrl: '', secondaryLogoUrl: '' });
         this.capacityControls().clear();
         this.capacityControls().push(this.createCapacityGroup());

@@ -44,9 +44,15 @@ describe('app routes', () => {
       const route = routes.find((entry) => entry.path === path);
 
       expect(route).withContext(`route ${path} should exist`).toBeDefined();
-      expect(route?.canMatch ?? []).withContext(`route ${path} should require auth`).toContain(authGuard);
-      expect(route?.canMatch ?? []).withContext(`route ${path} should require role guard`).toContain(roleGuard);
-      expect(route?.data?.['roles']).withContext(`route ${path} should require admin role`).toEqual(['admin']);
+      expect(route?.canMatch ?? [])
+        .withContext(`route ${path} should require auth`)
+        .toContain(authGuard);
+      expect(route?.canMatch ?? [])
+        .withContext(`route ${path} should require role guard`)
+        .toContain(roleGuard);
+      expect(route?.data?.['roles'])
+        .withContext(`route ${path} should require admin role`)
+        .toEqual(['admin']);
     }
   });
 });

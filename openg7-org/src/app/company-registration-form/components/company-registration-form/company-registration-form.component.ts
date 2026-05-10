@@ -11,7 +11,14 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -191,7 +198,7 @@ export class CompanyRegistrationFormComponent {
 
   private readonly headquarterCountrySig = toSignal(
     this.form.controls.headquarterCountry.valueChanges,
-    { initialValue: this.form.controls.headquarterCountry.value }
+    { initialValue: this.form.controls.headquarterCountry.value },
   );
   private readonly tradeScopeSig = toSignal(this.form.controls.tradeScope.valueChanges, {
     initialValue: this.form.controls.tradeScope.value,
@@ -279,7 +286,7 @@ export class CompanyRegistrationFormComponent {
       legalName: raw.legalName.trim(),
       website: raw.website?.trim() || undefined,
       headquarterCountry: country,
-      headquarterProvince: country === 'CA' ? raw.headquarterProvince ?? undefined : undefined,
+      headquarterProvince: country === 'CA' ? (raw.headquarterProvince ?? undefined) : undefined,
       tradeScope: raw.tradeScope,
       provincesServed: provinces,
       countriesServed: countries,

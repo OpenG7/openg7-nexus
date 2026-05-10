@@ -24,10 +24,7 @@ export const reasonSig = signal<string | null>(null);
  * @param segments Attempted URL segments (unused but part of signature).
  * @returns True when navigation may continue, otherwise a UrlTree to the access denied page.
  */
-export const permissionsGuard: CanMatchFn = (
-  route: Route,
-  _segments: UrlSegment[]
-) => {
+export const permissionsGuard: CanMatchFn = (route: Route, _segments: UrlSegment[]) => {
   const required = (route.data?.['permissions'] as string[]) || [];
   if (!required.length) {
     isAllowedSig.set(true);

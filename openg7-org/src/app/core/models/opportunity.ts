@@ -56,4 +56,3 @@ export function normalizeConfidencePercent(confidence?: number | null): number {
   const bounded = Math.min(Math.max(confidence as number, 0), 1);
   return Math.round(bounded * 100);
 }
-

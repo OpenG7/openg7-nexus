@@ -13,7 +13,10 @@ describe('appConfigProvider', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [appConfigProvider(), { provide: RuntimeConfigService, useValue: runtimeConfigStub }],
+      providers: [
+        appConfigProvider(),
+        { provide: RuntimeConfigService, useValue: runtimeConfigStub },
+      ],
     });
   });
 

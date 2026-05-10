@@ -123,7 +123,10 @@ export class CryptoService {
       try {
         const raw = this.fromBase64(stored);
         const rawBuffer = this.toArrayBuffer(raw);
-        const key = await this.subtle.importKey('raw', rawBuffer, 'AES-GCM', false, ['encrypt', 'decrypt']);
+        const key = await this.subtle.importKey('raw', rawBuffer, 'AES-GCM', false, [
+          'encrypt',
+          'decrypt',
+        ]);
         if (index > 0 && storages.length > 0) {
           try {
             storages[0].setItem(this.keyStorageKey, stored);
@@ -142,7 +145,10 @@ export class CryptoService {
       const crypto = globalThis.crypto as Crypto;
       const material = crypto.getRandomValues(new Uint8Array(32));
       const materialBuffer = this.toArrayBuffer(material);
-      const key = await this.subtle.importKey('raw', materialBuffer, 'AES-GCM', false, ['encrypt', 'decrypt']);
+      const key = await this.subtle.importKey('raw', materialBuffer, 'AES-GCM', false, [
+        'encrypt',
+        'decrypt',
+      ]);
       if (storages.length > 0) {
         storages[0].setItem(this.keyStorageKey, this.toBase64(material));
       }

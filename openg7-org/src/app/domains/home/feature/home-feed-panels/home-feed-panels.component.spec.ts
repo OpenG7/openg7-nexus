@@ -22,7 +22,9 @@ describe('HomeFeedPanelsComponent', () => {
     component.viewAllRequested.subscribe((value) => emitted.push(value));
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('[data-og7-id="home-feed-view-all-opportunities"]') as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector(
+      '[data-og7-id="home-feed-view-all-opportunities"]',
+    ) as HTMLButtonElement;
     button.click();
 
     expect(emitted).toEqual(['opportunities']);

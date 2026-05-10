@@ -41,15 +41,20 @@ export interface OpportunityMatchLayoutOption {
   readonly labelKey: string;
 }
 
-export const OPPORTUNITY_MATCH_LAYOUT_OPTIONS: readonly OpportunityMatchLayoutOption[] = OPPORTUNITY_MATCH_LAYOUTS.map(
-  (layout): OpportunityMatchLayoutOption => ({
-    value: layout,
-    labelKey: `opportunities.layouts.${layout}`,
-  }),
-);
+export const OPPORTUNITY_MATCH_LAYOUT_OPTIONS: readonly OpportunityMatchLayoutOption[] =
+  OPPORTUNITY_MATCH_LAYOUTS.map(
+    (layout): OpportunityMatchLayoutOption => ({
+      value: layout,
+      labelKey: `opportunities.layouts.${layout}`,
+    }),
+  );
 
-const PROVINCE_LABEL_MAP = new Map(PROVINCE_OPTIONS.map((option) => [option.value, option.labelKey] as const));
-const SECTOR_LABEL_MAP = new Map(SECTOR_OPTIONS.map((option) => [option.value, option.labelKey] as const));
+const PROVINCE_LABEL_MAP = new Map(
+  PROVINCE_OPTIONS.map((option) => [option.value, option.labelKey] as const),
+);
+const SECTOR_LABEL_MAP = new Map(
+  SECTOR_OPTIONS.map((option) => [option.value, option.labelKey] as const),
+);
 const SECTOR_ICON_MAP = new Map<SectorType, string>([
   ['energy', '⚡'],
   ['manufacturing', '🛠️'],
@@ -107,9 +112,11 @@ export function createOpportunityTileVm(match: OpportunityMatch): OpportunityTil
 export function createOpportunityMiniMapVm(match: OpportunityMatch): OpportunityMiniMapVm {
   const score = normalizeConfidencePercent(match.confidence);
   const distanceKm = match.distanceKm ?? null;
-  const buyerProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
+  const buyerProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
   const buyerSectorLabelKey = SECTOR_LABEL_MAP.get(match.buyer.sector) ?? match.buyer.sector;
-  const supplierProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
+  const supplierProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
   const supplierSectorLabelKey = SECTOR_LABEL_MAP.get(match.seller.sector) ?? match.seller.sector;
   const buyerCoordinates = resolveProvinceCoordinates(match.buyer.province);
   const supplierCoordinates = resolveProvinceCoordinates(match.seller.province);
@@ -144,17 +151,23 @@ export function createOpportunityMiniMapVm(match: OpportunityMatch): Opportunity
   } satisfies OpportunityMiniMapVm;
 }
 
-export function createOpportunityTwoWayComparatorVm(match: OpportunityMatch): OpportunityTwoWayComparatorVm {
+export function createOpportunityTwoWayComparatorVm(
+  match: OpportunityMatch,
+): OpportunityTwoWayComparatorVm {
   const score = normalizeConfidencePercent(match.confidence);
   const distanceKm = match.distanceKm ?? null;
-  const distanceValue = distanceKm != null
-    ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)
-    : null;
+  const distanceValue =
+    distanceKm != null
+      ? new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)
+      : null;
 
   const leadTime = estimateLeadTime(distanceKm);
-  const leadTimeValue = leadTime != null
-    ? new Intl.NumberFormat(undefined, { maximumFractionDigits: leadTime.unit === 'weeks' ? 1 : 0 }).format(leadTime.value)
-    : null;
+  const leadTimeValue =
+    leadTime != null
+      ? new Intl.NumberFormat(undefined, {
+          maximumFractionDigits: leadTime.unit === 'weeks' ? 1 : 0,
+        }).format(leadTime.value)
+      : null;
   const leadTimeValueKey =
     leadTime != null
       ? leadTime.unit === 'weeks'
@@ -164,9 +177,11 @@ export function createOpportunityTwoWayComparatorVm(match: OpportunityMatch): Op
 
   const logisticsCost = distanceKm != null ? formatCostPerKg(distanceKm, score) : null;
 
-  const buyerProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
+  const buyerProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
   const buyerSectorLabelKey = SECTOR_LABEL_MAP.get(match.buyer.sector) ?? match.buyer.sector;
-  const supplierProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
+  const supplierProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
   const supplierSectorLabelKey = SECTOR_LABEL_MAP.get(match.seller.sector) ?? match.seller.sector;
 
   const metrics: OpportunityTwoWayComparatorVm['metrics'] = [
@@ -317,32 +332,37 @@ export function createOpportunitySwipeStackVm(
     title: options.title ?? 'Sélection express',
     subtitle:
       options.subtitle ??
-      "Balayez les opportunités pour qualifier rapidement les matchs prioritaires et garder le fil de votre session mobile.",
+      'Balayez les opportunités pour qualifier rapidement les matchs prioritaires et garder le fil de votre session mobile.',
     cards: matches.map((match) => createSwipeCardVm(match)),
   } satisfies OpportunitySwipeStackVm;
 }
 
-export function createOpportunityImpactBannerVm(match: OpportunityMatch): OpportunityImpactBannerVm {
+export function createOpportunityImpactBannerVm(
+  match: OpportunityMatch,
+): OpportunityImpactBannerVm {
   const score = normalizeConfidencePercent(match.confidence);
   const distanceKm = match.distanceKm ?? null;
   const co2Saved = estimateCo2(match.co2Estimate ?? null);
   const leadTime = estimateLeadTime(distanceKm);
   const jobsCreated = estimateJobsCreated(score, distanceKm);
 
-  const distanceLabel = distanceKm != null
-    ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
-    : 'Distance à confirmer';
+  const distanceLabel =
+    distanceKm != null
+      ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
+      : 'Distance à confirmer';
 
   const leadTimeLabel = formatLeadTimeSummary(leadTime);
   const logisticsCost = distanceKm != null ? formatCostPerKg(distanceKm, score) : null;
 
-  const co2Headline = co2Saved != null
-    ? `~${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(co2Saved.value)} tCO₂/an`
-    : 'un impact climat mesurable';
+  const co2Headline =
+    co2Saved != null
+      ? `~${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(co2Saved.value)} tCO₂/an`
+      : 'un impact climat mesurable';
 
-  const jobsHeadline = jobsCreated != null
-    ? `~${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(jobsCreated)} emplois`
-    : 'des emplois qualifiés';
+  const jobsHeadline =
+    jobsCreated != null
+      ? `~${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(jobsCreated)} emplois`
+      : 'des emplois qualifiés';
 
   const corridorLabel = `${match.buyer.province} ↔ ${match.seller.province}`;
 
@@ -392,9 +412,14 @@ export function createOpportunitySubwayVm(match: OpportunityMatch): OpportunityS
   const distanceKm = match.distanceKm ?? null;
   const co2Estimate = match.co2Estimate ?? null;
 
-  const distanceBadge: OpportunitySubwayStationBadge = distanceKm != null
-    ? { id: 'distance', labelKey: 'opportunities.subway.station.distanceBadge', labelParams: { value: distanceKm } }
-    : { id: 'distance', labelKey: 'opportunities.subway.station.distancePending' };
+  const distanceBadge: OpportunitySubwayStationBadge =
+    distanceKm != null
+      ? {
+          id: 'distance',
+          labelKey: 'opportunities.subway.station.distanceBadge',
+          labelParams: { value: distanceKm },
+        }
+      : { id: 'distance', labelKey: 'opportunities.subway.station.distancePending' };
 
   const stations = buildSubwayStations(match, distanceBadge);
 
@@ -429,7 +454,11 @@ export function createOpportunitySubwayVm(match: OpportunityMatch): OpportunityS
         : 'opportunities.subway.metrics.carbonPending',
     metricValueParams:
       co2Estimate != null
-        ? { value: new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(Math.max(1, co2Estimate * 0.45)) }
+        ? {
+            value: new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
+              Math.max(1, co2Estimate * 0.45),
+            ),
+          }
         : undefined,
     stations,
   };
@@ -465,7 +494,8 @@ export function createOpportunityTimelineVm(match: OpportunityMatch): Opportunit
   const logisticsCost = formatCostPerKg(distanceKm, score);
 
   const buyerProvinceLabel = PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
-  const supplierProvinceLabel = PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
+  const supplierProvinceLabel =
+    PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
   const buyerSectorLabel = SECTOR_LABEL_MAP.get(match.buyer.sector) ?? match.buyer.sector;
   const supplierSectorLabel = SECTOR_LABEL_MAP.get(match.seller.sector) ?? match.seller.sector;
 
@@ -502,9 +532,10 @@ export function createOpportunityTimelineVm(match: OpportunityMatch): Opportunit
 function createOpportunityCompactKpiItemVm(match: OpportunityMatch): OpportunityCompactKpiItemVm {
   const score = normalizeConfidencePercent(match.confidence);
   const distanceKm = match.distanceKm ?? null;
-  const distanceLabel = distanceKm != null
-    ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
-    : '';
+  const distanceLabel =
+    distanceKm != null
+      ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
+      : '';
 
   return {
     id: `compact-${match.id}`,
@@ -546,7 +577,11 @@ function resolveProvinceCoordinates(province: ProvinceCode): readonly [number, n
 function buildSparkline(
   buyerCoordinates: readonly [number, number],
   supplierCoordinates: readonly [number, number],
-): { start: OpportunityMiniMapSparklinePoint; end: OpportunityMiniMapSparklinePoint; points: OpportunityMiniMapSparklinePoint[] } {
+): {
+  start: OpportunityMiniMapSparklinePoint;
+  end: OpportunityMiniMapSparklinePoint;
+  points: OpportunityMiniMapSparklinePoint[];
+} {
   const start = toPreviewPoint(buyerCoordinates);
   const end = toPreviewPoint(supplierCoordinates);
   const midpointA = normalizePreviewPoint({
@@ -560,7 +595,10 @@ function buildSparkline(
   return { start, end, points: [start, midpointA, midpointB, end] };
 }
 
-function toPreviewPoint([latitude, longitude]: readonly [number, number]): OpportunityMiniMapSparklinePoint {
+function toPreviewPoint([latitude, longitude]: readonly [
+  number,
+  number,
+]): OpportunityMiniMapSparklinePoint {
   const x = (longitude - MIN_LONGITUDE) / (MAX_LONGITUDE - MIN_LONGITUDE);
   const y = 1 - (latitude - MIN_LATITUDE) / (MAX_LATITUDE - MIN_LATITUDE);
   return normalizePreviewPoint({ x, y });
@@ -633,7 +671,10 @@ function resolveCostSeverity(
   return 'stable';
 }
 
-function resolveDelaySeverity(distanceKm: number, score: number): OpportunitySubwayLine['severity'] {
+function resolveDelaySeverity(
+  distanceKm: number,
+  score: number,
+): OpportunitySubwayLine['severity'] {
   if (distanceKm > 1600) {
     return 'critical';
   }
@@ -668,9 +709,11 @@ function buildSubwayStations(
   match: OpportunityMatch,
   distanceBadge: OpportunitySubwayStationBadge,
 ): readonly OpportunitySubwayStation[] {
-  const buyerProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
+  const buyerProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.buyer.province) ?? match.buyer.province;
   const buyerSectorLabelKey = SECTOR_LABEL_MAP.get(match.buyer.sector) ?? match.buyer.sector;
-  const supplierProvinceLabelKey = PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
+  const supplierProvinceLabelKey =
+    PROVINCE_LABEL_MAP.get(match.seller.province) ?? match.seller.province;
   const supplierSectorLabelKey = SECTOR_LABEL_MAP.get(match.seller.sector) ?? match.seller.sector;
 
   const modeKey =
@@ -749,9 +792,10 @@ function estimateJobsCreated(score: number, distanceKm: number | null): number |
 }
 
 function formatImpactFootnote(distanceKm: number | null, approximate: boolean): string {
-  const distanceDetail = distanceKm != null
-    ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
-    : 'corridor à confirmer';
+  const distanceDetail =
+    distanceKm != null
+      ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(distanceKm)} km`
+      : 'corridor à confirmer';
 
   const precision = approximate ? 'Modélisation interne ±12 %' : 'Estimations consolidées';
   return `${precision} — ${distanceDetail}.`;
@@ -814,9 +858,10 @@ function buildTimelineSteps(
 ): OpportunityTimelineVm['steps'] {
   const corridor = `${match.buyer.province} ↔ ${match.seller.province}`;
   const leadTimeLabel = formatLeadTimeSummary(leadTime);
-  const distanceLabel = match.distanceKm != null
-    ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(match.distanceKm)} km`
-    : 'Distance à confirmer';
+  const distanceLabel =
+    match.distanceKm != null
+      ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(match.distanceKm)} km`
+      : 'Distance à confirmer';
 
   return [
     {
@@ -833,7 +878,10 @@ function buildTimelineSteps(
       title: 'Capacité fournisseur',
       summary: `${match.seller.name} opère depuis ${match.seller.province} avec un positionnement ${match.seller.sector}.`,
       kpis: [
-        { label: 'Capacité trimestrielle', value: `${Math.round(40 + (match.confidence ?? 0) * 30)} lots` },
+        {
+          label: 'Capacité trimestrielle',
+          value: `${Math.round(40 + (match.confidence ?? 0) * 30)} lots`,
+        },
         { label: 'Flexibilité', value: '±10 %', hint: 'Sur engagement 12 mois' },
       ],
     },
@@ -843,7 +891,10 @@ function buildTimelineSteps(
       summary: `Corridor ${corridor} avec un délai estimé à ${leadTimeLabel} et un coût moyen ${logisticsCost}/kg.`,
       kpis: [
         { label: 'Distance', value: distanceLabel },
-        { label: 'Mode principal', value: match.mode === 'all' ? 'Bimodal' : match.mode === 'import' ? 'Import' : 'Export' },
+        {
+          label: 'Mode principal',
+          value: match.mode === 'all' ? 'Bimodal' : match.mode === 'import' ? 'Import' : 'Export',
+        },
       ],
     },
     {
@@ -861,7 +912,10 @@ function buildTimelineSteps(
         {
           label: 'Emplois estimés',
           value: `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
-            estimateJobsCreated(normalizeConfidencePercent(match.confidence), match.distanceKm ?? null) ?? 16,
+            estimateJobsCreated(
+              normalizeConfidencePercent(match.confidence),
+              match.distanceKm ?? null,
+            ) ?? 16,
           )}`,
         },
       ],

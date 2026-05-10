@@ -16,7 +16,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
-import { feedModeSig, feedTypeSig, fromProvinceIdSig, sectorIdSig, toProvinceIdSig } from '@app/state/shared-feed-signals';
+import {
+  feedModeSig,
+  feedTypeSig,
+  fromProvinceIdSig,
+  sectorIdSig,
+  toProvinceIdSig,
+} from '@app/state/shared-feed-signals';
 import { Store } from '@ngrx/store';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -25,7 +31,14 @@ import {
   buildFeedDraftPrefillKey,
   readFeedDraftPrefillQuery,
 } from '../feed-draft-prefill.helpers';
-import { FeedComposerDraft, FeedItem, FeedItemType, FeedOriginType, FlowMode, QuantityUnit } from '../models/feed.models';
+import {
+  FeedComposerDraft,
+  FeedItem,
+  FeedItemType,
+  FeedOriginType,
+  FlowMode,
+  QuantityUnit,
+} from '../models/feed.models';
 import { FeedConnectionMatchService } from '../services/feed-connection-match.service';
 import { FeedRealtimeService } from '../services/feed-realtime.service';
 
@@ -68,7 +81,9 @@ export class Og7FeedComposerComponent {
   protected readonly originId = signal<string | null>(null);
   protected readonly connectionMatchId = signal<number | null>(null);
 
-  protected readonly submitState = signal<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle');
+  protected readonly submitState = signal<'idle' | 'submitting' | 'success' | 'error' | 'offline'>(
+    'idle',
+  );
   protected readonly submitting = computed(() => this.submitState() === 'submitting');
   protected readonly submitError = signal<string | null>(null);
   protected readonly errors = signal<readonly string[]>([]);
@@ -137,23 +152,21 @@ export class Og7FeedComposerComponent {
   });
 
   constructor() {
-    effect(
-      () => {
-        const query = this.queryParamMap();
-        if (!query) {
-          return;
-        }
-        const prefillKey = buildFeedDraftPrefillKey(query);
-        if (!prefillKey) {
-          return;
-        }
-        if (prefillKey === this.appliedPrefillKey()) {
-          return;
-        }
-        this.appliedPrefillKey.set(prefillKey);
-        this.applyDraftPrefill(query);
+    effect(() => {
+      const query = this.queryParamMap();
+      if (!query) {
+        return;
       }
-    );
+      const prefillKey = buildFeedDraftPrefillKey(query);
+      if (!prefillKey) {
+        return;
+      }
+      if (prefillKey === this.appliedPrefillKey()) {
+        return;
+      }
+      this.appliedPrefillKey.set(prefillKey);
+      this.applyDraftPrefill(query);
+    });
   }
 
   protected handleSubmit(): void {
@@ -273,7 +286,7 @@ export class Og7FeedComposerComponent {
         : null;
     const tags = this.tagsInput()
       .split(',')
-      .map(tag => tag.trim())
+      .map((tag) => tag.trim())
       .filter(Boolean);
     const resolvedConnectionMatchId =
       this.connectionMatchId() ??
@@ -377,7 +390,9 @@ export class Og7FeedComposerComponent {
 
     const draftOriginType = this.normalizeDraftOriginType(prefill.draftOriginType);
     const draftOriginId = this.normalizeQueryText(prefill.draftOriginId);
-    const draftConnectionMatchId = this.normalizeDraftConnectionMatchId(prefill.draftConnectionMatchId);
+    const draftConnectionMatchId = this.normalizeDraftConnectionMatchId(
+      prefill.draftConnectionMatchId,
+    );
     this.connectionMatchId.set(draftConnectionMatchId);
     if (draftOriginType && draftOriginId) {
       this.originType.set(draftOriginType);
@@ -405,7 +420,9 @@ export class Og7FeedComposerComponent {
     if (!normalized) {
       return null;
     }
-    return this.typeOptions.includes(normalized as FeedItemType) ? (normalized as FeedItemType) : null;
+    return this.typeOptions.includes(normalized as FeedItemType)
+      ? (normalized as FeedItemType)
+      : null;
   }
 
   private normalizeDraftMode(value: string | null): FlowMode | null {
@@ -431,7 +448,7 @@ export class Og7FeedComposerComponent {
     }
     const normalized = raw
       .split(',')
-      .map(tag => tag.trim())
+      .map((tag) => tag.trim())
       .filter(Boolean)
       .slice(0, 8)
       .join(', ');

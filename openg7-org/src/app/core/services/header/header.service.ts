@@ -1,6 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Signal, signal, inject, PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
+import {
+  Injectable,
+  Signal,
+  signal,
+  inject,
+  PLATFORM_ID,
+  TransferState,
+  makeStateKey,
+} from '@angular/core';
 
 import { createSilentHttpContext } from '../../http/error.interceptor.tokens';
 
@@ -77,4 +85,3 @@ export class HeaderService {
     };
   }
 }
-

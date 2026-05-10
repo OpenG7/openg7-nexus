@@ -778,7 +778,11 @@ async function buildControlPlaneKeys(): Promise<ControlPlaneKeySnapshot[]> {
       channel: 'github-actions',
       target: '.github/workflows/admin-quality-matrix-sync.yml',
       keyInserted: githubMatrixUrlInserted,
-      state: repoSecretScanUnavailable ? 'scan-unavailable' : githubMatrixUrlInserted ? 'ready' : 'offline',
+      state: repoSecretScanUnavailable
+        ? 'scan-unavailable'
+        : githubMatrixUrlInserted
+          ? 'ready'
+          : 'offline',
       note: repoSecretScanUnavailable
         ? 'The control plane could not verify whether GitHub stores ADMIN_QUALITY_MATRIX_INGEST_URL.'
         : githubMatrixUrlInserted

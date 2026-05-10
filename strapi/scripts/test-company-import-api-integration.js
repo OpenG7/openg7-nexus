@@ -20,7 +20,8 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'company-import-test-app-key-a,company-import-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'company-import-test-app-key-a,company-import-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'company-import-test-api-token-salt';
   process.env.ADMIN_JWT_SECRET =
     process.env.ADMIN_JWT_SECRET || 'company-import-test-admin-jwt-secret';
@@ -41,7 +42,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -189,7 +190,7 @@ async function findCompaniesByBusinessId(strapi, businessIds) {
         province: true,
       },
       limit: businessIds.length + 5,
-    })
+    }),
   );
 }
 
@@ -203,7 +204,7 @@ async function findCompanyByBusinessId(strapi, businessId) {
       },
       publicationState: 'preview',
       limit: 1,
-    })
+    }),
   );
   return entries[0] ?? null;
 }
@@ -270,22 +271,41 @@ async function run() {
     });
 
     assert.equal(firstImport.status, 200, `Expected first import to succeed (${firstImport.text})`);
-    assert.equal(firstImport.body?.data?.received, 3, 'Expected received count to include all entries.');
+    assert.equal(
+      firstImport.body?.data?.received,
+      3,
+      'Expected received count to include all entries.',
+    );
     assert.equal(firstImport.body?.data?.processed, 2, 'Expected two processed entries.');
     assert.equal(firstImport.body?.data?.created, 2, 'Expected two created companies.');
     assert.equal(firstImport.body?.data?.updated, 0, 'Expected zero updates on first import.');
-    assert.equal(firstImport.body?.data?.skipped, 1, 'Expected one skipped entry for duplicate payload id.');
+    assert.equal(
+      firstImport.body?.data?.skipped,
+      1,
+      'Expected one skipped entry for duplicate payload id.',
+    );
     assert.ok(
       Array.isArray(firstImport.body?.data?.errors) && firstImport.body.data.errors.length >= 1,
-      'Expected duplicate payload error in first import.'
+      'Expected duplicate payload error in first import.',
     );
 
-    const createdCompanies = await findCompaniesByBusinessId(app, [alpha.businessId, bravo.businessId]);
-    assert.equal(createdCompanies.length, 2, 'Expected two persisted companies after first import.');
+    const createdCompanies = await findCompaniesByBusinessId(app, [
+      alpha.businessId,
+      bravo.businessId,
+    ]);
+    assert.equal(
+      createdCompanies.length,
+      2,
+      'Expected two persisted companies after first import.',
+    );
 
     const alphaEntity = createdCompanies.find((entry) => entry.businessId === alpha.businessId);
     assert.ok(alphaEntity, 'Expected first imported company to exist.');
-    assert.equal(alphaEntity.status, 'approved', 'Expected imported company status to be approved.');
+    assert.equal(
+      alphaEntity.status,
+      'approved',
+      'Expected imported company status to be approved.',
+    );
     assert.equal(alphaEntity.country, 'CA', 'Expected country alias normalization to CA.');
     assert.ok(alphaEntity.sector?.id, 'Expected sector relation resolution.');
     assert.ok(alphaEntity.province?.id, 'Expected province relation resolution.');
@@ -322,22 +342,42 @@ async function run() {
       }),
     });
 
-    assert.equal(secondImport.status, 200, `Expected second import to succeed (${secondImport.text})`);
+    assert.equal(
+      secondImport.status,
+      200,
+      `Expected second import to succeed (${secondImport.text})`,
+    );
     assert.equal(secondImport.body?.data?.received, 2, 'Expected second import received count.');
     assert.equal(secondImport.body?.data?.processed, 2, 'Expected second import processed count.');
-    assert.equal(secondImport.body?.data?.created, 1, 'Expected one created company on second import.');
-    assert.equal(secondImport.body?.data?.updated, 1, 'Expected one updated company on second import.');
-    assert.equal(secondImport.body?.data?.skipped, 0, 'Expected no skipped company on second import.');
+    assert.equal(
+      secondImport.body?.data?.created,
+      1,
+      'Expected one created company on second import.',
+    );
+    assert.equal(
+      secondImport.body?.data?.updated,
+      1,
+      'Expected one updated company on second import.',
+    );
+    assert.equal(
+      secondImport.body?.data?.skipped,
+      0,
+      'Expected no skipped company on second import.',
+    );
 
     const updatedAlpha = await findCompanyByBusinessId(app, alpha.businessId);
     assert.ok(updatedAlpha, 'Expected updated alpha company to exist.');
     assert.equal(updatedAlpha.name, alphaUpdated.name, 'Expected name update to be persisted.');
-    assert.equal(updatedAlpha.website, 'https://alpha-updated.integration.test', 'Expected website update.');
+    assert.equal(
+      updatedAlpha.website,
+      'https://alpha-updated.integration.test',
+      'Expected website update.',
+    );
     assert.equal(updatedAlpha.country, 'UK', 'Expected country normalization to UK on update.');
     assert.equal(
       updatedAlpha.importMetadata?.source,
       'province-upload',
-      'Expected import metadata source marker.'
+      'Expected import metadata source marker.',
     );
 
     const fullyRejected = await requestJson(`${baseUrl}/api/import/companies`, {
@@ -359,9 +399,13 @@ async function run() {
     assert.equal(
       fullyRejected.status,
       400,
-      'Expected 400 when no company entry can be processed in the import batch.'
+      'Expected 400 when no company entry can be processed in the import batch.',
     );
-    assert.equal(fullyRejected.body?.data?.processed, 0, 'Expected fully rejected import to process zero entries.');
+    assert.equal(
+      fullyRejected.body?.data?.processed,
+      0,
+      'Expected fully rejected import to process zero entries.',
+    );
 
     console.log('Company import integration tests passed.');
   } finally {

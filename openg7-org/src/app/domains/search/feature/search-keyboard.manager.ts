@@ -5,7 +5,10 @@ export interface QuickSearchKeyboardHandlers {
   focusInput(): void;
 }
 
-export function handleQuickSearchKeydown(event: KeyboardEvent, handlers: QuickSearchKeyboardHandlers): void {
+export function handleQuickSearchKeydown(
+  event: KeyboardEvent,
+  handlers: QuickSearchKeyboardHandlers,
+): void {
   switch (event.key) {
     case 'ArrowDown':
       handlers.move(1);

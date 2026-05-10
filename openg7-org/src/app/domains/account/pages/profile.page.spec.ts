@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AuthService } from '@app/core/auth/auth.service';
 import { AuthUser } from '@app/core/auth/auth.types';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
+import {
+  NotificationStore,
+  NotificationStoreApi,
+} from '@app/core/observability/notification.store';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
@@ -117,16 +120,16 @@ describe('ProfilePage', () => {
             ipAddress: '203.0.113.2',
           },
         ],
-      })
+      }),
     );
     auth.updateProfile.and.returnValue(of(profile));
     auth.changePassword.and.returnValue(of({ jwt: 'next.jwt.token', user: profile }));
     auth.requestEmailChange.and.returnValue(
-      of({ email: 'new@example.com', sent: true, accountStatus: 'emailNotConfirmed' })
+      of({ email: 'new@example.com', sent: true, accountStatus: 'emailNotConfirmed' }),
     );
     auth.sendEmailConfirmation.and.returnValue(of({ email: profile.email, sent: true }));
     auth.exportProfileData.and.returnValue(
-      of(new Blob([JSON.stringify({ id: profile.id })], { type: 'application/json' }))
+      of(new Blob([JSON.stringify({ id: profile.id })], { type: 'application/json' })),
     );
     auth.logoutOtherSessions.and.returnValue(
       of({
@@ -147,7 +150,7 @@ describe('ProfilePage', () => {
             ipAddress: '198.51.100.9',
           },
         ],
-      })
+      }),
     );
     http.post.and.returnValue(of([{ url: '/uploads/avatar.png' }]));
 
@@ -179,9 +182,7 @@ describe('ProfilePage', () => {
     expect(form.controls.alertChannelInApp.value).toBeTrue();
     expect(form.controls.emailNotifications.value).toBeTrue();
     expect(form.controls.webhookNotifications.value).toBeTrue();
-    expect(form.controls.notificationWebhook.value).toBe(
-      'https://hooks.example.com/og7'
-    );
+    expect(form.controls.notificationWebhook.value).toBe('https://hooks.example.com/og7');
     expect(form.controls.alertFrequency.value).toBe('daily-digest');
     expect(form.controls.alertSeverityWarning.value).toBeTrue();
     expect(form.controls.alertSeverityCritical.value).toBeTrue();
@@ -195,7 +196,7 @@ describe('ProfilePage', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('[data-og7="user-profile-email"]')?.textContent).toContain(
-      profile.email
+      profile.email,
     );
     expect(notifications.updatePreferences).toHaveBeenCalled();
   });
@@ -267,7 +268,7 @@ describe('ProfilePage', () => {
 
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
     expect(form.controls.firstName.value).toBe('Janet');
   });
@@ -282,7 +283,7 @@ describe('ProfilePage', () => {
 
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.profile.error',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -333,7 +334,7 @@ describe('ProfilePage', () => {
     });
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.security.password.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -350,7 +351,7 @@ describe('ProfilePage', () => {
     });
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.security.emailChange.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -366,7 +367,7 @@ describe('ProfilePage', () => {
     expect(auth.sendEmailConfirmation).toHaveBeenCalledWith({ email: profile.email });
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.login.activationEmailSent',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -423,7 +424,7 @@ describe('ProfilePage', () => {
     expect(form.controls.avatarUrl.value).toContain('/uploads/avatar.png');
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.avatar.uploadSuccess',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -436,7 +437,7 @@ describe('ProfilePage', () => {
     expect(downloadSpy).toHaveBeenCalled();
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.security.exportData.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 
@@ -446,7 +447,7 @@ describe('ProfilePage', () => {
     expect(auth.logoutOtherSessions).toHaveBeenCalled();
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.profile.security.sessions.logoutOthersSuccess',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
     expect((component as any).sessions().length).toBe(1);
     expect((component as any).sessions()[0].current).toBeTrue();
@@ -464,7 +465,7 @@ describe('ProfilePage', () => {
     expect(http.post).not.toHaveBeenCalled();
     expect(notifications.error).toHaveBeenCalledWith(
       'auth.profile.avatar.uploadInvalidType',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
   });
 });

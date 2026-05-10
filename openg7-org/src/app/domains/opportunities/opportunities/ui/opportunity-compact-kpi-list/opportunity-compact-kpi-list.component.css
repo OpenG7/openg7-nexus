@@ -41,14 +41,19 @@
 
 .opportunity-compact-kpi__row {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1fr) auto;
+  grid-template-columns:
+    minmax(0, 1.1fr) minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1fr)
+    auto;
   gap: 0.5rem;
   align-items: center;
   padding: 0.35rem;
   border-radius: 9999px;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(148, 163, 184, 0.12);
-  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .opportunity-compact-kpi__row:hover,
@@ -126,7 +131,11 @@
   background: rgba(14, 165, 233, 0.2);
   border-color: rgba(56, 189, 248, 0.55);
   color: rgba(224, 242, 254, 0.95);
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .opportunity-compact-kpi__chip--action:hover,

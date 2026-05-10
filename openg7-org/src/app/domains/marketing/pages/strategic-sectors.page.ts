@@ -217,17 +217,15 @@ export class StrategicSectorsPage {
   protected readonly activeFilterChips = computed<readonly StrategicActiveFilterChip[]>(() => {
     const filters = this.filterValues();
 
-    return FILTER_KEYS
-      .filter((key) => filters[key] !== DEFAULT_FILTER_VALUES[key])
-      .map((key) => {
-        const value = filters[key];
-        const option = this.filterOptions[key].find((candidate) => candidate.value === value);
-        return {
-          key,
-          value,
-          labelKey: option?.labelKey ?? 'pages.strategicSectors.filters.any',
-        };
-      });
+    return FILTER_KEYS.filter((key) => filters[key] !== DEFAULT_FILTER_VALUES[key]).map((key) => {
+      const value = filters[key];
+      const option = this.filterOptions[key].find((candidate) => candidate.value === value);
+      return {
+        key,
+        value,
+        labelKey: option?.labelKey ?? 'pages.strategicSectors.filters.any',
+      };
+    });
   });
 
   protected setActiveTab(tabId: StrategicSectorTabId): void {

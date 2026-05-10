@@ -24,8 +24,8 @@ export class StatisticsEffects {
     this.actions$.pipe(
       ofType(StatisticsActions.initialize),
       withLatestFrom(this.store.select(selectStatisticsFilters)),
-      map(([, filters]) => StatisticsActions.loadStatistics({ filters }))
-    )
+      map(([, filters]) => StatisticsActions.loadStatistics({ filters })),
+    ),
   );
 
   readonly triggerLoad$ = createEffect(() =>
@@ -36,13 +36,13 @@ export class StatisticsEffects {
         StatisticsActions.changeIntrant,
         StatisticsActions.changePeriod,
         StatisticsActions.changeProvince,
-        StatisticsActions.changeCountry
+        StatisticsActions.changeCountry,
       ),
       withLatestFrom(this.store.select(selectStatisticsFilters)),
       map(([action, filters]) =>
-        StatisticsActions.loadStatistics({ filters: resolveTriggeredFilters(action, filters) })
-      )
-    )
+        StatisticsActions.loadStatistics({ filters: resolveTriggeredFilters(action, filters) }),
+      ),
+    ),
   );
 
   readonly loadStatistics$ = createEffect(() =>
@@ -55,12 +55,12 @@ export class StatisticsEffects {
             of(
               StatisticsActions.loadStatisticsFailure({
                 error: error instanceof Error ? error.message : 'Unable to load statistics',
-              })
-            )
-          )
-        )
-      )
-    )
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -82,7 +82,7 @@ const DEFAULT_FILTERS: StatisticsFilters = {
 
 const resolveTriggeredFilters = (
   action: StatisticsTriggerAction,
-  filters: StatisticsFilters
+  filters: StatisticsFilters,
 ): StatisticsFilters => {
   switch (action.type) {
     case StatisticsActions.resetFilters.type:

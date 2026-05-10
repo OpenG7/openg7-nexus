@@ -98,7 +98,9 @@ export class CompaniesBulkImportService {
     readonly dryRun: boolean;
     readonly idempotencyKey?: string | null;
   }): Observable<CompaniesBulkImportStartResponse> {
-    const headers = options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : undefined;
+    const headers = options.idempotencyKey
+      ? { 'Idempotency-Key': options.idempotencyKey }
+      : undefined;
     return this.http.post<CompaniesBulkImportStartResponse>(
       '/api/import/companies/bulk-import',
       {
@@ -106,7 +108,7 @@ export class CompaniesBulkImportService {
         dryRun: options.dryRun,
         companies: options.companies,
       },
-      { headers }
+      { headers },
     );
   }
 
@@ -120,30 +122,44 @@ export class CompaniesBulkImportService {
     payload.append('file', options.file);
     payload.append('mode', options.mode);
     payload.append('dryRun', String(options.dryRun));
-    const headers = options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : undefined;
-    return this.http.post<CompaniesBulkImportStartResponse>('/api/import/companies/bulk-import', payload, { headers });
+    const headers = options.idempotencyKey
+      ? { 'Idempotency-Key': options.idempotencyKey }
+      : undefined;
+    return this.http.post<CompaniesBulkImportStartResponse>(
+      '/api/import/companies/bulk-import',
+      payload,
+      { headers },
+    );
   }
 
   getStatus(jobId: string): Observable<CompaniesBulkImportStatusResponse> {
-    return this.http.get<CompaniesBulkImportStatusResponse>(`/api/import/companies/jobs/${encodeURIComponent(jobId)}`);
+    return this.http.get<CompaniesBulkImportStatusResponse>(
+      `/api/import/companies/jobs/${encodeURIComponent(jobId)}`,
+    );
   }
 
   cancel(jobId: string): Observable<CompaniesBulkImportCancelResponse> {
     return this.http.post<CompaniesBulkImportCancelResponse>(
       `/api/import/companies/jobs/${encodeURIComponent(jobId)}/cancel`,
-      {}
+      {},
     );
   }
 
   getReport(jobId: string): Observable<CompaniesBulkImportReportResponse> {
-    return this.http.get<CompaniesBulkImportReportResponse>(`/api/import/companies/jobs/${encodeURIComponent(jobId)}/report`);
+    return this.http.get<CompaniesBulkImportReportResponse>(
+      `/api/import/companies/jobs/${encodeURIComponent(jobId)}/report`,
+    );
   }
 
-  getErrors(jobId: string, format: 'json' | 'csv', limit = 100): Observable<CompaniesBulkImportErrorsResponse> {
+  getErrors(
+    jobId: string,
+    format: 'json' | 'csv',
+    limit = 100,
+  ): Observable<CompaniesBulkImportErrorsResponse> {
     const params = new HttpParams().set('format', format).set('limit', String(limit));
     return this.http.get<CompaniesBulkImportErrorsResponse>(
       `/api/import/companies/jobs/${encodeURIComponent(jobId)}/errors`,
-      { params }
+      { params },
     );
   }
 }

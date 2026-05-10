@@ -24,13 +24,17 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
 test.describe('Opportunity archive lifecycle', () => {
-  test('persists archived state across feed list, reload, and reopened detail', async ({ page }) => {
+  test('persists archived state across feed list, reload, and reopened detail', async ({
+    page,
+  }) => {
     await enableMockFeed(page);
     await mockProfileAndFavoritesApis(page);
 
@@ -41,7 +45,9 @@ test.describe('Opportunity archive lifecycle', () => {
     await expect(page.locator('#feed-search')).toHaveValue('reserve');
     await expectVisibleItemIds(page, ['offer-user-001']);
 
-    await page.locator('[data-feed-item-id="offer-user-001"] [data-og7-id="feed-open-item"]').click();
+    await page
+      .locator('[data-feed-item-id="offer-user-001"] [data-og7-id="feed-open-item"]')
+      .click();
 
     await expect(page).toHaveURL(/\/feed\/opportunities\/offer-user-001\?type=OFFER&q=reserve$/);
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
@@ -50,7 +56,9 @@ test.describe('Opportunity archive lifecycle', () => {
     await page.locator('[data-og7-id="opportunity-archive"]').click();
 
     await expect(page.locator('[data-og7-id="opportunity-status-label"]')).toContainText(/Archiv/i);
-    await expect(page.locator('.opportunity-header__sync[data-og7-state="saved-local"]')).toBeVisible();
+    await expect(
+      page.locator('.opportunity-header__sync[data-og7-state="saved-local"]'),
+    ).toBeVisible();
 
     await page.goBack();
 
@@ -64,7 +72,9 @@ test.describe('Opportunity archive lifecycle', () => {
     await expectVisibleItemIds(page, ['offer-user-001']);
     await expect(page.locator('[data-feed-item-id="offer-user-001"]')).toContainText(/Archiv/i);
 
-    await page.locator('[data-feed-item-id="offer-user-001"] [data-og7-id="feed-open-item"]').click();
+    await page
+      .locator('[data-feed-item-id="offer-user-001"] [data-og7-id="feed-open-item"]')
+      .click();
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
     await expect(page.locator('[data-og7-id="opportunity-status-label"]')).toContainText(/Archiv/i);
   });

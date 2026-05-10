@@ -1,6 +1,7 @@
 # Import Companies (Async Bulk)
 
 ## Overview
+
 This module provides asynchronous company import jobs with progress tracking and row-level errors.
 
 - Start endpoint: `POST /api/import/companies/bulk-import`
@@ -11,15 +12,19 @@ This module provides asynchronous company import jobs with progress tracking and
 - SSE endpoint: `GET /api/import/companies/jobs/:jobId/events`
 
 Frontend page:
+
 - `GET /import/companies/bulk-import` (Angular standalone page)
 
 ## API Contract
 
 ### 1) Start import job
+
 `POST /api/import/companies/bulk-import`
 
 Accepted inputs:
+
 - JSON payload:
+
 ```json
 {
   "mode": "upsert",
@@ -35,17 +40,20 @@ Accepted inputs:
   ]
 }
 ```
+
 - Multipart form-data:
   - `file`: `.csv` or `.jsonl`
   - optional `mode`
   - optional `dryRun`
 
 Headers/options:
+
 - `Idempotency-Key`: optional, same key + same payload hash returns same `jobId`.
 - `mode`: `validate-only` or `upsert` (body or headers).
 - `dryRun`: boolean (body or headers). `validate-only` enforces `dryRun=true`.
 
 Response (`202 Accepted`):
+
 ```json
 {
   "jobId": "6d8f6b0a...",
@@ -57,9 +65,11 @@ Response (`202 Accepted`):
 ```
 
 ### 2) Job status
+
 `GET /api/import/companies/jobs/:jobId`
 
 Response:
+
 ```json
 {
   "jobId": "...",
@@ -81,9 +91,11 @@ Response:
 ```
 
 ### 3) Cancel job
+
 `POST /api/import/companies/jobs/:jobId/cancel`
 
 Response (`202 Accepted`):
+
 ```json
 {
   "jobId": "...",
@@ -93,17 +105,20 @@ Response (`202 Accepted`):
 ```
 
 ### 4) Report
+
 `GET /api/import/companies/jobs/:jobId/report`
 
 Returns summary + artifacts URLs (`errorsJsonUrl`, `errorsCsvUrl`).
 
 ### 5) Row errors
+
 `GET /api/import/companies/jobs/:jobId/errors?format=json|csv&limit=2000`
 
 - `json`: structured row-level errors
 - `csv`: downloadable CSV
 
 ### 6) Server-Sent Events
+
 `GET /api/import/companies/jobs/:jobId/events`
 
 Emits progress/phase/error/terminal events for real-time UI updates.
@@ -112,17 +127,22 @@ Frontend falls back to polling if SSE is unavailable.
 ## Supported File Formats
 
 ### JSON array
+
 Same structure as the JSON start payload (`companies: []`).
 
 ### JSONL
+
 One JSON object per line with the same object shape as a company.
 
 ### CSV
+
 Header-based mapping:
+
 - `businessId`, `name`, `sectors`, `lat`, `lng`, `province`, `country`, `website`, `email`, `phone`, `contactName`
 - `sectors` can be pipe/comma/semicolon separated (`Energy|Manufacturing`).
 
 ## Limits and Processing Notes
+
 - JSON payload hard limit: `100000` rows.
 - Chunk size: `500` rows.
 - Worker phases:
@@ -138,31 +158,39 @@ Header-based mapping:
   - Chunk retries won’t create duplicate records due upsert-by-key behavior.
 
 ## Security and Logging
+
 - No row payload is logged as plain text.
 - Job errors persist constrained row samples for diagnostics.
 - Import endpoints require authenticated user permissions.
 
 ## Run Locally
+
 1. Start Strapi:
+
 ```bash
 yarn workspace @openg7/strapi dev
 ```
+
 2. Start frontend:
+
 ```bash
 yarn workspace @openg7/web start
 ```
+
 3. Open:
-`/import/companies/bulk-import`
+   `/import/companies/bulk-import`
 
 ## Test Commands
 
 Backend:
+
 ```bash
 yarn workspace @openg7/strapi test:unit:company-import-bulk
 yarn workspace @openg7/strapi test:integration:company-import-bulk
 ```
 
 Frontend:
+
 ```bash
 yarn workspace @openg7/web ng test --watch=false --browsers=ChromeHeadless --include src/app/store/company-import-bulk/company-import-bulk.reducer.spec.ts
 ```

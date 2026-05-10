@@ -23,11 +23,11 @@ export default ({ env }: ConfigContext) => {
   const uploadAcl = env('UPLOAD_S3_ACL', 'public-read');
   const uploadMaxFileSizeBytes = parsePositiveInteger(
     env('UPLOAD_MAX_FILE_SIZE_BYTES', DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES),
-    DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES
+    DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES,
   );
   const uploadSignedUrlExpiresSeconds = parsePositiveInteger(
     env('UPLOAD_S3_SIGNED_URL_EXPIRES', DEFAULT_UPLOAD_SIGNED_URL_EXPIRES_SECONDS),
-    DEFAULT_UPLOAD_SIGNED_URL_EXPIRES_SECONDS
+    DEFAULT_UPLOAD_SIGNED_URL_EXPIRES_SECONDS,
   );
 
   const smtpPort = parsePositiveInteger(env('SMTP_PORT', 465), 465);
@@ -82,18 +82,9 @@ export default ({ env }: ConfigContext) => {
             user: env('SMTP_USERNAME', 'notify@openg7.org'),
             pass: env('SMTP_PASSWORD'),
           },
-          connectionTimeout: parsePositiveInteger(
-            env('SMTP_CONNECTION_TIMEOUT_MS', 10000),
-            10000
-          ),
-          greetingTimeout: parsePositiveInteger(
-            env('SMTP_GREETING_TIMEOUT_MS', 10000),
-            10000
-          ),
-          socketTimeout: parsePositiveInteger(
-            env('SMTP_SOCKET_TIMEOUT_MS', 20000),
-            20000
-          ),
+          connectionTimeout: parsePositiveInteger(env('SMTP_CONNECTION_TIMEOUT_MS', 10000), 10000),
+          greetingTimeout: parsePositiveInteger(env('SMTP_GREETING_TIMEOUT_MS', 10000), 10000),
+          socketTimeout: parsePositiveInteger(env('SMTP_SOCKET_TIMEOUT_MS', 20000), 20000),
         },
         settings: {
           defaultFrom: env('SMTP_DEFAULT_FROM', 'notify@openg7.org'),

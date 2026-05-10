@@ -5,7 +5,6 @@ import { AuthService } from '@app/core/auth/auth.service';
 import { SubscriptionPlansComponent } from '@app/shared/components/billing/subscription-plans.component';
 import { TranslateModule } from '@ngx-translate/core';
 
-
 type BillingCycle = 'monthly' | 'yearly';
 
 type PlanPriceType = 'free' | 'fixed' | 'custom';
@@ -344,7 +343,11 @@ export class PricingPage {
   protected readonly isAuthenticated = this.auth.isAuthenticated;
   protected readonly currentPlanId = this.auth.currentPlanId;
   protected readonly currentMarketingPlan = computed<MarketingPlan['key'] | null>(() =>
-    this.resolveCurrentMarketingPlan(this.currentPlanId(), this.auth.isPremium(), this.isAuthenticated())
+    this.resolveCurrentMarketingPlan(
+      this.currentPlanId(),
+      this.auth.isPremium(),
+      this.isAuthenticated(),
+    ),
   );
   protected readonly recommendedPlan = computed<MarketingPlan | null>(() => {
     const current = this.currentMarketingPlan();
@@ -372,7 +375,9 @@ export class PricingPage {
     if (plan.priceType !== 'fixed') {
       return null;
     }
-    return this.billingCycle() === 'monthly' ? plan.monthlyPrice ?? null : plan.yearlyPrice ?? null;
+    return this.billingCycle() === 'monthly'
+      ? (plan.monthlyPrice ?? null)
+      : (plan.yearlyPrice ?? null);
   }
 
   protected displayedIntervalKey(): string {
@@ -434,7 +439,7 @@ export class PricingPage {
   private resolveCurrentMarketingPlan(
     currentPlanId: string | null,
     isPremium: boolean,
-    isAuthenticated: boolean
+    isAuthenticated: boolean,
   ): MarketingPlan['key'] | null {
     if (!isAuthenticated) {
       return null;
@@ -445,13 +450,25 @@ export class PricingPage {
       return isPremium ? 'analyst' : 'explorer';
     }
 
-    if (normalized.includes('enterprise') || normalized.includes('business') || normalized.includes('team')) {
+    if (
+      normalized.includes('enterprise') ||
+      normalized.includes('business') ||
+      normalized.includes('team')
+    ) {
       return 'enterprise';
     }
-    if (normalized.includes('analyst') || normalized.includes('premium') || normalized.includes('pro')) {
+    if (
+      normalized.includes('analyst') ||
+      normalized.includes('premium') ||
+      normalized.includes('pro')
+    ) {
       return 'analyst';
     }
-    if (normalized.includes('explorer') || normalized.includes('free') || normalized.includes('starter')) {
+    if (
+      normalized.includes('explorer') ||
+      normalized.includes('free') ||
+      normalized.includes('starter')
+    ) {
       return 'explorer';
     }
 

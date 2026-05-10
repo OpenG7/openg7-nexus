@@ -217,7 +217,12 @@ async function fetchDynamicCompanyRoutes(options = {}) {
     return [];
   }
 
-  const token = (options.apiToken ?? process.env.SITEMAP_API_TOKEN ?? process.env.API_TOKEN ?? '').trim();
+  const token = (
+    options.apiToken ??
+    process.env.SITEMAP_API_TOKEN ??
+    process.env.API_TOKEN ??
+    ''
+  ).trim();
   const headers = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -241,7 +246,7 @@ async function fetchDynamicCompanyRoutes(options = {}) {
         }
         const encodedSlug = slug
           .split('/')
-          .map(segment => encodeURIComponent(segment))
+          .map((segment) => encodeURIComponent(segment))
           .join('/');
         const route = normalizeRoute(`/entreprise/${encodedSlug}`);
         if (route && !isExcludedRoute(route)) {
@@ -305,7 +310,7 @@ export async function createSitemapXml(options = {}) {
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...routes.map(route => renderUrlNode(baseUrl, route, lastmod)),
+    ...routes.map((route) => renderUrlNode(baseUrl, route, lastmod)),
     '</urlset>',
     '',
   ].join('\n');
@@ -343,7 +348,7 @@ const isDirectRun = (() => {
 })();
 
 if (isDirectRun) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error('[sitemap] Failed to generate sitemap');
     if (error instanceof Error) {
       console.error(error.message);

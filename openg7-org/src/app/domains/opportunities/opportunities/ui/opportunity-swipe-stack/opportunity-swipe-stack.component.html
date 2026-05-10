@@ -5,7 +5,9 @@
       <p class="swipe-stack__subtitle" *ngIf="vm().subtitle">{{ vm().subtitle }}</p>
     </div>
     <div class="swipe-stack__meta" aria-hidden="true">
-      <span class="swipe-stack__counter">{{ total() === 0 ? 0 : activeIndex() + 1 }}/{{ total() }}</span>
+      <span class="swipe-stack__counter"
+        >{{ total() === 0 ? 0 : activeIndex() + 1 }}/{{ total() }}</span
+      >
       <div class="swipe-stack__progress">
         <div class="swipe-stack__progress-bar" [style.width.%]="progressPercent()"></div>
       </div>
@@ -31,7 +33,9 @@
       [style.transform]="cardTransform(index)"
       [style.opacity]="cardOpacity(index)"
       [attr.aria-hidden]="index === activeIndex() ? null : 'true'"
-      [attr.data-state]="index === activeIndex() ? 'active' : index < activeIndex() ? 'dismissed' : 'queued'"
+      [attr.data-state]="
+        index === activeIndex() ? 'active' : index < activeIndex() ? 'dismissed' : 'queued'
+      "
     >
       <header class="swipe-card__header">
         <span class="swipe-card__score">{{ card.score }}%</span>
@@ -52,13 +56,18 @@
         </div>
       </dl>
       <footer class="swipe-card__footer">
-        <span class="swipe-card__distance" *ngIf="card.distanceLabel as distance">{{ distance }}</span>
-        <span class="swipe-card__distance" *ngIf="!card.distanceLabel">Distance en modélisation</span>
+        <span class="swipe-card__distance" *ngIf="card.distanceLabel as distance">{{
+          distance
+        }}</span>
+        <span class="swipe-card__distance" *ngIf="!card.distanceLabel"
+          >Distance en modélisation</span
+        >
       </footer>
     </article>
 
     <p class="swipe-stack__empty" *ngIf="total() === 0">
-      Aucune opportunité dans la pile pour le moment — ajustez vos filtres pour relancer la sélection.
+      Aucune opportunité dans la pile pour le moment — ajustez vos filtres pour relancer la
+      sélection.
     </p>
   </div>
 
@@ -67,13 +76,25 @@
       ⟲ Revenir
     </button>
     <div class="swipe-stack__action-group">
-      <button type="button" class="swipe-stack__action swipe-stack__action--dismiss" (click)="swipe('dismissed')">
+      <button
+        type="button"
+        class="swipe-stack__action swipe-stack__action--dismiss"
+        (click)="swipe('dismissed')"
+      >
         ⬅️ Ignorer
       </button>
-      <button type="button" class="swipe-stack__action swipe-stack__action--open" (click)="swipe('open')">
+      <button
+        type="button"
+        class="swipe-stack__action swipe-stack__action--open"
+        (click)="swipe('open')"
+      >
         ⬆️ Ouvrir
       </button>
-      <button type="button" class="swipe-stack__action swipe-stack__action--interested" (click)="swipe('interested')">
+      <button
+        type="button"
+        class="swipe-stack__action swipe-stack__action--interested"
+        (click)="swipe('interested')"
+      >
         ➡️ Intéressé
       </button>
     </div>

@@ -1,12 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule, NgClass, NgFor } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  LOCALE_ID,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, LOCALE_ID, computed, inject } from '@angular/core';
 import { FiltersService, TradeModeFilter } from '@app/core/filters.service';
 import {
   DEFAULT_MAP_KPI_SNAPSHOT,
@@ -56,13 +50,13 @@ interface TradeModeOption {
           style({
             transform: 'scale(1)',
             filter: 'drop-shadow(0 0 1rem rgba(37, 99, 235, 0.28))',
-          })
+          }),
         ),
         animate(
           '200ms ease-out',
           style({
             filter: 'drop-shadow(0 0 0 rgba(37, 99, 235, 0))',
-          })
+          }),
         ),
       ]),
       transition('* => *', [
@@ -75,14 +69,14 @@ interface TradeModeOption {
           style({
             transform: 'scale(1.04)',
             filter: 'drop-shadow(0 0 0.85rem rgba(37, 99, 235, 0.28))',
-          })
+          }),
         ),
         animate(
           '220ms ease-in',
           style({
             transform: 'scale(1)',
             filter: 'drop-shadow(0 0 0 rgba(37, 99, 235, 0))',
-          })
+          }),
         ),
       ]),
     ]),
@@ -145,7 +139,7 @@ export class MapKpiBadgesComponent {
 
   private resolveFallbackSnapshot(
     partner: string | null | undefined,
-    dictionary: MapKpis
+    dictionary: MapKpis,
   ): MapKpiSnapshot | undefined {
     if (partner && dictionary[partner]) {
       return dictionary[partner];

@@ -91,7 +91,8 @@ describe('HeroCtasComponent', () => {
     const fixture = TestBed.createComponent(HeroCtasComponent);
     fixture.detectChanges();
 
-    const previewCta: HTMLAnchorElement | null = fixture.nativeElement.querySelector('[data-og7-id="preview"]');
+    const previewCta: HTMLAnchorElement | null =
+      fixture.nativeElement.querySelector('[data-og7-id="preview"]');
     expect(previewCta).toBeNull();
   });
 });

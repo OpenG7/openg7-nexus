@@ -18,7 +18,11 @@ import { SearchService } from '../search.service';
 import { QuickSearchModalComponent, QuickSearchModalData } from './quick-search-modal.component';
 
 class MockSearchService {
-  readonly searchCalls: Array<{ query: string; context: SearchContext; subject: Subject<SearchResult> }> = [];
+  readonly searchCalls: Array<{
+    query: string;
+    context: SearchContext;
+    subject: Subject<SearchResult>;
+  }> = [];
 
   search$(query: string, context: SearchContext) {
     const subject = new Subject<SearchResult>();
@@ -376,8 +380,12 @@ describe('QuickSearchModalComponent', () => {
     fixture.detectChanges();
     analytics.emit.calls.reset();
 
-    const suggestionButton = host.querySelector<HTMLButtonElement>('[data-og7-id="quick-search-autocomplete-option-0"]');
-    expect(suggestionButton).withContext('autocomplete suggestion should be rendered').not.toBeNull();
+    const suggestionButton = host.querySelector<HTMLButtonElement>(
+      '[data-og7-id="quick-search-autocomplete-option-0"]',
+    );
+    expect(suggestionButton)
+      .withContext('autocomplete suggestion should be rendered')
+      .not.toBeNull();
 
     suggestionButton?.click();
     fixture.detectChanges();

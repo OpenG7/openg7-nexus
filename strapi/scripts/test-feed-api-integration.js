@@ -15,7 +15,15 @@ const FEED_AUTH_ACTIONS = [
   'api::feed.feed.stream',
 ];
 const FEED_PUBLIC_ACTIONS = ['api::feed.feed.highlights'];
-const LABOR_TAGS = new Set(['labor', 'workforce', 'talent', 'welding', 'staffing', 'crew', 'skills']);
+const LABOR_TAGS = new Set([
+  'labor',
+  'workforce',
+  'talent',
+  'welding',
+  'staffing',
+  'crew',
+  'skills',
+]);
 const TRANSPORT_TAGS = new Set([
   'transport',
   'logistics',
@@ -41,8 +49,7 @@ function applyTestEnvironment() {
   process.env.TRANSFER_TOKEN_SALT =
     process.env.TRANSFER_TOKEN_SALT || 'feed-test-transfer-token-salt';
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'feed-test-jwt-secret';
-  process.env.ENCRYPTION_KEY =
-    process.env.ENCRYPTION_KEY || 'feed-test-encryption-key-123456789';
+  process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'feed-test-encryption-key-123456789';
 }
 
 async function cleanupDatabase() {
@@ -55,7 +62,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -120,7 +127,11 @@ async function ensureRolePermissions(strapi, roleType, actions) {
 }
 
 async function ensureFeedPermissions(strapi) {
-  const authenticatedRoleId = await ensureRolePermissions(strapi, 'authenticated', FEED_AUTH_ACTIONS);
+  const authenticatedRoleId = await ensureRolePermissions(
+    strapi,
+    'authenticated',
+    FEED_AUTH_ACTIONS,
+  );
   await ensureRolePermissions(strapi, 'public', FEED_PUBLIC_ACTIONS);
 
   return authenticatedRoleId;
@@ -327,27 +338,39 @@ async function run() {
         toProvinceId: 'on',
         connectionMatchId: 73,
       }),
-      `feed-it-${runId}-alpha`
+      `feed-it-${runId}-alpha`,
     );
     const offerB = await createFeedItem(
       baseUrl,
       jwt,
       buildFeedPayload(runId, 'BETA', { mode: 'IMPORT', fromProvinceId: 'de', toProvinceId: 'qc' }),
-      `feed-it-${runId}-beta`
+      `feed-it-${runId}-beta`,
     );
     const offerC = await createFeedItem(
       baseUrl,
       jwt,
       buildFeedPayload(runId, 'GAMMA', { mode: 'BOTH', quantity: { value: 99, unit: 'kg' } }),
-      `feed-it-${runId}-gamma`
+      `feed-it-${runId}-gamma`,
     );
     const findOne = await requestJson(`${baseUrl}/api/feed/${encodeURIComponent(offerA.id)}`, {
       headers: { Authorization: `Bearer ${jwt}` },
     });
     assert.equal(findOne.status, 200, 'Expected /api/feed/:id read to succeed.');
-    assert.equal(findOne.body?.data?.id, offerA.id, 'Expected /api/feed/:id payload to match the requested item.');
-    assert.equal(offerA.connectionMatchId, 73, 'Expected feed create response to roundtrip connectionMatchId.');
-    assert.equal(findOne.body?.data?.connectionMatchId, 73, 'Expected /api/feed/:id to include connectionMatchId.');
+    assert.equal(
+      findOne.body?.data?.id,
+      offerA.id,
+      'Expected /api/feed/:id payload to match the requested item.',
+    );
+    assert.equal(
+      offerA.connectionMatchId,
+      73,
+      'Expected feed create response to roundtrip connectionMatchId.',
+    );
+    assert.equal(
+      findOne.body?.data?.connectionMatchId,
+      73,
+      'Expected /api/feed/:id to include connectionMatchId.',
+    );
 
     const missing = await requestJson(`${baseUrl}/api/feed/999999999`, {
       headers: { Authorization: `Bearer ${jwt}` },
@@ -389,7 +412,7 @@ async function run() {
 
     const pageOne = await requestJson(
       `${baseUrl}/api/feed?type=OFFER&q=${encodeURIComponent(runId)}&limit=2`,
-      { headers: { Authorization: `Bearer ${jwt}` } }
+      { headers: { Authorization: `Bearer ${jwt}` } },
     );
     assert.equal(pageOne.status, 200, 'Expected page 1 read to succeed.');
     assert.equal(pageOne.body?.data?.length, 2, 'Expected two items in first page.');
@@ -397,7 +420,7 @@ async function run() {
 
     const pageTwo = await requestJson(
       `${baseUrl}/api/feed?type=OFFER&q=${encodeURIComponent(runId)}&limit=2&cursor=${encodeURIComponent(pageOne.body.cursor)}`,
-      { headers: { Authorization: `Bearer ${jwt}` } }
+      { headers: { Authorization: `Bearer ${jwt}` } },
     );
     assert.equal(pageTwo.status, 200, 'Expected page 2 read to succeed.');
     assert.ok(Array.isArray(pageTwo.body?.data), 'Expected array payload on page 2.');
@@ -410,7 +433,7 @@ async function run() {
 
     const modeFilter = await requestJson(
       `${baseUrl}/api/feed?type=OFFER&q=${encodeURIComponent(runId)}&mode=IMPORT&limit=5`,
-      { headers: { Authorization: `Bearer ${jwt}` } }
+      { headers: { Authorization: `Bearer ${jwt}` } },
     );
     assert.equal(modeFilter.status, 200, 'Expected mode filter read to succeed.');
     assert.equal(modeFilter.body?.data?.length, 1, 'Expected one IMPORT item for run marker.');
@@ -428,7 +451,7 @@ async function run() {
           },
         },
       }),
-      `feed-it-${runId}-form-energy`
+      `feed-it-${runId}-form-energy`,
     );
     await createFeedItem(
       baseUrl,
@@ -442,30 +465,30 @@ async function run() {
           },
         },
       }),
-      `feed-it-${runId}-form-cold`
+      `feed-it-${runId}-form-cold`,
     );
 
     const formKeyFilter = await requestJson(
       `${baseUrl}/api/feed?type=OFFER&q=${encodeURIComponent(runId)}&formKey=energy-surplus-offer&limit=10`,
-      { headers: { Authorization: `Bearer ${jwt}` } }
+      { headers: { Authorization: `Bearer ${jwt}` } },
     );
     assert.equal(formKeyFilter.status, 200, 'Expected formKey filter read to succeed.');
     assert.ok(Array.isArray(formKeyFilter.body?.data), 'Expected formKey filter payload list.');
     assert.ok(formKeyFilter.body.data.length >= 1, 'Expected at least one formKey-filtered item.');
     assert.ok(
       formKeyFilter.body.data.some((item) => item.id === templateOffer.id),
-      'Expected formKey filter to include the matching template publication.'
+      'Expected formKey filter to include the matching template publication.',
     );
     for (const item of formKeyFilter.body.data) {
       assert.equal(
         item.metadata?.publicationForm?.formKey,
         'energy-surplus-offer',
-        'Expected formKey filter to only return matching template publications.'
+        'Expected formKey filter to only return matching template publications.',
       );
     }
 
     const highlightsPublic = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=all&q=${encodeURIComponent(runId)}&limit=6`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=all&q=${encodeURIComponent(runId)}&limit=6`,
     );
     assert.equal(highlightsPublic.status, 200, 'Expected public highlights read to succeed.');
     assert.ok(Array.isArray(highlightsPublic.body?.data), 'Expected highlights payload list.');
@@ -477,23 +500,23 @@ async function run() {
     assert.match(
       highlightsPublic.response.headers.get('cache-control') || '',
       /max-age=30/i,
-      'Expected short-lived cache header on highlights response.'
+      'Expected short-lived cache header on highlights response.',
     );
 
     const highlightsG7 = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=g7&filter=all&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=g7&filter=all&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsG7.status, 200, 'Expected g7 highlights read to succeed.');
     assert.ok(highlightsG7.body.data.length >= 1, 'Expected at least one g7 highlight.');
     for (const item of highlightsG7.body.data) {
       assert.ok(
         item.source?.kind === 'GOV' || item.source?.kind === 'PARTNER',
-        'Expected g7 scope to only return GOV/PARTNER items.'
+        'Expected g7 scope to only return GOV/PARTNER items.',
       );
     }
 
     const highlightsWorld = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=world&filter=all&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=world&filter=all&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsWorld.status, 200, 'Expected world highlights read to succeed.');
     for (const item of highlightsWorld.body.data) {
@@ -501,7 +524,7 @@ async function run() {
     }
 
     const highlightsOffer = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=offer&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=offer&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsOffer.status, 200, 'Expected offer filter read to succeed.');
     for (const item of highlightsOffer.body.data) {
@@ -509,7 +532,7 @@ async function run() {
     }
 
     const highlightsRequest = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=request&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=request&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsRequest.status, 200, 'Expected request filter read to succeed.');
     for (const item of highlightsRequest.body.data) {
@@ -517,32 +540,45 @@ async function run() {
     }
 
     const highlightsLabor = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=labor&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=labor&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsLabor.status, 200, 'Expected labor filter read to succeed.');
     for (const item of highlightsLabor.body.data) {
-      assert.ok(hasAnyTag(item, LABOR_TAGS), 'Expected labor filter to match labor/workforce tags.');
+      assert.ok(
+        hasAnyTag(item, LABOR_TAGS),
+        'Expected labor filter to match labor/workforce tags.',
+      );
     }
 
     const highlightsTransport = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=transport&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=transport&q=${encodeURIComponent(runId)}&limit=20`,
     );
     assert.equal(highlightsTransport.status, 200, 'Expected transport filter read to succeed.');
     for (const item of highlightsTransport.body.data) {
       assert.ok(
         hasAnyTag(item, TRANSPORT_TAGS),
-        'Expected transport filter to match transport/logistics tags.'
+        'Expected transport filter to match transport/logistics tags.',
       );
     }
 
     const highlightsTagAndType = await requestJson(
-      `${baseUrl}/api/feed/highlights?scope=canada&filter=all&type=REQUEST&tag=transport&q=${encodeURIComponent(runId)}&limit=20`
+      `${baseUrl}/api/feed/highlights?scope=canada&filter=all&type=REQUEST&tag=transport&q=${encodeURIComponent(runId)}&limit=20`,
     );
-    assert.equal(highlightsTagAndType.status, 200, 'Expected typed/tagged highlights read to succeed.');
-    assert.ok(highlightsTagAndType.body.data.length >= 1, 'Expected at least one typed/tagged result.');
+    assert.equal(
+      highlightsTagAndType.status,
+      200,
+      'Expected typed/tagged highlights read to succeed.',
+    );
+    assert.ok(
+      highlightsTagAndType.body.data.length >= 1,
+      'Expected at least one typed/tagged result.',
+    );
     for (const item of highlightsTagAndType.body.data) {
       assert.equal(item.type, 'REQUEST', 'Expected explicit type filter to be applied.');
-      assert.ok(lowerTags(item).includes('transport'), 'Expected explicit tag filter to be applied.');
+      assert.ok(
+        lowerTags(item).includes('transport'),
+        'Expected explicit tag filter to be applied.',
+      );
     }
 
     const stableQuery = `${baseUrl}/api/feed/highlights?scope=canada&filter=all&q=${encodeURIComponent(runId)}&limit=3`;
@@ -553,7 +589,11 @@ async function run() {
     const stableIdsA = highlightsStableA.body.data.map((item) => item.id);
     const stableIdsB = highlightsStableB.body.data.map((item) => item.id);
     assert.ok(stableIdsA.length <= 3, 'Expected stable highlights query to enforce limit.');
-    assert.deepEqual(stableIdsA, stableIdsB, 'Expected stable highlights ordering for identical queries.');
+    assert.deepEqual(
+      stableIdsA,
+      stableIdsB,
+      'Expected stable highlights ordering for identical queries.',
+    );
 
     const streamAbort = new AbortController();
     const streamResponse = await fetch(`${baseUrl}/api/feed/stream`, {
@@ -568,19 +608,23 @@ async function run() {
     assert.match(
       streamResponse.headers.get('content-type') || '',
       /^text\/event-stream/i,
-      'Expected SSE content type.'
+      'Expected SSE content type.',
     );
 
     const streamedItem = await createFeedItem(
       baseUrl,
       jwt,
       buildFeedPayload(runId, 'DELTA-SSE', { summary: `SSE payload marker ${runId}` }),
-      `feed-it-${runId}-delta-sse`
+      `feed-it-${runId}-delta-sse`,
     );
 
     const envelope = await readSseEnvelope(streamResponse, 15000);
     assert.equal(envelope.type, 'feed.item.created', 'Expected feed.item.created SSE event.');
-    assert.equal(envelope.payload?.id, streamedItem.id, 'Expected SSE payload to match created item.');
+    assert.equal(
+      envelope.payload?.id,
+      streamedItem.id,
+      'Expected SSE payload to match created item.',
+    );
     assert.ok(envelope.eventId, 'Expected SSE envelope eventId.');
 
     streamAbort.abort();

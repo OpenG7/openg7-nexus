@@ -201,7 +201,7 @@ function resolveClientIp(ctx: Record<string, unknown>): string | null {
 
   const headers = (ctx.headers ?? {}) as Record<string, unknown>;
   const forwarded = readForwardedForHeader(
-    headers['x-forwarded-for'] ?? headers['X-Forwarded-For']
+    headers['x-forwarded-for'] ?? headers['X-Forwarded-For'],
   );
   return forwarded;
 }
@@ -219,7 +219,10 @@ function sessionStore(strapi: Core.Strapi, userId: number | string) {
   });
 }
 
-async function readState(strapi: Core.Strapi, userId: number | string): Promise<StoredSessionState> {
+async function readState(
+  strapi: Core.Strapi,
+  userId: number | string,
+): Promise<StoredSessionState> {
   const store = sessionStore(strapi, userId);
   const raw = await store.get();
   return normalizeSessionState(raw);
@@ -228,7 +231,7 @@ async function readState(strapi: Core.Strapi, userId: number | string): Promise<
 async function writeState(
   strapi: Core.Strapi,
   userId: number | string,
-  state: StoredSessionState
+  state: StoredSessionState,
 ): Promise<void> {
   const store = sessionStore(strapi, userId);
   await store.set({ value: state });
@@ -244,7 +247,7 @@ function generateSessionId(): string {
 function upsertSession(
   state: StoredSessionState,
   session: CreatedSession,
-  options: { keepHistory?: boolean } = {}
+  options: { keepHistory?: boolean } = {},
 ): StoredSessionState {
   const keepHistory = options.keepHistory ?? true;
   const nextSessions = [session, ...state.sessions.filter((entry) => entry.id !== session.id)];
@@ -284,7 +287,7 @@ function hasSessionIdleTimedOut(lastSeenAt: string, now: Date): boolean {
 
 export async function extractSessionTokenClaims(
   strapi: Core.Strapi,
-  ctx: Record<string, unknown>
+  ctx: Record<string, unknown>,
 ): Promise<SessionTokenClaims | null> {
   try {
     const jwtService = strapi.plugin('users-permissions').service('jwt') as {
@@ -302,11 +305,10 @@ export async function extractSessionTokenClaims(
     }
 
     const sid = normalizeString(record.sid, 120);
-    const sv = typeof record.sv === 'number' && Number.isFinite(record.sv) ? Math.floor(record.sv) : null;
+    const sv =
+      typeof record.sv === 'number' && Number.isFinite(record.sv) ? Math.floor(record.sv) : null;
     const iat =
-      typeof record.iat === 'number' && Number.isFinite(record.iat)
-        ? Math.floor(record.iat)
-        : null;
+      typeof record.iat === 'number' && Number.isFinite(record.iat) ? Math.floor(record.iat) : null;
 
     return {
       id,
@@ -322,7 +324,7 @@ export async function extractSessionTokenClaims(
 export async function createSessionForUser(
   strapi: Core.Strapi,
   userId: number | string,
-  ctx: Record<string, unknown>
+  ctx: Record<string, unknown>,
 ): Promise<CreatedSession> {
   const state = await readState(strapi, userId);
   const now = new Date().toISOString();
@@ -347,7 +349,7 @@ export async function createSessionForUser(
 export function issueSessionJwt(
   strapi: Core.Strapi,
   userId: number | string,
-  session: { id: string; version: number }
+  session: { id: string; version: number },
 ): string {
   const jwtService = strapi.plugin('users-permissions').service('jwt') as {
     issue(payload: Record<string, unknown>): string;
@@ -364,7 +366,7 @@ export async function validateSessionForToken(
   strapi: Core.Strapi,
   userId: number | string,
   claims: SessionTokenClaims | null,
-  ctx?: Record<string, unknown>
+  ctx?: Record<string, unknown>,
 ): Promise<ValidationResult> {
   const state = await readState(strapi, userId);
 
@@ -380,7 +382,7 @@ export async function validateSessionForToken(
   }
 
   const current = state.sessions.find(
-    (entry) => entry.id === claims.sid && entry.version === state.version
+    (entry) => entry.id === claims.sid && entry.version === state.version,
   );
 
   if (!current || current.revokedAt) {
@@ -422,7 +424,7 @@ export async function validateSessionForToken(
 export async function getSessionSnapshot(
   strapi: Core.Strapi,
   userId: number | string,
-  claims: SessionTokenClaims | null
+  claims: SessionTokenClaims | null,
 ): Promise<SessionSnapshot> {
   const state = await readState(strapi, userId);
   const currentSessionId = claims?.sid ?? null;
@@ -457,7 +459,7 @@ export async function getSessionSnapshot(
 export async function rotateSessionsAndCreateCurrent(
   strapi: Core.Strapi,
   userId: number | string,
-  ctx: Record<string, unknown>
+  ctx: Record<string, unknown>,
 ): Promise<{ session: CreatedSession; revokedCount: number }> {
   const state = await readState(strapi, userId);
   const now = new Date().toISOString();

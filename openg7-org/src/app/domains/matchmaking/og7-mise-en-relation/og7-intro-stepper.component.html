@@ -1,11 +1,15 @@
 <div class="relative isolate flex flex-col gap-5 overflow-hidden">
   <!-- couche image -->
-  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat"
-    [style.backgroundImage]="'url(' + imageSrc + ')'">
-  </div>
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat"
+    [style.backgroundImage]="'url(' + imageSrc + ')'"
+  ></div>
   <!-- overlay de lisibilité -->
-  <div aria-hidden="true"
-    class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/25 to-black/50"></div>
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/25 to-black/50"
+  ></div>
   <header class="relative z-10 max-w-6xl px-6 py-12">
     <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">
       {{ 'introBillboard.title' | translate }}
@@ -19,119 +23,151 @@
   </header>
 
   @if (hasCtaContent()) {
-  <section class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-4 rounded-3xl p-5">
-    <h2>bravo</h2>
-    <header class="og7-partner-panel__section-header">
-      <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-        {{ 'partner.panel.sections.collaboration' | translate }}
-      </h3>
-    </header>
-    <div class="og7-partner-panel__section-body space-y-4">
-      <div class="og7-partner-panel__slot space-y-4">
-        @if (primaryTemplate()) {
-        <ng-container *ngTemplateOutlet="primaryTemplate()"></ng-container>
-        }
-        @if (ctaRailTemplate()) {
-        <ng-container *ngTemplateOutlet="ctaRailTemplate()"></ng-container>
-        } @else if (!primaryTemplate() && ctaTemplate()) {
-        <ng-container *ngTemplateOutlet="ctaTemplate()"></ng-container>
-        }
+    <section
+      class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-4 rounded-3xl p-5"
+    >
+      <h2>bravo</h2>
+      <header class="og7-partner-panel__section-header">
+        <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+          {{ 'partner.panel.sections.collaboration' | translate }}
+        </h3>
+      </header>
+      <div class="og7-partner-panel__section-body space-y-4">
+        <div class="og7-partner-panel__slot space-y-4">
+          @if (primaryTemplate()) {
+            <ng-container *ngTemplateOutlet="primaryTemplate()"></ng-container>
+          }
+          @if (ctaRailTemplate()) {
+            <ng-container *ngTemplateOutlet="ctaRailTemplate()"></ng-container>
+          } @else if (!primaryTemplate() && ctaTemplate()) {
+            <ng-container *ngTemplateOutlet="ctaTemplate()"></ng-container>
+          }
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
   }
   @if (collaborationSteps().length) {
-  <section class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-6 p-6">
-    <header class="og7-partner-panel__section-header">
-      <div class="space-y-2">
+    <section class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-6 p-6">
+      <header class="og7-partner-panel__section-header">
+        <div class="space-y-2">
+          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+            {{ 'introBillboard.stepperLabel' | translate }}
+          </h3>
+          <p class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle">
+            {{ 'introBillboard.stepperPanelHint' | translate }}
+          </p>
+        </div>
+      </header>
+
+      <div class="flex flex-col bg-white rounded-2xl gap-6 lg:flex-row lg:gap-8">
+        <nav
+          class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-72 lg:grid-cols-1"
+          role="tablist"
+          [attr.aria-label]="'introBillboard.stepperLabel' | translate"
+        >
+          @for (step of collaborationSteps(); track step.id; let index = $index) {
+            <button
+              #collaborationStepButton
+              type="button"
+              class="group flex h-full w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/80 px-5 py-4 text-left shadow-sm transition hover:border-emerald-200 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              [class.border-emerald-200]="collaborationStepSelected(step.id)"
+              [class.bg-emerald-50]="collaborationStepSelected(step.id)"
+              role="tab"
+              [attr.id]="collaborationStepButtonId(step.id)"
+              [attr.aria-controls]="collaborationStepPanelId(step.id)"
+              [attr.aria-selected]="collaborationStepSelected(step.id)"
+              [attr.tabindex]="collaborationStepSelected(step.id) ? 0 : -1"
+              (click)="selectCollaborationStep(step.id)"
+              (keydown)="handleCollaborationStepKeydown($event, index)"
+            >
+              <span
+                class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition-colors"
+                [class.border-emerald-400]="collaborationStepSelected(step.id)"
+                [class.bg-emerald-500]="collaborationStepSelected(step.id)"
+                [class.text-white]="collaborationStepSelected(step.id)"
+                [class.border-slate-200]="!collaborationStepSelected(step.id)"
+                [class.bg-white]="!collaborationStepSelected(step.id)"
+                [class.text-subtle]="!collaborationStepSelected(step.id)"
+              >
+                {{ index + 1 }}
+              </span>
+              <span class="flex flex-col gap-1">
+                <span
+                  class="text-sm font-semibold text-title transition-colors"
+                  [class.text-emerald-700]="collaborationStepSelected(step.id)"
+                >
+                  {{ step.labelKey | translate }}
+                </span>
+                @if (collaborationStepDescription(step); as description) {
+                  <span class="text-xs text-subtle">{{ description | translate }}</span>
+                }
+              </span>
+            </button>
+          }
+        </nav>
+
+        <div
+          class="flex-1 rounded-2xl border border-white/50 bg-white/90 p-6 shadow-lg ring-1 ring-black/5"
+          role="tabpanel"
+          [attr.id]="collaborationActivePanelId()"
+          [attr.aria-labelledby]="collaborationActiveButtonId()"
+        >
+          @if (activeCollaborationStepDefinition(); as activeStep) {
+            <div class="space-y-4">
+              <header class="og7-partner-panel__section-header">
+                <h4 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
+                  {{ collaborationSectionLabelKey(activeStep.id) | translate }}
+                </h4>
+              </header>
+              <div class="og7-partner-panel__slot space-y-4">
+                @if (collaborationStepTemplate(activeStep.id); as template) {
+                  <ng-container *ngTemplateOutlet="template"></ng-container>
+                } @else {
+                  <p class="og7-partner-panel__placeholder text-sm text-subtle">
+                    {{ collaborationPlaceholderKey(activeStep.id) | translate }}
+                  </p>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="og7-partner-panel__placeholder text-sm text-subtle">
+              {{ 'introBillboard.stepperPanelHint' | translate }}
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+  } @else {
+    <section
+      class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-4 rounded-3xl p-5"
+    >
+      <header class="og7-partner-panel__section-header">
         <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
           {{ 'introBillboard.stepperLabel' | translate }}
         </h3>
-        <p class="og7-partner-panel__section-hint text-xs leading-relaxed text-subtle">
-          {{ 'introBillboard.stepperPanelHint' | translate }}
-        </p>
-      </div>
-    </header>
-
-    <div class="flex flex-col bg-white rounded-2xl gap-6 lg:flex-row lg:gap-8">
-      <nav class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-72 lg:grid-cols-1" role="tablist"
-        [attr.aria-label]="'introBillboard.stepperLabel' | translate">
-        @for (step of collaborationSteps(); track step.id; let index = $index) {
-        <button #collaborationStepButton type="button"
-          class="group flex h-full w-full items-center gap-4 rounded-2xl border border-white/60 bg-white/80 px-5 py-4 text-left shadow-sm transition hover:border-emerald-200 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-          [class.border-emerald-200]="collaborationStepSelected(step.id)"
-          [class.bg-emerald-50]="collaborationStepSelected(step.id)" role="tab"
-          [attr.id]="collaborationStepButtonId(step.id)" [attr.aria-controls]="collaborationStepPanelId(step.id)"
-          [attr.aria-selected]="collaborationStepSelected(step.id)"
-          [attr.tabindex]="collaborationStepSelected(step.id) ? 0 : -1" (click)="selectCollaborationStep(step.id)"
-          (keydown)="handleCollaborationStepKeydown($event, index)">
-          <span
-            class="flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition-colors"
-            [class.border-emerald-400]="collaborationStepSelected(step.id)"
-            [class.bg-emerald-500]="collaborationStepSelected(step.id)"
-            [class.text-white]="collaborationStepSelected(step.id)"
-            [class.border-slate-200]="!collaborationStepSelected(step.id)"
-            [class.bg-white]="!collaborationStepSelected(step.id)"
-            [class.text-subtle]="!collaborationStepSelected(step.id)">
-            {{ index + 1 }}
-          </span>
-          <span class="flex flex-col gap-1">
-            <span class="text-sm font-semibold text-title transition-colors"
-              [class.text-emerald-700]="collaborationStepSelected(step.id)">
-              {{ step.labelKey | translate }}
-            </span>
-            @if (collaborationStepDescription(step); as description) {
-            <span class="text-xs text-subtle">{{ description | translate }}</span>
-            }
-          </span>
-        </button>
-        }
-      </nav>
-
-      <div class="flex-1 rounded-2xl border border-white/50 bg-white/90 p-6 shadow-lg ring-1 ring-black/5"
-        role="tabpanel" [attr.id]="collaborationActivePanelId()" [attr.aria-labelledby]="collaborationActiveButtonId()">
-        @if (activeCollaborationStepDefinition(); as activeStep) {
-        <div class="space-y-4">
-          <header class="og7-partner-panel__section-header">
-            <h4 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-              {{ collaborationSectionLabelKey(activeStep.id) | translate }}
-            </h4>
-          </header>
-          <div class="og7-partner-panel__slot space-y-4">
-            @if (collaborationStepTemplate(activeStep.id); as template) {
-            <ng-container *ngTemplateOutlet="template"></ng-container>
-            } @else {
-            <p class="og7-partner-panel__placeholder text-sm text-subtle">
-              {{ collaborationPlaceholderKey(activeStep.id) | translate }}
-            </p>
-            }
-          </div>
-        </div>
-        } @else {
-        <p class="og7-partner-panel__placeholder text-sm text-subtle">
-          {{ 'introBillboard.stepperPanelHint' | translate }}
-        </p>
-        }
-      </div>
-    </div>
-  </section>
-  } @else {
-  <section class="panel-glass og7-partner-panel__section relative z-10 flex flex-col gap-4 rounded-3xl p-5">
-    <header class="og7-partner-panel__section-header">
-      <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-subtle">
-        {{ 'introBillboard.stepperLabel' | translate }}
-      </h3>
-    </header>
-    <p class="og7-partner-panel__placeholder text-sm text-subtle">
-      {{ 'introBillboard.stepperPanelHint' | translate }}
-    </p>
-  </section>
+      </header>
+      <p class="og7-partner-panel__placeholder text-sm text-subtle">
+        {{ 'introBillboard.stepperPanelHint' | translate }}
+      </p>
+    </section>
   }
 </div>
 
 <ng-template #introductionStepTemplate>
   @if (messageTemplate(); as messageDetails) {
-  <div class="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <og7-matchmaking-introduction-message-editor
+        data-og7="matchmaking"
+        data-og7-id="introduction-message-editor"
+        [value]="messageValue()"
+        [invalid]="messageInvalid()"
+        [touched]="messageTouched()"
+        [maxLength]="maxMessageLength"
+        (valueChange)="onMessageInput($event)"
+      ></og7-matchmaking-introduction-message-editor>
+      <ng-container *ngTemplateOutlet="messageDetails"></ng-container>
+    </div>
+  } @else {
     <og7-matchmaking-introduction-message-editor
       data-og7="matchmaking"
       data-og7-id="introduction-message-editor"
@@ -141,17 +177,5 @@
       [maxLength]="maxMessageLength"
       (valueChange)="onMessageInput($event)"
     ></og7-matchmaking-introduction-message-editor>
-    <ng-container *ngTemplateOutlet="messageDetails"></ng-container>
-  </div>
-  } @else {
-  <og7-matchmaking-introduction-message-editor
-    data-og7="matchmaking"
-    data-og7-id="introduction-message-editor"
-    [value]="messageValue()"
-    [invalid]="messageInvalid()"
-    [touched]="messageTouched()"
-    [maxLength]="maxMessageLength"
-    (valueChange)="onMessageInput($event)"
-  ></og7-matchmaking-introduction-message-editor>
   }
 </ng-template>

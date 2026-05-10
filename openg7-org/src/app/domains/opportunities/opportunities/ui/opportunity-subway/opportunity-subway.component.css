@@ -12,7 +12,13 @@
   gap: clamp(1.4rem, 2vw, 2.4rem);
   padding: clamp(1.6rem, 2vw + 1rem, 2.75rem);
   border-radius: 30px;
-  background: linear-gradient(160deg, rgba(15, 23, 42, 0.92) 0%, rgba(2, 6, 23, 0.94) 60%, rgba(15, 23, 42, 0.88) 100%),
+  background:
+    linear-gradient(
+      160deg,
+      rgba(15, 23, 42, 0.92) 0%,
+      rgba(2, 6, 23, 0.94) 60%,
+      rgba(15, 23, 42, 0.88) 100%
+    ),
     radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 65%);
   color: #f8fafc;
   border: 1px solid var(--subway-border);
@@ -104,7 +110,9 @@
   stroke-linecap: round;
   transform-origin: center;
   transform: rotate(-90deg);
-  transition: stroke-dashoffset 260ms ease-in-out, stroke 160ms ease-in-out;
+  transition:
+    stroke-dashoffset 260ms ease-in-out,
+    stroke 160ms ease-in-out;
 }
 
 .opportunity-subway__score-value {
@@ -254,7 +262,8 @@
 }
 
 .opportunity-subway__line[data-severity='critical'] .opportunity-subway__track-line {
-  background: repeating-linear-gradient(
+  background:
+    repeating-linear-gradient(
       90deg,
       rgba(239, 68, 68, 0.9) 0,
       rgba(239, 68, 68, 0.9) 18px,
@@ -300,7 +309,9 @@
   background: rgba(45, 212, 191, 0.75);
   border: 3px solid rgba(15, 23, 42, 0.8);
   box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.18);
-  transition: transform 180ms ease-in-out, box-shadow 180ms ease-in-out;
+  transition:
+    transform 180ms ease-in-out,
+    box-shadow 180ms ease-in-out;
 }
 
 .opportunity-subway__station[data-role='supplier'] .opportunity-subway__station-dot {
@@ -402,7 +413,9 @@
   font-size: 0.92rem;
   border: none;
   cursor: pointer;
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base);
 }
 
 .opportunity-subway__action-primary {

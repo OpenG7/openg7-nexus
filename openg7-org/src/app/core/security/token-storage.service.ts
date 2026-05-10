@@ -41,7 +41,7 @@ export class TokenStorageService {
 
   constructor(
     @Inject(PLATFORM_ID) platformId: object,
-    private readonly crypto: CryptoService
+    private readonly crypto: CryptoService,
   ) {
     const resolution = this.resolveStorage(platformId);
     this.storage = resolution.primary;

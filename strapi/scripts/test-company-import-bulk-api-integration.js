@@ -27,8 +27,10 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'company-import-bulk-test-app-key-a,company-import-bulk-test-app-key-b';
-  process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'company-import-bulk-test-api-token-salt';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'company-import-bulk-test-app-key-a,company-import-bulk-test-app-key-b';
+  process.env.API_TOKEN_SALT =
+    process.env.API_TOKEN_SALT || 'company-import-bulk-test-api-token-salt';
   process.env.ADMIN_JWT_SECRET =
     process.env.ADMIN_JWT_SECRET || 'company-import-bulk-test-admin-jwt-secret';
   process.env.TRANSFER_TOKEN_SALT =
@@ -48,7 +50,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -171,7 +173,10 @@ async function pollJobStatus(baseUrl, jwt, jobId, timeoutMs = 30_000) {
       method: 'GET',
       headers: authHeaders(jwt),
     });
-    if (status.status === 200 && ['completed', 'failed', 'cancelled'].includes(status.body?.state)) {
+    if (
+      status.status === 200 &&
+      ['completed', 'failed', 'cancelled'].includes(status.body?.state)
+    ) {
       return status.body;
     }
     await new Promise((resolve) => setTimeout(resolve, 350));
@@ -217,13 +222,23 @@ async function run() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        companies: [buildImportEntry(runId, 'UNAUTH', references.sector.name, references.province.code)],
+        companies: [
+          buildImportEntry(runId, 'UNAUTH', references.sector.name, references.province.code),
+        ],
       }),
     });
-    assertAuthFailure(unauthorized.status, 'POST /api/import/companies/bulk-import unauthenticated');
+    assertAuthFailure(
+      unauthorized.status,
+      'POST /api/import/companies/bulk-import unauthenticated',
+    );
 
     const alpha = buildImportEntry(runId, 'ALPHA', references.sector.name, 'QC');
-    const bravo = buildImportEntry(runId, 'BRAVO', references.sector.slug, references.province.name);
+    const bravo = buildImportEntry(
+      runId,
+      'BRAVO',
+      references.sector.slug,
+      references.province.name,
+    );
     const payload = { companies: [alpha, bravo] };
 
     const firstStart = await requestJson(`${baseUrl}/api/import/companies/bulk-import`, {
@@ -246,7 +261,7 @@ async function run() {
     assert.equal(
       duplicateStart.body?.jobId,
       firstStart.body.jobId,
-      'Expected idempotent request to return same jobId.'
+      'Expected idempotent request to return same jobId.',
     );
 
     const status = await pollJobStatus(baseUrl, session.jwt, firstStart.body.jobId);
@@ -255,15 +270,18 @@ async function run() {
     assert.equal(status.progress.ok, 2, 'Expected successful row count.');
     assert.equal(status.progress.failed, 0, 'Expected failed row count.');
 
-    const report = await requestJson(`${baseUrl}/api/import/companies/jobs/${firstStart.body.jobId}/report`, {
-      method: 'GET',
-      headers: authHeaders(session.jwt),
-    });
+    const report = await requestJson(
+      `${baseUrl}/api/import/companies/jobs/${firstStart.body.jobId}/report`,
+      {
+        method: 'GET',
+        headers: authHeaders(session.jwt),
+      },
+    );
     assert.equal(report.status, 200, 'Expected report endpoint to succeed.');
     assert.equal(
       report.body?.report?.summary?.processed,
       2,
-      'Expected report summary processed count.'
+      'Expected report summary processed count.',
     );
 
     const errorsJson = await requestJson(
@@ -271,20 +289,23 @@ async function run() {
       {
         method: 'GET',
         headers: authHeaders(session.jwt),
-      }
+      },
     );
     assert.equal(errorsJson.status, 200, 'Expected errors endpoint (json) to succeed.');
     assert.equal(errorsJson.body?.count, 0, 'Expected no row errors for successful import.');
 
-    const errorsCsv = await fetch(`${baseUrl}/api/import/companies/jobs/${firstStart.body.jobId}/errors?format=csv`, {
-      method: 'GET',
-      headers: authHeaders(session.jwt),
-    });
+    const errorsCsv = await fetch(
+      `${baseUrl}/api/import/companies/jobs/${firstStart.body.jobId}/errors?format=csv`,
+      {
+        method: 'GET',
+        headers: authHeaders(session.jwt),
+      },
+    );
     assert.equal(errorsCsv.status, 200, 'Expected errors endpoint (csv) to succeed.');
     assert.match(
       errorsCsv.headers.get('content-type') ?? '',
       /text\/csv/i,
-      'Expected CSV content type.'
+      'Expected CSV content type.',
     );
 
     const persisted = await findCompaniesByBusinessId(app, [alpha.businessId, bravo.businessId]);

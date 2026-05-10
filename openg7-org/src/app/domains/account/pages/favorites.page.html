@@ -2,11 +2,19 @@
   class="relative isolate mx-auto w-full max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8"
   data-og7="favorites"
 >
-  <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.18),transparent_70%)]"></div>
-  <div class="pointer-events-none absolute -left-20 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/35 blur-3xl"></div>
-  <div class="pointer-events-none absolute -right-20 top-20 -z-10 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl"></div>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(ellipse_at_top,rgba(14,116,144,0.18),transparent_70%)]"
+  ></div>
+  <div
+    class="pointer-events-none absolute -left-20 top-24 -z-10 h-56 w-56 rounded-full bg-cyan-200/35 blur-3xl"
+  ></div>
+  <div
+    class="pointer-events-none absolute -right-20 top-20 -z-10 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl"
+  ></div>
 
-  <header class="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.45)] backdrop-blur">
+  <header
+    class="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-[0_24px_60px_-38px_rgba(15,23,42,0.45)] backdrop-blur"
+  >
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">
@@ -25,7 +33,9 @@
     </div>
   </header>
 
-  <section class="mt-6 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-cyan-50/40 p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]">
+  <section
+    class="mt-6 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-cyan-50/40 p-6 shadow-[0_18px_40px_-35px_rgba(15,23,42,0.45)]"
+  >
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="text-lg font-semibold text-slate-900">
         {{ 'pages.favorites.listTitle' | translate }}
@@ -76,7 +86,11 @@
     </ng-container>
 
     <ng-template #ready>
-      <ul *ngIf="hasFavorites(); else emptyState" class="mt-4 grid gap-4 sm:grid-cols-2" data-og7-id="favorites-list">
+      <ul
+        *ngIf="hasFavorites(); else emptyState"
+        class="mt-4 grid gap-4 sm:grid-cols-2"
+        data-og7-id="favorites-list"
+      >
         <li
           *ngFor="let item of favoritesView(); trackBy: trackByKey"
           class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50/90 to-cyan-50/45 p-4 shadow-sm transition hover:border-sky-200 hover:shadow-[0_18px_38px_-32px_rgba(14,165,233,0.45)]"
@@ -123,10 +137,14 @@
           class="mt-4 rounded-3xl border border-dashed border-sky-200 bg-gradient-to-br from-slate-50 to-cyan-50/70 px-6 py-10 text-center shadow-inner shadow-cyan-100/40"
           data-og7-id="favorites-empty"
         >
-          <div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-200 bg-white/90 text-cyan-700 shadow-sm">
+          <div
+            class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-200 bg-white/90 text-cyan-700 shadow-sm"
+          >
             <span class="text-lg font-semibold">F</span>
           </div>
-          <p class="mt-4 text-base font-medium text-slate-900">{{ 'pages.favorites.empty' | translate }}</p>
+          <p class="mt-4 text-base font-medium text-slate-900">
+            {{ 'pages.favorites.empty' | translate }}
+          </p>
           <p class="mt-2 text-sm text-slate-600">{{ 'pages.favorites.emptyHint' | translate }}</p>
           <div class="mt-5 flex flex-wrap justify-center gap-2">
             <a

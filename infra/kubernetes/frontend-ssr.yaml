@@ -25,7 +25,7 @@ spec:
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: "4000"
+              value: '4000'
             - name: API_URL
               valueFrom:
                 secretKeyRef:
@@ -63,7 +63,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["/bin/sh", "-c", "sleep 5"]
+                command: ['/bin/sh', '-c', 'sleep 5']
       terminationGracePeriodSeconds: 30
 ---
 apiVersion: v1
@@ -86,9 +86,9 @@ kind: Ingress
 metadata:
   name: openg7-frontend-ssr
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '60'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '60'
   labels:
     app: openg7-frontend-ssr
 spec:
@@ -135,4 +135,4 @@ spec:
           name: http_request_duration_seconds_bucket
         target:
           type: AverageValue
-          averageValue: "500"
+          averageValue: '500'

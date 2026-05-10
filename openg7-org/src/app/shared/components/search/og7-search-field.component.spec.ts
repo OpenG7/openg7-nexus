@@ -57,7 +57,9 @@ describe('Og7SearchFieldComponent', () => {
 
   function getInput(): HTMLInputElement {
     const input = fixture.debugElement.query(By.css('input[type="search"]'));
-    expect(input).withContext('search input should be rendered when the palette is open').toBeTruthy();
+    expect(input)
+      .withContext('search input should be rendered when the palette is open')
+      .toBeTruthy();
     return input.nativeElement as HTMLInputElement;
   }
 

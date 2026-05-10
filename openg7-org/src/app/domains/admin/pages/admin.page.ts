@@ -1,7 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { COMPANY_STATUSES, CompanyRecord, CompanyService, CompanyStatus } from '@app/core/services/company.service';
+import {
+  COMPANY_STATUSES,
+  CompanyRecord,
+  CompanyService,
+  CompanyStatus,
+} from '@app/core/services/company.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminNavigationPillsComponent } from '@openg7/admin-quality';
 import type { AdminNavigationPillItem } from '@openg7/admin-quality';
@@ -95,7 +107,11 @@ const STATUS_LABELS: Record<CompanyStatus, string> = {
         content: '';
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 34%);
+        background: radial-gradient(
+          circle at top right,
+          rgba(255, 255, 255, 0.14),
+          transparent 34%
+        );
         pointer-events: none;
       }
 
@@ -104,7 +120,12 @@ const STATUS_LABELS: Record<CompanyStatus, string> = {
         position: absolute;
         inset: auto 1.25rem 1rem 1.25rem;
         height: 1px;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(148, 163, 184, 0.28), rgba(255, 255, 255, 0));
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0),
+          rgba(148, 163, 184, 0.28),
+          rgba(255, 255, 255, 0)
+        );
         pointer-events: none;
       }
     `,

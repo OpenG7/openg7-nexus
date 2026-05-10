@@ -75,7 +75,7 @@ export class UserAlertsService {
       .listMine()
       .pipe(
         finalize(() => this.loadingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (entries) => {
@@ -103,12 +103,18 @@ export class UserAlertsService {
       return { status: 'invalid', entry: null, errorKey: null };
     }
 
-    const existing = this.findBySource(sanitizedPayload.sourceType ?? null, sanitizedPayload.sourceId ?? null);
+    const existing = this.findBySource(
+      sanitizedPayload.sourceType ?? null,
+      sanitizedPayload.sourceId ?? null,
+    );
     if (existing) {
       return { status: 'duplicate', entry: existing, errorKey: null };
     }
 
-    const sourceKey = this.composeSourceKey(sanitizedPayload.sourceType ?? null, sanitizedPayload.sourceId ?? null);
+    const sourceKey = this.composeSourceKey(
+      sanitizedPayload.sourceType ?? null,
+      sanitizedPayload.sourceId ?? null,
+    );
     if (sourceKey && this.pendingBySourceSig()[sourceKey]) {
       return { status: 'pending', entry: null, errorKey: null };
     }
@@ -146,7 +152,7 @@ export class UserAlertsService {
       .generateFromSavedSearches()
       .pipe(
         finalize(() => this.generatingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (response) => {
@@ -156,7 +162,7 @@ export class UserAlertsService {
           }
 
           this.entriesSig.update((current) =>
-            this.sortEntries(this.upsertMany(current, generated))
+            this.sortEntries(this.upsertMany(current, generated)),
           );
         },
         error: () => {
@@ -189,7 +195,7 @@ export class UserAlertsService {
       .markRead(normalizedId, isRead)
       .pipe(
         finalize(() => this.setPending(normalizedId, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (updated) => {
@@ -224,7 +230,7 @@ export class UserAlertsService {
       .deleteMine(normalizedId)
       .pipe(
         finalize(() => this.setPending(normalizedId, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -257,7 +263,7 @@ export class UserAlertsService {
       .markAllRead()
       .pipe(
         finalize(() => this.markAllReadPendingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: ({ readAt }) => {
@@ -275,9 +281,9 @@ export class UserAlertsService {
                       ...entry,
                       isRead: true,
                       readAt: entry.readAt ?? normalizedReadAt,
-                    }
-              )
-            )
+                    },
+              ),
+            ),
           );
         },
         error: () => {
@@ -307,7 +313,7 @@ export class UserAlertsService {
       .deleteRead()
       .pipe(
         finalize(() => this.clearReadPendingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {
@@ -323,14 +329,17 @@ export class UserAlertsService {
     return Boolean(this.findBySource(sourceType, sourceId));
   }
 
-  isSourcePending(sourceType: string | null | undefined, sourceId: string | null | undefined): boolean {
+  isSourcePending(
+    sourceType: string | null | undefined,
+    sourceId: string | null | undefined,
+  ): boolean {
     const sourceKey = this.composeSourceKey(sourceType, sourceId);
     return sourceKey ? Boolean(this.pendingBySourceSig()[sourceKey]) : false;
   }
 
   findBySource(
     sourceType: string | null | undefined,
-    sourceId: string | null | undefined
+    sourceId: string | null | undefined,
   ): UserAlertRecord | null {
     const sourceKey = this.composeSourceKey(sourceType, sourceId);
     if (!sourceKey) {
@@ -338,8 +347,8 @@ export class UserAlertsService {
     }
 
     return (
-      this.entriesSig().find((entry) =>
-        this.composeSourceKey(entry.sourceType, entry.sourceId) === sourceKey
+      this.entriesSig().find(
+        (entry) => this.composeSourceKey(entry.sourceType, entry.sourceId) === sourceKey,
       ) ?? null
     );
   }
@@ -420,7 +429,7 @@ export class UserAlertsService {
 
   private composeSourceKey(
     sourceType: string | null | undefined,
-    sourceId: string | null | undefined
+    sourceId: string | null | undefined,
   ): string | null {
     const normalizedType = this.normalizeSourceType(sourceType);
     const normalizedId = this.normalizeSourceId(sourceId);

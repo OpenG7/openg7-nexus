@@ -38,7 +38,10 @@ interface ContactContent {
 interface LegalContactTranslation {
   readonly title?: string;
   readonly description?: string;
-  readonly channels?: Record<string, { label?: string; value?: string; href?: string; hint?: string }>;
+  readonly channels?: Record<
+    string,
+    { label?: string; value?: string; href?: string; hint?: string }
+  >;
 }
 
 interface LegalMetaTranslation {
@@ -62,7 +65,9 @@ export class LegalPage implements AfterViewInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly browser = isPlatformBrowser(this.platformId);
-  private readonly langChangeSubscription = this.translate.onLangChange.subscribe(() => this.refreshLocalizedContent());
+  private readonly langChangeSubscription = this.translate.onLangChange.subscribe(() =>
+    this.refreshLocalizedContent(),
+  );
   private intersectionObserver: IntersectionObserver | null = null;
   private copyResetTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -75,7 +80,7 @@ export class LegalPage implements AfterViewInit, OnDestroy {
   protected readonly activeSection = signal<LegalSectionKey>('operator');
   protected readonly mobileView = signal(false);
   protected readonly expandedSections = signal<ReadonlySet<LegalSectionKey>>(
-    new Set(this.sections.map((section) => section.key))
+    new Set(this.sections.map((section) => section.key)),
   );
   protected readonly highlights = signal<ReadonlyArray<LegalHighlight>>([]);
   protected readonly contactCard = signal<ContactContent | null>(null);
@@ -202,26 +207,30 @@ export class LegalPage implements AfterViewInit, OnDestroy {
   }
 
   private refreshLocalizedContent(): void {
-    const translatedHighlights = this.translateDictionary<Record<string, LegalHighlight>>('pages.legal.highlights');
+    const translatedHighlights =
+      this.translateDictionary<Record<string, LegalHighlight>>('pages.legal.highlights');
     const highlights = translatedHighlights
       ? Object.values(translatedHighlights).filter(
-          (item): item is LegalHighlight => Boolean(item?.label) && Boolean(item?.value)
+          (item): item is LegalHighlight => Boolean(item?.label) && Boolean(item?.value),
         )
       : [];
     this.highlights.set(highlights);
 
-    const contactTranslation = this.translateDictionary<LegalContactTranslation>('pages.legal.contact');
+    const contactTranslation =
+      this.translateDictionary<LegalContactTranslation>('pages.legal.contact');
     if (!contactTranslation?.title) {
       this.contactCard.set(null);
     } else {
       const channels = Object.entries(contactTranslation.channels ?? {})
-        .map(([key, channel]): LegalContact => ({
-          key,
-          label: channel.label ?? '',
-          value: channel.value ?? '',
-          href: channel.href,
-          hint: channel.hint,
-        }))
+        .map(
+          ([key, channel]): LegalContact => ({
+            key,
+            label: channel.label ?? '',
+            value: channel.value ?? '',
+            href: channel.href,
+            hint: channel.hint,
+          }),
+        )
         .filter((channel) => Boolean(channel.label) && Boolean(channel.value));
 
       this.contactCard.set({
@@ -233,11 +242,13 @@ export class LegalPage implements AfterViewInit, OnDestroy {
 
     const metaTranslation = this.translateDictionary<LegalMetaTranslation>('pages.legal.meta');
     const metaItems = Object.entries(metaTranslation?.items ?? {})
-      .map(([key, item]): LegalMetaItem => ({
-        key,
-        label: item.label ?? '',
-        value: item.value ?? '',
-      }))
+      .map(
+        ([key, item]): LegalMetaItem => ({
+          key,
+          label: item.label ?? '',
+          value: item.value ?? '',
+        }),
+      )
       .filter((item) => Boolean(item.label) && Boolean(item.value));
     this.metaItems.set(metaItems);
 
@@ -277,7 +288,7 @@ export class LegalPage implements AfterViewInit, OnDestroy {
       {
         threshold: [0.2, 0.5, 0.8],
         rootMargin: '-20% 0px -50% 0px',
-      }
+      },
     );
 
     for (const section of this.sections) {

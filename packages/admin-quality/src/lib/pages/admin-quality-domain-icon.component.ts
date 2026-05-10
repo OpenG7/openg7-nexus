@@ -27,7 +27,12 @@ const DOMAIN_VISUALS: Record<string, AdminQualityDomainVisual> = {
   geospatial: {
     label: 'Geospatial',
     accent: 'indigo',
-    paths: ['M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18z', 'M3 12h18', 'M12 3a14 14 0 0 1 0 18', 'M12 3a14 14 0 0 0 0 18'],
+    paths: [
+      'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18z',
+      'M3 12h18',
+      'M12 3a14 14 0 0 1 0 18',
+      'M12 3a14 14 0 0 0 0 18',
+    ],
   },
   'onboarding-imports': {
     label: 'Onboarding et imports',

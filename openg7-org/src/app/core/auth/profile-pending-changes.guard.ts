@@ -7,7 +7,7 @@ export interface PendingProfileChangesAware {
 }
 
 export const profilePendingChangesGuard: CanDeactivateFn<PendingProfileChangesAware> = (
-  component
+  component,
 ) => {
   if (!component?.hasPendingChanges || !component.hasPendingChanges()) {
     return true;

@@ -41,9 +41,11 @@ function mapHydrocarbonSignal(entity: Record<string, unknown>) {
     title: typeof entity.title === 'string' ? entity.title : '',
     summary: typeof entity.summary === 'string' ? entity.summary : '',
     companyName: typeof entity.companyName === 'string' ? entity.companyName : '',
-    publicationType: typeof entity.publicationType === 'string' ? entity.publicationType : 'surplus',
+    publicationType:
+      typeof entity.publicationType === 'string' ? entity.publicationType : 'surplus',
     productType: typeof entity.productType === 'string' ? entity.productType : 'other',
-    businessReason: typeof entity.businessReason === 'string' ? entity.businessReason : 'surplusStock',
+    businessReason:
+      typeof entity.businessReason === 'string' ? entity.businessReason : 'surplusStock',
     volumeBarrels:
       typeof entity.volumeBarrels === 'number'
         ? entity.volumeBarrels

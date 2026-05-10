@@ -64,26 +64,26 @@ let adminQualityComboboxSequence = 0;
         data-og7="admin-quality-combobox-listbox"
       >
         @for (option of options(); track option.value; let index = $index) {
-        <button
-          #optionButton
-          type="button"
-          role="option"
-          class="flex min-h-10 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
-          [class.bg-cyan-400/16]="option.value === value()"
-          [class.text-white]="option.value === value()"
-          [class.text-slate-300]="option.value !== value()"
-          [class.hover:bg-white/8]="option.value !== value()"
-          [attr.aria-selected]="option.value === value()"
-          [attr.data-og7-id]="dataOg7Id() + '-' + option.value"
-          data-og7="admin-quality-combobox-option"
-          (click)="select(option.value)"
-          (keydown)="onOptionKeydown($event, index)"
-        >
-          <span class="min-w-0 truncate">{{ option.label }}</span>
-          @if (option.value === value()) {
-          <span class="text-xs font-semibold text-cyan-100" aria-hidden="true">OK</span>
-          }
-        </button>
+          <button
+            #optionButton
+            type="button"
+            role="option"
+            class="flex min-h-10 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+            [class.bg-cyan-400/16]="option.value === value()"
+            [class.text-white]="option.value === value()"
+            [class.text-slate-300]="option.value !== value()"
+            [class.hover:bg-white/8]="option.value !== value()"
+            [attr.aria-selected]="option.value === value()"
+            [attr.data-og7-id]="dataOg7Id() + '-' + option.value"
+            data-og7="admin-quality-combobox-option"
+            (click)="select(option.value)"
+            (keydown)="onOptionKeydown($event, index)"
+          >
+            <span class="min-w-0 truncate">{{ option.label }}</span>
+            @if (option.value === value()) {
+              <span class="text-xs font-semibold text-cyan-100" aria-hidden="true">OK</span>
+            }
+          </button>
         }
       </div>
     </ng-template>

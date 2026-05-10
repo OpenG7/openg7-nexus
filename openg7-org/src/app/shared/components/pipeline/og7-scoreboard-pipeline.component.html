@@ -1,14 +1,26 @@
 <section class="relative overflow-hidden rounded-3xl bg-card p-6 text-body ring-card shadow-card">
-  <div class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent opacity-70"></div>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent opacity-70"
+  ></div>
   <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-subtle">{{ 'introBillboard.pipelineTitle' | translate }}</p>
-      <h3 class="text-2xl font-semibold text-title">{{ 'introBillboard.pipelineSubtitle' | translate }}</h3>
+      <p class="text-[0.65rem] font-semibold uppercase tracking-[0.35em] text-subtle">
+        {{ 'introBillboard.pipelineTitle' | translate }}
+      </p>
+      <h3 class="text-2xl font-semibold text-title">
+        {{ 'introBillboard.pipelineSubtitle' | translate }}
+      </h3>
     </div>
     <div class="flex items-center gap-3 text-xs uppercase tracking-[0.28em] text-subtle">
-      <span class="inline-flex items-center gap-2 rounded-full bg-[#e0f2fe] px-3 py-1 text-[#1d4ed8]">
-        <span class="h-2 w-2 rounded-full" style="background-color:#2563eb"></span>
-        {{ creating() ? ('introBillboard.pipelineSending' | translate) : ('introBillboard.pipelineActive' | translate) }}
+      <span
+        class="inline-flex items-center gap-2 rounded-full bg-[#e0f2fe] px-3 py-1 text-[#1d4ed8]"
+      >
+        <span class="h-2 w-2 rounded-full" style="background-color: #2563eb"></span>
+        {{
+          creating()
+            ? ('introBillboard.pipelineSending' | translate)
+            : ('introBillboard.pipelineActive' | translate)
+        }}
       </span>
       @if (elapsed(); as value) {
         <span class="font-semibold text-title">{{ value }}</span>
@@ -18,15 +30,25 @@
 
   <ol class="mt-6 grid gap-4 md:gap-5 sm:grid-cols-5">
     @for (step of steps(); track step.stage) {
-      <li class="group relative flex flex-col items-center gap-3 rounded-2xl bg-surface px-4 py-5 text-center ring-card transition">
+      <li
+        class="group relative flex flex-col items-center gap-3 rounded-2xl bg-surface px-4 py-5 text-center ring-card transition"
+      >
         <div class="flex items-center gap-3">
-          <span class="inline-flex h-11 w-11 items-center justify-center rounded-full text-[0.65rem] font-semibold uppercase tracking-[0.28em]" [ngClass]="badgeClass(step.status)">
+          <span
+            class="inline-flex h-11 w-11 items-center justify-center rounded-full text-[0.65rem] font-semibold uppercase tracking-[0.28em]"
+            [ngClass]="badgeClass(step.status)"
+          >
             {{ stageShortLabel(step.stage) }}
           </span>
-          <span class="text-sm font-semibold text-title">{{ stageLabel(step.stage) | translate }}</span>
+          <span class="text-sm font-semibold text-title">{{
+            stageLabel(step.stage) | translate
+          }}</span>
         </div>
         <div class="h-1.5 w-full rounded-full bg-surface-muted">
-          <div class="h-full rounded-full bg-gradient-to-r from-[#2563eb] via-[#38bdf8] to-[#22c55e]" [style.width.%]="progressWidth(step.status)"></div>
+          <div
+            class="h-full rounded-full bg-gradient-to-r from-[#2563eb] via-[#38bdf8] to-[#22c55e]"
+            [style.width.%]="progressWidth(step.status)"
+          ></div>
         </div>
         <p class="text-[0.65rem] uppercase tracking-[0.3em] text-subtle">
           {{ timestampLabel(step.timestamp) }}

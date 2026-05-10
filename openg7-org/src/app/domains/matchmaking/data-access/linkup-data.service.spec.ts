@@ -79,7 +79,9 @@ describe('LinkupDataService', () => {
       'getConnectionById',
       'updateConnectionStatus',
     ]);
-    opportunities = jasmine.createSpyObj<OpportunityService>('OpportunityService', ['findMatchById']);
+    opportunities = jasmine.createSpyObj<OpportunityService>('OpportunityService', [
+      'findMatchById',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -133,7 +135,7 @@ describe('LinkupDataService', () => {
 
   it('returns null for the detail screen when the backend returns 404', async () => {
     connections.getConnectionById.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
 
     const result = await service.loadById('41');
@@ -158,8 +160,8 @@ describe('LinkupDataService', () => {
               timestamp: '2030-01-03T00:00:00.000Z',
             },
           ],
-        })
-      )
+        }),
+      ),
     );
     opportunities.findMatchById.and.resolveTo(buildMatch());
 
@@ -171,7 +173,7 @@ describe('LinkupDataService', () => {
         id: '41',
         status: 'completed',
         updatedAt: '2030-01-03T00:00:00.000Z',
-      })
+      }),
     );
   });
 
@@ -192,26 +194,26 @@ describe('LinkupDataService', () => {
             },
           ],
           updatedAt: '2030-01-03T00:00:00.000Z',
-        })
-      )
+        }),
+      ),
     );
     opportunities.findMatchById.and.resolveTo(buildMatch());
 
     const result = await service.saveNote(
       '41',
       'inDiscussion',
-      '  Partner requested a follow-up briefing.  '
+      '  Partner requested a follow-up briefing.  ',
     );
 
     expect(connections.updateConnectionStatus).toHaveBeenCalledWith(
       '41',
       'inDiscussion',
-      'Partner requested a follow-up briefing.'
+      'Partner requested a follow-up briefing.',
     );
     expect(result?.notes[0]).toEqual(
       jasmine.objectContaining({
         content: 'Partner requested a follow-up briefing.',
-      })
+      }),
     );
   });
 
@@ -240,7 +242,7 @@ describe('LinkupDataService', () => {
         id: '42',
         tradeMode: 'both',
         summary: '',
-      })
+      }),
     );
   });
 
@@ -257,7 +259,7 @@ describe('LinkupDataService', () => {
 
   it('rethrows detail errors that are not 404 responses', async () => {
     connections.getConnectionById.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }))
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' })),
     );
 
     await expectAsync(service.loadById('41')).toBeRejected();

@@ -46,7 +46,9 @@
   padding: 1.75rem;
   border: 1px solid rgba(148, 163, 184, 0.35);
   box-shadow: 0 18px 60px -42px rgba(15, 23, 42, 0.45);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .plans__card:hover {
@@ -157,7 +159,10 @@
   background-color: var(--og7-color-primary);
   color: var(--og7-color-on-primary);
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
 }
 
 .plans__cta:disabled {
@@ -234,7 +239,10 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
 }
 
 .plans__cancel:disabled {
@@ -358,4 +366,3 @@
     padding: 1.5rem;
   }
 }
-

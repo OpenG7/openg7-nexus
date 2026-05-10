@@ -36,14 +36,16 @@ describe('HomeInputsSectionComponent', () => {
     const fixture = TestBed.createComponent(HomeInputsSectionComponent);
     fixture.detectChanges();
 
-    const section: HTMLElement | null = fixture.nativeElement.querySelector('[data-og7="home-inputs"]');
+    const section: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-og7="home-inputs"]',
+    );
     expect(section).toBeTruthy();
     const heading: HTMLElement | null = fixture.nativeElement.querySelector('#home-inputs-heading');
     expect(heading?.textContent).toContain('Inputs & capacities');
     const cards = fixture.nativeElement.querySelectorAll('[data-og7="home-inputs"] article');
     expect(cards.length).toBe(5);
     const operationsSupportCard: HTMLElement | null = fixture.nativeElement.querySelector(
-      '[data-og7="home-inputs"] [data-og7-id="operations-support"]'
+      '[data-og7="home-inputs"] [data-og7-id="operations-support"]',
     );
     expect(operationsSupportCard?.textContent).toContain('Operations support');
   });

@@ -44,7 +44,7 @@ describe('PublicationFormMapperService', () => {
         summary: '300 MW available to support an Ontario peak event next week.',
         quantity: { value: 300, unit: 'MW' },
         tags: ['winter-peak', 'hydro'],
-      })
+      }),
     );
     expect(result.extensions).toEqual(
       jasmine.objectContaining({
@@ -54,7 +54,7 @@ describe('PublicationFormMapperService', () => {
         availabilityStart: '2026-03-22',
         availabilityEnd: '2026-03-29',
         contactChannel: 'Trading desk',
-      })
+      }),
     );
   });
 
@@ -80,14 +80,14 @@ describe('PublicationFormMapperService', () => {
         mode: 'IMPORT',
         quantity: { value: 45, unit: 'MW' },
         tags: ['maintenance', 'critical-load'],
-      })
+      }),
     );
     expect(result.extensions).toEqual(
       jasmine.objectContaining({
         requestReason: 'planned-maintenance',
         flexibilityWindow: '8h',
         preferredPricingMode: 'negotiable',
-      })
+      }),
     );
   });
 
@@ -114,7 +114,7 @@ describe('PublicationFormMapperService', () => {
         mode: 'EXPORT',
         quantity: { value: 180, unit: 'kg' },
         tags: ['overflow', 'certified', 'haccp', 'gfsi'],
-      })
+      }),
     );
     expect(result.extensions).toEqual(
       jasmine.objectContaining({
@@ -122,7 +122,7 @@ describe('PublicationFormMapperService', () => {
         crossDockAvailable: true,
         availableFrom: '2026-03-21T08:00',
         availableUntil: '2026-03-28T18:00',
-      })
+      }),
     );
   });
 
@@ -131,7 +131,8 @@ describe('PublicationFormMapperService', () => {
 
     const result = service.map(config, {
       title: 'Alberta crude surplus following corridor slowdown',
-      summary: '48,000 barrels are temporarily available after a slowdown on the primary outbound corridor.',
+      summary:
+        '48,000 barrels are temporarily available after a slowdown on the primary outbound corridor.',
       companyName: 'Northern Prairie Energy',
       publicationType: 'slowdown',
       productType: 'crude-oil',
@@ -165,7 +166,7 @@ describe('PublicationFormMapperService', () => {
         title: 'Alberta crude surplus following corridor slowdown',
         quantity: { value: 48000, unit: 'bbl' },
         tags: ['alberta', 'surplus-window', 'slowdown', 'crude-oil'],
-      })
+      }),
     );
     expect(result.extensions).toEqual(
       jasmine.objectContaining({
@@ -177,7 +178,7 @@ describe('PublicationFormMapperService', () => {
         targetScope: ['sk', 'mb', 'refining-network'],
         estimatedDelayDays: 10,
         storagePressureLevel: 'high',
-      })
+      }),
     );
   });
 });

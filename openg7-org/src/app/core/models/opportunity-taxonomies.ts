@@ -10,12 +10,7 @@ export type SectorType =
   | 'transport-logistics'
   | 'life-sciences';
 
-export type LegacySectorAlias =
-  | 'agri'
-  | 'agriculture'
-  | 'technology'
-  | 'tech'
-  | 'clean-energy';
+export type LegacySectorAlias = 'agri' | 'agriculture' | 'technology' | 'tech' | 'clean-energy';
 
 export type ProvinceCode =
   | 'AB'
@@ -82,13 +77,9 @@ const PROVINCE_CODE_SET: ReadonlySet<string> = new Set(
   PROVINCE_OPTIONS.map((option) => option.value),
 );
 
-const SECTOR_TYPE_SET: ReadonlySet<string> = new Set(
-  SECTOR_OPTIONS.map((option) => option.value),
-);
+const SECTOR_TYPE_SET: ReadonlySet<string> = new Set(SECTOR_OPTIONS.map((option) => option.value));
 
-const LEGACY_SECTOR_ALIAS_SET: ReadonlySet<string> = new Set(
-  Object.keys(SECTOR_ALIAS_MAP),
-);
+const LEGACY_SECTOR_ALIAS_SET: ReadonlySet<string> = new Set(Object.keys(SECTOR_ALIAS_MAP));
 
 /**
  * Contexte : Invoked when parsing filters originating from query parameters or CMS payloads.

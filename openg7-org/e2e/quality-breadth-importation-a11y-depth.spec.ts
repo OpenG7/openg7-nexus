@@ -26,7 +26,11 @@ async function expectAssociatedLabel(control: Locator): Promise<void> {
   expect(hasLabel).toBeTruthy();
 }
 
-async function activateWithKeyboard(page: Page, target: Locator, key: 'Enter' | 'Space' = 'Enter'): Promise<void> {
+async function activateWithKeyboard(
+  page: Page,
+  target: Locator,
+  key: 'Enter' | 'Space' = 'Enter',
+): Promise<void> {
   await target.focus();
   await expect(target).toBeFocused();
   await page.keyboard.press(key);
@@ -42,7 +46,9 @@ test.describe('Quality breadth importation accessibility depth', () => {
     await loginAsAuthenticatedE2eUser(page, '/importation');
 
     const overview = page.locator('[data-og7="importation-overview"]');
-    const compareToggle = overview.locator('.og7-importation-overview__switch input[type="checkbox"]');
+    const compareToggle = overview.locator(
+      '.og7-importation-overview__switch input[type="checkbox"]',
+    );
     const compareInput = overview.locator('input[name="compareWithDraft"]');
     const compareError = overview.locator('.og7-importation-overview__field-error').last();
 
@@ -81,13 +87,17 @@ test.describe('Quality breadth importation accessibility depth', () => {
 
     const collaboration = page.locator('[data-og7="importation-collaboration"]');
     const watchlistInput = collaboration.locator('input[name="watchlistName"]');
-    const watchlistSubmit = collaboration.locator('.og7-importation-collaboration__watchlists button[type="submit"]');
+    const watchlistSubmit = collaboration.locator(
+      '.og7-importation-collaboration__watchlists button[type="submit"]',
+    );
     const watchlistError = collaboration
       .locator('.og7-importation-collaboration__watchlists .og7-importation-collaboration__error')
       .first();
 
     const recipientsInput = collaboration.locator('input[name="recipients"]');
-    const scheduleSubmit = collaboration.locator('.og7-importation-collaboration__schedule button[type="submit"]');
+    const scheduleSubmit = collaboration.locator(
+      '.og7-importation-collaboration__schedule button[type="submit"]',
+    );
     const scheduleError = collaboration
       .locator('.og7-importation-collaboration__schedule .og7-importation-collaboration__error')
       .first();
@@ -106,7 +116,8 @@ test.describe('Quality breadth importation accessibility depth', () => {
 
     const watchlistRequest = page.waitForRequest(
       (request) =>
-        request.method().toUpperCase() === 'POST' && request.url().includes('/api/import-watchlists')
+        request.method().toUpperCase() === 'POST' &&
+        request.url().includes('/api/import-watchlists'),
     );
     await watchlistInput.fill('Battery corridor watch');
     await activateWithKeyboard(page, watchlistSubmit);
@@ -127,7 +138,7 @@ test.describe('Quality breadth importation accessibility depth', () => {
     const scheduleRequest = page.waitForRequest(
       (request) =>
         request.method().toUpperCase() === 'POST' &&
-        request.url().includes('/api/import-reports/schedule')
+        request.url().includes('/api/import-reports/schedule'),
     );
     await recipientsInput.fill('ops@openg7.test, trade@openg7.test');
     await activateWithKeyboard(page, scheduleSubmit);

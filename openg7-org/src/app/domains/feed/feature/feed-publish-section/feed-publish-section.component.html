@@ -27,10 +27,25 @@
     </div>
   </div>
 
-  <div class="feed-publish__drawer" *ngIf="drawerOpen()" id="feed-publish-drawer" data-og7="feed-publish-drawer">
-    <button class="feed-publish__backdrop" type="button" (click)="onBackdropClick()" aria-hidden="true"></button>
+  <div
+    class="feed-publish__drawer"
+    *ngIf="drawerOpen()"
+    id="feed-publish-drawer"
+    data-og7="feed-publish-drawer"
+  >
+    <button
+      class="feed-publish__backdrop"
+      type="button"
+      (click)="onBackdropClick()"
+      aria-hidden="true"
+    ></button>
 
-    <section class="feed-publish__panel" role="dialog" [attr.aria-modal]="true" aria-labelledby="feed-publish-drawer-title">
+    <section
+      class="feed-publish__panel"
+      role="dialog"
+      [attr.aria-modal]="true"
+      aria-labelledby="feed-publish-drawer-title"
+    >
       <header class="feed-publish__panel-header">
         <div class="feed-publish__panel-copy">
           <h2 id="feed-publish-drawer-title">{{ 'feed.composer.title' | translate }}</h2>
@@ -52,7 +67,9 @@
 
       <ng-container *ngIf="isAuthenticated(); else authGate">
         <section class="feed-publish__mode-picker" data-og7="feed-publish-mode-picker">
-          <p class="feed-publish__mode-picker-label">{{ 'feed.publishBar.templates.title' | translate }}</p>
+          <p class="feed-publish__mode-picker-label">
+            {{ 'feed.publishBar.templates.title' | translate }}
+          </p>
           <div class="feed-publish__mode-picker-actions">
             <button
               type="button"
@@ -76,10 +93,19 @@
             </button>
           </div>
           <p class="feed-publish__mode-picker-description">
-            {{ (publishMode() === 'template' ? 'feed.publishBar.templates.templateDescription' : 'feed.publishBar.templates.genericDescription') | translate }}
+            {{
+              (publishMode() === 'template'
+                ? 'feed.publishBar.templates.templateDescription'
+                : 'feed.publishBar.templates.genericDescription'
+              ) | translate
+            }}
           </p>
 
-          <div *ngIf="publishMode() === 'template'" class="feed-publish__template-list" data-og7="feed-publish-template-list">
+          <div
+            *ngIf="publishMode() === 'template'"
+            class="feed-publish__template-list"
+            data-og7="feed-publish-template-list"
+          >
             <button
               *ngFor="let template of availableTemplates"
               type="button"

@@ -88,10 +88,13 @@ function coerceFeatureFlags(key, fallback) {
   try {
     const parsed = JSON.parse(trimmed);
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return Object.entries(parsed).reduce((acc, [flagKey, value]) => {
-        acc[flagKey] = normalizeBoolean(value);
-        return acc;
-      }, { ...fallback });
+      return Object.entries(parsed).reduce(
+        (acc, [flagKey, value]) => {
+          acc[flagKey] = normalizeBoolean(value);
+          return acc;
+        },
+        { ...fallback },
+      );
     }
   } catch {
     // Fallback to comma separated parsing below.
@@ -143,13 +146,18 @@ function coerceHomeFeedPanelLimits(key, fallback) {
 
   const parsed = parseJson(trimmed);
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${key} must be a JSON object with numeric alerts/opportunities/indicators values.`);
+    throw new Error(
+      `${key} must be a JSON object with numeric alerts/opportunities/indicators values.`,
+    );
   }
 
-  return HOME_FEED_PANEL_LIMIT_KEYS.reduce((acc, panelKey) => {
-    acc[panelKey] = coercePositiveInteger(parsed[panelKey], fallback[panelKey]);
-    return acc;
-  }, { ...fallback });
+  return HOME_FEED_PANEL_LIMIT_KEYS.reduce(
+    (acc, panelKey) => {
+      acc[panelKey] = coercePositiveInteger(parsed[panelKey], fallback[panelKey]);
+      return acc;
+    },
+    { ...fallback },
+  );
 }
 
 function coerceBoolean(key, fallback) {
@@ -282,7 +290,8 @@ function coerceContentSecurityPolicy(template) {
   }
 
   for (const key of CSP_DIRECTIVE_KEYS) {
-    const envKey = `CSP_${key.replace(/([A-Z])/g, (match) => `_${match.toUpperCase()}`)}`.toUpperCase();
+    const envKey =
+      `CSP_${key.replace(/([A-Z])/g, (match) => `_${match.toUpperCase()}`)}`.toUpperCase();
     const raw = process.env[envKey];
     if (typeof raw !== 'string') {
       continue;
@@ -314,17 +323,29 @@ async function buildRuntimeConfig() {
   }
 
   config.API_TOKEN = coerceNullableString('API_TOKEN', template.API_TOKEN);
-  config.HOMEPAGE_PREVIEW_TOKEN = coerceNullableString('HOMEPAGE_PREVIEW_TOKEN', template.HOMEPAGE_PREVIEW_TOKEN);
+  config.HOMEPAGE_PREVIEW_TOKEN = coerceNullableString(
+    'HOMEPAGE_PREVIEW_TOKEN',
+    template.HOMEPAGE_PREVIEW_TOKEN,
+  );
   config.I18N_PREFIX = coerceString('I18N_PREFIX', template.I18N_PREFIX);
   config.HOME_FEED_PANEL_LIMITS = coerceHomeFeedPanelLimits(
     'HOME_FEED_PANEL_LIMITS',
-    template.HOME_FEED_PANEL_LIMITS
+    template.HOME_FEED_PANEL_LIMITS,
   );
-  config.API_WITH_CREDENTIALS = coerceBoolean('API_WITH_CREDENTIALS', template.API_WITH_CREDENTIALS);
+  config.API_WITH_CREDENTIALS = coerceBoolean(
+    'API_WITH_CREDENTIALS',
+    template.API_WITH_CREDENTIALS,
+  );
   config.FEATURE_FLAGS = coerceFeatureFlags('FEATURE_FLAGS', template.FEATURE_FLAGS);
   config.AUTH_MODE = coerceAuthMode('AUTH_MODE', template.AUTH_MODE);
-  config.NOTIFICATION_WEBHOOK_URL = coerceNullableString('NOTIFICATION_WEBHOOK_URL', template.NOTIFICATION_WEBHOOK_URL);
-  config.ANALYTICS_ENDPOINT = coerceNullableString('ANALYTICS_ENDPOINT', template.ANALYTICS_ENDPOINT);
+  config.NOTIFICATION_WEBHOOK_URL = coerceNullableString(
+    'NOTIFICATION_WEBHOOK_URL',
+    template.NOTIFICATION_WEBHOOK_URL,
+  );
+  config.ANALYTICS_ENDPOINT = coerceNullableString(
+    'ANALYTICS_ENDPOINT',
+    template.ANALYTICS_ENDPOINT,
+  );
   config.CONTENT_SECURITY_POLICY = coerceContentSecurityPolicy(template.CONTENT_SECURITY_POLICY);
 
   return config;

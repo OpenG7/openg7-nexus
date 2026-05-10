@@ -11,10 +11,17 @@
     <div *ngIf="item.description" class="text-xs text-subtle">{{ item.description }}</div>
   </div>
   <div class="flex flex-col items-end gap-2 pl-3 text-xs">
-    <span *ngIf="item.badge" class="rounded-full px-2 py-0.5" [ngClass]="item.badgeClass ?? 'bg-slate-200 text-slate-700'">
+    <span
+      *ngIf="item.badge"
+      class="rounded-full px-2 py-0.5"
+      [ngClass]="item.badgeClass ?? 'bg-slate-200 text-slate-700'"
+    >
       {{ item.badge }}
     </span>
-    <span *ngIf="item.shortcut" class="rounded-md border border-slate-300/70 bg-white px-2 py-0.5 text-[11px] text-subtle">
+    <span
+      *ngIf="item.shortcut"
+      class="rounded-md border border-slate-300/70 bg-white px-2 py-0.5 text-[11px] text-subtle"
+    >
       {{ item.shortcut }}
     </span>
   </div>

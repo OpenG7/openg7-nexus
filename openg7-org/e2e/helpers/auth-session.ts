@@ -46,11 +46,11 @@ const DEFAULT_PROFILE: E2eAuthProfile = {
 
 export async function mockAuthenticatedSessionApis(
   page: Page,
-  profile: E2eAuthProfile = DEFAULT_PROFILE
+  profile: E2eAuthProfile = DEFAULT_PROFILE,
 ): Promise<void> {
   const alerts: E2eUserAlertRecord[] = [];
 
-  await page.route('**/api/sectors**', async route => {
+  await page.route('**/api/sectors**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -58,7 +58,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/provinces**', async route => {
+  await page.route('**/api/provinces**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -66,7 +66,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/companies**', async route => {
+  await page.route('**/api/companies**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -74,7 +74,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/auth/local**', async route => {
+  await page.route('**/api/auth/local**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -85,7 +85,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/users/me**', async route => {
+  await page.route('**/api/users/me**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const url = new URL(request.url());
@@ -112,7 +112,7 @@ export async function mockAuthenticatedSessionApis(
           contentType: 'application/json',
           body: JSON.stringify([]),
         });
-          return;
+        return;
       }
 
       if (path.endsWith('/alerts') || path.includes('/alerts/')) {
@@ -169,7 +169,9 @@ export async function mockAuthenticatedSessionApis(
         sourceType: typeof payload.sourceType === 'string' ? payload.sourceType : null,
         sourceId: typeof payload.sourceId === 'string' ? payload.sourceId : null,
         metadata:
-          payload.metadata && typeof payload.metadata === 'object' && !Array.isArray(payload.metadata)
+          payload.metadata &&
+          typeof payload.metadata === 'object' &&
+          !Array.isArray(payload.metadata)
             ? (payload.metadata as Record<string, unknown>)
             : null,
         isRead: false,
@@ -235,7 +237,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/auth/change-password**', async route => {
+  await page.route('**/api/auth/change-password**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -246,7 +248,7 @@ export async function mockAuthenticatedSessionApis(
     });
   });
 
-  await page.route('**/api/upload**', async route => {
+  await page.route('**/api/upload**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -257,7 +259,7 @@ export async function mockAuthenticatedSessionApis(
 
 export async function seedAuthenticatedSession(
   page: Page,
-  profile: E2eAuthProfile = DEFAULT_PROFILE
+  profile: E2eAuthProfile = DEFAULT_PROFILE,
 ): Promise<void> {
   const jwt = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature';
   const hasSubtleCrypto = await page.evaluate(() => Boolean(window.crypto?.subtle));
@@ -281,10 +283,16 @@ export async function seedAuthenticatedSession(
       };
 
       const keyMaterial = crypto.getRandomValues(new Uint8Array(32));
-      const cryptoKey = await crypto.subtle.importKey('raw', keyMaterial, 'AES-GCM', false, ['encrypt']);
+      const cryptoKey = await crypto.subtle.importKey('raw', keyMaterial, 'AES-GCM', false, [
+        'encrypt',
+      ]);
       const iv = crypto.getRandomValues(new Uint8Array(ivLength));
       const plaintext = new TextEncoder().encode(seededJwt);
-      const cipherBuffer = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, cryptoKey, plaintext);
+      const cipherBuffer = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        plaintext,
+      );
       const cipherBytes = new Uint8Array(cipherBuffer);
       const payload = new Uint8Array(iv.length + cipherBytes.length);
       payload.set(iv, 0);
@@ -297,17 +305,17 @@ export async function seedAuthenticatedSession(
           cipher: toBase64(payload),
           expiresAt: 4102444800000,
           createdAt: Date.now(),
-        })
+        }),
       );
       window.localStorage.setItem(userCacheKey, JSON.stringify(seededProfile));
     },
-    { seededProfile: profile, seededJwt: jwt }
+    { seededProfile: profile, seededJwt: jwt },
   );
 }
 
 export async function loginAsAuthenticatedE2eUser(
   page: Page,
-  redirect = '/profile'
+  redirect = '/profile',
 ): Promise<void> {
   if (await hasPersistedAuthenticatedSession(page)) {
     await page.goto(redirect);
@@ -330,8 +338,10 @@ export async function loginAsAuthenticatedE2eUser(
 
   const submitButton = loginForm.locator('[data-og7="auth-login-submit"]');
   await expect(submitButton).toBeEnabled();
-  const authResponse = page.waitForResponse(response =>
-    response.url().includes('/api/auth/local') && response.request().method().toUpperCase() === 'POST'
+  const authResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes('/api/auth/local') &&
+      response.request().method().toUpperCase() === 'POST',
   );
   await submitButton.click();
   await authResponse;
@@ -340,15 +350,14 @@ export async function loginAsAuthenticatedE2eUser(
     try {
       const hasCachedUser = Boolean(
         window.localStorage.getItem('auth_user_cache_v1') ||
-          window.sessionStorage.getItem('auth_user_cache_v1')
+        window.sessionStorage.getItem('auth_user_cache_v1'),
       );
       const hasPersistedToken = Boolean(
-        window.localStorage.getItem('auth_token') ||
-          window.sessionStorage.getItem('auth_token')
+        window.localStorage.getItem('auth_token') || window.sessionStorage.getItem('auth_token'),
       );
       const hasCryptoKey = Boolean(
         window.localStorage.getItem('auth_crypto_key') ||
-          window.sessionStorage.getItem('auth_crypto_key')
+        window.sessionStorage.getItem('auth_crypto_key'),
       );
       return hasCachedUser && hasPersistedToken && hasCryptoKey;
     } catch {
@@ -369,7 +378,7 @@ async function hasPersistedAuthenticatedSession(page: Page): Promise<boolean> {
     try {
       const storages = [window.localStorage, window.sessionStorage];
       const hasToken = storages.some((storage) =>
-        Boolean(storage.getItem('auth_token') || storage.getItem('auth_token_session_fallback'))
+        Boolean(storage.getItem('auth_token') || storage.getItem('auth_token_session_fallback')),
       );
       const hasUser = storages.some((storage) => Boolean(storage.getItem('auth_user_cache_v1')));
       return hasToken && hasUser;

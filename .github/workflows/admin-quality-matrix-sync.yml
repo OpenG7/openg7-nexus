@@ -2,7 +2,7 @@ name: Admin Quality Matrix Sync
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   publish-matrix-signal:

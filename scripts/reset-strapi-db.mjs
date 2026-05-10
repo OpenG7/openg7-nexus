@@ -109,7 +109,7 @@ async function resetPostgres(envFile) {
 
   if (dryRun) {
     console.log(
-      `[strapi-db-reset] [dry-run] Would reset PostgreSQL schema "${schema}" on ${host}:${port}/${database}`
+      `[strapi-db-reset] [dry-run] Would reset PostgreSQL schema "${schema}" on ${host}:${port}/${database}`,
     );
     return;
   }
@@ -132,7 +132,7 @@ async function resetPostgres(envFile) {
   }
 
   console.log(
-    `[strapi-db-reset] Reset PostgreSQL schema "${schema}" on ${host}:${port}/${database}`
+    `[strapi-db-reset] Reset PostgreSQL schema "${schema}" on ${host}:${port}/${database}`,
   );
 }
 
@@ -148,7 +148,7 @@ async function main() {
     await resetPostgres(envFile);
   } else {
     console.error(
-      `[strapi-db-reset] Unsupported DATABASE_CLIENT "${databaseClient}". Expected "sqlite" or "postgres".`
+      `[strapi-db-reset] Unsupported DATABASE_CLIENT "${databaseClient}". Expected "sqlite" or "postgres".`,
     );
     process.exit(1);
   }

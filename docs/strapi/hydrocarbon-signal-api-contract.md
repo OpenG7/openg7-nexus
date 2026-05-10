@@ -129,20 +129,50 @@ Creer un content type Strapi dedie :
     "summary": { "type": "text", "required": true },
     "companyName": { "type": "string", "required": true },
     "publicationType": { "type": "enumeration", "enum": ["surplus", "slowdown"], "required": true },
-    "productType": { "type": "enumeration", "enum": ["crude-oil", "bitumen", "synthetic-crude", "diesel", "other"], "required": true },
-    "businessReason": { "type": "enumeration", "enum": ["surplus-stock", "demand-slowdown", "transport-disruption", "buyer-outage", "price-window"], "required": true },
+    "productType": {
+      "type": "enumeration",
+      "enum": ["crude-oil", "bitumen", "synthetic-crude", "diesel", "other"],
+      "required": true
+    },
+    "businessReason": {
+      "type": "enumeration",
+      "enum": [
+        "surplus-stock",
+        "demand-slowdown",
+        "transport-disruption",
+        "buyer-outage",
+        "price-window"
+      ],
+      "required": true
+    },
     "volumeBarrels": { "type": "integer", "required": true, "min": 1 },
     "minimumLotBarrels": { "type": "integer", "min": 1 },
     "availableFrom": { "type": "date", "required": true },
     "availableUntil": { "type": "date", "required": true },
     "estimatedDelayDays": { "type": "integer", "min": 0 },
-    "originProvince": { "type": "relation", "relation": "oneToOne", "target": "api::province.province" },
-    "targetProvince": { "type": "relation", "relation": "oneToOne", "target": "api::province.province" },
+    "originProvince": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::province.province"
+    },
+    "targetProvince": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::province.province"
+    },
     "originSite": { "type": "string", "required": true },
-    "qualityGrade": { "type": "enumeration", "enum": ["wcs", "wti-linked", "synthetic-blend", "other"], "required": true },
+    "qualityGrade": {
+      "type": "enumeration",
+      "enum": ["wcs", "wti-linked", "synthetic-blend", "other"],
+      "required": true
+    },
     "logisticsMode": { "type": "json", "required": true },
     "targetScope": { "type": "json" },
-    "storagePressureLevel": { "type": "enumeration", "enum": ["low", "medium", "high", "critical"], "default": "medium" },
+    "storagePressureLevel": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high", "critical"],
+      "default": "medium"
+    },
     "priceReference": { "type": "string" },
     "responseDeadline": { "type": "date" },
     "contactChannel": { "type": "string", "required": true },

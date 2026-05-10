@@ -13,8 +13,7 @@ const MATRIX_ACTIONS = [
   'api::admin-quality-matrix.admin-quality-matrix.recalculate',
   'api::admin-quality-matrix.admin-quality-matrix.applyProposal',
 ];
-const MISSION_DECISION_UID =
-  'api::admin-quality-mission-decision.admin-quality-mission-decision';
+const MISSION_DECISION_UID = 'api::admin-quality-mission-decision.admin-quality-mission-decision';
 
 function applyTestEnvironment() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -24,12 +23,18 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'admin-quality-matrix-test-app-key-a,admin-quality-matrix-test-app-key-b';
-  process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'admin-quality-matrix-test-api-token-salt';
-  process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'admin-quality-matrix-test-admin-jwt-secret';
-  process.env.TRANSFER_TOKEN_SALT = process.env.TRANSFER_TOKEN_SALT || 'admin-quality-matrix-test-transfer-token-salt';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS ||
+    'admin-quality-matrix-test-app-key-a,admin-quality-matrix-test-app-key-b';
+  process.env.API_TOKEN_SALT =
+    process.env.API_TOKEN_SALT || 'admin-quality-matrix-test-api-token-salt';
+  process.env.ADMIN_JWT_SECRET =
+    process.env.ADMIN_JWT_SECRET || 'admin-quality-matrix-test-admin-jwt-secret';
+  process.env.TRANSFER_TOKEN_SALT =
+    process.env.TRANSFER_TOKEN_SALT || 'admin-quality-matrix-test-transfer-token-salt';
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'admin-quality-matrix-test-jwt-secret';
-  process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'admin-quality-matrix-test-encryption-key-123456789';
+  process.env.ENCRYPTION_KEY =
+    process.env.ENCRYPTION_KEY || 'admin-quality-matrix-test-encryption-key-123456789';
   process.env.STRAPI_ADMIN_QUALITY_INGEST_TOKEN = 'matrix-ingest-test-token';
 }
 
@@ -250,19 +255,30 @@ async function run() {
       headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
     });
     assert.equal(snapshotAllowed.status, 200, 'Expected owner user to access matrix snapshot.');
-    assert.equal(snapshotAllowed.body?.data?.entries?.length, 1, 'Expected matrix snapshot payload.');
+    assert.equal(
+      snapshotAllowed.body?.data?.entries?.length,
+      1,
+      'Expected matrix snapshot payload.',
+    );
     assert.deepEqual(
       snapshotAllowed.body?.data?.entries?.[0]?.signalDispatch ?? {},
       {},
       'Expected no signal dispatch lock before any guidance is recorded.',
     );
 
-    const allPlanBeforeSignals = await requestJson(`${baseUrl}/api/admin/quality/matrix/recalculate`, {
-      method: 'POST',
-      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
-      body: JSON.stringify({ scope: 'all' }),
-    });
-    assert.equal(allPlanBeforeSignals.status, 200, 'Expected all-scope planning to succeed for owner.');
+    const allPlanBeforeSignals = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/recalculate`,
+      {
+        method: 'POST',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ scope: 'all' }),
+      },
+    );
+    assert.equal(
+      allPlanBeforeSignals.status,
+      200,
+      'Expected all-scope planning to succeed for owner.',
+    );
     assert.equal(allPlanBeforeSignals.body?.data?.summary?.analyzedCount, 1);
     assert.equal(allPlanBeforeSignals.body?.data?.summary?.proposalCount, 0);
     assert.equal(allPlanBeforeSignals.body?.data?.entries?.[0]?.result, 'unchanged');
@@ -280,10 +296,15 @@ async function run() {
     const derivedRepoMergedAt = new Date(Date.now() + 45_000).toISOString();
     const exactPullRequestMergedAt = new Date(Date.now() + 60_000).toISOString();
     await createSignalGuidanceDecision(app, 'trust-validation', 'business');
-    const signalGuidanceDecision = await createSignalGuidanceDecision(app, 'trust-validation', 'e2e', {
-      proofPullRequestNumber: 321,
-      proofBranch: 'codex/qa-proof-501',
-    });
+    const signalGuidanceDecision = await createSignalGuidanceDecision(
+      app,
+      'trust-validation',
+      'e2e',
+      {
+        proofPullRequestNumber: 321,
+        proofBranch: 'codex/qa-proof-501',
+      },
+    );
 
     const snapshotWithPendingGuidance = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
       headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
@@ -299,7 +320,11 @@ async function run() {
       headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
       body: JSON.stringify({ scope: 'refresh-required' }),
     });
-    assert.equal(recalcDenied.status, 403, 'Expected standard authenticated user to be denied recalculation.');
+    assert.equal(
+      recalcDenied.status,
+      403,
+      'Expected standard authenticated user to be denied recalculation.',
+    );
 
     const unauthorized = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
       method: 'POST',
@@ -333,7 +358,9 @@ async function run() {
         workflow: 'Admin Quality Matrix Sync',
         branch: 'main',
         summary: 'targeted sync after merge to main',
-        changedFiles: ['strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json'],
+        changedFiles: [
+          'strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json',
+        ],
         impactedEntryIds: ['trust-validation', 'unknown-entry'],
       }),
     });
@@ -362,10 +389,16 @@ async function run() {
         workflow: 'Admin Quality Matrix Sync',
         branch: 'main',
         summary: 'derived sync after merge to main',
-        changedFiles: ['strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json'],
+        changedFiles: [
+          'strapi/src/api/admin-quality-mission-decision/content-types/admin-quality-mission-decision/schema.json',
+        ],
       }),
     });
-    assert.equal(derivedOnly.status, 200, 'Expected ingest to derive impacted entries from changedFiles.');
+    assert.equal(
+      derivedOnly.status,
+      200,
+      'Expected ingest to derive impacted entries from changedFiles.',
+    );
     assert.equal(derivedOnly.body?.data?.impactMode, 'targeted');
     assert.deepEqual(derivedOnly.body?.data?.providedEntryIds, []);
     assert.deepEqual(derivedOnly.body?.data?.derivedEntryIds, ['trust-validation']);
@@ -404,16 +437,20 @@ async function run() {
       },
     });
 
-    const snapshotAfterExactPullRequestMerge = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
-      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
-    });
+    const snapshotAfterExactPullRequestMerge = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix`,
+      {
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+      },
+    );
     assert.equal(
       snapshotAfterExactPullRequestMerge.body?.data?.entries?.[0]?.signalDispatch?.e2e?.pending,
       false,
       'Expected the saved exact pull request merge to confirm the e2e signal server-side.',
     );
     assert.equal(
-      snapshotAfterExactPullRequestMerge.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
+      snapshotAfterExactPullRequestMerge.body?.data?.entries?.[0]?.signalDispatch?.e2e
+        ?.confirmationSource,
       'pull-request-merged',
     );
 
@@ -448,7 +485,11 @@ async function run() {
       headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
       body: JSON.stringify({ entryId: 'trust-validation' }),
     });
-    assert.equal(applyDenied.status, 403, 'Expected standard authenticated user to be denied proposal application.');
+    assert.equal(
+      applyDenied.status,
+      403,
+      'Expected standard authenticated user to be denied proposal application.',
+    );
 
     const applyOk = await requestJson(`${baseUrl}/api/admin/quality/matrix/apply-proposal`, {
       method: 'POST',
@@ -478,7 +519,9 @@ async function run() {
     assert.equal(recalcAfterApply.status, 200, 'Expected recalculation after apply to succeed.');
     assert.equal(recalcAfterApply.body?.data?.summary?.proposalCount, 0);
 
-    console.log('Admin quality matrix snapshot, ingest, and recalculation integration test passed.');
+    console.log(
+      'Admin quality matrix snapshot, ingest, and recalculation integration test passed.',
+    );
   } finally {
     await app.destroy();
     await cleanupDatabase();

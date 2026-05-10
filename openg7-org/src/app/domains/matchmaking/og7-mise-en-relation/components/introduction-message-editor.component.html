@@ -16,7 +16,9 @@
       [attr.aria-invalid]="showError()"
       (input)="onInput($any($event.target).value ?? '')"
     ></textarea>
-    <div class="pointer-events-none absolute inset-x-6 bottom-3 flex justify-between text-xs text-slate-400">
+    <div
+      class="pointer-events-none absolute inset-x-6 bottom-3 flex justify-between text-xs text-slate-400"
+    >
       <span [id]="hintId()">{{ 'introBillboard.messageHint' | translate }}</span>
       <span>{{ characterCount() }}</span>
     </div>

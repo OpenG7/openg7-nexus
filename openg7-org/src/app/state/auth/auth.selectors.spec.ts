@@ -1,4 +1,12 @@
-import { selectAuthState, selectIsAuthenticated, selectUser, selectUserRoles, selectJwtExp, AuthState, AuthUser } from './auth.selectors';
+import {
+  selectAuthState,
+  selectIsAuthenticated,
+  selectUser,
+  selectUserRoles,
+  selectJwtExp,
+  AuthState,
+  AuthUser,
+} from './auth.selectors';
 
 describe('Auth Selectors', () => {
   const user: AuthUser = { id: 'u1', email: 'u1@example.com', roles: ['admin'] };

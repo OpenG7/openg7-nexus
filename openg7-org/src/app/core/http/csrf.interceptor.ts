@@ -79,6 +79,6 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
     req.clone({
       setHeaders: { [CSRF_HEADER]: token },
       withCredentials: req.withCredentials !== false,
-    })
+    }),
   );
 };

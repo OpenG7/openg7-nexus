@@ -51,9 +51,7 @@ class StoreMock {
     { id: 'on', name: 'Ontario' },
     { id: 'qc', name: 'Quebec' },
   ]);
-  private readonly sectorsSig = signal([
-    { id: 'energy', name: 'Energy' },
-  ]);
+  private readonly sectorsSig = signal([{ id: 'energy', name: 'Energy' }]);
 
   readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake((selector: unknown) => {
     if (selector === selectProvinces) {
@@ -130,7 +128,7 @@ describe('Og7FeedComposerComponent', () => {
         draftSummary: 'Cross-border balancing support required after the weather alert.',
         draftTags: 'linked-alert,grid',
         draftConnectionMatchId: '73',
-      })
+      }),
     );
     router = jasmine.createSpyObj('Router', ['navigate'], {
       url: '/feed?draftSource=alert&draftTitle=Winter%20peak',
@@ -148,7 +146,13 @@ describe('Og7FeedComposerComponent', () => {
       imports: [Og7FeedComposerComponent, TranslateModule.forRoot()],
       providers: [
         { provide: ActivatedRoute, useValue: routeStub },
-        { provide: AuthService, useValue: { isAuthenticated: authState.asReadonly() } as Pick<AuthService, 'isAuthenticated'> },
+        {
+          provide: AuthService,
+          useValue: { isAuthenticated: authState.asReadonly() } as Pick<
+            AuthService,
+            'isAuthenticated'
+          >,
+        },
         { provide: FeedRealtimeService, useClass: FeedRealtimeServiceMock },
         { provide: FeedConnectionMatchService, useClass: FeedConnectionMatchServiceMock },
         { provide: Router, useValue: router },
@@ -157,7 +161,9 @@ describe('Og7FeedComposerComponent', () => {
     }).compileComponents();
 
     feed = TestBed.inject(FeedRealtimeService) as unknown as FeedRealtimeServiceMock;
-    connectionMatcher = TestBed.inject(FeedConnectionMatchService) as unknown as FeedConnectionMatchServiceMock;
+    connectionMatcher = TestBed.inject(
+      FeedConnectionMatchService,
+    ) as unknown as FeedConnectionMatchServiceMock;
   });
 
   it('prefills the linked alert draft and sends the explicit origin to the async feed service on submit', async () => {
@@ -168,7 +174,9 @@ describe('Og7FeedComposerComponent', () => {
 
     const title = fixture.nativeElement.querySelector('#composer-title') as HTMLInputElement;
     const summary = fixture.nativeElement.querySelector('#composer-summary') as HTMLTextAreaElement;
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
 
     expect(title.value).toBe('Opportunity linked to alert-001');
     expect(summary.value).toBe('Cross-border balancing support required after the weather alert.');
@@ -190,7 +198,7 @@ describe('Og7FeedComposerComponent', () => {
         originType: 'alert',
         originId: 'alert-001',
         connectionMatchId: 73,
-      })
+      }),
     );
     expect(connectionMatcher.resolveDraftConnectionMatchId).not.toHaveBeenCalled();
   });
@@ -201,8 +209,12 @@ describe('Og7FeedComposerComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const draftBanner = fixture.nativeElement.querySelector('[data-og7="feed-composer-draft"]') as HTMLElement;
-    const clearButton = fixture.nativeElement.querySelector('.feed-composer__clear') as HTMLButtonElement;
+    const draftBanner = fixture.nativeElement.querySelector(
+      '[data-og7="feed-composer-draft"]',
+    ) as HTMLElement;
+    const clearButton = fixture.nativeElement.querySelector(
+      '.feed-composer__clear',
+    ) as HTMLButtonElement;
 
     expect(draftBanner).toBeTruthy();
 
@@ -242,7 +254,7 @@ describe('Og7FeedComposerComponent', () => {
         draftTitle: 'Hydrogen balancing support',
         draftSummary: 'Cross-border support required for a hydrogen corridor.',
         draftTags: 'hydrogen,grid',
-      })
+      }),
     );
 
     const fixture = TestBed.createComponent(Og7FeedComposerComponent);
@@ -250,7 +262,9 @@ describe('Og7FeedComposerComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
     submit.click();
     await fixture.whenStable();
 
@@ -261,12 +275,12 @@ describe('Og7FeedComposerComponent', () => {
         fromProvinceId: 'on',
         toProvinceId: 'qc',
         mode: 'IMPORT',
-      })
+      }),
     );
     expect(feed.publishDraft).toHaveBeenCalledWith(
       jasmine.objectContaining({
         connectionMatchId: 91,
-      })
+      }),
     );
   });
 
@@ -276,9 +290,11 @@ describe('Og7FeedComposerComponent', () => {
     await fixture.whenStable();
 
     const publishedItems: FeedItem[] = [];
-    fixture.componentInstance.published.subscribe(item => publishedItems.push(item));
+    fixture.componentInstance.published.subscribe((item) => publishedItems.push(item));
 
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
     submit.click();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -306,13 +322,17 @@ describe('Og7FeedComposerComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
     submit.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
     const title = fixture.nativeElement.querySelector('#composer-title') as HTMLInputElement;
-    const status = fixture.nativeElement.querySelector('[data-og7="feed-composer-status"]') as HTMLElement;
+    const status = fixture.nativeElement.querySelector(
+      '[data-og7="feed-composer-status"]',
+    ) as HTMLElement;
 
     expect(title.value).toBe('Opportunity linked to alert-001');
     expect(status.textContent).toContain('feed.error.generic');
@@ -325,7 +345,9 @@ describe('Og7FeedComposerComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
     submit.click();
     await fixture.whenStable();
 
@@ -342,12 +364,16 @@ describe('Og7FeedComposerComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const submit = fixture.nativeElement.querySelector('.feed-composer__submit') as HTMLButtonElement;
+    const submit = fixture.nativeElement.querySelector(
+      '.feed-composer__submit',
+    ) as HTMLButtonElement;
     submit.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const status = fixture.nativeElement.querySelector('[data-og7="feed-composer-status"]') as HTMLElement;
+    const status = fixture.nativeElement.querySelector(
+      '[data-og7="feed-composer-status"]',
+    ) as HTMLElement;
 
     expect(feed.publishDraft).not.toHaveBeenCalled();
     expect(status.textContent).toContain('feed.error.offline');

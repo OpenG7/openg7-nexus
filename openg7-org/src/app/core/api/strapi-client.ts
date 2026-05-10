@@ -18,7 +18,13 @@ import { finalize } from 'rxjs/operators';
 import { RuntimeConfigService } from '../config/runtime-config.service';
 import { HttpClientService, JsonRequestOptions } from '../http/http-client.service';
 
-type QueryParamValue = string | number | boolean | ReadonlyArray<string | number | boolean> | null | undefined;
+type QueryParamValue =
+  | string
+  | number
+  | boolean
+  | ReadonlyArray<string | number | boolean>
+  | null
+  | undefined;
 type QueryParamsInput = Record<string, QueryParamValue>;
 
 interface StatisticsRequestParams extends QueryParamsInput {
@@ -71,7 +77,7 @@ export class StrapiClient {
       merged.headers = this.mergeHeaders(headers, options?.headers);
     }
     return firstValueFrom(
-      this.http.get<T>(path, merged).pipe(finalize(() => this.loading.set(false)))
+      this.http.get<T>(path, merged).pipe(finalize(() => this.loading.set(false))),
     );
   }
 
@@ -80,28 +86,36 @@ export class StrapiClient {
    * Raison d’être : Wraps the Strapi `/sectors` endpoint so feature modules do not repeat endpoint literals.
    * @returns Promise resolving with the list of sectors defined in Strapi.
    */
-  sectors()   { return this.get<StrapiList<Sector>>(endpoints.sectors); }
+  sectors() {
+    return this.get<StrapiList<Sector>>(endpoints.sectors);
+  }
 
   /**
    * Contexte : Called when building province selectors and geographic filters within opportunity flows.
    * Raison d’être : Centralises retrieval of provinces from Strapi to keep HTTP wiring in one client.
    * @returns Promise resolving with the Strapi province collection payload.
    */
-  provinces() { return this.get<StrapiList<Province>>(endpoints.provinces); }
+  provinces() {
+    return this.get<StrapiList<Province>>(endpoints.provinces);
+  }
 
   /**
    * Contexte : Triggered by admin and analytics views that need the catalogue of companies from Strapi.
    * Raison d’être : Offers a typed access point to the `/companies` endpoint for reuse across services.
    * @returns Promise resolving with the paginated company list response.
    */
-  companies() { return this.get<StrapiList<Company>>(endpoints.companies); }
+  companies() {
+    return this.get<StrapiList<Company>>(endpoints.companies);
+  }
 
   /**
    * Contexte : Consumed by opportunity dashboards that chart commodity exchanges between provinces.
    * Raison d’être : Exposes the `/exchanges` endpoint through the shared client to reuse HTTP handling.
    * @returns Promise resolving with the exchange dataset returned by Strapi.
    */
-  exchanges() { return this.get<StrapiList<Exchange>>(endpoints.exchanges); }
+  exchanges() {
+    return this.get<StrapiList<Exchange>>(endpoints.exchanges);
+  }
 
   /**
    * Contexte : Requested by CMS-driven homepage components during SSR and browser hydration.
@@ -151,7 +165,7 @@ export class StrapiClient {
 
   private mergeHeaders(
     authHeaders: HttpHeaders,
-    existing?: JsonRequestOptions['headers']
+    existing?: JsonRequestOptions['headers'],
   ): JsonRequestOptions['headers'] {
     if (!existing) {
       return authHeaders;

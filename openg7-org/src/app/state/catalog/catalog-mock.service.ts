@@ -40,7 +40,7 @@ export class CatalogMockService {
     }
     try {
       const payload = await firstValueFrom(
-        this.http.get<CatalogMockPayload>('assets/mocks/catalog.mock.json')
+        this.http.get<CatalogMockPayload>('assets/mocks/catalog.mock.json'),
       );
       this.store.dispatch(CatalogActions.catalogMockLoaded(payload));
     } catch (error) {
@@ -51,9 +51,15 @@ export class CatalogMockService {
   private async tryLoadCatalogFromApi(): Promise<boolean> {
     try {
       const [sectorsPayload, provincesPayload, companiesPayload] = await Promise.all([
-        firstValueFrom(this.api.get<unknown>('/api/sectors', { context: this.silentCatalogContext })),
-        firstValueFrom(this.api.get<unknown>('/api/provinces', { context: this.silentCatalogContext })),
-        firstValueFrom(this.api.get<unknown>('/api/companies', { context: this.silentCatalogContext })),
+        firstValueFrom(
+          this.api.get<unknown>('/api/sectors', { context: this.silentCatalogContext }),
+        ),
+        firstValueFrom(
+          this.api.get<unknown>('/api/provinces', { context: this.silentCatalogContext }),
+        ),
+        firstValueFrom(
+          this.api.get<unknown>('/api/companies', { context: this.silentCatalogContext }),
+        ),
       ]);
 
       const sectors = this.mapNamedCollection<Sector>(sectorsPayload);
@@ -70,7 +76,7 @@ export class CatalogMockService {
           provinces,
           companies,
           source: 'real',
-        })
+        }),
       );
       return true;
     } catch (error) {

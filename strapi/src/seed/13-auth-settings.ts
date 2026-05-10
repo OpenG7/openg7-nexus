@@ -48,7 +48,7 @@ function shouldReplaceFromEmail(currentEmail: string | null): boolean {
 
 function updateTemplateSender(
   template: UsersPermissionsEmailTemplate | undefined,
-  options: { fromName: string; fromEmail: string; replyTo: string }
+  options: { fromName: string; fromEmail: string; replyTo: string },
 ): { template: UsersPermissionsEmailTemplate; changed: boolean } {
   const nextTemplate: UsersPermissionsEmailTemplate = template ? { ...template } : {};
   const nextOptions: EmailTemplateOptions = { ...(nextTemplate.options ?? {}) };
@@ -143,4 +143,3 @@ export default async () => {
     strapi.log?.info?.('[seed:13-auth-settings] Updated users-permissions email sender defaults.');
   }
 };
-

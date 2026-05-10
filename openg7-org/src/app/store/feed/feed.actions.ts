@@ -17,7 +17,11 @@ export const FeedActions = createActionGroup({
     'Load Failure': props<{ error: string }>(),
     'Receive Realtime Envelope': props<{ envelope: FeedRealtimeEnvelope }>(),
     'Apply Filters': props<{ filters: FeedFilterState }>(),
-    'Optimistic Publish': props<{ draft: FeedComposerDraft; item: FeedItem; idempotencyKey: string }>(),
+    'Optimistic Publish': props<{
+      draft: FeedComposerDraft;
+      item: FeedItem;
+      idempotencyKey: string;
+    }>(),
     'Publish Success': props<{ tempId: string; item: FeedItem }>(),
     'Publish Failure': props<{ tempId: string; error: string }>(),
     'Set Connection Error': props<{ error: string | null }>(),

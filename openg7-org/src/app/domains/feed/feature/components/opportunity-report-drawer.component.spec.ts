@@ -17,7 +17,9 @@ describe('OpportunityReportDrawerComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-og7-id="reason"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7-id="comment"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]'),
+    ).toBeTruthy();
   });
 
   it('emits a normalized report payload on submit', () => {
@@ -28,9 +30,13 @@ describe('OpportunityReportDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const reasonSelect: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="reason"]');
-    const commentInput: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="comment"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]');
+    const reasonSelect: HTMLSelectElement =
+      fixture.nativeElement.querySelector('[data-og7-id="reason"]');
+    const commentInput: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector('[data-og7-id="comment"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-report-submit"]',
+    );
 
     reasonSelect.value = 'abuse';
     reasonSelect.dispatchEvent(new Event('change'));
@@ -56,13 +62,21 @@ describe('OpportunityReportDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-report-submit"]',
+    );
     submitButton.click();
     fixture.detectChanges();
 
     expect(submittedSpy).not.toHaveBeenCalled();
-    expect(fixture.nativeElement.querySelectorAll('.opportunity-report-drawer__field-error').length).toBeGreaterThan(0);
-    expect((fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement).getAttribute('aria-invalid')).toBe('true');
+    expect(
+      fixture.nativeElement.querySelectorAll('.opportunity-report-drawer__field-error').length,
+    ).toBeGreaterThan(0);
+    expect(
+      (
+        fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement
+      ).getAttribute('aria-invalid'),
+    ).toBe('true');
   });
 
   it('renders the latest pending report in view mode', () => {
@@ -81,8 +95,14 @@ describe('OpportunityReportDrawerComponent', () => {
     });
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-report-view"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('This opportunity duplicates another active listing.');
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="opportunity-report-view"]'),
+    ).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7-id="opportunity-report-submit"]'),
+    ).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      'This opportunity duplicates another active listing.',
+    );
   });
 });

@@ -127,7 +127,7 @@ export default async function seedHydrocarbonSignals() {
         unique: {
           idempotencyKey: signal.idempotencyKey,
         },
-      }
+      },
     );
 
     await syncHydrocarbonSignalProjection({

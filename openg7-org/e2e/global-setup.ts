@@ -14,7 +14,7 @@ function runSnapshotScript(): Promise<void> {
     });
 
     child.on('error', rejectPromise);
-    child.on('exit', code => {
+    child.on('exit', (code) => {
       if (code === 0) {
         resolvePromise();
         return;

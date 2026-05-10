@@ -47,33 +47,37 @@ describe('ImportationFiltersStore', () => {
         coverage: 0.8,
         lastUpdated: '2024-01-15',
         dataProvider: 'StatCan',
-      })
+      }),
     );
-    api.getCommodities.and.returnValue(
-      of({ top: [], emerging: [], risk: [] })
-    );
+    api.getCommodities.and.returnValue(of({ top: [], emerging: [], risk: [] }));
     api.getRiskFlags.and.returnValue(of([]));
     api.getSuppliers.and.returnValue(of({ suppliers: [] }));
     api.getAnnotations.and.returnValue(of({ annotations: [] }));
     api.getWatchlists.and.returnValue(of({ watchlists: [] }));
     api.getKnowledgeBase.and.returnValue(of({ articles: [], cta: null }));
-    api.createWatchlist.and.returnValue(of({ id: '1', name: 'Test', owner: 'me', updatedAt: '2024-01-01', filters: {
-      periodGranularity: 'month',
-      periodValue: null,
-      originScope: 'global',
-      originCodes: [],
-      hsSections: [],
-      compareMode: false,
-      compareWith: null,
-    } }));
+    api.createWatchlist.and.returnValue(
+      of({
+        id: '1',
+        name: 'Test',
+        owner: 'me',
+        updatedAt: '2024-01-01',
+        filters: {
+          periodGranularity: 'month',
+          periodValue: null,
+          originScope: 'global',
+          originCodes: [],
+          hsSections: [],
+          compareMode: false,
+          compareWith: null,
+        },
+      }),
+    );
     api.scheduleReport.and.returnValue(of(void 0));
 
-    permissions = jasmine.createSpyObj<ImportationPermissionsService>('ImportationPermissionsService', [
-      'canViewCollaboration',
-      'canManageWatchlists',
-      'canScheduleReports',
-      'canExportData',
-    ]);
+    permissions = jasmine.createSpyObj<ImportationPermissionsService>(
+      'ImportationPermissionsService',
+      ['canViewCollaboration', 'canManageWatchlists', 'canScheduleReports', 'canExportData'],
+    );
     permissions.canViewCollaboration.and.returnValue(true);
     permissions.canManageWatchlists.and.returnValue(true);
     permissions.canScheduleReports.and.returnValue(true);
@@ -145,21 +149,24 @@ describe('ImportationFiltersStore', () => {
     store.toggleTimelinePlayback();
 
     expect(store.flowMapVm().playing).toBeTrue();
-    expect(analytics.trackTimelinePlayback).toHaveBeenCalledWith(true, jasmine.objectContaining({ periodGranularity: 'month' }));
+    expect(analytics.trackTimelinePlayback).toHaveBeenCalledWith(
+      true,
+      jasmine.objectContaining({ periodGranularity: 'month' }),
+    );
   });
 
   it('gracefully falls back when optional importation endpoints return 404', () => {
     api.getSuppliers.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
     api.getAnnotations.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
     api.getWatchlists.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
     api.getKnowledgeBase.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' }))
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
     );
 
     initializeStore();
@@ -181,23 +188,36 @@ describe('ImportationFiltersStore', () => {
 
   it('keeps collaboration state consistent when a non-404 collaboration request fails', () => {
     api.getAnnotations.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error', error: { message: 'boom' } }))
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 500,
+            statusText: 'Server Error',
+            error: { message: 'boom' },
+          }),
+      ),
     );
-    api.getWatchlists.and.returnValue(of({ watchlists: [{
-      id: 'watch-1',
-      name: 'Safe',
-      owner: 'Local workspace',
-      updatedAt: '2024-01-01',
-      filters: {
-        periodGranularity: 'month',
-        periodValue: null,
-        originScope: 'global',
-        originCodes: [],
-        hsSections: [],
-        compareMode: false,
-        compareWith: null,
-      },
-    }] }));
+    api.getWatchlists.and.returnValue(
+      of({
+        watchlists: [
+          {
+            id: 'watch-1',
+            name: 'Safe',
+            owner: 'Local workspace',
+            updatedAt: '2024-01-01',
+            filters: {
+              periodGranularity: 'month',
+              periodValue: null,
+              originScope: 'global',
+              originCodes: [],
+              hsSections: [],
+              compareMode: false,
+              compareWith: null,
+            },
+          },
+        ],
+      }),
+    );
 
     initializeStore();
 
@@ -207,4 +227,3 @@ describe('ImportationFiltersStore', () => {
     expect(store.collaborationVm().annotations).toEqual([]);
   });
 });
-

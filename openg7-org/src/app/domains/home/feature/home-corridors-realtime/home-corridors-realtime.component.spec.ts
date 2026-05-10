@@ -56,7 +56,7 @@ describe('HomeCorridorsRealtimeComponent', () => {
     fixture.detectChanges();
 
     const priorityPath = fixture.nativeElement.querySelector(
-      '[data-og7="corridor-priority-path"][data-og7-corridor-id="essential-services"]'
+      '[data-og7="corridor-priority-path"][data-og7-corridor-id="essential-services"]',
     );
 
     expect(priorityPath).toBeTruthy();
@@ -72,7 +72,9 @@ describe('HomeCorridorsRealtimeComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const action = fixture.nativeElement.querySelector('[data-og7-id="open-priority-path"]') as HTMLButtonElement;
+    const action = fixture.nativeElement.querySelector(
+      '[data-og7-id="open-priority-path"]',
+    ) as HTMLButtonElement;
     action.click();
 
     expect(router.navigate).toHaveBeenCalledWith(['/feed', 'indicators', 'indicator-001'], {

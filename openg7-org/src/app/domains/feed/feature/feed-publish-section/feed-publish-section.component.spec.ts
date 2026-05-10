@@ -73,7 +73,13 @@ describe('FeedPublishSectionComponent', () => {
     })
       .overrideComponent(FeedPublishSectionComponent, {
         set: {
-          imports: [CommonModule, RouterLink, TranslateModule, FeedComposerStubComponent, Og7DynamicPublicationFormComponent],
+          imports: [
+            CommonModule,
+            RouterLink,
+            TranslateModule,
+            FeedComposerStubComponent,
+            Og7DynamicPublicationFormComponent,
+          ],
         },
       })
       .compileComponents();
@@ -117,7 +123,9 @@ describe('FeedPublishSectionComponent', () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
-    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    const openButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-open-publish-drawer"]',
+    ) as HTMLButtonElement;
     openButton.click();
     fixture.detectChanges();
 
@@ -128,7 +136,9 @@ describe('FeedPublishSectionComponent', () => {
   it('auto-opens the composer drawer when the user is authenticated and an alert draft is present', async () => {
     authState.set(true);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/feed?draftSource=alert&draftTitle=Winter%20peak&draftAlertId=alert-001');
+    await router.navigateByUrl(
+      '/feed?draftSource=alert&draftTitle=Winter%20peak&draftAlertId=alert-001',
+    );
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
@@ -140,7 +150,9 @@ describe('FeedPublishSectionComponent', () => {
   it('auto-opens the composer drawer when the user is authenticated and an explicit origin draft is present', async () => {
     authState.set(true);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/feed?draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak');
+    await router.navigateByUrl(
+      '/feed?draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak',
+    );
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
@@ -152,7 +164,9 @@ describe('FeedPublishSectionComponent', () => {
   it('auto-opens the composer drawer when a connection-linked draft is present', async () => {
     authState.set(true);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/feed?draftType=REQUEST&draftTitle=Winter%20support&draftConnectionMatchId=73');
+    await router.navigateByUrl(
+      '/feed?draftType=REQUEST&draftTitle=Winter%20support&draftConnectionMatchId=73',
+    );
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
@@ -169,7 +183,9 @@ describe('FeedPublishSectionComponent', () => {
     component.focusPrimaryAction();
     fixture.detectChanges();
 
-    const link = fixture.nativeElement.querySelector('[data-og7-id="feed-login-to-publish"]') as HTMLAnchorElement;
+    const link = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-login-to-publish"]',
+    ) as HTMLAnchorElement;
     const focusSpy = spyOn(link, 'focus');
 
     await fixture.whenStable();
@@ -201,11 +217,15 @@ describe('FeedPublishSectionComponent', () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
-    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    const openButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-open-publish-drawer"]',
+    ) as HTMLButtonElement;
     openButton.click();
     fixture.detectChanges();
 
-    const backdrop = fixture.nativeElement.querySelector('.feed-publish__backdrop') as HTMLButtonElement;
+    const backdrop = fixture.nativeElement.querySelector(
+      '.feed-publish__backdrop',
+    ) as HTMLButtonElement;
     backdrop.click();
     fixture.detectChanges();
 
@@ -215,7 +235,9 @@ describe('FeedPublishSectionComponent', () => {
   it('closes the drawer and clears draft query params after a successful publication', async () => {
     authState.set(true);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/feed?draftSource=alert&draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak&draftConnectionMatchId=73');
+    await router.navigateByUrl(
+      '/feed?draftSource=alert&draftOriginType=alert&draftOriginId=alert-001&draftTitle=Winter%20peak&draftConnectionMatchId=73',
+    );
 
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
@@ -240,12 +262,18 @@ describe('FeedPublishSectionComponent', () => {
     const fixture = TestBed.createComponent(FeedPublishSectionComponent);
     fixture.detectChanges();
 
-    const openButton = fixture.nativeElement.querySelector('[data-og7-id="feed-open-publish-drawer"]') as HTMLButtonElement;
+    const openButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-open-publish-drawer"]',
+    ) as HTMLButtonElement;
     openButton.click();
     fixture.detectChanges();
 
-    const templateButton = fixture.nativeElement.querySelector('[data-og7-id="feed-publish-mode-template"]') as HTMLButtonElement;
-    const selectedTemplate = fixture.nativeElement.querySelector('.feed-publish__template-card.is-active strong') as HTMLElement;
+    const templateButton = fixture.nativeElement.querySelector(
+      '[data-og7-id="feed-publish-mode-template"]',
+    ) as HTMLButtonElement;
+    const selectedTemplate = fixture.nativeElement.querySelector(
+      '.feed-publish__template-card.is-active strong',
+    ) as HTMLElement;
 
     expect(templateButton.classList.contains('is-active')).toBeTrue();
     expect(selectedTemplate.textContent).toContain('forms.hydrocarbonSurplus.title');

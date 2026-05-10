@@ -6,7 +6,9 @@
     <div
       class="relative min-h-[260px] overflow-hidden rounded-xl border border-cyan-200/20 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(96,165,250,0.18),transparent_50%),linear-gradient(120deg,rgba(15,23,42,0.88),rgba(15,23,42,0.7))] lg:min-h-[320px]"
     >
-      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(180deg,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:56px_56px]"></div>
+      <div
+        class="absolute inset-0 bg-[linear-gradient(90deg,rgba(148,163,184,0.1)_1px,transparent_1px),linear-gradient(180deg,rgba(148,163,184,0.1)_1px,transparent_1px)] bg-[size:56px_56px]"
+      ></div>
       <svg
         viewBox="0 0 900 380"
         class="absolute inset-0 h-full w-full opacity-80"
@@ -54,13 +56,19 @@
         </div>
 
         <div class="mt-4 flex flex-wrap items-center gap-2 self-end text-[11px]">
-          <span class="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-2.5 py-1 text-cyan-50">
+          <span
+            class="rounded-full border border-cyan-200/30 bg-cyan-300/10 px-2.5 py-1 text-cyan-50"
+          >
             {{ 'sectors.energy' | translate }}
           </span>
-          <span class="rounded-full border border-amber-200/35 bg-amber-300/10 px-2.5 py-1 text-amber-100">
+          <span
+            class="rounded-full border border-amber-200/35 bg-amber-300/10 px-2.5 py-1 text-amber-100"
+          >
             {{ 'sectors.manufacturing' | translate }}
           </span>
-          <span class="rounded-full border border-emerald-200/35 bg-emerald-300/10 px-2.5 py-1 text-emerald-100">
+          <span
+            class="rounded-full border border-emerald-200/35 bg-emerald-300/10 px-2.5 py-1 text-emerald-100"
+          >
             {{ 'sectors.transport-logistics' | translate }}
           </span>
         </div>
@@ -72,7 +80,9 @@
         {{ 'pages.strategicSectors.corridors.title' | translate }}
       </p>
       @for (corridor of corridors(); track corridor.id) {
-        <article class="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2.5 transition hover:border-cyan-200/30 hover:bg-cyan-100/[0.06]">
+        <article
+          class="rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2.5 transition hover:border-cyan-200/30 hover:bg-cyan-100/[0.06]"
+        >
           <p class="text-sm font-semibold text-white">
             {{ corridor.routeKey | translate }}
           </p>
@@ -82,7 +92,7 @@
               class="rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em]"
               [ngClass]="corridorRiskClass(corridor.risk)"
             >
-              {{ ('pages.strategicSectors.corridors.risk.' + corridor.risk) | translate }}
+              {{ 'pages.strategicSectors.corridors.risk.' + corridor.risk | translate }}
             </span>
           </div>
         </article>
@@ -95,14 +105,22 @@
       class="hidden grid-cols-[minmax(0,1fr)_120px_90px_120px] gap-2 border-b border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300 sm:grid"
     >
       <span>{{ 'pages.strategicSectors.corridors.table.route' | translate }}</span>
-      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.capacity' | translate }}</span>
-      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.risk' | translate }}</span>
-      <span class="text-right">{{ 'pages.strategicSectors.corridors.table.action' | translate }}</span>
+      <span class="text-right">{{
+        'pages.strategicSectors.corridors.table.capacity' | translate
+      }}</span>
+      <span class="text-right">{{
+        'pages.strategicSectors.corridors.table.risk' | translate
+      }}</span>
+      <span class="text-right">{{
+        'pages.strategicSectors.corridors.table.action' | translate
+      }}</span>
     </div>
 
     <ul class="divide-y divide-white/10">
       @for (corridor of corridors(); track corridor.id) {
-        <li class="grid grid-cols-1 gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_120px_90px_120px] sm:items-center">
+        <li
+          class="grid grid-cols-1 gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_120px_90px_120px] sm:items-center"
+        >
           <p class="text-sm font-medium text-slate-100">{{ corridor.routeKey | translate }}</p>
           <p class="text-sm text-cyan-100/85 sm:text-right">{{ corridor.capacity }}</p>
           <div class="sm:text-right">
@@ -110,14 +128,18 @@
               class="rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em]"
               [ngClass]="corridorRiskClass(corridor.risk)"
             >
-              {{ ('pages.strategicSectors.corridors.risk.' + corridor.risk) | translate }}
+              {{ 'pages.strategicSectors.corridors.risk.' + corridor.risk | translate }}
             </span>
           </div>
           <div class="sm:text-right">
             <button
               type="button"
               class="rounded-full border border-cyan-200/35 bg-cyan-300/15 px-3 py-1 text-[11px] font-semibold text-cyan-50 transition hover:bg-cyan-300/25"
-              [attr.aria-label]="('pages.strategicSectors.corridors.table.connect' | translate) + ' ' + (corridor.routeKey | translate)"
+              [attr.aria-label]="
+                ('pages.strategicSectors.corridors.table.connect' | translate) +
+                ' ' +
+                (corridor.routeKey | translate)
+              "
             >
               {{ 'pages.strategicSectors.corridors.table.connect' | translate }}
             </button>

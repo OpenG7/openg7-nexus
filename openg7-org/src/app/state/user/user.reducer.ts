@@ -15,5 +15,5 @@ export const userReducer = createReducer(
     profile,
     permissions,
   })),
-  on(UserActions.profileCleared, () => ({ ...initialUserState }))
+  on(UserActions.profileCleared, () => ({ ...initialUserState })),
 );

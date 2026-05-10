@@ -1,11 +1,16 @@
 import type { CountryCode } from '@app/core/models/country';
-import { StatisticsFilters, StatisticsPayload, StatisticsScope, StatisticsIntrant } from '@app/core/models/statistics';
+import {
+  StatisticsFilters,
+  StatisticsPayload,
+  StatisticsScope,
+  StatisticsIntrant,
+} from '@app/core/models/statistics';
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
 export const StatisticsActions = createActionGroup({
   source: 'Statistics',
   events: {
-    'Initialize': emptyProps(),
+    Initialize: emptyProps(),
     'Reset Filters': emptyProps(),
     'Change Scope': props<{ scope: StatisticsScope }>(),
     'Change Intrant': props<{ intrant: StatisticsIntrant }>(),

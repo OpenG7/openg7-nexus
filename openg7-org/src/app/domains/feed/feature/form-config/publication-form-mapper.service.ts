@@ -3,10 +3,7 @@ import { normalizeSectorType } from '@app/core/models/opportunity';
 
 import { FeedComposerDraft } from '../models/feed.models';
 
-import {
-  PublicationBinding,
-  PublicationFormConfig,
-} from './publication-form-config.models';
+import { PublicationBinding, PublicationFormConfig } from './publication-form-config.models';
 
 export interface PublicationFormSubmission {
   readonly draft: FeedComposerDraft;

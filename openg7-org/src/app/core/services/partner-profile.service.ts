@@ -16,7 +16,10 @@ interface StrapiPartnerProfileEntity {
   readonly attributes: PartnerProfileAttributes | null;
 }
 
-type PartnerProfileAttributes = Omit<Partial<PartnerProfile>, 'role' | 'legalName' | 'displayName'> & {
+type PartnerProfileAttributes = Omit<
+  Partial<PartnerProfile>,
+  'role' | 'legalName' | 'displayName'
+> & {
   readonly legalName?: string | null;
   readonly displayName?: string | null;
   readonly role?: PartnerProfile['role'] | null;
@@ -65,7 +68,7 @@ export class PartnerProfileService {
         }
         return profile;
       }),
-      catchError(() => this.profileFallback(key, role))
+      catchError(() => this.profileFallback(key, role)),
     );
   }
 
@@ -103,7 +106,10 @@ export class PartnerProfileService {
       .pipe(map((response) => this.mapResponse(response)));
   }
 
-  private profileFallback(id: string, role?: PartnerProfile['role']): Observable<PartnerProfile | null> {
+  private profileFallback(
+    id: string,
+    role?: PartnerProfile['role'],
+  ): Observable<PartnerProfile | null> {
     return of(this.demoFallback(id, role));
   }
 
@@ -138,7 +144,8 @@ export class PartnerProfileService {
       highlights: attributes.highlights ? [...attributes.highlights] : undefined,
       verificationStatus: this.normalizeVerificationStatus(attributes.verificationStatus),
       trustScore: attributes.trustScore ?? null,
-      verificationSources: attributes.verificationSources?.map((item) => ({ ...item })) ?? undefined,
+      verificationSources:
+        attributes.verificationSources?.map((item) => ({ ...item })) ?? undefined,
       trustHistory: attributes.trustHistory?.map((item) => ({ ...item })) ?? undefined,
     } satisfies PartnerProfile;
   }
@@ -148,7 +155,7 @@ export class PartnerProfileService {
   }
 
   private normalizeVerificationStatus(
-    value: PartnerProfile['verificationStatus'] | null | undefined
+    value: PartnerProfile['verificationStatus'] | null | undefined,
   ): PartnerProfile['verificationStatus'] {
     if (
       value === 'pending' ||
@@ -163,7 +170,7 @@ export class PartnerProfileService {
   }
 
   private normalizePublicationStatus(
-    value: PartnerProfile['status'] | null | undefined
+    value: PartnerProfile['status'] | null | undefined,
   ): PartnerProfile['status'] | undefined {
     if (value === 'approved' || value === 'pending' || value === 'suspended') {
       return value;
@@ -287,14 +294,21 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         { type: 'youtube', url: 'https://youtube.com/@prairie-electrolyzers' },
       ],
       leadership: [
-        { name: 'Mark Ellison', title: 'Founder & CTO', email: 'mellison@prairie-electrolyzers.ca' },
+        {
+          name: 'Mark Ellison',
+          title: 'Founder & CTO',
+          email: 'mellison@prairie-electrolyzers.ca',
+        },
         { name: 'Jenna Park', title: 'VP Partnerships', email: 'jpark@prairie-electrolyzers.ca' },
       ],
       mission: {
         fr: 'Produire des électrolyseurs modulaires robustes adaptés aux climats extrêmes canadiens.',
         en: 'Deliver modular electrolyzers built for Canada’s harsh climates.',
       },
-      highlights: ['Production 100 % alimentée en énergie renouvelable', 'Certification CSA et ISO 14001'],
+      highlights: [
+        'Production 100 % alimentée en énergie renouvelable',
+        'Certification CSA et ISO 14001',
+      ],
       verificationStatus: 'verified',
       trustScore: 92,
       verificationSources: [
@@ -414,7 +428,9 @@ const DEMO_PARTNER_PROFILES: Map<string, PartnerProfile> = new Map([
         { type: 'linkedin', url: 'https://linkedin.com/company/advanced-storage' },
         { type: 'twitter', url: 'https://x.com/advancedstorage' },
       ],
-      leadership: [{ name: 'Lina Moretti', title: 'President', email: 'lmoretti@advancedstorage.ca' }],
+      leadership: [
+        { name: 'Lina Moretti', title: 'President', email: 'lmoretti@advancedstorage.ca' },
+      ],
       mission: {
         fr: 'Déployer des batteries solides haute densité pour la mobilité lourde canadienne.',
         en: 'Deploy high-density solid-state batteries for heavy mobility fleets.',

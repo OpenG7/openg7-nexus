@@ -38,7 +38,6 @@ export default async function runSeeds() {
     }
 
     try {
-       
       await seed.run();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

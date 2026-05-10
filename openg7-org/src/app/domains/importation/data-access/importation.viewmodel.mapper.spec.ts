@@ -65,8 +65,10 @@ describe('ImportationViewModelMapper', () => {
     expect(vm.flows[0]).toEqual(
       jasmine.objectContaining({
         originCode: 'US',
-        corridors: jasmine.arrayContaining([jasmine.objectContaining({ target: 'ON', value: 300 })]),
-      })
+        corridors: jasmine.arrayContaining([
+          jasmine.objectContaining({ target: 'ON', value: 300 }),
+        ]),
+      }),
     );
   });
 
@@ -91,7 +93,16 @@ describe('ImportationViewModelMapper', () => {
       { id: 'shortage', severity: 'high', title: 'Shortage risk', description: 'Global shortage' },
     ];
 
-    const vm = mapper.mapCommoditySection(filters, collections, riskFlags, 'top', 'steel', false, true, null);
+    const vm = mapper.mapCommoditySection(
+      filters,
+      collections,
+      riskFlags,
+      'top',
+      'steel',
+      false,
+      true,
+      null,
+    );
 
     expect(vm.loading).toBeFalse();
     expect(vm.rows.length).toBe(1);
@@ -99,4 +110,3 @@ describe('ImportationViewModelMapper', () => {
     expect(vm.canExport).toBeTrue();
   });
 });
-

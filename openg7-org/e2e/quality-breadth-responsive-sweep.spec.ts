@@ -2,7 +2,11 @@ import './setup';
 import { expect, type Page, type Route, test } from '@playwright/test';
 
 import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
-import { DEFAULT_PROFILE, mockProfileAndFavoritesApis, mockSessionApis as mockDomainSessionApis } from './helpers/domain-mocks';
+import {
+  DEFAULT_PROFILE,
+  mockProfileAndFavoritesApis,
+  mockSessionApis as mockDomainSessionApis,
+} from './helpers/domain-mocks';
 
 type StatisticsScope = 'interprovincial' | 'international' | 'all';
 type StatisticsIntrant = 'all' | 'energy' | 'agri-food' | 'manufacturing' | 'digital-services';
@@ -23,10 +27,38 @@ const VIEWPORTS = [
 ] as const;
 
 const statisticsSummaryRecords: StatisticsSummaryRecord[] = [
-  { id: 1, scope: 'interprovincial', intrant: 'energy', period: '2024-Q1', province: 'CA-ON', country: null },
-  { id: 2, scope: 'interprovincial', intrant: 'agri-food', period: '2024-Q2', province: 'CA-QC', country: null },
-  { id: 3, scope: 'international', intrant: 'energy', period: '2024-Q3', province: null, country: 'US' },
-  { id: 4, scope: 'international', intrant: 'digital-services', period: '2024-Q4', province: null, country: 'FR' },
+  {
+    id: 1,
+    scope: 'interprovincial',
+    intrant: 'energy',
+    period: '2024-Q1',
+    province: 'CA-ON',
+    country: null,
+  },
+  {
+    id: 2,
+    scope: 'interprovincial',
+    intrant: 'agri-food',
+    period: '2024-Q2',
+    province: 'CA-QC',
+    country: null,
+  },
+  {
+    id: 3,
+    scope: 'international',
+    intrant: 'energy',
+    period: '2024-Q3',
+    province: null,
+    country: 'US',
+  },
+  {
+    id: 4,
+    scope: 'international',
+    intrant: 'digital-services',
+    period: '2024-Q4',
+    province: null,
+    country: 'FR',
+  },
 ];
 
 async function enableMockFeed(page: Page): Promise<void> {
@@ -57,14 +89,17 @@ async function mockStatisticsApi(page: Page): Promise<void> {
         : 'interprovincial';
     const intrantRaw = url.searchParams.get('intrant');
     const intrant: StatisticsIntrant =
-      intrantRaw && ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(intrantRaw.toLowerCase())
+      intrantRaw &&
+      ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'].includes(
+        intrantRaw.toLowerCase(),
+      )
         ? (intrantRaw.toLowerCase() as StatisticsIntrant)
         : 'all';
     const period = url.searchParams.get('period');
     const province = url.searchParams.get('province');
     const country = url.searchParams.get('country');
 
-    const filtered = statisticsSummaryRecords.filter(summary => {
+    const filtered = statisticsSummaryRecords.filter((summary) => {
       const scopeMatch = scope === 'all' || summary.scope === scope;
       const intrantMatch = intrant === 'all' || summary.intrant === intrant;
       const periodMatch = !period || summary.period === period;
@@ -78,7 +113,7 @@ async function mockStatisticsApi(page: Page): Promise<void> {
       contentType: 'application/json',
       body: JSON.stringify({
         data: {
-          summaries: filtered.map(summary => ({
+          summaries: filtered.map((summary) => ({
             id: summary.id,
             slug: `summary-${summary.id}`,
             scope: summary.scope,
@@ -99,9 +134,9 @@ async function mockStatisticsApi(page: Page): Promise<void> {
             activeCorridors: filtered.length,
             updatedAt: new Date().toISOString(),
           },
-          availablePeriods: unique(filtered.map(summary => summary.period)),
-          availableProvinces: unique(filtered.map(summary => summary.province)),
-          availableCountries: unique(filtered.map(summary => summary.country)),
+          availablePeriods: unique(filtered.map((summary) => summary.period)),
+          availableProvinces: unique(filtered.map((summary) => summary.province)),
+          availableCountries: unique(filtered.map((summary) => summary.country)),
         },
         meta: {
           filters: { scope, intrant, period, province, country },
@@ -112,7 +147,7 @@ async function mockStatisticsApi(page: Page): Promise<void> {
 }
 
 async function mockPartnerProfile(page: Page): Promise<void> {
-  await page.route('**/api/partner-profiles/1001**', async route => {
+  await page.route('**/api/partner-profiles/1001**', async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/download')) {
       await route.fulfill({
@@ -210,7 +245,9 @@ test.describe('Quality breadth responsive sweep', () => {
 
     for (const viewport of VIEWPORTS) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      const resetButton = page.locator('[data-og7="statistics-action"][data-og7-id="reset-filters"]');
+      const resetButton = page.locator(
+        '[data-og7="statistics-action"][data-og7-id="reset-filters"]',
+      );
       const summaryCards = page.locator('[data-og7="statistics-summary-card"]');
       const emptyState = page.locator('[data-og7="statistics-empty"]');
       await expect
@@ -227,7 +264,9 @@ test.describe('Quality breadth responsive sweep', () => {
     }
   });
 
-  test('keeps partner trust details reachable from mobile to tablet landscape', async ({ page }) => {
+  test('keeps partner trust details reachable from mobile to tablet landscape', async ({
+    page,
+  }) => {
     await mockDomainSessionApis(page, DEFAULT_PROFILE);
     await mockPartnerProfile(page);
 

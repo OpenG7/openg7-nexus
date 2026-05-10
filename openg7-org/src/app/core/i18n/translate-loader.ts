@@ -25,7 +25,7 @@ export class AppTranslateLoader implements TranslateLoader {
     httpBackend: HttpBackend,
     private transferState: TransferState,
     @Inject(PLATFORM_ID) private platformId: object,
-    @Inject(I18N_PREFIX) prefix: string
+    @Inject(I18N_PREFIX) prefix: string,
   ) {
     this.http = new HttpClient(httpBackend);
     const normalized = typeof prefix === 'string' ? prefix.trim() : '';
@@ -67,15 +67,16 @@ export class AppTranslateLoader implements TranslateLoader {
       return from(
         (async () => {
           try {
-            const dynamicImport = new Function(
-              'specifier',
-              'return import(specifier);'
-            ) as <TModule>(specifier: string) => Promise<TModule>;
+            const dynamicImport = new Function('specifier', 'return import(specifier);') as <
+              TModule,
+            >(
+              specifier: string,
+            ) => Promise<TModule>;
 
             const [fsPromises, pathModule, urlModule] = await Promise.all([
               dynamicImport<typeof import('node:fs/promises')>('node:fs/promises'),
               dynamicImport<typeof import('node:path')>('node:path'),
-              dynamicImport<typeof import('node:url')>('node:url')
+              dynamicImport<typeof import('node:url')>('node:url'),
             ]);
 
             const { readFile } = fsPromises;
@@ -85,7 +86,7 @@ export class AppTranslateLoader implements TranslateLoader {
             const readData = async (lng: string) => {
               const paths = [
                 join(__dirname, '../../../../browser', ...this.relativeSegments, `${lng}.json`),
-                join(__dirname, '../../../../', ...this.relativeSegments, `${lng}.json`)
+                join(__dirname, '../../../../', ...this.relativeSegments, `${lng}.json`),
               ];
               for (const p of paths) {
                 try {
@@ -105,7 +106,7 @@ export class AppTranslateLoader implements TranslateLoader {
           } catch {
             return {};
           }
-        })()
+        })(),
       );
     }
 
@@ -115,7 +116,7 @@ export class AppTranslateLoader implements TranslateLoader {
       catchError((err) => {
         console.error('Translation load error', err?.message, err?.status);
         return of({});
-      })
+      }),
     );
   }
 

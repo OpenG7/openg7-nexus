@@ -29,15 +29,22 @@ describe('AlertUpdateDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const reasonSelect: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="reason"]');
-    const summaryInput: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="summary"]');
-    const sourceUrlInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="source-url"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]');
+    const reasonSelect: HTMLSelectElement =
+      fixture.nativeElement.querySelector('[data-og7-id="reason"]');
+    const summaryInput: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector('[data-og7-id="summary"]');
+    const sourceUrlInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="source-url"]',
+    );
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="alert-update-submit"]',
+    );
 
     reasonSelect.value = 'newSource';
     reasonSelect.dispatchEvent(new Event('change'));
 
-    summaryInput.value = '  Utility bulletin confirms the repair window moved to 18:00 local time.  ';
+    summaryInput.value =
+      '  Utility bulletin confirms the repair window moved to 18:00 local time.  ';
     summaryInput.dispatchEvent(new Event('input'));
 
     sourceUrlInput.value = '  https://example.org/grid-bulletin  ';
@@ -71,9 +78,13 @@ describe('AlertUpdateDrawerComponent', () => {
     });
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-og7="alert-update-report-view"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="alert-update-report-view"]'),
+    ).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('Environment Canada confirmed the event is now impacting two corridors.');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Environment Canada confirmed the event is now impacting two corridors.',
+    );
   });
 
   it('wires dialog accessibility attributes and blocks submit while submitting', async () => {
@@ -88,7 +99,9 @@ describe('AlertUpdateDrawerComponent', () => {
     await fixture.whenStable();
 
     const dialog: HTMLElement = fixture.nativeElement.querySelector('[role="dialog"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="alert-update-submit"]',
+    );
 
     expect(dialog.getAttribute('aria-labelledby')).toBe('og7-alert-update-title');
     expect(dialog.getAttribute('aria-describedby')).toBe('og7-alert-update-description');
@@ -108,9 +121,14 @@ describe('AlertUpdateDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const summaryInput: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="summary"]');
-    const sourceUrlInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="source-url"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="alert-update-submit"]');
+    const summaryInput: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector('[data-og7-id="summary"]');
+    const sourceUrlInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="source-url"]',
+    );
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="alert-update-submit"]',
+    );
 
     summaryInput.value = 'short';
     summaryInput.dispatchEvent(new Event('input'));
@@ -119,29 +137,39 @@ describe('AlertUpdateDrawerComponent', () => {
     submitButton.click();
     fixture.detectChanges();
 
-    const summaryError: HTMLElement = fixture.nativeElement.querySelector('#og7-alert-update-summary-error');
-    const sourceUrlError: HTMLElement = fixture.nativeElement.querySelector('#og7-alert-update-source-url-error');
+    const summaryError: HTMLElement = fixture.nativeElement.querySelector(
+      '#og7-alert-update-summary-error',
+    );
+    const sourceUrlError: HTMLElement = fixture.nativeElement.querySelector(
+      '#og7-alert-update-source-url-error',
+    );
 
     expect(summaryInput.getAttribute('aria-invalid')).toBe('true');
     expect(summaryInput.getAttribute('aria-describedby')).toBe('og7-alert-update-summary-error');
     expect(summaryError.textContent?.trim().length).toBeGreaterThan(0);
 
     expect(sourceUrlInput.getAttribute('aria-invalid')).toBe('true');
-    expect(sourceUrlInput.getAttribute('aria-describedby')).toBe('og7-alert-update-source-url-error');
+    expect(sourceUrlInput.getAttribute('aria-describedby')).toBe(
+      'og7-alert-update-source-url-error',
+    );
     expect(sourceUrlError.textContent?.trim().length).toBeGreaterThan(0);
 
     fixture.componentRef.setInput('submitState', 'error');
     fixture.componentRef.setInput('submitError', 'Request failed');
     fixture.detectChanges();
 
-    const errorStatus: HTMLElement = fixture.nativeElement.querySelector('[data-og7="alert-update-status"][data-og7-id="error"]');
+    const errorStatus: HTMLElement = fixture.nativeElement.querySelector(
+      '[data-og7="alert-update-status"][data-og7-id="error"]',
+    );
     expect(errorStatus.getAttribute('role')).toBe('alert');
     expect(errorStatus.getAttribute('aria-live')).toBe('assertive');
 
     fixture.componentRef.setInput('submitState', 'success');
     fixture.detectChanges();
 
-    const successStatus: HTMLElement = fixture.nativeElement.querySelector('[data-og7="alert-update-status"][data-og7-id="success"]');
+    const successStatus: HTMLElement = fixture.nativeElement.querySelector(
+      '[data-og7="alert-update-status"][data-og7-id="success"]',
+    );
     expect(successStatus.getAttribute('role')).toBe('status');
     expect(successStatus.getAttribute('aria-live')).toBe('polite');
   });

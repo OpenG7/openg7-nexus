@@ -18,7 +18,7 @@ describe('featureFlagGuard', () => {
     TestBed.overrideProvider(FEATURE_FLAGS, { useValue: { componentLab: true } });
 
     const result = TestBed.runInInjectionContext(() =>
-      featureFlagGuard('componentLab')({} as any, [] as any)
+      featureFlagGuard('componentLab')({} as any, [] as any),
     );
 
     expect(result).toBeTrue();
@@ -28,7 +28,7 @@ describe('featureFlagGuard', () => {
     const router = TestBed.inject(Router);
 
     const result = TestBed.runInInjectionContext(() =>
-      featureFlagGuard('componentLab')({} as any, [] as any)
+      featureFlagGuard('componentLab')({} as any, [] as any),
     );
 
     expect(result instanceof UrlTree).toBeTrue();

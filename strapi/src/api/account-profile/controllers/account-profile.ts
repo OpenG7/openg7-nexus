@@ -6,10 +6,7 @@ import {
   issueSessionJwt,
   rotateSessionsAndCreateCurrent,
 } from '../../../utils/auth-sessions';
-import {
-  readWebhookSecurityConfig,
-  validateWebhookUrl,
-} from '../../../utils/webhook-url';
+import { readWebhookSecurityConfig, validateWebhookUrl } from '../../../utils/webhook-url';
 
 const ACCOUNT_PROFILE_UID = 'api::account-profile.account-profile' as any;
 const USER_FAVORITE_UID = 'api::user-favorite.user-favorite' as any;
@@ -188,7 +185,7 @@ function normalizeBoolean(value: unknown, fallback: boolean): boolean {
 function normalizeAllowedList<T extends string>(
   value: unknown,
   allowed: readonly T[],
-  fallback: readonly T[]
+  fallback: readonly T[],
 ): T[] {
   if (!Array.isArray(value)) {
     return [...fallback];
@@ -261,7 +258,7 @@ function validatePhone(value: string | null): void {
 function validateUrl(
   value: string | null,
   label: string,
-  options: { httpsOnly?: boolean } = {}
+  options: { httpsOnly?: boolean } = {},
 ): void {
   if (!value) {
     return;
@@ -298,8 +295,7 @@ function normalizeNotificationPreferences(value: unknown): NotificationPreferenc
 
   const quietHoursEnabled = normalizeBoolean(quietHoursRaw.enabled, false);
   const quietTimezone = normalizeString(quietHoursRaw.timezone);
-  const normalizedTimezone =
-    quietTimezone && isValidTimezone(quietTimezone) ? quietTimezone : null;
+  const normalizedTimezone = quietTimezone && isValidTimezone(quietTimezone) ? quietTimezone : null;
 
   return {
     emailOptIn: channels.email,
@@ -309,11 +305,9 @@ function normalizeNotificationPreferences(value: unknown): NotificationPreferenc
       severities: normalizeAllowedList(filtersRaw.severities, ALERT_SEVERITIES, ALERT_SEVERITIES),
       sources: normalizeAllowedList(filtersRaw.sources, ALERT_SOURCES, ALERT_SOURCES),
     },
-    frequency: normalizeAllowedList(
-      [record.frequency],
-      ALERT_FREQUENCIES,
-      [ALERT_FREQUENCIES[0]]
-    )[0],
+    frequency: normalizeAllowedList([record.frequency], ALERT_FREQUENCIES, [
+      ALERT_FREQUENCIES[0],
+    ])[0],
     quietHours: {
       enabled: quietHoursEnabled,
       start: quietHoursEnabled ? normalizeTime(quietHoursRaw.start) : null,
@@ -326,19 +320,14 @@ function normalizeNotificationPreferences(value: unknown): NotificationPreferenc
 function validateNotificationPreferences(preferences: NotificationPreferences): void {
   if (preferences.channels.webhook && !preferences.webhookUrl) {
     throw new Error(
-      'notificationPreferences.webhookUrl is required when webhook channel is enabled.'
+      'notificationPreferences.webhookUrl is required when webhook channel is enabled.',
     );
   }
 
   if (preferences.webhookUrl) {
-    const webhookValidation = validateWebhookUrl(
-      preferences.webhookUrl,
-      WEBHOOK_SECURITY_CONFIG
-    );
+    const webhookValidation = validateWebhookUrl(preferences.webhookUrl, WEBHOOK_SECURITY_CONFIG);
     if (!webhookValidation.valid) {
-      throw new Error(
-        `notificationPreferences.webhookUrl ${webhookValidation.message}`
-      );
+      throw new Error(`notificationPreferences.webhookUrl ${webhookValidation.message}`);
     }
   }
 
@@ -355,7 +344,7 @@ function validateNotificationPreferences(preferences: NotificationPreferences): 
 
   if (!preferences.quietHours.start || !preferences.quietHours.end) {
     throw new Error(
-      'notificationPreferences.quietHours.start and end are required when quiet hours are enabled.'
+      'notificationPreferences.quietHours.start and end are required when quiet hours are enabled.',
     );
   }
 
@@ -365,11 +354,15 @@ function validateNotificationPreferences(preferences: NotificationPreferences): 
 
   if (!preferences.quietHours.timezone) {
     throw new Error(
-      'notificationPreferences.quietHours.timezone is required when quiet hours are enabled.'
+      'notificationPreferences.quietHours.timezone is required when quiet hours are enabled.',
     );
   }
 
-  validateLength(preferences.quietHours.timezone, 'notificationPreferences.quietHours.timezone', 80);
+  validateLength(
+    preferences.quietHours.timezone,
+    'notificationPreferences.quietHours.timezone',
+    80,
+  );
 }
 
 function sanitizePayload(payload: unknown): SanitizedProfileInput {
@@ -466,7 +459,7 @@ async function findProfileByUser(strapi: Core.Strapi, userId: number | string) {
 
 async function fetchUserById(
   strapi: Core.Strapi,
-  userId: number | string
+  userId: number | string,
 ): Promise<UsersPermissionsUser | null> {
   const user = await strapi.db.query('plugin::users-permissions.user').findOne({
     where: { id: userId },
@@ -627,13 +620,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       formatVersion: 1,
       account: mapResponse(user, profile as Record<string, unknown> | null),
       favorites: normalizeFindManyResult(favoritesRaw).map((entry) =>
-        mapFavoriteForExport(entry as FavoriteEntity)
+        mapFavoriteForExport(entry as FavoriteEntity),
       ),
       savedSearches: normalizeFindManyResult(savedSearchesRaw).map((entry) =>
-        mapSavedSearchForExport(entry as SavedSearchEntity)
+        mapSavedSearchForExport(entry as SavedSearchEntity),
       ),
       alerts: normalizeFindManyResult(alertsRaw).map((entry) =>
-        mapAlertForExport(entry as UserAlertEntity)
+        mapAlertForExport(entry as UserAlertEntity),
       ),
     };
 
@@ -663,7 +656,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const { session, revokedCount } = await rotateSessionsAndCreateCurrent(
       strapi,
       currentUser.id,
-      ctx as Record<string, unknown>
+      ctx as Record<string, unknown>,
     );
     const jwt = issueSessionJwt(strapi, currentUser.id, session);
 
@@ -739,7 +732,10 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       }
 
       const userService = strapi.plugin('users-permissions').service('user') as any;
-      const validPassword = await userService.validatePassword(payload.currentPassword, user.password);
+      const validPassword = await userService.validatePassword(
+        payload.currentPassword,
+        user.password,
+      );
       if (!validPassword) {
         return ctx.badRequest('The provided current password is invalid.');
       }

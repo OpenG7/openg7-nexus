@@ -3,14 +3,24 @@
     <div>
       <h2>{{ 'pages.importation.flow.title' | translate }}</h2>
       <p class="og7-importation-flow__subtitle">
-        {{ 'pages.importation.flow.subtitle' | translate:{ coverage: viewModel.coverage ? (viewModel.coverage | number:'1.0-1') + '%' : '—' } }}
+        {{
+          'pages.importation.flow.subtitle'
+            | translate
+              : {
+                  coverage: viewModel.coverage ? (viewModel.coverage | number: '1.0-1') + '%' : '—',
+                }
+        }}
       </p>
     </div>
     <div class="og7-importation-flow__controls">
       <button type="button" class="og7-importation-flow__play" (click)="onTogglePlayback()">
         <span aria-hidden="true">{{ viewModel.playing ? '⏸' : '▶' }}</span>
         <span class="sr-only">
-          {{ viewModel.playing ? ('pages.importation.flow.pause' | translate) : ('pages.importation.flow.play' | translate) }}
+          {{
+            viewModel.playing
+              ? ('pages.importation.flow.pause' | translate)
+              : ('pages.importation.flow.play' | translate)
+          }}
         </span>
       </button>
       <select
@@ -30,7 +40,11 @@
   <p *ngIf="viewModel.loading" class="og7-importation-flow__loading">
     {{ 'pages.importation.flow.loading' | translate }}
   </p>
-  <p *ngIf="!viewModel.loading && viewModel.error" class="og7-importation-flow__error" role="status">
+  <p
+    *ngIf="!viewModel.loading && viewModel.error"
+    class="og7-importation-flow__error"
+    role="status"
+  >
     {{ viewModel.error | translate }}
   </p>
 
@@ -77,7 +91,10 @@
     class="og7-importation-flow__list"
     [attr.aria-label]="'pages.importation.flow.list' | translate"
   >
-    <article *ngFor="let flow of viewModel.flows; trackBy: trackFlow" class="og7-importation-flow__card">
+    <article
+      *ngFor="let flow of viewModel.flows; trackBy: trackFlow"
+      class="og7-importation-flow__card"
+    >
       <header>
         <h3>{{ flow.originName }}</h3>
         <button type="button" (click)="onOriginClick(flow.originCode)">

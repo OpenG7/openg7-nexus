@@ -128,4 +128,3 @@ const schema = {
 } as unknown as Struct.CollectionTypeSchema;
 
 export default schema;
-

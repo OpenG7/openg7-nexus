@@ -124,13 +124,13 @@ export const connectionsReducer = createReducer(
   on(ConnectionsActions.discardDraft, (state, { matchId }) => ({
     ...state,
     draftsByMatch: removeKey(state.draftsByMatch, matchId),
-  }))
+  })),
 );
 
 function addEvent(
   history: readonly PipelineEvent[],
   stage: ConnectionStage,
-  timestamp?: string
+  timestamp?: string,
 ): readonly PipelineEvent[] {
   const event: PipelineEvent = {
     stage,
@@ -139,7 +139,10 @@ function addEvent(
   return [...history, event];
 }
 
-function removeKey<T>(source: Readonly<Record<number, T>>, key: number): Readonly<Record<number, T>> {
+function removeKey<T>(
+  source: Readonly<Record<number, T>>,
+  key: number,
+): Readonly<Record<number, T>> {
   if (!(key in source)) {
     return source;
   }
@@ -159,7 +162,7 @@ function mapDraftToSnapshot(draft: ConnectionDraft): IntroductionDraftState {
 
 function buildConnectionRecord(
   response: ConnectionResponse,
-  fallbackStage: ConnectionStage
+  fallbackStage: ConnectionStage,
 ): ConnectionRecord {
   const stage = response.stage ?? fallbackStage;
   const createdAt = response.createdAt ?? new Date().toISOString();

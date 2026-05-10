@@ -63,7 +63,9 @@ export class OpportunityConversationDraftsService {
           continue;
         }
 
-        const validMessages = messages.filter((entry): entry is OpportunityQnaMessage => this.isQnaMessage(entry));
+        const validMessages = messages.filter((entry): entry is OpportunityQnaMessage =>
+          this.isQnaMessage(entry),
+        );
         if (validMessages.length) {
           restored[itemId] = validMessages.slice(0, MAX_ITEMS_PER_OPPORTUNITY);
         }

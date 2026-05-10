@@ -39,7 +39,13 @@ let nextPanelId = 0;
 @Component({
   selector: 'og7-partner-details-panel',
   standalone: true,
-  imports: [CommonModule, TranslateModule, PartnerQuickActionsComponent, Og7DualQrPanelComponent, Og7IntroStepperComponent],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    PartnerQuickActionsComponent,
+    Og7DualQrPanelComponent,
+    Og7IntroStepperComponent,
+  ],
   templateUrl: './partner-details-panel.component.html',
   styleUrls: ['./partner-details-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -162,10 +168,12 @@ export class PartnerDetailsPanelComponent {
     return province ? `provinces.${province}` : null;
   });
 
-  protected readonly partnerDisplayName = computed(() => this.selectedPartner()?.displayName ?? null);
+  protected readonly partnerDisplayName = computed(
+    () => this.selectedPartner()?.displayName ?? null,
+  );
   protected readonly partnerLegalName = computed(() => this.selectedPartner()?.legalName ?? null);
   protected readonly partnerQuickActionsName = computed(
-    () => this.partnerDisplayName() ?? this.partnerLegalName()
+    () => this.partnerDisplayName() ?? this.partnerLegalName(),
   );
   protected readonly partnerQuickActionsId = computed(() => {
     const id = this.selectedPartner()?.id;
@@ -176,10 +184,14 @@ export class PartnerDetailsPanelComponent {
     return match ? String(match.id) : null;
   });
   protected readonly partnerLogo = computed(() => this.selectedPartner()?.logoUrl ?? null);
-  protected readonly partnerRegistrations = computed(() => this.selectedPartner()?.registrationIds ?? []);
+  protected readonly partnerRegistrations = computed(
+    () => this.selectedPartner()?.registrationIds ?? [],
+  );
   protected readonly partnerLeadership = computed(() => this.selectedPartner()?.leadership ?? []);
   protected readonly partnerSocials = computed(() => this.selectedPartner()?.socials ?? []);
-  protected readonly partnerAddress = computed<PartnerAddress | null>(() => this.selectedPartner()?.address ?? null);
+  protected readonly partnerAddress = computed<PartnerAddress | null>(
+    () => this.selectedPartner()?.address ?? null,
+  );
   protected readonly partnerVerificationStatus = computed<PartnerVerificationStatus>(() => {
     const status = this.selectedPartner()?.verificationStatus;
     return status === 'verified' ||
@@ -191,7 +203,7 @@ export class PartnerDetailsPanelComponent {
       : 'unverified';
   });
   protected readonly partnerVerificationStatusKey = computed(
-    () => `partner.panel.verification.status.${this.partnerVerificationStatus()}`
+    () => `partner.panel.verification.status.${this.partnerVerificationStatus()}`,
   );
   protected readonly partnerPublicationStatus = computed(() => {
     const status = this.selectedPartner()?.status;
@@ -216,9 +228,9 @@ export class PartnerDetailsPanelComponent {
     const normalized = score > 1 ? score / 100 : score;
     return normalizeConfidencePercent(normalized);
   });
-  protected readonly partnerVerificationSources = computed<PartnerVerificationSource[]>(
-    () => [...(this.selectedPartner()?.verificationSources ?? [])]
-  );
+  protected readonly partnerVerificationSources = computed<PartnerVerificationSource[]>(() => [
+    ...(this.selectedPartner()?.verificationSources ?? []),
+  ]);
   protected readonly partnerTrustHistory = computed<PartnerTrustRecord[]>(() => {
     const history = this.selectedPartner()?.trustHistory ?? [];
     return [...history].sort((a, b) => {
@@ -236,29 +248,31 @@ export class PartnerDetailsPanelComponent {
       return bTime - aTime;
     });
   });
-  protected readonly partnerTrustHistoryPreview = computed(() => this.partnerTrustHistory().slice(0, 3));
+  protected readonly partnerTrustHistoryPreview = computed(() =>
+    this.partnerTrustHistory().slice(0, 3),
+  );
   protected readonly partnerTrustHistoryHasMore = computed(
-    () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length
+    () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length,
   );
   protected readonly partnerLatestPublicationEntry = computed(() => {
     const publicationTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
     return publicationTrail.find((record) => this.isPublicationHistoryEntry(record)) ?? null;
   });
-  protected readonly partnerLatestReviewEntry = computed(
-    () => {
-      const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
-      return (
-        reviewTrail.find(
-          (record) =>
-            record.type === 'evaluation' &&
-            !this.isPublicationHistoryEntry(record) &&
-            Boolean(record.notes?.trim())
-        ) ??
-        reviewTrail.find((record) => record.type === 'evaluation' && !this.isPublicationHistoryEntry(record)) ??
-        null
-      );
-    }
-  );
+  protected readonly partnerLatestReviewEntry = computed(() => {
+    const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+    return (
+      reviewTrail.find(
+        (record) =>
+          record.type === 'evaluation' &&
+          !this.isPublicationHistoryEntry(record) &&
+          Boolean(record.notes?.trim()),
+      ) ??
+      reviewTrail.find(
+        (record) => record.type === 'evaluation' && !this.isPublicationHistoryEntry(record),
+      ) ??
+      null
+    );
+  });
   protected readonly partnerMission = computed(() => {
     const mission = this.selectedPartner()?.mission;
     if (!mission) {
@@ -286,7 +300,9 @@ export class PartnerDetailsPanelComponent {
     return contacts;
   });
 
-  protected readonly hasQrLinks = computed(() => Boolean(this.buyerLink()) || Boolean(this.supplierLink()));
+  protected readonly hasQrLinks = computed(
+    () => Boolean(this.buyerLink()) || Boolean(this.supplierLink()),
+  );
 
   constructor() {
     toObservable(this.selectedValue)
@@ -309,7 +325,7 @@ export class PartnerDetailsPanelComponent {
           this.profile.set(null);
           return this.service.getProfile(parsed.id, parsed.role);
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(),
       )
       .subscribe((profile) => {
         this.profile.set(profile);
@@ -336,7 +352,6 @@ export class PartnerDetailsPanelComponent {
         this.activeTab.set(order[0]);
       }
     });
-
   }
 
   protected triggerDownload(): void {

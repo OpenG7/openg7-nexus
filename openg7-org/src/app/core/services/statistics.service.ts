@@ -1,12 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import {
-  Injectable,
-  PLATFORM_ID,
-  TransferState,
-  inject,
-  makeStateKey,
-} from '@angular/core';
+import { Injectable, PLATFORM_ID, TransferState, inject, makeStateKey } from '@angular/core';
 import { Observable, catchError, map, of, shareReplay, tap } from 'rxjs';
 
 import { API_URL } from '../config/environment.tokens';
@@ -354,7 +348,13 @@ const FALLBACK_ENTRIES: FallbackInsight[] = [
 ];
 
 const AVAILABLE_SCOPE_VALUES: StatisticsScope[] = ['interprovincial', 'international', 'all'];
-const AVAILABLE_INTRANTS: StatisticsIntrant[] = ['all', 'energy', 'agri-food', 'manufacturing', 'digital-services'];
+const AVAILABLE_INTRANTS: StatisticsIntrant[] = [
+  'all',
+  'energy',
+  'agri-food',
+  'manufacturing',
+  'digital-services',
+];
 
 @Injectable({ providedIn: 'root' })
 /**
@@ -413,7 +413,7 @@ export class StatisticsService {
             this.transferState.set(stateKey, payload);
           }
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
 
     this.cache.set(cacheKey, request$);
@@ -444,13 +444,20 @@ export class StatisticsService {
     return params;
   }
 
-  private mapResponse(response: StatisticsApiResponse, filters: StatisticsFilters): StatisticsPayload {
+  private mapResponse(
+    response: StatisticsApiResponse,
+    filters: StatisticsFilters,
+  ): StatisticsPayload {
     const data = response?.data;
     const summaries = Array.isArray(data?.summaries) ? data.summaries : [];
     const insights = Array.isArray(data?.insights) ? data.insights : [];
     const snapshot = data?.snapshot ?? null;
-    const availablePeriods = Array.isArray(data?.availablePeriods) ? [...new Set(data.availablePeriods)] : [];
-    const availableProvinces = Array.isArray(data?.availableProvinces) ? [...new Set(data.availableProvinces)] : [];
+    const availablePeriods = Array.isArray(data?.availablePeriods)
+      ? [...new Set(data.availablePeriods)]
+      : [];
+    const availableProvinces = Array.isArray(data?.availableProvinces)
+      ? [...new Set(data.availableProvinces)]
+      : [];
     const availableCountries = Array.isArray(data?.availableCountries)
       ? this.orderCountries(data.availableCountries)
       : [];
@@ -478,18 +485,24 @@ export class StatisticsService {
   private normalizeFilters(filters: Partial<StatisticsFilters>): StatisticsFilters {
     const scope = this.ensureScope(filters.scope ?? DEFAULT_FILTERS.scope);
     const intrant = this.ensureIntrant(filters.intrant ?? DEFAULT_FILTERS.intrant);
-    const period = typeof filters.period === 'string' && filters.period.trim() ? filters.period : null;
-    const province = typeof filters.province === 'string' && filters.province.trim() ? filters.province : null;
+    const period =
+      typeof filters.period === 'string' && filters.period.trim() ? filters.period : null;
+    const province =
+      typeof filters.province === 'string' && filters.province.trim() ? filters.province : null;
     const country = this.ensureCountry(filters.country ?? DEFAULT_FILTERS.country);
     return { scope, intrant, period, province, country };
   }
 
   private ensureScope(scope: unknown): StatisticsScope {
-    return AVAILABLE_SCOPE_VALUES.includes(scope as StatisticsScope) ? (scope as StatisticsScope) : 'interprovincial';
+    return AVAILABLE_SCOPE_VALUES.includes(scope as StatisticsScope)
+      ? (scope as StatisticsScope)
+      : 'interprovincial';
   }
 
   private ensureIntrant(intrant: unknown): StatisticsIntrant {
-    return AVAILABLE_INTRANTS.includes(intrant as StatisticsIntrant) ? (intrant as StatisticsIntrant) : 'all';
+    return AVAILABLE_INTRANTS.includes(intrant as StatisticsIntrant)
+      ? (intrant as StatisticsIntrant)
+      : 'all';
   }
 
   private ensureCountry(country: unknown): CountryCode | null {
@@ -531,16 +544,20 @@ export class StatisticsService {
   }
 
   private fallbackPayload(filters: StatisticsFilters): StatisticsPayload {
-    const baseEntries = FALLBACK_ENTRIES.filter((entry) => this.matches(entry, filters.scope, filters.intrant));
+    const baseEntries = FALLBACK_ENTRIES.filter((entry) =>
+      this.matches(entry, filters.scope, filters.intrant),
+    );
     const availablePeriods = this.unique(baseEntries.map((entry) => entry.period));
     const availableProvinces = this.unique(baseEntries.map((entry) => entry.province));
-    const availableCountries = this.orderCountries(baseEntries.map((entry) => entry.country ?? null));
+    const availableCountries = this.orderCountries(
+      baseEntries.map((entry) => entry.country ?? null),
+    );
 
     const narrowed = baseEntries.filter(
       (entry) =>
         this.matchesPeriod(entry, filters.period) &&
         this.matchesProvince(entry, filters.province) &&
-        this.matchesCountry(entry, filters.country)
+        this.matchesCountry(entry, filters.country),
     );
 
     const summaries = narrowed
@@ -588,7 +605,11 @@ export class StatisticsService {
     };
   }
 
-  private matches(entry: FallbackInsight, scope: StatisticsScope, intrant: StatisticsIntrant): boolean {
+  private matches(
+    entry: FallbackInsight,
+    scope: StatisticsScope,
+    intrant: StatisticsIntrant,
+  ): boolean {
     const scopeMatch = entry.scope === 'all' || scope === 'all' || entry.scope === scope;
     const intrantMatch = entry.intrant === 'all' || intrant === 'all' || entry.intrant === intrant;
     return scopeMatch && intrantMatch;
@@ -634,7 +655,7 @@ export class StatisticsService {
     const activeCorridors = new Set(
       summaries
         .map((entry) => entry.province)
-        .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
+        .filter((value): value is string => typeof value === 'string' && value.trim() !== ''),
     ).size;
     return {
       totalFlows,

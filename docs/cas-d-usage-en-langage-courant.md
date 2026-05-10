@@ -69,25 +69,25 @@ En langage simple :
 Le systeme peut accompagner la relation en faisant evoluer le cas d'un simple signal vers un dossier partage et suivi.
 
 1. Il capte l'intention initiale.
-L'acheteur indique la quantite souhaitee, la periode, ses contraintes majeures et son niveau d'urgence.
+   L'acheteur indique la quantite souhaitee, la periode, ses contraintes majeures et son niveau d'urgence.
 
 2. Il qualifie la demande.
-Le systeme aide a verifier si la demande est compatible avec le surplus publie : volume, calendrier, zone, interconnexion, cadre contractuel, priorites du vendeur.
+   Le systeme aide a verifier si la demande est compatible avec le surplus publie : volume, calendrier, zone, interconnexion, cadre contractuel, priorites du vendeur.
 
 3. Il ouvre un espace de clarification.
-Les deux parties peuvent poser des questions, joindre des documents, demander des precisions, reformuler la quantite ou proposer un decoupage du volume.
+   Les deux parties peuvent poser des questions, joindre des documents, demander des precisions, reformuler la quantite ou proposer un decoupage du volume.
 
 4. Il rend visible l'etat de la relation.
-Par exemple : `nouvelle marque d'interet`, `en qualification`, `en discussion`, `conditions a valider`, `accord de principe`, `accord confirme`, `partiellement servi`, `non retenu`, `expire`.
+   Par exemple : `nouvelle marque d'interet`, `en qualification`, `en discussion`, `conditions a valider`, `accord de principe`, `accord confirme`, `partiellement servi`, `non retenu`, `expire`.
 
 5. Il aide a decider.
-Le systeme rappelle ce qui bloque encore : prix non confirme, capacite de transport incertaine, fenetre de livraison incompatible, documents manquants, autorisations a obtenir.
+   Le systeme rappelle ce qui bloque encore : prix non confirme, capacite de transport incertaine, fenetre de livraison incompatible, documents manquants, autorisations a obtenir.
 
 6. Il trace les engagements.
-Quand les parties convergent, le dossier peut enregistrer un volume reserve, une date cible, un point de contact, un prochain jalon ou un document d'entente.
+   Quand les parties convergent, le dossier peut enregistrer un volume reserve, une date cible, un point de contact, un prochain jalon ou un document d'entente.
 
 7. Il ferme proprement le cas.
-La relation ne disparait pas. Elle se clot avec une issue explicite et utile pour les suites : accord signe, volume partiellement attribue, abandon, report, redirection vers un autre partenaire.
+   La relation ne disparait pas. Elle se clot avec une issue explicite et utile pour les suites : accord signe, volume partiellement attribue, abandon, report, redirection vers un autre partenaire.
 
 ### Qu'est-ce qui determine "le bout"
 

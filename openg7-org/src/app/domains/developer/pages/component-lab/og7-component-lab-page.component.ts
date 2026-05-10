@@ -42,7 +42,13 @@ interface MockCompany {
 @Component({
   standalone: true,
   selector: 'og7-component-lab-page',
-  imports: [CommonModule, MatTableModule, Og7SearchFieldComponent, Og7IntroStepperComponent, OpportunityTimelineComponent],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    Og7SearchFieldComponent,
+    Og7IntroStepperComponent,
+    OpportunityTimelineComponent,
+  ],
   templateUrl: './og7-component-lab-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -55,8 +61,8 @@ interface MockCompany {
 export class Og7ComponentLabPageComponent {
   protected readonly demoOptions = DEMO_OPTIONS;
   protected readonly selectedDemo = signal<DemoOptionId>('search-field');
-  protected readonly selectedDescription = computed(() =>
-    this.demoOptions.find((option) => option.id === this.selectedDemo())?.description ?? '',
+  protected readonly selectedDescription = computed(
+    () => this.demoOptions.find((option) => option.id === this.selectedDemo())?.description ?? '',
   );
 
   protected readonly displayedColumns = ['name'];
@@ -233,7 +239,9 @@ export class Og7ComponentLabPageComponent {
       return;
     }
 
-    this.introStepper.setIntroMessage('Bonjour équipe Ventis, voici la proposition de mise en relation.');
+    this.introStepper.setIntroMessage(
+      'Bonjour équipe Ventis, voici la proposition de mise en relation.',
+    );
     this.introStepper.updateAttachment('nda', true);
     this.introStepper.updateAttachment('rfq', true);
     this.introStepper.setMeetingSlots(['2025-02-04T14:00:00Z', '2025-02-06T16:30:00Z']);

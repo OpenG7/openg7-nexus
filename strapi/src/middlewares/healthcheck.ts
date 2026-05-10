@@ -56,12 +56,10 @@ async function checkDatabaseConnectivity(
   }
 }
 
-export default (
-  config: HealthcheckConfig = {},
-  { strapi }: { strapi: any },
-) => {
+export default (config: HealthcheckConfig = {}, { strapi }: { strapi: any }) => {
   const shouldCheckDatabase = config.checkDatabase !== false;
-  const timeoutMs = typeof config.databaseTimeoutMs === 'number' ? config.databaseTimeoutMs : DEFAULT_TIMEOUT_MS;
+  const timeoutMs =
+    typeof config.databaseTimeoutMs === 'number' ? config.databaseTimeoutMs : DEFAULT_TIMEOUT_MS;
 
   return async (ctx: Context, next: Next) => {
     if (ctx.path !== '/healthz') {

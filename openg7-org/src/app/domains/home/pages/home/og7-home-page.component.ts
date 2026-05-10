@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { RuntimeConfigService } from '@app/core/config/runtime-config.service';
@@ -10,7 +17,11 @@ import { OpportunityEngagementService } from '@app/domains/feed/feature/services
 import { HomeFeedPanelKind } from '@app/domains/home/feature/home-feed-panels/home-feed-panels.component';
 import { HomeHeroSectionComponent } from '@app/domains/home/feature/home-hero-section/home-hero-section.component';
 import { HomeMapSectionComponent } from '@app/domains/home/feature/home-map-section';
-import { HomeFeedFilter, HomeFeedScope, HomeFeedService } from '@app/domains/home/services/home-feed.service';
+import {
+  HomeFeedFilter,
+  HomeFeedScope,
+  HomeFeedService,
+} from '@app/domains/home/services/home-feed.service';
 import { StatMetric } from '@app/shared/components/hero/hero-stats/hero-stats.component';
 import { selectFilteredFlows, selectMapKpis } from '@app/state';
 import { AppState } from '@app/state/app.state';
@@ -29,10 +40,7 @@ const DEFAULT_HOME_FEED_PANEL_LIMITS = {
 @Component({
   standalone: true,
   selector: 'og7-home-page',
-  imports: [
-    HomeHeroSectionComponent,
-    HomeMapSectionComponent,
-  ],
+  imports: [HomeHeroSectionComponent, HomeMapSectionComponent],
   templateUrl: './og7-home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -79,9 +87,9 @@ export class Og7HomePageComponent {
     toObservable(this.searchDraft).pipe(
       map((value) => value.trim()),
       debounceTime(250),
-      distinctUntilChanged()
+      distinctUntilChanged(),
     ),
-    { initialValue: '' }
+    { initialValue: '' },
   );
 
   private readonly homeFeedItems = signal<FeedItem[]>([]);
@@ -101,7 +109,7 @@ export class Og7HomePageComponent {
   });
 
   protected readonly keyMetrics = computed<StatMetric[]>(() =>
-    this.mapStats.buildMetrics(this.flows(), this.kpis(), this.filters.tradePartner())
+    this.mapStats.buildMetrics(this.flows(), this.kpis(), this.filters.tradePartner()),
   );
 
   protected readonly intrantsValue = computed(() => {
@@ -109,10 +117,14 @@ export class Og7HomePageComponent {
     return snapshot.tradeValue ?? 0;
   });
 
-  protected readonly offersCount = computed(() => this.countFeedType(this.homeFeedItems(), 'OFFER'));
-  protected readonly requestsCount = computed(() => this.countFeedType(this.homeFeedItems(), 'REQUEST'));
+  protected readonly offersCount = computed(() =>
+    this.countFeedType(this.homeFeedItems(), 'OFFER'),
+  );
+  protected readonly requestsCount = computed(() =>
+    this.countFeedType(this.homeFeedItems(), 'REQUEST'),
+  );
   protected readonly activeCount = computed(
-    () => this.homeFeedItems().filter((item) => item.status !== 'failed').length
+    () => this.homeFeedItems().filter((item) => item.status !== 'failed').length,
   );
   protected readonly corridorsCount = computed(() => this.flows().length);
 
@@ -150,7 +162,8 @@ export class Og7HomePageComponent {
     return 'bg-emerald-400';
   });
 
-  protected readonly panelLimits = this.runtimeConfig.homeFeedPanelLimits() ?? DEFAULT_HOME_FEED_PANEL_LIMITS;
+  protected readonly panelLimits =
+    this.runtimeConfig.homeFeedPanelLimits() ?? DEFAULT_HOME_FEED_PANEL_LIMITS;
 
   protected readonly provinceLabelMap = computed(() => {
     const map = new Map<string, string>();
@@ -169,19 +182,19 @@ export class Og7HomePageComponent {
   });
 
   protected readonly alertItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], this.panelLimits.alerts)
+    this.buildPanelItems(this.homeFeedItems(), ['ALERT'], this.panelLimits.alerts),
   );
 
   protected readonly opportunityItems = computed(() =>
     this.buildPanelItems(
       this.homeFeedItems(),
       ['OFFER', 'REQUEST', 'CAPACITY', 'TENDER'],
-      this.panelLimits.opportunities
-    )
+      this.panelLimits.opportunities,
+    ),
   );
 
   protected readonly indicatorItems = computed(() =>
-    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], this.panelLimits.indicators)
+    this.buildPanelItems(this.homeFeedItems(), ['INDICATOR'], this.panelLimits.indicators),
   );
 
   protected readonly feedSubtitleForItem = (item: FeedItem): string => {
@@ -200,7 +213,7 @@ export class Og7HomePageComponent {
     this.analytics.emit(
       'home_feed_panel_item_opened',
       { itemId, itemType: item.type },
-      { priority: true }
+      { priority: true },
     );
     void this.router.navigate(['/feed', itemId]);
   }
@@ -222,7 +235,7 @@ export class Og7HomePageComponent {
     this.analytics.emit(
       'home_feed_panel_connect_requested',
       { itemId, itemType: item.type, route: decision.navigation.route },
-      { priority: true }
+      { priority: true },
     );
     void this.router.navigate(decision.navigation.commands, decision.navigation.extras);
   }
@@ -232,7 +245,7 @@ export class Og7HomePageComponent {
     this.analytics.emit(
       'home_feed_panel_view_all_requested',
       { panel, ...queryParams },
-      { priority: true }
+      { priority: true },
     );
     void this.router.navigate(['/feed'], { queryParams });
   }

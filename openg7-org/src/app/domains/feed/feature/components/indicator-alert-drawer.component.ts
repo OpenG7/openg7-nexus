@@ -51,7 +51,7 @@ export class IndicatorAlertDrawerComponent {
 
   protected readonly submitting = computed(() => this.submitState() === 'submitting');
   protected readonly viewingRule = computed(
-    () => this.mode() === 'view' && Boolean(this.existingRule())
+    () => this.mode() === 'view' && Boolean(this.existingRule()),
   );
   protected readonly showRetry = computed(() => {
     const state = this.submitState();

@@ -61,10 +61,10 @@ describe('createUserScopedPersistentState', () => {
     const state = createState();
 
     expect(() => state.setForCurrentUser({ saved: 1 }, AUTH_REQUIRED_ERROR)).toThrowError(
-      AUTH_REQUIRED_ERROR
+      AUTH_REQUIRED_ERROR,
     );
     expect(() =>
-      state.updateForCurrentUser((current) => ({ ...current, saved: 2 }), AUTH_REQUIRED_ERROR)
+      state.updateForCurrentUser((current) => ({ ...current, saved: 2 }), AUTH_REQUIRED_ERROR),
     ).toThrowError(AUTH_REQUIRED_ERROR);
   });
 
@@ -79,7 +79,7 @@ describe('createUserScopedPersistentState', () => {
         storageKeyPrefix: STORAGE_KEY_PREFIX,
         createEmptyValue: () => ({}),
         deserialize: deserializeNumberMap,
-      })
+      }),
     );
   }
 });

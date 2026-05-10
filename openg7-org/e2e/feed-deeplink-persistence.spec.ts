@@ -2,8 +2,12 @@ import './setup';
 import { expect, test, type Page } from '@playwright/test';
 
 test.describe('Feed deep-link persistence', () => {
-  test('rehydrates a shared filtered feed link across reload, then clears both UI and URL state', async ({ page }) => {
-    await page.goto('/feed?type=REQUEST&sector=energy&fromProvince=AB&mode=IMPORT&sort=VOLUME&q=fuel');
+  test('rehydrates a shared filtered feed link across reload, then clears both UI and URL state', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/feed?type=REQUEST&sector=energy&fromProvince=AB&mode=IMPORT&sort=VOLUME&q=fuel',
+    );
     await waitForAngularFeedStream(page);
 
     await expectFeedDeepLinkState(page);
@@ -42,7 +46,9 @@ async function expectFeedDeepLinkState(page: Page): Promise<void> {
   await expect(page.locator('#feed-sort')).toHaveValue(/VOLUME$/);
   await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
   await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toBeVisible();
-  await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toBeVisible();
+  await expect(
+    page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+  ).toBeVisible();
   await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
   await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toBeVisible();
 }
@@ -52,16 +58,19 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
-async function expectSearchParams(page: Page, expected: Record<string, string | null>): Promise<void> {
+async function expectSearchParams(
+  page: Page,
+  expected: Record<string, string | null>,
+): Promise<void> {
   for (const [key, value] of Object.entries(expected)) {
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get(key))
-      .toBe(value);
+    await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBe(value);
   }
 }
 
@@ -85,14 +94,18 @@ async function expectClearedFeedState(page: Page): Promise<void> {
     .poll(() =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toContain('request-001');
   await expect
     .poll(() =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toContain('offer-001');
 }

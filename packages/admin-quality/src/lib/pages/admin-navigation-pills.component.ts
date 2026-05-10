@@ -15,7 +15,11 @@ export interface AdminNavigationPillItem {
   selector: 'og7-admin-navigation-pills',
   imports: [CommonModule, RouterLink],
   template: `
-    <nav class="flex flex-wrap gap-2" [attr.data-og7]="dataOg7() || null" [attr.aria-label]="ariaLabel()">
+    <nav
+      class="flex flex-wrap gap-2"
+      [attr.data-og7]="dataOg7() || null"
+      [attr.aria-label]="ariaLabel()"
+    >
       @for (item of items(); track item.id) {
         @if (item.routerLink) {
           <a

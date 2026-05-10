@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Signal, input, output, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Signal,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { ConnectionDraft } from '@app/core/models/connection';
 import { OpportunityMatch } from '@app/core/models/opportunity';
 import { FinancingBanner, PartnerProfile } from '@app/core/models/partner-profile';

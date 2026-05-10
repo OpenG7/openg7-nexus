@@ -43,7 +43,11 @@ function json(body: unknown, status = 200) {
   };
 }
 
-async function activateWithKeyboard(page: Page, target: Locator, key: 'Enter' | 'Space' = 'Enter'): Promise<void> {
+async function activateWithKeyboard(
+  page: Page,
+  target: Locator,
+  key: 'Enter' | 'Space' = 'Enter',
+): Promise<void> {
   await target.focus();
   await expect(target).toBeFocused();
   await page.keyboard.press(key);
@@ -53,19 +57,19 @@ async function mockSavedSearchApis(page: Page, options: SavedSearchApiOptions): 
   const savedSearches = options.seed.map((entry) => ({ ...entry }));
   let remainingUpdateFailures = options.failUpdateAttempts ?? 0;
 
-  await page.route('**/api/sectors**', async route => {
+  await page.route('**/api/sectors**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/provinces**', async route => {
+  await page.route('**/api/provinces**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/companies**', async route => {
+  await page.route('**/api/companies**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/users/me**', async route => {
+  await page.route('**/api/users/me**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const url = new URL(request.url());
@@ -136,8 +140,8 @@ async function mockSavedSearchApis(page: Page, options: SavedSearchApiOptions): 
                 message: 'saved-searches.update.failed',
               },
             },
-            500
-          )
+            500,
+          ),
         );
         return;
       }
@@ -173,7 +177,7 @@ async function mockSavedSearchApis(page: Page, options: SavedSearchApiOptions): 
         json({
           version: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -186,7 +190,7 @@ async function mockSavedSearchApis(page: Page, options: SavedSearchApiOptions): 
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -201,7 +205,9 @@ async function mockSavedSearchApis(page: Page, options: SavedSearchApiOptions): 
 }
 
 test.describe('Quality breadth saved searches accessibility depth', () => {
-  test('keeps saved-search creation keyboard-usable through invalid-to-valid recovery', async ({ page }) => {
+  test('keeps saved-search creation keyboard-usable through invalid-to-valid recovery', async ({
+    page,
+  }) => {
     await mockSavedSearchApis(page, { seed: [] });
     await seedAuthenticatedSession(page, PROFILE);
 
@@ -222,9 +228,9 @@ test.describe('Quality breadth saved searches accessibility depth', () => {
     await expect(nameInput).toHaveAttribute('aria-describedby', 'saved-search-name-error');
 
     const createRequest = page.waitForRequest(
-      request =>
+      (request) =>
         request.method().toUpperCase() === 'POST' &&
-        request.url().includes('/api/users/me/saved-searches')
+        request.url().includes('/api/users/me/saved-searches'),
     );
 
     await nameInput.fill('Critical minerals watch');
@@ -241,7 +247,7 @@ test.describe('Quality breadth saved searches accessibility depth', () => {
     await expect(fieldError).toHaveCount(0);
     await expect(page.locator('[data-og7="saved-search-item"]')).toHaveCount(1);
     await expect(page.locator('[data-og7="saved-search-item"]').first()).toContainText(
-      'Critical minerals watch'
+      'Critical minerals watch',
     );
   });
 
@@ -273,10 +279,10 @@ test.describe('Quality breadth saved searches accessibility depth', () => {
     const pageError = page.locator('[data-og7-id="saved-search-error"]');
 
     const failedUpdate = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
         response.url().includes('/api/users/me/saved-searches/saved-1') &&
-        response.status() === 500
+        response.status() === 500,
     );
 
     await activateWithKeyboard(page, notifyToggle, 'Space');
@@ -288,10 +294,10 @@ test.describe('Quality breadth saved searches accessibility depth', () => {
     await expect(notifyToggle).not.toBeChecked();
 
     const successfulUpdate = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
         response.url().includes('/api/users/me/saved-searches/saved-1') &&
-        response.status() === 200
+        response.status() === 200,
     );
 
     await activateWithKeyboard(page, notifyToggle, 'Space');
@@ -301,10 +307,10 @@ test.describe('Quality breadth saved searches accessibility depth', () => {
     await expect(notifyToggle).toBeChecked();
 
     const frequencyUpdate = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
         response.url().includes('/api/users/me/saved-searches/saved-1') &&
-        response.status() === 200
+        response.status() === 200,
     );
     await frequencySelect.selectOption('weekly');
     await frequencyUpdate;

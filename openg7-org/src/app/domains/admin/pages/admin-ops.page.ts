@@ -266,7 +266,12 @@ const ADMIN_OPS_LIVE_TICK_INTERVAL_MS = 1_000;
         position: absolute;
         inset: auto 1rem 0.85rem 1rem;
         height: 1px;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(148, 163, 184, 0.3), rgba(255, 255, 255, 0));
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0),
+          rgba(148, 163, 184, 0.3),
+          rgba(255, 255, 255, 0)
+        );
         pointer-events: none;
       }
 
@@ -715,7 +720,10 @@ export class AdminOpsPage implements OnInit {
         label: 'Security posture',
         value: `${snapshot.security.sessions.active} active sessions`,
         detail: `${blockedUsers} blocked users · ${snapshot.security.moderation.pendingCompanies} moderation queue`,
-        tone: blockedUsers > 0 || snapshot.security.moderation.pendingCompanies > 0 ? 'warning' : 'ready',
+        tone:
+          blockedUsers > 0 || snapshot.security.moderation.pendingCompanies > 0
+            ? 'warning'
+            : 'ready',
         anchor: 'ops-security',
       },
     ];
@@ -847,8 +855,9 @@ export class AdminOpsPage implements OnInit {
         return true;
       }
 
-      return [entry.name, entry.businessId ?? '', entry.source ?? '', entry.status]
-        .some((value) => value.toLowerCase().includes(query));
+      return [entry.name, entry.businessId ?? '', entry.source ?? '', entry.status].some((value) =>
+        value.toLowerCase().includes(query),
+      );
     });
 
     return [...entries].sort((left, right) => {

@@ -19,8 +19,16 @@
           "placeholderKey": "forms.industrialLoadFlex.fields.title.placeholder",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 3, "errorKey": "forms.industrialLoadFlex.validation.title.minLength" },
-            { "type": "maxLength", "value": 160, "errorKey": "forms.industrialLoadFlex.validation.title.maxLength" }
+            {
+              "type": "minLength",
+              "value": 3,
+              "errorKey": "forms.industrialLoadFlex.validation.title.minLength"
+            },
+            {
+              "type": "maxLength",
+              "value": 160,
+              "errorKey": "forms.industrialLoadFlex.validation.title.maxLength"
+            }
           ]
         },
         {
@@ -30,7 +38,11 @@
           "placeholderKey": "forms.industrialLoadFlex.fields.summary.placeholder",
           "required": true,
           "validators": [
-            { "type": "minLength", "value": 10, "errorKey": "forms.industrialLoadFlex.validation.summary.minLength" }
+            {
+              "type": "minLength",
+              "value": 10,
+              "errorKey": "forms.industrialLoadFlex.validation.summary.minLength"
+            }
           ]
         },
         {
@@ -39,9 +51,18 @@
           "labelKey": "forms.industrialLoadFlex.fields.requestReason.label",
           "required": true,
           "options": [
-            { "value": "peak-shaving", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.peakShaving" },
-            { "value": "backup-capacity", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.backupCapacity" },
-            { "value": "planned-maintenance", "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.plannedMaintenance" }
+            {
+              "value": "peak-shaving",
+              "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.peakShaving"
+            },
+            {
+              "value": "backup-capacity",
+              "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.backupCapacity"
+            },
+            {
+              "value": "planned-maintenance",
+              "labelKey": "forms.industrialLoadFlex.fields.requestReason.options.plannedMaintenance"
+            }
           ],
           "width": "half"
         },
@@ -51,9 +72,18 @@
           "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.label",
           "defaultValue": "medium",
           "options": [
-            { "value": "low", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.low" },
-            { "value": "medium", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.medium" },
-            { "value": "high", "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.high" }
+            {
+              "value": "low",
+              "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.low"
+            },
+            {
+              "value": "medium",
+              "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.medium"
+            },
+            {
+              "value": "high",
+              "labelKey": "forms.industrialLoadFlex.fields.urgencyLevel.options.high"
+            }
           ],
           "width": "half"
         }
@@ -70,7 +100,11 @@
           "labelKey": "forms.industrialLoadFlex.fields.requiredCapacityMw.label",
           "required": true,
           "validators": [
-            { "type": "min", "value": 1, "errorKey": "forms.industrialLoadFlex.validation.requiredCapacityMw.min" }
+            {
+              "type": "min",
+              "value": 1,
+              "errorKey": "forms.industrialLoadFlex.validation.requiredCapacityMw.min"
+            }
           ],
           "width": "half"
         },
@@ -80,9 +114,18 @@
           "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.label",
           "required": true,
           "options": [
-            { "value": "2h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.2h" },
-            { "value": "8h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.8h" },
-            { "value": "24h", "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.24h" }
+            {
+              "value": "2h",
+              "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.2h"
+            },
+            {
+              "value": "8h",
+              "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.8h"
+            },
+            {
+              "value": "24h",
+              "labelKey": "forms.industrialLoadFlex.fields.flexibilityWindow.options.24h"
+            }
           ],
           "width": "half"
         },
@@ -99,7 +142,11 @@
           "labelKey": "forms.industrialLoadFlex.fields.availabilityEnd.label",
           "required": true,
           "validators": [
-            { "type": "dateOrder", "compareWithField": "availabilityStart", "errorKey": "forms.industrialLoadFlex.validation.availabilityEnd.dateOrder" }
+            {
+              "type": "dateOrder",
+              "compareWithField": "availabilityStart",
+              "errorKey": "forms.industrialLoadFlex.validation.availabilityEnd.dateOrder"
+            }
           ],
           "width": "half"
         }
@@ -130,9 +177,18 @@
           "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.label",
           "required": true,
           "options": [
-            { "value": "fixed", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.fixed" },
-            { "value": "indexed", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.indexed" },
-            { "value": "negotiable", "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.negotiable" }
+            {
+              "value": "fixed",
+              "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.fixed"
+            },
+            {
+              "value": "indexed",
+              "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.indexed"
+            },
+            {
+              "value": "negotiable",
+              "labelKey": "forms.industrialLoadFlex.fields.preferredPricingMode.options.negotiable"
+            }
           ],
           "width": "half"
         },
@@ -149,9 +205,7 @@
           "type": "textarea",
           "labelKey": "forms.industrialLoadFlex.fields.operationalNotes.label",
           "helpKey": "forms.industrialLoadFlex.fields.operationalNotes.help",
-          "visibleWhen": [
-            { "field": "urgencyLevel", "operator": "equals", "value": "high" }
-          ]
+          "visibleWhen": [{ "field": "urgencyLevel", "operator": "equals", "value": "high" }]
         },
         {
           "key": "tags",

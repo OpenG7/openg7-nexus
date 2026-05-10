@@ -5,7 +5,13 @@ const importationFlows = {
     { period: '2026-03', label: 'Mar 2026', totalValue: 2480000000, yoyDelta: 4.1 },
     { period: '2026-02', label: 'Feb 2026', totalValue: 2415000000, yoyDelta: 3.2 },
     { period: '2026-01', label: 'Jan 2026', totalValue: 2380000000, yoyDelta: 2.4 },
-    { period: '2025-12', label: 'Dec 2025', totalValue: 2290000000, yoyDelta: -0.8, isProjected: true },
+    {
+      period: '2025-12',
+      label: 'Dec 2025',
+      totalValue: 2290000000,
+      yoyDelta: -0.8,
+      isProjected: true,
+    },
   ],
   flows: [
     {
@@ -175,7 +181,8 @@ const importationRiskFlags = [
     id: 'customs-screening',
     severity: 'medium',
     title: 'Contrôles douaniers renforcés',
-    description: 'Les composants magnétiques à double usage subissent des examens documentaires plus longs.',
+    description:
+      'Les composants magnétiques à double usage subissent des examens documentaires plus longs.',
     relatedCommodityId: 'rare-earth-magnets',
   },
   {
@@ -249,7 +256,8 @@ const importationAnnotations = {
     {
       id: 'annot-2',
       author: 'Pôle conformité import',
-      excerpt: 'Les contrôles d origine préférentielle ont été renforcés pour plusieurs lots techniques.',
+      excerpt:
+        'Les contrôles d origine préférentielle ont été renforcés pour plusieurs lots techniques.',
       createdAt: '2026-03-16T08:00:00Z',
       relatedCommodityId: 'rare-earth-magnets',
       relatedOriginCode: 'DE',
@@ -298,7 +306,8 @@ const importationKnowledgeByLang = {
       {
         id: 'knowledge-fr-1',
         title: 'Comment prioriser les intrants critiques en mode importation',
-        summary: 'Cadre court pour hiérarchiser valeur, dépendance fournisseur et exposition corridor.',
+        summary:
+          'Cadre court pour hiérarchiser valeur, dépendance fournisseur et exposition corridor.',
         publishedAt: '2026-03-14',
         link: '/docs/importation-page',
         tag: 'Guide',
@@ -333,7 +342,8 @@ const importationKnowledgeByLang = {
       {
         id: 'knowledge-en-2',
         title: 'Supplier requalification checklist for exposed procurement lines',
-        summary: 'A practical sequence to move from single-source dependency to dual-source coverage.',
+        summary:
+          'A practical sequence to move from single-source dependency to dual-source coverage.',
         publishedAt: '2026-03-10',
         link: '/docs/import-companies',
         tag: 'Playbook',
@@ -387,7 +397,12 @@ export function createMockImportationWatchlist(payload: {
   readonly filters: ImportationFilters;
 }) {
   return {
-    id: `watch-${payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'local'}`,
+    id: `watch-${
+      payload.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'local'
+    }`,
     name: payload.name,
     owner: 'Local workspace',
     updatedAt: '2026-03-20T12:00:00Z',
@@ -400,7 +415,7 @@ export function updateMockImportationWatchlist(
   payload: {
     readonly name?: string;
     readonly filters?: ImportationFilters;
-  }
+  },
 ) {
   const existing = importationWatchlists.watchlists.find((watchlist) => watchlist.id === id);
   const fallback = existing ?? {

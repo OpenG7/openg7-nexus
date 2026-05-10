@@ -10,7 +10,10 @@ export interface SearchProviderResult {
 
 export interface SearchProvider {
   readonly id: string;
-  resolve(query: string, context: SearchContext): Observable<SearchProviderResult> | SearchProviderResult;
+  resolve(
+    query: string,
+    context: SearchContext,
+  ): Observable<SearchProviderResult> | SearchProviderResult;
   getDefault?(context: SearchContext): Observable<SearchProviderResult> | SearchProviderResult;
 }
 
@@ -104,7 +107,9 @@ export class SearchRegistryService {
     );
   }
 
-  private toObservable(result: Observable<SearchProviderResult> | SearchProviderResult): Observable<SearchProviderResult> {
+  private toObservable(
+    result: Observable<SearchProviderResult> | SearchProviderResult,
+  ): Observable<SearchProviderResult> {
     if (isObservable(result)) {
       return result;
     }

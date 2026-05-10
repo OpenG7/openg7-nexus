@@ -3,9 +3,18 @@
     aria-hidden="true"
     class="absolute inset-0 bg-[radial-gradient(circle_at_14%_22%,_rgba(56,189,248,0.16)_0%,_transparent_32%),radial-gradient(circle_at_86%_8%,_rgba(59,130,246,0.12)_0%,_transparent_34%),linear-gradient(180deg,_rgba(2,6,23,0)_0%,_rgba(2,6,23,0.16)_38%,_rgba(2,6,23,0.44)_72%,_rgba(2,6,23,0.64)_100%)]"
   ></div>
-  <div aria-hidden="true" class="absolute -left-20 top-20 h-56 w-56 rounded-full bg-cyan-300/25 blur-3xl"></div>
-  <div aria-hidden="true" class="absolute -right-20 top-4 h-72 w-72 rounded-full bg-blue-500/25 blur-3xl"></div>
-  <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-slate-950/75 via-slate-900/35 to-transparent"></div>
+  <div
+    aria-hidden="true"
+    class="absolute -left-20 top-20 h-56 w-56 rounded-full bg-cyan-300/25 blur-3xl"
+  ></div>
+  <div
+    aria-hidden="true"
+    class="absolute -right-20 top-4 h-72 w-72 rounded-full bg-blue-500/25 blur-3xl"
+  ></div>
+  <div
+    aria-hidden="true"
+    class="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-slate-950/75 via-slate-900/35 to-transparent"
+  ></div>
 
   <div class="relative mx-auto max-w-6xl px-4">
     <div class="grid items-start gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
@@ -16,12 +25,12 @@
         <p class="max-w-xl text-4xl font-semibold leading-tight text-slate-100">
           {{ 'auth.login.subtitle' | translate }}
         </p>
-        <p class="max-w-2xl text-base text-slate-200/90">
-          {{ loginSubtitleKey() | translate }}
-        </p>
+        <p class="max-w-2xl text-base text-slate-200/90">{{ loginSubtitleKey() | translate }}</p>
 
         <div class="grid gap-4">
-          <article class="rounded-3xl border border-white/20 bg-slate-950/35 p-5 backdrop-blur-md shadow-[0_24px_80px_-42px_rgba(2,6,23,0.85)]">
+          <article
+            class="rounded-3xl border border-white/20 bg-slate-950/35 p-5 backdrop-blur-md shadow-[0_24px_80px_-42px_rgba(2,6,23,0.85)]"
+          >
             <p class="text-sm font-semibold text-sky-300">
               {{ 'auth.login.securityTitle' | translate }}
             </p>
@@ -30,7 +39,9 @@
             </p>
           </article>
 
-          <article class="rounded-3xl border border-white/20 bg-slate-950/35 p-5 backdrop-blur-md shadow-[0_24px_80px_-42px_rgba(2,6,23,0.85)]">
+          <article
+            class="rounded-3xl border border-white/20 bg-slate-950/35 p-5 backdrop-blur-md shadow-[0_24px_80px_-42px_rgba(2,6,23,0.85)]"
+          >
             <p class="text-sm font-semibold text-sky-300">
               {{ 'auth.login.helpLink' | translate }}
             </p>
@@ -66,12 +77,8 @@
         ></div>
 
         <header class="flex flex-col gap-4" data-og7="auth-login-header">
-          <h1 class="text-3xl font-semibold text-title">
-            {{ 'auth.login.title' | translate }}
-          </h1>
-          <p class="text-sm leading-relaxed text-subtle">
-            {{ loginSubtitleKey() | translate }}
-          </p>
+          <h1 class="text-3xl font-semibold text-title">{{ 'auth.login.title' | translate }}</h1>
+          <p class="text-sm leading-relaxed text-subtle">{{ loginSubtitleKey() | translate }}</p>
           <div
             class="flex flex-col gap-1 rounded-xl border border-[color:var(--og7-color-border)] bg-[color:var(--og7-color-primary-soft)] p-4 text-xs text-body shadow-sm"
             data-og7="auth-login-security-note"
@@ -84,48 +91,41 @@
         </header>
 
         @if (authMode() === 'sso-only') {
-          <section
-            class="flex flex-col gap-4 rounded-xl border border-[color:var(--og7-color-border)] bg-surface-muted p-4 text-sm text-body"
-            data-og7="auth-login-sso-helper"
+        <section
+          class="flex flex-col gap-4 rounded-xl border border-[color:var(--og7-color-border)] bg-surface-muted p-4 text-sm text-body"
+          data-og7="auth-login-sso-helper"
+        >
+          <p class="font-medium">{{ 'auth.login.ssoOnlyHelperTitle' | translate }}</p>
+          <p class="leading-relaxed">{{ 'auth.login.ssoOnlyHelperBody' | translate }}</p>
+          <a
+            class="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary focus-outline"
+            [routerLink]="['/faq']"
+            fragment="sso"
+            data-og7="auth-login-sso-helper-link"
           >
-            <p class="font-medium">
-              {{ 'auth.login.ssoOnlyHelperTitle' | translate }}
-            </p>
-            <p class="leading-relaxed">
-              {{ 'auth.login.ssoOnlyHelperBody' | translate }}
-            </p>
-            <a
-              class="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary focus-outline"
-              [routerLink]="['/faq']"
-              fragment="sso"
-              data-og7="auth-login-sso-helper-link"
-            >
-              {{ 'auth.login.ssoOnlyHelperCta' | translate }}
-            </a>
-          </section>
-        }
-
-        @if (authMode() !== 'local-only') {
-          <og7-social-auth-buttons [disabled]="loading()" [redirectUrl]="redirectTarget()" />
-        }
-
-        @if (authMode() === 'hybrid') {
-          <div class="flex items-center gap-3 text-xs font-medium uppercase tracking-wider text-subtle" data-og7="auth-login-divider">
-            <span class="h-px flex-1 bg-[color:var(--og7-color-border)]"></span>
-            <span>{{ 'auth.or' | translate }}</span>
-            <span class="h-px flex-1 bg-[color:var(--og7-color-border)]"></span>
-          </div>
-        }
-
-        @if (loginNotice(); as notice) {
-          <div
-            class="rounded-xl border border-sky-200/80 bg-sky-50 px-4 py-3 text-sm text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-100"
-            data-og7="auth-login-notice"
-            role="status"
-            aria-live="polite"
-          >
-            {{ notice | translate }}
-          </div>
+            {{ 'auth.login.ssoOnlyHelperCta' | translate }}
+          </a>
+        </section>
+        } @if (authMode() !== 'local-only') {
+        <og7-social-auth-buttons [disabled]="loading()" [redirectUrl]="redirectTarget()" />
+        } @if (authMode() === 'hybrid') {
+        <div
+          class="flex items-center gap-3 text-xs font-medium uppercase tracking-wider text-subtle"
+          data-og7="auth-login-divider"
+        >
+          <span class="h-px flex-1 bg-[color:var(--og7-color-border)]"></span>
+          <span>{{ 'auth.or' | translate }}</span>
+          <span class="h-px flex-1 bg-[color:var(--og7-color-border)]"></span>
+        </div>
+        } @if (loginNotice(); as notice) {
+        <div
+          class="rounded-xl border border-sky-200/80 bg-sky-50 px-4 py-3 text-sm text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-100"
+          data-og7="auth-login-notice"
+          role="status"
+          aria-live="polite"
+        >
+          {{ notice | translate }}
+        </div>
         }
 
         <div
@@ -134,176 +134,156 @@
           role="alert"
           data-og7="auth-login-api-error"
         >
-          @if (apiError(); as error) {
-            {{ error | translate }}
-
-            @if (canSendActivationEmail()) {
-              <button
-                type="button"
-                class="mt-3 inline-flex items-center rounded-lg border border-[color:var(--og7-color-border)] bg-surface px-3 py-2 text-xs font-semibold text-primary transition hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--og7-ring-focus)] disabled:cursor-not-allowed disabled:opacity-60"
-                data-og7="auth-login-send-activation"
-                (click)="onSendActivationEmail()"
-                [disabled]="loading() || sendingActivationEmail()"
-              >
-                @if (sendingActivationEmail()) {
-                  {{ 'auth.login.activationEmailSending' | translate }}
-                } @else {
-                  {{ 'auth.login.activationEmailCta' | translate }}
-                }
-              </button>
-            }
-          }
+          @if (apiError(); as error) { {{ error | translate }} @if (canSendActivationEmail()) {
+          <button
+            type="button"
+            class="mt-3 inline-flex items-center rounded-lg border border-[color:var(--og7-color-border)] bg-surface px-3 py-2 text-xs font-semibold text-primary transition hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--og7-ring-focus)] disabled:cursor-not-allowed disabled:opacity-60"
+            data-og7="auth-login-send-activation"
+            (click)="onSendActivationEmail()"
+            [disabled]="loading() || sendingActivationEmail()"
+          >
+            @if (sendingActivationEmail()) { {{ 'auth.login.activationEmailSending' | translate }} }
+            @else { {{ 'auth.login.activationEmailCta' | translate }} }
+          </button>
+          } }
         </div>
 
         @if (authMode() !== 'sso-only') {
-          <form
-            [formGroup]="form"
-            data-og7="auth-login"
-            (ngSubmit)="onSubmit()"
-            novalidate
-            class="flex flex-col gap-5"
-          >
-            <div class="flex flex-col gap-2">
-              <label
-                class="text-sm font-medium text-body"
-                for="auth-login-email"
+        <form
+          [formGroup]="form"
+          data-og7="auth-login"
+          (ngSubmit)="onSubmit()"
+          novalidate
+          class="flex flex-col gap-5"
+        >
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-body" for="auth-login-email">
+              {{ 'auth.email' | translate }}
+            </label>
+            <div class="relative">
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute inset-y-0 left-4 inline-flex items-center text-sm font-semibold text-subtle"
               >
-                {{ 'auth.email' | translate }}
-              </label>
-              <div class="relative">
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none absolute inset-y-0 left-4 inline-flex items-center text-sm font-semibold text-subtle"
-                >
-                  @
-                </span>
-                <input
-                  id="auth-login-email"
-                  type="email"
-                  formControlName="email"
-                  #emailInput
-                  inputmode="email"
-                  autocomplete="username"
-                  [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
-                  [attr.aria-describedby]="form.controls.email.invalid ? emailErrorId : null"
-                  class="h-12 w-full rounded-xl border border-[color:var(--og7-color-border)] bg-surface px-4 pl-10 text-base text-title shadow-sm placeholder:text-subtle transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--og7-ring-focus)]"
-                />
-              </div>
-              @if (form.controls.email.touched && form.controls.email.invalid) {
-                <p
-                  class="text-sm text-error"
-                  [id]="emailErrorId"
-                  data-og7="auth-login-email-error"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  @if (form.controls.email.hasError('required')) {
-                    {{ 'auth.errors.emailRequired' | translate }}
-                  } @else {
-                    {{ 'auth.errors.emailInvalid' | translate }}
-                  }
-                </p>
-              }
+                @
+              </span>
+              <input
+                id="auth-login-email"
+                type="email"
+                formControlName="email"
+                #emailInput
+                inputmode="email"
+                autocomplete="username"
+                [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+                [attr.aria-describedby]="form.controls.email.invalid ? emailErrorId : null"
+                class="h-12 w-full rounded-xl border border-[color:var(--og7-color-border)] bg-surface px-4 pl-10 text-base text-title shadow-sm placeholder:text-subtle transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--og7-ring-focus)]"
+              />
             </div>
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+            <p
+              class="text-sm text-error"
+              [id]="emailErrorId"
+              data-og7="auth-login-email-error"
+              role="alert"
+              aria-live="polite"
+            >
+              @if (form.controls.email.hasError('required')) { {{ 'auth.errors.emailRequired' |
+              translate }} } @else { {{ 'auth.errors.emailInvalid' | translate }} }
+            </p>
+            }
+          </div>
 
-            <div class="flex flex-col gap-2">
-              <label
-                class="text-sm font-medium text-body"
-                for="auth-login-password"
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-body" for="auth-login-password">
+              {{ 'auth.password' | translate }}
+            </label>
+            <div class="relative flex items-center">
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute inset-y-0 left-4 inline-flex items-center text-sm font-semibold text-subtle"
               >
-                {{ 'auth.password' | translate }}
-              </label>
-              <div class="relative flex items-center">
-                <span
-                  aria-hidden="true"
-                  class="pointer-events-none absolute inset-y-0 left-4 inline-flex items-center text-sm font-semibold text-subtle"
-                >
-                  *
-                </span>
-                <input
-                  id="auth-login-password"
-                  [type]="passwordVisible() ? 'text' : 'password'"
-                  formControlName="password"
-                  autocomplete="current-password"
-                  [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
-                  [attr.aria-describedby]="form.controls.password.invalid ? passwordErrorId : null"
-                  class="h-12 w-full rounded-xl border border-[color:var(--og7-color-border)] bg-surface px-4 pl-10 pr-24 text-base text-title shadow-sm placeholder:text-subtle transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--og7-ring-focus)]"
-                />
-                <button
-                  type="button"
-                  class="absolute inset-y-1 right-1 inline-flex h-10 items-center justify-center rounded-lg px-3 text-sm font-medium text-subtle transition hover:bg-surface-muted hover:text-title focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--og7-ring-focus)]"
-                  (click)="togglePasswordVisibility()"
-                  [disabled]="loading()"
-                  [attr.aria-label]="
+                *
+              </span>
+              <input
+                id="auth-login-password"
+                [type]="passwordVisible() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="current-password"
+                [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+                [attr.aria-describedby]="form.controls.password.invalid ? passwordErrorId : null"
+                class="h-12 w-full rounded-xl border border-[color:var(--og7-color-border)] bg-surface px-4 pl-10 pr-24 text-base text-title shadow-sm placeholder:text-subtle transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--og7-ring-focus)]"
+              />
+              <button
+                type="button"
+                class="absolute inset-y-1 right-1 inline-flex h-10 items-center justify-center rounded-lg px-3 text-sm font-medium text-subtle transition hover:bg-surface-muted hover:text-title focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--og7-ring-focus)]"
+                (click)="togglePasswordVisibility()"
+                [disabled]="loading()"
+                [attr.aria-label]="
                     passwordVisible()
                       ? ('auth.passwordToggle.hide' | translate)
                       : ('auth.passwordToggle.show' | translate)
                   "
-                  [attr.aria-pressed]="passwordVisible()"
-                >
-                  {{
-                    passwordVisible()
-                      ? ('auth.passwordToggle.hide' | translate)
-                      : ('auth.passwordToggle.show' | translate)
-                  }}
-                </button>
-              </div>
-              @if (form.controls.password.touched && form.controls.password.hasError('required')) {
-                <p
-                  class="text-sm text-error"
-                  [id]="passwordErrorId"
-                  data-og7="auth-login-password-error"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  {{ 'auth.errors.passwordRequired' | translate }}
-                </p>
-              }
-            </div>
-
-            <div class="flex items-center justify-between rounded-xl bg-surface-muted px-3 py-2 text-sm">
-              <a
-                [routerLink]="['/faq']"
-                fragment="auth-support"
-                class="font-medium text-subtle underline-offset-2 transition hover:text-title hover:underline"
-                data-og7="auth-login-help-link"
+                [attr.aria-pressed]="passwordVisible()"
               >
-                {{ 'auth.login.helpLink' | translate }}
-              </a>
-              <a
-                routerLink="/forgot-password"
-                class="font-medium text-primary underline-offset-2 transition hover:text-primary hover:underline"
-                data-og7="auth-login-forgot-link"
-              >
-                {{ 'auth.forgotPassword.link' | translate }}
-              </a>
+                {{ passwordVisible() ? ('auth.passwordToggle.hide' | translate) :
+                ('auth.passwordToggle.show' | translate) }}
+              </button>
             </div>
-
-            <button
-              type="submit"
-              [disabled]="loading()"
-              data-og7="auth-login-submit"
-              class="btn-primary h-12 w-full justify-center rounded-xl text-sm sm:text-base"
+            @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <p
+              class="text-sm text-error"
+              [id]="passwordErrorId"
+              data-og7="auth-login-password-error"
+              role="alert"
+              aria-live="polite"
             >
-              @if (loading()) {
-                <span
-                  aria-hidden="true"
-                  class="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                ></span>
-                {{ 'auth.login.loading' | translate }}
-              } @else {
-                {{ 'auth.login.submit' | translate }}
-              }
-            </button>
+              {{ 'auth.errors.passwordRequired' | translate }}
+            </p>
+            }
+          </div>
 
+          <div
+            class="flex items-center justify-between rounded-xl bg-surface-muted px-3 py-2 text-sm"
+          >
             <a
-              routerLink="/register"
-              class="mx-auto text-sm font-semibold text-primary underline-offset-2 transition hover:underline"
-              data-og7="auth-login-register-link"
+              [routerLink]="['/faq']"
+              fragment="auth-support"
+              class="font-medium text-subtle underline-offset-2 transition hover:text-title hover:underline"
+              data-og7="auth-login-help-link"
             >
-              {{ 'auth.signup' | translate }}
+              {{ 'auth.login.helpLink' | translate }}
             </a>
-          </form>
+            <a
+              routerLink="/forgot-password"
+              class="font-medium text-primary underline-offset-2 transition hover:text-primary hover:underline"
+              data-og7="auth-login-forgot-link"
+            >
+              {{ 'auth.forgotPassword.link' | translate }}
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="loading()"
+            data-og7="auth-login-submit"
+            class="btn-primary h-12 w-full justify-center rounded-xl text-sm sm:text-base"
+          >
+            @if (loading()) {
+            <span
+              aria-hidden="true"
+              class="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+            ></span>
+            {{ 'auth.login.loading' | translate }} } @else { {{ 'auth.login.submit' | translate }} }
+          </button>
+
+          <a
+            routerLink="/register"
+            class="mx-auto text-sm font-semibold text-primary underline-offset-2 transition hover:underline"
+            data-og7="auth-login-register-link"
+          >
+            {{ 'auth.signup' | translate }}
+          </a>
+        </form>
         }
       </section>
     </div>

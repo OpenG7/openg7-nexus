@@ -2,7 +2,12 @@ import { signal } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { FiltersService } from '@app/core/filters.service';
 import { provideStorybookEnTranslations } from '@app/core/i18n/storybook-translate.providers';
-import { MapGeojsonService, MapFlowFeatureCollection, MapHubFeatureCollection, MapProvinceFeatureCollection } from '@app/core/services/map-geojson.service';
+import {
+  MapGeojsonService,
+  MapFlowFeatureCollection,
+  MapHubFeatureCollection,
+  MapProvinceFeatureCollection,
+} from '@app/core/services/map-geojson.service';
 import { selectFilteredFlows, selectMapKpis, selectMapReady } from '@app/state';
 import { selectSectors } from '@app/state/catalog/catalog.selectors';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -13,7 +18,10 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { HomeMapSectionComponent } from './home-map-section.component';
 
 class StoryMapGeojsonService {
-  provinceCollection = signal<MapProvinceFeatureCollection>({ type: 'FeatureCollection', features: [] });
+  provinceCollection = signal<MapProvinceFeatureCollection>({
+    type: 'FeatureCollection',
+    features: [],
+  });
   flowCollection = signal<MapFlowFeatureCollection>({ type: 'FeatureCollection', features: [] });
   hubCollection = signal<MapHubFeatureCollection>({ type: 'FeatureCollection', features: [] });
 }
@@ -36,7 +44,12 @@ const meta: Meta<HomeMapSectionComponent> = {
               value: [
                 { id: 'flow-agri', sectorId: 'agri-food', value: 2_300_000_000, currency: 'CAD' },
                 { id: 'flow-energy', sectorId: 'energy', value: 1_520_000_000, currency: 'CAD' },
-                { id: 'flow-digital', sectorId: 'digital-services', value: 860_000_000, currency: 'CAD' },
+                {
+                  id: 'flow-digital',
+                  sectorId: 'digital-services',
+                  value: 860_000_000,
+                  currency: 'CAD',
+                },
               ],
             },
             {

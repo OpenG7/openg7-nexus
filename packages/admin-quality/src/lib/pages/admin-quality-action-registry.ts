@@ -1,11 +1,20 @@
-import { AdminQualityMatrixEntry, AdminQualityMatrixStatus } from '../data-access/admin-quality-matrix.service';
+import {
+  AdminQualityMatrixEntry,
+  AdminQualityMatrixStatus,
+} from '../data-access/admin-quality-matrix.service';
 
 import {
   GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY,
   GeneratedAdminQualityActionDiscovery,
 } from './admin-quality-action-discovery.generated';
 
-export type AdminQualityActionIntent = 'navigation' | 'workflow' | 'mutation' | 'sharing' | 'export' | 'moderation';
+export type AdminQualityActionIntent =
+  | 'navigation'
+  | 'workflow'
+  | 'mutation'
+  | 'sharing'
+  | 'export'
+  | 'moderation';
 export type AdminQualityActionTrigger = 'button' | 'link' | 'submit' | 'menu';
 export type AdminQualityActionStatus = 'proved' | 'documented' | 'needs-completion';
 
@@ -119,7 +128,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     label: 'Ouvrir un corridor temps reel',
     route: '/',
     component: 'HomeCorridorsRealtimeComponent',
-    sourceFile: 'src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
+    sourceFile:
+      'src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
     selector: '[data-og7="corridors-realtime"] [data-og7-id="corridor-item"]',
     trigger: 'button',
     intent: 'navigation',
@@ -136,13 +146,15 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     label: 'Voir sur la carte',
     route: '/',
     component: 'HomeCorridorsRealtimeComponent',
-    sourceFile: 'src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
+    sourceFile:
+      'src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
     selector: '[data-og7="corridors-realtime"] [data-og7-id="view-map"]',
     trigger: 'button',
     intent: 'navigation',
     hasActionHook: false,
     context: 'Le corridor resume doit pouvoir renvoyer vers une lecture cartographique plus riche.',
-    expectedResult: 'Basculer vers la vue carte avec la couche ou le corridor cible preselectionne.',
+    expectedResult:
+      'Basculer vers la vue carte avec la couche ou le corridor cible preselectionne.',
     preconditions: ['Le widget corridors est visible.'],
     proof: ['e2e/corridors-realtime.spec.ts', 'e2e/map.spec.ts'],
     states: { loading: false, success: false, error: false, offline: false, permission: false },
@@ -153,7 +165,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     label: 'Ouvrir le drawer de publication',
     route: '/feed',
     component: 'FeedPublishSectionComponent',
-    sourceFile: 'src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
+    sourceFile:
+      'src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
     selector: '[data-og7-id="feed-open-publish-drawer"]',
     trigger: 'button',
     intent: 'workflow',
@@ -161,7 +174,10 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     context: 'Le feed doit permettre de publier sans quitter le contexte de veille.',
     expectedResult: 'Ouvrir un drawer de publication et restaurer le focus a la fermeture.',
     preconditions: ['Page feed visible.'],
-    proof: ['e2e/feed-publish-panel.spec.ts', 'src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.spec.ts'],
+    proof: [
+      'e2e/feed-publish-panel.spec.ts',
+      'src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.spec.ts',
+    ],
     states: { loading: false, success: false, error: false, offline: false, permission: true },
   },
   {
@@ -193,7 +209,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'mutation',
     hasActionHook: true,
     context: 'Le drawer d offre collecte capacite, dates, pricing et piece jointe.',
-    expectedResult: 'Soumettre, afficher succes ou erreur et gerer la reprise offline quand necessaire.',
+    expectedResult:
+      'Soumettre, afficher succes ou erreur et gerer la reprise offline quand necessaire.',
     preconditions: ['Le drawer de proposition est ouvert.', 'Le formulaire est valide.'],
     proof: [
       'e2e/opportunity-offer-flow.spec.ts',
@@ -214,7 +231,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'mutation',
     hasActionHook: true,
     context: 'Le workflow d offre doit etre resilent apres une erreur ou une file offline.',
-    expectedResult: 'Relancer la soumission a partir de l etat courant sans perdre les donnees saisies.',
+    expectedResult:
+      'Relancer la soumission a partir de l etat courant sans perdre les donnees saisies.',
     preconditions: ['Une erreur ou une attente offline est affichee dans le drawer.'],
     proof: ['e2e/quality-breadth-form-error-recovery.spec.ts'],
     states: { loading: true, success: true, error: true, offline: true, permission: true },
@@ -265,7 +283,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'mutation',
     hasActionHook: true,
     context: 'Le drawer de mise a jour transforme une contribution en preuve exploitable.',
-    expectedResult: 'Valider le formulaire, afficher succes ou erreur et permettre de revoir son rapport.',
+    expectedResult:
+      'Valider le formulaire, afficher succes ou erreur et permettre de revoir son rapport.',
     preconditions: ['Le drawer de mise a jour est ouvert.', 'Le formulaire est valide.'],
     proof: ['e2e/feed-alert-detail.spec.ts', 'e2e/quality-breadth-announcement-continuity.spec.ts'],
     states: { loading: true, success: true, error: true, offline: false, permission: true },
@@ -298,7 +317,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     trigger: 'button',
     intent: 'workflow',
     hasActionHook: true,
-    context: 'Le detail indicateur doit ouvrir un workflow de creation d alerte sans rompre le contexte.',
+    context:
+      'Le detail indicateur doit ouvrir un workflow de creation d alerte sans rompre le contexte.',
     expectedResult: 'Afficher le drawer de regle avec les valeurs pre-remplies pertinentes.',
     preconditions: ['Un indicateur est ouvert.'],
     proof: ['e2e/feed-indicator-detail.spec.ts'],
@@ -315,7 +335,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     trigger: 'submit',
     intent: 'mutation',
     hasActionHook: true,
-    context: 'La regle d alerte indicateur doit etre enregistrable avec seuil, fenetre et frequence.',
+    context:
+      'La regle d alerte indicateur doit etre enregistrable avec seuil, fenetre et frequence.',
     expectedResult: 'Creer la regle, afficher succes ou erreur et supporter la file offline.',
     preconditions: ['Le drawer indicateur est ouvert.', 'Le formulaire est valide.'],
     proof: ['e2e/feed-indicator-detail.spec.ts', 'e2e/quality-breadth-offline-queueing.spec.ts'],
@@ -332,7 +353,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     trigger: 'button',
     intent: 'mutation',
     hasActionHook: true,
-    context: 'Les regles indicateur doivent survivre aux erreurs de soumission et aux reprises offline.',
+    context:
+      'Les regles indicateur doivent survivre aux erreurs de soumission et aux reprises offline.',
     expectedResult: 'Relancer la soumission sans perdre la configuration deja saisie.',
     preconditions: ['Un etat erreur ou offline est affiche dans le drawer.'],
     proof: ['e2e/quality-breadth-offline-queueing.spec.ts'],
@@ -350,7 +372,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'mutation',
     hasActionHook: true,
     context: 'Le proprietaire doit pouvoir faire evoluer le cycle de vie d une opportunite.',
-    expectedResult: 'Archiver la ressource et la rendre visible comme archivee dans les parcours en aval.',
+    expectedResult:
+      'Archiver la ressource et la rendre visible comme archivee dans les parcours en aval.',
     preconditions: ['Utilisateur proprietaire.', 'Une opportunite editable est ouverte.'],
     proof: ['e2e/opportunity-archive-lifecycle.spec.ts'],
     states: { loading: false, success: true, error: false, offline: false, permission: true },
@@ -367,7 +390,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'mutation',
     hasActionHook: true,
     context: 'Le reporting opportunite nourrit le cycle d enrichissement et de moderation.',
-    expectedResult: 'Valider le rapport puis afficher la consultation ou la reprise d un autre rapport.',
+    expectedResult:
+      'Valider le rapport puis afficher la consultation ou la reprise d un autre rapport.',
     preconditions: ['Le drawer de rapport est ouvert.', 'Le formulaire est valide.'],
     proof: ['e2e/opportunity-enrichment-lifecycle.spec.ts'],
     states: { loading: true, success: true, error: false, offline: false, permission: true },
@@ -487,7 +511,11 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     hasActionHook: false,
     context: 'La moderation trust doit produire une decision historisee et visible publiquement.',
     expectedResult: 'Sauvegarder la decision, la note et les preuves associees.',
-    preconditions: ['Utilisateur admin.', 'Une entreprise est selectionnee.', 'Le formulaire est valide.'],
+    preconditions: [
+      'Utilisateur admin.',
+      'Une entreprise est selectionnee.',
+      'Le formulaire est valide.',
+    ],
     proof: ['e2e/admin-trust-visibility.spec.ts'],
     states: { loading: true, success: true, error: true, offline: false, permission: true },
   },
@@ -503,7 +531,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     intent: 'workflow',
     hasActionHook: false,
     context: 'Le cockpit doit garder un go humain avant execution d une mission.',
-    expectedResult: 'Basculer la recommandation vers un etat pret a lancer et journaliser la decision.',
+    expectedResult:
+      'Basculer la recommandation vers un etat pret a lancer et journaliser la decision.',
     preconditions: ['Une recommandation est proposee.'],
     proof: ['src/app/domains/admin/pages/admin-quality.page.spec.ts'],
     states: { loading: false, success: true, error: false, offline: false, permission: true },
@@ -514,7 +543,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     label: 'Copier le brief Codex',
     route: '/admin/quality',
     component: 'AdminQualityPage',
-    sourceFile: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
+    sourceFile:
+      'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
     selector: '[data-og7-id="admin-quality-copy-codex"]',
     trigger: 'button',
     intent: 'workflow',
@@ -531,7 +561,8 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
     label: 'Ouvrir une issue GitHub pre-remplie',
     route: '/admin/quality',
     component: 'AdminQualityPage',
-    sourceFile: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
+    sourceFile:
+      'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
     selector: '[data-og7-id="admin-quality-open-issue"]',
     trigger: 'button',
     intent: 'workflow',
@@ -544,7 +575,9 @@ const ACTION_REGISTRY: readonly AdminQualityActionRegistryItem[] = [
   },
 ];
 
-export function buildActionRegistry(entries: readonly AdminQualityMatrixEntry[]): readonly AdminQualityActionRecord[] {
+export function buildActionRegistry(
+  entries: readonly AdminQualityMatrixEntry[],
+): readonly AdminQualityActionRecord[] {
   const entryMap = new Map(entries.map((entry) => [entry.id, entry]));
   const discoveryMap = buildDiscoveryMap();
 
@@ -552,7 +585,9 @@ export function buildActionRegistry(entries: readonly AdminQualityMatrixEntry[])
     const matrixEntry = entryMap.get(item.entryId);
     const discovery = discoveryMap.get(item.id);
     const matrixE2EStatus = matrixEntry?.e2eStatus ?? 'non';
-    const detectedTrigger = discovery ? normalizeDiscoveredTrigger(discovery.trigger) : item.trigger;
+    const detectedTrigger = discovery
+      ? normalizeDiscoveredTrigger(discovery.trigger)
+      : item.trigger;
     const detectedActionHook = discovery?.hasActionHook ?? item.hasActionHook;
     const detectedSpecFiles = discovery?.specFiles ?? [];
     const detectedE2EFiles = discovery?.e2eFiles ?? [];
@@ -571,7 +606,13 @@ export function buildActionRegistry(entries: readonly AdminQualityMatrixEntry[])
         discovery?.sourceFiles.map((source) => `${source.file}:${source.line}`) ?? [],
       detectedSpecFiles,
       detectedE2EFiles,
-      completionScore: computeCompletionScore(item, discovery, detectedTrigger, detectedActionHook, proofFiles),
+      completionScore: computeCompletionScore(
+        item,
+        discovery,
+        detectedTrigger,
+        detectedActionHook,
+        proofFiles,
+      ),
       status: deriveStatus(gaps, matrixE2EStatus, proofFiles),
       gaps,
     };
@@ -585,7 +626,7 @@ export function buildActionRegistry(entries: readonly AdminQualityMatrixEntry[])
 }
 
 export function buildUndocumentedDiscoveredActions(
-  entries: readonly AdminQualityMatrixEntry[]
+  entries: readonly AdminQualityMatrixEntry[],
 ): readonly AdminQualityUndocumentedActionRecord[] {
   const entryMap = new Map(entries.map((entry) => [entry.id, entry]));
   const documentedIds = new Set(ACTION_REGISTRY.map((item) => item.id));
@@ -607,7 +648,9 @@ export function buildUndocumentedDiscoveredActions(
       };
     })
     .sort((left, right) => {
-      return left.domain.localeCompare(right.domain, 'fr-CA') || left.id.localeCompare(right.id, 'fr-CA');
+      return (
+        left.domain.localeCompare(right.domain, 'fr-CA') || left.id.localeCompare(right.id, 'fr-CA')
+      );
     });
 }
 
@@ -616,7 +659,7 @@ function deriveGaps(
   discovery: GeneratedAdminQualityActionDiscovery | undefined,
   trigger: AdminQualityActionTrigger,
   hasActionHook: boolean,
-  proofFiles: readonly string[]
+  proofFiles: readonly string[],
 ): readonly string[] {
   const gaps: string[] = [];
 
@@ -662,7 +705,7 @@ function computeCompletionScore(
   discovery: GeneratedAdminQualityActionDiscovery | undefined,
   trigger: AdminQualityActionTrigger,
   hasActionHook: boolean,
-  proofFiles: readonly string[]
+  proofFiles: readonly string[],
 ): number {
   const checks = [
     Boolean(item.selector.trim()) && Boolean(discovery),
@@ -676,7 +719,10 @@ function computeCompletionScore(
   return Math.round((passedChecks / checks.length) * 100);
 }
 
-function hasRequiredStateCoverage(item: AdminQualityActionRegistryItem, trigger: AdminQualityActionTrigger): boolean {
+function hasRequiredStateCoverage(
+  item: AdminQualityActionRegistryItem,
+  trigger: AdminQualityActionTrigger,
+): boolean {
   if (trigger === 'submit') {
     return item.states.loading && item.states.success && item.states.error;
   }
@@ -691,7 +737,7 @@ function hasRequiredStateCoverage(item: AdminQualityActionRegistryItem, trigger:
 function deriveStatus(
   gaps: readonly string[],
   matrixE2EStatus: AdminQualityMatrixStatus,
-  proofFiles: readonly string[]
+  proofFiles: readonly string[],
 ): AdminQualityActionStatus {
   if (gaps.length) {
     return 'needs-completion';
@@ -719,7 +765,9 @@ function buildDiscoveryMap(): ReadonlyMap<string, GeneratedAdminQualityActionDis
   return new Map(GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY.map((item) => [item.id, item]));
 }
 
-function normalizeDiscoveredTrigger(trigger: GeneratedAdminQualityActionDiscovery['trigger']): AdminQualityActionTrigger {
+function normalizeDiscoveredTrigger(
+  trigger: GeneratedAdminQualityActionDiscovery['trigger'],
+): AdminQualityActionTrigger {
   return trigger === 'link' || trigger === 'submit' ? trigger : 'button';
 }
 
@@ -737,7 +785,10 @@ function guessEntryIdFromDiscovery(item: GeneratedAdminQualityActionDiscovery): 
   if (source.includes('/domains/admin/pages/admin-trust')) {
     return 'trust-validation';
   }
-  if (source.includes('/domains/account/pages/profile') || source.includes('/domains/account/pages/saved-searches')) {
+  if (
+    source.includes('/domains/account/pages/profile') ||
+    source.includes('/domains/account/pages/saved-searches')
+  ) {
     return 'account-data';
   }
   if (source.includes('/domains/account/pages/alerts')) {
@@ -770,7 +821,10 @@ function guessEntryIdFromDiscovery(item: GeneratedAdminQualityActionDiscovery): 
   ) {
     return 'business-lifecycle';
   }
-  if (source.includes('/domains/feed/feature') || source.includes('/domains/feed/feature/og7-feed-card')) {
+  if (
+    source.includes('/domains/feed/feature') ||
+    source.includes('/domains/feed/feature/og7-feed-card')
+  ) {
     return 'feed-signals';
   }
   if (source.includes('/shared/components/layout/site-header')) {

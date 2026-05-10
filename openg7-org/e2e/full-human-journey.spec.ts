@@ -95,7 +95,7 @@ const indicatorItem: FeedApiItem = {
 const e2eOrigin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4300';
 
 async function mockRuntimeConfig(page: Page): Promise<void> {
-  await page.route('**/runtime-config.js', async route => {
+  await page.route('**/runtime-config.js', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/javascript',
@@ -111,7 +111,7 @@ async function mockRuntimeConfig(page: Page): Promise<void> {
 }
 
 async function mockCatalogApis(page: Page): Promise<void> {
-  await page.route('**/api/sectors', async route => {
+  await page.route('**/api/sectors', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -121,7 +121,7 @@ async function mockCatalogApis(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/provinces', async route => {
+  await page.route('**/api/provinces', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -134,7 +134,7 @@ async function mockCatalogApis(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/companies', async route => {
+  await page.route('**/api/companies', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -154,7 +154,7 @@ async function mockFeedApis(page: Page): Promise<void> {
     'access-control-allow-headers': 'Content-Type, Idempotency-Key, Authorization',
   };
 
-  await page.route('**/api/feed/stream**', async route => {
+  await page.route('**/api/feed/stream**', async (route) => {
     await route.fulfill({
       status: 200,
       headers: {
@@ -166,7 +166,7 @@ async function mockFeedApis(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/feed**', async route => {
+  await page.route('**/api/feed**', async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     if (pathname !== '/api/feed') {
@@ -259,16 +259,15 @@ async function openFeedFromHome(page: Page): Promise<void> {
   await expect(homeCtaLink).toBeVisible();
   await expect(homeCtaLink).toHaveAttribute('href', '/feed');
 
-  await Promise.all([
-    page.waitForURL(/\/feed($|\?)/),
-    homeCtaLink.click(),
-  ]);
+  await Promise.all([page.waitForURL(/\/feed($|\?)/), homeCtaLink.click()]);
 
   await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
 }
 
 test.describe('Full human journey', () => {
-  test('simulates a complete user journey across discovery, action, and follow-up', async ({ page }) => {
+  test('simulates a complete user journey across discovery, action, and follow-up', async ({
+    page,
+  }) => {
     await mockRuntimeConfig(page);
     await mockAuthenticatedSessionApis(page);
     await mockCatalogApis(page);
@@ -299,9 +298,9 @@ test.describe('Full human journey', () => {
     await page.locator('[data-og7-id="start-date"]').fill('2026-03-16');
     await page.locator('[data-og7-id="end-date"]').fill('2026-03-30');
     await page.locator('[data-og7-id="pricing-model"]').selectOption('indexed');
-    await page.locator('[data-og7-id="comment"]').fill(
-      'Indexed import block for the late-winter balancing window.'
-    );
+    await page
+      .locator('[data-og7-id="comment"]')
+      .fill('Indexed import block for the late-winter balancing window.');
     await page.locator('[data-og7-id="attachment"]').setInputFiles({
       name: 'term-sheet.pdf',
       mimeType: 'application/pdf',
@@ -319,7 +318,7 @@ test.describe('Full human journey', () => {
 
     await expect(page.locator('[data-og7-id="opportunity-make-offer"]')).toHaveAttribute(
       'data-og7-state',
-      'existing'
+      'existing',
     );
     await page.locator('[data-og7-id="opportunity-make-offer"]').click();
     await expect(page).toHaveURL(/\/alerts\?section=offers&offerId=/);
@@ -331,27 +330,31 @@ test.describe('Full human journey', () => {
     await expect(offerItem).toContainText('term-sheet.pdf');
     await offerItem.locator('[data-og7-id="opportunity-offer-toggle-thread"]').click();
     await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
-      /Tracking active|Suivi active/
+      /Tracking active|Suivi active/,
     );
 
     await offerItem.locator('[data-og7-id="opportunity-offer-progress-discussion"]').click();
     await expect(offerItem).toHaveAttribute('data-og7-state', 'inDiscussion');
-    await expect(offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(
-      /Discussion opened|Discussion ouverte/
-    );
+    await expect(
+      offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]'),
+    ).toContainText(/Discussion opened|Discussion ouverte/);
     await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
-      /Request qualified|Demande qualifiee/
+      /Request qualified|Demande qualifiee/,
     );
 
     await offerItem.locator('[data-og7-id="opportunity-offer-progress-partial"]').click();
     await expect(offerItem).toHaveAttribute('data-og7-state', 'partiallyServed');
-    await expect(offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]')).toContainText(
-      /Partial allocation|Attribution partielle/
+    await expect(
+      offerItem.locator('[data-og7-id="opportunity-offer-last-activity"]'),
+    ).toContainText(/Partial allocation|Attribution partielle/);
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText(
+      '200 MW',
     );
-    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText('200 MW');
-    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText('100 MW');
+    await expect(offerItem.locator('[data-og7-id="opportunity-offer-allocation"]')).toContainText(
+      '100 MW',
+    );
     await expect(offerItem.locator('[data-og7="opportunity-offer-thread"]')).toContainText(
-      /200 MW/
+      /200 MW/,
     );
 
     await page.goto('/feed');
@@ -370,14 +373,16 @@ test.describe('Full human journey', () => {
 
     await page.locator('[data-og7-id="alert-report-update"]').click();
     await expect(page.locator('[data-og7="alert-update-drawer"]')).toBeVisible();
-    await page.locator('[data-og7="alert-update-field"][data-og7-id="summary"]').fill(
-      'Transmission icing confirmed by the latest operator update.'
-    );
-    await page.locator('[data-og7="alert-update-field"][data-og7-id="source-url"]').fill(
-      'https://example.com/operator-update'
-    );
+    await page
+      .locator('[data-og7="alert-update-field"][data-og7-id="summary"]')
+      .fill('Transmission icing confirmed by the latest operator update.');
+    await page
+      .locator('[data-og7="alert-update-field"][data-og7-id="source-url"]')
+      .fill('https://example.com/operator-update');
     await page.locator('[data-og7-id="alert-update-submit"]').click();
-    await expect(page.locator('[data-og7="alert-update-status"][data-og7-id="success"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="alert-update-status"][data-og7-id="success"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="alert-update-drawer"]')).toBeHidden();
 
     await page.locator('[data-og7-id="alert-view-my-report"]').click();
@@ -398,16 +403,18 @@ test.describe('Full human journey', () => {
     await page.locator('#composer-summary').fill(linkedOpportunitySummary);
 
     const publishResponse = page.waitForResponse(
-      response =>
+      (response) =>
         response.url().includes('/api/feed') &&
-        response.request().method().toUpperCase() === 'POST'
+        response.request().method().toUpperCase() === 'POST',
     );
     await page.locator('.feed-composer__submit').click();
     await publishResponse;
 
     await expect(page.locator('[data-og7="feed-publish-drawer"]')).toBeHidden();
     await expect(page).toHaveURL(/\/feed$/);
-    await expect(page.locator('.feed-card__title', { hasText: linkedOpportunityTitle })).toBeVisible();
+    await expect(
+      page.locator('.feed-card__title', { hasText: linkedOpportunityTitle }),
+    ).toBeVisible();
 
     await feedRows
       .filter({ hasText: indicatorItem.title })
@@ -422,9 +429,9 @@ test.describe('Full human journey', () => {
     await indicatorSubscribeButton.click();
     await expect(page.locator('[data-og7="indicator-alert-drawer"]')).toBeVisible();
     await page.locator('[data-og7="indicator-alert-drawer"] input[type="number"]').fill('15');
-    await page.locator('[data-og7="indicator-alert-drawer"] textarea').fill(
-      'Notify operations if spot prices exceed threshold.'
-    );
+    await page
+      .locator('[data-og7="indicator-alert-drawer"] textarea')
+      .fill('Notify operations if spot prices exceed threshold.');
     await page.locator('[data-og7-id="indicator-alert-submit"]').click();
     await expect(page.locator('[data-og7="indicator-alert-drawer"]')).toBeHidden();
     await expect(indicatorSubscribeButton).toHaveText(/View my alert|Voir mon alerte/i);
@@ -434,8 +441,8 @@ test.describe('Full human journey', () => {
     await expect(page).toHaveURL(/\/profile$/);
     await expect(page.locator('[data-og7="user-profile"]')).toBeVisible();
 
-    const exportResponse = page.waitForResponse(response =>
-      response.url().includes('/api/users/me/profile/export')
+    const exportResponse = page.waitForResponse((response) =>
+      response.url().includes('/api/users/me/profile/export'),
     );
     await page.locator('[data-og7-id="export-account-data"]').click();
     expect((await exportResponse).status()).toBe(200);

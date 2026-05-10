@@ -1,11 +1,10 @@
-<section
-  class="opportunity-compact-kpi"
-  [attr.aria-labelledby]="vm().id + '-title'"
->
+<section class="opportunity-compact-kpi" [attr.aria-labelledby]="vm().id + '-title'">
   <header class="opportunity-compact-kpi__header">
-    <p class="opportunity-compact-kpi__eyebrow">{{ 'opportunities.compact.prototypeLabel' | translate }}</p>
+    <p class="opportunity-compact-kpi__eyebrow">
+      {{ 'opportunities.compact.prototypeLabel' | translate }}
+    </p>
     <h3 class="opportunity-compact-kpi__title" [id]="vm().id + '-title'">
-      {{ 'opportunities.compact.title' | translate:{ count: vm().items.length } }}
+      {{ 'opportunities.compact.title' | translate: { count: vm().items.length } }}
     </h3>
   </header>
 
@@ -16,8 +15,12 @@
       *ngFor="let item of vm().items; trackBy: trackByItemId"
     >
       <span class="opportunity-compact-kpi__chip opportunity-compact-kpi__chip--sector">
-        <span class="opportunity-compact-kpi__chip-icon" aria-hidden="true">{{ item.sectorIcon }}</span>
-        <span class="opportunity-compact-kpi__chip-text">{{ item.sectorLabelKey | translate }}</span>
+        <span class="opportunity-compact-kpi__chip-icon" aria-hidden="true">{{
+          item.sectorIcon
+        }}</span>
+        <span class="opportunity-compact-kpi__chip-text">{{
+          item.sectorLabelKey | translate
+        }}</span>
       </span>
 
       <span class="opportunity-compact-kpi__chip opportunity-compact-kpi__chip--buyer">
@@ -32,21 +35,26 @@
         class="opportunity-compact-kpi__chip opportunity-compact-kpi__chip--score"
         [attr.data-tone]="item.scoreTone"
       >
-        {{ 'opportunities.compact.scoreLabel' | translate:{ value: item.scorePercent } }}
+        {{ 'opportunities.compact.scoreLabel' | translate: { value: item.scorePercent } }}
       </span>
 
       <span
         class="opportunity-compact-kpi__chip opportunity-compact-kpi__chip--distance"
         [attr.data-status]="item.distancePending ? 'pending' : 'ready'"
       >
-        {{ item.distancePending ? ('opportunities.compact.distancePending' | translate) : item.distanceLabel }}
+        {{
+          item.distancePending
+            ? ('opportunities.compact.distancePending' | translate)
+            : item.distanceLabel
+        }}
       </span>
 
       <button
         type="button"
         class="opportunity-compact-kpi__chip opportunity-compact-kpi__chip--action"
         [attr.aria-label]="
-          'opportunities.compact.actionAria' | translate:{ buyer: item.buyerName, supplier: item.supplierName }
+          'opportunities.compact.actionAria'
+            | translate: { buyer: item.buyerName, supplier: item.supplierName }
         "
         (click)="requestConnect(item.matchId)"
       >

@@ -6,7 +6,9 @@ test.describe('Home sections', () => {
     await page.goto('/');
 
     await expect(page.locator('[data-og7="hero"][data-og7-id="section"]')).toBeVisible();
-    await expect(page.locator('[data-og7="search-box"] input[type="search"]').first()).toBeVisible();
+    await expect(
+      page.locator('[data-og7="search-box"] input[type="search"]').first(),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="corridors-realtime"]')).toBeVisible();
   });
 

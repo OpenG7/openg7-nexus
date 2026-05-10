@@ -1,7 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { StrapiList, Sector, BillingPlan, StatisticsResponse, HydrocarbonSignal } from '@openg7/contracts';
+import type {
+  StrapiList,
+  Sector,
+  BillingPlan,
+  StatisticsResponse,
+  HydrocarbonSignal,
+} from '@openg7/contracts';
 
 import { API_URL } from '../config/environment.tokens';
 import { RuntimeConfigService } from '../config/runtime-config.service';
@@ -74,9 +80,14 @@ describe('StrapiClient', () => {
       },
     };
 
-    const promise = client.statistics({ scope: 'all', intrant: 'energy', period: '2024-Q2', province: null });
+    const promise = client.statistics({
+      scope: 'all',
+      intrant: 'energy',
+      period: '2024-Q2',
+      province: null,
+    });
 
-    const req = httpMock.expectOne(request => request.url === 'https://cms.test/api/statistics');
+    const req = httpMock.expectOne((request) => request.url === 'https://cms.test/api/statistics');
     expect(req.request.params.get('scope')).toBe('all');
     expect(req.request.params.get('intrant')).toBe('energy');
     expect(req.request.params.get('period')).toBe('2024-Q2');
@@ -153,7 +164,9 @@ describe('StrapiClient', () => {
       limit: 12,
     });
 
-    const req = httpMock.expectOne(request => request.url === 'https://cms.test/api/hydrocarbon-signals');
+    const req = httpMock.expectOne(
+      (request) => request.url === 'https://cms.test/api/hydrocarbon-signals',
+    );
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('publicationType')).toBe('surplus');
     expect(req.request.params.get('storagePressureLevel')).toBe('high');

@@ -119,14 +119,15 @@ const DEMO_LINKUPS: readonly LinkupRecord[] = [
       {
         id: 'lkp-001-t2',
         date: '2025-07-04T16:42:00Z',
-        summary: "Premier retour de Nordic Build avec intérêts pour un volume test de 1 000 m³.",
+        summary: 'Premier retour de Nordic Build avec intérêts pour un volume test de 1 000 m³.',
         channel: 'Courriel',
         author: 'Nordic Build Prefab',
       },
       {
         id: 'lkp-001-t3',
         date: '2025-07-10T18:30:00Z',
-        summary: 'Réunion conjointe avec le ministère de l’Économie du Québec pour baliser la logistique.',
+        summary:
+          'Réunion conjointe avec le ministère de l’Économie du Québec pour baliser la logistique.',
         channel: 'Visio',
         author: 'Cellule OpenG7',
       },
@@ -143,7 +144,8 @@ const DEMO_LINKUPS: readonly LinkupRecord[] = [
         id: 'lkp-001-n2',
         date: '2025-07-18T09:12:00Z',
         author: 'Équipe OpenG7 – Xavier',
-        content: 'Nordic Build souhaite ajouter un volet export vers le Maine si le pilote est concluant.',
+        content:
+          'Nordic Build souhaite ajouter un volet export vers le Maine si le pilote est concluant.',
       },
     ],
   },
@@ -169,7 +171,8 @@ const DEMO_LINKUPS: readonly LinkupRecord[] = [
       channel: 'OpenG7',
     },
     primarySector: 'Agroalimentaire',
-    summary: 'Accord de distribution de céréales pour les marchés atlantiques en appui au plan de résilience alimentaire.',
+    summary:
+      'Accord de distribution de céréales pour les marchés atlantiques en appui au plan de résilience alimentaire.',
     timeline: [
       {
         id: 'lkp-002-t1',
@@ -231,7 +234,8 @@ const DEMO_LINKUPS: readonly LinkupRecord[] = [
       channel: 'OpenG7',
     },
     primarySector: 'Technologies propres',
-    summary: 'Recherche d’un fournisseur de composants pour un projet de stockage énergétique nordique.',
+    summary:
+      'Recherche d’un fournisseur de composants pour un projet de stockage énergétique nordique.',
     timeline: [
       {
         id: 'lkp-003-t1',
@@ -316,7 +320,8 @@ const DEMO_LINKUPS: readonly LinkupRecord[] = [
         id: 'lkp-004-n1',
         date: '2025-05-03T08:15:00Z',
         author: 'Équipe OpenG7 – Fatima',
-        content: 'Inscrire le dossier à revisiter lors de la revue semestrielle des projets hydrogène.',
+        content:
+          'Inscrire le dossier à revisiter lors de la revue semestrielle des projets hydrogène.',
       },
     ],
   },
@@ -349,7 +354,7 @@ export class LinkupStore {
     const tradeModeFilter = this.filterMode();
     const search = this.searchTerm().trim().toLowerCase();
 
-    return this.linkups().filter(linkup => {
+    return this.linkups().filter((linkup) => {
       if (statusFilter !== 'all' && linkup.status !== statusFilter) {
         return false;
       }
@@ -364,7 +369,11 @@ export class LinkupStore {
   });
 
   readonly hasActiveFilters = computed(() => {
-    return this.filterStatus() !== 'all' || this.filterMode() !== 'all' || Boolean(this.searchTerm().trim());
+    return (
+      this.filterStatus() !== 'all' ||
+      this.filterMode() !== 'all' ||
+      Boolean(this.searchTerm().trim())
+    );
   });
 
   setStatusFilter(status: LinkupStatus | 'all'): void {
@@ -386,7 +395,7 @@ export class LinkupStore {
   }
 
   getLinkupById(id: string): LinkupRecord | null {
-    return this.linkups().find(item => item.id === id) ?? null;
+    return this.linkups().find((item) => item.id === id) ?? null;
   }
 
   private matchesSearch(linkup: LinkupRecord, query: string): boolean {

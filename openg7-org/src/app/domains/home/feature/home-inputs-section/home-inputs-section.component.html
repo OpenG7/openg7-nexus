@@ -5,9 +5,15 @@
   aria-labelledby="home-inputs-heading"
   aria-describedby="home-inputs-description"
 >
-  <div class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-900/0 via-slate-900/50 to-slate-950"></div>
-  <div class="pointer-events-none absolute -left-24 -top-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl"></div>
-  <div class="pointer-events-none absolute -right-32 bottom-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"></div>
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-900/0 via-slate-900/50 to-slate-950"
+  ></div>
+  <div
+    class="pointer-events-none absolute -left-24 -top-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl"
+  ></div>
+  <div
+    class="pointer-events-none absolute -right-32 bottom-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"
+  ></div>
 
   <div class="relative z-10 flex flex-col gap-6">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -26,7 +32,10 @@
           [attr.data-og7-id]="card.id"
         >
           <div class="flex items-center gap-3">
-            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/80 text-lg" aria-hidden="true">
+            <span
+              class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/80 text-lg"
+              aria-hidden="true"
+            >
               {{ card.icon }}
             </span>
             <h4 class="text-sm font-semibold text-white">

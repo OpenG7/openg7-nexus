@@ -30,7 +30,10 @@ class Og7ModalRefImpl<TResult> implements Og7ModalRef<TResult> {
     this.resolveResult = resolve;
   });
 
-  constructor(private readonly service: Og7ModalService, readonly id: number) {}
+  constructor(
+    private readonly service: Og7ModalService,
+    readonly id: number,
+  ) {}
 
   close(result?: TResult): void {
     if (this._closed()) {
@@ -145,7 +148,10 @@ export class Og7ModalService {
    * @param parent Parent injector used as the creation base.
    * @returns Injector providing modal-scoped dependencies.
    */
-  createContentInjector<TData, TResult>(state: Og7ModalState<TData, TResult>, parent: Injector): Injector {
+  createContentInjector<TData, TResult>(
+    state: Og7ModalState<TData, TResult>,
+    parent: Injector,
+  ): Injector {
     return Injector.create({
       providers: [
         { provide: OG7_MODAL_DATA, useValue: state.data },

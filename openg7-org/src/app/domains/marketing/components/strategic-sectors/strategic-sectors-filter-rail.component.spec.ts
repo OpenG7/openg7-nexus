@@ -53,7 +53,9 @@ describe('StrategicSectorsFilterRailComponent', () => {
     fixture.componentInstance.applyFilters.subscribe(applySpy);
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
+    const buttons = fixture.nativeElement.querySelectorAll(
+      'button',
+    ) as NodeListOf<HTMLButtonElement>;
     buttons[0]?.click();
     buttons[1]?.click();
 

@@ -14,7 +14,10 @@ export interface PartnerSelectionResult {
  * @param id Original identifier of the partner record.
  * @returns A namespaced selection token combining role and id.
  */
-export function createPartnerSelection(role: PartnerProfile['role'], id: string | number): PartnerSelection {
+export function createPartnerSelection(
+  role: PartnerProfile['role'],
+  id: string | number,
+): PartnerSelection {
   const value = String(id ?? '').trim();
   return `${role}:${value}` as PartnerSelection;
 }
@@ -25,7 +28,9 @@ export function createPartnerSelection(role: PartnerProfile['role'], id: string 
  * @param value Raw token to decode, typically sourced from URL state.
  * @returns Parsed selection details or null when the token is invalid.
  */
-export function parsePartnerSelection(value: string | null | undefined): PartnerSelectionResult | null {
+export function parsePartnerSelection(
+  value: string | null | undefined,
+): PartnerSelectionResult | null {
   if (typeof value !== 'string') {
     return null;
   }

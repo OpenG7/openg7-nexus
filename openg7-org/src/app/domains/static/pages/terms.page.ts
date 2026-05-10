@@ -1,15 +1,17 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, DestroyRef, OnDestroy, PLATFORM_ID, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  OnDestroy,
+  PLATFORM_ID,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-type SectionKey =
-  | 'service'
-  | 'access'
-  | 'data'
-  | 'conduct'
-  | 'security'
-  | 'continuity';
+type SectionKey = 'service' | 'access' | 'data' | 'conduct' | 'security' | 'continuity';
 
 interface TermsSectionTranslation {
   anchor?: string;
@@ -127,7 +129,9 @@ export class TermsPage implements AfterViewInit, OnDestroy {
   private refreshContent(): void {
     this.sections = this.sectionOrder
       .map((key): TermsSectionView | null => {
-        const translation = this.resolveObject<TermsSectionTranslation>(`pages.terms.sections.${key}`);
+        const translation = this.resolveObject<TermsSectionTranslation>(
+          `pages.terms.sections.${key}`,
+        );
         if (!translation) {
           return null;
         }
@@ -269,7 +273,7 @@ export class TermsPage implements AfterViewInit, OnDestroy {
       {
         threshold: [0.2, 0.5, 0.8],
         rootMargin: '-20% 0px -50% 0px',
-      }
+      },
     );
 
     for (const section of this.sections) {
@@ -366,5 +370,6 @@ export class TermsPage implements AfterViewInit, OnDestroy {
   protected trackByNavLink = (_: number, link: TermsNavLink) => link.anchor;
   protected trackByHighlight = (_: number, highlight: TermsHighlight) => highlight.title;
   protected trackByObligation = (_: number, obligation: TermsObligation) => obligation.title;
-  protected trackByTimeline = (_: number, entry: TermsTimelineEntry) => `${entry.date}-${entry.label}`;
+  protected trackByTimeline = (_: number, entry: TermsTimelineEntry) =>
+    `${entry.date}-${entry.label}`;
 }

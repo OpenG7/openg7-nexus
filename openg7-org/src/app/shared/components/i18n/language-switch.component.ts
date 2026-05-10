@@ -36,15 +36,13 @@ export class LanguageSwitchComponent {
   ) {
     this.storage = isPlatformBrowser(platformId) ? window.localStorage : null;
 
-    effect(
-      () => {
-        const available = this.locales();
-        const stored = this.storage?.getItem('locale');
-        const initial = stored && available.includes(stored) ? stored : available[0];
-        this.lang.set(initial);
-        this.translate.use(initial);
-      }
-    );
+    effect(() => {
+      const available = this.locales();
+      const stored = this.storage?.getItem('locale');
+      const initial = stored && available.includes(stored) ? stored : available[0];
+      this.lang.set(initial);
+      this.translate.use(initial);
+    });
   }
 
   label(locale: string): string {

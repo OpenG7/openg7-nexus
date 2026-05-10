@@ -22,6 +22,8 @@ describe('AlertDetailBodyComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Transmission corridor');
     expect(fixture.nativeElement.querySelector('.alert-detail-body__map')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.alert-detail-body__sources strong')?.textContent).toContain('Environment Canada');
+    expect(
+      fixture.nativeElement.querySelector('.alert-detail-body__sources strong')?.textContent,
+    ).toContain('Environment Canada');
   });
 });

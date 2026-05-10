@@ -68,9 +68,9 @@ interface PaletteSection {
  * @param dependencies Dépendances injectées automatiquement par Angular.
  * @returns Og7SearchFieldComponent gérée par le framework.
  */
-export class Og7SearchFieldComponent implements
-  ControlValueAccessor, AfterContentInit, Validator, OnDestroy {
-
+export class Og7SearchFieldComponent
+  implements ControlValueAccessor, AfterContentInit, Validator, OnDestroy
+{
   // --- état & id
   static nextId = 0;
   @HostBinding() id = `og7-search-field-${Og7SearchFieldComponent.nextId++}`;
@@ -86,7 +86,9 @@ export class Og7SearchFieldComponent implements
   @Input() debounceMs = 300;
   @Input() queryParamKey?: string;
   private _variant: 'default' | 'compact' | 'hero' | 'toolbar' = 'default';
-  @Input() get variant() { return this._variant; }
+  @Input() get variant() {
+    return this._variant;
+  }
   set variant(value: 'default' | 'compact' | 'hero' | 'toolbar' | undefined) {
     this._variant = value ?? 'default';
   }
@@ -99,16 +101,28 @@ export class Og7SearchFieldComponent implements
 
   // Accessibilité & règles
   private _placeholder = '';
-  @Input() get placeholder() { return this._placeholder; }
-  set placeholder(v: string) { this._placeholder = v; }
+  @Input() get placeholder() {
+    return this._placeholder;
+  }
+  set placeholder(v: string) {
+    this._placeholder = v;
+  }
 
   private _required = false;
-  @Input() get required() { return this._required; }
-  set required(v: boolean) { this._required = coerceBooleanProperty(v); }
+  @Input() get required() {
+    return this._required;
+  }
+  set required(v: boolean) {
+    this._required = coerceBooleanProperty(v);
+  }
 
   private _disabled = false;
-  @Input() get disabled() { return this._disabled; }
-  set disabled(v: boolean) { this._disabled = coerceBooleanProperty(v); }
+  @Input() get disabled() {
+    return this._disabled;
+  }
+  set disabled(v: boolean) {
+    this._disabled = coerceBooleanProperty(v);
+  }
 
   // --- Outputs conservés
   @Output() searchChanged = new EventEmitter<string>();
@@ -128,15 +142,15 @@ export class Og7SearchFieldComponent implements
           label: 'Enbridge Inc.',
           description: 'Ontario',
           badge: 'Énergie',
-          badgeClass: 'bg-cyan-500/20 text-cyan-200'
+          badgeClass: 'bg-cyan-500/20 text-cyan-200',
         },
         {
           label: 'Magna International',
           description: 'Ontario',
           badge: 'Manufacturier',
-          badgeClass: 'bg-sky-500/20 text-sky-200'
-        }
-      ]
+          badgeClass: 'bg-sky-500/20 text-sky-200',
+        },
+      ],
     },
     {
       title: 'Secteurs',
@@ -145,16 +159,16 @@ export class Og7SearchFieldComponent implements
           label: 'Énergie',
           description: 'Tendances et investissements récents',
           badge: 'Actif',
-          badgeClass: 'bg-emerald-500/20 text-emerald-200'
+          badgeClass: 'bg-emerald-500/20 text-emerald-200',
         },
         {
           label: 'Technologie',
           description: 'Croissance des emplois numériques',
           badge: 'Nouveau',
-          badgeClass: 'bg-fuchsia-500/20 text-fuchsia-200'
-        }
-      ]
-    }
+          badgeClass: 'bg-fuchsia-500/20 text-fuchsia-200',
+        },
+      ],
+    },
   ];
 
   readonly secondarySections: ReadonlyArray<PaletteSection> = [
@@ -164,9 +178,9 @@ export class Og7SearchFieldComponent implements
         {
           label: 'Filtrer : Énergie',
           badge: 'Raccourci',
-          badgeClass: 'bg-cyan-500/20 text-cyan-200'
-        }
-      ]
+          badgeClass: 'bg-cyan-500/20 text-cyan-200',
+        },
+      ],
     },
     {
       title: 'Actions',
@@ -174,27 +188,29 @@ export class Og7SearchFieldComponent implements
         {
           label: 'Créer catéprise',
           badge: '⇧ + N',
-          badgeClass: 'bg-slate-800 text-slate-300'
+          badgeClass: 'bg-slate-800 text-slate-300',
         },
         {
           label: 'Ouvrir carte du Canada',
           badge: '↵',
-          badgeClass: 'bg-slate-800 text-slate-300'
-        }
-      ]
+          badgeClass: 'bg-slate-800 text-slate-300',
+        },
+      ],
     },
     {
       title: 'Aide',
       items: [
         {
-          label: "Afficher l'aide"
-        }
-      ]
-    }
+          label: "Afficher l'aide",
+        },
+      ],
+    },
   ];
 
   readonly valueSig = signal('');
-  get value() { return this.valueSig(); }
+  get value() {
+    return this.valueSig();
+  }
   set value(val: string) {
     if (val !== this.valueSig()) {
       this.valueSig.set(val);
@@ -209,10 +225,18 @@ export class Og7SearchFieldComponent implements
 
   // --- variantes host class (si tu veux styler par variant plus tard)
   @HostBinding('class.og7-search') readonly hostBaseClass = true;
-  @HostBinding('class.og7-search--default') get hostDefaultClass() { return this.variant === 'default'; }
-  @HostBinding('class.og7-search--compact') get hostCompactClass() { return this.variant === 'compact'; }
-  @HostBinding('class.og7-search--hero') get hostHeroClass() { return this.variant === 'hero'; }
-  @HostBinding('class.og7-search--toolbar') get hostToolbarClass() { return this.variant === 'toolbar'; }
+  @HostBinding('class.og7-search--default') get hostDefaultClass() {
+    return this.variant === 'default';
+  }
+  @HostBinding('class.og7-search--compact') get hostCompactClass() {
+    return this.variant === 'compact';
+  }
+  @HostBinding('class.og7-search--hero') get hostHeroClass() {
+    return this.variant === 'hero';
+  }
+  @HostBinding('class.og7-search--toolbar') get hostToolbarClass() {
+    return this.variant === 'toolbar';
+  }
 
   // --- flux & subs
   private valueChanges = new Subject<string>();
@@ -225,11 +249,10 @@ export class Og7SearchFieldComponent implements
   ngAfterContentInit() {
     // Debounce sur la frappe
     this.sub.add(
-      this.valueChanges.pipe(debounceTime(this.debounceMs))
-        .subscribe((val) => {
-          this.searchChanged.emit(val);
-          this.dispatchAnalytics('og7:searchChanged', val, 'typing');
-        })
+      this.valueChanges.pipe(debounceTime(this.debounceMs)).subscribe((val) => {
+        this.searchChanged.emit(val);
+        this.dispatchAnalytics('og7:searchChanged', val, 'typing');
+      }),
     );
 
     // Initialisation depuis l’URL ou le storage
@@ -244,10 +267,18 @@ export class Og7SearchFieldComponent implements
   }
 
   // --- CVA
-  writeValue(value: string | null): void { this.value = value ?? ''; }
-  registerOnChange(fn: (value: string) => void): void { this.onChange = fn; }
-  registerOnTouched(fn: () => void): void { this.onTouched = fn; }
-  setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
+  writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
 
   // --- Validator
   validate(_control: AbstractControl): ValidationErrors | null {
@@ -268,10 +299,17 @@ export class Og7SearchFieldComponent implements
       this.clear();
     }
   }
-  onFocus() { this.focused = true; }
-  onBlur()  { this.focused = false; this.onTouched(); }
+  onFocus() {
+    this.focused = true;
+  }
+  onBlur() {
+    this.focused = false;
+    this.onTouched();
+  }
 
-  showClear() { return this.clearable && !this.empty && !this.loading && !this.disabled; }
+  showClear() {
+    return this.clearable && !this.empty && !this.loading && !this.disabled;
+  }
 
   clear() {
     this.value = '';
@@ -370,5 +408,4 @@ export class Og7SearchFieldComponent implements
   ngOnDestroy() {
     this.sub.unsubscribe();
   }
-
 }

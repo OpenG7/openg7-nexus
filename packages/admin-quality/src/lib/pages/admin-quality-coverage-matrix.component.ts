@@ -7,7 +7,15 @@ import {
   AdminQualityMatrixStatus,
 } from '../data-access/admin-quality-matrix.service';
 
-type CoverageSignalTone = 'sky' | 'emerald' | 'lime' | 'amber' | 'orange' | 'rose' | 'violet' | 'slate';
+type CoverageSignalTone =
+  | 'sky'
+  | 'emerald'
+  | 'lime'
+  | 'amber'
+  | 'orange'
+  | 'rose'
+  | 'violet'
+  | 'slate';
 
 export type AdminQualityCoverageSignalId =
   | 'summary'
@@ -75,14 +83,24 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
       class="relative overflow-hidden rounded-[28px] border border-sky-500/25 bg-[#040d1d]/96 p-3 text-white shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-4"
       data-og7="admin-quality-coverage-matrix"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.22),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(14,165,233,0.16),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.28),rgba(2,6,23,0.06))]"></div>
-      <div class="pointer-events-none absolute inset-x-6 top-16 h-px bg-linear-to-r from-transparent via-sky-300/20 to-transparent"></div>
-      <div class="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl"></div>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.22),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(14,165,233,0.16),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.28),rgba(2,6,23,0.06))]"
+      ></div>
+      <div
+        class="pointer-events-none absolute inset-x-6 top-16 h-px bg-linear-to-r from-transparent via-sky-300/20 to-transparent"
+      ></div>
+      <div
+        class="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl"
+      ></div>
 
       <div class="relative space-y-3">
-        <div class="flex flex-col gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          class="flex flex-col gap-3 border-b border-white/10 pb-3 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">Decision cockpit</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-sky-300">
+              Decision cockpit
+            </p>
             <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">Coverage Matrix</h2>
           </div>
 
@@ -95,7 +113,12 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
             data-og7-id="admin-quality-coverage-matrix-legend-toggle"
           >
             <span>Legende</span>
-            <span class="text-xs text-slate-400 transition" [class.rotate-180]="legendOpen()" aria-hidden="true">v</span>
+            <span
+              class="text-xs text-slate-400 transition"
+              [class.rotate-180]="legendOpen()"
+              aria-hidden="true"
+              >v</span
+            >
           </button>
         </div>
 
@@ -109,7 +132,10 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                 class="inline-flex h-5 w-5 items-center justify-center rounded-full border"
                 [ngClass]="signalIndicatorFrameClasses(item.tone)"
               >
-                <span class="h-2 w-2 rounded-full" [ngClass]="signalIndicatorDotClasses(item.tone)"></span>
+                <span
+                  class="h-2 w-2 rounded-full"
+                  [ngClass]="signalIndicatorDotClasses(item.tone)"
+                ></span>
               </span>
               <span>{{ item.shortLabel }}</span>
               <span class="text-slate-400">{{ item.label }}</span>
@@ -135,7 +161,9 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                   aria-hidden="true"
                 ></span>
                 <div class="min-w-0">
-                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">{{ item.label }}</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
+                    {{ item.label }}
+                  </p>
                   <p class="text-xs leading-relaxed text-slate-400">{{ item.detail }}</p>
                 </div>
               </div>
@@ -159,93 +187,109 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
               </div>
 
               <div class="grid gap-2">
-                  @for (entry of entries(); track entry.id) {
-                    <div
-                      role="button"
-                      tabindex="0"
-                      class="grid w-full min-w-0 gap-2 rounded-2xl border border-white/10 px-3 py-2.5 text-left transition lg:grid-cols-[minmax(13rem,1fr)_minmax(12rem,0.72fr)_minmax(10rem,0.84fr)] lg:items-center"
-                      [ngClass]="rowClasses(entry)"
-                      (click)="handleRowClick(entry, $event)"
-                      (keydown)="handleRowKeydown(entry, $event)"
-                      [attr.aria-pressed]="isSelected(entry)"
-                      [attr.data-og7-id]="entry.id"
-                      [attr.data-og7-state]="entry.e2eStatus"
-                      [attr.data-og7-selected]="isSelected(entry) ? 'true' : 'false'"
-                      data-og7="admin-quality-coverage-matrix-row"
-                    >
-                      <div class="min-w-0">
-                        <div class="flex items-center gap-3">
+                @for (entry of entries(); track entry.id) {
+                  <div
+                    role="button"
+                    tabindex="0"
+                    class="grid w-full min-w-0 gap-2 rounded-2xl border border-white/10 px-3 py-2.5 text-left transition lg:grid-cols-[minmax(13rem,1fr)_minmax(12rem,0.72fr)_minmax(10rem,0.84fr)] lg:items-center"
+                    [ngClass]="rowClasses(entry)"
+                    (click)="handleRowClick(entry, $event)"
+                    (keydown)="handleRowKeydown(entry, $event)"
+                    [attr.aria-pressed]="isSelected(entry)"
+                    [attr.data-og7-id]="entry.id"
+                    [attr.data-og7-state]="entry.e2eStatus"
+                    [attr.data-og7-selected]="isSelected(entry) ? 'true' : 'false'"
+                    data-og7="admin-quality-coverage-matrix-row"
+                  >
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-3">
+                        <span
+                          class="coverage-signal flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border"
+                          [ngClass]="statusBadgeClasses(entry.e2eStatus)"
+                          [class.coverage-signal--attention]="statusNeedsAttention(entry.e2eStatus)"
+                          [style.--coverage-glow]="statusGlowColor(entry.e2eStatus)"
+                          aria-hidden="true"
+                        >
                           <span
-                            class="coverage-signal flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border"
-                            [ngClass]="statusBadgeClasses(entry.e2eStatus)"
-                            [class.coverage-signal--attention]="statusNeedsAttention(entry.e2eStatus)"
-                            [style.--coverage-glow]="statusGlowColor(entry.e2eStatus)"
-                            aria-hidden="true"
-                          >
-                            <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="statusDotClasses(entry.e2eStatus)"></span>
-                          </span>
+                            class="relative z-10 h-2.5 w-2.5 rounded-full"
+                            [ngClass]="statusDotClasses(entry.e2eStatus)"
+                          ></span>
+                        </span>
 
-                          <div class="min-w-0">
-                            <p class="truncate text-sm font-semibold" [ngClass]="isSelected(entry) ? 'text-white' : 'text-slate-100'">
-                              {{ entry.domain }}
-                            </p>
-                            <p class="mt-1 truncate text-xs text-slate-400">{{ entry.need }}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="grid grid-cols-[repeat(6,minmax(1.75rem,1fr))] gap-1.5 lg:justify-items-center">
-                        @for (signal of signalsFor(entry); track signal.id) {
-                          <button
-                            type="button"
-                            class="coverage-signal flex h-7 w-full min-w-7 items-center justify-center rounded-full border lg:w-7"
-                            [attr.title]="signal.label"
-                            [attr.aria-label]="signalAriaLabel(entry, signal)"
-                            [attr.aria-pressed]="isSignalSelected(entry, signal.id)"
-                            [attr.data-og7-attention]="signal.attention ? 'true' : 'false'"
-                            data-og7="admin-quality-coverage-signal"
-                            [attr.data-og7-id]="signal.id"
-                            [ngClass]="signalIndicatorFrameClasses(signal.tone)"
-                            [class.ring-2]="isSignalSelected(entry, signal.id)"
-                            [class.ring-cyan-300/65]="isSignalSelected(entry, signal.id)"
-                            [class.coverage-signal--attention]="signal.attention"
-                            [style.--coverage-glow]="signalGlowColor(signal.tone)"
-                            (click)="handleSignalClick(entry, signal, $event)"
-                            (keydown)="handleSignalClick(entry, signal, $event)"
-                          >
-                            <span class="relative z-10 h-2.5 w-2.5 rounded-full" [ngClass]="signalIndicatorDotClasses(signal.tone)"></span>
-                          </button>
-                        }
-                      </div>
-
-                      <div class="min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                          <span
-                            class="inline-flex min-w-18 items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                            [ngClass]="statusChipClasses(entry.e2eStatus)"
-                          >
-                            {{ statusChipLabel(entry.e2eStatus) }}
-                          </span>
-                          <p class="min-w-0 flex-1 truncate text-sm text-slate-200">{{ resumeText(entry) }}</p>
-                        </div>
-                        @if (delegationTrace(entry); as trace) {
+                        <div class="min-w-0">
                           <p
-                            class="mt-1 truncate text-xs text-cyan-200/80"
-                            data-og7="admin-quality-coverage-delegation-trace"
-                            [attr.data-og7-id]="entry.id"
+                            class="truncate text-sm font-semibold"
+                            [ngClass]="isSelected(entry) ? 'text-white' : 'text-slate-100'"
                           >
-                            Derniere delegation: {{ trace.shortLabel }} via {{ trace.provider }} le {{ formatTraceTimestamp(trace.requestedAt) }}
+                            {{ entry.domain }}
                           </p>
-                        }
+                          <p class="mt-1 truncate text-xs text-slate-400">{{ entry.need }}</p>
+                        </div>
                       </div>
-
-                      <span class="sr-only">{{ ariaSummary(entry) }}</span>
                     </div>
-                  }
-                </div>
+
+                    <div
+                      class="grid grid-cols-[repeat(6,minmax(1.75rem,1fr))] gap-1.5 lg:justify-items-center"
+                    >
+                      @for (signal of signalsFor(entry); track signal.id) {
+                        <button
+                          type="button"
+                          class="coverage-signal flex h-7 w-full min-w-7 items-center justify-center rounded-full border lg:w-7"
+                          [attr.title]="signal.label"
+                          [attr.aria-label]="signalAriaLabel(entry, signal)"
+                          [attr.aria-pressed]="isSignalSelected(entry, signal.id)"
+                          [attr.data-og7-attention]="signal.attention ? 'true' : 'false'"
+                          data-og7="admin-quality-coverage-signal"
+                          [attr.data-og7-id]="signal.id"
+                          [ngClass]="signalIndicatorFrameClasses(signal.tone)"
+                          [class.ring-2]="isSignalSelected(entry, signal.id)"
+                          [class.ring-cyan-300/65]="isSignalSelected(entry, signal.id)"
+                          [class.coverage-signal--attention]="signal.attention"
+                          [style.--coverage-glow]="signalGlowColor(signal.tone)"
+                          (click)="handleSignalClick(entry, signal, $event)"
+                          (keydown)="handleSignalClick(entry, signal, $event)"
+                        >
+                          <span
+                            class="relative z-10 h-2.5 w-2.5 rounded-full"
+                            [ngClass]="signalIndicatorDotClasses(signal.tone)"
+                          ></span>
+                        </button>
+                      }
+                    </div>
+
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span
+                          class="inline-flex min-w-18 items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                          [ngClass]="statusChipClasses(entry.e2eStatus)"
+                        >
+                          {{ statusChipLabel(entry.e2eStatus) }}
+                        </span>
+                        <p class="min-w-0 flex-1 truncate text-sm text-slate-200">
+                          {{ resumeText(entry) }}
+                        </p>
+                      </div>
+                      @if (delegationTrace(entry); as trace) {
+                        <p
+                          class="mt-1 truncate text-xs text-cyan-200/80"
+                          data-og7="admin-quality-coverage-delegation-trace"
+                          [attr.data-og7-id]="entry.id"
+                        >
+                          Derniere delegation: {{ trace.shortLabel }} via {{ trace.provider }} le
+                          {{ formatTraceTimestamp(trace.requestedAt) }}
+                        </p>
+                      }
+                    </div>
+
+                    <span class="sr-only">{{ ariaSummary(entry) }}</span>
+                  </div>
+                }
+              </div>
             </div>
           } @else {
-            <div class="rounded-[18px] border border-dashed border-white/10 bg-slate-900/60 px-4 py-8 text-sm text-slate-400">
+            <div
+              class="rounded-[18px] border border-dashed border-white/10 bg-slate-900/60 px-4 py-8 text-sm text-slate-400"
+            >
               Aucun domaine ne reste visible avec les filtres actifs.
             </div>
           }
@@ -256,10 +300,15 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
             <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div class="flex flex-wrap items-center gap-2 text-sm">
                 <span class="text-slate-300">Focus actif</span>
-                <span class="inline-flex rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 font-medium text-sky-100">
+                <span
+                  class="inline-flex rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 font-medium text-sky-100"
+                >
                   {{ entry.domain }}
                 </span>
-                <span class="inline-flex rounded-full border px-3 py-1 font-medium" [ngClass]="priorityChipClasses(entry.priority)">
+                <span
+                  class="inline-flex rounded-full border px-3 py-1 font-medium"
+                  [ngClass]="priorityChipClasses(entry.priority)"
+                >
                   {{ priorityChipLabel(entry.priority) }}
                 </span>
                 <span
@@ -379,7 +428,10 @@ export class AdminQualityCoverageMatrixComponent {
     return this.selectedEntryId() === entry.id;
   }
 
-  isSignalSelected(entry: AdminQualityMatrixEntry, signalId: AdminQualityCoverageSignalId): boolean {
+  isSignalSelected(
+    entry: AdminQualityMatrixEntry,
+    signalId: AdminQualityCoverageSignalId,
+  ): boolean {
     return this.isSelected(entry) && this.selectedSignalId() === signalId;
   }
 
@@ -387,7 +439,9 @@ export class AdminQualityCoverageMatrixComponent {
     const target = event.target;
     if (target instanceof HTMLElement) {
       const signalElement = target.closest('[data-og7="admin-quality-coverage-signal"]');
-      const signalId = signalElement?.getAttribute('data-og7-id') as AdminQualityCoverageSignalId | null;
+      const signalId = signalElement?.getAttribute(
+        'data-og7-id',
+      ) as AdminQualityCoverageSignalId | null;
       if (signalId) {
         const signal = this.signalsFor(entry).find((candidate) => candidate.id === signalId);
         if (signal) {
@@ -527,7 +581,7 @@ export class AdminQualityCoverageMatrixComponent {
 
   ariaSummary(entry: AdminQualityMatrixEntry): string {
     if (this.refreshRequired(entry)) {
-      return `${entry.domain}. Refresh matrice requis. E2E ${this.statusLabel(entry.e2eStatus)}. ${this.bucketLabel(entry)}. Priorite ${this.priorityLabel(entry.priority)}.`; 
+      return `${entry.domain}. Refresh matrice requis. E2E ${this.statusLabel(entry.e2eStatus)}. ${this.bucketLabel(entry)}. Priorite ${this.priorityLabel(entry.priority)}.`;
     }
     return `${entry.domain}. E2E ${this.statusLabel(entry.e2eStatus)}. ${this.bucketLabel(entry)}. Priorite ${this.priorityLabel(entry.priority)}.`;
   }

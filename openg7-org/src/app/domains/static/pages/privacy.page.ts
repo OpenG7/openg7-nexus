@@ -48,7 +48,7 @@ export class PrivacyPage implements AfterViewInit, OnDestroy {
   protected readonly activeSection = signal<SectionKey>('collection');
   protected readonly mobileView = signal(false);
   protected readonly expandedSections = signal<ReadonlySet<SectionKey>>(
-    new Set(this.sections.map((section) => section.key))
+    new Set(this.sections.map((section) => section.key)),
   );
 
   private readonly resizeHandler = () => this.updateViewport();
@@ -176,7 +176,7 @@ export class PrivacyPage implements AfterViewInit, OnDestroy {
       {
         threshold: [0.2, 0.5, 0.8],
         rootMargin: '-20% 0px -50% 0px',
-      }
+      },
     );
 
     for (const section of this.sections) {

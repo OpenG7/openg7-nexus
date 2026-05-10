@@ -78,7 +78,10 @@ export class AdminQualityMissionControlComponent {
   readonly providerComparison = input<readonly AdminQualityMissionProviderComparisonEntry[]>([]);
 
   readonly activeProviderOpsSummary = computed<AdminQualityMissionProviderComparisonEntry | null>(
-    () => this.providerComparison().find((entry) => entry.selected) ?? this.providerComparison()[0] ?? null,
+    () =>
+      this.providerComparison().find((entry) => entry.selected) ??
+      this.providerComparison()[0] ??
+      null,
   );
   readonly armedProviderCount = computed(
     () => this.providerComparison().filter((entry) => entry.opsState === 'armed').length,
@@ -86,14 +89,15 @@ export class AdminQualityMissionControlComponent {
   readonly selectedMissionBlockingTaskCount = computed(
     () => this.selectedMissionTasks().filter((task) => task.blocking).length,
   );
-  readonly selectedMissionTaskKindSummaries = computed<readonly AdminQualityMissionTaskKindSummary[]>(
-    () =>
-      (['alignment', 'implementation', 'validation', 'proof'] as const)
-        .map((kind) => ({
-          kind,
-          count: this.selectedMissionTasks().filter((task) => task.kind === kind).length,
-        }))
-        .filter((summary) => summary.count > 0),
+  readonly selectedMissionTaskKindSummaries = computed<
+    readonly AdminQualityMissionTaskKindSummary[]
+  >(() =>
+    (['alignment', 'implementation', 'validation', 'proof'] as const)
+      .map((kind) => ({
+        kind,
+        count: this.selectedMissionTasks().filter((task) => task.kind === kind).length,
+      }))
+      .filter((summary) => summary.count > 0),
   );
 
   missionPhaseClasses(phase: AdminQualityMissionPhase): string {
@@ -128,9 +132,7 @@ export class AdminQualityMissionControlComponent {
     }
   }
 
-  providerSocketOpsClasses(
-    state: AdminQualityMissionProviderComparisonEntry['opsState'],
-  ): string {
+  providerSocketOpsClasses(state: AdminQualityMissionProviderComparisonEntry['opsState']): string {
     switch (state) {
       case 'armed':
         return 'border-emerald-300/35 bg-emerald-400/18 text-emerald-50';
@@ -183,5 +185,4 @@ export class AdminQualityMissionControlComponent {
         return 'admin.quality.codex.tasks.kinds.proof';
     }
   }
-
 }

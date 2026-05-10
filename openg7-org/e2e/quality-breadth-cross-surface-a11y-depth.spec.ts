@@ -45,29 +45,36 @@ function json(body: unknown, status = 200) {
   };
 }
 
-async function activateWithKeyboard(page: Page, target: Locator, key: 'Enter' | 'Space' = 'Enter'): Promise<void> {
+async function activateWithKeyboard(
+  page: Page,
+  target: Locator,
+  key: 'Enter' | 'Space' = 'Enter',
+): Promise<void> {
   await target.focus();
   await expect(target).toBeFocused();
   await page.keyboard.press(key);
 }
 
-async function mockNotificationInboxApis(page: Page, options: NotificationApiOptions): Promise<void> {
+async function mockNotificationInboxApis(
+  page: Page,
+  options: NotificationApiOptions,
+): Promise<void> {
   const alerts = options.alerts.map((entry) => ({ ...entry }));
   let remainingMarkAllReadFailures = options.failMarkAllReadAttempts ?? 0;
 
-  await page.route('**/api/sectors**', async route => {
+  await page.route('**/api/sectors**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/provinces**', async route => {
+  await page.route('**/api/provinces**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/companies**', async route => {
+  await page.route('**/api/companies**', async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route('**/api/users/me**', async route => {
+  await page.route('**/api/users/me**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const path = new URL(request.url()).pathname.toLowerCase();
@@ -104,8 +111,8 @@ async function mockNotificationInboxApis(page: Page, options: NotificationApiOpt
                 message: 'alerts.markAll.failed',
               },
             },
-            500
-          )
+            500,
+          ),
         );
         return;
       }
@@ -182,7 +189,7 @@ async function mockNotificationInboxApis(page: Page, options: NotificationApiOpt
         json({
           version: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -195,7 +202,7 @@ async function mockNotificationInboxApis(page: Page, options: NotificationApiOpt
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -258,9 +265,9 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     await expect(unreadCount).toHaveText('2');
 
     const markRailRead = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
-        response.url().includes('/api/users/me/alerts/alert-rail/read')
+        response.url().includes('/api/users/me/alerts/alert-rail/read'),
     );
     const firstItem = panel.locator('[data-og7-id="header-alert-item"]').first();
     await activateWithKeyboard(page, firstItem);
@@ -277,7 +284,9 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     await expect(trigger).toBeFocused();
   });
 
-  test('announces alerts inbox batch-action failures and recovers cleanly on retry', async ({ page }) => {
+  test('announces alerts inbox batch-action failures and recovers cleanly on retry', async ({
+    page,
+  }) => {
     await mockNotificationInboxApis(page, {
       alerts: [
         {
@@ -331,10 +340,10 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     const errorMessage = page.locator('[data-og7-id="alerts-error"]');
 
     const failedAttempt = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
         response.url().includes('/api/users/me/alerts/read-all') &&
-        response.status() === 500
+        response.status() === 500,
     );
     await activateWithKeyboard(page, markAllButton);
     await failedAttempt;
@@ -342,24 +351,30 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     await expect(errorMessage).toBeVisible();
     await expect(errorMessage).toHaveAttribute('role', 'alert');
     await expect(errorMessage).toHaveAttribute('aria-live', 'assertive');
-    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(2);
+    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(
+      2,
+    );
     await expect(markAllButton).toBeEnabled();
 
     const successfulAttempt = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
         response.url().includes('/api/users/me/alerts/read-all') &&
-        response.status() === 200
+        response.status() === 200,
     );
     await activateWithKeyboard(page, markAllButton);
     await successfulAttempt;
 
     await expect(errorMessage).toHaveCount(0);
-    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7="user-alert-item"][data-og7-state="unread"]')).toHaveCount(
+      0,
+    );
     await expect(page.locator('[data-og7-id="alerts-unread-count"]')).toContainText('0');
   });
 
-  test('keeps alerts inbox item actions keyboard-usable while list state mutates', async ({ page }) => {
+  test('keeps alerts inbox item actions keyboard-usable while list state mutates', async ({
+    page,
+  }) => {
     await mockNotificationInboxApis(page, {
       alerts: [
         {
@@ -395,27 +410,33 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     await page.goto('/alerts');
     await expect(page.locator('[data-og7="user-alerts"]')).toBeVisible();
 
-    const railItem = page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Rail capacity risk' });
-    const digestItem = page.locator('[data-og7="user-alert-item"]').filter({ hasText: 'Morning digest' });
+    const railItem = page
+      .locator('[data-og7="user-alert-item"]')
+      .filter({ hasText: 'Rail capacity risk' });
+    const digestItem = page
+      .locator('[data-og7="user-alert-item"]')
+      .filter({ hasText: 'Morning digest' });
 
     const toggleRead = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'PATCH' &&
-        response.url().includes('/api/users/me/alerts/alert-rail/read')
+        response.url().includes('/api/users/me/alerts/alert-rail/read'),
     );
     await activateWithKeyboard(page, railItem.locator('[data-og7-id="alert-toggle-read"]'));
     await toggleRead;
     await expect(railItem).toHaveAttribute('data-og7-state', 'read');
 
     const deleteDigest = page.waitForResponse(
-      response =>
+      (response) =>
         response.request().method().toUpperCase() === 'DELETE' &&
-        /\/api\/users\/me\/alerts\/alert-digest\/?$/i.test(new URL(response.url()).pathname)
+        /\/api\/users\/me\/alerts\/alert-digest\/?$/i.test(new URL(response.url()).pathname),
     );
     await activateWithKeyboard(page, digestItem.locator('[data-og7-id="alert-delete"]'));
     await deleteDigest;
 
     await expect(page.locator('[data-og7="user-alert-item"]')).toHaveCount(1);
-    await expect(page.locator('[data-og7="user-alert-item"]').first()).toContainText('Rail capacity risk');
+    await expect(page.locator('[data-og7="user-alert-item"]').first()).toContainText(
+      'Rail capacity risk',
+    );
   });
 });

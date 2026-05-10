@@ -43,7 +43,9 @@ function normalizeString(value: unknown, maxLength = 120): string | null {
 }
 
 function isOwnerOrAdminRole(roleType: string | null, roleName: string | null): boolean {
-  return roleType === 'admin' || roleType === 'owner' || roleName === 'admin' || roleName === 'owner';
+  return (
+    roleType === 'admin' || roleType === 'owner' || roleName === 'admin' || roleName === 'owner'
+  );
 }
 
 function shouldExposeForbiddenDetails(): boolean {
@@ -64,7 +66,8 @@ function buildForbiddenMessage(
   roleType: string | null,
   roleName: string | null,
 ): string {
-  const identity = normalizeString(user?.email, 160) ?? normalizeString(user?.username, 160) ?? 'unknown-user';
+  const identity =
+    normalizeString(user?.email, 160) ?? normalizeString(user?.username, 160) ?? 'unknown-user';
   const resolvedRole = formatResolvedRole(roleType, roleName);
   return `Owner/Admin required. Authenticated as ${identity} with role ${resolvedRole}.`;
 }
@@ -114,7 +117,7 @@ async function resolveUserRole(
 export default async (
   policyContext: PolicyContextWithMethods,
   _config: unknown,
-  { strapi }: { strapi: Core.Strapi }
+  { strapi }: { strapi: Core.Strapi },
 ): Promise<boolean> => {
   const userId = policyContext.state?.user?.id;
   if (!userId) {

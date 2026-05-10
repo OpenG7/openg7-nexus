@@ -23,7 +23,8 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'connection-test-app-key-a,connection-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'connection-test-app-key-a,connection-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'connection-test-api-token-salt';
   process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'connection-test-admin-jwt-secret';
   process.env.TRANSFER_TOKEN_SALT =
@@ -43,7 +44,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -145,10 +146,7 @@ function buildConnectionPayload(runId, overrides = {}) {
         incoterm: 'DAP',
         transports: ['ROAD', 'RAIL'],
       },
-      meeting_proposal: [
-        '2030-01-15T13:30:00.000Z',
-        '2030-01-16T15:00:00.000Z',
-      ],
+      meeting_proposal: ['2030-01-15T13:30:00.000Z', '2030-01-16T15:00:00.000Z'],
       ...overrides,
     },
   };
@@ -223,10 +221,14 @@ async function run() {
         buildConnectionPayload(runId, {
           intro_message: 'short',
           attachments: ['nda', 'invalid-attachment'],
-        })
+        }),
       ),
     });
-    assert.equal(invalidPayload.status, 400, 'Expected payload validation to reject invalid create request.');
+    assert.equal(
+      invalidPayload.status,
+      400,
+      'Expected payload validation to reject invalid create request.',
+    );
 
     const created = await requestJson(`${baseUrl}/api/connections`, {
       method: 'POST',
@@ -235,7 +237,11 @@ async function run() {
     });
     assert.equal(created.status, 201, `Expected connection create success (${created.text})`);
     assert.ok(created.body?.data?.id, 'Expected created connection id.');
-    assert.equal(created.body?.data?.attributes?.status, 'pending', 'Expected initial pending status.');
+    assert.equal(
+      created.body?.data?.attributes?.status,
+      'pending',
+      'Expected initial pending status.',
+    );
     assert.equal(created.body?.data?.attributes?.stage, 'reply', 'Expected initial reply stage.');
 
     const connectionId = created.body.data.id;
@@ -245,7 +251,10 @@ async function run() {
     });
     assert.equal(historyA.status, 200, 'Expected history request to succeed for owner.');
     assert.ok(Array.isArray(historyA.body?.data), 'Expected history list.');
-    assert.ok(historyA.body.data.some((item) => item.id === connectionId), 'Expected owner history to include connection.');
+    assert.ok(
+      historyA.body.data.some((item) => item.id === connectionId),
+      'Expected owner history to include connection.',
+    );
 
     const historyB = await requestJson(`${baseUrl}/api/connections`, {
       headers: { Authorization: `Bearer ${userB.jwt}` },
@@ -254,7 +263,7 @@ async function run() {
     assert.ok(Array.isArray(historyB.body?.data), 'Expected second history list.');
     assert.ok(
       historyB.body.data.some((item) => item.id === connectionId),
-      'Expected the counterparty history to include the shared connection.'
+      'Expected the counterparty history to include the shared connection.',
     );
 
     const historyC = await requestJson(`${baseUrl}/api/connections`, {
@@ -264,24 +273,41 @@ async function run() {
     assert.ok(Array.isArray(historyC.body?.data), 'Expected unrelated history list.');
     assert.ok(
       historyC.body.data.every((item) => item.id !== connectionId),
-      'Expected unrelated users to remain isolated from the connection.'
+      'Expected unrelated users to remain isolated from the connection.',
     );
 
-    const findOneA = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
-      headers: { Authorization: `Bearer ${userA.jwt}` },
-    });
+    const findOneA = await requestJson(
+      `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`,
+      {
+        headers: { Authorization: `Bearer ${userA.jwt}` },
+      },
+    );
     assert.equal(findOneA.status, 200, 'Expected owner findOne to succeed.');
-    assert.equal(findOneA.body?.data?.id, connectionId, 'Expected findOne to return requested connection.');
+    assert.equal(
+      findOneA.body?.data?.id,
+      connectionId,
+      'Expected findOne to return requested connection.',
+    );
 
-    const findOneB = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
-      headers: { Authorization: `Bearer ${userB.jwt}` },
-    });
+    const findOneB = await requestJson(
+      `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`,
+      {
+        headers: { Authorization: `Bearer ${userB.jwt}` },
+      },
+    );
     assert.equal(findOneB.status, 200, 'Expected the counterparty findOne to succeed.');
-    assert.equal(findOneB.body?.data?.id, connectionId, 'Expected counterparty findOne to return the connection.');
+    assert.equal(
+      findOneB.body?.data?.id,
+      connectionId,
+      'Expected counterparty findOne to return the connection.',
+    );
 
-    const findOneC = await requestJson(`${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`, {
-      headers: { Authorization: `Bearer ${userC.jwt}` },
-    });
+    const findOneC = await requestJson(
+      `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}`,
+      {
+        headers: { Authorization: `Bearer ${userC.jwt}` },
+      },
+    );
     assert.equal(findOneC.status, 404, 'Expected unrelated findOne to be denied as not found.');
 
     const updateByOtherUser = await requestJson(
@@ -290,13 +316,17 @@ async function run() {
         method: 'PATCH',
         headers: authHeaders(userB.jwt),
         body: JSON.stringify({ data: { status: 'inDiscussion' } }),
-      }
+      },
     );
-    assert.equal(updateByOtherUser.status, 200, 'Expected the counterparty status update to succeed.');
+    assert.equal(
+      updateByOtherUser.status,
+      200,
+      'Expected the counterparty status update to succeed.',
+    );
     assert.equal(
       updateByOtherUser.body?.data?.attributes?.status,
       'inDiscussion',
-      'Expected the counterparty to advance the shared status.'
+      'Expected the counterparty to advance the shared status.',
     );
 
     const updateByUnrelatedUser = await requestJson(
@@ -305,9 +335,13 @@ async function run() {
         method: 'PATCH',
         headers: authHeaders(userC.jwt),
         body: JSON.stringify({ data: { status: 'completed' } }),
-      }
+      },
     );
-    assert.equal(updateByUnrelatedUser.status, 404, 'Expected unrelated status update to be denied.');
+    assert.equal(
+      updateByUnrelatedUser.status,
+      404,
+      'Expected unrelated status update to be denied.',
+    );
 
     const statusInDiscussion = await requestJson(
       `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}/status`,
@@ -315,23 +349,23 @@ async function run() {
         method: 'PATCH',
         headers: authHeaders(userA.jwt),
         body: JSON.stringify({ data: { status: 'inDiscussion', note: 'first call completed' } }),
-      }
+      },
     );
     assert.equal(statusInDiscussion.status, 200, 'Expected valid status transition to succeed.');
     assert.equal(
       statusInDiscussion.body?.data?.attributes?.status,
       'inDiscussion',
-      'Expected updated status to be inDiscussion.'
+      'Expected updated status to be inDiscussion.',
     );
     assert.equal(
       statusInDiscussion.body?.data?.attributes?.stage,
       'meeting',
-      'Expected stage to advance with status transition.'
+      'Expected stage to advance with status transition.',
     );
     assert.ok(
       Array.isArray(statusInDiscussion.body?.data?.attributes?.statusHistory) &&
         statusInDiscussion.body.data.attributes.statusHistory.length >= 2,
-      'Expected status history to persist transitions.'
+      'Expected status history to persist transitions.',
     );
 
     const invalidTransition = await requestJson(
@@ -340,9 +374,13 @@ async function run() {
         method: 'PATCH',
         headers: authHeaders(userA.jwt),
         body: JSON.stringify({ data: { status: 'pending' } }),
-      }
+      },
     );
-    assert.equal(invalidTransition.status, 400, 'Expected invalid status transition to be rejected.');
+    assert.equal(
+      invalidTransition.status,
+      400,
+      'Expected invalid status transition to be rejected.',
+    );
 
     const statusCompleted = await requestJson(
       `${baseUrl}/api/connections/${encodeURIComponent(String(connectionId))}/status`,
@@ -350,21 +388,29 @@ async function run() {
         method: 'PATCH',
         headers: authHeaders(userA.jwt),
         body: JSON.stringify({ data: { status: 'completed' } }),
-      }
+      },
     );
-    assert.equal(statusCompleted.status, 200, 'Expected second valid status transition to succeed.');
-    assert.equal(statusCompleted.body?.data?.attributes?.status, 'completed', 'Expected completed status.');
+    assert.equal(
+      statusCompleted.status,
+      200,
+      'Expected second valid status transition to succeed.',
+    );
+    assert.equal(
+      statusCompleted.body?.data?.attributes?.status,
+      'completed',
+      'Expected completed status.',
+    );
 
     const statusFilter = await requestJson(
       `${baseUrl}/api/connections?status=${encodeURIComponent('completed')}`,
       {
         headers: { Authorization: `Bearer ${userA.jwt}` },
-      }
+      },
     );
     assert.equal(statusFilter.status, 200, 'Expected status filter query to succeed.');
     assert.ok(
       statusFilter.body?.data?.every((entry) => entry.attributes?.status === 'completed'),
-      'Expected status filter to only return completed connections.'
+      'Expected status filter to only return completed connections.',
     );
 
     console.log('Connections integration tests passed.');

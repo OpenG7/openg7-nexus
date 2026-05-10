@@ -154,7 +154,8 @@ export class ConnectionsService {
         buyer_profile: draft.buyerProfile.id,
         buyer_organization: draft.buyerProfile.legalName ?? draft.buyerProfile.displayName ?? '',
         supplier_profile: draft.supplierProfile.id,
-        supplier_organization: draft.supplierProfile.legalName ?? draft.supplierProfile.displayName ?? '',
+        supplier_organization:
+          draft.supplierProfile.legalName ?? draft.supplierProfile.displayName ?? '',
         locale: draft.locale,
         attachments: draft.attachments,
         logistics_plan: {
@@ -186,7 +187,9 @@ export class ConnectionsService {
   }
 }
 
-export function mapStrapiConnectionResponse(response: StrapiConnectionEntityResponse): ConnectionResponse {
+export function mapStrapiConnectionResponse(
+  response: StrapiConnectionEntityResponse,
+): ConnectionResponse {
   const data = response?.data;
   if (!data) {
     throw new Error('Invalid response payload');
@@ -201,7 +204,7 @@ export function mapStrapiConnectionResponse(response: StrapiConnectionEntityResp
 }
 
 export function mapStrapiConnectionHistoryPage(
-  response: StrapiConnectionCollectionResponse
+  response: StrapiConnectionCollectionResponse,
 ): ConnectionHistoryPage {
   const items = Array.isArray(response?.data)
     ? response.data.map((entry) => mapStrapiConnectionDetails(entry))
@@ -318,7 +321,7 @@ function mapIsoList(value?: readonly string[] | null): readonly string[] {
 }
 
 function mapStageHistory(
-  value?: readonly StrapiConnectionStageHistoryEntry[] | null
+  value?: readonly StrapiConnectionStageHistoryEntry[] | null,
 ): readonly ConnectionStageHistoryEntry[] {
   if (!Array.isArray(value)) {
     return [];
@@ -337,7 +340,7 @@ function mapStageHistory(
 }
 
 function mapStatusHistory(
-  value?: readonly StrapiConnectionStatusHistoryEntry[] | null
+  value?: readonly StrapiConnectionStatusHistoryEntry[] | null,
 ): readonly ConnectionStatusHistoryEntry[] {
   if (!Array.isArray(value)) {
     return [];
@@ -407,12 +410,14 @@ function isTransportMode(value: string | undefined): value is TransportMode {
 }
 
 function isIncotermCode(value: string): value is IncotermCode {
-  return value === 'FCA'
-    || value === 'FOB'
-    || value === 'DDP'
-    || value === 'CPT'
-    || value === 'DAP'
-    || value === 'EXW'
-    || value === 'CIF'
-    || value === 'CIP';
+  return (
+    value === 'FCA' ||
+    value === 'FOB' ||
+    value === 'DDP' ||
+    value === 'CPT' ||
+    value === 'DAP' ||
+    value === 'EXW' ||
+    value === 'CIF' ||
+    value === 'CIP'
+  );
 }

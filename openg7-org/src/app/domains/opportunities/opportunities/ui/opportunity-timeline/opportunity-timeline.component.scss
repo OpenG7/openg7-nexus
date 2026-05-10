@@ -14,7 +14,8 @@
   gap: clamp(1.5rem, 2vw, 2.5rem);
   padding: clamp(1.5rem, 2vw, 2.75rem);
   border-radius: 32px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7)),
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7)),
     linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(45, 212, 191, 0.18));
   color: #f8fafc;
   box-shadow: 0 40px 80px -52px rgba(8, 47, 73, 0.65);
@@ -102,9 +103,10 @@
   stroke-linecap: round;
   transform-origin: center;
   transform: rotate(-90deg);
-  transition: stroke-dashoffset 280ms ease-in-out, stroke 160ms ease-in-out;
+  transition:
+    stroke-dashoffset 280ms ease-in-out,
+    stroke 160ms ease-in-out;
 }
-
 
 .opportunity-timeline__score-value {
   font-size: 1.4rem;
@@ -249,7 +251,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base);
 }
 
 .opportunity-timeline__step::before {
@@ -260,7 +264,9 @@
   pointer-events: none;
   border: 1px solid transparent;
   background: linear-gradient(135deg, rgba(45, 212, 191, 0.18), rgba(56, 189, 248, 0.05)) border-box;
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0;
   transition: opacity var(--og7-transition-base);
@@ -368,7 +374,10 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: transform var(--og7-transition-base), box-shadow var(--og7-transition-base), background-color var(--og7-transition-base);
+  transition:
+    transform var(--og7-transition-base),
+    box-shadow var(--og7-transition-base),
+    background-color var(--og7-transition-base);
   border: none;
   cursor: pointer;
 }

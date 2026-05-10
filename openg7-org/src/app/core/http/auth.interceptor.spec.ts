@@ -26,7 +26,7 @@ describe('authInterceptor', () => {
         const forwarded = next.calls.mostRecent().args[0] as HttpRequest<unknown>;
         expect(forwarded.headers.has('Authorization')).toBeFalse();
         done();
-      })
+      }),
     );
   });
 
@@ -40,7 +40,7 @@ describe('authInterceptor', () => {
         const forwarded = next.calls.mostRecent().args[0] as HttpRequest<unknown>;
         expect(forwarded.headers.get('Authorization')).toBe('Bearer jwt-token');
         done();
-      })
+      }),
     );
   });
 });

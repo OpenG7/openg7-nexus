@@ -41,7 +41,8 @@ const annotations = [
   },
   {
     author: 'Pole conformite import',
-    excerpt: 'Les controles d origine preferentielle ont ete renforces pour plusieurs lots techniques.',
+    excerpt:
+      'Les controles d origine preferentielle ont ete renforces pour plusieurs lots techniques.',
     relatedCommodityId: 'rare-earth-magnets',
     relatedOriginCode: 'DE',
     source: 'seed',

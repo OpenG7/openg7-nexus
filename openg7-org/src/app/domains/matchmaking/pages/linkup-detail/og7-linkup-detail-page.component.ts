@@ -93,21 +93,21 @@ export class Og7LinkupDetailPageComponent {
   protected readonly canSaveStatus = computed(() => {
     const linkup = this.linkupSignal();
     return (
-      Boolean(linkup)
-      && this.statusDraftSignal() !== linkup!.status
-      && !this.savingStatusSignal()
-      && !this.loadingSignal()
+      Boolean(linkup) &&
+      this.statusDraftSignal() !== linkup!.status &&
+      !this.savingStatusSignal() &&
+      !this.loadingSignal()
     );
   });
 
   protected readonly canSaveNote = computed(() => {
     const trimmed = this.noteDraftSignal().trim();
     return (
-      Boolean(this.linkupSignal())
-      && trimmed.length > 0
-      && trimmed.length <= this.noteMaxLength
-      && !this.savingNoteSignal()
-      && !this.loadingSignal()
+      Boolean(this.linkupSignal()) &&
+      trimmed.length > 0 &&
+      trimmed.length <= this.noteMaxLength &&
+      !this.savingNoteSignal() &&
+      !this.loadingSignal()
     );
   });
 

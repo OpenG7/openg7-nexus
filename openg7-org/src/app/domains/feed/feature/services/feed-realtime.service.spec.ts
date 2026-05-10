@@ -173,8 +173,8 @@ describe('FeedRealtimeService', () => {
   it('suppresses the global error toast for the initial feed request', () => {
     service.loadInitial();
 
-    const request = httpMock.expectOne(req =>
-      req.url === 'https://cms.local/api/feed' && req.params.get('sort') === 'NEWEST'
+    const request = httpMock.expectOne(
+      (req) => req.url === 'https://cms.local/api/feed' && req.params.get('sort') === 'NEWEST',
     );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
 
@@ -197,8 +197,10 @@ describe('FeedRealtimeService', () => {
 
     service.loadInitial();
 
-    const request = httpMock.expectOne(req =>
-      req.url === 'https://cms.local/api/feed' && req.params.get('formKey') === 'energy-surplus-offer'
+    const request = httpMock.expectOne(
+      (req) =>
+        req.url === 'https://cms.local/api/feed' &&
+        req.params.get('formKey') === 'energy-surplus-offer',
     );
     expect(request.request.params.get('formKey')).toBe('energy-surplus-offer');
 
@@ -210,7 +212,9 @@ describe('FeedRealtimeService', () => {
 
     expect(validation.valid).toBeTrue();
 
-    const request = httpMock.expectOne(req => req.method === 'POST' && req.url === 'https://cms.local/api/feed');
+    const request = httpMock.expectOne(
+      (req) => req.method === 'POST' && req.url === 'https://cms.local/api/feed',
+    );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     expect(request.request.headers.has('Idempotency-Key')).toBeTrue();
 
@@ -250,7 +254,9 @@ describe('FeedRealtimeService', () => {
       },
     });
 
-    const request = httpMock.expectOne(req => req.method === 'POST' && req.url === 'https://cms.local/api/feed');
+    const request = httpMock.expectOne(
+      (req) => req.method === 'POST' && req.url === 'https://cms.local/api/feed',
+    );
     expect(request.request.body.metadata).toEqual({
       publicationForm: {
         formKey: 'energy-surplus-offer',
@@ -315,7 +321,7 @@ describe('FeedRealtimeService', () => {
         publicationMode: 'template',
         formKey: 'energy-surplus-offer',
         itemId: 'feed-2',
-      })
+      }),
     );
   });
 });

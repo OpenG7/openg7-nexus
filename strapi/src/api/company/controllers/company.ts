@@ -131,9 +131,7 @@ const mapVerificationSources = (value: unknown) => {
     const typeRaw = source.type;
     const statusRaw = source.status;
     const entryType =
-      typeRaw === 'chamber' || typeRaw === 'audit' || typeRaw === 'other'
-        ? typeRaw
-        : 'registry';
+      typeRaw === 'chamber' || typeRaw === 'audit' || typeRaw === 'other' ? typeRaw : 'registry';
     const entryStatus =
       statusRaw === 'validated' || statusRaw === 'revoked' ? statusRaw : 'pending';
     const normalizeString = (input: unknown) =>
@@ -251,9 +249,10 @@ const mapCompany = (entity: CompanyEntity | null | undefined) => {
     id: entity.id,
     businessId: typeof businessIdRaw === 'string' ? businessIdRaw : null,
     slug: typeof slugRaw === 'string' ? slugRaw : null,
-    name: typeof (attributes as Record<string, unknown>).name === 'string'
-      ? ((attributes as Record<string, unknown>).name as string)
-      : '',
+    name:
+      typeof (attributes as Record<string, unknown>).name === 'string'
+        ? ((attributes as Record<string, unknown>).name as string)
+        : '',
     description: typeof descriptionRaw === 'string' ? descriptionRaw : null,
     website: typeof websiteRaw === 'string' ? websiteRaw : null,
     status,
@@ -264,10 +263,10 @@ const mapCompany = (entity: CompanyEntity | null | undefined) => {
     province: mapRelation((attributes as Record<string, unknown>).province as RelationInput),
     country,
     verificationStatus: mapVerificationStatus(
-      (attributes as Record<string, unknown>).verificationStatus
+      (attributes as Record<string, unknown>).verificationStatus,
     ),
     verificationSources: mapVerificationSources(
-      (attributes as Record<string, unknown>).verificationSources
+      (attributes as Record<string, unknown>).verificationSources,
     ),
     trustScore: mapTrustScore((attributes as Record<string, unknown>).trustScore),
     trustHistory: mapTrustHistory((attributes as Record<string, unknown>).trustHistory),
@@ -280,7 +279,9 @@ export default factories.createCoreController('api::company.company', ({ strapi 
   const ensureObject = (value: unknown): Record<string, unknown> =>
     value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
 
-  const normalizeResponse = (response: unknown): { data?: unknown; meta?: Record<string, unknown> } =>
+  const normalizeResponse = (
+    response: unknown,
+  ): { data?: unknown; meta?: Record<string, unknown> } =>
     response && typeof response === 'object'
       ? (response as { data?: unknown; meta?: Record<string, unknown> })
       : { data: undefined, meta: undefined };
@@ -301,7 +302,9 @@ export default factories.createCoreController('api::company.company', ({ strapi 
       return {
         data: data
           .map((entity) => mapCompany(entity as CompanyEntity))
-          .filter((company): company is NonNullable<ReturnType<typeof mapCompany>> => Boolean(company)),
+          .filter((company): company is NonNullable<ReturnType<typeof mapCompany>> =>
+            Boolean(company),
+          ),
         meta: response.meta ?? {},
       };
     },

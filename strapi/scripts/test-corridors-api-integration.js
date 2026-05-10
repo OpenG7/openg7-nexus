@@ -16,7 +16,8 @@ function applyTestEnvironment() {
   process.env.DATABASE_FILENAME = TEST_DB_FILENAME;
   process.env.HOST = '127.0.0.1';
   process.env.PORT = '0';
-  process.env.APP_KEYS = process.env.APP_KEYS || 'corridors-test-app-key-a,corridors-test-app-key-b';
+  process.env.APP_KEYS =
+    process.env.APP_KEYS || 'corridors-test-app-key-a,corridors-test-app-key-b';
   process.env.API_TOKEN_SALT = process.env.API_TOKEN_SALT || 'corridors-test-api-token-salt';
   process.env.ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'corridors-test-admin-jwt-secret';
   process.env.TRANSFER_TOKEN_SALT =
@@ -36,7 +37,7 @@ async function cleanupDatabase() {
       } catch {
         // Ignore cleanup errors.
       }
-    })
+    }),
   );
 }
 
@@ -98,15 +99,25 @@ async function seedFeedEntity(strapi, userId, runId, suffix, overrides = {}) {
 function assertSnapshotShape(snapshot) {
   assert.ok(snapshot && typeof snapshot === 'object', 'Expected a snapshot object.');
   assert.ok(Array.isArray(snapshot.items), 'Expected snapshot.items to be an array.');
-  assert.ok(snapshot.status && typeof snapshot.status === 'object', 'Expected snapshot.status object.');
+  assert.ok(
+    snapshot.status && typeof snapshot.status === 'object',
+    'Expected snapshot.status object.',
+  );
   assert.match(
     String(snapshot.status.level || ''),
     /^(ok|warning|critical|info)$/,
-    'Expected a valid status level.'
+    'Expected a valid status level.',
   );
-  assert.equal(snapshot.cta?.labelKey, 'home.corridorsRealtime.cta.viewMap', 'Expected CTA label key.');
+  assert.equal(
+    snapshot.cta?.labelKey,
+    'home.corridorsRealtime.cta.viewMap',
+    'Expected CTA label key.',
+  );
   assert.ok(snapshot.timestamp, 'Expected timestamp in snapshot.');
-  assert.ok(!Number.isNaN(new Date(snapshot.timestamp).getTime()), 'Expected an ISO-compatible timestamp.');
+  assert.ok(
+    !Number.isNaN(new Date(snapshot.timestamp).getTime()),
+    'Expected an ISO-compatible timestamp.',
+  );
 }
 
 async function run() {
@@ -127,11 +138,15 @@ async function run() {
     const fallbackResponse = await requestJson(`${baseUrl}/api/corridors/realtime`);
     assert.equal(fallbackResponse.status, 200, 'Expected public corridors endpoint to succeed.');
     assertSnapshotShape(fallbackResponse.body);
-    assert.equal(fallbackResponse.body.items.length, 0, 'Expected empty fallback when no feed data exists.');
+    assert.equal(
+      fallbackResponse.body.items.length,
+      0,
+      'Expected empty fallback when no feed data exists.',
+    );
     assert.equal(
       fallbackResponse.body.status.level,
       'info',
-      'Expected informational status for empty fallback payload.'
+      'Expected informational status for empty fallback payload.',
     );
 
     const userId = await createAuthenticatedUser(baseUrl, runId);
@@ -192,25 +207,35 @@ async function run() {
     const firstItem = realtime.body.items[0];
     assert.equal(firstItem.id, 'bc-ab', 'Expected highest urgency corridor to be ranked first.');
     assert.equal(firstItem.route, 'BC -> AB', 'Expected normalized route formatting.');
-    assert.match(firstItem.label, /active updates/, 'Expected label compatible with frontend rendering.');
+    assert.match(
+      firstItem.label,
+      /active updates/,
+      'Expected label compatible with frontend rendering.',
+    );
     assert.match(firstItem.meta, /offers|requests/i, 'Expected summarized corridor metadata.');
 
     const itemIds = realtime.body.items.map((item) => item.id);
-    assert.ok(!itemIds.includes('sk-ab'), 'Expected failed feed entries to be excluded from aggregation.');
+    assert.ok(
+      !itemIds.includes('sk-ab'),
+      'Expected failed feed entries to be excluded from aggregation.',
+    );
     assert.equal(
       realtime.body.status.labelKey,
       'home.corridorsRealtime.status.capacityReached',
-      'Expected status label key aligned with home widget translations.'
+      'Expected status label key aligned with home widget translations.',
     );
     assert.match(
       realtime.response.headers.get('cache-control') || '',
       /max-age=15/i,
-      'Expected short cache header for realtime payload.'
+      'Expected short cache header for realtime payload.',
     );
 
     const capped = await requestJson(`${baseUrl}/api/corridors/realtime?limit=999`);
     assert.equal(capped.status, 200, 'Expected capped request to succeed.');
-    assert.ok(capped.body.items.length <= 12, 'Expected hard upper bound on returned corridor items.');
+    assert.ok(
+      capped.body.items.length <= 12,
+      'Expected hard upper bound on returned corridor items.',
+    );
 
     console.log('Corridors integration tests passed.');
   } finally {

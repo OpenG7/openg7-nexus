@@ -4,348 +4,360 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 
 ## Registry des composants Angular (selectors officiels)
 
-| CatÃ©gorie | Canonical selector | Current selector in code | Component class | File path | Status | Notes |
-|-----------|--------------------|--------------------------|-----------------|-----------|--------|-------|
-| Layout / nav / a11y | og7-shell-root | og7-shell-root | AppComponent | openg7-org/src/app/app.component.ts | ok | Bootstrap Angular sur le selector og7- prefixed. |
-| Layout / nav / a11y | og7-site-header | og7-site-header | SiteHeaderComponent | openg7-org/src/app/shared/components/layout/site-header.component.ts | ok |  |
-| Layout / nav / a11y | og7-notification-panel | og7-notification-panel | NotificationPanelComponent | openg7-org/src/app/shared/components/layout/notification-panel.component.ts | ok |  |
-| Layout / nav / a11y | og7-under-construction-banner | og7-under-construction-banner | UnderConstructionBannerComponent | openg7-org/src/app/shared/components/layout/under-construction-banner.component.ts | ok |  |
-| Layout / nav / a11y | og7-onboarding-flow | og7-onboarding-flow | Og7OnboardingFlowComponent | openg7-org/src/app/shared/components/layout/og7-onboarding-flow.component.ts | ok |  |
-| Layout / nav / a11y | og7-modal-container | og7-modal-container | Og7ModalContainerComponent | openg7-org/src/app/core/ui/modal/og7-modal-container.component.ts | ok |  |
-| ConformitÃ© & i18n / Auth | og7-i18n-language-switch | og7-i18n-language-switch | LanguageSwitchComponent | openg7-org/src/app/shared/components/i18n/language-switch.component.ts | ok | AlignÃ© sur le prÃ©fixe og7- (kebab-case). |
-| ConformitÃ© & i18n / Auth | og7-compliance-checklist | og7-compliance-checklist | Og7ComplianceChecklistComponent | openg7-org/src/app/shared/components/connection/og7-compliance-checklist.component.ts | ok |  |
-| ConformitÃ© & i18n / Auth | og7-social-auth-buttons | og7-social-auth-buttons | SocialAuthButtonsComponent | openg7-org/src/app/shared/components/auth/social-auth-buttons.component.ts | ok |  |
-| ConformitÃ© & i18n / Auth | og7-subscription-plans | og7-subscription-plans | SubscriptionPlansComponent | openg7-org/src/app/shared/components/billing/subscription-plans.component.ts | ok |  |
-| Commerce & entreprises | og7-company-registration-form | og7-company-registration-form | CompanyRegistrationFormComponent | openg7-org/src/app/company-registration-form/components/company-registration-form/company-registration-form.component.ts | ok |  |
-| Commerce & entreprises | og7-companies-import-page | og7-companies-import-page | CompaniesImportPageComponent | openg7-org/src/app/import/companies-import-page/companies-import-page.component.ts | ok |  |
-| Commerce & entreprises | og7-entreprise | og7-entreprise | Og7EntrepriseComponent | openg7-org/src/app/domains/enterprise/entreprise/og7-entreprise.component.ts | ok |  |
-| Hero & marketing | og7-hero-section | og7-hero-section | HeroSectionComponent | openg7-org/src/app/shared/components/hero/hero-section/hero-section.component.ts | ok | Selector Angular alignÃ© (og7-hero-section). |
-| Hero & marketing | og7-hero-copy | og7-hero-copy | HeroCopyComponent | openg7-org/src/app/shared/components/hero/hero-copy/hero-copy.component.ts | ok | Selector Angular alignÃ© (og7-hero-copy). |
-| Hero & marketing | og7-hero-ctas | og7-hero-ctas | HeroCtasComponent | openg7-org/src/app/shared/components/hero/hero-ctas/hero-ctas.component.ts | ok | Selector Angular alignÃ© (og7-hero-ctas). |
-| Hero & marketing | og7-hero-stats | og7-hero-stats | HeroStatsComponent | openg7-org/src/app/shared/components/hero/hero-stats/hero-stats.component.ts | ok |  |
-| Hero & marketing | og7-home-hero-section | og7-home-hero-section | HomeHeroSectionComponent | openg7-org/src/app/domains/home/feature/home-hero-section/home-hero-section.component.ts | ok |  |
-| Hero & marketing | og7-home-hero-galaxy | og7-home-hero-galaxy | HomeHeroGalaxyClientComponent | openg7-org/src/app/domains/home/feature/home-hero-section/home-hero-galaxy.client.component.ts | ok | Backdrop client-only (galaxy + globe). |
-| Hero & marketing | og7-financing-banner | og7-financing-banner | Og7FinancingBannerComponent | openg7-org/src/app/shared/components/financing/og7-financing-banner.component.ts | ok |  |
-| Hero & marketing | og7-cta-rail | og7-cta-rail | Og7CtaRailComponent | openg7-org/src/app/shared/components/cta/og7-cta-rail.component.ts | ok |  |
-| Hero & marketing | og7-dual-qr-panel | og7-dual-qr-panel | Og7DualQrPanelComponent | openg7-org/src/app/shared/components/qr/og7-dual-qr-panel.component.ts | ok |  |
-| Hero & marketing | og7-intro-billboard-content | og7-intro-billboard-content | Og7IntroBillboardContentComponent | openg7-org/src/app/domains/matchmaking/sections/og7-intro-billboard-content.component.ts | ok |  |
-| Hero & marketing | og7-home-page | og7-home-page | Og7HomePageComponent | openg7-org/src/app/domains/home/pages/home/og7-home-page.component.ts | ok |  |
-| Carte & data viz | og7-map-basemap-toggle | og7-map-basemap-toggle | BasemapToggleComponent | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts | ok | Selector Angular alignÃ© (og7-map-basemap-toggle). |
-| Carte & data viz | og7-map-zoom-control | og7-map-zoom-control | ZoomControlComponent | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts | ok | Selector Angular alignÃ© (og7-map-zoom-control). |
-| Carte & data viz | og7-map-legend | og7-map-legend | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok | Selector Angular alignÃ© (og7-map-legend). |
-| Carte & data viz | og7-map-kpi-badges | og7-map-kpi-badges | MapKpiBadgesComponent | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts | ok | Selector Angular alignÃ© (og7-map-kpi-badges). |
-| Carte & data viz | og7-map-sector-chips | og7-map-sector-chips | MapSectorChipsComponent | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts | ok | Selector Angular alignÃ© (og7-map-sector-chips). |
-| Carte & data viz | og7-openlayers-demo-page | og7-openlayers-demo-page | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Page de demonstration OL avec donnees mock et interactions corridor-first. |
-| Carte & data viz | og7-map-frame | og7-map-frame | Og7MapFrameComponent | openg7-org/src/app/shared/components/map-frame/og7-map-frame.component.ts | ok |  |
-| Carte & data viz | og7-home-map-section | og7-home-map-section | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.ts | ok |  |
-| Carte & data viz | og7-home-openlayers-map | og7-home-openlayers-map | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Carte OpenLayers embarquee dans la section home map, exportee via le barrel du module home-map-section. |
-| Carte & data viz | og7-home-corridors-realtime | og7-home-corridors-realtime | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts | ok |  |
-| Carte & data viz | og7-importation-flow-map-panel | og7-importation-flow-map-panel | ImportationFlowMapPanelComponent | openg7-org/src/app/domains/importation/components/flow-map-panel/importation-flow-map-panel.component.ts | ok |  |
-| Carte & data viz | og7-opportunity-mini-map | og7-opportunity-mini-map | OpportunityMiniMapComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-mini-map/opportunity-mini-map.component.ts | ok |  |
-| Carte & data viz | og7-opportunity-radar | og7-opportunity-radar | OpportunityRadarComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-radar/opportunity-radar.component.ts | ok |  |
-| Carte & data viz | og7-opportunity-subway | og7-opportunity-subway | OpportunitySubwayComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-subway/opportunity-subway.component.ts | ok |  |
-| Recherche & filtres | og7-filters-toolbar | [data-og7="filters"] | GlobalFiltersComponent | openg7-org/src/app/shared/components/filters/global-filters.component.ts | ok | LivrÃ© via lâ€™attribut `[data-og7="filters"]`; pas de rename Angular supplÃ©mentaire prÃ©vu. |
-| Recherche & filtres | og7-company-table | [data-og7="company-table"] | CompanyTableComponent | openg7-org/src/app/shared/components/company/company-table.component.ts | ok | Selector data-og7 dÃ©jÃ  exposÃ© en production. |
-| Recherche & filtres | og7-company-detail | [data-og7="company-detail"] | CompanyDetailComponent | openg7-org/src/app/shared/components/company/company-detail.component.ts | ok | Selector data-og7 dÃ©jÃ  exposÃ© en production. |
-| Recherche & filtres | og7-home-filters-section | og7-home-filters-section | HomeFiltersSectionComponent | openg7-org/src/app/domains/home/feature/home-filters-section/home-filters-section.component.ts | ok |  |
-| Recherche & filtres | og7-search-field | og7-search-field | Og7SearchFieldComponent | openg7-org/src/app/shared/components/search/og7-search-field.component.ts | ok |  |
-| Recherche & filtres | og7-quick-search-modal | og7-quick-search-modal | QuickSearchModalComponent | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-modal.component.ts | ok |  |
-| Recherche & filtres | og7-quick-search-result-item | og7-quick-search-result-item | QuickSearchResultItemComponent | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-result-item.component.ts | ok |  |
-| Recherche & filtres | og7-quick-search-section-skeleton | og7-quick-search-section-skeleton | QuickSearchSectionSkeletonComponent | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-section-skeleton.component.ts | ok |  |
-| Recherche & filtres | og7-scoreboard-pipeline | og7-scoreboard-pipeline | Og7ScoreboardPipelineComponent | openg7-org/src/app/shared/components/pipeline/og7-scoreboard-pipeline.component.ts | ok |  |
-| Recherche & filtres | og7-filters-sector-carousel | og7-filters-sector-carousel | SectorCarouselComponent | openg7-org/src/app/shared/components/filters/sector-carousel.component.ts | ok | Selector Angular alignÃ© (og7-filters-sector-carousel). |
-| Matchmaking & rÃ©seau | og7-matchmaking-introduction-message-editor | og7-matchmaking-introduction-message-editor | IntroductionMessageEditorComponent | openg7-org/src/app/domains/matchmaking/og7-mise-en-relation/components/introduction-message-editor.component.ts | ok | Selector Angular alignÃ© (og7- prefixed, kebab-case). |
-| Matchmaking & rÃ©seau | og7-intro-stepper | og7-intro-stepper | Og7IntroStepperComponent | openg7-org/src/app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-linkup-detail-page | og7-linkup-detail-page | Og7LinkupDetailPageComponent | openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-linkup-history-page | og7-linkup-history-page | Og7LinkupHistoryPageComponent | openg7-org/src/app/domains/matchmaking/pages/linkup-history/og7-linkup-history-page.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-linkup-page | og7-linkup-page | Og7LinkupPageComponent | openg7-org/src/app/domains/matchmaking/pages/linkup/og7-linkup-page.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-meeting-scheduler | og7-meeting-scheduler | Og7MeetingSchedulerComponent | openg7-org/src/app/shared/components/connection/og7-meeting-scheduler.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-partner-details-card | og7-partner-details-card | Og7PartnerDetailsCardComponent | openg7-org/src/app/shared/components/partner/og7-partner-details-card.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-partner-details-panel | og7-partner-details-panel | PartnerDetailsPanelComponent | openg7-org/src/app/shared/components/partner/partner-details-panel.component.ts | ok |  |
-| Matchmaking & rÃ©seau | og7-partner-quick-actions | og7-partner-quick-actions | PartnerQuickActionsComponent | openg7-org/src/app/domains/partners/partners/ui/partner-quick-actions.component.ts | ok |  |
-| Flux & social | og7-feed-card | og7-feed-card | Og7FeedCardComponent | openg7-org/src/app/domains/feed/feature/og7-feed-card/og7-feed-card.component.ts | ok |  |
-| Flux & social | og7-feed-composer | og7-feed-composer | Og7FeedComposerComponent | openg7-org/src/app/domains/feed/feature/og7-feed-composer/og7-feed-composer.component.ts | ok |  |
-| Flux & social | og7-feed-post-drawer | og7-feed-post-drawer | Og7FeedPostDrawerComponent | openg7-org/src/app/domains/feed/feature/og7-feed-post-drawer/og7-feed-post-drawer.component.ts | ok |  |
-| Flux & social | og7-feed-replies | og7-feed-replies | Og7FeedRepliesComponent | openg7-org/src/app/domains/feed/feature/og7-feed-replies/og7-feed-replies.component.ts | ok |  |
-| Flux & social | og7-feed-stream | og7-feed-stream | Og7FeedStreamComponent | openg7-org/src/app/domains/feed/feature/og7-feed-stream/og7-feed-stream.component.ts | ok |  |
-| Flux & social | og7-feed-opportunity-detail-page | og7-feed-opportunity-detail-page | FeedOpportunityDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.ts | ok | Page detail opportunite post-clic feed. |
-| Flux & social | og7-opportunity-detail-header | og7-opportunity-detail-header | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.ts | ok | Header sticky + actions + badges. |
-| Flux & social | og7-opportunity-detail-body | og7-opportunity-detail-body | OpportunityDetailBodyComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-body.component.ts | ok | Cartes resume/specs/modalites/docs. |
-| Flux & social | og7-opportunity-qna | og7-opportunity-qna | OpportunityQnaComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.ts | ok | Onglets Questions/Offres/Historique + composeur. |
-| Flux & social | og7-opportunity-context-aside | og7-opportunity-context-aside | OpportunityContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.ts | ok | Contexte temps reel (apercu/indicateurs/alertes). |
-| Flux & social | og7-feed-opportunity-mini-map | og7-feed-opportunity-mini-map | OpportunityMiniMapComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-mini-map.component.ts | ok | Mini-map corridor Quebec -> Ontario. |
-| Flux & social | og7-opportunity-offer-drawer | og7-opportunity-offer-drawer | OpportunityOfferDrawerComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.ts | ok | Drawer formulaire proposer une offre. |
-| Flux & social | og7-feed-alert-detail-page | og7-feed-alert-detail-page | FeedAlertDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.ts | ok | Page detail alerte post-clic feed. |
-| Flux & social | og7-alert-detail-header | og7-alert-detail-header | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.ts | ok | Header sticky severite + confiance + fenetre + CTA alertes. |
-| Flux & social | og7-alert-detail-body | og7-alert-detail-body | AlertDetailBodyComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-body.component.ts | ok | Resume impact, zones, chronologie, recommandations, sources. |
-| Flux & social | og7-alert-context-aside | og7-alert-context-aside | AlertContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.ts | ok | Indicateurs, alertes liees, opportunites associees. |
-| Flux & social | og7-feed-indicator-detail-page | og7-feed-indicator-detail-page | FeedIndicatorDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.ts | ok | Page detail indicateur post-clic feed. |
-| Flux & social | og7-indicator-hero | og7-indicator-hero | IndicatorHeroComponent | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.ts | ok | Header sticky indicateur (breadcrumb, actions, chips). |
-| Flux & social | og7-indicator-chart | og7-indicator-chart | IndicatorChartComponent | openg7-org/src/app/domains/feed/feature/components/indicator-chart.component.ts | ok | Courbe principale avec tooltip + mode tableau. |
-| Flux & social | og7-indicator-stats-aside | og7-indicator-stats-aside | IndicatorStatsAsideComponent | openg7-org/src/app/domains/feed/feature/components/indicator-stats-aside.component.ts | ok | Colonne contexte stats temps reel. |
-| Flux & social | og7-indicator-key-data | og7-indicator-key-data | IndicatorKeyDataComponent | openg7-org/src/app/domains/feed/feature/components/indicator-key-data.component.ts | ok | Carte donnees cles + facteurs d'augmentation. |
-| Flux & social | og7-indicator-related-list | og7-indicator-related-list | IndicatorRelatedListComponent | openg7-org/src/app/domains/feed/feature/components/indicator-related-list.component.ts | ok | Listes liees alertes/opportunites avec sparklines. |
-| Flux & social | og7-indicator-alert-drawer | og7-indicator-alert-drawer | IndicatorAlertDrawerComponent | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.ts | ok | Drawer creation alerte depuis un indicateur. |
-| Importation & supply chain | og7-importation-collaboration-hub | og7-importation-collaboration-hub | ImportationCollaborationHubComponent | openg7-org/src/app/domains/importation/components/collaboration-hub/importation-collaboration-hub.component.ts | ok |  |
-| Importation & supply chain | og7-importation-commodity-section | og7-importation-commodity-section | ImportationCommoditySectionComponent | openg7-org/src/app/domains/importation/components/commodity-section/importation-commodity-section.component.ts | ok |  |
-| Importation & supply chain | og7-importation-knowledge-section | og7-importation-knowledge-section | ImportationKnowledgeSectionComponent | openg7-org/src/app/domains/importation/components/knowledge-section/importation-knowledge-section.component.ts | ok |  |
-| Importation & supply chain | og7-importation-overview-header | og7-importation-overview-header | ImportationOverviewHeaderComponent | openg7-org/src/app/domains/importation/components/overview-header/importation-overview-header.component.ts | ok |  |
-| Importation & supply chain | og7-importation-supplier-intel | og7-importation-supplier-intel | ImportationSupplierIntelComponent | openg7-org/src/app/domains/importation/components/supplier-intel/importation-supplier-intel.component.ts | ok |  |
-| Importation & supply chain | og7-incoterms-ribbon | og7-incoterms-ribbon | Og7IncotermsRibbonComponent | openg7-org/src/app/shared/components/logistics/og7-incoterms-ribbon.component.ts | ok |  |
-| OpportunitÃ©s & analytics | og7-opportunity-compact-kpi-list | og7-opportunity-compact-kpi-list | OpportunityCompactKpiListComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-compact-kpi-list/opportunity-compact-kpi-list.component.ts | ok |  |
-| OpportunitÃ©s & analytics | og7-opportunity-impact-banner | og7-opportunity-impact-banner | OpportunityImpactBannerComponent | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-impact-banner/opportunity-impact-banner.component.ts | ok |  |
-| OpportunitÃ©s & analytics | og7-home-statistics-section | og7-home-statistics-section | HomeStatisticsSectionComponent | openg7-org/src/app/domains/home/feature/home-statistics-section/home-statistics-section.component.ts | ok |  |
-| OpportunitÃ©s & analytics | og7-home-inputs-section | og7-home-inputs-section | HomeInputsSectionComponent | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts | ok |  |
-| ConformitÃ© & i18n / Auth | og7-alerts-page | og7-alerts-page | AlertsPage | openg7-org/src/app/domains/account/pages/alerts.page.ts | ok | Inbox des alertes utilisateur connectÃ©. |
+| CatÃ©gorie                 | Canonical selector                          | Current selector in code                    | Component class                      | File path                                                                                                                        | Status | Notes                                                                                                   |
+| -------------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------- |
+| Layout / nav / a11y        | og7-shell-root                              | og7-shell-root                              | AppComponent                         | openg7-org/src/app/app.component.ts                                                                                              | ok     | Bootstrap Angular sur le selector og7- prefixed.                                                        |
+| Layout / nav / a11y        | og7-site-header                             | og7-site-header                             | SiteHeaderComponent                  | openg7-org/src/app/shared/components/layout/site-header.component.ts                                                             | ok     |                                                                                                         |
+| Layout / nav / a11y        | og7-notification-panel                      | og7-notification-panel                      | NotificationPanelComponent           | openg7-org/src/app/shared/components/layout/notification-panel.component.ts                                                      | ok     |                                                                                                         |
+| Layout / nav / a11y        | og7-under-construction-banner               | og7-under-construction-banner               | UnderConstructionBannerComponent     | openg7-org/src/app/shared/components/layout/under-construction-banner.component.ts                                               | ok     |                                                                                                         |
+| Layout / nav / a11y        | og7-onboarding-flow                         | og7-onboarding-flow                         | Og7OnboardingFlowComponent           | openg7-org/src/app/shared/components/layout/og7-onboarding-flow.component.ts                                                     | ok     |                                                                                                         |
+| Layout / nav / a11y        | og7-modal-container                         | og7-modal-container                         | Og7ModalContainerComponent           | openg7-org/src/app/core/ui/modal/og7-modal-container.component.ts                                                                | ok     |                                                                                                         |
+| ConformitÃ© & i18n / Auth  | og7-i18n-language-switch                    | og7-i18n-language-switch                    | LanguageSwitchComponent              | openg7-org/src/app/shared/components/i18n/language-switch.component.ts                                                           | ok     | AlignÃ© sur le prÃ©fixe og7- (kebab-case).                                                              |
+| ConformitÃ© & i18n / Auth  | og7-compliance-checklist                    | og7-compliance-checklist                    | Og7ComplianceChecklistComponent      | openg7-org/src/app/shared/components/connection/og7-compliance-checklist.component.ts                                            | ok     |                                                                                                         |
+| ConformitÃ© & i18n / Auth  | og7-social-auth-buttons                     | og7-social-auth-buttons                     | SocialAuthButtonsComponent           | openg7-org/src/app/shared/components/auth/social-auth-buttons.component.ts                                                       | ok     |                                                                                                         |
+| ConformitÃ© & i18n / Auth  | og7-subscription-plans                      | og7-subscription-plans                      | SubscriptionPlansComponent           | openg7-org/src/app/shared/components/billing/subscription-plans.component.ts                                                     | ok     |                                                                                                         |
+| Commerce & entreprises     | og7-company-registration-form               | og7-company-registration-form               | CompanyRegistrationFormComponent     | openg7-org/src/app/company-registration-form/components/company-registration-form/company-registration-form.component.ts         | ok     |                                                                                                         |
+| Commerce & entreprises     | og7-companies-import-page                   | og7-companies-import-page                   | CompaniesImportPageComponent         | openg7-org/src/app/import/companies-import-page/companies-import-page.component.ts                                               | ok     |                                                                                                         |
+| Commerce & entreprises     | og7-entreprise                              | og7-entreprise                              | Og7EntrepriseComponent               | openg7-org/src/app/domains/enterprise/entreprise/og7-entreprise.component.ts                                                     | ok     |                                                                                                         |
+| Hero & marketing           | og7-hero-section                            | og7-hero-section                            | HeroSectionComponent                 | openg7-org/src/app/shared/components/hero/hero-section/hero-section.component.ts                                                 | ok     | Selector Angular alignÃ© (og7-hero-section).                                                            |
+| Hero & marketing           | og7-hero-copy                               | og7-hero-copy                               | HeroCopyComponent                    | openg7-org/src/app/shared/components/hero/hero-copy/hero-copy.component.ts                                                       | ok     | Selector Angular alignÃ© (og7-hero-copy).                                                               |
+| Hero & marketing           | og7-hero-ctas                               | og7-hero-ctas                               | HeroCtasComponent                    | openg7-org/src/app/shared/components/hero/hero-ctas/hero-ctas.component.ts                                                       | ok     | Selector Angular alignÃ© (og7-hero-ctas).                                                               |
+| Hero & marketing           | og7-hero-stats                              | og7-hero-stats                              | HeroStatsComponent                   | openg7-org/src/app/shared/components/hero/hero-stats/hero-stats.component.ts                                                     | ok     |                                                                                                         |
+| Hero & marketing           | og7-home-hero-section                       | og7-home-hero-section                       | HomeHeroSectionComponent             | openg7-org/src/app/domains/home/feature/home-hero-section/home-hero-section.component.ts                                         | ok     |                                                                                                         |
+| Hero & marketing           | og7-home-hero-galaxy                        | og7-home-hero-galaxy                        | HomeHeroGalaxyClientComponent        | openg7-org/src/app/domains/home/feature/home-hero-section/home-hero-galaxy.client.component.ts                                   | ok     | Backdrop client-only (galaxy + globe).                                                                  |
+| Hero & marketing           | og7-financing-banner                        | og7-financing-banner                        | Og7FinancingBannerComponent          | openg7-org/src/app/shared/components/financing/og7-financing-banner.component.ts                                                 | ok     |                                                                                                         |
+| Hero & marketing           | og7-cta-rail                                | og7-cta-rail                                | Og7CtaRailComponent                  | openg7-org/src/app/shared/components/cta/og7-cta-rail.component.ts                                                               | ok     |                                                                                                         |
+| Hero & marketing           | og7-dual-qr-panel                           | og7-dual-qr-panel                           | Og7DualQrPanelComponent              | openg7-org/src/app/shared/components/qr/og7-dual-qr-panel.component.ts                                                           | ok     |                                                                                                         |
+| Hero & marketing           | og7-intro-billboard-content                 | og7-intro-billboard-content                 | Og7IntroBillboardContentComponent    | openg7-org/src/app/domains/matchmaking/sections/og7-intro-billboard-content.component.ts                                         | ok     |                                                                                                         |
+| Hero & marketing           | og7-home-page                               | og7-home-page                               | Og7HomePageComponent                 | openg7-org/src/app/domains/home/pages/home/og7-home-page.component.ts                                                            | ok     |                                                                                                         |
+| Carte & data viz           | og7-map-basemap-toggle                      | og7-map-basemap-toggle                      | BasemapToggleComponent               | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts                                                    | ok     | Selector Angular alignÃ© (og7-map-basemap-toggle).                                                      |
+| Carte & data viz           | og7-map-zoom-control                        | og7-map-zoom-control                        | ZoomControlComponent                 | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts                                                      | ok     | Selector Angular alignÃ© (og7-map-zoom-control).                                                        |
+| Carte & data viz           | og7-map-legend                              | og7-map-legend                              | MapLegendComponent                   | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts                                                          | ok     | Selector Angular alignÃ© (og7-map-legend).                                                              |
+| Carte & data viz           | og7-map-kpi-badges                          | og7-map-kpi-badges                          | MapKpiBadgesComponent                | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts                                                         | ok     | Selector Angular alignÃ© (og7-map-kpi-badges).                                                          |
+| Carte & data viz           | og7-map-sector-chips                        | og7-map-sector-chips                        | MapSectorChipsComponent              | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts                                                   | ok     | Selector Angular alignÃ© (og7-map-sector-chips).                                                        |
+| Carte & data viz           | og7-openlayers-demo-page                    | og7-openlayers-demo-page                    | OpenlayersDemoPage                   | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts                                                               | ok     | Page de demonstration OL avec donnees mock et interactions corridor-first.                              |
+| Carte & data viz           | og7-map-frame                               | og7-map-frame                               | Og7MapFrameComponent                 | openg7-org/src/app/shared/components/map-frame/og7-map-frame.component.ts                                                        | ok     |                                                                                                         |
+| Carte & data viz           | og7-home-map-section                        | og7-home-map-section                        | HomeMapSectionComponent              | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.ts                                           | ok     |                                                                                                         |
+| Carte & data viz           | og7-home-openlayers-map                     | og7-home-openlayers-map                     | HomeOpenlayersMapComponent           | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts                                        | ok     | Carte OpenLayers embarquee dans la section home map, exportee via le barrel du module home-map-section. |
+| Carte & data viz           | og7-home-corridors-realtime                 | og7-home-corridors-realtime                 | HomeCorridorsRealtimeComponent       | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.ts                             | ok     |                                                                                                         |
+| Carte & data viz           | og7-importation-flow-map-panel              | og7-importation-flow-map-panel              | ImportationFlowMapPanelComponent     | openg7-org/src/app/domains/importation/components/flow-map-panel/importation-flow-map-panel.component.ts                         | ok     |                                                                                                         |
+| Carte & data viz           | og7-opportunity-mini-map                    | og7-opportunity-mini-map                    | OpportunityMiniMapComponent          | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-mini-map/opportunity-mini-map.component.ts                 | ok     |                                                                                                         |
+| Carte & data viz           | og7-opportunity-radar                       | og7-opportunity-radar                       | OpportunityRadarComponent            | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-radar/opportunity-radar.component.ts                       | ok     |                                                                                                         |
+| Carte & data viz           | og7-opportunity-subway                      | og7-opportunity-subway                      | OpportunitySubwayComponent           | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-subway/opportunity-subway.component.ts                     | ok     |                                                                                                         |
+| Recherche & filtres        | og7-filters-toolbar                         | [data-og7="filters"]                        | GlobalFiltersComponent               | openg7-org/src/app/shared/components/filters/global-filters.component.ts                                                         | ok     | LivrÃ© via lâ€™attribut `[data-og7="filters"]`; pas de rename Angular supplÃ©mentaire prÃ©vu.           |
+| Recherche & filtres        | og7-company-table                           | [data-og7="company-table"]                  | CompanyTableComponent                | openg7-org/src/app/shared/components/company/company-table.component.ts                                                          | ok     | Selector data-og7 dÃ©jÃ  exposÃ© en production.                                                         |
+| Recherche & filtres        | og7-company-detail                          | [data-og7="company-detail"]                 | CompanyDetailComponent               | openg7-org/src/app/shared/components/company/company-detail.component.ts                                                         | ok     | Selector data-og7 dÃ©jÃ  exposÃ© en production.                                                         |
+| Recherche & filtres        | og7-home-filters-section                    | og7-home-filters-section                    | HomeFiltersSectionComponent          | openg7-org/src/app/domains/home/feature/home-filters-section/home-filters-section.component.ts                                   | ok     |                                                                                                         |
+| Recherche & filtres        | og7-search-field                            | og7-search-field                            | Og7SearchFieldComponent              | openg7-org/src/app/shared/components/search/og7-search-field.component.ts                                                        | ok     |                                                                                                         |
+| Recherche & filtres        | og7-quick-search-modal                      | og7-quick-search-modal                      | QuickSearchModalComponent            | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-modal.component.ts                                     | ok     |                                                                                                         |
+| Recherche & filtres        | og7-quick-search-result-item                | og7-quick-search-result-item                | QuickSearchResultItemComponent       | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-result-item.component.ts                               | ok     |                                                                                                         |
+| Recherche & filtres        | og7-quick-search-section-skeleton           | og7-quick-search-section-skeleton           | QuickSearchSectionSkeletonComponent  | openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-section-skeleton.component.ts                          | ok     |                                                                                                         |
+| Recherche & filtres        | og7-scoreboard-pipeline                     | og7-scoreboard-pipeline                     | Og7ScoreboardPipelineComponent       | openg7-org/src/app/shared/components/pipeline/og7-scoreboard-pipeline.component.ts                                               | ok     |                                                                                                         |
+| Recherche & filtres        | og7-filters-sector-carousel                 | og7-filters-sector-carousel                 | SectorCarouselComponent              | openg7-org/src/app/shared/components/filters/sector-carousel.component.ts                                                        | ok     | Selector Angular alignÃ© (og7-filters-sector-carousel).                                                 |
+| Matchmaking & rÃ©seau      | og7-matchmaking-introduction-message-editor | og7-matchmaking-introduction-message-editor | IntroductionMessageEditorComponent   | openg7-org/src/app/domains/matchmaking/og7-mise-en-relation/components/introduction-message-editor.component.ts                  | ok     | Selector Angular alignÃ© (og7- prefixed, kebab-case).                                                   |
+| Matchmaking & rÃ©seau      | og7-intro-stepper                           | og7-intro-stepper                           | Og7IntroStepperComponent             | openg7-org/src/app/domains/matchmaking/og7-mise-en-relation/og7-intro-stepper.component.ts                                       | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-linkup-detail-page                      | og7-linkup-detail-page                      | Og7LinkupDetailPageComponent         | openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.ts                                   | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-linkup-history-page                     | og7-linkup-history-page                     | Og7LinkupHistoryPageComponent        | openg7-org/src/app/domains/matchmaking/pages/linkup-history/og7-linkup-history-page.component.ts                                 | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-linkup-page                             | og7-linkup-page                             | Og7LinkupPageComponent               | openg7-org/src/app/domains/matchmaking/pages/linkup/og7-linkup-page.component.ts                                                 | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-meeting-scheduler                       | og7-meeting-scheduler                       | Og7MeetingSchedulerComponent         | openg7-org/src/app/shared/components/connection/og7-meeting-scheduler.component.ts                                               | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-partner-details-card                    | og7-partner-details-card                    | Og7PartnerDetailsCardComponent       | openg7-org/src/app/shared/components/partner/og7-partner-details-card.component.ts                                               | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-partner-details-panel                   | og7-partner-details-panel                   | PartnerDetailsPanelComponent         | openg7-org/src/app/shared/components/partner/partner-details-panel.component.ts                                                  | ok     |                                                                                                         |
+| Matchmaking & rÃ©seau      | og7-partner-quick-actions                   | og7-partner-quick-actions                   | PartnerQuickActionsComponent         | openg7-org/src/app/domains/partners/partners/ui/partner-quick-actions.component.ts                                               | ok     |                                                                                                         |
+| Flux & social              | og7-feed-card                               | og7-feed-card                               | Og7FeedCardComponent                 | openg7-org/src/app/domains/feed/feature/og7-feed-card/og7-feed-card.component.ts                                                 | ok     |                                                                                                         |
+| Flux & social              | og7-feed-composer                           | og7-feed-composer                           | Og7FeedComposerComponent             | openg7-org/src/app/domains/feed/feature/og7-feed-composer/og7-feed-composer.component.ts                                         | ok     |                                                                                                         |
+| Flux & social              | og7-feed-post-drawer                        | og7-feed-post-drawer                        | Og7FeedPostDrawerComponent           | openg7-org/src/app/domains/feed/feature/og7-feed-post-drawer/og7-feed-post-drawer.component.ts                                   | ok     |                                                                                                         |
+| Flux & social              | og7-feed-replies                            | og7-feed-replies                            | Og7FeedRepliesComponent              | openg7-org/src/app/domains/feed/feature/og7-feed-replies/og7-feed-replies.component.ts                                           | ok     |                                                                                                         |
+| Flux & social              | og7-feed-stream                             | og7-feed-stream                             | Og7FeedStreamComponent               | openg7-org/src/app/domains/feed/feature/og7-feed-stream/og7-feed-stream.component.ts                                             | ok     |                                                                                                         |
+| Flux & social              | og7-feed-opportunity-detail-page            | og7-feed-opportunity-detail-page            | FeedOpportunityDetailPage            | openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.ts                                                    | ok     | Page detail opportunite post-clic feed.                                                                 |
+| Flux & social              | og7-opportunity-detail-header               | og7-opportunity-detail-header               | OpportunityDetailHeaderComponent     | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.ts                                        | ok     | Header sticky + actions + badges.                                                                       |
+| Flux & social              | og7-opportunity-detail-body                 | og7-opportunity-detail-body                 | OpportunityDetailBodyComponent       | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-body.component.ts                                          | ok     | Cartes resume/specs/modalites/docs.                                                                     |
+| Flux & social              | og7-opportunity-qna                         | og7-opportunity-qna                         | OpportunityQnaComponent              | openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.ts                                                  | ok     | Onglets Questions/Offres/Historique + composeur.                                                        |
+| Flux & social              | og7-opportunity-context-aside               | og7-opportunity-context-aside               | OpportunityContextAsideComponent     | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.ts                                        | ok     | Contexte temps reel (apercu/indicateurs/alertes).                                                       |
+| Flux & social              | og7-feed-opportunity-mini-map               | og7-feed-opportunity-mini-map               | OpportunityMiniMapComponent          | openg7-org/src/app/domains/feed/feature/components/opportunity-mini-map.component.ts                                             | ok     | Mini-map corridor Quebec -> Ontario.                                                                    |
+| Flux & social              | og7-opportunity-offer-drawer                | og7-opportunity-offer-drawer                | OpportunityOfferDrawerComponent      | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.ts                                         | ok     | Drawer formulaire proposer une offre.                                                                   |
+| Flux & social              | og7-feed-alert-detail-page                  | og7-feed-alert-detail-page                  | FeedAlertDetailPage                  | openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.ts                                                          | ok     | Page detail alerte post-clic feed.                                                                      |
+| Flux & social              | og7-alert-detail-header                     | og7-alert-detail-header                     | AlertDetailHeaderComponent           | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.ts                                              | ok     | Header sticky severite + confiance + fenetre + CTA alertes.                                             |
+| Flux & social              | og7-alert-detail-body                       | og7-alert-detail-body                       | AlertDetailBodyComponent             | openg7-org/src/app/domains/feed/feature/components/alert-detail-body.component.ts                                                | ok     | Resume impact, zones, chronologie, recommandations, sources.                                            |
+| Flux & social              | og7-alert-context-aside                     | og7-alert-context-aside                     | AlertContextAsideComponent           | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.ts                                              | ok     | Indicateurs, alertes liees, opportunites associees.                                                     |
+| Flux & social              | og7-feed-indicator-detail-page              | og7-feed-indicator-detail-page              | FeedIndicatorDetailPage              | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.ts                                                      | ok     | Page detail indicateur post-clic feed.                                                                  |
+| Flux & social              | og7-indicator-hero                          | og7-indicator-hero                          | IndicatorHeroComponent               | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.ts                                                   | ok     | Header sticky indicateur (breadcrumb, actions, chips).                                                  |
+| Flux & social              | og7-indicator-chart                         | og7-indicator-chart                         | IndicatorChartComponent              | openg7-org/src/app/domains/feed/feature/components/indicator-chart.component.ts                                                  | ok     | Courbe principale avec tooltip + mode tableau.                                                          |
+| Flux & social              | og7-indicator-stats-aside                   | og7-indicator-stats-aside                   | IndicatorStatsAsideComponent         | openg7-org/src/app/domains/feed/feature/components/indicator-stats-aside.component.ts                                            | ok     | Colonne contexte stats temps reel.                                                                      |
+| Flux & social              | og7-indicator-key-data                      | og7-indicator-key-data                      | IndicatorKeyDataComponent            | openg7-org/src/app/domains/feed/feature/components/indicator-key-data.component.ts                                               | ok     | Carte donnees cles + facteurs d'augmentation.                                                           |
+| Flux & social              | og7-indicator-related-list                  | og7-indicator-related-list                  | IndicatorRelatedListComponent        | openg7-org/src/app/domains/feed/feature/components/indicator-related-list.component.ts                                           | ok     | Listes liees alertes/opportunites avec sparklines.                                                      |
+| Flux & social              | og7-indicator-alert-drawer                  | og7-indicator-alert-drawer                  | IndicatorAlertDrawerComponent        | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.ts                                           | ok     | Drawer creation alerte depuis un indicateur.                                                            |
+| Importation & supply chain | og7-importation-collaboration-hub           | og7-importation-collaboration-hub           | ImportationCollaborationHubComponent | openg7-org/src/app/domains/importation/components/collaboration-hub/importation-collaboration-hub.component.ts                   | ok     |                                                                                                         |
+| Importation & supply chain | og7-importation-commodity-section           | og7-importation-commodity-section           | ImportationCommoditySectionComponent | openg7-org/src/app/domains/importation/components/commodity-section/importation-commodity-section.component.ts                   | ok     |                                                                                                         |
+| Importation & supply chain | og7-importation-knowledge-section           | og7-importation-knowledge-section           | ImportationKnowledgeSectionComponent | openg7-org/src/app/domains/importation/components/knowledge-section/importation-knowledge-section.component.ts                   | ok     |                                                                                                         |
+| Importation & supply chain | og7-importation-overview-header             | og7-importation-overview-header             | ImportationOverviewHeaderComponent   | openg7-org/src/app/domains/importation/components/overview-header/importation-overview-header.component.ts                       | ok     |                                                                                                         |
+| Importation & supply chain | og7-importation-supplier-intel              | og7-importation-supplier-intel              | ImportationSupplierIntelComponent    | openg7-org/src/app/domains/importation/components/supplier-intel/importation-supplier-intel.component.ts                         | ok     |                                                                                                         |
+| Importation & supply chain | og7-incoterms-ribbon                        | og7-incoterms-ribbon                        | Og7IncotermsRibbonComponent          | openg7-org/src/app/shared/components/logistics/og7-incoterms-ribbon.component.ts                                                 | ok     |                                                                                                         |
+| OpportunitÃ©s & analytics  | og7-opportunity-compact-kpi-list            | og7-opportunity-compact-kpi-list            | OpportunityCompactKpiListComponent   | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-compact-kpi-list/opportunity-compact-kpi-list.component.ts | ok     |                                                                                                         |
+| OpportunitÃ©s & analytics  | og7-opportunity-impact-banner               | og7-opportunity-impact-banner               | OpportunityImpactBannerComponent     | openg7-org/src/app/domains/opportunities/opportunities/ui/opportunity-impact-banner/opportunity-impact-banner.component.ts       | ok     |                                                                                                         |
+| OpportunitÃ©s & analytics  | og7-home-statistics-section                 | og7-home-statistics-section                 | HomeStatisticsSectionComponent       | openg7-org/src/app/domains/home/feature/home-statistics-section/home-statistics-section.component.ts                             | ok     |                                                                                                         |
+| OpportunitÃ©s & analytics  | og7-home-inputs-section                     | og7-home-inputs-section                     | HomeInputsSectionComponent           | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts                                     | ok     |                                                                                                         |
+| ConformitÃ© & i18n / Auth  | og7-alerts-page                             | og7-alerts-page                             | AlertsPage                           | openg7-org/src/app/domains/account/pages/alerts.page.ts                                                                          | ok     | Inbox des alertes utilisateur connectÃ©.                                                                |
 
 ## Registry des sÃ©lecteurs [data-og7*] (hooks UI & tests)
 
-| CatÃ©gorie | data-og7 / data-og7-id | Used in component | File path | Status | Notes |
-|-----------|------------------------|-------------------|----------|--------|-------|
-| Hooks gÃ©nÃ©riques | [data-og7="*"] | â€” | â€” | planned | Backlog (garde-fou global Ã  ajouter lors du prochain cycle E2E). |
-| Hooks gÃ©nÃ©riques | [data-og7="action"] | HeroCtasComponent | openg7-org/src/app/shared/components/hero/hero-ctas.component.html | ok | UtilisÃ© pour tracer les CTA (data-og7="action"). |
-| Layout / nav / a11y | [data-og7="app"] | AppComponent | openg7-org/src/app/app.component.ts | planned | Ã€ ajouter dans le template racine (actuel : data-og7="app-shell"). |
-| Layout / nav / a11y | [data-og7="site-header"] | SiteHeaderComponent | openg7-org/src/app/shared/components/layout/site-header.component.html | ok | Hook dÃ©jÃ  appliquÃ© sur lâ€™en-tÃªte. |
-| Layout / nav / a11y | [data-og7="announcement-bar"] | â€” | â€” | planned | Barre dâ€™annonce optionnelle (non implÃ©mentÃ©e). |
-| ConformitÃ© & i18n / Auth | [data-og7="language-switch"] | LanguageSwitchComponent | openg7-org/src/app/shared/components/i18n/language-switch.component.html | ok | LivrÃ© via data-og7-id="language-switch" sur le composant. |
-| ConformitÃ© & i18n / Auth | [data-og7="auth-login"] | LoginPage | openg7-org/src/app/domains/auth/pages/login.page.html | ok | PrÃ©sent sur la page de connexion. |
-| ConformitÃ© & i18n / Auth | [data-og7="auth-register"] | RegisterPage | openg7-org/src/app/domains/auth/pages/register.page.html | ok | PrÃ©sent sur la page dâ€™inscription. |
-| ConformitÃ© & i18n / Auth | [data-og7="access-denied"] | AccessDeniedPage | openg7-org/src/app/domains/auth/pages/access-denied.page.html | ok | PrÃ©sent sur la page dâ€™accÃ¨s refusÃ©. |
-| ConformitÃ© & i18n / Auth | [data-og7="user-profile"] | ProfilePage | openg7-org/src/app/domains/account/pages/profile.page.html | ok | PrÃ©sent sur la page profil. |
-| ConformitÃ© & i18n / Auth | [data-og7="user-profile-export-data"] | ProfilePage | openg7-org/src/app/domains/account/pages/profile.page.html | ok | Carte d'export des donnÃ©es du compte (JSON). |
-| ConformitÃ© & i18n / Auth | [data-og7="user-profile-sessions"] | ProfilePage | openg7-org/src/app/domains/account/pages/profile.page.html | ok | Carte des sessions connectÃ©es et action â€œdÃ©connecter les autres appareilsâ€. |
-| ConformitÃ© & i18n / Auth | [data-og7="user-alerts"] | AlertsPage | openg7-org/src/app/domains/account/pages/alerts.page.html | ok | Inbox des alertes utilisateur connecte. |
-| Hero & marketing | [data-og7="hero"] | HeroSectionComponent | openg7-org/src/app/shared/components/hero/hero-section/hero-section.component.ts | ok | Selector actuel du composant. |
-| Hero & marketing | [data-og7="hero-copy"] | HeroCopyComponent | openg7-org/src/app/shared/components/hero/hero-copy/hero-copy.component.ts | ok |  |
-| Hero & marketing | [data-og7="hero-ctas"] | HeroCtasComponent | openg7-org/src/app/shared/components/hero/hero-ctas/hero-ctas.component.ts | ok |  |
-| Hero & marketing | [data-og7="home-inputs"] | HomeInputsSectionComponent | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts | ok |  |
-| Hero & marketing | [data-og7="announcement-bar"] | â€” | â€” | planned | Doublon volontaire pour lâ€™UI marketing (pas encore utilisÃ©). |
-| Carte & data viz | [data-og7="trade-map"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Surface OpenLayers home qui remplace l'ancien composant shared. |
-| Carte & data viz | [data-og7="ol-demo-page"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Racine de la page de demonstration OpenLayers. |
-| Carte & data viz | [data-og7="ol-demo-map"] | OpenlayersDemoPage | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts | ok | Surface cartographique OL alimentee par donnees mock. |
-| Carte & data viz | [data-og7="map-basemap-toggle"] | BasemapToggleComponent | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts | ok |  |
-| Carte & data viz | [data-og7="map-zoom-control"] | ZoomControlComponent | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts | ok |  |
-| Carte & data viz | [data-og7="map-legend"] | MapLegendComponent | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts | ok |  |
-| Carte & data viz | [data-og7="map-kpi-badges"] | MapKpiBadgesComponent | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts | ok |  |
-| Carte & data viz | [data-og7="map-sector-chips"] | MapSectorChipsComponent | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts | ok |  |
-| Carte & data viz | [data-og7="home-map"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Racine de la section carte de la page d'accueil. |
-| Carte & data viz | [data-og7="map-mobile-picks"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Rail mobile des drilldowns par secteur. |
-| Carte & data viz | [data-og7="map-decision-panel"] | HomeMapSectionComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html | ok | Panneau desktop de decision downstream vers le feed. |
-| Carte & data viz | [data-og7="map-overlay"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Overlay fonctionnel de la carte OpenLayers home. |
-| Carte & data viz | [data-og7="map-sector-rail"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Controle des secteurs affiches sur la carte OpenLayers home. |
-| Carte & data viz | [data-og7="map-pulse-panel"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Indicateurs corridors/hubs visibles. |
-| Carte & data viz | [data-og7="action"][data-og7-id="map-toggle-stats"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Toggle pour masquer ou retablir les statistiques de surcouche de la carte home. |
-| Carte & data viz | [data-og7="map-corridor-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Carte resume du corridor courant. |
-| Carte & data viz | [data-og7="map-cinematic-status"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etat du mode idle/cadrage automatique de la carte home. |
-| Carte & data viz | [data-og7="map-corridor-beat"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etapes narratives cliquables du corridor courant. |
-| Carte & data viz | [data-og7="map-corridor-downstream"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Pont decisionnel du corridor courant vers le feed prefiltre. |
-| Carte & data viz | [data-og7="action"][data-og7-id="map-open-corridor-feed"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | CTA clavier/souris pour ouvrir le feed focalise sur le corridor courant. |
-| Carte & data viz | [data-og7="map-hub-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Mini-fiche ouverte apres clic sur un hub de la carte. |
-| Carte & data viz | [data-og7="map-hub-prompt"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Indication de decouverte pour l'ouverture des mini-fiches hub. |
-| Carte & data viz | [data-og7="corridors-realtime"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok |  |
-| Carte & data viz | [data-og7="corridors-realtime"] [data-og7-id="fullscreen"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok |  |
-| Carte & data viz | [data-og7="corridors-realtime"] [data-og7-id="view-map"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok | CTA voir sur la carte (inactif pour l'instant). |
-| Recherche & filtres | [data-og7="filters"][data-og7-id="filters-group"] | GlobalFiltersComponent | openg7-org/src/app/shared/components/filters/global-filters.component.ts | ok |  |
-| Recherche & filtres | [data-og7="filters"][data-og7-id="sector-carousel"] | SectorCarouselComponent | openg7-org/src/app/shared/components/filters/sector-carousel.component.ts | ok |  |
-| Recherche & filtres | [data-og7="search-box"] | SiteHeaderComponent | openg7-org/src/app/shared/components/layout/site-header.component.ts | planned | Nom en kebab-case alignÃ© sur la convention data-og7 ; sera branchÃ© avec lâ€™omnibox. |
-| Layout / nav / a11y | [data-og7-id="alerts"] | SiteHeaderComponent | openg7-org/src/app/shared/components/layout/site-header/site-header.component.html | ok | Lien menu profil vers /alerts (desktop + mobile). |
-| Commerce & entreprises | [data-og7="company-table"] | CompanyTableComponent | openg7-org/src/app/shared/components/company/company-table.component.ts | ok |  |
-| Commerce & entreprises | [data-og7="company-detail"] | CompanyDetailComponent | openg7-org/src/app/shared/components/company/company-detail.component.ts | ok |  |
-| Flux & social | [data-og7="feed-page"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Conteneur principal du feed. |
-| Flux & social | [data-og7="feed-source-context"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Bandeau de contexte source/corridor preserve depuis la carte ou les surfaces amont. |
-| Flux & social | [data-og7="feed-source-chips"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Groupe de chips du contexte corridor (secteur, route, mode, priorite). |
-| Flux & social | [data-og7="feed-source-chip"][data-og7-id="sector"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip secteur du contexte corridor feed. |
-| Flux & social | [data-og7="feed-source-chip"][data-og7-id="route"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip route du contexte corridor feed. |
-| Flux & social | [data-og7="feed-source-chip"][data-og7-id="mode"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip mode import/export du contexte corridor feed. |
-| Flux & social | [data-og7="feed-source-chip"][data-og7-id="priority"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip priorite du contexte corridor feed. |
-| Flux & social | [data-og7="action"][data-og7-id="feed-context-return-map"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Retour clavier/souris vers la carte d'origine du contexte feed. |
-| Flux & social | [data-og7="action"][data-og7-id="feed-context-reset"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Reinitialisation du contexte source/corridor du feed. |
-| Flux & social | [data-og7="opportunity-detail-page"] | FeedOpportunityDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.html | ok | Conteneur detail opportunite. |
-| Flux & social | [data-og7="opportunity-detail-header"] | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html | ok | Header sticky + actions detail. |
-| Flux & social | [data-og7="opportunity-detail-body"] | OpportunityDetailBodyComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-body.component.html | ok | Resume/specs/modalites/documents. |
-| Flux & social | [data-og7="opportunity-qna"] | OpportunityQnaComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.html | ok | Onglets Q/R + composeur. |
-| Flux & social | [data-og7="opportunity-context-aside"] | OpportunityContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.html | ok | Contexte temps reel. |
-| Flux & social | [data-og7="opportunity-mini-map"] | OpportunityMiniMapComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-mini-map.component.html | ok | Mini-carte corridor. |
-| Flux & social | [data-og7="opportunity-offer-drawer"] | OpportunityOfferDrawerComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html | ok | Drawer proposer une offre. |
-| Flux & social | [data-og7="action"][data-og7-id="opportunity-make-offer"] | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html | ok | CTA principal proposer une offre. |
-| Flux & social | [data-og7="action"][data-og7-id="opportunity-offer-submit"] | OpportunityOfferDrawerComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html | ok | Soumission offre rapide. |
-| Flux & social | [data-og7="opportunity-offer-field"][data-og7-id="capacity|start-date|end-date|pricing-model|comment|attachment"] | OpportunityOfferDrawerComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html | ok | Hooks de champs pour BLUEPRINT-OP-04 (proposer une offre). |
-| Flux & social | [data-og7="action"][data-og7-id="opportunity-alert-open-*"] | OpportunityContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.html | ok | Ouverture d'une alerte liee depuis l'aside opportunite (BLUEPRINT-OP-08). |
-| Flux & social | [data-og7="alert-detail-page"] | FeedAlertDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.html | ok | Conteneur detail alerte. |
-| Flux & social | [data-og7="alert-detail-header"] | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html | ok | Header alerte sticky. |
-| Flux & social | [data-og7="alert-detail-body"] | AlertDetailBodyComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-body.component.html | ok | Corps detail alerte (impact/zones/timeline/sources). |
-| Flux & social | [data-og7="alert-context-aside"] | AlertContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html | ok | Aside alertes (indicateurs/lies/opportunites). |
-| Flux & social | [data-og7="alert-indicators"] | AlertContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html | ok | Carte indicateurs pertinents cote alerte. |
-| Flux & social | [data-og7="alert-related-alerts"] | AlertContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html | ok | Liste alertes liees. |
-| Flux & social | [data-og7="alert-related-opportunities"] | AlertContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html | ok | Opportunites associees creees/suggerees. |
-| Flux & social | [data-og7="action"][data-og7-id="alert-subscribe"] | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html | ok | CTA principal alertes: abonnement notifications. |
-| Flux & social | [data-og7="action"][data-og7-id="alert-share"] | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html | ok | CTA partage alerte. |
-| Flux & social | [data-og7="action"][data-og7-id="alert-report-update"] | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html | ok | CTA contribution utilisateur: signaler mise a jour. |
-| Flux & social | [data-og7="action"][data-og7-id="alert-create-opportunity"] | AlertDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html | ok | CTA optionnel creation opportunite liee. |
-| Flux & social | [data-og7="indicator-detail-page"] | FeedIndicatorDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html | ok | Conteneur detail indicateur. |
-| Flux & social | [data-og7="indicator-detail-header"] | IndicatorHeroComponent | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html | ok | Header sticky indicateur avec breadcrumbs/actions/chips. |
-| Flux & social | [data-og7="indicator-chart"] | IndicatorChartComponent | openg7-org/src/app/domains/feed/feature/components/indicator-chart.component.html | ok | Courbe principale (tooltip + resume a11y + vue tableau). |
-| Flux & social | [data-og7="indicator-key-data"] | IndicatorKeyDataComponent | openg7-org/src/app/domains/feed/feature/components/indicator-key-data.component.html | ok | Carte prix actuel + facteurs d'augmentation. |
-| Flux & social | [data-og7="indicator-stats-aside"] | IndicatorStatsAsideComponent | openg7-org/src/app/domains/feed/feature/components/indicator-stats-aside.component.html | ok | Bloc statistiques pertinents avec sparklines. |
-| Flux & social | [data-og7="indicator-related-alerts"] | FeedIndicatorDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html | ok | Liste alertes liees a l'indicateur. |
-| Flux & social | [data-og7="indicator-related-opportunities"] | FeedIndicatorDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html | ok | Liste opportunites associees a l'indicateur. |
-| Flux & social | [data-og7="indicator-alert-drawer"] | IndicatorAlertDrawerComponent | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html | ok | Drawer creation d'alerte depuis un indicateur. |
-| Flux & social | [data-og7="action"][data-og7-id="indicator-subscribe"] | IndicatorHeroComponent | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html | ok | CTA abonnement indicateur (toggle optimistic). |
-| Flux & social | [data-og7="action"][data-og7-id="indicator-create-alert"] | IndicatorHeroComponent | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html | ok | CTA ouverture drawer de creation d'alerte. |
-| Flux & social | [data-og7="action"][data-og7-id="indicator-alert-submit"] | IndicatorAlertDrawerComponent | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html | ok | Soumission rapide d'alerte sur seuil indicateur. |
-| Flux & social | [data-og7="indicator-alert-field"][data-og7-id="threshold-direction|threshold-value|window|frequency|notify-delta|note"] | IndicatorAlertDrawerComponent | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html | ok | Hooks de champs pour BLUEPRINT-OP-19 (creation d'alerte indicateur). |
+| CatÃ©gorie                | data-og7 / data-og7-id                                             | Used in component                | File path                                                                                              | Status        | Notes                                                                                  |
+| ------------------------- | ------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------- | -------------------------------------------------------------------------------------- | ------------ | ------------------------------- | ------------------------------------------------------------------------------------------ | --- | -------------------------------------------------------------------- |
+| Hooks gÃ©nÃ©riques        | [data-og7="*"]                                                     | â€”                              | â€”                                                                                                    | planned       | Backlog (garde-fou global Ã  ajouter lors du prochain cycle E2E).                      |
+| Hooks gÃ©nÃ©riques        | [data-og7="action"]                                                | HeroCtasComponent                | openg7-org/src/app/shared/components/hero/hero-ctas.component.html                                     | ok            | UtilisÃ© pour tracer les CTA (data-og7="action").                                      |
+| Layout / nav / a11y       | [data-og7="app"]                                                   | AppComponent                     | openg7-org/src/app/app.component.ts                                                                    | planned       | Ã€ ajouter dans le template racine (actuel : data-og7="app-shell").                    |
+| Layout / nav / a11y       | [data-og7="site-header"]                                           | SiteHeaderComponent              | openg7-org/src/app/shared/components/layout/site-header.component.html                                 | ok            | Hook dÃ©jÃ  appliquÃ© sur lâ€™en-tÃªte.                                                |
+| Layout / nav / a11y       | [data-og7="announcement-bar"]                                      | â€”                              | â€”                                                                                                    | planned       | Barre dâ€™annonce optionnelle (non implÃ©mentÃ©e).                                     |
+| ConformitÃ© & i18n / Auth | [data-og7="language-switch"]                                       | LanguageSwitchComponent          | openg7-org/src/app/shared/components/i18n/language-switch.component.html                               | ok            | LivrÃ© via data-og7-id="language-switch" sur le composant.                             |
+| ConformitÃ© & i18n / Auth | [data-og7="auth-login"]                                            | LoginPage                        | openg7-org/src/app/domains/auth/pages/login.page.html                                                  | ok            | PrÃ©sent sur la page de connexion.                                                     |
+| ConformitÃ© & i18n / Auth | [data-og7="auth-register"]                                         | RegisterPage                     | openg7-org/src/app/domains/auth/pages/register.page.html                                               | ok            | PrÃ©sent sur la page dâ€™inscription.                                                  |
+| ConformitÃ© & i18n / Auth | [data-og7="access-denied"]                                         | AccessDeniedPage                 | openg7-org/src/app/domains/auth/pages/access-denied.page.html                                          | ok            | PrÃ©sent sur la page dâ€™accÃ¨s refusÃ©.                                               |
+| ConformitÃ© & i18n / Auth | [data-og7="user-profile"]                                          | ProfilePage                      | openg7-org/src/app/domains/account/pages/profile.page.html                                             | ok            | PrÃ©sent sur la page profil.                                                           |
+| ConformitÃ© & i18n / Auth | [data-og7="user-profile-export-data"]                              | ProfilePage                      | openg7-org/src/app/domains/account/pages/profile.page.html                                             | ok            | Carte d'export des donnÃ©es du compte (JSON).                                          |
+| ConformitÃ© & i18n / Auth | [data-og7="user-profile-sessions"]                                 | ProfilePage                      | openg7-org/src/app/domains/account/pages/profile.page.html                                             | ok            | Carte des sessions connectÃ©es et action â€œdÃ©connecter les autres appareilsâ€.       |
+| ConformitÃ© & i18n / Auth | [data-og7="user-alerts"]                                           | AlertsPage                       | openg7-org/src/app/domains/account/pages/alerts.page.html                                              | ok            | Inbox des alertes utilisateur connecte.                                                |
+| Hero & marketing          | [data-og7="hero"]                                                  | HeroSectionComponent             | openg7-org/src/app/shared/components/hero/hero-section/hero-section.component.ts                       | ok            | Selector actuel du composant.                                                          |
+| Hero & marketing          | [data-og7="hero-copy"]                                             | HeroCopyComponent                | openg7-org/src/app/shared/components/hero/hero-copy/hero-copy.component.ts                             | ok            |                                                                                        |
+| Hero & marketing          | [data-og7="hero-ctas"]                                             | HeroCtasComponent                | openg7-org/src/app/shared/components/hero/hero-ctas/hero-ctas.component.ts                             | ok            |                                                                                        |
+| Hero & marketing          | [data-og7="home-inputs"]                                           | HomeInputsSectionComponent       | openg7-org/src/app/domains/home/feature/home-inputs-section/home-inputs-section.component.ts           | ok            |                                                                                        |
+| Hero & marketing          | [data-og7="announcement-bar"]                                      | â€”                              | â€”                                                                                                    | planned       | Doublon volontaire pour lâ€™UI marketing (pas encore utilisÃ©).                        |
+| Carte & data viz          | [data-og7="trade-map"]                                             | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Surface OpenLayers home qui remplace l'ancien composant shared.                        |
+| Carte & data viz          | [data-og7="ol-demo-page"]                                          | OpenlayersDemoPage               | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts                                     | ok            | Racine de la page de demonstration OpenLayers.                                         |
+| Carte & data viz          | [data-og7="ol-demo-map"]                                           | OpenlayersDemoPage               | openg7-org/src/app/domains/developer/pages/openlayers-demo.page.ts                                     | ok            | Surface cartographique OL alimentee par donnees mock.                                  |
+| Carte & data viz          | [data-og7="map-basemap-toggle"]                                    | BasemapToggleComponent           | openg7-org/src/app/shared/components/map/controls/basemap-toggle.component.ts                          | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="map-zoom-control"]                                      | ZoomControlComponent             | openg7-org/src/app/shared/components/map/controls/zoom-control.component.ts                            | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="map-legend"]                                            | MapLegendComponent               | openg7-org/src/app/shared/components/map/legend/map-legend.component.ts                                | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="map-kpi-badges"]                                        | MapKpiBadgesComponent            | openg7-org/src/app/shared/components/map/kpi/map-kpi-badges.component.ts                               | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="map-sector-chips"]                                      | MapSectorChipsComponent          | openg7-org/src/app/shared/components/map/filters/map-sector-chips.component.ts                         | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="home-map"]                                              | HomeMapSectionComponent          | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html               | ok            | Racine de la section carte de la page d'accueil.                                       |
+| Carte & data viz          | [data-og7="map-mobile-picks"]                                      | HomeMapSectionComponent          | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html               | ok            | Rail mobile des drilldowns par secteur.                                                |
+| Carte & data viz          | [data-og7="map-decision-panel"]                                    | HomeMapSectionComponent          | openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html               | ok            | Panneau desktop de decision downstream vers le feed.                                   |
+| Carte & data viz          | [data-og7="map-overlay"]                                           | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Overlay fonctionnel de la carte OpenLayers home.                                       |
+| Carte & data viz          | [data-og7="map-sector-rail"]                                       | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Controle des secteurs affiches sur la carte OpenLayers home.                           |
+| Carte & data viz          | [data-og7="map-pulse-panel"]                                       | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Indicateurs corridors/hubs visibles.                                                   |
+| Carte & data viz          | [data-og7="action"][data-og7-id="map-toggle-stats"]                | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Toggle pour masquer ou retablir les statistiques de surcouche de la carte home.        |
+| Carte & data viz          | [data-og7="map-corridor-card"]                                     | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Carte resume du corridor courant.                                                      |
+| Carte & data viz          | [data-og7="map-cinematic-status"]                                  | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Etat du mode idle/cadrage automatique de la carte home.                                |
+| Carte & data viz          | [data-og7="map-corridor-beat"]                                     | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Etapes narratives cliquables du corridor courant.                                      |
+| Carte & data viz          | [data-og7="map-corridor-downstream"]                               | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Pont decisionnel du corridor courant vers le feed prefiltre.                           |
+| Carte & data viz          | [data-og7="action"][data-og7-id="map-open-corridor-feed"]          | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | CTA clavier/souris pour ouvrir le feed focalise sur le corridor courant.               |
+| Carte & data viz          | [data-og7="map-hub-card"]                                          | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Mini-fiche ouverte apres clic sur un hub de la carte.                                  |
+| Carte & data viz          | [data-og7="map-hub-prompt"]                                        | HomeOpenlayersMapComponent       | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts              | ok            | Indication de decouverte pour l'ouverture des mini-fiches hub.                         |
+| Carte & data viz          | [data-og7="corridors-realtime"]                                    | HomeCorridorsRealtimeComponent   | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="corridors-realtime"] [data-og7-id="fullscreen"]         | HomeCorridorsRealtimeComponent   | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok            |                                                                                        |
+| Carte & data viz          | [data-og7="corridors-realtime"] [data-og7-id="view-map"]           | HomeCorridorsRealtimeComponent   | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok            | CTA voir sur la carte (inactif pour l'instant).                                        |
+| Recherche & filtres       | [data-og7="filters"][data-og7-id="filters-group"]                  | GlobalFiltersComponent           | openg7-org/src/app/shared/components/filters/global-filters.component.ts                               | ok            |                                                                                        |
+| Recherche & filtres       | [data-og7="filters"][data-og7-id="sector-carousel"]                | SectorCarouselComponent          | openg7-org/src/app/shared/components/filters/sector-carousel.component.ts                              | ok            |                                                                                        |
+| Recherche & filtres       | [data-og7="search-box"]                                            | SiteHeaderComponent              | openg7-org/src/app/shared/components/layout/site-header.component.ts                                   | planned       | Nom en kebab-case alignÃ© sur la convention data-og7 ; sera branchÃ© avec lâ€™omnibox. |
+| Layout / nav / a11y       | [data-og7-id="alerts"]                                             | SiteHeaderComponent              | openg7-org/src/app/shared/components/layout/site-header/site-header.component.html                     | ok            | Lien menu profil vers /alerts (desktop + mobile).                                      |
+| Commerce & entreprises    | [data-og7="company-table"]                                         | CompanyTableComponent            | openg7-org/src/app/shared/components/company/company-table.component.ts                                | ok            |                                                                                        |
+| Commerce & entreprises    | [data-og7="company-detail"]                                        | CompanyDetailComponent           | openg7-org/src/app/shared/components/company/company-detail.component.ts                               | ok            |                                                                                        |
+| Flux & social             | [data-og7="feed-page"]                                             | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Conteneur principal du feed.                                                           |
+| Flux & social             | [data-og7="feed-source-context"]                                   | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Bandeau de contexte source/corridor preserve depuis la carte ou les surfaces amont.    |
+| Flux & social             | [data-og7="feed-source-chips"]                                     | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Groupe de chips du contexte corridor (secteur, route, mode, priorite).                 |
+| Flux & social             | [data-og7="feed-source-chip"][data-og7-id="sector"]                | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Chip secteur du contexte corridor feed.                                                |
+| Flux & social             | [data-og7="feed-source-chip"][data-og7-id="route"]                 | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Chip route du contexte corridor feed.                                                  |
+| Flux & social             | [data-og7="feed-source-chip"][data-og7-id="mode"]                  | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Chip mode import/export du contexte corridor feed.                                     |
+| Flux & social             | [data-og7="feed-source-chip"][data-og7-id="priority"]              | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Chip priorite du contexte corridor feed.                                               |
+| Flux & social             | [data-og7="action"][data-og7-id="feed-context-return-map"]         | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Retour clavier/souris vers la carte d'origine du contexte feed.                        |
+| Flux & social             | [data-og7="action"][data-og7-id="feed-context-reset"]              | FeedPage                         | openg7-org/src/app/domains/feed/feature/feed.page.html                                                 | ok            | Reinitialisation du contexte source/corridor du feed.                                  |
+| Flux & social             | [data-og7="opportunity-detail-page"]                               | FeedOpportunityDetailPage        | openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.html                        | ok            | Conteneur detail opportunite.                                                          |
+| Flux & social             | [data-og7="opportunity-detail-header"]                             | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html            | ok            | Header sticky + actions detail.                                                        |
+| Flux & social             | [data-og7="opportunity-detail-body"]                               | OpportunityDetailBodyComponent   | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-body.component.html              | ok            | Resume/specs/modalites/documents.                                                      |
+| Flux & social             | [data-og7="opportunity-qna"]                                       | OpportunityQnaComponent          | openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.html                      | ok            | Onglets Q/R + composeur.                                                               |
+| Flux & social             | [data-og7="opportunity-context-aside"]                             | OpportunityContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.html            | ok            | Contexte temps reel.                                                                   |
+| Flux & social             | [data-og7="opportunity-mini-map"]                                  | OpportunityMiniMapComponent      | openg7-org/src/app/domains/feed/feature/components/opportunity-mini-map.component.html                 | ok            | Mini-carte corridor.                                                                   |
+| Flux & social             | [data-og7="opportunity-offer-drawer"]                              | OpportunityOfferDrawerComponent  | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html             | ok            | Drawer proposer une offre.                                                             |
+| Flux & social             | [data-og7="action"][data-og7-id="opportunity-make-offer"]          | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html            | ok            | CTA principal proposer une offre.                                                      |
+| Flux & social             | [data-og7="action"][data-og7-id="opportunity-offer-submit"]        | OpportunityOfferDrawerComponent  | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html             | ok            | Soumission offre rapide.                                                               |
+| Flux & social             | [data-og7="opportunity-offer-field"]data-og7-id="capacity          | start-date                       | end-date                                                                                               | pricing-model | comment                                                                                | attachment"] | OpportunityOfferDrawerComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html | ok  | Hooks de champs pour BLUEPRINT-OP-04 (proposer une offre).           |
+| Flux & social             | [data-og7="action"][data-og7-id="opportunity-alert-open-*"]        | OpportunityContextAsideComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.html            | ok            | Ouverture d'une alerte liee depuis l'aside opportunite (BLUEPRINT-OP-08).              |
+| Flux & social             | [data-og7="alert-detail-page"]                                     | FeedAlertDetailPage              | openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.html                              | ok            | Conteneur detail alerte.                                                               |
+| Flux & social             | [data-og7="alert-detail-header"]                                   | AlertDetailHeaderComponent       | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html                  | ok            | Header alerte sticky.                                                                  |
+| Flux & social             | [data-og7="alert-detail-body"]                                     | AlertDetailBodyComponent         | openg7-org/src/app/domains/feed/feature/components/alert-detail-body.component.html                    | ok            | Corps detail alerte (impact/zones/timeline/sources).                                   |
+| Flux & social             | [data-og7="alert-context-aside"]                                   | AlertContextAsideComponent       | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html                  | ok            | Aside alertes (indicateurs/lies/opportunites).                                         |
+| Flux & social             | [data-og7="alert-indicators"]                                      | AlertContextAsideComponent       | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html                  | ok            | Carte indicateurs pertinents cote alerte.                                              |
+| Flux & social             | [data-og7="alert-related-alerts"]                                  | AlertContextAsideComponent       | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html                  | ok            | Liste alertes liees.                                                                   |
+| Flux & social             | [data-og7="alert-related-opportunities"]                           | AlertContextAsideComponent       | openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html                  | ok            | Opportunites associees creees/suggerees.                                               |
+| Flux & social             | [data-og7="action"][data-og7-id="alert-subscribe"]                 | AlertDetailHeaderComponent       | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html                  | ok            | CTA principal alertes: abonnement notifications.                                       |
+| Flux & social             | [data-og7="action"][data-og7-id="alert-share"]                     | AlertDetailHeaderComponent       | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html                  | ok            | CTA partage alerte.                                                                    |
+| Flux & social             | [data-og7="action"][data-og7-id="alert-report-update"]             | AlertDetailHeaderComponent       | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html                  | ok            | CTA contribution utilisateur: signaler mise a jour.                                    |
+| Flux & social             | [data-og7="action"][data-og7-id="alert-create-opportunity"]        | AlertDetailHeaderComponent       | openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html                  | ok            | CTA optionnel creation opportunite liee.                                               |
+| Flux & social             | [data-og7="indicator-detail-page"]                                 | FeedIndicatorDetailPage          | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html                          | ok            | Conteneur detail indicateur.                                                           |
+| Flux & social             | [data-og7="indicator-detail-header"]                               | IndicatorHeroComponent           | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html                       | ok            | Header sticky indicateur avec breadcrumbs/actions/chips.                               |
+| Flux & social             | [data-og7="indicator-chart"]                                       | IndicatorChartComponent          | openg7-org/src/app/domains/feed/feature/components/indicator-chart.component.html                      | ok            | Courbe principale (tooltip + resume a11y + vue tableau).                               |
+| Flux & social             | [data-og7="indicator-key-data"]                                    | IndicatorKeyDataComponent        | openg7-org/src/app/domains/feed/feature/components/indicator-key-data.component.html                   | ok            | Carte prix actuel + facteurs d'augmentation.                                           |
+| Flux & social             | [data-og7="indicator-stats-aside"]                                 | IndicatorStatsAsideComponent     | openg7-org/src/app/domains/feed/feature/components/indicator-stats-aside.component.html                | ok            | Bloc statistiques pertinents avec sparklines.                                          |
+| Flux & social             | [data-og7="indicator-related-alerts"]                              | FeedIndicatorDetailPage          | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html                          | ok            | Liste alertes liees a l'indicateur.                                                    |
+| Flux & social             | [data-og7="indicator-related-opportunities"]                       | FeedIndicatorDetailPage          | openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html                          | ok            | Liste opportunites associees a l'indicateur.                                           |
+| Flux & social             | [data-og7="indicator-alert-drawer"]                                | IndicatorAlertDrawerComponent    | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html               | ok            | Drawer creation d'alerte depuis un indicateur.                                         |
+| Flux & social             | [data-og7="action"][data-og7-id="indicator-subscribe"]             | IndicatorHeroComponent           | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html                       | ok            | CTA abonnement indicateur (toggle optimistic).                                         |
+| Flux & social             | [data-og7="action"][data-og7-id="indicator-create-alert"]          | IndicatorHeroComponent           | openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html                       | ok            | CTA ouverture drawer de creation d'alerte.                                             |
+| Flux & social             | [data-og7="action"][data-og7-id="indicator-alert-submit"]          | IndicatorAlertDrawerComponent    | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html               | ok            | Soumission rapide d'alerte sur seuil indicateur.                                       |
+| Flux & social             | [data-og7="indicator-alert-field"]data-og7-id="threshold-direction | threshold-value                  | window                                                                                                 | frequency     | notify-delta                                                                           | note"]       | IndicatorAlertDrawerComponent   | openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html   | ok  | Hooks de champs pour BLUEPRINT-OP-19 (creation d'alerte indicateur). |
 
 ### Convention de nommage (vÃ©rifiÃ©e)
 
 - **Prefixes** : `data-og7="â€¦"` pour les hooks de test, `data-og7-id` ou `data-og7-layer` pour les sous-Ã©lÃ©ments ; les selectors Angular restent prÃ©fixÃ©s `og7-` cÃ´tÃ© `@Component`.
 - **Forme** : toujours en **kebab-case**, sans camelCase ni espaces. Les entrÃ©es rÃ©cemment clÃ´turÃ©es (`map-layer`, `map-tooltip`, `map-aria-live`, `search-box`) respectent cette rÃ¨gle et alignent leurs sous-clÃ©s (`flows|markers|highlight`) ou futures implÃ©mentations (omnibox) sur le mÃªme schÃ©ma.
+
 ## 1) SÃ©lecteurs **HTML** (registre officiel)
+
 > Liste **exhaustive** des sÃ©lecteurs stables Ã  implÃ©menter. Chaque entrÃ©e prÃ©cise : le sÃ©lecteur, le composant Angular, le fichier, le rÃ´le UX et les events.
 
 ### 1.1 â€” Layout & global
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-1.1**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 ImplÃ©menter les composants et sÃ©lecteurs listÃ©s (app, site-header, announcement-bar, language-switch, search-box). Architecture signal-first, formulaires typÃ©s, i18n ngx-translate et Tailwind 4. Ajoutez les events dÃ©clarÃ©s et des tests E2E ciblant `[data-og7*]`.
 
-- **App container**  
-  - Selector : `[data-og7="app"]`  
-  - Composant : `AppComponent`  
-  - Fichier : `openg7-org/src/app/app.component.ts`  
+- **App container**
+  - Selector : `[data-og7="app"]`
+  - Composant : `AppComponent`
+  - Fichier : `openg7-org/src/app/app.component.ts`
   - RÃ´le : conteneur racine, shell SSR
-- **En-tÃªte (site-header)**  
-  - Selector : `[data-og7="site-header"]`  
-  - Composant : `SiteHeaderComponent` (standalone)  
-  - Fichier : `openg7-org/src/app/components/layout/site-header.component.ts`  
+- **En-tÃªte (site-header)**
+  - Selector : `[data-og7="site-header"]`
+  - Composant : `SiteHeaderComponent` (standalone)
+  - Fichier : `openg7-org/src/app/components/layout/site-header.component.ts`
   - RÃ´le : repÃ¨res, langue, recherche, CTA â€œSâ€™inscrireâ€
-- **Barre dâ€™annonce (announcement-bar)**  
-  - Selector : `[data-og7="announcement-bar"]`  
-  - Composant : `AnnouncementBarComponent`  
+- **Barre dâ€™annonce (announcement-bar)**
+  - Selector : `[data-og7="announcement-bar"]`
+  - Composant : `AnnouncementBarComponent`
   - Fichier : `openg7-org/src/app/components/layout/announcement-bar.component.ts`
-- **SÃ©lecteur de langue**  
-  - Selector : `[data-og7="language-switch"]`  
-  - Composant : `LanguageSwitchComponent`  
+- **SÃ©lecteur de langue**
+  - Selector : `[data-og7="language-switch"]`
+  - Composant : `LanguageSwitchComponent`
   - Fichier : `openg7-org/src/app/components/i18n/language-switch.component.ts`
-- **BoÃ®te de recherche (omnibox)**  
-  - Selector : `[data-og7="search-box"]`  
-  - Composant : `SearchBoxComponent`  
-  - Fichier : `openg7-org/src/app/components/search/search-box.component.ts`  
+- **BoÃ®te de recherche (omnibox)**
+  - Selector : `[data-og7="search-box"]`
+  - Composant : `SearchBoxComponent`
+  - Fichier : `openg7-org/src/app/components/search/search-box.component.ts`
   - Events : `submit`, `input`
 
 ### 1.2 â€” Section HÃ©ros (Mission + Carte animÃ©e)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-1.2**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Construire la section hÃ©ros (hero, hero-copy, hero-ctas) avec les CTAs `[data-og7-id]` (view-sectors, pro-mode, register-company, preview). Respect SSR-safe et i18n.
 
-- **Section hÃ©ros**  
-  - Selector : `[data-og7="hero"]`  
-  - Composant : `HeroSectionComponent`  
+- **Section hÃ©ros**
+  - Selector : `[data-og7="hero"]`
+  - Composant : `HeroSectionComponent`
   - Fichier : `openg7-org/src/app/components/hero/hero-section.component.ts`
-- **Copie hÃ©ros**  
-  - Selector : `[data-og7="hero-copy"]`  
-  - Composant : `HeroCopyComponent`  
+- **Copie hÃ©ros**
+  - Selector : `[data-og7="hero-copy"]`
+  - Composant : `HeroCopyComponent`
   - Fichier : `openg7-org/src/app/components/hero/hero-copy.component.ts`
-- **CTAs hÃ©ros**  
-  - Selector : `[data-og7="hero-ctas"]`  
-  - Composant : `HeroCtasComponent`  
-  - Fichier : `openg7-org/src/app/components/hero/hero-ctas.component.ts`  
-  - Sous-actions (boutons) :  
-    - Voir secteurs : `[data-og7="action"] [data-og7-id="view-sectors"]`  
-    - Mode pro : `[data-og7="action"] [data-og7-id="pro-mode"]`  
+- **CTAs hÃ©ros**
+  - Selector : `[data-og7="hero-ctas"]`
+  - Composant : `HeroCtasComponent`
+  - Fichier : `openg7-org/src/app/components/hero/hero-ctas.component.ts`
+  - Sous-actions (boutons) :
+    - Voir secteurs : `[data-og7="action"] [data-og7-id="view-sectors"]`
+    - Mode pro : `[data-og7="action"] [data-og7-id="pro-mode"]`
     - PrÃ©visualiser : `[data-og7="action"] [data-og7-id="preview"]`
 
 ### 1.3 â€” Carte (Leaflet / jsVectorMap bridge)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-1.3**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 IntÃ©grer la carte (Leaflet) et ses contrÃ´les (basemap-toggle, zoom-control, legend, kpi-badges, sector-chips, layers, tooltip, aria-live). Handlers clavier et performance de rendu visÃ©es.
 
-- **Carte de commerce**  
-  - Selector : `[data-og7="trade-map"]`  
-  - Composant : `HomeOpenlayersMapComponent`  
+- **Carte de commerce**
+  - Selector : `[data-og7="trade-map"]`
+  - Composant : `HomeOpenlayersMapComponent`
   - Fichier : `openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts`
-- **Basemap toggle**  
-  - Selector : `[data-og7="map-basemap-toggle"]`  
-  - Composant : `BasemapToggleComponent`  
+- **Basemap toggle**
+  - Selector : `[data-og7="map-basemap-toggle"]`
+  - Composant : `BasemapToggleComponent`
   - Fichier : `openg7-org/src/app/components/map/controls/basemap-toggle.component.ts`
-- **Zoom control**  
-  - Selector : `[data-og7="map-zoom-control"]`  
-  - Composant : `ZoomControlComponent`  
+- **Zoom control**
+  - Selector : `[data-og7="map-zoom-control"]`
+  - Composant : `ZoomControlComponent`
   - Fichier : `openg7-org/src/app/components/map/controls/zoom-control.component.ts`
-- **LÃ©gende**  
-  - Selector : `[data-og7="map-legend"]`  
-  - Composant : `MapLegendComponent`  
+- **LÃ©gende**
+  - Selector : `[data-og7="map-legend"]`
+  - Composant : `MapLegendComponent`
   - Fichier : `openg7-org/src/app/components/map/legend/map-legend.component.ts`
-- **KPI badges**  
-  - Selector : `[data-og7="map-kpi-badges"]`  
-  - Composant : `MapKpiBadgesComponent`  
+- **KPI badges**
+  - Selector : `[data-og7="map-kpi-badges"]`
+  - Composant : `MapKpiBadgesComponent`
   - Fichier : `openg7-org/src/app/components/map/kpi/map-kpi-badges.component.ts`
-- **Chips secteurs**  
-  - Selector : `[data-og7="map-sector-chips"]`  
-  - Composant : `MapSectorChipsComponent`  
+- **Chips secteurs**
+  - Selector : `[data-og7="map-sector-chips"]`
+  - Composant : `MapSectorChipsComponent`
   - Fichier : `openg7-org/src/app/components/map/filters/map-sector-chips.component.ts`
-- **Bouton â€œplusâ€ (chips)**  
+- **Bouton â€œplusâ€ (chips)**
   - Selector : `[data-og7="map-sector-chips"] [data-og7-id="more"]`
-- **Carte decisionnelle home**  
-  - Overlay : `[data-og7="map-overlay"]`  
-  - Rail secteurs : `[data-og7="map-sector-rail"]`  
-  - Pulse panel : `[data-og7="map-pulse-panel"]`  
-  - Toggle stats : `[data-og7="action"] [data-og7-id="map-toggle-stats"]`  
-  - Fiche corridor : `[data-og7="map-corridor-card"]`  
-  - Etat cinematic : `[data-og7="map-cinematic-status"]`  
-  - Etapes corridor : `[data-og7="map-corridor-beat"]`  
-  - Pont corridor vers feed : `[data-og7="map-corridor-downstream"]`  
-  - CTA feed corridor : `[data-og7="action"] [data-og7-id="map-open-corridor-feed"]`  
+- **Carte decisionnelle home**
+  - Overlay : `[data-og7="map-overlay"]`
+  - Rail secteurs : `[data-og7="map-sector-rail"]`
+  - Pulse panel : `[data-og7="map-pulse-panel"]`
+  - Toggle stats : `[data-og7="action"] [data-og7-id="map-toggle-stats"]`
+  - Fiche corridor : `[data-og7="map-corridor-card"]`
+  - Etat cinematic : `[data-og7="map-cinematic-status"]`
+  - Etapes corridor : `[data-og7="map-corridor-beat"]`
+  - Pont corridor vers feed : `[data-og7="map-corridor-downstream"]`
+  - CTA feed corridor : `[data-og7="action"] [data-og7-id="map-open-corridor-feed"]`
   - Fiche hub : `[data-og7="map-hub-card"]`
 
 ### 1.4 â€” Filtres & rÃ©sultats
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-1.4**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 ImplÃ©menter la barre de filtres globaux, le mode Import/Export, le carousel de secteurs, la Mat-Table des entreprises et le drawer de dÃ©tails. Synchroniser avec la carte et la recherche.
 
-- **Filtres globaux**  
-  - Selector : `[data-og7="filters"]`  
-  - Composant : `GlobalFiltersComponent`  
+- **Filtres globaux**
+  - Selector : `[data-og7="filters"]`
+  - Composant : `GlobalFiltersComponent`
   - Fichier : `openg7-org/src/app/components/filters/global-filters.component.ts`
-- **Filtre Import/Export**  
+- **Filtre Import/Export**
   - Selector : `[data-og7="filters"] [data-og7-id="trade-mode"]`
-- **Carousel secteurs**  
+- **Carousel secteurs**
   - Selector : `[data-og7="sector-carousel"]`
-- **Tableau entreprises (Mat-Table)**  
-  - Selector : `[data-og7="company-table"]`  
-  - Composant : `CompanyTableComponent`  
+- **Tableau entreprises (Mat-Table)**
+  - Selector : `[data-og7="company-table"]`
+  - Composant : `CompanyTableComponent`
   - Fichier : `openg7-org/src/app/components/company/company-table.component.ts`
-- **DÃ©tail entreprise (drawer)**  
-  - Selector : `[data-og7="company-detail"]`  
-  - Composant : `CompanyDetailComponent`  
+- **DÃ©tail entreprise (drawer)**
+  - Selector : `[data-og7="company-detail"]`
+  - Composant : `CompanyDetailComponent`
   - Fichier : `openg7-org/src/app/components/company/company-detail.component.ts`
 
 ### 1.5 â€” Comptes & accÃ¨s
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-1.5**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Prototyper login/register/profile/access-denied avec formulaires rÃ©actifs typÃ©s, i18n et sÃ©lecteurs `[data-og7]`.
 
-- **Login** : `[data-og7="auth-login"]` (formulaire)  
-- **Register** : `[data-og7="auth-register"]` (formulaire)  
-- **Profil utilisateur** : `[data-og7="user-profile"]`  
+- **Login** : `[data-og7="auth-login"]` (formulaire)
+- **Register** : `[data-og7="auth-register"]` (formulaire)
+- **Profil utilisateur** : `[data-og7="user-profile"]`
 - **Access denied** : `[data-og7="access-denied"]`
 
 > âœ… **RÃ¨gle** : Tout **nouveau widget/composant** doit ajouter son entrÃ©e au **registre des sÃ©lecteurs** ciâ€‘dessus.
@@ -355,10 +367,12 @@ Prototyper login/register/profile/access-denied avec formulaires rÃ©actifs typ
 ## 2) SÃ©lecteurs **NgRx** (store selectors) â€” nomenclature
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-2**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Exposer les sÃ©lecteurs NgRx globaux (auth, user, catalog, map) dans `openg7-org/src/app/state/**`. Typage strict, tests unitaires basiques.
 
 > Ã€ exposer via `selectXxx` dans des fichiers `*.selectors.ts`. Ã€ utiliser seulement pour lâ€™Ã©tat **global** (auth, user, catalogue, carte).
@@ -377,10 +391,12 @@ Exposer les sÃ©lecteurs NgRx globaux (auth, user, catalog, map) dans `openg7-o
 ## 3) Arborescence **accÃ¨s & sÃ©curitÃ©** (front Angular)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-3**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 CrÃ©er lâ€™arborescence `openg7-org/src/app/core/*` (auth, http, security, config). Fournir services et types partagÃ©s nÃ©cessaires aux Guards/Interceptors/Policies.
 
 > CrÃ©er les fichiers et implÃ©menter la logique de sÃ©curitÃ© cÃ´tÃ© client.
@@ -465,10 +481,12 @@ openg7-org/src/app/
 ### 3.1 â€” Guards (exigences)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-3.1**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 ImplÃ©menter `auth.guard.ts`, `role.guard.ts`, `permissions.guard.ts` en `canMatch` + signals `isAllowedSig`/`reasonSig`. DÃ©mo route `/pro` protÃ©gÃ©e + tests.
 
 - `auth.guard.ts` (**canMatch**) : bloque routes si non authentifiÃ©.
@@ -479,27 +497,31 @@ ImplÃ©menter `auth.guard.ts`, `role.guard.ts`, `permissions.guard.ts` en `canM
 ### 3.2 â€” Interceptors
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-3.2**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Ajouter `auth.interceptor.ts`, `csrf.interceptor.ts`, `error.interceptor.ts`. SSR-safe; logs dâ€™erreurs vers toast/observabilitÃ©.
 
-- `auth.interceptor.ts` : ajoute `Authorization: Bearer <jwt>` si prÃ©sent (SSR-safe).  
+- `auth.interceptor.ts` : ajoute `Authorization: Bearer <jwt>` si prÃ©sent (SSR-safe).
 - `csrf.interceptor.ts` : gÃ¨re le header CSRF (lecture cookie, `XSRF-TOKEN`).
 - `error.interceptor.ts` : normalise erreurs, dÃ©clenche toasts/i18n.
 
 ### 3.3 â€” Services sÃ©curitÃ©
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-3.3**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Ajouter `token-storage.service.ts`, `rbac.policy.ts`, `crypto.service.ts`, `dom-sanitizer.service.ts`, `anti-xss.util.ts` (si requis). Codifier rÃ¨gles RBAC UI.
 
-- `token-storage.service.ts` : stockage JWT (Web Crypto + `sessionStorage` par dÃ©faut, fallback `Memory`).  
-- `rbac.policy.ts` : mappe rÃ´les â†’ permissions â†’ composants (feature flags UI).  
+- `token-storage.service.ts` : stockage JWT (Web Crypto + `sessionStorage` par dÃ©faut, fallback `Memory`).
+- `rbac.policy.ts` : mappe rÃ´les â†’ permissions â†’ composants (feature flags UI).
 - `crypto.service.ts` : `SubtleCrypto` (encrypt/decrypt clÃ© dÃ©rivÃ©e).
 
 ---
@@ -507,14 +529,16 @@ Ajouter `token-storage.service.ts`, `rbac.policy.ts`, `crypto.service.ts`, `dom-
 ## 4) Routage & SSR
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-4**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Configurer `app.routes.ts` (lazy routes + canMatch) et `app.config.ts` (HTTP_INTERCEPTORS, TranslateLoader, TransferState). Garantir lâ€™absence dâ€™accÃ¨s DOM au module-load.
 
-- `openg7-org/src/app/app.routes.ts` : routes lazy, `canMatch` sur segments protÃ©gÃ©s.  
-- `openg7-org/src/app/app.config.ts` : providers globaux (HTTP_INTERCEPTORS, TranslateLoader, TransferState).  
+- `openg7-org/src/app/app.routes.ts` : routes lazy, `canMatch` sur segments protÃ©gÃ©s.
+- `openg7-org/src/app/app.config.ts` : providers globaux (HTTP_INTERCEPTORS, TranslateLoader, TransferState).
 - SSR : **aucune** API `window` au module load ; tester `isPlatformBrowser` dans les effets/constructeurs si besoin.
 
 ---
@@ -522,10 +546,12 @@ Configurer `app.routes.ts` (lazy routes + canMatch) et `app.config.ts` (HTTP_INT
 ## 5) Strapi â€” Seeds (fichiers & rÃ´les)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-5**
 - PortÃ©e: `cms (Strapi)`
 
 ### Description
+
 Mettre en place les seeds idempotents (locales, rÃ´les/permissions, taxonomies, contenus de dÃ©mo, API tokens). `strapi/src/bootstrap.ts` appelle `runSeeds()` en dev.
 
 > CÃ´tÃ© Strapi (v5+), on fournit une arbo et des scripts pour initialiser : **locales, rÃ´les/permissions, taxonomies, contenus initiaux, comptes**, tokens API.
@@ -560,23 +586,27 @@ strapi/
 ### 5.1 â€” Principes de seed
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-5.1**
 - PortÃ©e: `cms (Strapi)`
 
 ### Description
+
 Sâ€™assurer de lâ€™idempotence (upsert par clÃ©), de la sÃ©curitÃ© en prod (gated via env), et de la localisation FR/EN pour tout contenu.
 
-- **Idempotent** : rÃ©-exÃ©cuter sans doublons (utiliser `upsert` par clÃ©).  
-- **SÃ©curisÃ©** : lâ€™admin initial et les tokens ne sâ€™Ã©crivent **jamais** en prod sans variables dâ€™environnement explicites (`SEED_ADMIN_ALLOWED="true"`).  
+- **Idempotent** : rÃ©-exÃ©cuter sans doublons (utiliser `upsert` par clÃ©).
+- **SÃ©curisÃ©** : lâ€™admin initial et les tokens ne sâ€™Ã©crivent **jamais** en prod sans variables dâ€™environnement explicites (`SEED_ADMIN_ALLOWED="true"`).
 - **Localisable** : tout contenu textuel possÃ¨de `fr` & `en`.
 
 ### 5.2 â€” Variables dâ€™environnement Strapi (exigÃ©es)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-5.2**
 - PortÃ©e: `cms (Strapi)`
 
 ### Description
+
 DÃ©finir `STRAPI_ADMIN_EMAIL/PASSWORD`, `STRAPI_SEED_ADMIN_ALLOWED`, `STRAPI_API_READONLY_TOKEN`. Ne jamais semer des secrets en prod par dÃ©faut.
 
 ```
@@ -589,10 +619,12 @@ STRAPI_API_READONLY_TOKEN=<generated-token>
 ### 5.3 â€” Commandes
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-5.3**
 - PortÃ©e: `cms (Strapi)`
 
 ### Description
+
 Documenter `yarn strapi develop` et `yarn seed:dev`. PrÃ©parer scripts node facultatifs pour relancer les seeds.
 
 ```
@@ -606,15 +638,18 @@ yarn seed:dev                 # optionnel: script node pour forcer les seeds
 ## 6) Environnements Front
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-6**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Fournir `environment.tokens.ts` et `app.config.provider.ts` (lecture `window.__OG7_CONFIG__` cÃ´tÃ© browser, `process.env` cÃ´tÃ© SSR). Exposer `API_URL`, `I18N_PREFIX`, `FEATURE_FLAGS`.
 
-`openg7-org/src/app/core/config/environment.tokens.ts` expose des **InjectionTokens** :  
-- `API_URL` : URL de Strapi (ex.: `https://api.openg7.org`)  
-- `I18N_PREFIX` : `/assets/i18n/`  
+`openg7-org/src/app/core/config/environment.tokens.ts` expose des **InjectionTokens** :
+
+- `API_URL` : URL de Strapi (ex.: `https://api.openg7.org`)
+- `I18N_PREFIX` : `/assets/i18n/`
 - `FEATURE_FLAGS` : dictionnaire typÃ© (pro-mode, experimental-map, etc.)
 
 `app.config.provider.ts` lit `window.__OG7_CONFIG__` quand en **browser**, et `process.env.*` cÃ´tÃ© **SSR**.
@@ -624,10 +659,12 @@ Fournir `environment.tokens.ts` et `app.config.provider.ts` (lecture `window.__O
 ## 7) Checklist pour Codex (exÃ©cuter dans cet ordre)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-7**
 - PortÃ©e: `front (Angular)`
 
 ### Description
+
 Standardiser lâ€™ordre dâ€™exÃ©cution (arbo sÃ©curitÃ© â†’ composants â†’ signals â†’ NgRx â†’ i18n â†’ interceptors â†’ guards â†’ SSR â†’ seeds â†’ tests). Ã€ cocher avant merge.
 
 1. **CrÃ©er** lâ€™arborescence dâ€™accÃ¨s & sÃ©curitÃ© (section 3) sous `openg7-org/src/app/...`.
@@ -645,9 +682,10 @@ Standardiser lâ€™ordre dâ€™exÃ©cution (arbo sÃ©curitÃ© â†’ 
 
 ---
 
-## 8) Exemples (snippets) â€” *indicatifs*
+## 8) Exemples (snippets) â€” _indicatifs_
 
 ### 8.1 â€” Route protÃ©gÃ©e (canMatch)
+
 ```ts
 // openg7-org/src/app/app.routes.ts
 import { Routes } from '@angular/router';
@@ -657,17 +695,18 @@ import { AuthGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/home.page').then(m => m.HomePage),
+    loadComponent: () => import('./pages/home.page').then((m) => m.HomePage),
   },
   {
     path: 'pro',
     canMatch: [() => inject(AuthGuard).canMatchRole('Pro')],
-    loadComponent: () => import('./pages/pro.page').then(m => m.ProPage),
+    loadComponent: () => import('./pages/pro.page').then((m) => m.ProPage),
   },
 ];
 ```
 
 ### 8.2 â€” SÃ©lecteur HTML dans un composant
+
 ```ts
 // openg7-org/src/app/components/map/controls/zoom-control.component.ts
 @Component({
@@ -678,28 +717,27 @@ export const routes: Routes = [
       <button type="button" data-og7="action" data-og7-id="zoom-in" (click)="zoomIn()">+</button>
       <button type="button" data-og7="action" data-og7-id="zoom-out" (click)="zoomOut()">-</button>
     </div>
-  `
+  `,
 })
 export class ZoomControlComponent {
   zoomLevelSig = signal(1);
-  zoomIn = () => this.zoomLevelSig.update(v => Math.min(10, v + 1));
-  zoomOut = () => this.zoomLevelSig.update(v => Math.max(1, v - 1));
+  zoomIn = () => this.zoomLevelSig.update((v) => Math.min(10, v + 1));
+  zoomOut = () => this.zoomLevelSig.update((v) => Math.max(1, v - 1));
 }
 ```
 
 ### 8.3 â€” NgRx selector
+
 ```ts
 // openg7-org/src/app/state/map/map.selectors.ts
 export const selectMapState = createFeatureSelector<MapState>('map');
-export const selectFilteredFlows = createSelector(
-  selectMapState,
-  s => s.filteredFlows
-);
+export const selectFilteredFlows = createSelector(selectMapState, (s) => s.filteredFlows);
 ```
 
 ---
 
 ## 9) Foire aux dÃ©cisions (rappels Codex)
+
 - **Signal-first** : pas dâ€™over-engineering NgRx ; prioriser des `signal()` locaux.
 - **Selectors stables** : **pas** de classes Tailwind pour cibler ; toujours `data-og7*`.
 - **SÃ©curitÃ©** : jamais stocker JWT en `localStorage` non chiffrÃ© ; prÃ©fÃ©rer `sessionStorage` + Web Crypto.
@@ -710,67 +748,82 @@ export const selectFilteredFlows = createSelector(
 
 > **Fin du gabarit** â€” Ã€ complÃ©ter au fil des features : toute nouvelle zone UI **ajoute** ses selectors & fichiers au prÃ©sent document.
 
-
-
 ---
 
 # ðŸ”€ SÃ©paration Front (Angular) vs CMS (Strapi) â€” Contrat & responsabilitÃ©s
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-9**
 - PortÃ©e: `front/cms`
 
 ### Description
-Formaliser le contrat Front/CMS (endpoints, CORS, tokens RO). Toute PR qui change un schÃ©ma ou un endpoint doit mettre Ã  jour AGENTS.md et `@openg7/contracts`.
 
+Formaliser le contrat Front/CMS (endpoints, CORS, tokens RO). Toute PR qui change un schÃ©ma ou un endpoint doit mettre Ã  jour AGENTS.md et `@openg7/contracts`.
 
 > **Pourquoi** : Ã©viter toute ambiguÃ¯tÃ© entre le **front Angular** (`openg7-org`) et le workspace Strapi officiel (`strapi`).
 > **RÃ¨gle dâ€™or** : AGENTS.md est la **spec vivante** des deux projets ; un commit qui touche lâ€™un doit respecter le **contrat** ci-dessous.
 
 ## 1) Monorepo & chemins
+
 ```
 /openG7/
   â”œâ”€ openg7-org/   # Front Angular 19 (openg7-org/src/app/...)
   â””â”€ strapi/       # Strapi v5+ contenu mÃ©tier (voir docs/strapi-workspaces.md)
 ```
+
 - Chemins **front** documentÃ©s ici commencent par `openg7-org/src/app/...` (Angular).
 - Chemins **CMS** documentÃ©s ici commencent par `strapi/...` (Strapi).
 
 ## 2) Contrat dâ€™API (read-only par dÃ©faut)
+
 **Base URL** (dev) : `http://localhost:1337`
-**Auth** : *API Token* (Strapi **Read-Only**) â†’ `Authorization: Bearer <token>`
+**Auth** : _API Token_ (Strapi **Read-Only**) â†’ `Authorization: Bearer <token>`
 Le contrat OpenAPI est versionnÃ© dans `packages/contracts/spec/openapi.json`.
 
-| Ressource        | Endpoint (GET)                 | Query params conseillÃ©s           | Notes                               |
-|------------------|--------------------------------|-----------------------------------|-------------------------------------|
-| Secteurs         | `/api/sectors`                 | `?pagination[page]=1&pagination[pageSize]=100` | tri cÃ´tÃ© front si nÃ©cessaire         |
-| Provinces        | `/api/provinces`               | idem                              |                                     |
-| Entreprises      | `/api/companies`               | `?filters[sector][id][$in]=...`   | filtrage cÃ´tÃ© Strapi                 |
-| Ã‰changes       | `/api/exchanges`             | `?filters[sourceProvince][id]=...`| graph dâ€™Ã©changes                     |
-| Homepage         | `/api/homepage`                | `?populate=deep`                  | *SingleType*                         |
-| Import flows     | `/api/import-flows`            | `?period=month&originScope=usmca&originCodes=US&hsSections=85` | agrÃ©gats de flux importation |
-| Import commodities | `/api/import-commodities`    | `?period=month&originScope=g7&hsSections=85` | top, Ã©mergents et lignes Ã  risque |
-| Import risk flags | `/api/import-risk-flags`      | `?originScope=g7&hsSections=85`   | flags produits calculÃ©s Ã  partir des commoditÃ©s |
-| Import suppliers | `/api/import-suppliers`        | `?originScope=indo_pacific`       | fournisseurs filtrÃ©s par scope/origine |
-| Import knowledge | `/api/import-knowledge`        | `?lang=fr`                        | contenus knowledge / playbooks importation |
-| Import annotations | `/api/import-annotations`    | â€”                                | annotations collaboratives persistÃ©es |
-| Import watchlists | `/api/import-watchlists`      | GET / POST / PUT JSON             | watchlists importation persistÃ©es |
-| Import report schedule | `/api/import-reports/schedule` | POST JSON (`period`, `recipients`, `format`, `frequency`, `notes`) | planification de rapports importation |
-| Feed actions | `/api/users/me/feed-actions` | GET / POST JSON (`targetType`, `targetId`, `action`, `status`, `sourceRoute`, `targetRoute`, `metadata`, `occurredAt`, `correlationId`) | journal user-scoped idempotent des actions header/detail feed |
-| Opportunity offers | `/api/users/me/opportunity-offers` | GET / POST JSON (`opportunityId`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`) | persistance des offres utilisateur sur opportunites |
-| Opportunity offer attachments | `/api/users/me/opportunity-offer-attachments` | POST multipart (`files`) | televersement securise des pieces jointes d'offres (PDF/images, taille limitee, scan signature) |
+| Ressource                     | Endpoint (GET)                                | Query params conseillÃ©s                                                                                                                | Notes                                                                                           |
+| ----------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Secteurs                      | `/api/sectors`                                | `?pagination[page]=1&pagination[pageSize]=100`                                                                                          | tri cÃ´tÃ© front si nÃ©cessaire                                                                 |
+| Provinces                     | `/api/provinces`                              | idem                                                                                                                                    |                                                                                                 |
+| Entreprises                   | `/api/companies`                              | `?filters[sector][id][$in]=...`                                                                                                         | filtrage cÃ´tÃ© Strapi                                                                          |
+| Ã‰changes                     | `/api/exchanges`                              | `?filters[sourceProvince][id]=...`                                                                                                      | graph dâ€™Ã©changes                                                                             |
+| Homepage                      | `/api/homepage`                               | `?populate=deep`                                                                                                                        | _SingleType_                                                                                    |
+| Import flows                  | `/api/import-flows`                           | `?period=month&originScope=usmca&originCodes=US&hsSections=85`                                                                          | agrÃ©gats de flux importation                                                                   |
+| Import commodities            | `/api/import-commodities`                     | `?period=month&originScope=g7&hsSections=85`                                                                                            | top, Ã©mergents et lignes Ã  risque                                                             |
+| Import risk flags             | `/api/import-risk-flags`                      | `?originScope=g7&hsSections=85`                                                                                                         | flags produits calculÃ©s Ã  partir des commoditÃ©s                                              |
+| Import suppliers              | `/api/import-suppliers`                       | `?originScope=indo_pacific`                                                                                                             | fournisseurs filtrÃ©s par scope/origine                                                         |
+| Import knowledge              | `/api/import-knowledge`                       | `?lang=fr`                                                                                                                              | contenus knowledge / playbooks importation                                                      |
+| Import annotations            | `/api/import-annotations`                     | â€”                                                                                                                                     | annotations collaboratives persistÃ©es                                                          |
+| Import watchlists             | `/api/import-watchlists`                      | GET / POST / PUT JSON                                                                                                                   | watchlists importation persistÃ©es                                                              |
+| Import report schedule        | `/api/import-reports/schedule`                | POST JSON (`period`, `recipients`, `format`, `frequency`, `notes`)                                                                      | planification de rapports importation                                                           |
+| Feed actions                  | `/api/users/me/feed-actions`                  | GET / POST JSON (`targetType`, `targetId`, `action`, `status`, `sourceRoute`, `targetRoute`, `metadata`, `occurredAt`, `correlationId`) | journal user-scoped idempotent des actions header/detail feed                                   |
+| Opportunity offers            | `/api/users/me/opportunity-offers`            | GET / POST JSON (`opportunityId`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`)    | persistance des offres utilisateur sur opportunites                                             |
+| Opportunity offer attachments | `/api/users/me/opportunity-offer-attachments` | POST multipart (`files`)                                                                                                                | televersement securise des pieces jointes d'offres (PDF/images, taille limitee, scan signature) |
 
-**Shape de rÃ©ponse (par dÃ©faut Strapi v4/v5)** :  
+**Shape de rÃ©ponse (par dÃ©faut Strapi v4/v5)** :
+
 ```json
-{ "data": [ /* ou objet */ ], "meta": { "pagination": { /* ... */ } } }
+{
+  "data": [
+    /* ou objet */
+  ],
+  "meta": {
+    "pagination": {
+      /* ... */
+    }
+  }
+}
 ```
 
 ## 3) Variables dâ€™environnement (mapping)
-**Front (Angular)** â€” `openg7-org/src/app/core/config/environment.tokens.ts` :  
+
+**Front (Angular)** â€” `openg7-org/src/app/core/config/environment.tokens.ts` :
+
 - `API_URL` â†’ ex. `http://localhost:1337`
-- `API_TOKEN` â†’ *Read-Only Token* (dev uniquement)
+- `API_TOKEN` â†’ _Read-Only Token_ (dev uniquement)
 
 **CMS (Strapi)** â€” `strapi/.env` :
+
 - `HOST=0.0.0.0`, `PORT=1337`
 - `STRAPI_API_READONLY_TOKEN=<token>`
 - `CORS_ORIGIN=http://localhost:4200`
@@ -778,55 +831,83 @@ Le contrat OpenAPI est versionnÃ© dans `packages/contracts/spec/openapi.json`.
 - En prod : configurez la base de donnÃ©es, Redis et les CORS.
 
 ## 4) CORS & sÃ©curitÃ©
+
 - **Strapi** `config/middlewares.ts` autorise les origines via `CORS_ORIGIN` (`http://localhost:4200` en dev).
-- **Front** : ne **stocke pas** de JWT long terme ; privilÃ©gier **API Token RO** ou endpoints *Public*.
+- **Front** : ne **stocke pas** de JWT long terme ; privilÃ©gier **API Token RO** ou endpoints _Public_.
 - **RBAC** : rÃ¨gles UI (masquage) cÃ´tÃ© Angular **â‰ ** permissions Strapi (serveur). Toujours restreindre cÃ´tÃ© Strapi.
 
 ## 5) ResponsabilitÃ©s (Do / Donâ€™t)
-| Sujet | Front (Angular) | CMS (Strapi) |
-|---|---|---|
-| i18n | Affichage & clÃ©s `fr/en` (`src/assets/i18n/*.json`) | Contenus Ã©ditoriaux multilingues |
-| Filtrage simple | OK (client) | RecommandÃ© si volumÃ©trie (via `filters[...]`) |
-| Auth UI (guards) | **canMatch**, masquage RBAC UI | **RÃ´les/permissions** & sÃ©curitÃ© API |
-| Graph / KPI | Calcul lÃ©ger client | AgrÃ©gations lourdes (future extension) |
-| Seeds | Mocks front pour dev offline | **`strapi/src/seed/*.ts`** (idempotents) |
+
+| Sujet            | Front (Angular)                                      | CMS (Strapi)                                    |
+| ---------------- | ---------------------------------------------------- | ----------------------------------------------- |
+| i18n             | Affichage & clÃ©s `fr/en` (`src/assets/i18n/*.json`) | Contenus Ã©ditoriaux multilingues               |
+| Filtrage simple  | OK (client)                                          | RecommandÃ© si volumÃ©trie (via `filters[...]`) |
+| Auth UI (guards) | **canMatch**, masquage RBAC UI                       | **RÃ´les/permissions** & sÃ©curitÃ© API         |
+| Graph / KPI      | Calcul lÃ©ger client                                 | AgrÃ©gations lourdes (future extension)         |
+| Seeds            | Mocks front pour dev offline                         | **`strapi/src/seed/*.ts`** (idempotents)        |
 
 ## 6) Processus dev (local)
+
 - **CMS Strapi** : `yarn dev:cms` (ou `cd strapi && yarn strapi develop`) â†’ admin `:1337/admin`
-- **Front** : `cd openg7-org && yarn start` â†’ app `:4200`  
+- **Front** : `cd openg7-org && yarn start` â†’ app `:4200`
 - Docker : voir `docker-compose.dev.yml` Ã  la racine.
 
 ## 7) DÃ©finition de prÃªt (Ready) / fini (Done)
-- **Ready** : endpoints Strapi et schÃ©mas `schema.json` listÃ©s dans AGENTS.md **existent**, CORS OK, token RO gÃ©nÃ©rÃ©.  
-- **Done** (front) : composants signal-first + sÃ©lecteurs `[data-og7*]` prÃ©sents, clÃ©s i18n crÃ©Ã©es, tests Playwright verts.  
+
+- **Ready** : endpoints Strapi et schÃ©mas `schema.json` listÃ©s dans AGENTS.md **existent**, CORS OK, token RO gÃ©nÃ©rÃ©.
+- **Done** (front) : composants signal-first + sÃ©lecteurs `[data-og7*]` prÃ©sents, clÃ©s i18n crÃ©Ã©es, tests Playwright verts.
 - **Done** (CMS) : seeds rejouables, permissions dÃ©finies, collections renseignÃ©es (au moins 3 enregistrements dÃ©mo).
 
 ## 8) Check de cohÃ©rence (script)
+
 Ajouter `packages/tooling/bin/validate-api.mjs` pour vÃ©rifier la reachability des endpoints dÃ©clarÃ©s :
+
 ```js
 // packages/tooling/bin/validate-api.mjs
 import fetch from 'node-fetch';
 const base = process.env.OG7_API_URL || 'http://localhost:1337';
 const token = process.env.OG7_API_TOKEN || '';
 const headers = token ? { Authorization: `Bearer ${token}` } : {};
-const endpoints = ['/api/sectors','/api/provinces','/api/companies','/api/exchanges','/api/homepage','/api/import-flows','/api/import-commodities','/api/import-risk-flags','/api/import-suppliers','/api/import-knowledge','/api/import-annotations','/api/import-watchlists'];
+const endpoints = [
+  '/api/sectors',
+  '/api/provinces',
+  '/api/companies',
+  '/api/exchanges',
+  '/api/homepage',
+  '/api/import-flows',
+  '/api/import-commodities',
+  '/api/import-risk-flags',
+  '/api/import-suppliers',
+  '/api/import-knowledge',
+  '/api/import-annotations',
+  '/api/import-watchlists',
+];
 const errs = [];
-for (const e of endpoints) { const r = await fetch(base+e, { headers }); if (!r.ok) errs.push(`${e} -> HTTP ${r.status}`); }
-if (errs.length) { console.error('API KO:\n'+errs.join('\n')); process.exit(1); }
+for (const e of endpoints) {
+  const r = await fetch(base + e, { headers });
+  if (!r.ok) errs.push(`${e} -> HTTP ${r.status}`);
+}
+if (errs.length) {
+  console.error('API KO:\n' + errs.join('\n'));
+  process.exit(1);
+}
 console.log('API OK');
 ```
+
 `package.json` : `"validate:api": "node packages/tooling/bin/validate-api.mjs"` (Ã  brancher en CI) ou `"validate:api": "yarn workspace @openg7/tooling validate:api"` si le script est ajoutÃ© dans ce workspace.
 
 ---
-_MAJ : 2025-09-12 15:35:46Z_
 
+_MAJ : 2025-09-12 15:35:46Z_
 
 ---
 
 ## ðŸ“š Glossaire â€” Termes clÃ©s
 
 ### CSRF (Crossâ€‘Site Request Forgery)
+
 Attaque oÃ¹ un site tiers tente de **forcer** une requÃªte authentifiÃ©e Ã  votre insu.
+
 - **Pertinent surtout si lâ€™auth passe par cookies**. Avec **API Token** (Bearer) en front, le risque est fortement rÃ©duit.
 - **Front (Angular)** : un `csrf.interceptor.ts` ajoute un header de jeton uniquement pour les mÃ©thodes **POST/PUT/PATCH/DELETE** et **mÃªmeâ€‘origine**.
   ```ts
@@ -849,15 +930,18 @@ Attaque oÃ¹ un site tiers tente de **forcer** une requÃªte authentifiÃ©e �
   activez une protection CSRF au niveau reverse proxy (ou middleware dÃ©diÃ©).
 
 ### RBAC (Roleâ€‘Based Access Control)
+
 ContrÃ´le dâ€™accÃ¨s basÃ© sur les **rÃ´les**.
+
 - **Front (Angular)** : `rbac.policy.ts` mappe **rÃ´les â†’ permissions â†’ composants/routes**.  
   Les **guards** `canMatch` bloquent les routes ; lâ€™UI masque les CTA non autorisÃ©s (feature flags).
-- **CMS (Strapi)** : dÃ©finir les **rÃ´les** et **permissions** (plugin *users-permissions*) et limiter les **API tokens** (readâ€‘only par dÃ©faut).
+- **CMS (Strapi)** : dÃ©finir les **rÃ´les** et **permissions** (plugin _users-permissions_) et limiter les **API tokens** (readâ€‘only par dÃ©faut).
 - **Rappel** : le RBAC **UI** ne remplace **jamais** la restriction cÃ´tÃ© **API**.
 
 ---
 
 ## ðŸ” Notes de migration â€œconnexions â†’ (UI) Ã‰changes / (code) flowsâ€
+
 - **Composant** : `<og7-map-connection-layer>` â†’ `<og7-map-flows-layer>` ; fichier `openg7-org/src/app/components/map/map-flows-layer.component.ts`.
 - **SÃ©lecteurs HTML** : `[data-og7-id="connections"]` â†’ `[data-og7-id="flows"]`.
 - **NgRx** : `selectFilteredConnections` â†’ `selectFilteredFlows` ; `filteredConnections` â†’ `filteredFlows`.
@@ -871,12 +955,13 @@ _MAJ automatique : 2025-09-10 13:45:21Z_
 ## Strapi â€” Fichiers JSON chargÃ©s (schÃ©mas & composants)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-10**
 - PortÃ©e: `cms (Strapi)`
 
 ### Description
-CrÃ©er/valider les schÃ©mas `schema.json` (province, sector, company, exchange, homepage) et composants JSON. Commiter la structure source.
 
+CrÃ©er/valider les schÃ©mas `schema.json` (province, sector, company, exchange, homepage) et composants JSON. Commiter la structure source.
 
 ```txt
 strapi/
@@ -929,16 +1014,18 @@ strapi/
 ## SÃ©curitÃ© front â€” CSP & Trusted Types (prod)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-11**
 - PortÃ©e: `front (Angular)`
 
 ### Description
-DÃ©finir CSP minimale et activer Trusted Types en prod. VÃ©rifier SSR-safe et `DomSanitizer` pour HTML dynamique.
 
+DÃ©finir CSP minimale et activer Trusted Types en prod. VÃ©rifier SSR-safe et `DomSanitizer` pour HTML dynamique.
 
 **Objectif :** Mitiger les XSS/CSRF cÃ´tÃ© front, formaliser une politique **CSP** minimale et activer **Trusted Types**.
 
 **CSP (exemple minimal Ã  adapter par environnement)** :
+
 ```
 default-src 'self';
 script-src 'self' 'report-sample';
@@ -951,11 +1038,13 @@ report-uri /csp-report;
 ```
 
 **Trusted Types** (idÃ©alement via en-tÃªte HTTP) :
+
 ```
 Content-Security-Policy: require-trusted-types-for 'script'; trusted-types angular angular#bundler;
 ```
 
 **Rappels Angular** :
+
 - Aucune API DOM au module-load (SSR-safe) ; utiliser `isPlatformBrowser`.
 - Pour lâ€™HTML dynamique : `DomSanitizer` + pipes/`[innerHTML]` strictement encadrÃ©s.
 - Ne pas utiliser les classes Tailwind comme hooks de test (uniquement `[data-og7*]`).
@@ -965,16 +1054,18 @@ Content-Security-Policy: require-trusted-types-for 'script'; trusted-types angul
 ## Validation automatique des sÃ©lecteurs `[data-og7*]`
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-12**
 - PortÃ©e: `front (Angular)`
 
 ### Description
-Ajouter le script `@openg7/tooling:validate-selectors` et workflow CI pour vÃ©rifier la prÃ©sence de tous les sÃ©lecteurs `[data-og7*]` dÃ©clarÃ©s dans AGENTS.md.
 
+Ajouter le script `@openg7/tooling:validate-selectors` et workflow CI pour vÃ©rifier la prÃ©sence de tous les sÃ©lecteurs `[data-og7*]` dÃ©clarÃ©s dans AGENTS.md.
 
 Ajoutez le script suivant et branchez-le en CI pour garantir que **tous** les sÃ©lecteurs dÃ©clarÃ©s dans `AGENTS.md` existent rÃ©ellement dans le code.
 
 **Fichier** : `packages/tooling/bin/validate-selectors.mjs`
+
 ```js
 // packages/tooling/bin/validate-selectors.mjs
 import { readFileSync, readdirSync } from 'node:fs';
@@ -1000,11 +1091,13 @@ function readAll(dir) {
 }
 
 function loadSelectors(markdown) {
-  const og7Matches = [...markdown.matchAll(/\[data-og7="([\w-]+)"\]/g)].map(match => match[1]);
-  const og7IdMatches = [...markdown.matchAll(/\[data-og7-id="([\w-]+)"\]/g)].map(match => match[1]);
+  const og7Matches = [...markdown.matchAll(/\[data-og7="([\w-]+)"\]/g)].map((match) => match[1]);
+  const og7IdMatches = [...markdown.matchAll(/\[data-og7-id="([\w-]+)"\]/g)].map(
+    (match) => match[1],
+  );
 
   const uniqueOg7 = new Set(og7Matches);
-  const uniqueOg7Ids = new Set(og7IdMatches.filter(id => !['connections', 'more'].includes(id)));
+  const uniqueOg7Ids = new Set(og7IdMatches.filter((id) => !['connections', 'more'].includes(id)));
 
   return {
     og7: Array.from(uniqueOg7),
@@ -1029,7 +1122,10 @@ for (const selector of og7) {
 }
 
 for (const selector of og7Ids) {
-  if (!attributeExists(files, 'data-og7-id', selector) && !attributeExists(files, 'data-og7-layer', selector)) {
+  if (
+    !attributeExists(files, 'data-og7-id', selector) &&
+    !attributeExists(files, 'data-og7-layer', selector)
+  ) {
     missing.push(`data-og7-id="${selector}"`);
   }
 }
@@ -1043,13 +1139,14 @@ console.log('OK: tous les sÃ©lecteurs dâ€™AGENTS.md existent dans le code
 ```
 
 **CI GitHub** : `.github/workflows/ci-validate.yml`
+
 ```yaml
 name: Validate Agents
 
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate-selectors:
@@ -1082,16 +1179,18 @@ jobs:
 ## ðŸ“¦ Paquet partagÃ© â€” `@openg7/contracts` (workspaces)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-13**
 - PortÃ©e: `shared (workspaces)`
 
 ### Description
-Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Publier localement en workspace et consommer cÃ´tÃ© Angular/Strapi.
 
+Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Publier localement en workspace et consommer cÃ´tÃ© Angular/Strapi.
 
 > Objectif : centraliser **les types TypeScript** Strapi (et Ã©ventuellement un petit **catalogue dâ€™endpoints**) dans un **package workspace** partagÃ© entre `strapi` et `openg7-org`.
 
 ### Arbo monorepo (workspaces)
+
 ```
 /openG7/
   â”œâ”€ openg7-org/            # Front Angular 19 (openg7-org/src/app/...)
@@ -1101,6 +1200,7 @@ Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Pub
 ```
 
 ### `package.json` (racine)
+
 ```json
 {
   "name": "openg7",
@@ -1116,6 +1216,7 @@ Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Pub
 ```
 
 ### `packages/contracts/package.json`
+
 ```json
 {
   "name": "@openg7/contracts",
@@ -1141,6 +1242,7 @@ Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Pub
 ```
 
 ### `packages/contracts/tsconfig.json`
+
 ```json
 {
   "extends": "../../tsconfig.json",
@@ -1156,36 +1258,40 @@ Initialiser `packages/contracts` avec gÃ©nÃ©ration de types via OpenAPI. Pub
 ```
 
 ### `packages/contracts/src/index.ts`
+
 ```ts
 // Types gÃ©nÃ©rÃ©s par openapi-typescript
 import type { paths, components } from './strapi.rest';
 
 // Types de haut niveau (facultatif)
 export type Province = components['schemas']['Province'];
-export type Sector   = components['schemas']['Sector'];
-export type Company  = components['schemas']['Company'];
+export type Sector = components['schemas']['Sector'];
+export type Company = components['schemas']['Company'];
 export type Exchange = components['schemas']['Exchange'];
 
 // RÃ©ponses Strapi usuelles
-export type StrapiList<T>   = { data: T[]; meta: { pagination?: unknown } };
-export type StrapiSingle<T> = { data: T;  meta?: unknown };
+export type StrapiList<T> = { data: T[]; meta: { pagination?: unknown } };
+export type StrapiSingle<T> = { data: T; meta?: unknown };
 
 // Endpoints documentÃ©s
 export const endpoints = {
-  sectors:   '/api/sectors',
+  sectors: '/api/sectors',
   provinces: '/api/provinces',
   companies: '/api/companies',
   exchanges: '/api/exchanges',
-  homepage:  '/api/homepage'
+  homepage: '/api/homepage',
 } as const;
 ```
 
 ### GÃ©nÃ©ration des types
-1. Exporter le **OpenAPI JSON** de Strapi (plugin docs) âžœ `packages/contracts/spec/openapi.json`  
+
+1. Exporter le **OpenAPI JSON** de Strapi (plugin docs) âžœ `packages/contracts/spec/openapi.json`
 2. Lancer : `yarn workspace @openg7/contracts codegen && yarn workspace @openg7/contracts build`
 
 ### Consommation cÃ´tÃ© Angular (`openg7-org`)
+
 **openg7-org/package.json**
+
 ```json
 {
   "dependencies": {
@@ -1195,6 +1301,7 @@ export const endpoints = {
 ```
 
 **openg7-org/src/app/core/api/strapi-client.ts**
+
 ```ts
 import { inject, Injectable, signal } from '@angular/core';
 import { API_URL, API_TOKEN } from 'openg7-org/src/app/core/config/environment.tokens';
@@ -1219,13 +1326,23 @@ export class StrapiClient {
       const res = await fetch(`${this.api}${path}`, { headers: this.headers() });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json() as Promise<T>;
-    } finally { this.loading.set(false); }
+    } finally {
+      this.loading.set(false);
+    }
   }
 
-  sectors()   { return this.get<StrapiList<Sector>>(endpoints.sectors); }
-  provinces() { return this.get<StrapiList<Province>>(endpoints.provinces); }
-  companies() { return this.get<StrapiList<Company>>(endpoints.companies); }
-  exchanges() { return this.get<StrapiList<Exchange>>(endpoints.exchanges); }
+  sectors() {
+    return this.get<StrapiList<Sector>>(endpoints.sectors);
+  }
+  provinces() {
+    return this.get<StrapiList<Province>>(endpoints.provinces);
+  }
+  companies() {
+    return this.get<StrapiList<Company>>(endpoints.companies);
+  }
+  exchanges() {
+    return this.get<StrapiList<Exchange>>(endpoints.exchanges);
+  }
 }
 ```
 
@@ -1234,27 +1351,27 @@ export class StrapiClient {
 
 _MAJ (sections workspaces & contracts) : 2025-09-10 20:26:33Z_
 
-
 ---
 
 # âœ… NFR â€” Budgets & critÃ¨res dâ€™acceptation (OpenG7)
 
-| Domaine | Cible / RÃ¨gle | Comment vÃ©rifier |
-|---|---|---|
-| **Perf (Web Vitals)** | LCP â‰¤ **2.5s**, CLS â‰¤ **0.1**, INP â‰¤ **200ms** | Lighthouse CI, Web Vitals (`openg7-org/src/app/core/observability/metrics.service.ts`) |
-| **Carte (flows)** | â‰¥ **40 fps** desktop, filtrage local â‰¤ **200ms**, rendu initial â‰¤ **1.5s** | Profiler navigateur, logs perf personnalisÃ©s |
-| **AccessibilitÃ©** | WCAG 2.1 AA : focus visible, aria-live carte, **focus trap** drawer | Playwright + axe (tests E2E) |
-| **SÃ©curitÃ©** | **CSP** + **Trusted Types** activÃ©s en prod ; **CSRF** cÃ´tÃ© mÃªme-origine ; **RBAC** API strict | En-tÃªtes HTTP, tests dâ€™intÃ©gration API |
-| **QualitÃ© donnÃ©es** | Slugs **uniques**, enums validÃ©s, relations cardinalitÃ© dÃ©finie | Validation Strapi + scripts seed |
-| **ObservabilitÃ©** | Sentry front+cms, Web Vitals Ã©chantillonnÃ©s | Dashboards Sentry + logs |
+| Domaine               | Cible / RÃ¨gle                                                                                     | Comment vÃ©rifier                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **Perf (Web Vitals)** | LCP â‰¤ **2.5s**, CLS â‰¤ **0.1**, INP â‰¤ **200ms**                                               | Lighthouse CI, Web Vitals (`openg7-org/src/app/core/observability/metrics.service.ts`) |
+| **Carte (flows)**     | â‰¥ **40 fps** desktop, filtrage local â‰¤ **200ms**, rendu initial â‰¤ **1.5s**                   | Profiler navigateur, logs perf personnalisÃ©s                                          |
+| **AccessibilitÃ©**    | WCAG 2.1 AA : focus visible, aria-live carte, **focus trap** drawer                                | Playwright + axe (tests E2E)                                                           |
+| **SÃ©curitÃ©**        | **CSP** + **Trusted Types** activÃ©s en prod ; **CSRF** cÃ´tÃ© mÃªme-origine ; **RBAC** API strict | En-tÃªtes HTTP, tests dâ€™intÃ©gration API                                             |
+| **QualitÃ© donnÃ©es** | Slugs **uniques**, enums validÃ©s, relations cardinalitÃ© dÃ©finie                                 | Validation Strapi + scripts seed                                                       |
+| **ObservabilitÃ©**    | Sentry front+cms, Web Vitals Ã©chantillonnÃ©s                                                      | Dashboards Sentry + logs                                                               |
 
 ---
 
 # SSR & accÃ¨s DOM (Angular â€” `openg7-org`)
 
-- **RÃ¨gle** : *Aucun accÃ¨s DOM* (window/document) **au module-load**. Toujours vÃ©rifier lâ€™environnement.
+- **RÃ¨gle** : _Aucun accÃ¨s DOM_ (window/document) **au module-load**. Toujours vÃ©rifier lâ€™environnement.
 
 **openg7-org/src/app/core/utils/is-browser.ts**
+
 ```ts
 export function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -1268,6 +1385,7 @@ Utiliser `isBrowser()` dans les services/composants qui manipulent le DOM ou `lo
 # StrapiClient â€” cache TTL + retry/backoff (signal-first)
 
 **openg7-org/src/app/core/api/strapi-client.ts** (ajouts proposÃ©s)
+
 ```ts
 // ...imports existants
 @Injectable({ providedIn: 'root' })
@@ -1292,7 +1410,7 @@ export class StrapiClient {
         return json;
       } catch (e) {
         lastErr = e;
-        await new Promise(r => setTimeout(r, 250 * (attempt + 1)));
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
       }
     }
     throw lastErr instanceof Error ? lastErr : new Error('Network error');
@@ -1305,6 +1423,7 @@ export class StrapiClient {
 # Feature Flags front (cache local + invalidation)
 
 **openg7-org/src/app/core/feature-flags/feature-flags.service.ts**
+
 ```ts
 import { inject, Injectable, signal } from '@angular/core';
 import { API_URL } from 'openg7-org/src/app/core/config/environment.tokens';
@@ -1321,17 +1440,22 @@ export class FeatureFlagsService {
   async load(): Promise<void> {
     if (isBrowser()) {
       const cached = localStorage.getItem(KEY);
-      if (cached) { this.flags.set(JSON.parse(cached)); return; }
+      if (cached) {
+        this.flags.set(JSON.parse(cached));
+        return;
+      }
     }
     const res = await fetch(`${this.api}/api/feature-flags`);
     if (!res.ok) return;
-    const data = await res.json() as { data: { key: string; enabled: boolean }[] };
-    const f = Object.fromEntries(data.data.map(d => [d.key, d.enabled]));
+    const data = (await res.json()) as { data: { key: string; enabled: boolean }[] };
+    const f = Object.fromEntries(data.data.map((d) => [d.key, d.enabled]));
     this.flags.set(f);
     if (isBrowser()) localStorage.setItem(KEY, JSON.stringify(f));
   }
 
-  isOn(k: string): boolean { return !!this.flags()[k]; }
+  isOn(k: string): boolean {
+    return !!this.flags()[k];
+  }
 }
 ```
 
@@ -1339,26 +1463,38 @@ export class FeatureFlagsService {
 
 # A11y â€” Carte & Drawer (clavier, aria-live, focus)
 
-- **Carte** : les contrÃ´les doivent Ãªtres focusables (tabindex), **flÃ¨ches** = zoom, `Enter` = activer.  
+- **Carte** : les contrÃ´les doivent Ãªtres focusables (tabindex), **flÃ¨ches** = zoom, `Enter` = activer.
 - **Drawer** : trap focus + retour focus Ã  lâ€™Ã©lÃ©ment dÃ©clencheur.
 
 **openg7-org/src/app/components/company/company-detail.component.ts** (extrait focus)
+
 ```ts
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 
-@Component({ standalone: true, selector: 'og7-company-detail', templateUrl: './company-detail.component.html' })
+@Component({
+  standalone: true,
+  selector: 'og7-company-detail',
+  templateUrl: './company-detail.component.html',
+})
 export class CompanyDetailComponent implements AfterViewInit, OnDestroy {
   @ViewChild('closeBtn', { static: true }) closeBtn!: ElementRef<HTMLButtonElement>;
   private opener: HTMLElement | null = null;
 
-  openFrom(el: HTMLElement) { this.opener = el; /* ...ouvrir... */ }
+  openFrom(el: HTMLElement) {
+    this.opener = el; /* ...ouvrir... */
+  }
 
-  ngAfterViewInit() { queueMicrotask(() => this.closeBtn.nativeElement.focus()); }
-  ngOnDestroy() { this.opener?.focus(); }
+  ngAfterViewInit() {
+    queueMicrotask(() => this.closeBtn.nativeElement.focus());
+  }
+  ngOnDestroy() {
+    this.opener?.focus();
+  }
 }
 ```
 
 **openg7-org/src/app/components/map/controls/zoom-control.component.ts** (handlers clavier)
+
 ```ts
 onKey(e: KeyboardEvent, dir: 'in'|'out') {
   if (e.key === 'Enter' || e.key === ' ') this.zoom(dir);
@@ -1372,6 +1508,7 @@ onKey(e: KeyboardEvent, dir: 'in'|'out') {
 # Strapi â€” SchÃ©mas : contraintes & index
 
 **strapi/src/api/exchange/content-types/exchange/schema.json** (exemple)
+
 ```json
 {
   "kind": "collectionType",
@@ -1381,8 +1518,16 @@ onKey(e: KeyboardEvent, dir: 'in'|'out') {
   "attributes": {
     "slug": { "type": "uid", "targetField": "title", "required": true, "unique": true },
     "title": { "type": "string", "minLength": 3, "required": true },
-    "sourceProvince": { "type": "relation", "relation": "oneToOne", "target": "api::province.province" },
-    "targetProvince": { "type": "relation", "relation": "oneToOne", "target": "api::province.province" },
+    "sourceProvince": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::province.province"
+    },
+    "targetProvince": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::province.province"
+    },
     "sector": { "type": "relation", "relation": "manyToOne", "target": "api::sector.sector" },
     "value": { "type": "decimal", "min": 0 },
     "unit": { "type": "enumeration", "enum": ["bbl", "MWh", "CAD", "people"], "default": "CAD" },
@@ -1396,8 +1541,12 @@ onKey(e: KeyboardEvent, dir: 'in'|'out') {
 # Seeds Strapi â€” helpers idempotents & locales
 
 **strapi/src/utils/seed-helpers.ts**
+
 ```ts
-export async function upsertByUID<T extends { slug?: string }>(uid: string, data: T): Promise<void> {
+export async function upsertByUID<T extends { slug?: string }>(
+  uid: string,
+  data: T,
+): Promise<void> {
   const svc = strapi.entityService;
   const where = data.slug ? { slug: data.slug } : { title: (data as any)['title'] };
   const existing = await svc.findMany(uid, { filters: where });
@@ -1405,7 +1554,7 @@ export async function upsertByUID<T extends { slug?: string }>(uid: string, data
   else await svc.create(uid, { data });
 }
 
-export async function ensureLocale(code: 'fr'|'en') {
+export async function ensureLocale(code: 'fr' | 'en') {
   const list = await strapi.plugin('i18n').service('locales').list();
   if (!list.find((l: any) => l.code === code)) {
     await strapi.plugin('i18n').service('locales').create({ code, name: code.toUpperCase() });
@@ -1414,11 +1563,17 @@ export async function ensureLocale(code: 'fr'|'en') {
 ```
 
 **strapi/src/seed/06-exchanges.ts** (usage)
+
 ```ts
 import { upsertByUID, ensureLocale } from '../utils/seed-helpers';
 export default async () => {
   await ensureLocale('fr');
-  await upsertByUID('api::exchange.exchange', { slug: 'ab-to-bc-oil', title: 'AB â†’ BC Oil', value: 100, unit: 'bbl' });
+  await upsertByUID('api::exchange.exchange', {
+    slug: 'ab-to-bc-oil',
+    title: 'AB â†’ BC Oil',
+    value: 100,
+    unit: 'bbl',
+  });
 };
 ```
 
@@ -1426,32 +1581,44 @@ export default async () => {
 
 # Preview drafts (Strapi â†’ Angular)
 
-**Route custom**  
-- **CMS** : `GET /api/homepage/preview?secret=<token>` (Settings â†’ API Tokens â€œPreviewâ€).  
+**Route custom**
+
+- **CMS** : `GET /api/homepage/preview?secret=<token>` (Settings â†’ API Tokens â€œPreviewâ€).
 - **Front** : page `/preview/homepage` qui appelle lâ€™endpoint avec le token.
 
 **strapi/src/api/homepage/routes/homepage.ts**
+
 ```ts
 export default {
   routes: [
-    { method: 'GET', path: '/homepage/preview', handler: 'homepage.preview', config: { auth: false } }
-  ]
+    {
+      method: 'GET',
+      path: '/homepage/preview',
+      handler: 'homepage.preview',
+      config: { auth: false },
+    },
+  ],
 };
 ```
 
 **strapi/src/api/homepage/controllers/homepage.ts**
+
 ```ts
 export default ({ strapi }) => ({
   async preview(ctx) {
     const secret = ctx.request.query.secret;
     if (secret !== process.env.PREVIEW_TOKEN) return ctx.unauthorized();
-    const data = await strapi.entityService.findMany('api::homepage.homepage', { publicationState: 'preview', populate: 'deep' });
+    const data = await strapi.entityService.findMany('api::homepage.homepage', {
+      publicationState: 'preview',
+      populate: 'deep',
+    });
     ctx.body = { data };
-  }
+  },
 });
 ```
 
 **openg7-org/src/app/pages/preview.page.ts** (front)
+
 ```ts
 // Appel fetch sur /api/homepage/preview avec token (via API_URL), affichage sections sans cache
 ```
@@ -1463,11 +1630,18 @@ export default ({ strapi }) => ({
 - Ajouter un index **companies** et **exchanges**, synchro via **lifecycles**.
 
 **strapi/src/api/company/content-types/company/lifecycles.ts**
+
 ```ts
 export default {
-  async afterCreate(event) { await indexCompany(event.result); },
-  async afterUpdate(event) { await indexCompany(event.result); },
-  async afterDelete(event) { await deleteCompany(event.result); }
+  async afterCreate(event) {
+    await indexCompany(event.result);
+  },
+  async afterUpdate(event) {
+    await indexCompany(event.result);
+  },
+  async afterDelete(event) {
+    await deleteCompany(event.result);
+  },
 };
 ```
 
@@ -1475,8 +1649,8 @@ export default {
 
 # Contrat versionnÃ© â€” `@openg7/contracts`
 
-- **Snapshot** : commiter `packages/contracts/spec/openapi.json` Ã  chaque changement de schÃ©ma.  
-- **CI** : Ã©tape `codegen && build` avant le build front.  
+- **Snapshot** : commiter `packages/contracts/spec/openapi.json` Ã  chaque changement de schÃ©ma.
+- **CI** : Ã©tape `codegen && build` avant le build front.
 - **Semver** : bump mineur en ajout, majeur si breaking (champs supprimÃ©s/renommÃ©s).
 
 ---
@@ -1484,6 +1658,7 @@ export default {
 # Tests de contrat (front)
 
 **openg7-org/src/app/core/api/strapi-client.spec.ts**
+
 ```ts
 import { StrapiClient } from './strapi-client';
 
@@ -1501,11 +1676,11 @@ it('exchanges shape minimal', async () => {
 
 # RBAC â€” mapping UI / API
 
-| RÃ´le (UI) | Permissions Strapi (API) | VisibilitÃ© UI (exemples) |
-|---|---|---|
+| RÃ´le (UI)   | Permissions Strapi (API)                                                                                                                                                                                                                                                                                                                           | VisibilitÃ© UI (exemples)                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | **Visiteur** | Public: GET `/api/sectors`, `/api/provinces`, `/api/companies`, `/api/exchanges`, `/api/homepage`, `/api/import-flows`, `/api/import-commodities`, `/api/import-risk-flags`, `/api/import-suppliers`, `/api/import-knowledge`, `/api/import-annotations`, `/api/import-watchlists` ; POST `/api/import-watchlists`, `/api/import-reports/schedule` | Voir la carte, filtres, table et hub importation (read-only + collaboration locale/persistÃ©e) |
-| **Ã‰diteur** | Authenticated: POST/PUT/PATCH sur `company`, `homepage` | Boutons â€œÃ‰diterâ€ visibles ; gardÃ©s par `canMatchRole('editor')` |
-| **Admin** | Tous droits + settings | AccÃ¨s admin-only (flags, seeds manuels) |
+| **Ã‰diteur** | Authenticated: POST/PUT/PATCH sur `company`, `homepage`                                                                                                                                                                                                                                                                                            | Boutons â€œÃ‰diterâ€ visibles ; gardÃ©s par `canMatchRole('editor')`                           |
+| **Admin**    | Tous droits + settings                                                                                                                                                                                                                                                                                                                             | AccÃ¨s admin-only (flags, seeds manuels)                                                       |
 
 **Rappel** : le **RBAC UI** ne remplace pas les **permissions Strapi**. Toujours restreindre cÃ´tÃ© CMS.
 
@@ -1513,8 +1688,8 @@ it('exchanges shape minimal', async () => {
 
 # CSP report (prod)
 
-- Activer `report-uri /csp-report` cÃ´tÃ© reverse-proxy.  
-- En dev, *mock* possible : endpoint SSR qui logge les rapports.
+- Activer `report-uri /csp-report` cÃ´tÃ© reverse-proxy.
+- En dev, _mock_ possible : endpoint SSR qui logge les rapports.
 
 ---
 
@@ -1529,10 +1704,12 @@ it('exchanges shape minimal', async () => {
 ## 8) Tests & validations locales (Angular + Strapi)
 
 ### Ã‰tape AGENTS
+
 - ID: **AG-8**
 - PortÃ©e: `repo complet`
 
 ### Description
+
 ExÃ©cuter systÃ©matiquement les scripts de validation **avant** dâ€™ouvrir une PR. Ils verrouillent les selectors, la gÃ©nÃ©ration des contrats et lâ€™Ã©tat des seeds Strapi. Utiliser les commandes suivantes depuis la racine :
 
 1. `yarn lint` â€” lint global (`eslint.config.mjs`, TS strict).
@@ -1541,7 +1718,6 @@ ExÃ©cuter systÃ©matiquement les scripts de validation **avant** dâ€™ouv
 4. `yarn codegen && yarn test` â€” met Ã  jour `packages/contracts` puis exÃ©cute les tests gÃ©nÃ©rÃ©s.
 5. `yarn predeploy:cms-cache` â€” rejoue les seeds Strapi localement pour garantir lâ€™idempotence.
 6. `yarn prebuild:web` â€” build SSR + tests front (prÃ©requis Ã  `build:web`).
-
 
 7. `yarn test:e2e:smoke` - valider le parcours critique E2E quand la PR touche une surface utilisateur ou un flux de navigation principal.
 
@@ -1587,30 +1763,30 @@ _MAJ (enhanced) : 2026-03-14 00:00:00Z_
 
 ## BLUEPRINT Traceability Matrix (Tests)
 
-| BLUEPRINT | Coverage | Specs |
-|-----------|----------|-------|
-| `BLUEPRINT-OP-01` | Feed open + stream hydration | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts` |
-| `BLUEPRINT-OP-02` | Tile -> opportunity detail route | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts` |
-| `BLUEPRINT-OP-03` | Opportunity breadcrumb -> `/feed` | `openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.spec.ts` |
-| `BLUEPRINT-OP-04` | Offer drawer fields + submit flow | `openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts` |
-| `BLUEPRINT-OP-05` | Opportunity save state toggle | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts` |
-| `BLUEPRINT-OP-06` | Opportunity share action | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts` |
-| `BLUEPRINT-OP-07` | Q/R tabs + reply submit | `openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts` |
-| `BLUEPRINT-OP-08` | Opportunity aside alert -> alert detail | `openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts` |
-| `BLUEPRINT-OP-09` | Tile -> alert detail route | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts` |
-| `BLUEPRINT-OP-10` | Alert subscribe toggle | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts` |
-| `BLUEPRINT-OP-11` | Alert share action | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts` |
-| `BLUEPRINT-OP-12` | Alert report update action | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts` |
-| `BLUEPRINT-OP-13` | Create linked opportunity query params | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts` |
-| `BLUEPRINT-OP-14` | Alert aside opportunity -> detail | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts` |
-| `BLUEPRINT-OP-15` | Tile -> indicator detail route | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts` |
-| `BLUEPRINT-OP-16` | Indicator timeframe change -> rerender | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
-| `BLUEPRINT-OP-17` | Indicator granularity change -> rerender | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
-| `BLUEPRINT-OP-18` | Indicator subscribe action/state | `openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
-| `BLUEPRINT-OP-19` | Indicator create alert drawer + mapped publish + retry | `openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.spec.ts` |
-| `BLUEPRINT-OP-20` | Indicator related alert -> detail | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
-| `BLUEPRINT-OP-21` | Indicator related opportunity -> detail | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
-| `BLUEPRINT-OP-22` | Direct URL fallback by id (opportunity/alert/indicator) | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts` |
+| BLUEPRINT         | Coverage                                                | Specs                                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BLUEPRINT-OP-01` | Feed open + stream hydration                            | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts`                                                                                                                                                                                                              |
+| `BLUEPRINT-OP-02` | Tile -> opportunity detail route                        | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts`                                                                                                                                                                                                              |
+| `BLUEPRINT-OP-03` | Opportunity breadcrumb -> `/feed`                       | `openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.spec.ts`                                                                                                                                                                         |
+| `BLUEPRINT-OP-04` | Offer drawer fields + submit flow                       | `openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`                                                                                    |
+| `BLUEPRINT-OP-05` | Opportunity save state toggle                           | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`                                                                                                                                                                                     |
+| `BLUEPRINT-OP-06` | Opportunity share action                                | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`                                                                                                                                                                                     |
+| `BLUEPRINT-OP-07` | Q/R tabs + reply submit                                 | `openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`                                                                                             |
+| `BLUEPRINT-OP-08` | Opportunity aside alert -> alert detail                 | `openg7-org/src/app/domains/feed/feature/components/opportunity-context-aside.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`                                                                                   |
+| `BLUEPRINT-OP-09` | Tile -> alert detail route                              | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts`                                                                                                                                                                                                              |
+| `BLUEPRINT-OP-10` | Alert subscribe toggle                                  | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`                                                                                                                                                                                           |
+| `BLUEPRINT-OP-11` | Alert share action                                      | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`                                                                                                                                                                                           |
+| `BLUEPRINT-OP-12` | Alert report update action                              | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`                                                                                                                                                                                           |
+| `BLUEPRINT-OP-13` | Create linked opportunity query params                  | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`                                                                                                                                                                                           |
+| `BLUEPRINT-OP-14` | Alert aside opportunity -> detail                       | `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`                                                                                                                                                                                           |
+| `BLUEPRINT-OP-15` | Tile -> indicator detail route                          | `openg7-org/src/app/domains/feed/feature/feed.page.spec.ts`                                                                                                                                                                                                              |
+| `BLUEPRINT-OP-16` | Indicator timeframe change -> rerender                  | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                                                                                                                                                                                       |
+| `BLUEPRINT-OP-17` | Indicator granularity change -> rerender                | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                                                                                                                                                                                       |
+| `BLUEPRINT-OP-18` | Indicator subscribe action/state                        | `openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                                                                                                |
+| `BLUEPRINT-OP-19` | Indicator create alert drawer + mapped publish + retry  | `openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.spec.ts` |
+| `BLUEPRINT-OP-20` | Indicator related alert -> detail                       | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                                                                                                                                                                                       |
+| `BLUEPRINT-OP-21` | Indicator related opportunity -> detail                 | `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                                                                                                                                                                                       |
+| `BLUEPRINT-OP-22` | Direct URL fallback by id (opportunity/alert/indicator) | `openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.spec.ts`, `openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.spec.ts`                 |
 
 ## BLUEPRINT Data Outputs (mission-aligned)
 

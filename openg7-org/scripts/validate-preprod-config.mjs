@@ -71,11 +71,15 @@ function main() {
     return;
   }
 
-  console.error('[preprod-config] Missing required runtime configuration variables for preproduction:');
+  console.error(
+    '[preprod-config] Missing required runtime configuration variables for preproduction:',
+  );
   for (const info of missing) {
     console.error(formatError(info));
   }
-  console.error('\nSet these variables before building the preproduction bundle so runtime-config.js contains the expected endpoints.');
+  console.error(
+    '\nSet these variables before building the preproduction bundle so runtime-config.js contains the expected endpoints.',
+  );
   process.exitCode = 1;
 }
 

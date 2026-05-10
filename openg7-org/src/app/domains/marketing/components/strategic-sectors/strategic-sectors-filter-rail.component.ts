@@ -18,7 +18,8 @@ import {
 export class StrategicSectorsFilterRailComponent {
   readonly filterKeys = input.required<readonly StrategicFilterKey[]>();
   readonly values = input.required<StrategicFilterValueMap>();
-  readonly optionsByKey = input.required<Readonly<Record<StrategicFilterKey, readonly StrategicFilterOption[]>>>();
+  readonly optionsByKey =
+    input.required<Readonly<Record<StrategicFilterKey, readonly StrategicFilterOption[]>>>();
 
   readonly filterChange = output<{ key: StrategicFilterKey; value: string }>();
   readonly resetFilters = output<void>();

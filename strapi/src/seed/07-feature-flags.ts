@@ -54,7 +54,7 @@ export default async () => {
         enabled: flag.enabled,
         audience: flag.audience,
       },
-      { unique: { slug: flag.slug } }
+      { unique: { slug: flag.slug } },
     );
   }
 };

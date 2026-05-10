@@ -1,11 +1,14 @@
 import { CompanyImportBulkActions } from './company-import-bulk.actions';
-import { companyImportBulkReducer, initialCompanyImportBulkState } from './company-import-bulk.reducer';
+import {
+  companyImportBulkReducer,
+  initialCompanyImportBulkState,
+} from './company-import-bulk.reducer';
 
 describe('companyImportBulkReducer', () => {
   it('marks submission lifecycle and stores start response', () => {
     const requested = companyImportBulkReducer(
       initialCompanyImportBulkState,
-      CompanyImportBulkActions.startRequested()
+      CompanyImportBulkActions.startRequested(),
     );
     expect(requested.submitting).toBeTrue();
 
@@ -19,7 +22,7 @@ describe('companyImportBulkReducer', () => {
           reportUrl: '/report',
           errorsUrl: '/errors',
         },
-      })
+      }),
     );
     expect(started.submitting).toBeFalse();
     expect(started.start?.jobId).toBe('job-1');
@@ -46,7 +49,7 @@ describe('companyImportBulkReducer', () => {
           },
           lastError: null,
         },
-      })
+      }),
     );
     expect(withStatus.status?.progress.processed).toBe(5);
 
@@ -74,7 +77,7 @@ describe('companyImportBulkReducer', () => {
             errorsCsvUrl: '/errors?format=csv',
           },
         },
-      })
+      }),
     );
     expect(withReport.report?.state).toBe('completed');
 
@@ -92,7 +95,7 @@ describe('companyImportBulkReducer', () => {
             createdAt: '2026-01-01T00:00:02.000Z',
           },
         ],
-      })
+      }),
     );
     expect(withErrors.errorsPreview.length).toBe(1);
   });

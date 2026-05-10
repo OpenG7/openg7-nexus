@@ -129,7 +129,7 @@ export class LoginPage implements AfterViewInit, OnInit {
         finalize(() => {
           this.loading.set(false);
           this.form.enable({ emitEvent: false });
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -213,7 +213,11 @@ export class LoginPage implements AfterViewInit, OnInit {
       });
   }
 
-  private resolveErrorMessage(error: unknown): { message: string; code: string | null; status: number | null } {
+  private resolveErrorMessage(error: unknown): {
+    message: string;
+    code: string | null;
+    status: number | null;
+  } {
     const fallback = 'auth.errors.api';
     if (error instanceof HttpErrorResponse) {
       const payload = error.error;
@@ -254,7 +258,11 @@ export class LoginPage implements AfterViewInit, OnInit {
       return { message: error, code: null, status: null };
     }
 
-    return { message: fallback, code: fallback, status: error instanceof HttpErrorResponse ? error.status ?? null : null };
+    return {
+      message: fallback,
+      code: fallback,
+      status: error instanceof HttpErrorResponse ? (error.status ?? null) : null,
+    };
   }
 
   private normalizeApiError(payload: unknown): { code?: string | null } | null {
@@ -283,7 +291,9 @@ export class LoginPage implements AfterViewInit, OnInit {
         if (nested.details && typeof nested.details === 'object') {
           const details = nested.details as { errors?: unknown };
           if (Array.isArray(details.errors)) {
-            const first = details.errors.find((item) => typeof item === 'object' && item && 'code' in item);
+            const first = details.errors.find(
+              (item) => typeof item === 'object' && item && 'code' in item,
+            );
             const detailCode =
               first && typeof (first as { code?: unknown }).code === 'string'
                 ? ((first as { code?: string | undefined }).code ?? null)
@@ -301,7 +311,7 @@ export class LoginPage implements AfterViewInit, OnInit {
   private resolveErrorCode(
     status: number | null | undefined,
     candidate: string | null | undefined,
-    options?: { useStatusFallback?: boolean }
+    options?: { useStatusFallback?: boolean },
   ): string | null {
     const useStatusFallback = options?.useStatusFallback ?? true;
     const normalized = candidate?.toLowerCase();
@@ -309,7 +319,11 @@ export class LoginPage implements AfterViewInit, OnInit {
       if (normalized.includes('not confirmed') || normalized.includes('email is not confirmed')) {
         return 'auth.errors.emailNotConfirmed';
       }
-      if (normalized.includes('blocked') || normalized.includes('inactive') || normalized.includes('disabled')) {
+      if (
+        normalized.includes('blocked') ||
+        normalized.includes('inactive') ||
+        normalized.includes('disabled')
+      ) {
         return 'auth.errors.accountDisabled';
       }
       if (normalized.includes('locked') || normalized.includes('suspended')) {
@@ -441,4 +455,3 @@ export class LoginPage implements AfterViewInit, OnInit {
     return null;
   }
 }
-

@@ -59,7 +59,7 @@ describe('RuntimeConfigService', () => {
     expect(service.featureFlags()).toEqual(
       jasmine.objectContaining({
         experimentalMap: true,
-      })
+      }),
     );
   });
 
@@ -96,7 +96,7 @@ describe('RuntimeConfigService', () => {
     expect(service.featureFlags()).toEqual(
       jasmine.objectContaining({
         ssrOnly: true,
-      })
+      }),
     );
   });
 

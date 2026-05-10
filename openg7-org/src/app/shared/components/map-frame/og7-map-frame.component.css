@@ -18,7 +18,12 @@
   inset: -12%;
   z-index: 0;
   border-radius: calc(var(--og7-map-frame-radius) * 1.3);
-  background: radial-gradient(120% 120% at 50% 20%, rgba(56, 189, 248, 0.12), rgba(14, 116, 144, 0.08) 45%, rgba(255, 255, 255, 0) 80%);
+  background: radial-gradient(
+    120% 120% at 50% 20%,
+    rgba(56, 189, 248, 0.12),
+    rgba(14, 116, 144, 0.08) 45%,
+    rgba(255, 255, 255, 0) 80%
+  );
   filter: blur(44px);
   opacity: 0.58;
   pointer-events: none;

@@ -3,9 +3,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/typedoc"
   },
-  "include": [
-    "src/app/**/*.ts"
-  ],
+  "include": ["src/app/**/*.ts"],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",

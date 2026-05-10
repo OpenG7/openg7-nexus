@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
@@ -105,24 +112,26 @@ export class AdminTrustPage implements OnInit {
     [...this.companies()].sort((left, right) => {
       const delta = this.reviewPriority(left) - this.reviewPriority(right);
       return delta !== 0 ? delta : left.name.localeCompare(right.name);
-    })
+    }),
   );
   protected readonly reviewQueueStats = computed(() => {
     const companies = this.companies();
     const awaiting = companies.filter(
-      (company) => company.verificationStatus === 'pending' || company.verificationStatus === 'unverified'
+      (company) =>
+        company.verificationStatus === 'pending' || company.verificationStatus === 'unverified',
     ).length;
     const correctionLoop = companies.filter(
-      (company) => company.verificationStatus === 'correctionRequested'
+      (company) => company.verificationStatus === 'correctionRequested',
     ).length;
     const blocked = companies.filter(
-      (company) => company.verificationStatus === 'rejected' || company.verificationStatus === 'suspended'
+      (company) =>
+        company.verificationStatus === 'rejected' || company.verificationStatus === 'suspended',
     ).length;
     const readyToVerify = companies.filter(
       (company) =>
         this.hasValidatedSource(company.verificationSources) &&
         company.verificationStatus !== 'verified' &&
-        company.verificationStatus !== 'rejected'
+        company.verificationStatus !== 'rejected',
     ).length;
 
     return [
@@ -262,10 +271,14 @@ export class AdminTrustPage implements OnInit {
       reasons.push('The current proof package is blocked until a new submission is created.');
     }
     if (nextPublicationStatus === 'approved') {
-      reasons.push('The partner profile becomes visible across public discovery and partner surfaces.');
+      reasons.push(
+        'The partner profile becomes visible across public discovery and partner surfaces.',
+      );
     }
     if (nextPublicationStatus === 'suspended') {
-      reasons.push('The partner profile is removed from public discovery until publication resumes.');
+      reasons.push(
+        'The partner profile is removed from public discovery until publication resumes.',
+      );
     }
     if (!reasons.length) {
       reasons.push('Current verification package is internally consistent.');
@@ -373,7 +386,9 @@ export class AdminTrustPage implements OnInit {
   updateHistoryField(index: number, field: keyof CompanyTrustRecord, value: string): void {
     if (field === 'amount' || field === 'score') {
       const numeric = value.trim() === '' ? null : Number(value);
-      this.patchHistory(index, { [field]: Number.isNaN(numeric) ? null : numeric } as Partial<CompanyTrustRecord>);
+      this.patchHistory(index, {
+        [field]: Number.isNaN(numeric) ? null : numeric,
+      } as Partial<CompanyTrustRecord>);
       return;
     }
     let patch: Partial<CompanyTrustRecord> | null = null;
@@ -518,7 +533,7 @@ export class AdminTrustPage implements OnInit {
   }
 
   private hasValidatedSource(
-    sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined
+    sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined,
   ): boolean {
     return (sources ?? []).some((source) => source.status === 'validated');
   }
@@ -526,7 +541,7 @@ export class AdminTrustPage implements OnInit {
   private buildReviewEntry(
     company: CompanyRecord,
     nextStatus: CompanyVerificationStatus,
-    publicationStatusChanged = false
+    publicationStatusChanged = false,
   ): CompanyTrustRecord | null {
     const reviewNote = this.reviewNoteControl.value.trim();
     if (company.verificationStatus === nextStatus) {
@@ -546,7 +561,10 @@ export class AdminTrustPage implements OnInit {
     };
   }
 
-  private buildPublicationEntry(company: CompanyRecord, nextStatus: CompanyStatus): CompanyTrustRecord | null {
+  private buildPublicationEntry(
+    company: CompanyRecord,
+    nextStatus: CompanyStatus,
+  ): CompanyTrustRecord | null {
     if (company.status === nextStatus) {
       return null;
     }

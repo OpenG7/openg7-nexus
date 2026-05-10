@@ -163,7 +163,10 @@ function parseRequiredPositiveInteger(fieldName: string, value: unknown): number
   return parsed;
 }
 
-function sanitizeRequiredOrganization(fieldName: string, value: unknown): {
+function sanitizeRequiredOrganization(
+  fieldName: string,
+  value: unknown,
+): {
   readonly name: string;
   readonly key: string;
 } {
@@ -329,14 +332,17 @@ function sanitizeCreatePayload(input: unknown): ConnectionCreatePayload {
 
   const matchId = parseRequiredPositiveInteger('match', source.match);
   const buyerProfileId = parseRequiredPositiveInteger('buyer_profile', source.buyer_profile);
-  const supplierProfileId = parseRequiredPositiveInteger('supplier_profile', source.supplier_profile);
+  const supplierProfileId = parseRequiredPositiveInteger(
+    'supplier_profile',
+    source.supplier_profile,
+  );
   const buyerOrganization = sanitizeRequiredOrganization(
     'buyer_organization',
-    source.buyer_organization
+    source.buyer_organization,
   );
   const supplierOrganization = sanitizeRequiredOrganization(
     'supplier_organization',
-    source.supplier_organization
+    source.supplier_organization,
   );
   const introMessage = sanitizeIntroMessage(source.intro_message);
   const locale = parseLocale(source.locale);
@@ -384,7 +390,9 @@ function sanitizeStatusUpdatePayload(input: unknown): StatusUpdatePayload {
   const source = extractPayloadSource(input);
   const status = normalizeString(source.status, 32);
   if (!status || !ALLOWED_STATUSES.has(status)) {
-    throw new Error('status is required and must be one of: pending, inDiscussion, completed, closed.');
+    throw new Error(
+      'status is required and must be one of: pending, inDiscussion, completed, closed.',
+    );
   }
 
   const note = normalizeString(source.note, 280);
@@ -402,13 +410,14 @@ function parseHistoryQuery(query: Record<string, unknown>): {
   const rawLimit = normalizeInteger(query.limit);
   const rawOffset = normalizeInteger(query.offset);
 
-  const limit = rawLimit == null
-    ? DEFAULT_HISTORY_LIMIT
-    : rawLimit < 1
-      ? 1
-      : rawLimit > MAX_HISTORY_LIMIT
-        ? MAX_HISTORY_LIMIT
-        : rawLimit;
+  const limit =
+    rawLimit == null
+      ? DEFAULT_HISTORY_LIMIT
+      : rawLimit < 1
+        ? 1
+        : rawLimit > MAX_HISTORY_LIMIT
+          ? MAX_HISTORY_LIMIT
+          : rawLimit;
 
   const offset = rawOffset == null ? 0 : Math.max(0, rawOffset);
   const status = normalizeString(query.status, 32);
@@ -530,7 +539,7 @@ function toConnectionResponse(entity: Record<string, unknown>) {
 
 async function resolveActorContext(
   strapi: Core.Strapi,
-  userId: number | string
+  userId: number | string,
 ): Promise<ActorContext> {
   const profiles = normalizeFindManyResult(
     await strapi.entityService.findMany(ACCOUNT_PROFILE_UID, {
@@ -540,7 +549,7 @@ async function resolveActorContext(
         },
       },
       limit: 1,
-    })
+    }),
   );
 
   const profile = (profiles[0] as Record<string, unknown> | undefined) ?? null;
@@ -573,7 +582,7 @@ function buildActorAccessFilters(actor: ActorContext): Record<string, unknown>[]
 async function findConnectionForActor(
   strapi: Core.Strapi,
   actor: ActorContext,
-  connectionId: number | string
+  connectionId: number | string,
 ): Promise<Record<string, unknown> | null> {
   const matches = normalizeFindManyResult(
     await strapi.entityService.findMany(CONNECTION_UID, {
@@ -582,7 +591,7 @@ async function findConnectionForActor(
         $or: buildActorAccessFilters(actor),
       },
       limit: 1,
-    })
+    }),
   );
 
   return (matches[0] as Record<string, unknown> | undefined) ?? null;
@@ -590,7 +599,9 @@ async function findConnectionForActor(
 
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
   async create(ctx: Record<string, unknown>) {
-    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as AuthenticatedUser | undefined;
+    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as
+      | AuthenticatedUser
+      | undefined;
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
@@ -658,7 +669,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   async history(ctx: Record<string, unknown>) {
-    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as AuthenticatedUser | undefined;
+    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as
+      | AuthenticatedUser
+      | undefined;
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
@@ -685,7 +698,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         sort: ['updatedAt:desc', 'id:desc'],
         start: parsed.offset,
         limit: parsed.limit + 1,
-      })
+      }),
     );
 
     const hasMore = entries.length > parsed.limit;
@@ -703,7 +716,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   async findOne(ctx: Record<string, unknown>) {
-    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as AuthenticatedUser | undefined;
+    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as
+      | AuthenticatedUser
+      | undefined;
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
@@ -725,7 +740,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   },
 
   async updateStatus(ctx: Record<string, unknown>) {
-    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as AuthenticatedUser | undefined;
+    const currentUser = (ctx.state as Record<string, unknown> | undefined)?.user as
+      | AuthenticatedUser
+      | undefined;
     if (!currentUser?.id) {
       return (ctx as any).unauthorized();
     }
@@ -756,7 +773,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const currentStatus = normalizeStatus(existing.status, 'pending');
     if (!isStatusTransitionAllowed(currentStatus, payload.status)) {
       return (ctx as any).badRequest(
-        `status transition is invalid (${currentStatus} -> ${payload.status}).`
+        `status transition is invalid (${currentStatus} -> ${payload.status}).`,
       );
     }
 

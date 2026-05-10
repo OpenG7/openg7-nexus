@@ -4,21 +4,21 @@ Ce guide décrit la marche à suivre pour exécuter le workspace `strapi/` sur p
 
 ## 1. Modes supportés
 
-| Mode | Client | Usage recommandé |
-| --- | --- | --- |
+| Mode              | Client                     | Usage recommandé                                                                                                                                                             |
+| ----------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PostgreSQL managé | `DATABASE_CLIENT=postgres` | Développement local via conteneur Postgres, préproduction, production et environnements multi-instances. Compatible TLS, pooling (`DATABASE_POOL_*`) et reprise automatique. |
 
 > Les seeds restent idempotents : aucune donnée n'est dupliquée en relançant `yarn --cwd strapi seed:dev`, quel que soit le client utilisé. 【F:strapi/src/utils/seed-helpers.ts†L25-L44】
 
 ## 2. Variables d'environnement à renseigner
 
-| Variable | Description |
-| --- | --- |
-| `DATABASE_CLIENT` | Toujours `postgres`. |
-| `DATABASE_HOST` / `DATABASE_PORT` | Adresse du serveur Postgres. |
-| `DATABASE_NAME` / `DATABASE_SCHEMA` | Base et schéma ciblés. |
-| `DATABASE_USERNAME` / `DATABASE_PASSWORD` | Identifiants applicatifs. |
-| `DATABASE_POOL_MIN` / `DATABASE_POOL_MAX` | Taille du pool de connexions. |
+| Variable                                                              | Description                                                         |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `DATABASE_CLIENT`                                                     | Toujours `postgres`.                                                |
+| `DATABASE_HOST` / `DATABASE_PORT`                                     | Adresse du serveur Postgres.                                        |
+| `DATABASE_NAME` / `DATABASE_SCHEMA`                                   | Base et schéma ciblés.                                              |
+| `DATABASE_USERNAME` / `DATABASE_PASSWORD`                             | Identifiants applicatifs.                                           |
+| `DATABASE_POOL_MIN` / `DATABASE_POOL_MAX`                             | Taille du pool de connexions.                                       |
 | `DATABASE_SSL`, `DATABASE_SSL_REJECT_UNAUTHORIZED`, `DATABASE_SSL_CA` | Contrôle TLS (activé par défaut sur de nombreux providers managés). |
 
 Le fichier [`strapi/.env.example`](../../strapi/.env.example) fournit une base prête à l'emploi. 【F:strapi/.env.example†L36-L48】

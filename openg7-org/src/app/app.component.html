@@ -1,7 +1,12 @@
 <div data-og7="app">
-  <div data-og7="app-shell" [attr.data-og7-ready]="appReady() ? 'true' : 'false'" class="app-shell flex min-h-screen flex-col bg-page text-body" [og7CtrlK]="false"
-    og7CtrlKSource="global">
-    <og7-site-header [handset]="isHandset()" (menuToggle)="null"></og7-site-header>
+  <div
+    data-og7="app-shell"
+    [attr.data-og7-ready]="appReady() ? 'true' : 'false'"
+    class="app-shell flex min-h-screen flex-col bg-page text-body"
+    [og7CtrlK]="false"
+    og7CtrlKSource="global"
+  >
+    <og7-site-header [handset]="isHandset()" (menuToggle)="(null)"></og7-site-header>
     <og7-under-construction-banner></og7-under-construction-banner>
     <og7-onboarding-flow></og7-onboarding-flow>
     <ng-container *ngIf="componentLabComponent() as component">
@@ -9,17 +14,25 @@
     </ng-container>
     <main class="app-main flex-1">
       @if (isBrowser && backgroundComponent()) {
-      <ng-container *ngComponentOutlet="backgroundComponent()"></ng-container>
+        <ng-container *ngComponentOutlet="backgroundComponent()"></ng-container>
       }
-      <div class="app-main__content w-full" [class.app-main__content--immersive]="immersiveMainContent()">
+      <div
+        class="app-main__content w-full"
+        [class.app-main__content--immersive]="immersiveMainContent()"
+      >
         <router-outlet></router-outlet>
       </div>
     </main>
     <footer class="app-footer border-t border-slate-200/60 bg-surface py-6 text-sm text-subtle">
       <div
-        class="app-footer__inner mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        class="app-footer__inner mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+      >
         <span class="font-semibold text-title">OpenG7</span>
-        <nav data-og7="footer-nav" class="app-footer__links" [attr.aria-label]="'footer.links.ariaLabel' | translate">
+        <nav
+          data-og7="footer-nav"
+          class="app-footer__links"
+          [attr.aria-label]="'footer.links.ariaLabel' | translate"
+        >
           <a routerLink="/faq" class="app-footer__link" data-og7="footer-link-faq">
             {{ 'footer.links.faq' | translate }}
           </a>

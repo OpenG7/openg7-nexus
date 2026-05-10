@@ -18,14 +18,17 @@ export const initialCatalogState: CatalogState = {
 
 export const catalogReducer = createReducer(
   initialCatalogState,
-  on(CatalogActions.catalogHydrated, (state, { sectors, provinces, companies, feedItems, source, sources }) => ({
-    ...state,
-    sectors,
-    provinces,
-    companies,
-    feedItems: feedItems ?? state.feedItems,
-    sources: resolveSources(state.sources, source, sources),
-  })),
+  on(
+    CatalogActions.catalogHydrated,
+    (state, { sectors, provinces, companies, feedItems, source, sources }) => ({
+      ...state,
+      sectors,
+      provinces,
+      companies,
+      feedItems: feedItems ?? state.feedItems,
+      sources: resolveSources(state.sources, source, sources),
+    }),
+  ),
   on(CatalogActions.catalogMockLoaded, (state, { sectors, provinces, companies, feedItems }) => ({
     ...state,
     sectors,
@@ -51,13 +54,13 @@ export const catalogReducer = createReducer(
     ...state,
     companies,
   })),
-  on(CatalogActions.catalogCleared, () => ({ ...initialCatalogState }))
+  on(CatalogActions.catalogCleared, () => ({ ...initialCatalogState })),
 );
 
 function resolveSources(
   current: CatalogSources,
   source?: CatalogSources[keyof CatalogSources],
-  sources?: Partial<CatalogSources>
+  sources?: Partial<CatalogSources>,
 ): CatalogSources {
   if (source) {
     return {

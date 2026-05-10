@@ -1,6 +1,10 @@
-﻿<nav data-og7="language-switch" data-og7-id="language-switch" role="navigation" aria-label="SÃ©lecteur de langue">
+﻿<nav
+  data-og7="language-switch"
+  data-og7-id="language-switch"
+  role="navigation"
+  aria-label="SÃ©lecteur de langue"
+>
   <select [value]="lang()" (change)="switchLang($any($event.target).value)">
     <option *ngFor="let l of locales()" [value]="l">{{ label(l) }}</option>
   </select>
 </nav>
-

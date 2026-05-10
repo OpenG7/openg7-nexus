@@ -16,7 +16,9 @@ import { Og7ModalRef } from './og7-modal.types';
 export class Og7ModalCloseDirective<TResult = unknown> {
   @Input('og7ModalClose') closeResult?: TResult;
 
-  constructor(@Optional() @Inject(OG7_MODAL_REF) private readonly modalRef: Og7ModalRef<TResult> | null) {}
+  constructor(
+    @Optional() @Inject(OG7_MODAL_REF) private readonly modalRef: Og7ModalRef<TResult> | null,
+  ) {}
 
   /**
    * Contexte : Triggered when the host element is clicked.

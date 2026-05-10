@@ -1,4 +1,8 @@
-import { StatisticsFilters, StatisticsSnapshot, StatisticsSummary } from '@app/core/models/statistics';
+import {
+  StatisticsFilters,
+  StatisticsSnapshot,
+  StatisticsSummary,
+} from '@app/core/models/statistics';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 
 import { StatisticsState } from './statistics.reducer';
@@ -7,22 +11,22 @@ export const selectStatisticsState = createFeatureSelector<StatisticsState>('sta
 
 export const selectStatisticsFilters = createSelector(
   selectStatisticsState,
-  (state): StatisticsFilters => state.filters
+  (state): StatisticsFilters => state.filters,
 );
 
 export const selectStatisticsSummaries = createSelector(
   selectStatisticsState,
-  (state) => state.summaries
+  (state) => state.summaries,
 );
 
 export const selectStatisticsInsights = createSelector(
   selectStatisticsState,
-  (state) => state.insights
+  (state) => state.insights,
 );
 
 export const selectStatisticsSnapshot = createSelector(
   selectStatisticsState,
-  (state) => state.snapshot
+  (state) => state.snapshot,
 );
 
 export const selectStatisticsHeroSnapshot = createSelector(
@@ -36,42 +40,39 @@ export const selectStatisticsHeroSnapshot = createSelector(
       return null;
     }
     return computeSnapshot(summaries);
-  }
+  },
 );
 
 export const selectStatisticsAvailablePeriods = createSelector(
   selectStatisticsState,
-  (state) => state.availablePeriods
+  (state) => state.availablePeriods,
 );
 
 export const selectStatisticsAvailableProvinces = createSelector(
   selectStatisticsState,
-  (state) => state.availableProvinces
+  (state) => state.availableProvinces,
 );
 
 export const selectStatisticsAvailableCountries = createSelector(
   selectStatisticsState,
-  (state) => state.availableCountries
+  (state) => state.availableCountries,
 );
 
 export const selectStatisticsLoading = createSelector(
   selectStatisticsState,
-  (state) => state.loading
+  (state) => state.loading,
 );
 
 export const selectStatisticsIsFallback = createSelector(
   selectStatisticsState,
-  (state) => state.isFallback
+  (state) => state.isFallback,
 );
 
-export const selectStatisticsError = createSelector(
-  selectStatisticsState,
-  (state) => state.error
-);
+export const selectStatisticsError = createSelector(selectStatisticsState, (state) => state.error);
 
 export const selectStatisticsHasSummaries = createSelector(
   selectStatisticsSummaries,
-  (summaries) => summaries.length > 0
+  (summaries) => summaries.length > 0,
 );
 
 const computeSnapshot = (summaries: readonly StatisticsSummary[]): StatisticsSnapshot => {
@@ -80,7 +81,7 @@ const computeSnapshot = (summaries: readonly StatisticsSummary[]): StatisticsSna
   const activeCorridors = new Set(
     summaries
       .map((summary) => summary.province)
-      .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
+      .filter((value): value is string => typeof value === 'string' && value.trim() !== ''),
   ).size;
 
   return {

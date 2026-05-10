@@ -18,7 +18,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
-import { SearchContext, RecentSearch, SearchItem, SearchResult, SearchSection } from '@app/core/models/search';
+import {
+  SearchContext,
+  RecentSearch,
+  SearchItem,
+  SearchResult,
+  SearchSection,
+} from '@app/core/models/search';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import { SavedSearchesApiService } from '@app/core/services/saved-searches-api.service';
@@ -72,7 +78,8 @@ const AUTOCOMPLETE_SUGGESTION_LIMIT = 5;
  */
 export class QuickSearchModalComponent implements AfterViewInit {
   private readonly modalRef = inject<Og7ModalRef<void>>(OG7_MODAL_REF);
-  private readonly data = inject<QuickSearchModalData | null>(OG7_MODAL_DATA, { optional: true }) ?? {};
+  private readonly data =
+    inject<QuickSearchModalData | null>(OG7_MODAL_DATA, { optional: true }) ?? {};
   private readonly searchService = inject(SearchService);
   private readonly history = inject(SearchHistoryStore);
   private readonly analytics = inject(AnalyticsService);
@@ -101,9 +108,13 @@ export class QuickSearchModalComponent implements AfterViewInit {
   private latestSearchRequestId = 0;
   private readonly composing = signal(false);
 
-  private readonly langSig = signal(this.translate.currentLang || this.translate.defaultLang || 'en');
+  private readonly langSig = signal(
+    this.translate.currentLang || this.translate.defaultLang || 'en',
+  );
 
-  readonly queryControl = new FormControl<string>(this.data.initialQuery ?? '', { nonNullable: true });
+  readonly queryControl = new FormControl<string>(this.data.initialQuery ?? '', {
+    nonNullable: true,
+  });
 
   readonly context = computed<SearchContext>(() => ({
     role: this.rbac.currentRole(),
@@ -142,17 +153,15 @@ export class QuickSearchModalComponent implements AfterViewInit {
   readonly autocompleteSuggestions = computed(() => this.buildAutocompleteSuggestions());
 
   constructor() {
-    this.queryControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.query.set(value);
-        if (this.saveStatus() !== 'idle') {
-          this.saveStatus.set('idle');
-        }
-        if (this.activeIndex() !== 0) {
-          this.activeIndex.set(0);
-        }
-      });
+    this.queryControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.query.set(value);
+      if (this.saveStatus() !== 'idle') {
+        this.saveStatus.set('idle');
+      }
+      if (this.activeIndex() !== 0) {
+        this.activeIndex.set(0);
+      }
+    });
 
     effect(() => {
       const value = this.query();
@@ -243,7 +252,8 @@ export class QuickSearchModalComponent implements AfterViewInit {
       return false;
     }
 
-    const isCtrlOrMetaK = (event.key === 'k' || event.key === 'K') && (event.ctrlKey || event.metaKey);
+    const isCtrlOrMetaK =
+      (event.key === 'k' || event.key === 'K') && (event.ctrlKey || event.metaKey);
     if (isCtrlOrMetaK) {
       return true;
     }
@@ -354,7 +364,7 @@ export class QuickSearchModalComponent implements AfterViewInit {
       })
       .pipe(
         finalize(() => this.savePending.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (savedSearch) => {

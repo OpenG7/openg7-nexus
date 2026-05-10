@@ -44,7 +44,12 @@ export async function up(knex: Knex): Promise<void> {
   if (!hasErrorsTable) {
     await knex.schema.createTable(ERRORS_TABLE, (table) => {
       table.increments('id').primary();
-      table.string('job_id', 64).notNullable().references('id').inTable(JOBS_TABLE).onDelete('CASCADE');
+      table
+        .string('job_id', 64)
+        .notNullable()
+        .references('id')
+        .inTable(JOBS_TABLE)
+        .onDelete('CASCADE');
       table.integer('row_number').notNullable();
       table.string('field', 96).nullable();
       table.string('code', 96).notNullable();

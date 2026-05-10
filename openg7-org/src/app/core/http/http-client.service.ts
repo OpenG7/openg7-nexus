@@ -24,7 +24,7 @@ export class HttpClientService {
     private http: HttpClient,
     private runtimeConfig: RuntimeConfigService,
     @Optional() @Inject(API_URL) private apiUrl?: string,
-    @Optional() @Inject(API_WITH_CREDENTIALS) private apiWithCredentials?: boolean
+    @Optional() @Inject(API_WITH_CREDENTIALS) private apiWithCredentials?: boolean,
   ) {}
 
   private buildUrl(url: string): string {

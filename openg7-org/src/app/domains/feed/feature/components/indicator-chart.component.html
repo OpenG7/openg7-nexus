@@ -3,11 +3,23 @@
     <div>
       <h2>{{ chartTitle() }}</h2>
       <p>
-        {{ 'feed.indicator.detail.chart.completedAt' | translate:{ value: completedAtLabel(), level: levelLabel() } }}
+        {{
+          'feed.indicator.detail.chart.completedAt'
+            | translate: { value: completedAtLabel(), level: levelLabel() }
+        }}
       </p>
     </div>
-    <button type="button" data-og7="action" data-og7-id="indicator-chart-toggle-table" (click)="toggleTable()">
-      {{ viewAsTable() ? ('feed.indicator.detail.chart.hideTable' | translate) : ('feed.indicator.detail.chart.viewTable' | translate) }}
+    <button
+      type="button"
+      data-og7="action"
+      data-og7-id="indicator-chart-toggle-table"
+      (click)="toggleTable()"
+    >
+      {{
+        viewAsTable()
+          ? ('feed.indicator.detail.chart.hideTable' | translate)
+          : ('feed.indicator.detail.chart.viewTable' | translate)
+      }}
     </button>
   </header>
 
@@ -15,18 +27,33 @@
     <p>{{ 'feed.indicator.detail.loadingBody' | translate }}</p>
   </article>
 
-  <article class="indicator-chart__state" *ngIf="!loading() && error() as loadError" data-og7="indicator-chart-error">
+  <article
+    class="indicator-chart__state"
+    *ngIf="!loading() && error() as loadError"
+    data-og7="indicator-chart-error"
+  >
     <p>{{ loadError }}</p>
-    <button type="button" (click)="retry.emit()">{{ 'feed.indicator.detail.retry' | translate }}</button>
+    <button type="button" (click)="retry.emit()">
+      {{ 'feed.indicator.detail.retry' | translate }}
+    </button>
   </article>
 
   <ng-container *ngIf="!loading() && !error()">
-    <article class="indicator-chart__state" *ngIf="!hasEnoughPoints()" data-og7="indicator-chart-empty">
+    <article
+      class="indicator-chart__state"
+      *ngIf="!hasEnoughPoints()"
+      data-og7="indicator-chart-empty"
+    >
       <p>{{ 'feed.indicator.detail.chart.empty' | translate }}</p>
     </article>
 
     <div class="indicator-chart__plot" *ngIf="hasEnoughPoints()">
-      <svg [attr.viewBox]="'0 0 ' + chartX() + ' ' + chartY()" preserveAspectRatio="none" role="img" [attr.aria-label]="'feed.indicator.detail.chart.title' | translate">
+      <svg
+        [attr.viewBox]="'0 0 ' + chartX() + ' ' + chartY()"
+        preserveAspectRatio="none"
+        role="img"
+        [attr.aria-label]="'feed.indicator.detail.chart.title' | translate"
+      >
         <g class="grid grid--y">
           <ng-container *ngFor="let tick of yTicks(); trackBy: trackPoint">
             <line x1="48" x2="736" [attr.y1]="tick.y" [attr.y2]="tick.y"></line>
@@ -62,19 +89,32 @@
         {{ label }}
       </span>
 
-      <aside class="indicator-chart__tooltip" *ngIf="hoveredPoint() as point" [style.left.px]="point.x + 8" [style.top.px]="point.y + 8">
-        <strong>{{ point.value | number:'1.0-2' }} {{ unitLabel() }}</strong>
+      <aside
+        class="indicator-chart__tooltip"
+        *ngIf="hoveredPoint() as point"
+        [style.left.px]="point.x + 8"
+        [style.top.px]="point.y + 8"
+      >
+        <strong>{{ point.value | number: '1.0-2' }} {{ unitLabel() }}</strong>
         <small>{{ point.timeLabel }}</small>
       </aside>
     </div>
 
-    <p class="indicator-chart__summary" *ngIf="chartSummary() as summary" data-og7="indicator-chart-summary">
+    <p
+      class="indicator-chart__summary"
+      *ngIf="chartSummary() as summary"
+      data-og7="indicator-chart-summary"
+    >
       {{ 'feed.indicator.detail.chart.summary' | translate: summary }}
     </p>
 
     <div class="indicator-chart__table-wrap" *ngIf="viewAsTable() && hasEnoughPoints()">
       <table>
-        <caption>{{ 'feed.indicator.detail.chart.tableCaption' | translate }}</caption>
+        <caption>
+          {{
+            'feed.indicator.detail.chart.tableCaption' | translate
+          }}
+        </caption>
         <thead>
           <tr>
             <th>{{ 'feed.indicator.detail.chart.tableTime' | translate }}</th>
@@ -84,7 +124,7 @@
         <tbody>
           <tr *ngFor="let point of pointsVm(); trackBy: trackPoint">
             <td>{{ point.timeLabel }}</td>
-            <td>{{ point.value | number:'1.0-2' }} {{ unitLabel() }}</td>
+            <td>{{ point.value | number: '1.0-2' }} {{ unitLabel() }}</td>
           </tr>
         </tbody>
       </table>

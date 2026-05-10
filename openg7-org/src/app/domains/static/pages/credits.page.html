@@ -19,7 +19,10 @@
         <p class="og7-static-kicker text-xs font-semibold uppercase tracking-[0.3em]">
           {{ 'pages.credits.kicker' | translate }}
         </p>
-        <h1 id="creditsTitle" class="og7-static-title text-balance text-4xl font-semibold md:text-5xl">
+        <h1
+          id="creditsTitle"
+          class="og7-static-title text-balance text-4xl font-semibold md:text-5xl"
+        >
           {{ 'pages.credits.title' | translate }}
         </h1>
         <p class="og7-static-intro text-base md:text-lg">
@@ -27,14 +30,16 @@
         </p>
 
         <div class="credits-hero-summary og7-static-card og7-static-card--muted rounded-2xl p-5">
-          <div class="credits-hero-summary__header flex flex-wrap items-start justify-between gap-3">
+          <div
+            class="credits-hero-summary__header flex flex-wrap items-start justify-between gap-3"
+          >
             <div class="space-y-1">
               <p class="text-xs font-semibold uppercase tracking-[0.22em] text-tertiary">
                 {{ 'pages.credits.contributors.title' | translate }}
               </p>
               <p class="text-sm text-body">
-                {{ 'pages.credits.contributors.count' | translate: { visible: contributors().length, total:
-                contributors().length } }}
+                {{ 'pages.credits.contributors.count' | translate: { visible: contributors().length,
+                total: contributors().length } }}
               </p>
             </div>
             <p class="credits-hero-summary__note text-xs text-subtle">
@@ -43,7 +48,11 @@
           </div>
 
           <div class="mt-4 grid gap-3 sm:grid-cols-3" data-og7="credits-hero-proof">
-            <article class="credits-kpi-card" data-og7="credits-kpi" data-og7-id="contributors-proof">
+            <article
+              class="credits-kpi-card"
+              data-og7="credits-kpi"
+              data-og7-id="contributors-proof"
+            >
               <p class="credits-kpi-value">{{ contributors().length }}</p>
               <p class="credits-kpi-label">{{ 'pages.credits.kpis.contributors' | translate }}</p>
             </article>
@@ -78,20 +87,22 @@
         </div>
       </div>
 
-      <aside class="credits-hero-rail og7-static-card space-y-5 rounded-2xl p-5" data-og7="credits-trust-rail">
+      <aside
+        class="credits-hero-rail og7-static-card space-y-5 rounded-2xl p-5"
+        data-og7="credits-trust-rail"
+      >
         <div class="space-y-2">
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
             {{ 'pages.credits.governance.title' | translate }}
           </p>
-          <h2 class="text-xl font-semibold text-title">
-            {{ 'pages.credits.title' | translate }}
-          </h2>
-          <p class="text-sm text-body">
-            {{ 'pages.credits.governance.copy' | translate }}
-          </p>
+          <h2 class="text-xl font-semibold text-title">{{ 'pages.credits.title' | translate }}</h2>
+          <p class="text-sm text-body">{{ 'pages.credits.governance.copy' | translate }}</p>
         </div>
 
-        <ul class="governance-list og7-static-border-list list-disc pl-5 text-sm" data-og7="credits-governance-preview">
+        <ul
+          class="governance-list og7-static-border-list list-disc pl-5 text-sm"
+          data-og7="credits-governance-preview"
+        >
           <li *ngFor="let p of governancePoints()">{{ p }}</li>
         </ul>
 
@@ -139,7 +150,10 @@
             </p>
           </header>
 
-          <section data-og7="credits-filters" class="credits-toolbar og7-static-card space-y-4 rounded-3xl p-5">
+          <section
+            data-og7="credits-filters"
+            class="credits-toolbar og7-static-card space-y-4 rounded-3xl p-5"
+          >
             <div class="space-y-1">
               <p class="text-sm font-semibold text-primary">
                 {{ 'pages.credits.contributors.title' | translate }}
@@ -225,8 +239,14 @@
                     <div class="contributors-badge">{{ c.province }}</div>
                   </div>
 
-                  <div class="flex items-center gap-3" [ngClass]="{ 'contributors-identity--featured': hasSingleContributorView() }">
-                    <div class="contributors-avatar size-12 shrink-0" [ngClass]="{ 'is-featured': hasSingleContributorView() }">
+                  <div
+                    class="flex items-center gap-3"
+                    [ngClass]="{ 'contributors-identity--featured': hasSingleContributorView() }"
+                  >
+                    <div
+                      class="contributors-avatar size-12 shrink-0"
+                      [ngClass]="{ 'is-featured': hasSingleContributorView() }"
+                    >
                       <img
                         *ngIf="c.avatarUrl"
                         [src]="c.avatarUrl"
@@ -240,10 +260,16 @@
                         {{ initials(c.name) }}
                       </div>
                     </div>
-                    <div class="pr-16" [ngClass]="{ 'contributors-copy--featured': hasSingleContributorView() }">
+                    <div
+                      class="pr-16"
+                      [ngClass]="{ 'contributors-copy--featured': hasSingleContributorView() }"
+                    >
                       <h3 class="text-base font-semibold text-title">{{ c.name }}</h3>
                       <p class="text-sm text-subtle">{{ c.role }}</p>
-                      <p *ngIf="c.location" class="text-xs uppercase tracking-[0.18em] text-tertiary">
+                      <p
+                        *ngIf="c.location"
+                        class="text-xs uppercase tracking-[0.18em] text-tertiary"
+                      >
                         {{ c.location }}
                       </p>
                     </div>
@@ -251,7 +277,11 @@
 
                   <p class="mt-3 text-sm leading-relaxed text-body">{{ c.impact }}</p>
 
-                  <div *ngIf="hasSingleContributorView()" class="contributors-founder-quote mt-4" data-og7="credits-founder-quote">
+                  <div
+                    *ngIf="hasSingleContributorView()"
+                    class="contributors-founder-quote mt-4"
+                    data-og7="credits-founder-quote"
+                  >
                     <p class="contributors-founder-quote__label">
                       {{ 'pages.credits.founderNote.quoteLabel' | translate }}
                     </p>
@@ -260,7 +290,10 @@
                     </p>
                   </div>
 
-                  <div *ngIf="c.contribution || c.focus || c.profileHref" class="contributors-meta-list mt-4">
+                  <div
+                    *ngIf="c.contribution || c.focus || c.profileHref"
+                    class="contributors-meta-list mt-4"
+                  >
                     <div *ngIf="c.contribution" class="contributors-meta-item">
                       <p class="contributors-meta-label">
                         {{ 'pages.credits.contributors.meta.contribution' | translate }}
@@ -319,9 +352,14 @@
           </section>
         </section>
 
-        <section data-og7="credits-founder-note" class="credits-pillar-section og7-static-section space-y-5">
+        <section
+          data-og7="credits-founder-note"
+          class="credits-pillar-section og7-static-section space-y-5"
+        >
           <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <article class="credits-founder-note credits-founder-note--main og7-static-card og7-static-card--muted space-y-4 rounded-3xl p-6">
+            <article
+              class="credits-founder-note credits-founder-note--main og7-static-card og7-static-card--muted space-y-4 rounded-3xl p-6"
+            >
               <div class="space-y-2">
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
                   {{ 'pages.credits.founderNote.kicker' | translate }}
@@ -329,9 +367,7 @@
                 <h2 class="text-2xl font-semibold text-title md:text-3xl">
                   {{ 'pages.credits.founderNote.title' | translate }}
                 </h2>
-                <p class="text-sm text-body">
-                  {{ 'pages.credits.founderNote.intro' | translate }}
-                </p>
+                <p class="text-sm text-body">{{ 'pages.credits.founderNote.intro' | translate }}</p>
               </div>
 
               <blockquote class="credits-founder-note__quote">
@@ -345,7 +381,9 @@
               </div>
             </article>
 
-            <aside class="credits-founder-note credits-founder-note--side og7-static-card space-y-4 rounded-3xl p-6">
+            <aside
+              class="credits-founder-note credits-founder-note--side og7-static-card space-y-4 rounded-3xl p-6"
+            >
               <div class="space-y-2">
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
                   {{ 'pages.credits.founderNote.highlightsTitle' | translate }}
@@ -355,7 +393,10 @@
                 </p>
               </div>
 
-              <ul class="credits-founder-note__highlights space-y-3" data-og7="credits-founder-note-highlights">
+              <ul
+                class="credits-founder-note__highlights space-y-3"
+                data-og7="credits-founder-note-highlights"
+              >
                 <li>{{ 'pages.credits.founderNote.highlights.build' | translate }}</li>
                 <li>{{ 'pages.credits.founderNote.highlights.systems' | translate }}</li>
                 <li>{{ 'pages.credits.founderNote.highlights.invitation' | translate }}</li>
@@ -398,7 +439,10 @@
           </div>
         </section>
 
-        <section data-og7="credits-pillars" class="credits-pillar-section og7-static-section space-y-5">
+        <section
+          data-og7="credits-pillars"
+          class="credits-pillar-section og7-static-section space-y-5"
+        >
           <div class="space-y-1">
             <h2 class="text-2xl font-semibold text-title">
               {{ 'pages.credits.kpis.pillars' | translate }}
@@ -426,7 +470,10 @@
           </div>
         </section>
 
-        <section data-og7="credits-methodology" class="credits-pillar-section og7-static-section space-y-5">
+        <section
+          data-og7="credits-methodology"
+          class="credits-pillar-section og7-static-section space-y-5"
+        >
           <div class="space-y-1">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
               {{ 'pages.credits.methodology.kicker' | translate }}
@@ -434,9 +481,7 @@
             <h2 class="text-2xl font-semibold text-title">
               {{ 'pages.credits.methodology.title' | translate }}
             </h2>
-            <p class="text-sm text-body">
-              {{ 'pages.credits.methodology.copy' | translate }}
-            </p>
+            <p class="text-sm text-body">{{ 'pages.credits.methodology.copy' | translate }}</p>
           </div>
 
           <div class="grid gap-4 md:grid-cols-3" data-og7="credits-methodology-steps">
@@ -459,7 +504,9 @@
           data-og7="credits-community"
           class="credits-community-panel og7-static-section space-y-4"
         >
-          <div class="credits-community-panel__content flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div
+            class="credits-community-panel__content flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+          >
             <div class="max-w-2xl space-y-2">
               <p class="text-lg font-semibold text-title">
                 {{ 'pages.credits.community.title' | translate }}
@@ -480,7 +527,10 @@
       </article>
 
       <aside class="credits-sidebar space-y-6 lg:sticky lg:top-24 lg:self-start">
-        <section data-og7="credits-sidebar-summary" class="credits-sidebar-section og7-static-card space-y-5 rounded-3xl p-6">
+        <section
+          data-og7="credits-sidebar-summary"
+          class="credits-sidebar-section og7-static-card space-y-5 rounded-3xl p-6"
+        >
           <div class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
               {{ 'pages.credits.kicker' | translate }}
@@ -488,9 +538,7 @@
             <h2 class="text-2xl font-semibold text-title">
               {{ 'pages.credits.contributors.title' | translate }}
             </h2>
-            <p class="text-sm text-body">
-              {{ 'pages.credits.contributors.caption' | translate }}
-            </p>
+            <p class="text-sm text-body">{{ 'pages.credits.contributors.caption' | translate }}</p>
           </div>
 
           <div class="space-y-3" data-og7="credits-sidebar-kpis">
@@ -505,13 +553,18 @@
               data-og7="credits-sidebar-kpi"
               [attr.data-og7-id]="i + 1"
             >
-              <p class="credits-kpi-value">{{ [contributors().length, provincesUnique().length, pillars().length][i] }}</p>
+              <p class="credits-kpi-value">
+                {{ [contributors().length, provincesUnique().length, pillars().length][i] }}
+              </p>
               <p class="credits-kpi-label">{{ label }}</p>
             </article>
           </div>
         </section>
 
-        <section data-og7="credits-stack" class="credits-sidebar-section og7-static-card space-y-4 rounded-3xl p-6">
+        <section
+          data-og7="credits-stack"
+          class="credits-sidebar-section og7-static-card space-y-4 rounded-3xl p-6"
+        >
           <p class="text-xs font-semibold uppercase tracking-[0.24em] text-tertiary">
             {{ 'pages.credits.stack.title' | translate }}
           </p>
@@ -588,7 +641,6 @@
             </article>
           </div>
         </section>
-
       </aside>
     </div>
   </div>

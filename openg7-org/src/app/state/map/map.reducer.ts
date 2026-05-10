@@ -121,5 +121,5 @@ export const mapReducer = createReducer(
     ...state,
     kpis,
   })),
-  on(MapActions.mapReset, () => ({ ...initialMapState }))
+  on(MapActions.mapReset, () => ({ ...initialMapState })),
 );

@@ -139,5 +139,5 @@ export const statisticsReducer = createReducer(
     isFallback: false,
     loading: false,
     error,
-  }))
+  })),
 );

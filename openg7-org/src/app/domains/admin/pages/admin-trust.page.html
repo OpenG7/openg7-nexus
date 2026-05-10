@@ -2,7 +2,8 @@
   <header class="space-y-2">
     <h1 class="text-2xl font-semibold text-slate-900">Reliability badges & proofs</h1>
     <p class="text-sm text-slate-600">
-      Validate partner verification badges, manage publication lifecycle, import evidence from registries and maintain transaction history.
+      Validate partner verification badges, manage publication lifecycle, import evidence from
+      registries and maintain transaction history.
     </p>
   </header>
 
@@ -16,546 +17,628 @@
     </button>
     <div class="flex items-center gap-3 text-sm text-slate-500">
       @if (loading()) {
-        <span>Loading companies…</span>
-      }
-      @if (error(); as message) {
-        <span class="rounded-md border border-red-200 bg-red-50 px-3 py-1 text-red-700">
-          {{ message }}
-        </span>
+      <span>Loading companies…</span>
+      } @if (error(); as message) {
+      <span class="rounded-md border border-red-200 bg-red-50 px-3 py-1 text-red-700">
+        {{ message }}
+      </span>
       }
     </div>
   </div>
 
   <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-og7="admin-trust-queue">
     @for (stat of reviewQueueStats(); track stat.id) {
-      <article
-        class="rounded-2xl border p-4"
-        [ngClass]="reviewToneClass(stat.tone)"
-        [attr.data-og7-id]="'admin-trust-queue-' + stat.id"
-      >
-        <p class="text-xs font-semibold uppercase tracking-[0.3em]">{{ stat.label }}</p>
-        <p class="mt-2 text-3xl font-semibold">{{ stat.value }}</p>
-      </article>
+    <article
+      class="rounded-2xl border p-4"
+      [ngClass]="reviewToneClass(stat.tone)"
+      [attr.data-og7-id]="'admin-trust-queue-' + stat.id"
+    >
+      <p class="text-xs font-semibold uppercase tracking-[0.3em]">{{ stat.label }}</p>
+      <p class="mt-2 text-3xl font-semibold">{{ stat.value }}</p>
+    </article>
     }
   </section>
 
   <div class="grid gap-6 lg:grid-cols-[minmax(240px,280px)_minmax(0,1fr)]">
     <aside class="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div class="space-y-1">
-        <h2 class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Review queue</h2>
-        <p class="text-xs text-slate-500">Companies are ordered by review urgency and decision state.</p>
+        <h2 class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+          Review queue
+        </h2>
+        <p class="text-xs text-slate-500">
+          Companies are ordered by review urgency and decision state.
+        </p>
       </div>
       <ul class="space-y-2">
         @for (company of reviewCompanies(); track company.id) {
-          <li>
-            <button
-              type="button"
-              class="w-full rounded-xl border px-3 py-2 text-left text-sm transition"
-              [class.border-emerald-400]="selectedCompany()?.id === company.id"
-              [class.bg-emerald-50]="selectedCompany()?.id === company.id"
-              [class.border-slate-200]="selectedCompany()?.id !== company.id"
-              [class.bg-white]="selectedCompany()?.id !== company.id"
-              data-og7="admin-trust-company-item"
-              [attr.data-og7-id]="'admin-trust-company-' + company.id"
-              (click)="selectCompany(company)"
-            >
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <p class="font-semibold text-slate-900">{{ company.name }}</p>
-                  <p class="text-xs text-slate-500">{{ statusLabel(company.verificationStatus) }}</p>
-                  <p class="text-xs text-slate-500">Publication · {{ publicationStatusLabel(company.status) }}</p>
-                  <p class="mt-1 text-[0.7rem] leading-relaxed text-slate-500">{{ reviewSummary(company) }}</p>
-                </div>
-                <span class="text-xs font-semibold text-emerald-600">{{ company.trustScore }}%</span>
+        <li>
+          <button
+            type="button"
+            class="w-full rounded-xl border px-3 py-2 text-left text-sm transition"
+            [class.border-emerald-400]="selectedCompany()?.id === company.id"
+            [class.bg-emerald-50]="selectedCompany()?.id === company.id"
+            [class.border-slate-200]="selectedCompany()?.id !== company.id"
+            [class.bg-white]="selectedCompany()?.id !== company.id"
+            data-og7="admin-trust-company-item"
+            [attr.data-og7-id]="'admin-trust-company-' + company.id"
+            (click)="selectCompany(company)"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold text-slate-900">{{ company.name }}</p>
+                <p class="text-xs text-slate-500">{{ statusLabel(company.verificationStatus) }}</p>
+                <p class="text-xs text-slate-500">
+                  Publication · {{ publicationStatusLabel(company.status) }}
+                </p>
+                <p class="mt-1 text-[0.7rem] leading-relaxed text-slate-500">
+                  {{ reviewSummary(company) }}
+                </p>
               </div>
-            </button>
-          </li>
+              <span class="text-xs font-semibold text-emerald-600">{{ company.trustScore }}%</span>
+            </div>
+          </button>
+        </li>
         }
       </ul>
     </aside>
 
     <div class="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       @if (selectedCompany(); as company) {
-        <form class="space-y-6" (ngSubmit)="save()">
-          <div class="space-y-1">
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Selected partner</p>
-            <h2 class="text-xl font-semibold text-slate-900">{{ company.name }}</h2>
-            <p class="text-sm text-slate-500">
-              Current verification status: <strong>{{ statusLabel(company.verificationStatus) }}</strong>
-              · Publication status: <strong>{{ publicationStatusLabel(company.status) }}</strong>
-              · Trust score: <strong>{{ company.trustScore }}%</strong>
+      <form class="space-y-6" (ngSubmit)="save()">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+            Selected partner
+          </p>
+          <h2 class="text-xl font-semibold text-slate-900">{{ company.name }}</h2>
+          <p class="text-sm text-slate-500">
+            Current verification status:
+            <strong>{{ statusLabel(company.verificationStatus) }}</strong> · Publication status:
+            <strong>{{ publicationStatusLabel(company.status) }}</strong> · Trust score:
+            <strong>{{ company.trustScore }}%</strong>
+          </p>
+          <p class="text-sm text-slate-500">{{ reviewSummary(company) }}</p>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(220px,280px)]">
+          <label class="flex flex-col gap-2 text-sm">
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+              >Verification badge</span
+            >
+            <select
+              class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              [formControl]="statusControl"
+              data-og7-id="admin-trust-status"
+            >
+              @for (status of verificationStatuses; track status) {
+              <option [value]="status">{{ statusLabel(status) }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-2 text-sm">
+            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+              >Public profile lifecycle</span
+            >
+            <select
+              class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              [formControl]="publicationStatusControl"
+              data-og7-id="admin-trust-publication-status"
+            >
+              @for (status of publicationStatuses; track status) {
+              <option [value]="status">{{ publicationStatusLabel(status) }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+            <p>Latest trust score: <strong>{{ company.trustScore }}%</strong></p>
+            <p>
+              Public profile status:
+              <strong>{{ publicationStatusLabel(publicationStatusControl.value) }}</strong>
             </p>
-            <p class="text-sm text-slate-500">{{ reviewSummary(company) }}</p>
+            <p>Total badges: <strong>{{ sources().length }}</strong></p>
+            <p>Recorded events: <strong>{{ history().length }}</strong></p>
           </div>
+        </div>
 
-          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(220px,280px)]">
-            <label class="flex flex-col gap-2 text-sm">
-              <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Verification badge</span>
-              <select
-                class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                [formControl]="statusControl"
-                data-og7-id="admin-trust-status"
-              >
-                @for (status of verificationStatuses; track status) {
-                  <option [value]="status">{{ statusLabel(status) }}</option>
+        <section
+          class="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+          data-og7="admin-trust-review-workspace"
+        >
+          <header class="space-y-1">
+            <h3 class="text-sm font-semibold text-slate-900">Lifecycle decision</h3>
+            <p class="text-xs text-slate-500">
+              Queue the next trust or publication decision, capture the rationale, and keep the
+              partner surface in sync.
+            </p>
+          </header>
+
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
+            <div class="space-y-3">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 hover:bg-emerald-100"
+                  data-og7-id="admin-trust-quick-verify"
+                  (click)="applyQuickDecision('verified')"
+                >
+                  Verify
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-orange-300 bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-orange-700 hover:bg-orange-100"
+                  data-og7-id="admin-trust-quick-correction"
+                  (click)="applyQuickDecision('correctionRequested')"
+                >
+                  Request correction
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-rose-700 hover:bg-rose-100"
+                  data-og7-id="admin-trust-quick-reject"
+                  (click)="applyQuickDecision('rejected')"
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 hover:border-slate-400"
+                  data-og7-id="admin-trust-quick-suspend"
+                  (click)="applyQuickDecision('suspended')"
+                >
+                  Suspend
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-sky-300 bg-sky-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 hover:bg-sky-100"
+                  data-og7-id="admin-trust-quick-queue"
+                  (click)="applyPublicationDecision('pending')"
+                >
+                  Queue publication
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 hover:bg-emerald-100"
+                  data-og7-id="admin-trust-quick-publish"
+                  (click)="applyPublicationDecision('approved')"
+                >
+                  Publish
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 hover:border-slate-400"
+                  data-og7-id="admin-trust-quick-suspend-publication"
+                  (click)="applyPublicationDecision('suspended')"
+                >
+                  Suspend listing
+                </button>
+              </div>
+
+              <label class="flex flex-col gap-2 text-sm">
+                <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+                  >Decision note</span
+                >
+                <textarea
+                  class="og7-scrollbar-elegant min-h-27.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+                  [formControl]="reviewNoteControl"
+                  data-og7-id="admin-trust-review-note"
+                  placeholder="Explain the trust or publication decision that should appear in the lifecycle history."
+                ></textarea>
+              </label>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white p-4">
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+                Decision checklist
+              </p>
+              <ul class="mt-3 space-y-2 text-sm text-slate-600">
+                @for (reason of selectedReviewReasons(); track reason) {
+                <li>{{ reason }}</li>
                 }
-              </select>
-            </label>
-
-            <label class="flex flex-col gap-2 text-sm">
-              <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Public profile lifecycle</span>
-              <select
-                class="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                [formControl]="publicationStatusControl"
-                data-og7-id="admin-trust-publication-status"
-              >
-                @for (status of publicationStatuses; track status) {
-                  <option [value]="status">{{ publicationStatusLabel(status) }}</option>
-                }
-              </select>
-            </label>
-
-            <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p>Latest trust score: <strong>{{ company.trustScore }}%</strong></p>
-              <p>Public profile status: <strong>{{ publicationStatusLabel(publicationStatusControl.value) }}</strong></p>
-              <p>Total badges: <strong>{{ sources().length }}</strong></p>
-              <p>Recorded events: <strong>{{ history().length }}</strong></p>
+              </ul>
             </div>
           </div>
+        </section>
 
-          <section class="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4" data-og7="admin-trust-review-workspace">
-            <header class="space-y-1">
-              <h3 class="text-sm font-semibold text-slate-900">Lifecycle decision</h3>
+        <section class="space-y-4">
+          <header class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Verification sources</h3>
               <p class="text-xs text-slate-500">
-                Queue the next trust or publication decision, capture the rationale, and keep the partner surface in sync.
+                Keep badges up to date with validated registries or chambers of commerce.
               </p>
-            </header>
+            </div>
+          </header>
 
-            <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
-              <div class="space-y-3">
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 hover:bg-emerald-100"
-                    data-og7-id="admin-trust-quick-verify"
-                    (click)="applyQuickDecision('verified')"
-                  >
-                    Verify
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-orange-300 bg-orange-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-orange-700 hover:bg-orange-100"
-                    data-og7-id="admin-trust-quick-correction"
-                    (click)="applyQuickDecision('correctionRequested')"
-                  >
-                    Request correction
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-rose-700 hover:bg-rose-100"
-                    data-og7-id="admin-trust-quick-reject"
-                    (click)="applyQuickDecision('rejected')"
-                  >
-                    Reject
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 hover:border-slate-400"
-                    data-og7-id="admin-trust-quick-suspend"
-                    (click)="applyQuickDecision('suspended')"
-                  >
-                    Suspend
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-sky-300 bg-sky-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 hover:bg-sky-100"
-                    data-og7-id="admin-trust-quick-queue"
-                    (click)="applyPublicationDecision('pending')"
-                  >
-                    Queue publication
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 hover:bg-emerald-100"
-                    data-og7-id="admin-trust-quick-publish"
-                    (click)="applyPublicationDecision('approved')"
-                  >
-                    Publish
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 hover:border-slate-400"
-                    data-og7-id="admin-trust-quick-suspend-publication"
-                    (click)="applyPublicationDecision('suspended')"
-                  >
-                    Suspend listing
-                  </button>
+          <div class="space-y-3">
+            @if (!sources().length) {
+            <p
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
+            >
+              No sources have been added yet.
+            </p>
+            } @else {
+            <ul class="space-y-3">
+              @for (source of sources(); track source.id ?? source.name; let i = $index) {
+              <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p class="text-sm font-semibold text-slate-900">{{ source.name }}</p>
+                    <p class="text-xs text-slate-500">
+                      {{ sourceTypeLabel(source.type) }} · {{ sourceStatusLabel(source.status) }}
+                    </p>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <select
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.type"
+                      (change)="setSourceType(i, $any($event.target).value)"
+                    >
+                      @for (type of sourceTypes; track type) {
+                      <option [value]="type">{{ sourceTypeLabel(type) }}</option>
+                      }
+                    </select>
+                    <select
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.status"
+                      (change)="setSourceStatus(i, $any($event.target).value)"
+                    >
+                      @for (status of sourceStatuses; track status) {
+                      <option [value]="status">{{ sourceStatusLabel(status) }}</option>
+                      }
+                    </select>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-500 hover:border-rose-400 hover:text-rose-600"
+                      (click)="removeSource(i)"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
 
-                <label class="flex flex-col gap-2 text-sm">
-                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Decision note</span>
-                  <textarea
-                    class="og7-scrollbar-elegant min-h-27.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
-                    [formControl]="reviewNoteControl"
-                    data-og7-id="admin-trust-review-note"
-                    placeholder="Explain the trust or publication decision that should appear in the lifecycle history."
-                  ></textarea>
-                </label>
-              </div>
-
-              <div class="rounded-xl border border-slate-200 bg-white p-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Decision checklist</p>
-                <ul class="mt-3 space-y-2 text-sm text-slate-600">
-                  @for (reason of selectedReviewReasons(); track reason) {
-                    <li>{{ reason }}</li>
-                  }
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section class="space-y-4">
-            <header class="flex items-center justify-between">
-              <div>
-                <h3 class="text-sm font-semibold text-slate-900">Verification sources</h3>
-                <p class="text-xs text-slate-500">
-                  Keep badges up to date with validated registries or chambers of commerce.
-                </p>
-              </div>
-            </header>
-
-            <div class="space-y-3">
-              @if (!sources().length) {
-                <p class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                  No sources have been added yet.
-                </p>
-              } @else {
-                <ul class="space-y-3">
-                  @for (source of sources(); track source.id ?? source.name; let i = $index) {
-                    <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                      <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p class="text-sm font-semibold text-slate-900">{{ source.name }}</p>
-                          <p class="text-xs text-slate-500">
-                            {{ sourceTypeLabel(source.type) }} · {{ sourceStatusLabel(source.status) }}
-                          </p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2 text-xs">
-                          <select
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.type"
-                            (change)="setSourceType(i, $any($event.target).value)"
-                          >
-                            @for (type of sourceTypes; track type) {
-                              <option [value]="type">{{ sourceTypeLabel(type) }}</option>
-                            }
-                          </select>
-                          <select
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.status"
-                            (change)="setSourceStatus(i, $any($event.target).value)"
-                          >
-                            @for (status of sourceStatuses; track status) {
-                              <option [value]="status">{{ sourceStatusLabel(status) }}</option>
-                            }
-                          </select>
-                          <button
-                            type="button"
-                            class="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-500 hover:border-rose-400 hover:text-rose-600"
-                            (click)="removeSource(i)"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-
-                      <div class="mt-3 grid gap-2 text-xs text-slate-600 md:grid-cols-2">
-                        <label class="flex flex-col gap-1">
-                          <span>Reference ID</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.referenceId ?? ''"
-                            (input)="updateSourceField(i, 'referenceId', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1">
-                          <span>Registry URL</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.url ?? ''"
-                            (input)="updateSourceField(i, 'url', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1">
-                          <span>Evidence link</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.evidenceUrl ?? ''"
-                            (input)="updateSourceField(i, 'evidenceUrl', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1">
-                          <span>Issued on</span>
-                          <input
-                            type="date"
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.issuedAt ?? ''"
-                            (input)="updateSourceField(i, 'issuedAt', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1">
-                          <span>Last checked</span>
-                          <input
-                            type="date"
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.lastCheckedAt ?? ''"
-                            (input)="updateSourceField(i, 'lastCheckedAt', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1 md:col-span-2">
-                          <span>Notes</span>
-                          <textarea
-                            class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="source.notes ?? ''"
-                            (input)="updateSourceField(i, 'notes', $any($event.target).value)"
-                          ></textarea>
-                        </label>
-                      </div>
-                    </li>
-                  }
-                </ul>
+                <div class="mt-3 grid gap-2 text-xs text-slate-600 md:grid-cols-2">
+                  <label class="flex flex-col gap-1">
+                    <span>Reference ID</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.referenceId ?? ''"
+                      (input)="updateSourceField(i, 'referenceId', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span>Registry URL</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.url ?? ''"
+                      (input)="updateSourceField(i, 'url', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span>Evidence link</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.evidenceUrl ?? ''"
+                      (input)="updateSourceField(i, 'evidenceUrl', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span>Issued on</span>
+                    <input
+                      type="date"
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.issuedAt ?? ''"
+                      (input)="updateSourceField(i, 'issuedAt', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span>Last checked</span>
+                    <input
+                      type="date"
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.lastCheckedAt ?? ''"
+                      (input)="updateSourceField(i, 'lastCheckedAt', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1 md:col-span-2">
+                    <span>Notes</span>
+                    <textarea
+                      class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="source.notes ?? ''"
+                      (input)="updateSourceField(i, 'notes', $any($event.target).value)"
+                    ></textarea>
+                  </label>
+                </div>
+              </li>
               }
-            </div>
-
-            <div class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newSourceForm" data-og7="admin-trust-new-source">
-              <h4 class="text-sm font-semibold text-slate-800">Add verification source</h4>
-              <div class="grid gap-3 md:grid-cols-2">
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Name</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="name" placeholder="Registry or institution" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Type</span>
-                  <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="type">
-                    @for (type of sourceTypes; track type) {
-                      <option [value]="type">{{ sourceTypeLabel(type) }}</option>
-                    }
-                  </select>
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Status</span>
-                  <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="status">
-                    @for (status of sourceStatuses; track status) {
-                      <option [value]="status">{{ sourceStatusLabel(status) }}</option>
-                    }
-                  </select>
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Reference ID</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="referenceId" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Registry URL</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="url" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Evidence link</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="evidenceUrl" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Issued on</span>
-                  <input type="date" class="rounded-lg border border-slate-300 px-2 py-1" formControlName="issuedAt" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Last checked</span>
-                  <input type="date" class="rounded-lg border border-slate-300 px-2 py-1" formControlName="lastCheckedAt" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs md:col-span-2">
-                  <span>Notes</span>
-                  <textarea class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
-                </label>
-              </div>
-              <div class="flex justify-end">
-                <button
-                  type="button"
-                  class="rounded-lg border border-emerald-400 bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-                  [disabled]="newSourceForm.invalid"
-                  (click)="addSource()"
-                >
-                  Add source
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section class="space-y-4">
-            <header class="flex items-center justify-between">
-              <div>
-                <h3 class="text-sm font-semibold text-slate-900">Reliability history</h3>
-                <p class="text-xs text-slate-500">Capture key transactions or evaluations impacting the trust score.</p>
-              </div>
-            </header>
-
-            <div class="space-y-3">
-              @if (!history().length) {
-                <p class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                  No transactions recorded.
-                </p>
-              } @else {
-                <ul class="space-y-3">
-                  @for (record of history(); track record.id ?? record.label; let i = $index) {
-                    <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                      <div class="grid gap-3 md:grid-cols-2">
-                        <label class="flex flex-col gap-1 text-xs md:col-span-2">
-                          <span>Label</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.label"
-                            (input)="updateHistoryField(i, 'label', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs">
-                          <span>Type</span>
-                          <select
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.type"
-                            (change)="setHistoryType(i, $any($event.target).value)"
-                          >
-                            @for (type of historyTypes; track type) {
-                              <option [value]="type">{{ historyTypeLabel(type) }}</option>
-                            }
-                          </select>
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs">
-                          <span>Direction</span>
-                          <select
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.direction"
-                            (change)="setHistoryDirection(i, $any($event.target).value)"
-                          >
-                            @for (direction of historyDirections; track direction) {
-                              <option [value]="direction">{{ historyDirectionLabel(direction) }}</option>
-                            }
-                          </select>
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs">
-                          <span>Date</span>
-                          <input
-                            type="date"
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.occurredAt"
-                            (input)="updateHistoryField(i, 'occurredAt', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs">
-                          <span>Amount (M$)</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.amount ?? ''"
-                            (input)="updateHistoryField(i, 'amount', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs">
-                          <span>Score</span>
-                          <input
-                            class="rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.score ?? ''"
-                            (input)="updateHistoryField(i, 'score', $any($event.target).value)"
-                          />
-                        </label>
-                        <label class="flex flex-col gap-1 text-xs md:col-span-2">
-                          <span>Notes</span>
-                          <textarea
-                            class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
-                            [value]="record.notes ?? ''"
-                            (input)="updateHistoryField(i, 'notes', $any($event.target).value)"
-                          ></textarea>
-                        </label>
-                      </div>
-                      <div class="mt-3 flex justify-end">
-                        <button
-                          type="button"
-                          class="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-500 hover:border-rose-400 hover:text-rose-600"
-                          (click)="removeHistoryEntry(i)"
-                        >
-                          Remove entry
-                        </button>
-                      </div>
-                    </li>
-                  }
-                </ul>
-              }
-            </div>
-
-            <div class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4" [formGroup]="newHistoryForm" data-og7="admin-trust-new-history">
-              <h4 class="text-sm font-semibold text-slate-800">Add history entry</h4>
-              <div class="grid gap-3 md:grid-cols-2">
-                <label class="flex flex-col gap-1 text-xs md:col-span-2">
-                  <span>Label</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="label" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Type</span>
-                  <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="type">
-                    @for (type of historyTypes; track type) {
-                      <option [value]="type">{{ historyTypeLabel(type) }}</option>
-                    }
-                  </select>
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Direction</span>
-                  <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="direction">
-                    @for (direction of historyDirections; track direction) {
-                      <option [value]="direction">{{ historyDirectionLabel(direction) }}</option>
-                    }
-                  </select>
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Date</span>
-                  <input type="date" class="rounded-lg border border-slate-300 px-2 py-1" formControlName="occurredAt" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Amount (M$)</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="amount" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs">
-                  <span>Score</span>
-                  <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="score" />
-                </label>
-                <label class="flex flex-col gap-1 text-xs md:col-span-2">
-                  <span>Notes</span>
-                  <textarea class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1" formControlName="notes"></textarea>
-                </label>
-              </div>
-              <div class="flex justify-end">
-                <button
-                  type="button"
-                  class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
-                  [disabled]="newHistoryForm.invalid"
-                  (click)="addHistoryEntry()"
-                >
-                  Add entry
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <div class="flex justify-end gap-3">
-            <button
-              type="button"
-              class="rounded-lg border border-emerald-400 bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-              [disabled]="saving()"
-              data-og7-id="admin-trust-save"
-              (click)="save()"
-            >
-              @if (saving()) { Saving… } @else { Save changes }
-            </button>
+            </ul>
+            }
           </div>
-        </form>
+
+          <div
+            class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4"
+            [formGroup]="newSourceForm"
+            data-og7="admin-trust-new-source"
+          >
+            <h4 class="text-sm font-semibold text-slate-800">Add verification source</h4>
+            <div class="grid gap-3 md:grid-cols-2">
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Name</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="name"
+                  placeholder="Registry or institution"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Type</span>
+                <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="type">
+                  @for (type of sourceTypes; track type) {
+                  <option [value]="type">{{ sourceTypeLabel(type) }}</option>
+                  }
+                </select>
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Status</span>
+                <select
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="status"
+                >
+                  @for (status of sourceStatuses; track status) {
+                  <option [value]="status">{{ sourceStatusLabel(status) }}</option>
+                  }
+                </select>
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Reference ID</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="referenceId"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Registry URL</span>
+                <input class="rounded-lg border border-slate-300 px-2 py-1" formControlName="url" />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Evidence link</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="evidenceUrl"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Issued on</span>
+                <input
+                  type="date"
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="issuedAt"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Last checked</span>
+                <input
+                  type="date"
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="lastCheckedAt"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs md:col-span-2">
+                <span>Notes</span>
+                <textarea
+                  class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="notes"
+                ></textarea>
+              </label>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="rounded-lg border border-emerald-400 bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+                [disabled]="newSourceForm.invalid"
+                (click)="addSource()"
+              >
+                Add source
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-4">
+          <header class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Reliability history</h3>
+              <p class="text-xs text-slate-500">
+                Capture key transactions or evaluations impacting the trust score.
+              </p>
+            </div>
+          </header>
+
+          <div class="space-y-3">
+            @if (!history().length) {
+            <p
+              class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
+            >
+              No transactions recorded.
+            </p>
+            } @else {
+            <ul class="space-y-3">
+              @for (record of history(); track record.id ?? record.label; let i = $index) {
+              <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid gap-3 md:grid-cols-2">
+                  <label class="flex flex-col gap-1 text-xs md:col-span-2">
+                    <span>Label</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.label"
+                      (input)="updateHistoryField(i, 'label', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs">
+                    <span>Type</span>
+                    <select
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.type"
+                      (change)="setHistoryType(i, $any($event.target).value)"
+                    >
+                      @for (type of historyTypes; track type) {
+                      <option [value]="type">{{ historyTypeLabel(type) }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs">
+                    <span>Direction</span>
+                    <select
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.direction"
+                      (change)="setHistoryDirection(i, $any($event.target).value)"
+                    >
+                      @for (direction of historyDirections; track direction) {
+                      <option [value]="direction">{{ historyDirectionLabel(direction) }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs">
+                    <span>Date</span>
+                    <input
+                      type="date"
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.occurredAt"
+                      (input)="updateHistoryField(i, 'occurredAt', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs">
+                    <span>Amount (M$)</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.amount ?? ''"
+                      (input)="updateHistoryField(i, 'amount', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs">
+                    <span>Score</span>
+                    <input
+                      class="rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.score ?? ''"
+                      (input)="updateHistoryField(i, 'score', $any($event.target).value)"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1 text-xs md:col-span-2">
+                    <span>Notes</span>
+                    <textarea
+                      class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
+                      [value]="record.notes ?? ''"
+                      (input)="updateHistoryField(i, 'notes', $any($event.target).value)"
+                    ></textarea>
+                  </label>
+                </div>
+                <div class="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-500 hover:border-rose-400 hover:text-rose-600"
+                    (click)="removeHistoryEntry(i)"
+                  >
+                    Remove entry
+                  </button>
+                </div>
+              </li>
+              }
+            </ul>
+            }
+          </div>
+
+          <div
+            class="grid gap-3 rounded-xl border border-dashed border-slate-300 p-4"
+            [formGroup]="newHistoryForm"
+            data-og7="admin-trust-new-history"
+          >
+            <h4 class="text-sm font-semibold text-slate-800">Add history entry</h4>
+            <div class="grid gap-3 md:grid-cols-2">
+              <label class="flex flex-col gap-1 text-xs md:col-span-2">
+                <span>Label</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="label"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Type</span>
+                <select class="rounded-lg border border-slate-300 px-2 py-1" formControlName="type">
+                  @for (type of historyTypes; track type) {
+                  <option [value]="type">{{ historyTypeLabel(type) }}</option>
+                  }
+                </select>
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Direction</span>
+                <select
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="direction"
+                >
+                  @for (direction of historyDirections; track direction) {
+                  <option [value]="direction">{{ historyDirectionLabel(direction) }}</option>
+                  }
+                </select>
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Date</span>
+                <input
+                  type="date"
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="occurredAt"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Amount (M$)</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="amount"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span>Score</span>
+                <input
+                  class="rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="score"
+                />
+              </label>
+              <label class="flex flex-col gap-1 text-xs md:col-span-2">
+                <span>Notes</span>
+                <textarea
+                  class="og7-scrollbar-elegant min-h-15 rounded-lg border border-slate-300 px-2 py-1"
+                  formControlName="notes"
+                ></textarea>
+              </label>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
+                [disabled]="newHistoryForm.invalid"
+                (click)="addHistoryEntry()"
+              >
+                Add entry
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-lg border border-emerald-400 bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+            [disabled]="saving()"
+            data-og7-id="admin-trust-save"
+            (click)="save()"
+          >
+            @if (saving()) { Saving… } @else { Save changes }
+          </button>
+        </div>
+      </form>
       } @else {
-        <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-          Select a company to review trust badges and publication lifecycle.
-        </p>
+      <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+        Select a company to review trust badges and publication lifecycle.
+      </p>
       }
     </div>
   </div>

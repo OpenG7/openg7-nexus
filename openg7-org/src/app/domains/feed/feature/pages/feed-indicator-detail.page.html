@@ -32,7 +32,11 @@
       (granularityChange)="setGranularity($event)"
     ></og7-indicator-hero>
 
-    <p class="feed-indicator-detail__offline" *ngIf="connectionState() === 'offline'" data-og7="indicator-offline">
+    <p
+      class="feed-indicator-detail__offline"
+      *ngIf="connectionState() === 'offline'"
+      data-og7="indicator-offline"
+    >
       {{ 'feed.indicator.detail.offline' | translate }}
     </p>
 
@@ -64,7 +68,9 @@
 
           <div class="feed-indicator-detail__decision-grid">
             <article class="feed-indicator-detail__decision-card" data-og7-id="protected-services">
-              <span>{{ 'feed.indicator.detail.decision.cards.protectedServices' | translate }}</span>
+              <span
+                >{{ 'feed.indicator.detail.decision.cards.protectedServices' | translate }}</span
+              >
               <strong>{{ decision.protectedServices }}</strong>
             </article>
 
@@ -73,8 +79,14 @@
               <strong>{{ decision.prioritySector }}</strong>
             </article>
 
-            <article class="feed-indicator-detail__decision-card" data-og7-id="interprovincial-dependency">
-              <span>{{ 'feed.indicator.detail.decision.cards.interprovincialDependency' | translate }}</span>
+            <article
+              class="feed-indicator-detail__decision-card"
+              data-og7-id="interprovincial-dependency"
+            >
+              <span
+                >{{ 'feed.indicator.detail.decision.cards.interprovincialDependency' | translate
+                }}</span
+              >
               <strong>{{ decision.interprovincialDependency }}</strong>
             </article>
 
@@ -85,7 +97,10 @@
           </div>
 
           <ol class="feed-indicator-detail__decision-steps">
-            <li *ngFor="let step of decision.steps; let index = index" [attr.data-og7-id]="'decision-step-' + (index + 1)">
+            <li
+              *ngFor="let step of decision.steps; let index = index"
+              [attr.data-og7-id]="'decision-step-' + (index + 1)"
+            >
               <span>{{ index + 1 }}</span>
               <p>{{ step }}</p>
             </li>
@@ -112,7 +127,9 @@
           [miniStatSeries]="miniStatSeries()"
         ></og7-indicator-key-data>
 
-        <og7-publication-metadata-card [metadata]="detail.item.metadata ?? null"></og7-publication-metadata-card>
+        <og7-publication-metadata-card
+          [metadata]="detail.item.metadata ?? null"
+        ></og7-publication-metadata-card>
       </div>
 
       <aside class="feed-indicator-detail__aside">
@@ -159,7 +176,11 @@
   </ng-container>
 
   <ng-template #emptyState>
-    <article class="feed-indicator-detail__empty" *ngIf="loading(); else missingState" data-og7="indicator-detail-loading">
+    <article
+      class="feed-indicator-detail__empty"
+      *ngIf="loading(); else missingState"
+      data-og7="indicator-detail-loading"
+    >
       <h2>{{ 'feed.indicator.detail.loadingTitle' | translate }}</h2>
       <p>{{ 'feed.indicator.detail.loadingBody' | translate }}</p>
     </article>

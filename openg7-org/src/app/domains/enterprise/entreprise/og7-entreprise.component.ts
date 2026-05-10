@@ -37,10 +37,10 @@ export class Og7EntrepriseComponent {
 
   private readonly routePartnerId = toSignal(
     this.route.paramMap.pipe(
-      map(params => params.get('id')),
-      distinctUntilChanged()
+      map((params) => params.get('id')),
+      distinctUntilChanged(),
     ),
-    { initialValue: this.route.snapshot.paramMap.get('id') }
+    { initialValue: this.route.snapshot.paramMap.get('id') },
   );
 
   private readonly locale = signal<'en' | 'fr'>(this.resolveLocale(this.translate.currentLang));
@@ -87,22 +87,20 @@ export class Og7EntrepriseComponent {
         .getProfile(id)
         .pipe(take(1), takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: profile => {
+          next: (profile) => {
             this.partner.set(profile);
             this.loading.set(false);
           },
-          error: error => {
+          error: (error) => {
             this.partner.set(null);
             this.loading.set(false);
           },
         });
     });
 
-    this.translate.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        this.locale.set(this.resolveLocale(event.lang));
-      });
+    this.translate.onLangChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      this.locale.set(this.resolveLocale(event.lang));
+    });
   }
 
   private resolveLocale(lang: string | undefined | null): 'en' | 'fr' {

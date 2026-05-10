@@ -105,7 +105,7 @@ describe('Og7LinkupDetailPageComponent', () => {
       buildLinkup({
         status: 'completed',
         updatedAt: '2030-01-03T00:00:00.000Z',
-      })
+      }),
     );
 
     const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
@@ -123,7 +123,7 @@ describe('Og7LinkupDetailPageComponent', () => {
     fixture.detectChanges();
 
     expect(linkups.updateStatus).toHaveBeenCalledWith('41', 'completed');
-    expect((fixture.nativeElement.textContent as string)).toContain('pages.linkups.status.completed');
+    expect(fixture.nativeElement.textContent as string).toContain('pages.linkups.status.completed');
   });
 
   it('saves a new internal note from the detail page', async () => {
@@ -138,7 +138,7 @@ describe('Og7LinkupDetailPageComponent', () => {
             content: 'Partner confirmed the revised meeting slot.',
           },
         ],
-      })
+      }),
     );
 
     const fixture = TestBed.createComponent(Og7LinkupDetailPageComponent);
@@ -158,10 +158,10 @@ describe('Og7LinkupDetailPageComponent', () => {
     expect(linkups.saveNote).toHaveBeenCalledWith(
       '41',
       'inDiscussion',
-      'Partner confirmed the revised meeting slot.'
+      'Partner confirmed the revised meeting slot.',
     );
-    expect((fixture.nativeElement.textContent as string)).toContain(
-      'Partner confirmed the revised meeting slot.'
+    expect(fixture.nativeElement.textContent as string).toContain(
+      'Partner confirmed the revised meeting slot.',
     );
   });
 
@@ -178,9 +178,9 @@ describe('Og7LinkupDetailPageComponent', () => {
     linkups.loadById.and.resolveTo(buildLinkup({ id: '42', reference: 'OG7-LINKUP-000042' }));
 
     const retryButton = Array.from(
-      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
-    ).find(
-      (button: HTMLButtonElement) => (button.textContent as string).includes('pages.linkups.actions.retry')
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+    ).find((button: HTMLButtonElement) =>
+      (button.textContent as string).includes('pages.linkups.actions.retry'),
     ) as HTMLButtonElement;
 
     retryButton.click();

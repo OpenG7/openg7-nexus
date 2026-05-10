@@ -2,7 +2,7 @@ import { buildMissionTasks, summarizeMissionQuota } from '@openg7/admin-ai/missi
 import { AdminQualityMissionRecommendation } from '@openg7/admin-quality';
 
 function buildRecommendation(
-  overrides: Partial<AdminQualityMissionRecommendation> = {}
+  overrides: Partial<AdminQualityMissionRecommendation> = {},
 ): AdminQualityMissionRecommendation {
   return {
     id: 'advanced-discovery::core',
@@ -12,7 +12,10 @@ function buildRecommendation(
     whyNow: 'Une chaine cross-surface reste absente.',
     rationale: ['Le flux doit rester pilotable.'],
     acceptanceCriteria: ['Une preuve E2E existe.'],
-    validationCommands: ['yarn --cwd openg7-org build', 'yarn --cwd openg7-org exec playwright test'],
+    validationCommands: [
+      'yarn --cwd openg7-org build',
+      'yarn --cwd openg7-org exec playwright test',
+    ],
     targetFiles: [
       'openg7-org/e2e/feed-advanced-discovery-roundtrip.spec.ts',
       'openg7-org/src/app/domains/feed/feature/feed.page.ts',

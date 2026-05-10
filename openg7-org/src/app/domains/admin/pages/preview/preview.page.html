@@ -7,46 +7,44 @@
   </header>
 
   @if (loading()) {
-    <p class="text-body">Loading preview…</p>
-  } @else {
-    @if (error()) {
-      <div class="rounded border border-red-200 bg-red-50 p-4 text-red-800">
-        {{ error() }}
-      </div>
-    } @else {
-      @if (preview(); as payload) {
-        <article class="space-y-6">
-          <section class="space-y-2">
-            <h2 class="text-2xl font-semibold">Navigation</h2>
-            <pre class="og7-scrollbar-elegant overflow-auto rounded bg-muted p-4 text-sm">{{ payload.data?.attributes?.navigation | json }}</pre>
-          </section>
+  <p class="text-body">Loading preview…</p>
+  } @else { @if (error()) {
+  <div class="rounded border border-red-200 bg-red-50 p-4 text-red-800">{{ error() }}</div>
+  } @else { @if (preview(); as payload) {
+  <article class="space-y-6">
+    <section class="space-y-2">
+      <h2 class="text-2xl font-semibold">Navigation</h2>
+      <pre class="og7-scrollbar-elegant overflow-auto rounded bg-muted p-4 text-sm">
+{{ payload.data?.attributes?.navigation | json }}</pre
+      >
+    </section>
 
-          <section class="space-y-2">
-            <h2 class="text-2xl font-semibold">Sections</h2>
-            @if (!sectionSummaries().length) {
-              <p class="text-body">No sections configured.</p>
-            } @else {
-              <ul class="space-y-2">
-                @for (section of sectionSummaries(); track section.index) {
-                  <li class="rounded border border-muted-200 p-4">
-                    <p class="font-medium">{{ section.type }}</p>
-                    @if (section.title) {
-                      <p class="text-sm text-subtle">{{ section.title }}</p>
-                    }
-                  </li>
-                }
-              </ul>
-            }
-          </section>
-
-          <section class="space-y-2">
-            <h2 class="text-2xl font-semibold">SEO metadata</h2>
-            <pre class="og7-scrollbar-elegant overflow-auto rounded bg-muted p-4 text-sm">{{ payload.data?.attributes?.seo | json }}</pre>
-          </section>
-        </article>
+    <section class="space-y-2">
+      <h2 class="text-2xl font-semibold">Sections</h2>
+      @if (!sectionSummaries().length) {
+      <p class="text-body">No sections configured.</p>
       } @else {
-        <p class="text-body">No preview data was returned.</p>
+      <ul class="space-y-2">
+        @for (section of sectionSummaries(); track section.index) {
+        <li class="rounded border border-muted-200 p-4">
+          <p class="font-medium">{{ section.type }}</p>
+          @if (section.title) {
+          <p class="text-sm text-subtle">{{ section.title }}</p>
+          }
+        </li>
+        }
+      </ul>
       }
-    }
-  }
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-2xl font-semibold">SEO metadata</h2>
+      <pre class="og7-scrollbar-elegant overflow-auto rounded bg-muted p-4 text-sm">
+{{ payload.data?.attributes?.seo | json }}</pre
+      >
+    </section>
+  </article>
+  } @else {
+  <p class="text-body">No preview data was returned.</p>
+  } } }
 </section>

@@ -4,7 +4,10 @@ import { AuthRedirectService } from '@app/core/auth/auth-redirect.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { OidcProvider } from '@app/core/auth/oidc.service';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
-import { NotificationStore, NotificationStoreApi } from '@app/core/observability/notification.store';
+import {
+  NotificationStore,
+  NotificationStoreApi,
+} from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -44,10 +47,10 @@ export class SocialAuthButtonsComponent {
 
     const label = this.translate.instant(`auth.sso.${provider}`);
 
-    this.notifications.info(
-      this.translate.instant('auth.sso.progress', { provider: label }),
-      { source: 'auth', metadata: { action: 'sso-start', provider } }
-    );
+    this.notifications.info(this.translate.instant('auth.sso.progress', { provider: label }), {
+      source: 'auth',
+      metadata: { action: 'sso-start', provider },
+    });
 
     this.analytics.emit('auth_sso_attempt', {
       provider,

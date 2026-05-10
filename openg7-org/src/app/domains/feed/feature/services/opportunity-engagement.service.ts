@@ -16,7 +16,11 @@ export interface OpportunityEngagementNavigation {
 export type OpportunityEngagementDecision =
   | { readonly kind: 'redirect-login'; readonly navigation: OpportunityEngagementNavigation }
   | { readonly kind: 'open-existing-offer'; readonly navigation: OpportunityEngagementNavigation }
-  | { readonly kind: 'open-linkup'; readonly navigation: OpportunityEngagementNavigation; readonly matchId: number }
+  | {
+      readonly kind: 'open-linkup';
+      readonly navigation: OpportunityEngagementNavigation;
+      readonly matchId: number;
+    }
   | { readonly kind: 'open-detail'; readonly navigation: OpportunityEngagementNavigation }
   | { readonly kind: 'open-drawer' };
 
@@ -68,7 +72,10 @@ export class OpportunityEngagementService {
     return { kind: 'open-drawer' };
   }
 
-  buildLoginNavigation(currentUrl: string | null | undefined, fallbackUrl = '/feed'): OpportunityEngagementNavigation {
+  buildLoginNavigation(
+    currentUrl: string | null | undefined,
+    fallbackUrl = '/feed',
+  ): OpportunityEngagementNavigation {
     return {
       commands: ['/login'],
       extras: {
@@ -83,7 +90,7 @@ export class OpportunityEngagementService {
   buildLinkupNavigation(
     matchId: number,
     source: OpportunityEngagementSource,
-    itemId?: string | null
+    itemId?: string | null,
   ): OpportunityEngagementNavigation {
     const normalizedItemId = this.normalizeId(itemId);
 
@@ -101,7 +108,7 @@ export class OpportunityEngagementService {
 
   buildOpportunityDetailNavigation(
     itemId: string | null | undefined,
-    source: OpportunityEngagementSource
+    source: OpportunityEngagementSource,
   ): OpportunityEngagementNavigation {
     const normalizedItemId = this.normalizeId(itemId);
     const commands: OpportunityEngagementNavigation['commands'] = normalizedItemId

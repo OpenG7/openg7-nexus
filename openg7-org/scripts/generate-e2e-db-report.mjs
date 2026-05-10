@@ -51,7 +51,7 @@ function readCliMode() {
 function parseList(value, fallback = []) {
   const items = (value ?? '')
     .split(',')
-    .map(entry => entry.trim())
+    .map((entry) => entry.trim())
     .filter(Boolean);
 
   return items.length > 0 ? items : fallback;
@@ -73,15 +73,29 @@ function selectTables(db) {
   }
 
   return db
-    .prepare("select name from sqlite_master where type = 'table' and name not like 'sqlite_%' order by name")
+    .prepare(
+      "select name from sqlite_master where type = 'table' and name not like 'sqlite_%' order by name",
+    )
     .all()
-    .map(row => row.name);
+    .map((row) => row.name);
 }
 
 function pickSampleColumns(columns) {
-  const preferred = ['id', 'document_id', 'slug', 'title', 'name', 'created_at', 'updated_at', 'published_at', 'status'];
-  const found = preferred.filter(column => columns.includes(column));
-  const extra = columns.filter(column => !found.includes(column)).slice(0, Math.max(0, 8 - found.length));
+  const preferred = [
+    'id',
+    'document_id',
+    'slug',
+    'title',
+    'name',
+    'created_at',
+    'updated_at',
+    'published_at',
+    'status',
+  ];
+  const found = preferred.filter((column) => columns.includes(column));
+  const extra = columns
+    .filter((column) => !found.includes(column))
+    .slice(0, Math.max(0, 8 - found.length));
   return [...found, ...extra];
 }
 
@@ -112,14 +126,22 @@ function inspectSqlite(dbPath) {
   try {
     const tables = selectTables(db);
     const limit = Number.parseInt(process.env.OG7_E2E_DB_REPORT_LIMIT ?? '5', 10);
-    const tableReports = tables.map(tableName => {
-      const columns = db.prepare(`pragma table_info('${tableName.replace(/'/g, "''")}')`).all().map(row => row.name);
+    const tableReports = tables.map((tableName) => {
+      const columns = db
+        .prepare(`pragma table_info('${tableName.replace(/'/g, "''")}')`)
+        .all()
+        .map((row) => row.name);
       const rowCount = db.prepare(`select count(*) as count from "${tableName}"`).get().count;
       const sampleColumns = pickSampleColumns(columns);
       const orderBy = buildOrderBy(columns);
-      const sampleRows = rowCount > 0
-        ? db.prepare(`select ${sampleColumns.map(column => `"${column}"`).join(', ')} from "${tableName}" order by ${orderBy} limit ?`).all(limit)
-        : [];
+      const sampleRows =
+        rowCount > 0
+          ? db
+              .prepare(
+                `select ${sampleColumns.map((column) => `"${column}"`).join(', ')} from "${tableName}" order by ${orderBy} limit ?`,
+              )
+              .all(limit)
+          : [];
 
       return {
         tableName,
@@ -164,7 +186,7 @@ function loadSnapshot() {
 }
 
 function indexTables(report) {
-  return new Map(report.tables.map(table => [table.tableName, table]));
+  return new Map(report.tables.map((table) => [table.tableName, table]));
 }
 
 function buildDiff(beforeReport, afterReport) {
@@ -182,7 +204,7 @@ function buildDiff(beforeReport, afterReport) {
   const beforeTables = indexTables(beforeReport);
   const afterTables = indexTables(afterReport);
   const allTableNames = Array.from(new Set([...beforeTables.keys(), ...afterTables.keys()])).sort();
-  const changedTables = allTableNames.flatMap(tableName => {
+  const changedTables = allTableNames.flatMap((tableName) => {
     const beforeTable = beforeTables.get(tableName);
     const afterTable = afterTables.get(tableName);
     const beforeCount = beforeTable?.rowCount ?? 0;
@@ -196,19 +218,21 @@ function buildDiff(beforeReport, afterReport) {
       return [];
     }
 
-    return [{
-      tableName,
-      beforeCount,
-      afterCount,
-      rowDelta,
-      fingerprintChanged: beforeFingerprint !== afterFingerprint,
-      beforeSampleRows: beforeTable?.sampleRows ?? [],
-      afterSampleRows: afterTable?.sampleRows ?? [],
-    }];
+    return [
+      {
+        tableName,
+        beforeCount,
+        afterCount,
+        rowDelta,
+        fingerprintChanged: beforeFingerprint !== afterFingerprint,
+        beforeSampleRows: beforeTable?.sampleRows ?? [],
+        afterSampleRows: afterTable?.sampleRows ?? [],
+      },
+    ];
   });
 
   const guardTables = parseList(process.env.OG7_E2E_DB_WRITE_GUARD_TABLES, DEFAULT_GUARD_TABLES);
-  const unexpectedWrites = changedTables.filter(table => guardTables.includes(table.tableName));
+  const unexpectedWrites = changedTables.filter((table) => guardTables.includes(table.tableName));
 
   return {
     status: unexpectedWrites.length > 0 ? 'failed' : 'ok',
@@ -248,7 +272,11 @@ function buildDiffMarkdown(diff) {
     return `${lines.join('\n')}\n`;
   }
 
-  lines.push(`- Changed tables: ${diff.changedTables.length}`, `- Unexpected writes: ${diff.unexpectedWrites.length}`, '');
+  lines.push(
+    `- Changed tables: ${diff.changedTables.length}`,
+    `- Unexpected writes: ${diff.unexpectedWrites.length}`,
+    '',
+  );
 
   if (diff.changedTables.length === 0) {
     lines.push('_No DB changes detected between the Playwright before/after snapshots._', '');
@@ -256,7 +284,14 @@ function buildDiffMarkdown(diff) {
   }
 
   for (const table of diff.changedTables) {
-    lines.push(`## ${table.tableName}`, '', `- Before rows: ${table.beforeCount}`, `- After rows: ${table.afterCount}`, `- Row delta: ${table.rowDelta}`, `- Fingerprint changed: ${table.fingerprintChanged ? 'yes' : 'no'}`);
+    lines.push(
+      `## ${table.tableName}`,
+      '',
+      `- Before rows: ${table.beforeCount}`,
+      `- After rows: ${table.afterCount}`,
+      `- Row delta: ${table.rowDelta}`,
+      `- Fingerprint changed: ${table.fingerprintChanged ? 'yes' : 'no'}`,
+    );
     if (diff.guardTables.includes(table.tableName)) {
       lines.push('- Guarded table: yes');
     }
@@ -284,16 +319,27 @@ function buildMarkdown(report) {
   lines.push(`- Tables inspected: ${report.tableCount}`, '');
 
   for (const table of report.tables) {
-    lines.push(`## ${table.tableName}`, '', `- Rows: ${table.rowCount}`, `- Sample columns: ${table.sampleColumns.join(', ') || 'none'}`, '');
+    lines.push(
+      `## ${table.tableName}`,
+      '',
+      `- Rows: ${table.rowCount}`,
+      `- Sample columns: ${table.sampleColumns.join(', ') || 'none'}`,
+      '',
+    );
 
     if (table.sampleRows.length === 0) {
       lines.push('_No rows found._', '');
       continue;
     }
 
-    lines.push(`| ${table.sampleColumns.join(' | ')} |`, `| ${table.sampleColumns.map(() => '---').join(' | ')} |`);
+    lines.push(
+      `| ${table.sampleColumns.join(' | ')} |`,
+      `| ${table.sampleColumns.map(() => '---').join(' | ')} |`,
+    );
     for (const row of table.sampleRows) {
-      lines.push(`| ${table.sampleColumns.map(column => formatValue(row[column]).replace(/\|/g, '\\|')).join(' | ')} |`);
+      lines.push(
+        `| ${table.sampleColumns.map((column) => formatValue(row[column]).replace(/\|/g, '\\|')).join(' | ')} |`,
+      );
     }
     lines.push('');
   }
@@ -336,7 +382,8 @@ function cleanupSnapshotFile() {
 function main() {
   const mode = readCliMode();
   const target = resolveDatabaseTarget();
-  const report = target.client === 'sqlite' ? inspectSqlite(target.dbPath) : buildUnsupportedReport(target);
+  const report =
+    target.client === 'sqlite' ? inspectSqlite(target.dbPath) : buildUnsupportedReport(target);
 
   if (mode === 'snapshot') {
     writeSnapshotFile(report);
@@ -352,7 +399,9 @@ function main() {
   if (diff.unexpectedWrites.length > 0) {
     console.error('[playwright-db-report] Unexpected writes detected in guarded tables:');
     for (const table of diff.unexpectedWrites) {
-      console.error(`- ${table.tableName}: before=${table.beforeCount}, after=${table.afterCount}, delta=${table.rowDelta}`);
+      console.error(
+        `- ${table.tableName}: before=${table.beforeCount}, after=${table.afterCount}, delta=${table.rowDelta}`,
+      );
     }
     process.exitCode = 1;
   }

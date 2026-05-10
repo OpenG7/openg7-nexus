@@ -21,7 +21,11 @@ describe('AppTranslateLoader', () => {
     TestBed.configureTestingModule({
       imports: [
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: AppTranslateLoader, deps: [HttpBackend, TransferState, PLATFORM_ID] },
+          loader: {
+            provide: TranslateLoader,
+            useClass: AppTranslateLoader,
+            deps: [HttpBackend, TransferState, PLATFORM_ID],
+          },
         }),
       ],
       providers: [

@@ -36,16 +36,34 @@ import { TranslateModule } from '@ngx-translate/core';
  */
 export class StatisticsPage {
   private readonly store = inject(Store);
-  readonly loadingSig = toSignal(this.store.select(selectStatisticsLoading), { initialValue: false });
-  readonly errorSig = toSignal(this.store.select(selectStatisticsError), { initialValue: null as string | null });
-  readonly isFallbackSig = toSignal(this.store.select(selectStatisticsIsFallback), { initialValue: false });
+  readonly loadingSig = toSignal(this.store.select(selectStatisticsLoading), {
+    initialValue: false,
+  });
+  readonly errorSig = toSignal(this.store.select(selectStatisticsError), {
+    initialValue: null as string | null,
+  });
+  readonly isFallbackSig = toSignal(this.store.select(selectStatisticsIsFallback), {
+    initialValue: false,
+  });
 
   readonly filtersSig = toSignal(this.store.select(selectStatisticsFilters), {
-    initialValue: { scope: 'interprovincial', intrant: 'all', period: null, province: null, country: null },
+    initialValue: {
+      scope: 'interprovincial',
+      intrant: 'all',
+      period: null,
+      province: null,
+      country: null,
+    },
   });
-  readonly summariesSig = toSignal(this.store.select(selectStatisticsSummaries), { initialValue: [] });
-  readonly insightsSig = toSignal(this.store.select(selectStatisticsInsights), { initialValue: [] });
-  readonly snapshotSig = toSignal(this.store.select(selectStatisticsHeroSnapshot), { initialValue: null });
+  readonly summariesSig = toSignal(this.store.select(selectStatisticsSummaries), {
+    initialValue: [],
+  });
+  readonly insightsSig = toSignal(this.store.select(selectStatisticsInsights), {
+    initialValue: [],
+  });
+  readonly snapshotSig = toSignal(this.store.select(selectStatisticsHeroSnapshot), {
+    initialValue: null,
+  });
   protected readonly guidanceAsideId = 'statistics-guidance-heading';
   protected readonly alertAsideId = 'statistics-alert-heading';
   readonly loadingSkeletons = Array.from({ length: 6 }, (_, index) => index);
@@ -54,10 +72,15 @@ export class StatisticsPage {
     { id: 'energy' as StatisticsIntrant, label: 'pages.statistics.filters.energy' },
     { id: 'agri-food' as StatisticsIntrant, label: 'pages.statistics.filters.agriFood' },
     { id: 'manufacturing' as StatisticsIntrant, label: 'pages.statistics.filters.manufacturing' },
-    { id: 'digital-services' as StatisticsIntrant, label: 'pages.statistics.filters.digitalServices' },
+    {
+      id: 'digital-services' as StatisticsIntrant,
+      label: 'pages.statistics.filters.digitalServices',
+    },
   ];
 
-  private readonly periodsSig = toSignal(this.store.select(selectStatisticsAvailablePeriods), { initialValue: [] as string[] });
+  private readonly periodsSig = toSignal(this.store.select(selectStatisticsAvailablePeriods), {
+    initialValue: [] as string[],
+  });
   private readonly provincesSig = toSignal(this.store.select(selectStatisticsAvailableProvinces), {
     initialValue: [] as string[],
   });
@@ -112,9 +135,10 @@ export class StatisticsPage {
 
   onCountryChange(value: string) {
     const trimmed = value?.trim().toUpperCase();
-    const next = trimmed && (G7_COUNTRY_CODES as readonly string[]).includes(trimmed)
-      ? (trimmed as CountryCode)
-      : null;
+    const next =
+      trimmed && (G7_COUNTRY_CODES as readonly string[]).includes(trimmed)
+        ? (trimmed as CountryCode)
+        : null;
     const filters = this.filtersSig();
     if (filters.country === next) {
       return;

@@ -36,7 +36,8 @@ const homepageLocales: HomepageSeed[] = [
       {
         __component: 'sections.hero',
         title: 'Canada-wide economic intelligence',
-        subtitle: 'Monitor supply chains, investments, and interprovincial exchanges in near real-time.',
+        subtitle:
+          'Monitor supply chains, investments, and interprovincial exchanges in near real-time.',
         cta: { label: 'View the dashboard', url: '/dashboard' },
       },
       {
@@ -82,10 +83,7 @@ const homepageLocales: HomepageSeed[] = [
       },
       {
         __component: 'sections.trust',
-        logos: [
-          { alt: 'Government of Canada' },
-          { alt: 'G7 partners' },
-        ],
+        logos: [{ alt: 'Government of Canada' }, { alt: 'G7 partners' }],
       },
     ],
     seo: {
@@ -121,7 +119,8 @@ const homepageLocales: HomepageSeed[] = [
       {
         __component: 'sections.hero',
         title: 'Intelligence économique pancanadienne',
-        subtitle: 'Suivez les chaînes d’approvisionnement, les investissements et les échanges interprovinciaux en quasi temps réel.',
+        subtitle:
+          'Suivez les chaînes d’approvisionnement, les investissements et les échanges interprovinciaux en quasi temps réel.',
         cta: { label: 'Accéder au tableau de bord', url: '/dashboard' },
       },
       {
@@ -167,15 +166,13 @@ const homepageLocales: HomepageSeed[] = [
       },
       {
         __component: 'sections.trust',
-        logos: [
-          { alt: 'Gouvernement du Canada' },
-          { alt: 'Partenaires du G7' },
-        ],
+        logos: [{ alt: 'Gouvernement du Canada' }, { alt: 'Partenaires du G7' }],
       },
     ],
     seo: {
       metaTitle: 'Plateforme OpenG7',
-      metaDescription: 'Découvrez les entreprises, échanges et analyses pour toutes les provinces canadiennes.',
+      metaDescription:
+        'Découvrez les entreprises, échanges et analyses pour toutes les provinces canadiennes.',
     },
   },
 ];
@@ -190,7 +187,7 @@ export default async () => {
         seo: localeSeed.seo,
         locale: localeSeed.locale,
       },
-      { unique: { locale: localeSeed.locale } }
+      { unique: { locale: localeSeed.locale } },
     );
   }
 };

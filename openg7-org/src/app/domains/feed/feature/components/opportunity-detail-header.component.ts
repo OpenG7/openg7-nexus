@@ -46,7 +46,7 @@ export class OpportunityDetailHeaderComponent {
   protected readonly makeOfferLabelKey = computed(() =>
     this.hasExistingOffer()
       ? 'feed.opportunity.detail.cta.openExistingOffer'
-      : 'feed.opportunity.detail.cta.makeOffer'
+      : 'feed.opportunity.detail.cta.makeOffer',
   );
 
   protected trackTag(index: number, tag: string): string {

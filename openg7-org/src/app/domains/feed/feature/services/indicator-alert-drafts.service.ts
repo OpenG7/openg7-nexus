@@ -148,5 +148,4 @@ export class IndicatorAlertDraftsService {
     const normalized = String(value).trim();
     return normalized.length > 0 ? normalized : null;
   }
-
 }

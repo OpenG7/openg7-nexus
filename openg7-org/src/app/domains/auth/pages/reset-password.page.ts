@@ -81,7 +81,7 @@ export class ResetPasswordPage {
       password: ['', [Validators.required, Validators.minLength(10)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: this.passwordsMatchValidator }
+    { validators: this.passwordsMatchValidator },
   );
 
   constructor() {

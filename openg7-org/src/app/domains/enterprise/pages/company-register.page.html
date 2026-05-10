@@ -2,213 +2,253 @@
   <header class="space-y-3 text-center">
     <h1 class="text-3xl font-semibold text-slate-900">Register your company</h1>
     <p class="text-base text-slate-600">
-      Submit your organisation for inclusion in the marketplace. Our team will review every submission before publishing it.
+      Submit your organisation for inclusion in the marketplace. Our team will review every
+      submission before publishing it.
     </p>
   </header>
 
-  <ol class="flex items-center justify-center gap-4 text-sm font-medium" data-og7="company-register-steps">
+  <ol
+    class="flex items-center justify-center gap-4 text-sm font-medium"
+    data-og7="company-register-steps"
+  >
     @for (label of stepLabels(); track label; let index = $index) {
-      <li class="flex items-center gap-2">
-        <span
-          class="flex h-8 w-8 items-center justify-center rounded-full border"
-          [class.bg-primary-600]="currentStepIndex() === index"
-          [class.text-white]="currentStepIndex() === index"
-          [class.border-primary-600]="currentStepIndex() === index"
-          [class.border-slate-300]="currentStepIndex() !== index"
-          [class.text-slate-500]="currentStepIndex() !== index"
-        >
-          {{ index + 1 }}
-        </span>
-        <span class="text-slate-600" [class.font-semibold]="currentStepIndex() === index">{{ label }}</span>
-      </li>
+    <li class="flex items-center gap-2">
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-full border"
+        [class.bg-primary-600]="currentStepIndex() === index"
+        [class.text-white]="currentStepIndex() === index"
+        [class.border-primary-600]="currentStepIndex() === index"
+        [class.border-slate-300]="currentStepIndex() !== index"
+        [class.text-slate-500]="currentStepIndex() !== index"
+      >
+        {{ index + 1 }}
+      </span>
+      <span class="text-slate-600" [class.font-semibold]="currentStepIndex() === index"
+        >{{ label }}</span
+      >
+    </li>
     }
   </ol>
 
   <form class="space-y-6" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    @switch (currentStep()) {
-      @case ('general') {
-        <section class="space-y-4" data-og7="company-register-step-general" formGroupName="general">
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700" for="company-name">Company name</label>
-            <input
-              id="company-name"
-              type="text"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="Acme Inc."
-              formControlName="name"
-            />
-            @if (isGeneralInvalid('name')) {
-              <p class="mt-1 text-sm text-red-600">A company name is required.</p>
+    @switch (currentStep()) { @case ('general') {
+    <section class="space-y-4" data-og7="company-register-step-general" formGroupName="general">
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700" for="company-name"
+          >Company name</label
+        >
+        <input
+          id="company-name"
+          type="text"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2"
+          placeholder="Acme Inc."
+          formControlName="name"
+        />
+        @if (isGeneralInvalid('name')) {
+        <p class="mt-1 text-sm text-red-600">A company name is required.</p>
+        }
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700" for="company-description"
+          >Description</label
+        >
+        <textarea
+          id="company-description"
+          rows="4"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2"
+          placeholder="Describe your company, expertise, and mission."
+          formControlName="description"
+        ></textarea>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700" for="company-website"
+            >Website</label
+          >
+          <input
+            id="company-website"
+            type="url"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2"
+            placeholder="https://example.com"
+            formControlName="website"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700" for="company-sector"
+            >Sector</label
+          >
+          <select
+            id="company-sector"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2"
+            formControlName="sectorId"
+          >
+            <option value="">Select a sector</option>
+            @for (sector of sectors(); track sector.id) {
+            <option [value]="sector.id">{{ sector.name }}</option>
             }
-          </div>
+          </select>
+          @if (isGeneralInvalid('sectorId')) {
+          <p class="mt-1 text-sm text-red-600">Sector is required.</p>
+          }
+        </div>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700" for="company-description">Description</label>
-            <textarea
-              id="company-description"
-              rows="4"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="Describe your company, expertise, and mission."
-              formControlName="description"
-            ></textarea>
-          </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700" for="company-country"
+            >Country</label
+          >
+          <select
+            id="company-country"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2"
+            formControlName="country"
+          >
+            <option value="">Select a country</option>
+            @for (country of countries(); track country) {
+            <option [value]="country">{{ ('countries.' + country) | translate }}</option>
+            }
+          </select>
+          @if (isGeneralInvalid('country')) {
+          <p class="mt-1 text-sm text-red-600">Country is required.</p>
+          }
+        </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700" for="company-website">Website</label>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700" for="company-province"
+            >Province</label
+          >
+          <select
+            id="company-province"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2"
+            formControlName="provinceId"
+          >
+            <option value="">Select a province</option>
+            @for (province of provinces(); track province.id) {
+            <option [value]="province.id">{{ province.name }}</option>
+            }
+          </select>
+          @if (isGeneralInvalid('provinceId')) {
+          <p class="mt-1 text-sm text-red-600">Province is required.</p>
+          }
+        </div>
+      </div>
+    </section>
+    } @case ('capacities') {
+    <section class="space-y-4" data-og7="company-register-step-capacities">
+      <p class="text-sm text-slate-600">
+        Provide key production capacities or expertise metrics. These fields are optional but help
+        match you with partners.
+      </p>
+
+      <div class="space-y-4" formArrayName="capacities">
+        @for (group of capacityControls().controls; track $index; let i = $index) {
+        <div class="rounded-lg border border-slate-200 p-4" [formGroupName]="i">
+          <div class="grid gap-3 md:grid-cols-3">
+            <div class="md:col-span-1">
+              <label
+                class="mb-1 block text-sm font-medium text-slate-700"
+                [for]="'capacity-label-' + i"
+                >Label</label
+              >
               <input
-                id="company-website"
-                type="url"
+                [id]="'capacity-label-' + i"
+                type="text"
                 class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="https://example.com"
-                formControlName="website"
+                placeholder="e.g. Annual output"
+                formControlName="label"
+              />
+              @if (group.controls['label'].invalid && group.controls['label'].touched) {
+              <p class="mt-1 text-sm text-red-600">A label is required.</p>
+              }
+            </div>
+
+            <div>
+              <label
+                class="mb-1 block text-sm font-medium text-slate-700"
+                [for]="'capacity-value-' + i"
+                >Value</label
+              >
+              <input
+                [id]="'capacity-value-' + i"
+                type="number"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2"
+                placeholder="e.g. 5000"
+                formControlName="value"
               />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700" for="company-sector">Sector</label>
-              <select
-                id="company-sector"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                formControlName="sectorId"
+              <label
+                class="mb-1 block text-sm font-medium text-slate-700"
+                [for]="'capacity-unit-' + i"
+                >Unit</label
               >
-                <option value="">Select a sector</option>
-                @for (sector of sectors(); track sector.id) {
-                  <option [value]="sector.id">{{ sector.name }}</option>
-                }
-              </select>
-              @if (isGeneralInvalid('sectorId')) {
-                <p class="mt-1 text-sm text-red-600">Sector is required.</p>
-              }
-            </div>
-
-            <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700" for="company-country">Country</label>
-              <select
-                id="company-country"
+              <input
+                [id]="'capacity-unit-' + i"
+                type="text"
                 class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                formControlName="country"
-              >
-                <option value="">Select a country</option>
-                @for (country of countries(); track country) {
-                  <option [value]="country">{{ ('countries.' + country) | translate }}</option>
-                }
-              </select>
-              @if (isGeneralInvalid('country')) {
-                <p class="mt-1 text-sm text-red-600">Country is required.</p>
-              }
-            </div>
-
-            <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700" for="company-province">Province</label>
-              <select
-                id="company-province"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                formControlName="provinceId"
-              >
-                <option value="">Select a province</option>
-                @for (province of provinces(); track province.id) {
-                  <option [value]="province.id">{{ province.name }}</option>
-                }
-              </select>
-              @if (isGeneralInvalid('provinceId')) {
-                <p class="mt-1 text-sm text-red-600">Province is required.</p>
-              }
+                placeholder="e.g. tonnes"
+                formControlName="unit"
+              />
             </div>
           </div>
-        </section>
-      }
-      @case ('capacities') {
-        <section class="space-y-4" data-og7="company-register-step-capacities">
-          <p class="text-sm text-slate-600">
-            Provide key production capacities or expertise metrics. These fields are optional but help match you with partners.
-          </p>
 
-          <div class="space-y-4" formArrayName="capacities">
-            @for (group of capacityControls().controls; track $index; let i = $index) {
-              <div class="rounded-lg border border-slate-200 p-4" [formGroupName]="i">
-                <div class="grid gap-3 md:grid-cols-3">
-                  <div class="md:col-span-1">
-                    <label class="mb-1 block text-sm font-medium text-slate-700" [for]="'capacity-label-' + i">Label</label>
-                    <input
-                      [id]="'capacity-label-' + i"
-                      type="text"
-                      class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                      placeholder="e.g. Annual output"
-                      formControlName="label"
-                    />
-            @if (group.controls['label'].invalid && group.controls['label'].touched) {
-                      <p class="mt-1 text-sm text-red-600">A label is required.</p>
-                    }
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-sm font-medium text-slate-700" [for]="'capacity-value-' + i">Value</label>
-                    <input
-                      [id]="'capacity-value-' + i"
-                      type="number"
-                      class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                      placeholder="e.g. 5000"
-                      formControlName="value"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="mb-1 block text-sm font-medium text-slate-700" [for]="'capacity-unit-' + i">Unit</label>
-                    <input
-                      [id]="'capacity-unit-' + i"
-                      type="text"
-                      class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                      placeholder="e.g. tonnes"
-                      formControlName="unit"
-                    />
-                  </div>
-                </div>
-
-                <div class="mt-3 text-right">
-                  <button type="button" class="text-sm text-red-600 hover:text-red-700" (click)="removeCapacity(i)">
-                    Remove entry
-                  </button>
-                </div>
-              </div>
-            }
+          <div class="mt-3 text-right">
+            <button
+              type="button"
+              class="text-sm text-red-600 hover:text-red-700"
+              (click)="removeCapacity(i)"
+            >
+              Remove entry
+            </button>
           </div>
+        </div>
+        }
+      </div>
 
-          <button type="button" class="rounded-lg border border-dashed border-primary-400 px-4 py-2 text-sm text-primary-600" (click)="addCapacity()">
-            Add capacity
-          </button>
-        </section>
-      }
-      @case ('logos') {
-        <section class="space-y-4" data-og7="company-register-step-logos" formGroupName="logos">
-          <p class="text-sm text-slate-600">
-            Provide public URLs for your brand assets. You can update these later from the admin interface.
-          </p>
+      <button
+        type="button"
+        class="rounded-lg border border-dashed border-primary-400 px-4 py-2 text-sm text-primary-600"
+        (click)="addCapacity()"
+      >
+        Add capacity
+      </button>
+    </section>
+    } @case ('logos') {
+    <section class="space-y-4" data-og7="company-register-step-logos" formGroupName="logos">
+      <p class="text-sm text-slate-600">
+        Provide public URLs for your brand assets. You can update these later from the admin
+        interface.
+      </p>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700" for="company-logo">Primary logo URL</label>
-            <input
-              id="company-logo"
-              type="url"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="https://cdn.example.com/logo.png"
-              formControlName="logoUrl"
-            />
-          </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700" for="company-logo"
+          >Primary logo URL</label
+        >
+        <input
+          id="company-logo"
+          type="url"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2"
+          placeholder="https://cdn.example.com/logo.png"
+          formControlName="logoUrl"
+        />
+      </div>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700" for="company-logo-secondary">Secondary logo URL</label>
-            <input
-              id="company-logo-secondary"
-              type="url"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="https://cdn.example.com/logo-alt.png"
-              formControlName="secondaryLogoUrl"
-            />
-          </div>
-        </section>
-      }
-    }
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700" for="company-logo-secondary"
+          >Secondary logo URL</label
+        >
+        <input
+          id="company-logo-secondary"
+          type="url"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2"
+          placeholder="https://cdn.example.com/logo-alt.png"
+          formControlName="secondaryLogoUrl"
+        />
+      </div>
+    </section>
+    } }
 
     <footer class="flex items-center justify-between pt-4">
       <button

@@ -4,19 +4,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": [
-      "node",
-      "qrcode"
-    ]
+    "types": ["node", "qrcode"]
   },
-  "files": [
-    "src/main.ts",
-    "src/main.server.ts",
-    "src/server.ts"
-  ],
-  "include": [
-    "src/**/*.d.ts",
-    "../ngx-three-globe/src/**/*.ts",
-    "../ngx-three-globe/src/**/*.d.ts"
-  ]
+  "files": ["src/main.ts", "src/main.server.ts", "src/server.ts"],
+  "include": ["src/**/*.d.ts", "../ngx-three-globe/src/**/*.ts", "../ngx-three-globe/src/**/*.d.ts"]
 }

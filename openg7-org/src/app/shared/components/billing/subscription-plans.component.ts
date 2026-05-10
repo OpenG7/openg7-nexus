@@ -7,7 +7,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { BillingPlan } from '@openg7/contracts';
 import { firstValueFrom } from 'rxjs';
 
-
 @Component({
   selector: 'og7-subscription-plans',
   standalone: true,
@@ -86,7 +85,8 @@ export class SubscriptionPlansComponent {
         });
       }
     } catch (error) {
-      const message = this.toMessage(error) ?? this.translate.instant('pricing.plans.checkoutError');
+      const message =
+        this.toMessage(error) ?? this.translate.instant('pricing.plans.checkoutError');
       this.notifications.error(message, {
         source: 'billing',
         context: error,
@@ -209,4 +209,3 @@ export class SubscriptionPlansComponent {
     return translated === trimmed ? trimmed : translated;
   }
 }
-

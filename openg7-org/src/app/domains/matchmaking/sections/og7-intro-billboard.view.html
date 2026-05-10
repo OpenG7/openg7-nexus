@@ -1,16 +1,20 @@
 <div class="grid grid-cols-3 gap-4 pt-10">
   <div class="col-span-2">
-    <og7-partner-details-panel [selectedPartnerId]="partnerSelectionSignal" [matchContext]="matchSelected()"
-      [financingContext]="financingBanner()" (introductionRequested)="handleIntroductionRequested($event)"
-      (closed)="handlePanelClosed()"></og7-partner-details-panel>
+    <og7-partner-details-panel
+      [selectedPartnerId]="partnerSelectionSignal"
+      [matchContext]="matchSelected()"
+      [financingContext]="financingBanner()"
+      (introductionRequested)="handleIntroductionRequested($event)"
+      (closed)="handlePanelClosed()"
+    ></og7-partner-details-panel>
   </div>
   <div class="col-span-1">
     @if (partnerId(); as id) {
-        <og7-partner-quick-actions
-          [partnerId]="id"
-          [matchId]="matchSelected()?.id ?? null"
-          [partnerName]="partnerName()"
-        ></og7-partner-quick-actions>
-      }
+    <og7-partner-quick-actions
+      [partnerId]="id"
+      [matchId]="matchSelected()?.id ?? null"
+      [partnerName]="partnerName()"
+    ></og7-partner-quick-actions>
+    }
   </div>
 </div>

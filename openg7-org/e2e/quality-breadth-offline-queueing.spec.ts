@@ -68,23 +68,27 @@ test.describe('Quality breadth offline queueing', () => {
 
     await expect(saveButton).toBeDisabled();
     await expect.poll(() => profileUpdateAttempts).toBe(1);
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]')).toHaveCount(0);
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]'),
+    ).toHaveCount(0);
 
     firstAttemptReady.resolve();
 
     await expect(
-      page.locator('[data-og7="notification-toast"][data-og7-id="error"]').last()
+      page.locator('[data-og7="notification-toast"][data-og7-id="error"]').last(),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toBeVisible();
     await expect(jobTitleInput).toHaveValue('Queued offline trade lead');
     await expect(phoneInput).toHaveValue('+1 438 555 0188');
     await expect(saveButton).toBeEnabled();
-    await expect(page.locator('[data-og7="notification-toast"][data-og7-id="success"]')).toHaveCount(0);
+    await expect(
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]'),
+    ).toHaveCount(0);
 
     await saveButton.click();
 
     await expect(
-      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last()
+      page.locator('[data-og7="notification-toast"][data-og7-id="success"]').last(),
     ).toBeVisible();
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toHaveCount(0);
     await expect.poll(() => profileUpdateAttempts).toBe(2);
@@ -136,11 +140,18 @@ test.describe('Quality breadth offline queueing', () => {
           name: typeof payload.name === 'string' ? payload.name : 'Saved search',
           scope: payload.scope === 'feed' ? 'feed' : 'all',
           filters:
-            payload.filters && typeof payload.filters === 'object' && !Array.isArray(payload.filters)
+            payload.filters &&
+            typeof payload.filters === 'object' &&
+            !Array.isArray(payload.filters)
               ? payload.filters
               : {},
           notifyEnabled: Boolean(payload.notifyEnabled),
-          frequency: payload.frequency === 'weekly' ? 'weekly' : payload.frequency === 'realtime' ? 'realtime' : 'daily',
+          frequency:
+            payload.frequency === 'weekly'
+              ? 'weekly'
+              : payload.frequency === 'realtime'
+                ? 'realtime'
+                : 'daily',
           lastRunAt: null,
           createdAt: '2026-04-07T10:00:00.000Z',
           updatedAt: '2026-04-07T10:00:00.000Z',
@@ -200,7 +211,7 @@ test.describe('Quality breadth offline queueing', () => {
     await page.reload();
     await expect(page.locator('[data-og7="saved-search-item"]')).toHaveCount(1);
     await expect(page.locator('[data-og7="saved-search-item"]').first()).toContainText(
-      'Queued critical imports'
+      'Queued critical imports',
     );
   });
 
@@ -223,7 +234,7 @@ test.describe('Quality breadth offline queueing', () => {
             notifyDelta: true,
             note: 'Retry this alert only after the live feed reconnects.',
           },
-        })
+        }),
       );
     });
 
@@ -240,18 +251,24 @@ test.describe('Quality breadth offline queueing', () => {
     const noteInput = drawer.locator('[data-og7-id="note"]');
 
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
+    ).toBeVisible();
     await expect(drawer.locator('[data-og7-id="indicator-alert-retry"]')).toBeVisible();
     await expect(thresholdInput).toHaveValue('19');
     await expect(noteInput).toHaveValue('Retry this alert only after the live feed reconnects.');
     await expect(subscribeButton).toHaveText(/S'abonner|Subscribe/i);
 
     await page.reload();
-    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(/S'abonner|Subscribe/i);
+    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(
+      /S'abonner|Subscribe/i,
+    );
 
     await page.locator('[data-og7-id="indicator-subscribe"]').click();
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]')).toBeVisible();
+    await expect(
+      drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
+    ).toBeVisible();
     await expect(thresholdInput).toHaveValue('19');
     await expect(noteInput).toHaveValue('Retry this alert only after the live feed reconnects.');
     await expect(drawer.locator('[data-og7="indicator-alert-view"]')).toHaveCount(0);
@@ -259,10 +276,14 @@ test.describe('Quality breadth offline queueing', () => {
     await drawer.locator('[data-og7-id="indicator-alert-retry"]').click();
 
     await expect(drawer).toBeHidden();
-    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(/Voir mon alerte|View my alert/i);
+    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(
+      /Voir mon alerte|View my alert/i,
+    );
 
     await page.reload();
-    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(/Voir mon alerte|View my alert/i);
+    await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(
+      /Voir mon alerte|View my alert/i,
+    );
     await page.locator('[data-og7-id="indicator-subscribe"]').click();
     await expect(page.locator('[data-og7="indicator-alert-view"]')).toBeVisible();
   });

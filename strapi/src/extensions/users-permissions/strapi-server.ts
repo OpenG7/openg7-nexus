@@ -32,7 +32,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 async function attachSessionToAuthResponse(
   strapi: Core.Strapi,
-  ctx: Record<string, unknown>
+  ctx: Record<string, unknown>,
 ): Promise<void> {
   if (!isObject(ctx.body)) {
     return;
@@ -83,7 +83,7 @@ function wrapAuthController(plugin: Record<string, any>): void {
 
 function wrapUsersPermissionsStrategy(
   strategy: Record<string, unknown>,
-  strapi: Core.Strapi
+  strapi: Core.Strapi,
 ): Record<string, unknown> {
   const authenticate = strategy.authenticate;
   if (typeof authenticate !== 'function') {

@@ -90,13 +90,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         metadata: { status: err.status },
       });
       return throwError(() => err);
-    })
+    }),
   );
 };
 
 function resolveCurrentUrl(router: Router): string | null {
   const navigation = router.getCurrentNavigation();
-  const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? router.url;
+  const url =
+    navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? router.url;
   if (typeof url !== 'string') {
     return null;
   }
@@ -117,10 +118,10 @@ function resolveRequestTarget(url: string | null | undefined): string | null {
     const parsed = new URL(url, 'http://localhost');
     const segments = parsed.pathname
       .split('/')
-      .map(segment => segment.trim())
+      .map((segment) => segment.trim())
       .filter(Boolean)
-      .filter(segment => segment.toLowerCase() !== 'api')
-      .map(segment => normalizeRequestSegment(segment));
+      .filter((segment) => segment.toLowerCase() !== 'api')
+      .map((segment) => normalizeRequestSegment(segment));
 
     return segments.length > 0 ? segments.join('/') : null;
   } catch {

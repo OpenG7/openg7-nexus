@@ -9,7 +9,9 @@
     </a>
     <div class="mx-auto hidden max-w-xl flex-1 sm:flex">
       <div class="relative w-full">
-        <span id="desktop-search-label" class="sr-only">{{ 'header.search.aria' | translate }}</span>
+        <span id="desktop-search-label" class="sr-only">{{
+          'header.search.aria' | translate
+        }}</span>
         <button
           id="desktop-search"
           type="button"
@@ -35,7 +37,10 @@
       </div>
     </div>
 
-    <nav class="ml-auto hidden items-center gap-1 sm:flex" [attr.aria-label]="'header.nav.ariaLabel' | translate">
+    <nav
+      class="ml-auto hidden items-center gap-1 sm:flex"
+      [attr.aria-label]="'header.nav.ariaLabel' | translate"
+    >
       <a
         routerLink="/credits"
         class="rounded-lg p-2 text-white transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40"
@@ -45,7 +50,9 @@
           <path
             d="M12 2a5 5 0 0 0-5 5c0 2.315 1.572 4.262 3.71 4.86L9 22l3-1 3 1-1.71-10.14C15.428 11.262 17 9.315 17 7a5 5 0 0 0-5-5zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"
           ></path>
-          <path d="m9.52 12.62-1.03 6.07L12 17.5l3.51 1.19-1.03-6.07A5.99 5.99 0 0 1 12 13.5a5.99 5.99 0 0 1-2.48-.88z"></path>
+          <path
+            d="m9.52 12.62-1.03 6.07L12 17.5l3.51 1.19-1.03-6.07A5.99 5.99 0 0 1 12 13.5a5.99 5.99 0 0 1-2.48-.88z"
+          ></path>
         </svg>
       </a>
 
@@ -61,7 +68,9 @@
         [attr.aria-label]="'header.notifications.title' | translate"
       >
         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
-          <path d="M12 2a6 6 0 0 0-6 6v3.586l-.707.707A1 1 0 0 0 6 14h12a1 1 0 0 0 .707-1.707L18 11.586V8a6 6 0 0 0-6-6z"></path>
+          <path
+            d="M12 2a6 6 0 0 0-6 6v3.586l-.707.707A1 1 0 0 0 6 14h12a1 1 0 0 0 .707-1.707L18 11.586V8a6 6 0 0 0-6-6z"
+          ></path>
           <path d="M9 18a3 3 0 0 0 6 0H9z"></path>
         </svg>
         <span
@@ -103,7 +112,7 @@
               role="option"
               [attr.aria-selected]="currentLang() === lang"
             >
-              {{ ('header.lang.' + lang) | translate }}
+              {{ 'header.lang.' + lang | translate }}
             </button>
           </li>
         </ul>
@@ -219,14 +228,27 @@
             [attr.aria-expanded]="isProfileOpen()"
             [attr.aria-label]="'header.profile.menuLabel' | translate"
           >
-            <span *ngIf="hasFavoritesSig()" class="site-header__favorites-reminder" aria-hidden="true"></span>
-            <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white/10">
-              <img *ngIf="avatarUrlSig(); else initials" [src]="avatarUrlSig()!" alt="" class="h-full w-full object-cover" />
+            <span
+              *ngIf="hasFavoritesSig()"
+              class="site-header__favorites-reminder"
+              aria-hidden="true"
+            ></span>
+            <span
+              class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white/10"
+            >
+              <img
+                *ngIf="avatarUrlSig(); else initials"
+                [src]="avatarUrlSig()!"
+                alt=""
+                class="h-full w-full object-cover"
+              />
               <ng-template #initials>
                 <span class="text-xs font-semibold uppercase text-white">{{ initialsSig() }}</span>
               </ng-template>
             </span>
-            <span class="hidden max-w-[140px] truncate text-left text-xs font-medium text-white lg:block">
+            <span
+              class="hidden max-w-[140px] truncate text-left text-xs font-medium text-white lg:block"
+            >
               {{ displayNameSig() }}
             </span>
           </button>
@@ -242,7 +264,10 @@
                 data-og7-id="favorites"
               >
                 <span>{{ 'header.profile.matches' | translate }}</span>
-                <span *ngIf="favoritesCountSig() > 0" class="site-header__favorites-count rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950">
+                <span
+                  *ngIf="favoritesCountSig() > 0"
+                  class="site-header__favorites-count rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950"
+                >
                   {{ favoritesCountSig() }}
                 </span>
               </a>
@@ -406,7 +431,10 @@
         class="rounded-lg px-3 py-2 text-sm text-white hover:bg-white/10 hover:text-white"
       >
         {{ 'header.notifications.title' | translate }}
-        <span *ngIf="hasUnread()" class="ml-2 rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950">
+        <span
+          *ngIf="hasUnread()"
+          class="ml-2 rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950"
+        >
           {{ unreadCount() }}
         </span>
       </button>
@@ -416,7 +444,9 @@
         data-og7="notif"
         data-og7-id="header-mobile-alerts-panel"
       >
-        <p class="mb-2 text-sm font-semibold text-white/90">{{ 'header.notifications.title' | translate }}</p>
+        <p class="mb-2 text-sm font-semibold text-white/90">
+          {{ 'header.notifications.title' | translate }}
+        </p>
         <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
           {{ 'header.notifications.empty' | translate }}
         </p>
@@ -433,8 +463,12 @@
               [disabled]="notification.read || !isAuthSig()"
               data-og7-id="header-alert-item-mobile"
             >
-              <span class="block font-medium text-white/90">{{ notification.title ?? notification.message }}</span>
-              <span class="block text-xs text-white/60" *ngIf="notification.title">{{ notification.message }}</span>
+              <span class="block font-medium text-white/90">{{
+                notification.title ?? notification.message
+              }}</span>
+              <span class="block text-xs text-white/60" *ngIf="notification.title">{{
+                notification.message
+              }}</span>
             </button>
           </li>
         </ul>
@@ -467,7 +501,10 @@
           data-og7-id="favorites"
         >
           <span>{{ 'header.profile.matches' | translate }}</span>
-          <span *ngIf="favoritesCountSig() > 0" class="site-header__favorites-count rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950">
+          <span
+            *ngIf="favoritesCountSig() > 0"
+            class="site-header__favorites-count rounded-full bg-cyan-400 px-2 py-0.5 text-xs font-semibold text-slate-950"
+          >
             {{ favoritesCountSig() }}
           </span>
         </a>
@@ -530,7 +567,9 @@
     data-og7="notif"
     data-og7-id="header-alerts-panel"
   >
-    <p class="mb-2 text-sm font-semibold text-white/90">{{ 'header.notifications.title' | translate }}</p>
+    <p class="mb-2 text-sm font-semibold text-white/90">
+      {{ 'header.notifications.title' | translate }}
+    </p>
     <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
       {{ 'header.notifications.empty' | translate }}
     </p>
@@ -547,8 +586,12 @@
           [disabled]="notification.read || !isAuthSig()"
           data-og7-id="header-alert-item"
         >
-          <span class="block font-medium text-white/90">{{ notification.title ?? notification.message }}</span>
-          <span class="block text-xs text-white/60" *ngIf="notification.title">{{ notification.message }}</span>
+          <span class="block font-medium text-white/90">{{
+            notification.title ?? notification.message
+          }}</span>
+          <span class="block text-xs text-white/60" *ngIf="notification.title">{{
+            notification.message
+          }}</span>
         </button>
       </li>
     </ul>
@@ -562,5 +605,4 @@
       {{ 'header.profile.alerts' | translate }}
     </a>
   </div>
-
 </header>

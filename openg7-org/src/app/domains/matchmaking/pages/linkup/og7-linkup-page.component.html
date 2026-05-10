@@ -3,143 +3,184 @@
     <section class="space-y-6">
       @let state = matchState();
       @if (state === 'match-id' || state === 'partner-id') {
-      @if (activeMatch()) {
-      <og7-intro-stepper [partnerPanelOpen]="partnerPanelOpen()" [messageTemplate]="messageStepTemplate"
-        [complianceTemplate]="complianceTemplateRef" [schedulerTemplate]="schedulerTemplateRef"
-        [logisticsTemplate]="logisticsTemplateRef" [pipelineTemplate]="pipelineTemplateRef"
-        [financingTemplate]="financingTemplateRef" [pipelineSteps]="pipelineSteps()" [financingData]="financingBanner()"></og7-intro-stepper>
-      <ng-template #messageStepTemplate>
-        <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.briefingTitle' | translate }}
-          </h3>
-          <dl class="space-y-3">
-            <div class="flex items-start justify-between gap-3">
-              <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
-                {{ 'introBillboard.matchBuyer' | translate }}
-              </dt>
-              <dd class="text-right font-semibold text-slate-100">{{ activeMatch()?.buyer?.name }}</dd>
+        @if (activeMatch()) {
+          <og7-intro-stepper
+            [partnerPanelOpen]="partnerPanelOpen()"
+            [messageTemplate]="messageStepTemplate"
+            [complianceTemplate]="complianceTemplateRef"
+            [schedulerTemplate]="schedulerTemplateRef"
+            [logisticsTemplate]="logisticsTemplateRef"
+            [pipelineTemplate]="pipelineTemplateRef"
+            [financingTemplate]="financingTemplateRef"
+            [pipelineSteps]="pipelineSteps()"
+            [financingData]="financingBanner()"
+          ></og7-intro-stepper>
+          <ng-template #messageStepTemplate>
+            <div
+              class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.briefingTitle' | translate }}
+              </h3>
+              <dl class="space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+                    {{ 'introBillboard.matchBuyer' | translate }}
+                  </dt>
+                  <dd class="text-right font-semibold text-slate-100">
+                    {{ activeMatch()?.buyer?.name }}
+                  </dd>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+                    {{ 'introBillboard.matchSupplier' | translate }}
+                  </dt>
+                  <dd class="text-right font-semibold text-slate-100">
+                    {{ activeMatch()?.seller?.name }}
+                  </dd>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
+                    {{ 'introBillboard.matchCommodity' | translate }}
+                  </dt>
+                  <dd class="text-right font-semibold text-slate-100">
+                    {{ activeMatch()?.commodity }}
+                  </dd>
+                </div>
+              </dl>
             </div>
-            <div class="flex items-start justify-between gap-3">
-              <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
-                {{ 'introBillboard.matchSupplier' | translate }}
-              </dt>
-              <dd class="text-right font-semibold text-slate-100">{{ activeMatch()?.seller?.name }}</dd>
+          </ng-template>
+
+          <ng-template #complianceTemplateRef>
+            <div
+              class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.steps.compliance.title' | translate }}
+              </h3>
+              <p class="text-slate-300">
+                {{ 'introBillboard.steps.compliance.description' | translate }}
+              </p>
             </div>
-            <div class="flex items-start justify-between gap-3">
-              <dt class="text-xs uppercase tracking-[0.25em] text-slate-400">
-                {{ 'introBillboard.matchCommodity' | translate }}
-              </dt>
-              <dd class="text-right font-semibold text-slate-100">{{ activeMatch()?.commodity }}</dd>
+          </ng-template>
+
+          <ng-template #schedulerTemplateRef>
+            <div
+              class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.steps.scheduler.title' | translate }}
+              </h3>
+              <p class="text-slate-300">
+                {{ 'introBillboard.steps.scheduler.description' | translate }}
+              </p>
             </div>
-          </dl>
-        </div>
-      </ng-template>
+          </ng-template>
 
-      <ng-template #complianceTemplateRef>
-        <div class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.steps.compliance.title' | translate }}
-          </h3>
-          <p class="text-slate-300">{{ 'introBillboard.steps.compliance.description' | translate }}</p>
-        </div>
-      </ng-template>
+          <ng-template #logisticsTemplateRef>
+            <div
+              class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.steps.logistics.title' | translate }}
+              </h3>
+              <p class="text-slate-300">
+                {{ 'introBillboard.steps.logistics.description' | translate }}
+              </p>
+            </div>
+          </ng-template>
 
-      <ng-template #schedulerTemplateRef>
-        <div class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.steps.scheduler.title' | translate }}
-          </h3>
-          <p class="text-slate-300">{{ 'introBillboard.steps.scheduler.description' | translate }}</p>
-        </div>
-      </ng-template>
+          <ng-template #pipelineTemplateRef>
+            <div
+              class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.steps.pipeline.title' | translate }}
+              </h3>
+              <p class="text-slate-300">
+                {{ 'introBillboard.steps.pipeline.description' | translate }}
+              </p>
+            </div>
+          </ng-template>
 
-      <ng-template #logisticsTemplateRef>
-        <div class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.steps.logistics.title' | translate }}
-          </h3>
-          <p class="text-slate-300">{{ 'introBillboard.steps.logistics.description' | translate }}</p>
-        </div>
-      </ng-template>
-
-      <ng-template #pipelineTemplateRef>
-        <div class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.steps.pipeline.title' | translate }}
-          </h3>
-          <p class="text-slate-300">{{ 'introBillboard.steps.pipeline.description' | translate }}</p>
-        </div>
-      </ng-template>
-
-      <ng-template #financingTemplateRef>
-        <div class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200">
-          <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-            {{ 'introBillboard.steps.financing.title' | translate }}
-          </h3>
-          <p class="text-slate-300">{{ 'introBillboard.steps.financing.description' | translate }}</p>
-        </div>
-      </ng-template>
-      }
+          <ng-template #financingTemplateRef>
+            <div
+              class="space-y-3 rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-slate-200"
+            >
+              <h3 class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                {{ 'introBillboard.steps.financing.title' | translate }}
+              </h3>
+              <p class="text-slate-300">
+                {{ 'introBillboard.steps.financing.description' | translate }}
+              </p>
+            </div>
+          </ng-template>
+        }
       } @else if (state === 'loading' || loadingMatches() || loadingActiveMatch()) {
-      <div class="space-y-5 rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">
-        <p class="text-lg font-semibold text-white">
-          {{ 'introBillboard.loadingMatch' | translate }}
-        </p>
-        <div class="space-y-3" aria-hidden="true">
-          <div class="h-4 w-1/2 rounded-full bg-white/10 animate-pulse"></div>
-          <div class="h-4 w-2/3 rounded-full bg-white/10 animate-pulse"></div>
-          <div class="h-40 rounded-3xl bg-white/5 animate-pulse"></div>
+        <div class="space-y-5 rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">
+          <p class="text-lg font-semibold text-white">
+            {{ 'introBillboard.loadingMatch' | translate }}
+          </p>
+          <div class="space-y-3" aria-hidden="true">
+            <div class="h-4 w-1/2 rounded-full bg-white/10 animate-pulse"></div>
+            <div class="h-4 w-2/3 rounded-full bg-white/10 animate-pulse"></div>
+            <div class="h-40 rounded-3xl bg-white/5 animate-pulse"></div>
+          </div>
         </div>
-      </div>
       } @else if (state === 'not-found') {
-      <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-rose-300/30">
-        <div class="space-y-2">
-          <h2 class="text-2xl font-semibold text-white">
-            {{ 'introBillboard.matchNotFound' | translate }}
-          </h2>
-          <p class="text-sm text-slate-300">
-            {{ 'introBillboard.matchNotFoundHint' | translate }}
-          </p>
+        <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-rose-300/30">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-semibold text-white">
+              {{ 'introBillboard.matchNotFound' | translate }}
+            </h2>
+            <p class="text-sm text-slate-300">
+              {{ 'introBillboard.matchNotFoundHint' | translate }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+            (click)="handleClose()"
+          >
+            {{ 'introBillboard.backToHome' | translate }}
+          </button>
         </div>
-        <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-          (click)="handleClose()">
-          {{ 'introBillboard.backToHome' | translate }}
-        </button>
-      </div>
       } @else if (state === 'invalid') {
-      <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-amber-300/30">
-        <div class="space-y-2">
-          <h2 class="text-2xl font-semibold text-white">
-            {{ 'introBillboard.matchInvalidTitle' | translate }}
-          </h2>
-          <p class="text-sm text-slate-300">
-            {{ 'introBillboard.matchInvalidHint' | translate }}
-          </p>
+        <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-amber-300/30">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-semibold text-white">
+              {{ 'introBillboard.matchInvalidTitle' | translate }}
+            </h2>
+            <p class="text-sm text-slate-300">
+              {{ 'introBillboard.matchInvalidHint' | translate }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+            (click)="handleClose()"
+          >
+            {{ 'introBillboard.backToHome' | translate }}
+          </button>
         </div>
-        <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-          (click)="handleClose()">
-          {{ 'introBillboard.backToHome' | translate }}
-        </button>
-      </div>
       } @else {
-      <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">
-        <div class="space-y-2">
-          <h2 class="text-2xl font-semibold text-white">
-            {{ 'introBillboard.matchPartnerIdentifierTitle' | translate }}
-          </h2>
-          <p class="text-sm text-slate-300">
-            {{ 'introBillboard.matchPartnerIdentifierHint' | translate }}
-          </p>
+        <div class="space-y-6 rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-semibold text-white">
+              {{ 'introBillboard.matchPartnerIdentifierTitle' | translate }}
+            </h2>
+            <p class="text-sm text-slate-300">
+              {{ 'introBillboard.matchPartnerIdentifierHint' | translate }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+            (click)="handleClose()"
+          >
+            {{ 'introBillboard.backToHome' | translate }}
+          </button>
         </div>
-        <button type="button"
-          class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-          (click)="handleClose()">
-          {{ 'introBillboard.backToHome' | translate }}
-        </button>
-      </div>
       }
     </section>
   </div>

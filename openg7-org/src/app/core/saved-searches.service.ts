@@ -55,7 +55,7 @@ export class SavedSearchesService {
       .listMine()
       .pipe(
         finalize(() => this.loadingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (entries) => {
@@ -96,7 +96,7 @@ export class SavedSearchesService {
       .createMine(sanitizedPayload)
       .pipe(
         finalize(() => this.savingSig.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (created) => {
@@ -150,7 +150,7 @@ export class SavedSearchesService {
       .updateMine(normalizedId, sanitizedPayload)
       .pipe(
         finalize(() => this.setPending(normalizedId, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (updated) => {
@@ -158,7 +158,9 @@ export class SavedSearchesService {
         },
         error: () => {
           if (previousEntry) {
-            this.entriesSig.update((current) => this.sortEntries(this.upsert(current, previousEntry)));
+            this.entriesSig.update((current) =>
+              this.sortEntries(this.upsert(current, previousEntry)),
+            );
           }
           this.errorSig.set('pages.savedSearches.errors.update');
         },
@@ -188,7 +190,7 @@ export class SavedSearchesService {
       .deleteMine(normalizedId)
       .pipe(
         finalize(() => this.setPending(normalizedId, false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: () => {

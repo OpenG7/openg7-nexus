@@ -10,22 +10,12 @@ export interface AuthState {
 
 export const selectAuthState = createFeatureSelector<AuthState>('auth');
 
-export const selectIsAuthenticated = createSelector(
-  selectAuthState,
-  (state) => Boolean(state.user)
+export const selectIsAuthenticated = createSelector(selectAuthState, (state) =>
+  Boolean(state.user),
 );
 
-export const selectUser = createSelector(
-  selectAuthState,
-  (state) => state.user
-);
+export const selectUser = createSelector(selectAuthState, (state) => state.user);
 
-export const selectUserRoles = createSelector(
-  selectUser,
-  (user) => user?.roles ?? []
-);
+export const selectUserRoles = createSelector(selectUser, (user) => user?.roles ?? []);
 
-export const selectJwtExp = createSelector(
-  selectAuthState,
-  (state) => state.jwtExp
-);
+export const selectJwtExp = createSelector(selectAuthState, (state) => state.jwtExp);

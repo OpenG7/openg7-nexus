@@ -1,4 +1,9 @@
-import { PROVINCE_OPTIONS, ProvinceCode, SECTOR_OPTIONS, SectorType } from '@app/core/models/opportunity';
+import {
+  PROVINCE_OPTIONS,
+  ProvinceCode,
+  SECTOR_OPTIONS,
+  SectorType,
+} from '@app/core/models/opportunity';
 
 export type StrategicSectorTabId = 'all' | SectorType;
 export type CorridorRisk = 'low' | 'medium' | 'high';
@@ -54,16 +59,20 @@ export interface StrategicFilterOption {
   readonly labelKey: string;
 }
 
-const PROVINCE_FILTER_OPTIONS: readonly StrategicFilterOption[] = PROVINCE_OPTIONS.map((province) => ({
-  value: province.value,
-  labelKey: province.labelKey,
-}));
+const PROVINCE_FILTER_OPTIONS: readonly StrategicFilterOption[] = PROVINCE_OPTIONS.map(
+  (province) => ({
+    value: province.value,
+    labelKey: province.labelKey,
+  }),
+);
 
 function provinceList(values: readonly ProvinceCode[]): readonly string[] {
   return values;
 }
 
-export const FILTER_OPTIONS_BY_KEY: Readonly<Record<StrategicFilterKey, readonly StrategicFilterOption[]>> = {
+export const FILTER_OPTIONS_BY_KEY: Readonly<
+  Record<StrategicFilterKey, readonly StrategicFilterOption[]>
+> = {
   source: [
     { value: 'all', labelKey: 'pages.strategicSectors.filters.any' },
     ...PROVINCE_FILTER_OPTIONS,

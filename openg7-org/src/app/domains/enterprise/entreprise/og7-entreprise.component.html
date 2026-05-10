@@ -41,14 +41,19 @@
         }
 
         @if (!loading() && !partner()) {
-          <p class="rounded-2xl border border-yellow-400/40 bg-slate-900/60 p-4 text-sm text-yellow-200/70">
+          <p
+            class="rounded-2xl border border-yellow-400/40 bg-slate-900/60 p-4 text-sm text-yellow-200/70"
+          >
             {{ 'partner.profilePage.notFound' | translate }}
           </p>
         }
       </div>
 
       @if (partnerId(); as id) {
-        <og7-partner-quick-actions [partnerId]="id" [partnerName]="partnerName()"></og7-partner-quick-actions>
+        <og7-partner-quick-actions
+          [partnerId]="id"
+          [partnerName]="partnerName()"
+        ></og7-partner-quick-actions>
       }
     </div>
 

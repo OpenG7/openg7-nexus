@@ -63,10 +63,7 @@ export interface AdminQualityMatrixSnapshot {
   readonly entries: readonly AdminQualityMatrixEntry[];
 }
 
-export type AdminQualityMatrixRecalculationScope =
-  | 'refresh-required'
-  | 'selected-entry'
-  | 'all';
+export type AdminQualityMatrixRecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
 
 export type AdminQualityMatrixRecalculationResult =
   | 'unchanged'
@@ -233,10 +230,9 @@ export class AdminQualityMatrixService {
 
   loadMatrix(): Observable<AdminQualityMatrixSnapshot> {
     return this.http
-      .get<StrapiDataResponse<AdminQualityMatrixResponse>>(
-        STRAPI_ROUTES.admin.qualityMatrix,
-        this.silentOptions,
-      )
+      .get<
+        StrapiDataResponse<AdminQualityMatrixResponse>
+      >(STRAPI_ROUTES.admin.qualityMatrix, this.silentOptions)
       .pipe(
         map((response) => this.normalizeSnapshot(response.data)),
         catchError((error: unknown) => {
@@ -270,11 +266,9 @@ export class AdminQualityMatrixService {
 
   applyMatrixProposal(entryId: string): Observable<AdminQualityMatrixApplyProposalResult> {
     return this.http
-      .post<StrapiDataResponse<AdminQualityMatrixApplyProposalResponse>>(
-        STRAPI_ROUTES.admin.qualityMatrixApplyProposal,
-        { entryId },
-        this.silentMutationOptions,
-      )
+      .post<
+        StrapiDataResponse<AdminQualityMatrixApplyProposalResponse>
+      >(STRAPI_ROUTES.admin.qualityMatrixApplyProposal, { entryId }, this.silentMutationOptions)
       .pipe(map((response) => this.normalizeApplyProposalResult(response.data)));
   }
 
@@ -361,13 +355,18 @@ export class AdminQualityMatrixService {
   }
 
   private normalizeSignalDispatch(
-    value: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> | null | undefined,
+    value:
+      | Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>>
+      | null
+      | undefined,
   ): Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return {};
     }
 
-    const normalized: Partial<Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>> = {};
+    const normalized: Partial<
+      Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
+    > = {};
     const signalIds: readonly AdminQualityMatrixSignalId[] = [
       'summary',
       'business',
@@ -448,9 +447,7 @@ export class AdminQualityMatrixService {
               ? entry.result
               : 'unchanged',
           confidence:
-            entry.confidence === 'high' || entry.confidence === 'medium'
-              ? entry.confidence
-              : 'low',
+            entry.confidence === 'high' || entry.confidence === 'medium' ? entry.confidence : 'low',
           current,
           proposed: this.normalizeCoverageProposal(entry.proposed),
           reasons: Array.isArray(entry.reasons)
@@ -535,9 +532,7 @@ export class AdminQualityMatrixService {
           ? entry.result
           : 'unchanged',
       confidence:
-        entry.confidence === 'high' || entry.confidence === 'medium'
-          ? entry.confidence
-          : 'low',
+        entry.confidence === 'high' || entry.confidence === 'medium' ? entry.confidence : 'low',
       current,
       proposed: this.normalizeCoverageProposal(entry.proposed),
       reasons: Array.isArray(entry.reasons)

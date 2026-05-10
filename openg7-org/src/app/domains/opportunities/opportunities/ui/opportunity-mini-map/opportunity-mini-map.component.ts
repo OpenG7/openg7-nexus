@@ -165,15 +165,18 @@ export class OpportunityMiniMapComponent {
     }
     const [first, ...rest] = points;
     const path = rest
-      .map((point) =>
-        `${this.toSvgCoordinate(point.x, OpportunityMiniMapComponent.SPARKLINE_WIDTH)} ${this.toSvgCoordinate(point.y, OpportunityMiniMapComponent.SPARKLINE_HEIGHT)}`,
+      .map(
+        (point) =>
+          `${this.toSvgCoordinate(point.x, OpportunityMiniMapComponent.SPARKLINE_WIDTH)} ${this.toSvgCoordinate(point.y, OpportunityMiniMapComponent.SPARKLINE_HEIGHT)}`,
       )
       .join(' L ');
     return `M ${this.toSvgCoordinate(first.x, OpportunityMiniMapComponent.SPARKLINE_WIDTH)} ${this.toSvgCoordinate(first.y, OpportunityMiniMapComponent.SPARKLINE_HEIGHT)}${path ? ' L ' + path : ''}`;
   });
 
   readonly buyerMarkerPosition = computed(() => this.toSvgPoint(this.vm().buyer.previewPosition));
-  readonly supplierMarkerPosition = computed(() => this.toSvgPoint(this.vm().supplier.previewPosition));
+  readonly supplierMarkerPosition = computed(() =>
+    this.toSvgPoint(this.vm().supplier.previewPosition),
+  );
   readonly buyerMarkerIconY = computed(() => this.buyerMarkerPosition().y - 16);
   readonly supplierMarkerIconY = computed(() => this.supplierMarkerPosition().y - 16);
 

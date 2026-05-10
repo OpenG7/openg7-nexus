@@ -68,7 +68,7 @@ const indicatorItem = {
 } as const;
 
 async function mockFeedEndpoints(page: Page): Promise<void> {
-  await page.route('**/api/feed/stream**', async route => {
+  await page.route('**/api/feed/stream**', async (route) => {
     await route.fulfill({
       status: 200,
       headers: {
@@ -79,7 +79,7 @@ async function mockFeedEndpoints(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/feed**', async route => {
+  await page.route('**/api/feed**', async (route) => {
     if (route.request().method().toUpperCase() !== 'GET') {
       await route.fallback();
       return;
@@ -123,7 +123,7 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
     },
   };
 
-  await page.route('**/api/sectors**', async route => {
+  await page.route('**/api/sectors**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -131,7 +131,7 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/provinces**', async route => {
+  await page.route('**/api/provinces**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -139,7 +139,7 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/companies**', async route => {
+  await page.route('**/api/companies**', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -147,7 +147,7 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/auth/local', async route => {
+  await page.route('**/api/auth/local', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -158,7 +158,7 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
     });
   });
 
-  await page.route('**/api/users/me**', async route => {
+  await page.route('**/api/users/me**', async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const url = new URL(request.url());
@@ -227,7 +227,9 @@ async function mockAuthEndpoints(page: Page): Promise<void> {
         sourceType: typeof payload['sourceType'] === 'string' ? payload['sourceType'] : null,
         sourceId: typeof payload['sourceId'] === 'string' ? payload['sourceId'] : null,
         metadata:
-          payload['metadata'] && typeof payload['metadata'] === 'object' && !Array.isArray(payload['metadata'])
+          payload['metadata'] &&
+          typeof payload['metadata'] === 'object' &&
+          !Array.isArray(payload['metadata'])
             ? (payload['metadata'] as Record<string, unknown>)
             : null,
         isRead: false,
@@ -257,17 +259,14 @@ test.describe('App complete smoke', () => {
     await mockAuthEndpoints(page);
     await mockFeedEndpoints(page);
 
-  await page.goto('/');
+    await page.goto('/');
 
-  await expect(page.locator('[data-og7="hero"][data-og7-id="section"]')).toBeVisible();
-  const homeCtaLink = page.locator('og7-home-cta-row a[href="/feed"]').first();
-  await expect(homeCtaLink).toBeVisible();
-  await expect(homeCtaLink).toHaveAttribute('href', '/feed');
-  await Promise.all([
-    page.waitForURL(/\/feed($|\?)/),
-    homeCtaLink.click(),
-  ]);
-  await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
+    await expect(page.locator('[data-og7="hero"][data-og7-id="section"]')).toBeVisible();
+    const homeCtaLink = page.locator('og7-home-cta-row a[href="/feed"]').first();
+    await expect(homeCtaLink).toBeVisible();
+    await expect(homeCtaLink).toHaveAttribute('href', '/feed');
+    await Promise.all([page.waitForURL(/\/feed($|\?)/), homeCtaLink.click()]);
+    await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
 
     const feedRows = page.locator('.feed-stream__list li');
     await expect(feedRows.first()).toBeVisible();
@@ -280,7 +279,9 @@ test.describe('App complete smoke', () => {
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
     const opportunityDetailPath = new URL(page.url()).pathname;
     await page.locator('[data-og7-id="opportunity-make-offer"]').click();
-    await expect(page).toHaveURL(new RegExp(`/login\\?redirect=${encodeURIComponent(opportunityDetailPath)}`));
+    await expect(page).toHaveURL(
+      new RegExp(`/login\\?redirect=${encodeURIComponent(opportunityDetailPath)}`),
+    );
     await seedAuthenticatedSession(page);
     await page.goto(opportunityDetailPath);
     await expect(page).toHaveURL(/\/feed\/opportunities\/.+/);

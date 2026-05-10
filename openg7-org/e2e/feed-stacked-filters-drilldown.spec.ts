@@ -2,7 +2,9 @@ import './setup';
 import { expect, test, type Page } from '@playwright/test';
 
 test.describe('Feed stacked filters drilldown', () => {
-  test('keeps stacked discovery coherent through detail roundtrip and one-filter unwind', async ({ page }) => {
+  test('keeps stacked discovery coherent through detail roundtrip and one-filter unwind', async ({
+    page,
+  }) => {
     await page.goto('/feed?type=REQUEST&sector=energy');
     await waitForAngularFeedStream(page);
 
@@ -35,7 +37,9 @@ test.describe('Feed stacked filters drilldown', () => {
     await expect(page.locator('#feed-sort')).toHaveValue(/VOLUME$/);
     await expect(page.locator('#feed-search')).toHaveValue('fuel');
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('fuel');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'fuel',
+    );
     await expectVisibleItemIds(page, ['request-002']);
 
     await page.locator('[data-feed-item-id="request-002"] [data-og7-id="feed-open-item"]').click();
@@ -50,7 +54,9 @@ test.describe('Feed stacked filters drilldown', () => {
       q: 'fuel',
     });
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
-    await expect(page.locator('[data-og7="opportunity-detail-header"] h1')).toContainText('Refined fuel supply needed');
+    await expect(page.locator('[data-og7="opportunity-detail-header"] h1')).toContainText(
+      'Refined fuel supply needed',
+    );
 
     await page.goBack();
 
@@ -81,7 +87,9 @@ test.describe('Feed stacked filters drilldown', () => {
       q: null,
     });
     await expect(page.locator('#feed-search')).toHaveValue('');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toHaveCount(
+      0,
+    );
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
@@ -94,12 +102,17 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll((elements) => elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
-async function expectSearchParams(page: Page, expected: Record<string, string | null>): Promise<void> {
+async function expectSearchParams(
+  page: Page,
+  expected: Record<string, string | null>,
+): Promise<void> {
   for (const [key, value] of Object.entries(expected)) {
     await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBe(value);
   }

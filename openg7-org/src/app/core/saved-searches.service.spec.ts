@@ -41,7 +41,9 @@ describe('SavedSearchesService', () => {
 
     api.listMine.and.returnValue(of([]));
     api.createMine.and.returnValue(of(buildRecord('1')));
-    api.updateMine.and.returnValue(of(buildRecord('1', { notifyEnabled: true, frequency: 'weekly' })));
+    api.updateMine.and.returnValue(
+      of(buildRecord('1', { notifyEnabled: true, frequency: 'weekly' })),
+    );
     api.deleteMine.and.returnValue(of({ id: '1', deleted: true }));
 
     TestBed.configureTestingModule({
@@ -62,7 +64,7 @@ describe('SavedSearchesService', () => {
       of([
         buildRecord('older', { updatedAt: '2026-01-01T00:00:00.000Z' }),
         buildRecord('newer', { updatedAt: '2026-01-02T00:00:00.000Z' }),
-      ])
+      ]),
     );
     authState.set(true);
     const service = createService();

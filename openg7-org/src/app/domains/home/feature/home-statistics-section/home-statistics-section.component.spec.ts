@@ -63,9 +63,13 @@ describe('HomeStatisticsSectionComponent', () => {
     fixture.componentRef.setInput('stats', stats);
     fixture.detectChanges();
 
-    const heading: HTMLElement | null = fixture.nativeElement.querySelector('#home-statistics-heading');
+    const heading: HTMLElement | null = fixture.nativeElement.querySelector(
+      '#home-statistics-heading',
+    );
     expect(heading?.textContent).toContain('Snapshot');
-    const description: HTMLElement | null = fixture.nativeElement.querySelector('#home-statistics-description');
+    const description: HTMLElement | null = fixture.nativeElement.querySelector(
+      '#home-statistics-description',
+    );
     expect(description?.textContent).toContain('Description');
   });
 
@@ -78,4 +82,3 @@ describe('HomeStatisticsSectionComponent', () => {
     expect(entries.length).toBe(3);
   });
 });
-

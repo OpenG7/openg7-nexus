@@ -24,7 +24,10 @@ export interface SearchItemActionCallback {
   readonly callbackId: string;
 }
 
-export type SearchItemAction = SearchItemActionRoute | SearchItemActionExternal | SearchItemActionCallback;
+export type SearchItemAction =
+  | SearchItemActionRoute
+  | SearchItemActionExternal
+  | SearchItemActionCallback;
 
 export interface SearchItem {
   readonly id: string;

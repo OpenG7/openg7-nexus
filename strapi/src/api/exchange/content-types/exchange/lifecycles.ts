@@ -1,7 +1,4 @@
-import {
-  removeExchangeFromIndex,
-  syncExchangeToIndex,
-} from '../../../../services/search.service';
+import { removeExchangeFromIndex, syncExchangeToIndex } from '../../../../services/search.service';
 
 interface ExchangeEventResult {
   id?: number | string;

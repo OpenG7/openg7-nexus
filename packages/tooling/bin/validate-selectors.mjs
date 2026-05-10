@@ -10,11 +10,13 @@ const appDir = resolve(repoRoot, 'openg7-org', 'src', 'app');
 const adminQualityPackageDir = resolve(repoRoot, 'packages', 'admin-quality', 'src', 'lib');
 
 function loadSelectors(markdown) {
-  const og7Matches = [...markdown.matchAll(/\[data-og7="([\w-]+)"\]/g)].map(match => match[1]);
-  const og7IdMatches = [...markdown.matchAll(/\[data-og7-id="([\w-]+)"\]/g)].map(match => match[1]);
+  const og7Matches = [...markdown.matchAll(/\[data-og7="([\w-]+)"\]/g)].map((match) => match[1]);
+  const og7IdMatches = [...markdown.matchAll(/\[data-og7-id="([\w-]+)"\]/g)].map(
+    (match) => match[1],
+  );
 
   const uniqueOg7 = new Set(og7Matches);
-  const uniqueOg7Ids = new Set(og7IdMatches.filter(id => !['connections', 'more'].includes(id)));
+  const uniqueOg7Ids = new Set(og7IdMatches.filter((id) => !['connections', 'more'].includes(id)));
 
   return {
     og7: Array.from(uniqueOg7),
@@ -68,7 +70,10 @@ function validateSelectors() {
   }
 
   if (missing.length > 0) {
-    console.error('Sélecteurs manquants dans openg7-org/src/app ou packages/admin-quality/src/lib:\n- ' + missing.join('\n- '));
+    console.error(
+      'Sélecteurs manquants dans openg7-org/src/app ou packages/admin-quality/src/lib:\n- ' +
+        missing.join('\n- '),
+    );
     process.exit(1);
   }
 

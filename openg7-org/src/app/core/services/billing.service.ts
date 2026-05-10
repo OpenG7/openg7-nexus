@@ -94,14 +94,14 @@ export class BillingService {
    */
   async startCheckout(
     planId: string,
-    options?: { successUrl?: string; cancelUrl?: string }
+    options?: { successUrl?: string; cancelUrl?: string },
   ): Promise<CheckoutResult> {
     const payload = await firstValueFrom(
       this.http.post<CheckoutResponse>('/billing/checkout', {
         planId,
         successUrl: options?.successUrl,
         cancelUrl: options?.cancelUrl,
-      })
+      }),
     ).catch((error: unknown) => {
       throw this.toCheckoutError(error);
     });
@@ -153,7 +153,9 @@ export class BillingService {
    * @returns Observable emitting the invoice detail.
    */
   getInvoice(id: string) {
-    return this.http.get<{ data: BillingInvoice }>(`/billing/invoices/${id}`).pipe(map((response) => response.data));
+    return this.http
+      .get<{ data: BillingInvoice }>(`/billing/invoices/${id}`)
+      .pipe(map((response) => response.data));
   }
 
   /**
@@ -163,9 +165,15 @@ export class BillingService {
    * @param payload Optional refund parameters such as amount or reason.
    * @returns Promise resolving with the created refund record.
    */
-  async requestRefund(invoiceId: string, payload?: { amount?: number; reason?: string }): Promise<BillingRefund> {
+  async requestRefund(
+    invoiceId: string,
+    payload?: { amount?: number; reason?: string },
+  ): Promise<BillingRefund> {
     return firstValueFrom(
-      this.http.post<{ data: BillingRefund }>(`/billing/invoices/${invoiceId}/refund`, payload ?? {})
+      this.http.post<{ data: BillingRefund }>(
+        `/billing/invoices/${invoiceId}/refund`,
+        payload ?? {},
+      ),
     )
       .then((response) => response.data)
       .catch((error: unknown) => {
@@ -179,9 +187,11 @@ export class BillingService {
    * @returns Promise resolved when the cancellation request completes.
    */
   async cancelSubscription(): Promise<void> {
-    await firstValueFrom(this.http.post<{ cancelled: boolean }>('/billing/cancel', {})).catch((error: unknown) => {
-      throw this.toCheckoutError(error);
-    });
+    await firstValueFrom(this.http.post<{ cancelled: boolean }>('/billing/cancel', {})).catch(
+      (error: unknown) => {
+        throw this.toCheckoutError(error);
+      },
+    );
   }
 
   private async ensureStripe(publishableKey: string): Promise<Stripe> {
@@ -219,9 +229,8 @@ export class BillingService {
       return error;
     }
     if (error instanceof HttpErrorResponse) {
-      const message = typeof error.error === 'string' && error.error.trim()
-        ? error.error
-        : error.message;
+      const message =
+        typeof error.error === 'string' && error.error.trim() ? error.error : error.message;
       return new Error(message);
     }
     if (typeof error === 'string') {
@@ -230,4 +239,3 @@ export class BillingService {
     return new Error('billing.checkout_failed');
   }
 }
-

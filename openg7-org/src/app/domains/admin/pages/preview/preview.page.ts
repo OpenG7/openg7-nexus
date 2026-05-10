@@ -72,7 +72,7 @@ export class PreviewPage {
       const token = this.runtimeConfig.homepagePreviewToken();
       if (!token) {
         this.error.set(
-          'No homepage preview token configured. Define HOMEPAGE_PREVIEW_TOKEN in the runtime configuration.'
+          'No homepage preview token configured. Define HOMEPAGE_PREVIEW_TOKEN in the runtime configuration.',
         );
         return;
       }

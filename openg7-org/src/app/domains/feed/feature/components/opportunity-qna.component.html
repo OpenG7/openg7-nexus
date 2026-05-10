@@ -1,5 +1,9 @@
 ﻿<section class="opportunity-qna" data-og7="opportunity-qna">
-  <div class="opportunity-qna__tabs" role="tablist" [attr.aria-label]="'feed.opportunity.detail.conversation' | translate">
+  <div
+    class="opportunity-qna__tabs"
+    role="tablist"
+    [attr.aria-label]="'feed.opportunity.detail.conversation' | translate"
+  >
     <button
       *ngFor="let tab of tabs"
       type="button"
@@ -9,7 +13,7 @@
       [attr.data-og7-id]="'opportunity-tab-' + tab"
       (click)="selectTab(tab)"
     >
-      {{ ('feed.opportunity.detail.tabs.' + tab) | translate }}
+      {{ 'feed.opportunity.detail.tabs.' + tab | translate }}
     </button>
   </div>
 
@@ -39,7 +43,12 @@
   </label>
 
   <div class="opportunity-qna__actions">
-    <button type="button" (click)="handleSubmit()" data-og7="action" data-og7-id="opportunity-send-reply">
+    <button
+      type="button"
+      (click)="handleSubmit()"
+      data-og7="action"
+      data-og7-id="opportunity-send-reply"
+    >
       {{ 'feed.opportunity.detail.sendReply' | translate }}
     </button>
     <span>{{ 'feed.opportunity.detail.shortcut.reply' | translate }}</span>

@@ -52,7 +52,7 @@ export class IndicatorChartComponent {
     if (!points.length) {
       return 0;
     }
-    return Math.min(...points.map(point => point.value));
+    return Math.min(...points.map((point) => point.value));
   });
 
   private readonly maxValue = computed(() => {
@@ -60,7 +60,7 @@ export class IndicatorChartComponent {
     if (!points.length) {
       return 0;
     }
-    return Math.max(...points.map(point => point.value));
+    return Math.max(...points.map((point) => point.value));
   });
 
   protected readonly pointsVm = computed<readonly IndicatorChartPointVm[]>(() => {
@@ -93,8 +93,8 @@ export class IndicatorChartComponent {
 
   protected readonly polyline = computed(() =>
     this.pointsVm()
-      .map(point => `${point.x},${point.y}`)
-      .join(' ')
+      .map((point) => `${point.x},${point.y}`)
+      .join(' '),
   );
 
   protected readonly yTicks = computed<readonly IndicatorChartAxisTickVm[]>(() => {
@@ -106,7 +106,7 @@ export class IndicatorChartComponent {
     const range = Math.max(max - min, 0.001);
     const usableHeight = this.height - this.paddingTop - this.paddingBottom;
     const values = [max, min + range / 2, min];
-    return values.map(value => {
+    return values.map((value) => {
       const y = this.paddingTop + ((max - value) / range) * usableHeight;
       return {
         x: this.paddingLeft - 8,
@@ -122,7 +122,7 @@ export class IndicatorChartComponent {
       return [];
     }
     const indexes = this.pickTickIndexes(points.length, 5);
-    return indexes.map(index => ({
+    return indexes.map((index) => ({
       x: points[index]?.x ?? this.paddingLeft,
       y: this.height - 10,
       label: points[index]?.timeLabel ?? '',
@@ -137,7 +137,12 @@ export class IndicatorChartComponent {
     return this.pointsVm()[index] ?? null;
   });
 
-  protected readonly chartSummary = computed<{ min: string; max: string; last: string; delta: string } | null>(() => {
+  protected readonly chartSummary = computed<{
+    min: string;
+    max: string;
+    last: string;
+    delta: string;
+  } | null>(() => {
     if (!this.hasEnoughPoints()) {
       return null;
     }
@@ -164,7 +169,7 @@ export class IndicatorChartComponent {
   });
 
   protected toggleTable(): void {
-    this.viewAsTable.update(value => !value);
+    this.viewAsTable.update((value) => !value);
   }
 
   protected selectPoint(index: number): void {

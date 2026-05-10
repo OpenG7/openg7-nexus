@@ -218,10 +218,15 @@ async function ensureRepoExists(rawRepo: string): Promise<{ exists: boolean; rep
   }
 }
 
-async function findExistingIssueBySlug(rawRepo: string, marker: string): Promise<IssueSummary | null> {
+async function findExistingIssueBySlug(
+  rawRepo: string,
+  marker: string,
+): Promise<IssueSummary | null> {
   const repo = resolveRepoName(rawRepo);
   const query = `repo:${ORG}/${repo} "${marker}" in:body type:issue`;
-  const result = await ghRest<{ items: IssueSummary[] }>(`/search/issues?q=${encodeURIComponent(query)}`);
+  const result = await ghRest<{ items: IssueSummary[] }>(
+    `/search/issues?q=${encodeURIComponent(query)}`,
+  );
   const match = result.items.find((issue) => issue.title && issue.html_url);
 
   if (match) {

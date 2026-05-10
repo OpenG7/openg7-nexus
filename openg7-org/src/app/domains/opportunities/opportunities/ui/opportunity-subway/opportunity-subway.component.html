@@ -5,7 +5,9 @@
 >
   <header class="opportunity-subway__header">
     <div class="opportunity-subway__headline">
-      <p class="opportunity-subway__eyebrow">{{ 'opportunities.subway.prototypeLabel' | translate }}</p>
+      <p class="opportunity-subway__eyebrow">
+        {{ 'opportunities.subway.prototypeLabel' | translate }}
+      </p>
       <h3 class="opportunity-subway__title" [id]="titleId()">{{ vm().title }}</h3>
       @if (distanceLabel(); as distance) {
         <p class="opportunity-subway__headline-distance">
@@ -17,7 +19,7 @@
       class="opportunity-subway__score"
       role="img"
       [attr.id]="scoreId()"
-      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate:{ value: scoreLabel() }"
+      [attr.aria-label]="'opportunities.timeline.scoreLabel' | translate: { value: scoreLabel() }"
     >
       <svg viewBox="0 0 64 64" class="opportunity-subway__score-figure" aria-hidden="true">
         <defs>
@@ -51,28 +53,43 @@
 
   <section class="opportunity-subway__actors">
     <div class="opportunity-subway__actor">
-      <p class="opportunity-subway__actor-label">{{ 'opportunities.timeline.buyer' | translate }}</p>
+      <p class="opportunity-subway__actor-label">
+        {{ 'opportunities.timeline.buyer' | translate }}
+      </p>
       <div class="opportunity-subway__actor-body">
         <p class="opportunity-subway__actor-name">{{ vm().buyer.name }}</p>
         <div class="opportunity-subway__chips" role="list">
-          <span class="opportunity-subway__chip" role="listitem">{{ vm().buyer.provinceLabelKey | translate }}</span>
-          <span class="opportunity-subway__chip" role="listitem">{{ vm().buyer.sectorLabelKey | translate }}</span>
+          <span class="opportunity-subway__chip" role="listitem">{{
+            vm().buyer.provinceLabelKey | translate
+          }}</span>
+          <span class="opportunity-subway__chip" role="listitem">{{
+            vm().buyer.sectorLabelKey | translate
+          }}</span>
         </div>
       </div>
     </div>
     <div class="opportunity-subway__actor opportunity-subway__actor--supplier">
-      <p class="opportunity-subway__actor-label">{{ 'opportunities.timeline.supplier' | translate }}</p>
+      <p class="opportunity-subway__actor-label">
+        {{ 'opportunities.timeline.supplier' | translate }}
+      </p>
       <div class="opportunity-subway__actor-body">
         <p class="opportunity-subway__actor-name">{{ vm().supplier.name }}</p>
         <div class="opportunity-subway__chips" role="list">
-          <span class="opportunity-subway__chip" role="listitem">{{ vm().supplier.provinceLabelKey | translate }}</span>
-          <span class="opportunity-subway__chip" role="listitem">{{ vm().supplier.sectorLabelKey | translate }}</span>
+          <span class="opportunity-subway__chip" role="listitem">{{
+            vm().supplier.provinceLabelKey | translate
+          }}</span>
+          <span class="opportunity-subway__chip" role="listitem">{{
+            vm().supplier.sectorLabelKey | translate
+          }}</span>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="opportunity-subway__map" [attr.aria-label]="'opportunities.subway.mapLabel' | translate">
+  <section
+    class="opportunity-subway__map"
+    [attr.aria-label]="'opportunities.subway.mapLabel' | translate"
+  >
     <ol class="opportunity-subway__lines">
       @for (line of lines(); track line.id) {
         <li class="opportunity-subway__line" [attr.data-severity]="line.severity">
@@ -87,7 +104,11 @@
             <div class="opportunity-subway__track-line"></div>
             <div class="opportunity-subway__stations">
               @for (station of line.stations; track station.id) {
-                <div class="opportunity-subway__station" [attr.data-role]="station.role" [attr.data-junction]="station.junction ? true : null">
+                <div
+                  class="opportunity-subway__station"
+                  [attr.data-role]="station.role"
+                  [attr.data-junction]="station.junction ? true : null"
+                >
                   <div class="opportunity-subway__station-dot"></div>
                   <div class="opportunity-subway__station-labels">
                     <p class="opportunity-subway__station-title">
@@ -114,7 +135,10 @@
                   @if (station.distanceBadge) {
                     <span class="opportunity-subway__station-distance">
                       @if (station.distanceBadge.labelKey) {
-                        {{ station.distanceBadge.labelKey! | translate: station.distanceBadge.labelParams }}
+                        {{
+                          station.distanceBadge.labelKey!
+                            | translate: station.distanceBadge.labelParams
+                        }}
                       } @else {
                         {{ station.distanceBadge.label }}
                       }
@@ -130,18 +154,10 @@
   </section>
 
   <footer class="opportunity-subway__actions">
-    <button
-      type="button"
-      class="opportunity-subway__action-primary"
-      (click)="emitViewSheet()"
-    >
+    <button type="button" class="opportunity-subway__action-primary" (click)="emitViewSheet()">
       {{ 'opportunities.timeline.viewSheet' | translate }}
     </button>
-    <button
-      type="button"
-      class="opportunity-subway__action-secondary"
-      (click)="emitConnect()"
-    >
+    <button type="button" class="opportunity-subway__action-secondary" (click)="emitConnect()">
       {{ 'opportunities.timeline.connect' | translate }}
     </button>
     <button
@@ -150,7 +166,11 @@
       (click)="toggleSave()"
       [attr.aria-pressed]="saved()"
     >
-      {{ saved() ? ('opportunities.timeline.saved' | translate) : ('opportunities.timeline.save' | translate) }}
+      {{
+        saved()
+          ? ('opportunities.timeline.saved' | translate)
+          : ('opportunities.timeline.save' | translate)
+      }}
     </button>
   </footer>
 </article>

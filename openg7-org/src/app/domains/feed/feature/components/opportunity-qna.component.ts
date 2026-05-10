@@ -23,7 +23,7 @@ export class OpportunityQnaComponent {
   protected readonly tabs: OpportunityQnaTab[] = ['questions', 'offers', 'history'];
 
   protected readonly filteredMessages = computed(() =>
-    this.messages().filter(entry => entry.tab === this.activeTab())
+    this.messages().filter((entry) => entry.tab === this.activeTab()),
   );
 
   protected selectTab(tab: OpportunityQnaTab): void {

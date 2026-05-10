@@ -190,9 +190,7 @@
           "type": "textarea",
           "labelKey": "forms.energySurplus.fields.interconnectionConstraints.label",
           "helpKey": "forms.energySurplus.fields.interconnectionConstraints.help",
-          "visibleWhen": [
-            { "field": "toProvinceId", "operator": "truthy" }
-          ]
+          "visibleWhen": [{ "field": "toProvinceId", "operator": "truthy" }]
         }
       ]
     },

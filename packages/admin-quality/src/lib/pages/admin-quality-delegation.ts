@@ -1,6 +1,10 @@
 import { AdminQualityMatrixEntry } from '../data-access/admin-quality-matrix.service';
 
-export type AdminQualityDelegationMode = 'qa-proof' | 'product-closure' | 'hardening' | 'scope-cadrage';
+export type AdminQualityDelegationMode =
+  | 'qa-proof'
+  | 'product-closure'
+  | 'hardening'
+  | 'scope-cadrage';
 export type AdminQualityDelegationDifficulty = 'Easy' | 'Medium' | 'Hard';
 export type AdminQualityDelegationTrack =
   | 'Front (Angular)'
@@ -196,7 +200,10 @@ export function buildDelegationPlan(entry: AdminQualityMatrixEntry): AdminQualit
   const actionLabel = override?.actionLabel ?? defaultActionLabel(mode);
   const track = override?.track ?? defaultTrack(entry, mode);
   const difficulty = override?.difficulty ?? defaultDifficulty(entry);
-  const projectStatus = mode === 'product-closure' || mode === 'scope-cadrage' ? 'Cadrage & Strategic ideas' : 'Backlog validated';
+  const projectStatus =
+    mode === 'product-closure' || mode === 'scope-cadrage'
+      ? 'Cadrage & Strategic ideas'
+      : 'Backlog validated';
   const title = `${actionLabel} - ${entry.domain}`;
   const issueBody = buildIssueBody(entry, {
     actionLabel,
@@ -264,7 +271,10 @@ function defaultActionLabel(mode: AdminQualityDelegationMode): string {
   }
 }
 
-function defaultIssueTitle(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegationMode): string {
+function defaultIssueTitle(
+  entry: AdminQualityMatrixEntry,
+  mode: AdminQualityDelegationMode,
+): string {
   switch (mode) {
     case 'hardening':
       return `Regression: maintenir la couverture ${entry.domain.toLowerCase()}`;
@@ -277,7 +287,10 @@ function defaultIssueTitle(entry: AdminQualityMatrixEntry, mode: AdminQualityDel
   }
 }
 
-function defaultTrack(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegationMode): AdminQualityDelegationTrack {
+function defaultTrack(
+  entry: AdminQualityMatrixEntry,
+  mode: AdminQualityDelegationMode,
+): AdminQualityDelegationTrack {
   if (mode === 'scope-cadrage' && entry.managementBucket === 'scope-limit') {
     return 'Docs';
   }
@@ -295,7 +308,10 @@ function defaultDifficulty(entry: AdminQualityMatrixEntry): AdminQualityDelegati
   }
 }
 
-function defaultLabels(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegationMode): readonly string[] {
+function defaultLabels(
+  entry: AdminQualityMatrixEntry,
+  mode: AdminQualityDelegationMode,
+): readonly string[] {
   const labels = ['qa', normalizeLabel(entry.id)];
   if (mode === 'product-closure') {
     labels.push('product-gap');
@@ -312,12 +328,19 @@ function defaultLabels(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegat
 function defaultTargetFiles(entry: AdminQualityMatrixEntry): readonly string[] {
   const fileRefs = entry.evidence
     .filter((item) => item.endsWith('.spec.ts') || item.endsWith('.ts'))
-    .map((item) => item.startsWith('src/') || item.startsWith('e2e/') ? `openg7-org/${item}` : item);
+    .map((item) =>
+      item.startsWith('src/') || item.startsWith('e2e/') ? `openg7-org/${item}` : item,
+    );
 
-  return fileRefs.length ? fileRefs : ['packages/admin-quality/src/lib/pages/admin-quality.page.ts'];
+  return fileRefs.length
+    ? fileRefs
+    : ['packages/admin-quality/src/lib/pages/admin-quality.page.ts'];
 }
 
-function defaultAcceptanceCriteria(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegationMode): readonly string[] {
+function defaultAcceptanceCriteria(
+  entry: AdminQualityMatrixEntry,
+  mode: AdminQualityDelegationMode,
+): readonly string[] {
   const base = [
     `La proposition repond directement au gap observe: ${entry.observedGap}`,
     `La prochaine action de la matrice devient executable: ${entry.nextMove}`,
@@ -336,18 +359,24 @@ function defaultAcceptanceCriteria(entry: AdminQualityMatrixEntry, mode: AdminQu
 }
 
 function defaultCommands(entry: AdminQualityMatrixEntry): readonly string[] {
-  const e2eSpecs = entry.evidence.filter((item) => item.startsWith('e2e/') && item.endsWith('.spec.ts'));
-  const unitSpecs = entry.evidence.filter((item) => item.startsWith('src/') && item.endsWith('.spec.ts'));
+  const e2eSpecs = entry.evidence.filter(
+    (item) => item.startsWith('e2e/') && item.endsWith('.spec.ts'),
+  );
+  const unitSpecs = entry.evidence.filter(
+    (item) => item.startsWith('src/') && item.endsWith('.spec.ts'),
+  );
   const commands: string[] = [];
 
   if (e2eSpecs.length) {
-    commands.push(`yarn --cwd openg7-org exec playwright test ${e2eSpecs.join(' ')} --workers=1 --reporter=dot`);
+    commands.push(
+      `yarn --cwd openg7-org exec playwright test ${e2eSpecs.join(' ')} --workers=1 --reporter=dot`,
+    );
   }
   if (unitSpecs.length) {
     commands.push(
       `yarn --cwd openg7-org test --watch=false --browsers=ChromeHeadlessNoSandbox ${unitSpecs
         .map((item) => `--include ${item}`)
-        .join(' ')}`
+        .join(' ')}`,
     );
   }
   commands.push('yarn --cwd openg7-org build');
@@ -366,7 +395,7 @@ function buildIssueBody(
     readonly targetFiles: readonly string[];
     readonly acceptanceCriteria: readonly string[];
     readonly commands: readonly string[];
-  }
+  },
 ): string {
   return [
     '## Delegation',
@@ -404,7 +433,7 @@ function buildCodexPrompt(
     readonly targetFiles: readonly string[];
     readonly acceptanceCriteria: readonly string[];
     readonly commands: readonly string[];
-  }
+  },
 ): string {
   return [
     `Objectif: ${context.actionLabel} pour le domaine "${entry.domain}".`,
@@ -428,7 +457,12 @@ function buildCodexPrompt(
   ].join('\n');
 }
 
-function buildGithubIssueUrl(repoFullName: string, title: string, body: string, labels: readonly string[]): string {
+function buildGithubIssueUrl(
+  repoFullName: string,
+  title: string,
+  body: string,
+  labels: readonly string[],
+): string {
   const params = new URLSearchParams({
     title,
     body,
@@ -446,5 +480,9 @@ function resolveRepoFullName(repo: string): string {
 }
 
 function normalizeLabel(value: string): string {
-  return value.replace(/[^a-z0-9-]+/gi, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+  return value
+    .replace(/[^a-z0-9-]+/gi, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
 }

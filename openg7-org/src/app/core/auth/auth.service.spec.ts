@@ -53,7 +53,11 @@ describe('AuthService', () => {
       'error',
     ]);
     translate = { instant: jasmine.createSpy('instant').and.callFake((key: string) => key) };
-    rbac = jasmine.createSpyObj<RbacFacadeService>('RbacFacadeService', ['setContext', 'hasPermission', 'isPremium']);
+    rbac = jasmine.createSpyObj<RbacFacadeService>('RbacFacadeService', [
+      'setContext',
+      'hasPermission',
+      'isPremium',
+    ]);
     rbac.hasPermission.and.returnValue(true);
     rbac.isPremium.and.returnValue(false);
     store = jasmine.createSpyObj<Store>('Store', ['dispatch']);
@@ -126,7 +130,7 @@ describe('AuthService', () => {
         id: '9',
         email: 'pro@example.com',
         roles: ['pro'],
-      })
+      }),
     );
     expect(rbac.setContext).toHaveBeenCalledWith({ role: 'editor', isPremium: false });
   });
@@ -198,21 +202,27 @@ describe('AuthService', () => {
 
     const restoreHttp = jasmine.createSpyObj<HttpClientService>('HttpClientService', ['get']);
     restoreHttp.get.and.returnValue(
-      throwError(() =>
-        new HttpErrorResponse({ status: 500, statusText: 'Server Error', error: 'upstream failure' })
-      )
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 500,
+            statusText: 'Server Error',
+            error: 'upstream failure',
+          }),
+      ),
     );
 
-    const freshService = TestBed.runInInjectionContext(() =>
-      new AuthService(
-        restoreHttp,
-        storage,
-        oidc,
-        notifications,
-        translate as unknown as TranslateService,
-        rbac,
-        store as unknown as Store<any>
-      )
+    const freshService = TestBed.runInInjectionContext(
+      () =>
+        new AuthService(
+          restoreHttp,
+          storage,
+          oidc,
+          notifications,
+          translate as unknown as TranslateService,
+          rbac,
+          store as unknown as Store<any>,
+        ),
     );
 
     await freshService.ensureSessionRestored();
@@ -237,21 +247,23 @@ describe('AuthService', () => {
 
     const restoreHttp = jasmine.createSpyObj<HttpClientService>('HttpClientService', ['get']);
     restoreHttp.get.and.returnValue(
-      throwError(() =>
-        new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', error: 'unauthorized' })
-      )
+      throwError(
+        () =>
+          new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', error: 'unauthorized' }),
+      ),
     );
 
-    const freshService = TestBed.runInInjectionContext(() =>
-      new AuthService(
-        restoreHttp,
-        storage,
-        oidc,
-        notifications,
-        translate as unknown as TranslateService,
-        rbac,
-        store as unknown as Store<any>
-      )
+    const freshService = TestBed.runInInjectionContext(
+      () =>
+        new AuthService(
+          restoreHttp,
+          storage,
+          oidc,
+          notifications,
+          translate as unknown as TranslateService,
+          rbac,
+          store as unknown as Store<any>,
+        ),
     );
 
     await freshService.ensureSessionRestored();
@@ -332,7 +344,7 @@ describe('AuthService', () => {
 
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.forgotPassword.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
     expect(notifications.error).not.toHaveBeenCalled();
   });
@@ -517,7 +529,7 @@ describe('AuthService', () => {
         expect(message).toBe('Invalid email');
         expect(notifications.error).toHaveBeenCalledWith(
           'Invalid email',
-          jasmine.objectContaining({ source: 'auth' })
+          jasmine.objectContaining({ source: 'auth' }),
         );
         done();
       },
@@ -539,7 +551,7 @@ describe('AuthService', () => {
 
     expect(notifications.success).toHaveBeenCalledWith(
       'auth.resetPassword.success',
-      jasmine.objectContaining({ source: 'auth' })
+      jasmine.objectContaining({ source: 'auth' }),
     );
     expect(notifications.error).not.toHaveBeenCalled();
   });
@@ -551,7 +563,7 @@ describe('AuthService', () => {
         expect(message).toBe('Token expired');
         expect(notifications.error).toHaveBeenCalledWith(
           'Token expired',
-          jasmine.objectContaining({ source: 'auth' })
+          jasmine.objectContaining({ source: 'auth' }),
         );
         done();
       },

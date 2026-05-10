@@ -24,10 +24,7 @@ export const reasonSig = signal<string | null>(null);
  * @param segments Attempted URL segments (unused but part of signature).
  * @returns True when the role is authorised, otherwise a UrlTree to the access denied page.
  */
-export const roleGuard: CanMatchFn = (
-  route: Route,
-  _segments: UrlSegment[]
-) => {
+export const roleGuard: CanMatchFn = (route: Route, _segments: UrlSegment[]) => {
   const expected = (route.data?.['roles'] as string[]) || [];
   if (!expected.length) {
     isAllowedSig.set(true);

@@ -3,7 +3,10 @@
     <ol>
       <li *ngFor="let crumb of viewModel.breadcrumb; let last = last">
         <a *ngIf="crumb.link && !last" [routerLink]="crumb.link">{{ crumb.label | translate }}</a>
-        <span *ngIf="!crumb.link || last" [class.og7-importation-overview__breadcrumb-current]="last">
+        <span
+          *ngIf="!crumb.link || last"
+          [class.og7-importation-overview__breadcrumb-current]="last"
+        >
           {{ crumb.label | translate }}
         </span>
       </li>
@@ -16,22 +19,30 @@
       <h1>{{ viewModel.title | translate }}</h1>
       <div class="og7-importation-overview__meta" *ngIf="viewModel.meta as meta">
         <div>
-          <span class="og7-importation-overview__meta-label">{{ 'pages.importation.meta.lastUpdated' | translate }}</span>
+          <span class="og7-importation-overview__meta-label">{{
+            'pages.importation.meta.lastUpdated' | translate
+          }}</span>
           <span>{{ meta.lastUpdated || ('pages.importation.meta.unknown' | translate) }}</span>
         </div>
         <div>
-          <span class="og7-importation-overview__meta-label">{{ 'pages.importation.meta.provider' | translate }}</span>
+          <span class="og7-importation-overview__meta-label">{{
+            'pages.importation.meta.provider' | translate
+          }}</span>
           <span>{{ meta.dataProvider || ('pages.importation.meta.unknown' | translate) }}</span>
         </div>
         <div>
-          <span class="og7-importation-overview__meta-label">{{ 'pages.importation.meta.coverage' | translate }}</span>
+          <span class="og7-importation-overview__meta-label">{{
+            'pages.importation.meta.coverage' | translate
+          }}</span>
           <span>{{ meta.coverageLabel || ('pages.importation.meta.unknown' | translate) }}</span>
         </div>
       </div>
     </header>
 
     <section class="og7-importation-overview__filters" aria-labelledby="importationFiltersHeading">
-      <h2 id="importationFiltersHeading" class="sr-only">{{ 'pages.importation.filters.title' | translate }}</h2>
+      <h2 id="importationFiltersHeading" class="sr-only">
+        {{ 'pages.importation.filters.title' | translate }}
+      </h2>
       <fieldset>
         <legend>{{ 'pages.importation.filters.period.title' | translate }}</legend>
         <div class="og7-importation-overview__segmented">
@@ -68,7 +79,12 @@
           {{ periodValueErrorKey | translate }}
         </p>
         <div class="og7-importation-overview__field-actions">
-          <button type="button" (click)="applyPeriodValue()" data-og7="importation-filters" data-og7-id="apply-period">
+          <button
+            type="button"
+            (click)="applyPeriodValue()"
+            data-og7="importation-filters"
+            data-og7-id="apply-period"
+          >
             {{ 'pages.importation.filters.actions.apply' | translate }}
           </button>
         </div>
@@ -87,7 +103,10 @@
             <small>{{ option.description | translate }}</small>
           </button>
         </div>
-        <label class="og7-importation-overview__input" *ngIf="viewModel.filters.filters.originScope === 'custom'">
+        <label
+          class="og7-importation-overview__input"
+          *ngIf="viewModel.filters.filters.originScope === 'custom'"
+        >
           <span>{{ 'pages.importation.filters.origin.codes' | translate }}</span>
           <input
             id="importation-origin-codes"
@@ -110,8 +129,16 @@
         >
           {{ originCodesErrorKey | translate }}
         </p>
-        <div class="og7-importation-overview__field-actions" *ngIf="viewModel.filters.filters.originScope === 'custom'">
-          <button type="button" (click)="applyOriginCodes()" data-og7="importation-filters" data-og7-id="apply-origin-codes">
+        <div
+          class="og7-importation-overview__field-actions"
+          *ngIf="viewModel.filters.filters.originScope === 'custom'"
+        >
+          <button
+            type="button"
+            (click)="applyOriginCodes()"
+            data-og7="importation-filters"
+            data-og7-id="apply-origin-codes"
+          >
             {{ 'pages.importation.filters.actions.apply' | translate }}
           </button>
         </div>
@@ -133,7 +160,11 @@
 
       <div class="og7-importation-overview__compare">
         <label class="og7-importation-overview__switch">
-          <input type="checkbox" [checked]="viewModel.filters.filters.compareMode" (change)="onCompareToggle()" />
+          <input
+            type="checkbox"
+            [checked]="viewModel.filters.filters.compareMode"
+            (change)="onCompareToggle()"
+          />
           <span>{{ 'pages.importation.filters.compare.label' | translate }}</span>
         </label>
         <label class="sr-only" for="importation-compare-with">
@@ -176,13 +207,19 @@
   </div>
 
   <section class="og7-importation-overview__kpis" aria-label="Key performance indicators">
-    <article *ngFor="let kpi of viewModel.kpis; trackBy: trackKpi" class="og7-importation-overview__kpi">
+    <article
+      *ngFor="let kpi of viewModel.kpis; trackBy: trackKpi"
+      class="og7-importation-overview__kpi"
+    >
       <header>
         <span class="og7-importation-overview__kpi-label">{{ kpi.label | translate }}</span>
         <span class="og7-importation-overview__kpi-value">{{ kpi.value }}</span>
       </header>
       <div class="og7-importation-overview__kpi-delta" *ngIf="kpi.deltaLabel">
-        <span [class.is-positive]="(kpi.delta ?? 0) >= 0" [class.is-negative]="(kpi.delta ?? 0) < 0">
+        <span
+          [class.is-positive]="(kpi.delta ?? 0) >= 0"
+          [class.is-negative]="(kpi.delta ?? 0) < 0"
+        >
           {{ kpi.deltaLabel }}
         </span>
       </div>

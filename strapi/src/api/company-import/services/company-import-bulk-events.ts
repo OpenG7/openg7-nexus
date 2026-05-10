@@ -64,7 +64,10 @@ function ensureHeartbeatRunning(): void {
   heartbeatTimer.unref?.();
 }
 
-function writeEnvelope(client: CompanyImportBulkStreamClient, event: CompanyImportBulkEvent): boolean {
+function writeEnvelope(
+  client: CompanyImportBulkStreamClient,
+  event: CompanyImportBulkEvent,
+): boolean {
   return writeToClient(client, `id: ${event.eventId}\ndata: ${JSON.stringify(event)}\n\n`);
 }
 
@@ -80,7 +83,7 @@ function buildConnectedEvent(jobId: string): CompanyImportBulkEvent {
 export function registerCompanyImportBulkStreamClient(
   response: ServerResponse,
   userId: string,
-  jobId: string
+  jobId: string,
 ): string {
   const id = `bulk-import-stream-${Date.now()}-${++sequence}`;
   const client: CompanyImportBulkStreamClient = { id, userId, jobId, response };

@@ -21,7 +21,11 @@ describe('OpportunityService', () => {
     translate = jasmine.createSpyObj<TranslateService>('TranslateService', ['instant']);
     translate.instant.and.returnValue('demo-translation');
 
-    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStore', ['info', 'error', 'success']);
+    notifications = jasmine.createSpyObj<NotificationStoreApi>('NotificationStore', [
+      'info',
+      'error',
+      'success',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -88,7 +92,9 @@ describe('OpportunityService', () => {
     expect(service.error()()).toBeNull();
     expect(service.loading()()).toBeFalse();
 
-    expect(translate.instant).toHaveBeenCalledWith('opportunities.notifications.demo', { count: 1 });
+    expect(translate.instant).toHaveBeenCalledWith('opportunities.notifications.demo', {
+      count: 1,
+    });
     expect(notifications.info).toHaveBeenCalledWith('demo-translation', {
       source: 'matches',
       metadata: { count: 1, mode: 'demo' },
@@ -97,10 +103,16 @@ describe('OpportunityService', () => {
 
   it('ignores stale responses from previous requests when a newer one completes', () => {
     service.loadMatches({ q: 'first' });
-    const firstRequest = httpMock.expectOne((req) => req.url === 'https://cms.local/api/opportunity-matches' && req.params.get('q') === 'first');
+    const firstRequest = httpMock.expectOne(
+      (req) =>
+        req.url === 'https://cms.local/api/opportunity-matches' && req.params.get('q') === 'first',
+    );
 
     service.loadMatches({ q: 'second' });
-    const secondRequest = httpMock.expectOne((req) => req.url === 'https://cms.local/api/opportunity-matches' && req.params.get('q') === 'second');
+    const secondRequest = httpMock.expectOne(
+      (req) =>
+        req.url === 'https://cms.local/api/opportunity-matches' && req.params.get('q') === 'second',
+    );
 
     const latestResponse = {
       data: [
@@ -239,13 +251,19 @@ describe('OpportunityService', () => {
 
     service.loadMatchById(77).subscribe((match) => {
       expect(match?.id).toBe(77);
-      expect(service.items()().some((item) => item.id === 77)).toBeTrue();
+      expect(
+        service
+          .items()()
+          .some((item) => item.id === 77),
+      ).toBeTrue();
       expect(notifications.error).not.toHaveBeenCalled();
       done();
     });
 
     const request = httpMock.expectOne(
-      (req) => req.url === 'https://cms.local/api/opportunity-matches/77' && req.params.get('populate') === 'buyer,seller'
+      (req) =>
+        req.url === 'https://cms.local/api/opportunity-matches/77' &&
+        req.params.get('populate') === 'buyer,seller',
     );
 
     request.flush(response);
@@ -314,7 +332,7 @@ describe('OpportunityService', () => {
         req.url === 'https://cms.local/api/opportunity-matches' &&
         req.params.get('sector') === 'energy' &&
         req.params.get('province') === 'QC' &&
-        req.params.get('q') === 'hydrogen'
+        req.params.get('q') === 'hydrogen',
     );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     request.flush('downstream failure', { status: 500, statusText: 'Server Error' });
@@ -322,13 +340,19 @@ describe('OpportunityService', () => {
     const result = await pending;
 
     expect(result.map((entry) => entry.id)).toEqual([88]);
-    expect(service.items()().map((entry) => entry.id)).toEqual([88]);
+    expect(
+      service
+        .items()()
+        .map((entry) => entry.id),
+    ).toEqual([88]);
   });
 
   it('finds one match silently by id and caches it without notifications', async () => {
     const pending = service.findMatchById(91);
     const request = httpMock.expectOne(
-      (req) => req.url === 'https://cms.local/api/opportunity-matches/91' && req.params.get('populate') === 'buyer,seller'
+      (req) =>
+        req.url === 'https://cms.local/api/opportunity-matches/91' &&
+        req.params.get('populate') === 'buyer,seller',
     );
     expect(request.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
 
@@ -368,7 +392,11 @@ describe('OpportunityService', () => {
     const match = await pending;
 
     expect(match?.id).toBe(91);
-    expect(service.items()().some((item) => item.id === 91)).toBeTrue();
+    expect(
+      service
+        .items()()
+        .some((item) => item.id === 91),
+    ).toBeTrue();
     expect(notifications.error).not.toHaveBeenCalled();
     expect(notifications.info).not.toHaveBeenCalledWith('demo-translation', jasmine.anything());
   });

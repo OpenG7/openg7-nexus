@@ -33,7 +33,13 @@ import { FeedRealtimeService } from '../services/feed-realtime.service';
 @Component({
   selector: 'og7-feed-publish-section',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, Og7FeedComposerComponent, Og7DynamicPublicationFormComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    TranslateModule,
+    Og7FeedComposerComponent,
+    Og7DynamicPublicationFormComponent,
+  ],
   templateUrl: './feed-publish-section.component.html',
   styleUrl: './feed-publish-section.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,9 +62,9 @@ export class FeedPublishSectionComponent {
   private readonly redirectTargetSig = toSignal(
     this.router.events.pipe(
       startWith(null),
-      map(() => this.resolveInternalUrl())
+      map(() => this.resolveInternalUrl()),
     ),
-    { initialValue: this.resolveInternalUrl() }
+    { initialValue: this.resolveInternalUrl() },
   );
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
@@ -72,12 +78,16 @@ export class FeedPublishSectionComponent {
   protected readonly selectedTemplateKey = signal('energy-surplus-offer');
   private readonly publishModeTouched = signal(false);
   private readonly templateTouched = signal(false);
-  protected readonly templateSubmitState = signal<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle');
+  protected readonly templateSubmitState = signal<
+    'idle' | 'submitting' | 'success' | 'error' | 'offline'
+  >('idle');
   protected readonly templateSubmitError = signal<string | null>(null);
   protected readonly templateErrors = signal<readonly string[]>([]);
   protected readonly templateWarnings = signal<readonly string[]>([]);
   protected readonly availableTemplates = this.formConfigService.list();
-  protected readonly activeTemplateConfig = computed(() => this.formConfigService.get(this.selectedTemplateKey()));
+  protected readonly activeTemplateConfig = computed(() =>
+    this.formConfigService.get(this.selectedTemplateKey()),
+  );
   private readonly recommendedTemplateKey = computed(() => {
     const explicitFormKey = feedFormKeySig();
     if (explicitFormKey && this.formConfigService.get(explicitFormKey)) {
@@ -99,7 +109,9 @@ export class FeedPublishSectionComponent {
     return this.recommendedTemplateKey() === 'hydrocarbon-surplus-offer' ? 'template' : 'generic';
   });
   private readonly provinces = this.store.selectSignal(selectProvinces);
-  protected readonly templateFieldOptions = computed<Record<string, readonly PublicationFieldOption[]>>(() => {
+  protected readonly templateFieldOptions = computed<
+    Record<string, readonly PublicationFieldOption[]>
+  >(() => {
     const provinces = this.provinces().map((province) => ({
       value: province.id,
       labelKey: province.name,
@@ -131,7 +143,8 @@ export class FeedPublishSectionComponent {
       }
 
       if (this.isAuthenticated()) {
-        const target = this.publishMode() === 'template' ? this.templateFormRef() : this.composerRef();
+        const target =
+          this.publishMode() === 'template' ? this.templateFormRef() : this.composerRef();
         if (!target?.focusPrimaryField) {
           return;
         }
@@ -281,7 +294,8 @@ export class FeedPublishSectionComponent {
 
   private resolveInternalUrl(): string {
     const navigation = this.router.getCurrentNavigation();
-    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    const url =
+      navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     if (typeof url !== 'string') {
       return '/feed';
     }

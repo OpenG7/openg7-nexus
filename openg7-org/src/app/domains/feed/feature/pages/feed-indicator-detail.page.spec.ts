@@ -48,9 +48,7 @@ class StoreMock {
     { id: 'on', name: 'Ontario' },
     { id: 'qc', name: 'Quebec' },
   ]);
-  private readonly sectorsSig = signal([
-    { id: 'energy', name: 'Energy' },
-  ]);
+  private readonly sectorsSig = signal([{ id: 'energy', name: 'Energy' }]);
   private selectCallCount = 0;
 
   readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake(() => {
@@ -65,44 +63,49 @@ class StoreMock {
 class IndicatorAlertRulesServiceMock {
   readonly entries = signal<IndicatorAlertRuleRecord[]>([]);
   readonly refresh = jasmine.createSpy('refresh');
-  readonly create = jasmine.createSpy('create').and.callFake((payload: {
-    indicatorId: string;
-    indicatorTitle: string;
-    thresholdDirection: 'gt' | 'lt';
-    thresholdValue: number;
-    window: '1h' | '24h';
-    frequency: 'instant' | 'hourly' | 'daily';
-    notifyDelta: boolean;
-    note?: string | null;
-    route?: string | null;
-  }) => {
-    const record: IndicatorAlertRuleRecord = {
-      id: `indicator-rule-${this.entries().length + 1}`,
-      indicatorId: payload.indicatorId,
-      indicatorTitle: payload.indicatorTitle,
-      thresholdDirection: payload.thresholdDirection,
-      thresholdValue: payload.thresholdValue,
-      window: payload.window,
-      frequency: payload.frequency,
-      notifyDelta: payload.notifyDelta,
-      note: payload.note ?? '',
-      route: payload.route ?? null,
-      active: true,
-      createdAt: '2026-01-21T09:05:00.000Z',
-      updatedAt: '2026-01-21T09:05:00.000Z',
-    };
-    this.entries.update((current) => [record, ...current]);
-    return record;
-  });
+  readonly create = jasmine
+    .createSpy('create')
+    .and.callFake(
+      (payload: {
+        indicatorId: string;
+        indicatorTitle: string;
+        thresholdDirection: 'gt' | 'lt';
+        thresholdValue: number;
+        window: '1h' | '24h';
+        frequency: 'instant' | 'hourly' | 'daily';
+        notifyDelta: boolean;
+        note?: string | null;
+        route?: string | null;
+      }) => {
+        const record: IndicatorAlertRuleRecord = {
+          id: `indicator-rule-${this.entries().length + 1}`,
+          indicatorId: payload.indicatorId,
+          indicatorTitle: payload.indicatorTitle,
+          thresholdDirection: payload.thresholdDirection,
+          thresholdValue: payload.thresholdValue,
+          window: payload.window,
+          frequency: payload.frequency,
+          notifyDelta: payload.notifyDelta,
+          note: payload.note ?? '',
+          route: payload.route ?? null,
+          active: true,
+          createdAt: '2026-01-21T09:05:00.000Z',
+          updatedAt: '2026-01-21T09:05:00.000Z',
+        };
+        this.entries.update((current) => [record, ...current]);
+        return record;
+      },
+    );
   readonly findActiveRuleForIndicator = jasmine
     .createSpy('findActiveRuleForIndicator')
-    .and.callFake((indicatorId: string) =>
-      this.entries().find((entry) => entry.active && entry.indicatorId === indicatorId) ?? null
+    .and.callFake(
+      (indicatorId: string) =>
+        this.entries().find((entry) => entry.active && entry.indicatorId === indicatorId) ?? null,
     );
   readonly hasActiveRuleForIndicator = jasmine
     .createSpy('hasActiveRuleForIndicator')
     .and.callFake((indicatorId: string) =>
-      this.entries().some((entry) => entry.active && entry.indicatorId === indicatorId)
+      this.entries().some((entry) => entry.active && entry.indicatorId === indicatorId),
     );
 }
 
@@ -272,7 +275,9 @@ describe('FeedIndicatorDetailPage', () => {
 
   it('exposes a decision flow and opens the recommended opportunity when corridor context is present', async () => {
     const fixture = TestBed.createComponent(FeedIndicatorDetailPage);
-    routeQueryParamMap$.next(convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }));
+    routeQueryParamMap$.next(
+      convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }),
+    );
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -510,7 +515,9 @@ describe('FeedIndicatorDetailPage', () => {
     };
 
     expect(component.subscribed()).toBeTrue();
-    expect(indicatorAlertRules.findActiveRuleForIndicator).toHaveBeenCalledWith('indicator-spot-ontario');
+    expect(indicatorAlertRules.findActiveRuleForIndicator).toHaveBeenCalledWith(
+      'indicator-spot-ontario',
+    );
   });
 
   it('creates a mapped indicator alert rule and updates subscribed state on successful submit', async () => {
@@ -563,7 +570,7 @@ describe('FeedIndicatorDetailPage', () => {
           itemId: 'indicator-spot-ontario',
           indicatorAlertRuleId: 'indicator-rule-1',
         }),
-      })
+      }),
     );
   });
 
@@ -594,7 +601,7 @@ describe('FeedIndicatorDetailPage', () => {
           action: 'create-indicator-alert',
           itemId: 'indicator-spot-ontario',
         }),
-      })
+      }),
     );
   });
 
@@ -637,7 +644,10 @@ describe('FeedIndicatorDetailPage', () => {
     await fixture.whenStable();
 
     expect(indicatorAlertRules.create).not.toHaveBeenCalled();
-    expect(indicatorAlertDrafts.save).toHaveBeenCalledWith('indicator-spot-ontario', createAlertDraft());
+    expect(indicatorAlertDrafts.save).toHaveBeenCalledWith(
+      'indicator-spot-ontario',
+      createAlertDraft(),
+    );
     expect(component.alertSubmitState()).toBe('offline');
     expect(component.alertRetryEnabled()).toBeFalse();
 

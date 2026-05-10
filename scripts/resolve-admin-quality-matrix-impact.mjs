@@ -2,7 +2,14 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const repoRoot = path.resolve(import.meta.dirname, '..');
-const matrixSnapshotPath = path.join(repoRoot, 'openg7-org', 'src', 'assets', 'data', 'admin-quality-matrix.json');
+const matrixSnapshotPath = path.join(
+  repoRoot,
+  'openg7-org',
+  'src',
+  'assets',
+  'data',
+  'admin-quality-matrix.json',
+);
 
 function loadKnownEntryIds() {
   const raw = readFileSync(matrixSnapshotPath, 'utf8');
@@ -139,11 +146,12 @@ const GLOBAL_PREFIXES = [
 ];
 
 function normalizeFiles(rawValue) {
-  const files = typeof rawValue === 'string'
-    ? rawValue.split(/\r?\n/)
-    : Array.isArray(rawValue)
-      ? rawValue
-      : [];
+  const files =
+    typeof rawValue === 'string'
+      ? rawValue.split(/\r?\n/)
+      : Array.isArray(rawValue)
+        ? rawValue
+        : [];
   return files.map((file) => file.trim()).filter(Boolean);
 }
 
@@ -184,7 +192,10 @@ function resolveImpact(changedFiles) {
   return {
     entryIds: Array.from(matchedEntryIds).sort(),
     mode: 'targeted',
-    reason: matchedEntryIds.size > 0 ? 'Targeted impact map matched changed files.' : 'No matrix-impacting file detected.',
+    reason:
+      matchedEntryIds.size > 0
+        ? 'Targeted impact map matched changed files.'
+        : 'No matrix-impacting file detected.',
   };
 }
 

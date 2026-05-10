@@ -160,7 +160,9 @@
   border: 1px solid rgba(94, 234, 212, 0.35);
   color: #f8fafc;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .opportunity-mini-map__metric--cta:hover,
@@ -260,7 +262,9 @@
   font-size: 0.85rem;
   cursor: pointer;
   box-shadow: 0 16px 32px -24px rgba(8, 145, 178, 0.6);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .opportunity-mini-map__activate:hover,

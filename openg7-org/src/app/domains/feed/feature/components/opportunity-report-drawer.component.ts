@@ -58,7 +58,7 @@ export class OpportunityReportDrawerComponent {
 
   protected readonly submitting = computed(() => false);
   protected readonly viewingReport = computed(
-    () => this.mode() === 'view' && Boolean(this.existingReport())
+    () => this.mode() === 'view' && Boolean(this.existingReport()),
   );
 
   constructor() {

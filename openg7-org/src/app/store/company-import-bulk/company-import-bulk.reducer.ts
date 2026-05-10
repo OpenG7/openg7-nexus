@@ -6,7 +6,6 @@ import {
 } from '@app/import/data-access/companies-bulk-import.service';
 import { createReducer, on } from '@ngrx/store';
 
-
 import { CompanyImportBulkActions } from './company-import-bulk.actions';
 
 export interface CompanyImportBulkState {
@@ -102,5 +101,5 @@ export const companyImportBulkReducer = createReducer(
     ...state,
     pollingEnabled: false,
   })),
-  on(CompanyImportBulkActions.reset, () => ({ ...initialCompanyImportBulkState }))
+  on(CompanyImportBulkActions.reset, () => ({ ...initialCompanyImportBulkState })),
 );

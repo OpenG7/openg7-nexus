@@ -39,7 +39,8 @@ const hydrocarbonItem = {
   type: 'OFFER',
   sectorId: 'energy',
   title: hydrocarbonSignal.title,
-  summary: 'Northern Prairie Energy can release a 10-day crude window after reduced outbound flow on the main corridor.',
+  summary:
+    'Northern Prairie Energy can release a 10-day crude window after reduced outbound flow on the main corridor.',
   fromProvinceId: 'ab',
   toProvinceId: 'on',
   mode: 'EXPORT',
@@ -91,10 +92,18 @@ test.describe('Feed view context refinement', () => {
       mode: 'EXPORT',
     });
     await expect(page.locator('#feed-search')).toHaveValue('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toContainText('Alberta');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText('Energy');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="formKey"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'Prairie',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toContainText('Alberta');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText(
+      'Energy',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="formKey"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
     await expectVisibleItemIds(page, ['hydrocarbon-opportunity-001']);
@@ -102,18 +111,20 @@ test.describe('Feed view context refinement', () => {
     await expect
       .poll(() =>
         apiRequests.feedRequests.some(
-          request =>
+          (request) =>
             request.sector === 'energy' &&
             request.formKey === 'hydrocarbon-surplus-offer' &&
             request.fromProvince === 'ab' &&
             request.type === 'OFFER' &&
             request.mode === 'EXPORT' &&
-            request.q === 'Prairie'
-        )
+            request.q === 'Prairie',
+        ),
       )
       .toBe(true);
 
-    await page.locator('[data-feed-item-id="hydrocarbon-opportunity-001"] [data-og7-id="feed-open-item"]').click();
+    await page
+      .locator('[data-feed-item-id="hydrocarbon-opportunity-001"] [data-og7-id="feed-open-item"]')
+      .click();
 
     await expect(page).toHaveURL(/\/feed\/opportunities\/hydrocarbon-opportunity-001(?:\?.*)?$/);
     await expect(page.locator('[data-og7="opportunity-detail-page"]')).toBeVisible();
@@ -136,9 +147,15 @@ test.describe('Feed view context refinement', () => {
     await expect(page.locator('[data-og7="feed-view-context"]')).toBeVisible();
     await expect(page.locator('[data-og7="hydrocarbon-signals-panel"]')).toBeVisible();
     await expect(page.locator('#feed-search')).toHaveValue('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toContainText('Alberta');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText('Energy');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'Prairie',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toContainText('Alberta');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText(
+      'Energy',
+    );
     await expectVisibleItemIds(page, ['hydrocarbon-opportunity-001']);
 
     await page.reload();
@@ -158,10 +175,18 @@ test.describe('Feed view context refinement', () => {
       mode: 'EXPORT',
     });
     await expect(page.locator('#feed-search')).toHaveValue('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('Prairie');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toContainText('Alberta');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText('Energy');
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="formKey"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'Prairie',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toContainText('Alberta');
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toContainText(
+      'Energy',
+    );
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="formKey"]'),
+    ).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="type"]')).toBeVisible();
     await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
     await expectVisibleItemIds(page, ['hydrocarbon-opportunity-001']);
@@ -178,7 +203,7 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
   });
   const feedRequests: Array<Record<string, string | null>> = [];
 
-  await page.route('**/runtime-config.js', async route => {
+  await page.route('**/runtime-config.js', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/javascript',
@@ -191,42 +216,42 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
     });
   });
 
-  await page.route(/\/api\/sectors(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/sectors(?:\?.*)?$/i, async (route) => {
     await route.fulfill(
       json({
         data: [
           { id: 'energy', name: 'Energy' },
           { id: 'manufacturing', name: 'Manufacturing' },
         ],
-      })
+      }),
     );
   });
 
-  await page.route(/\/api\/provinces(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/provinces(?:\?.*)?$/i, async (route) => {
     await route.fulfill(
       json({
         data: [
           { id: 'ab', name: 'Alberta' },
           { id: 'on', name: 'Ontario' },
         ],
-      })
+      }),
     );
   });
 
-  await page.route(/\/api\/companies(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/companies(?:\?.*)?$/i, async (route) => {
     await route.fulfill(json({ data: [] }));
   });
 
-  await page.route(/\/api\/auth\/local(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/auth\/local(?:\?.*)?$/i, async (route) => {
     await route.fulfill(
       json({
         jwt: 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature',
         user: PROFILE,
-      })
+      }),
     );
   });
 
-  await page.route(/\/api\/users\/me(?:\/.*)?(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/users\/me(?:\/.*)?(?:\?.*)?$/i, async (route) => {
     const request = route.request();
     const method = request.method().toUpperCase();
     const path = new URL(request.url()).pathname.toLowerCase();
@@ -269,7 +294,7 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
           sessionsRevoked: 0,
           sessionVersion: 1,
           sessions: [],
-        })
+        }),
       );
       return;
     }
@@ -277,7 +302,7 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
     await route.fulfill(json({ message: 'Unhandled users/me route' }, 404));
   });
 
-  await page.route(/\/api\/feed\/stream(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/feed\/stream(?:\?.*)?$/i, async (route) => {
     await route.fulfill({
       status: 200,
       headers: {
@@ -288,11 +313,11 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
     });
   });
 
-  await page.route(/\/api\/hydrocarbon-signals(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/hydrocarbon-signals(?:\?.*)?$/i, async (route) => {
     await route.fulfill(json({ data: [hydrocarbonSignal], meta: {} }));
   });
 
-  await page.route(/\/api\/feed\/[^/?]+(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/feed\/[^/?]+(?:\?.*)?$/i, async (route) => {
     if (route.request().method().toUpperCase() !== 'GET') {
       await route.fallback();
       return;
@@ -301,7 +326,7 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
     await route.fulfill(json({ data: hydrocarbonItem }));
   });
 
-  await page.route(/\/api\/feed(?:\?.*)?$/i, async route => {
+  await page.route(/\/api\/feed(?:\?.*)?$/i, async (route) => {
     if (route.request().method().toUpperCase() !== 'GET') {
       await route.fallback();
       return;
@@ -321,7 +346,7 @@ async function mockHydrocarbonViewApis(page: Page): Promise<{
       json({
         data: [hydrocarbonItem],
         cursor: null,
-      })
+      }),
     );
   });
 
@@ -333,12 +358,17 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
-async function expectSearchParams(page: Page, expected: Record<string, string | null>): Promise<void> {
+async function expectSearchParams(
+  page: Page,
+  expected: Record<string, string | null>,
+): Promise<void> {
   for (const [key, value] of Object.entries(expected)) {
     await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBe(value);
   }

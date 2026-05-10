@@ -13,11 +13,12 @@ export default async () => {
     if (!id) {
       continue;
     }
-    const hasCountry = typeof (entry as any).country === 'string' && (entry as any).country.trim() !== '';
+    const hasCountry =
+      typeof (entry as any).country === 'string' && (entry as any).country.trim() !== '';
     if (hasCountry) {
       continue;
     }
-     
+
     await strapi.entityService.update('api::company.company', id, {
       data: { country: 'CA' } as any,
     });

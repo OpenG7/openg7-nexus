@@ -28,7 +28,10 @@ const projects: NationalProjectSeed[] = [
     slug: 'high-speed-rail',
     title: { en: 'High-Speed Rail', fr: 'Train a grande vitesse' },
     country: 'US',
-    description: { en: 'Rail project in the United States', fr: 'Projet ferroviaire aux Etats-Unis' },
+    description: {
+      en: 'Rail project in the United States',
+      fr: 'Projet ferroviaire aux Etats-Unis',
+    },
     impactOnShipping: { decrease: 5, unit: '%' },
     highlight: false,
   },
@@ -36,7 +39,10 @@ const projects: NationalProjectSeed[] = [
     slug: 'port-modernization',
     title: { en: 'Port Modernization', fr: 'Modernisation du port' },
     country: 'FR',
-    description: { en: 'Modernization of major port in France', fr: "Modernisation d'un port majeur en France" },
+    description: {
+      en: 'Modernization of major port in France',
+      fr: "Modernisation d'un port majeur en France",
+    },
     impactOnShipping: { increase: 7, unit: '%' },
     highlight: true,
   },
@@ -62,7 +68,7 @@ export default async () => {
         unique: {
           slug: project.slug,
         },
-      }
+      },
     );
   }
 

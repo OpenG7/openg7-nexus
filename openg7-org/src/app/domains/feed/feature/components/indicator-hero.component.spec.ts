@@ -45,7 +45,7 @@ describe('IndicatorHeroComponent', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -58,8 +58,9 @@ describe('IndicatorHeroComponent', () => {
     setRequiredInputs(fixture, { subscribed: false });
     fixture.detectChanges();
 
-    const subscribeButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="indicator-subscribe"]');
+    const subscribeButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-subscribe"]',
+    );
     expect(subscribeButton).toBeTruthy();
 
     subscribeButton?.click();
@@ -72,10 +73,12 @@ describe('IndicatorHeroComponent', () => {
     setRequiredInputs(fixture, { subscribed: false });
     fixture.detectChanges();
 
-    const subscribeButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="indicator-subscribe"]');
-    const createAlertButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="indicator-create-alert"]');
+    const subscribeButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-subscribe"]',
+    );
+    const createAlertButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-create-alert"]',
+    );
     expect(subscribeButton?.textContent).toContain('Subscribe');
     expect(createAlertButton?.textContent).toContain('Create alert');
 
@@ -90,11 +93,16 @@ describe('IndicatorHeroComponent', () => {
   it('renders pending label and disables subscribe action while pending', () => {
     const fixture = TestBed.createComponent(IndicatorHeroComponent);
 
-    setRequiredInputs(fixture, { subscribed: false, subscribePending: true, subscribeDisabled: true });
+    setRequiredInputs(fixture, {
+      subscribed: false,
+      subscribePending: true,
+      subscribeDisabled: true,
+    });
     fixture.detectChanges();
 
-    const subscribeButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="indicator-subscribe"]');
+    const subscribeButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-subscribe"]',
+    );
     expect(subscribeButton?.disabled).toBeTrue();
     expect(subscribeButton?.textContent).toContain('Subscribing...');
     expect(subscribeButton?.getAttribute('aria-busy')).toBe('true');
@@ -108,8 +116,9 @@ describe('IndicatorHeroComponent', () => {
     setRequiredInputs(fixture, { subscribed: false });
     fixture.detectChanges();
 
-    const createAlertButton: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('[data-og7-id="indicator-create-alert"]');
+    const createAlertButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="indicator-create-alert"]',
+    );
     expect(createAlertButton).toBeTruthy();
 
     createAlertButton?.click();
@@ -123,7 +132,7 @@ function setRequiredInputs(
     subscribed: boolean;
     subscribePending?: boolean;
     subscribeDisabled?: boolean;
-  }
+  },
 ): void {
   fixture.componentRef.setInput('title', 'Spot electricity price up 12 percent');
   fixture.componentRef.setInput('subtitle', 'Ontario - Electricity - Spot');

@@ -6,7 +6,6 @@ import {
 } from '@app/import/data-access/companies-bulk-import.service';
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
-
 export const CompanyImportBulkActions = createActionGroup({
   source: 'Company Import Bulk',
   events: {

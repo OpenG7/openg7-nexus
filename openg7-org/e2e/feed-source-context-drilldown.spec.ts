@@ -1,7 +1,10 @@
 import './setup';
 import { expect, type Page, test } from '@playwright/test';
 
-async function expectSearchParams(page: Page, expected: Record<string, string | null>): Promise<void> {
+async function expectSearchParams(
+  page: Page,
+  expected: Record<string, string | null>,
+): Promise<void> {
   for (const [key, value] of Object.entries(expected)) {
     await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBe(value);
   }
@@ -12,17 +15,21 @@ async function expectVisibleItemIds(page: Page, expectedIds: string[]): Promise<
     .poll(async () =>
       page
         .locator('[data-feed-item-id]')
-        .evaluateAll(elements => elements.map(element => element.getAttribute('data-feed-item-id') ?? ''))
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+        ),
     )
     .toEqual(expectedIds);
 }
 
 test.describe('Feed source context drilldown', () => {
-  test('preserves corridor-derived context after feed refinement, detail navigation, back, and reload', async ({ page }) => {
+  test('preserves corridor-derived context after feed refinement, detail navigation, back, and reload', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     const corridorItem = page.locator(
-      '[data-og7="corridors-realtime"] [data-og7-id="corridor-item"][data-og7-corridor-id="essential-services"]'
+      '[data-og7="corridors-realtime"] [data-og7-id="corridor-item"][data-og7-corridor-id="essential-services"]',
     );
 
     await expect(corridorItem).toBeVisible();
@@ -54,9 +61,15 @@ test.describe('Feed source context drilldown', () => {
       q: 'two-week',
     });
     await expect(page.locator('[data-og7="feed-active-filters"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toBeVisible();
-    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText('two-week');
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="search"]')).toContainText(
+      'two-week',
+    );
     await expectVisibleItemIds(page, ['request-001']);
 
     await page.locator('[data-feed-item-id="request-001"] [data-og7-id="feed-open-item"]').click();

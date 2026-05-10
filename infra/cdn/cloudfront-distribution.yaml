@@ -4,10 +4,10 @@ Description: CloudFront distribution pour servir les assets statiques OpenG7 et 
 Parameters:
   DomainName:
     Type: String
-    Description: "Domaine principal (ex: www.openg7.org)"
+    Description: 'Domaine principal (ex: www.openg7.org)'
   CertificateArn:
     Type: String
-    Description: "ARN du certificat ACM dans us-east-1"
+    Description: 'ARN du certificat ACM dans us-east-1'
   SsrOriginDomain:
     Type: String
     Description: "DNS public de l'Ingress SSR (ex: ssr.openg7.org)"
@@ -18,13 +18,13 @@ Parameters:
       - PriceClass_100
       - PriceClass_200
       - PriceClass_All
-    Description: "Couverture CloudFront"
+    Description: 'Couverture CloudFront'
 
 Resources:
   StaticAssetsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${DomainName}-static-assets"
+      BucketName: !Sub '${DomainName}-static-assets'
       VersioningConfiguration:
         Status: Enabled
       OwnershipControls:
@@ -40,7 +40,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
       OriginAccessControlConfig:
-        Name: !Sub "${DomainName}-oac"
+        Name: !Sub '${DomainName}-oac'
         Description: OAC pour la distribution statique OpenG7
         OriginAccessControlOriginType: s3
         SigningBehavior: always
@@ -63,7 +63,7 @@ Resources:
                 - '/*'
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}"
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${FrontendDistribution}'
 
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution

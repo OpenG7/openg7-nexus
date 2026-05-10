@@ -5,7 +5,13 @@ const IMPORT_ANNOTATION_UID = 'api::import-annotation.import-annotation' as any;
 const IMPORT_REPORT_SCHEDULE_UID = 'api::import-report-schedule.import-report-schedule' as any;
 
 type ImportationGranularity = 'month' | 'quarter' | 'year';
-type ImportationOriginScope = 'global' | 'g7' | 'usmca' | 'european_union' | 'indo_pacific' | 'custom';
+type ImportationOriginScope =
+  | 'global'
+  | 'g7'
+  | 'usmca'
+  | 'european_union'
+  | 'indo_pacific'
+  | 'custom';
 
 interface ImportationQuery {
   readonly period?: unknown;
@@ -189,7 +195,13 @@ const FLOW_TIMELINES: Record<ImportationGranularity, readonly ImportationFlowPoi
     { period: '2026-03', label: 'Mar 2026', totalValue: 2480000000, yoyDelta: 4.1 },
     { period: '2026-02', label: 'Feb 2026', totalValue: 2415000000, yoyDelta: 3.2 },
     { period: '2026-01', label: 'Jan 2026', totalValue: 2380000000, yoyDelta: 2.4 },
-    { period: '2025-12', label: 'Dec 2025', totalValue: 2290000000, yoyDelta: -0.8, isProjected: true },
+    {
+      period: '2025-12',
+      label: 'Dec 2025',
+      totalValue: 2290000000,
+      yoyDelta: -0.8,
+      isProjected: true,
+    },
   ],
   quarter: [
     { period: '2026-Q1', label: 'Q1 2026', totalValue: 7440000000, yoyDelta: 4.8 },
@@ -389,7 +401,8 @@ const RISK_FLAGS: readonly ImportationRiskFlagRecord[] = [
     id: 'customs-screening',
     severity: 'medium',
     title: 'Contrôles douaniers renforcés',
-    description: 'Les composants magnétiques à double usage subissent des examens documentaires plus longs.',
+    description:
+      'Les composants magnétiques à double usage subissent des examens documentaires plus longs.',
     relatedCommodityId: 'rare-earth-magnets',
   },
   {
@@ -468,7 +481,8 @@ const KNOWLEDGE_BY_LANG: Record<string, ImportationKnowledgeResponse> = {
       {
         id: 'knowledge-fr-1',
         title: 'Comment prioriser les intrants critiques en mode importation',
-        summary: 'Cadre court pour hiérarchiser valeur, dépendance fournisseur et exposition corridor.',
+        summary:
+          'Cadre court pour hiérarchiser valeur, dépendance fournisseur et exposition corridor.',
         publishedAt: '2026-03-14',
         link: '/docs/importation-page',
         tag: 'Guide',
@@ -503,7 +517,8 @@ const KNOWLEDGE_BY_LANG: Record<string, ImportationKnowledgeResponse> = {
       {
         id: 'knowledge-en-2',
         title: 'Supplier requalification checklist for exposed procurement lines',
-        summary: 'A practical sequence to move from single-source dependency to dual-source coverage.',
+        summary:
+          'A practical sequence to move from single-source dependency to dual-source coverage.',
         publishedAt: '2026-03-10',
         link: '/docs/import-companies',
         tag: 'Playbook',
@@ -551,7 +566,9 @@ function normalizeOriginScope(value: unknown): ImportationOriginScope {
 
 function normalizeArray(value: unknown): string[] {
   if (Array.isArray(value)) {
-    return value.map((entry) => normalizeString(entry)).filter((entry): entry is string => Boolean(entry));
+    return value
+      .map((entry) => normalizeString(entry))
+      .filter((entry): entry is string => Boolean(entry));
   }
   const normalized = normalizeString(value);
   return normalized ? [normalized] : [];
@@ -636,7 +653,10 @@ function computeFilteredCommodities(query: ImportationQuery) {
   }));
 }
 
-function selectOriginCodes(scope: ImportationOriginScope, explicitCodes: readonly string[]): Set<string> {
+function selectOriginCodes(
+  scope: ImportationOriginScope,
+  explicitCodes: readonly string[],
+): Set<string> {
   if (scope === 'custom') {
     return new Set(explicitCodes.map((code) => code.toUpperCase()));
   }
@@ -661,7 +681,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const filteredFlows = FLOWS.filter((flow) => allowedOrigins.has(flow.originCode));
     const total = filteredFlows.reduce((sum, flow) => sum + flow.value, 0);
 
-    strapi.log.debug(`importation.getFlows scope=${originScope} period=${granularity} periodValue=${String(query.periodValue ?? '')}`);
+    strapi.log.debug(
+      `importation.getFlows scope=${originScope} period=${granularity} periodValue=${String(query.periodValue ?? '')}`,
+    );
 
     return {
       timeline: FLOW_TIMELINES[granularity].map((point) => ({
@@ -692,9 +714,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     const filtered = computeFilteredCommodities(query);
     const hsSections = new Set(normalizeArray(query.hsSections));
 
-    const top = [...filtered]
-      .sort((left, right) => right.value - left.value)
-      .slice(0, 3);
+    const top = [...filtered].sort((left, right) => right.value - left.value).slice(0, 3);
     const emerging = [...filtered]
       .sort((left, right) => (right.yoyDelta ?? -Infinity) - (left.yoyDelta ?? -Infinity))
       .slice(0, 3);
@@ -702,7 +722,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       .sort((left, right) => (right.riskScore ?? -Infinity) - (left.riskScore ?? -Infinity))
       .slice(0, 3);
 
-    strapi.log.debug(`importation.getCommodities scope=${originScope} hsSections=${Array.from(hsSections).join(',')}`);
+    strapi.log.debug(
+      `importation.getCommodities scope=${originScope} hsSections=${Array.from(hsSections).join(',')}`,
+    );
 
     return { top, emerging, risk };
   },
@@ -710,9 +732,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   getRiskFlags(query: ImportationQuery) {
     const commodityCollections = this.getCommodities(query);
     const commodityIds = new Set(
-      commodityCollections.top.concat(commodityCollections.emerging, commodityCollections.risk).map((commodity) => commodity.id)
+      commodityCollections.top
+        .concat(commodityCollections.emerging, commodityCollections.risk)
+        .map((commodity) => commodity.id),
     );
-    return RISK_FLAGS.filter((flag) => !flag.relatedCommodityId || commodityIds.has(flag.relatedCommodityId));
+    return RISK_FLAGS.filter(
+      (flag) => !flag.relatedCommodityId || commodityIds.has(flag.relatedCommodityId),
+    );
   },
 
   getSuppliers(query: ImportationQuery) {
@@ -735,7 +761,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     });
 
     return {
-      annotations: normalizeFindManyResult(entries).map((entry) => toAnnotationResponse(entry as ImportAnnotationEntity)),
+      annotations: normalizeFindManyResult(entries).map((entry) =>
+        toAnnotationResponse(entry as ImportAnnotationEntity),
+      ),
     };
   },
 
@@ -745,7 +773,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     });
 
     return {
-      watchlists: normalizeFindManyResult(entries).map((entry) => toWatchlistResponse(entry as ImportWatchlistEntity)),
+      watchlists: normalizeFindManyResult(entries).map((entry) =>
+        toWatchlistResponse(entry as ImportWatchlistEntity),
+      ),
     };
   },
 
@@ -808,7 +838,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     return toWatchlistResponse(updated as ImportWatchlistEntity);
   },
 
-  async scheduleReport(payload: ImportationReportSchedulePayload): Promise<ImportationScheduleResponse> {
+  async scheduleReport(
+    payload: ImportationReportSchedulePayload,
+  ): Promise<ImportationScheduleResponse> {
     const recipients = normalizeArray(payload.recipients).map((entry) => entry.toLowerCase());
     if (!recipients.length) {
       throw new Error('At least one recipient is required.');
@@ -841,7 +873,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     return {
       scheduled: true,
       reportId: String((created as ImportReportScheduleEntity).id),
-      scheduledAt: normalizeString((created as ImportReportScheduleEntity).createdAt) ?? new Date().toISOString(),
+      scheduledAt:
+        normalizeString((created as ImportReportScheduleEntity).createdAt) ??
+        new Date().toISOString(),
     };
   },
 });

@@ -19,7 +19,9 @@
     </ul>
     <h3>{{ 'feed.alert.detail.sections.infrastructure' | translate }}</h3>
     <ul>
-      <li *ngFor="let infrastructure of infrastructures(); trackBy: trackByValue">{{ infrastructure }}</li>
+      <li *ngFor="let infrastructure of infrastructures(); trackBy: trackByValue">
+        {{ infrastructure }}
+      </li>
     </ul>
   </article>
 
@@ -44,7 +46,9 @@
   <article class="alert-detail-body__card">
     <h2>{{ 'feed.alert.detail.sections.recommendations' | translate }}</h2>
     <ul>
-      <li *ngFor="let recommendation of recommendations(); trackBy: trackByValue">{{ recommendation }}</li>
+      <li *ngFor="let recommendation of recommendations(); trackBy: trackByValue">
+        {{ recommendation }}
+      </li>
     </ul>
   </article>
 

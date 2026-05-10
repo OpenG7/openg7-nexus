@@ -1,6 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, PLATFORM_ID, Signal, TransferState, inject, makeStateKey, signal } from '@angular/core';
+import {
+  Injectable,
+  PLATFORM_ID,
+  Signal,
+  TransferState,
+  inject,
+  makeStateKey,
+  signal,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -149,7 +157,7 @@ export class OpportunityService {
           {
             source: 'matches',
             metadata: { count: matches.length },
-          }
+          },
         );
       },
       error: (error) => {
@@ -196,7 +204,7 @@ export class OpportunityService {
       {
         source: 'matches',
         metadata: { count: matches.length, mode: 'demo' },
-      }
+      },
     );
   }
 
@@ -235,7 +243,7 @@ export class OpportunityService {
           deliver: { email: true },
         });
         return of(null);
-      })
+      }),
     );
   }
 
@@ -256,7 +264,7 @@ export class OpportunityService {
         this.http.get<OpportunityMatchesResponse>(url, {
           params,
           context: createSilentHttpContext(),
-        })
+        }),
       );
       return this.filterMatches(this.mapMatches(response), query);
     } catch {
@@ -290,7 +298,7 @@ export class OpportunityService {
         this.http.get<OpportunityMatchResponse>(url, {
           params,
           context: createSilentHttpContext(),
-        })
+        }),
       );
       const match = response?.data ? this.mapMatch(response.data) : null;
       if (!match) {
@@ -490,7 +498,7 @@ export class OpportunityService {
 
   private filterMatches(
     matches: readonly OpportunityMatch[],
-    query?: OpportunityMatchQuery
+    query?: OpportunityMatchQuery,
   ): readonly OpportunityMatch[] {
     if (!query) {
       return [...matches];

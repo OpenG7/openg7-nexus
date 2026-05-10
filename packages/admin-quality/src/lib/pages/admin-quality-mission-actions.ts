@@ -1,4 +1,7 @@
-import { AdminQualityMissionRecommendation, AdminQualityMissionStatus } from './admin-quality-mission-control';
+import {
+  AdminQualityMissionRecommendation,
+  AdminQualityMissionStatus,
+} from './admin-quality-mission-control';
 
 export type AdminQualityMissionControlAction =
   | 'approve'
@@ -14,7 +17,12 @@ export interface AdminQualityMissionControlActionEvent {
   readonly recommendation: AdminQualityMissionRecommendation;
 }
 
-export type AdminQualityMissionActionTone = 'primary' | 'secondary' | 'danger' | 'neutral' | 'success';
+export type AdminQualityMissionActionTone =
+  | 'primary'
+  | 'secondary'
+  | 'danger'
+  | 'neutral'
+  | 'success';
 
 export interface AdminQualityMissionActionDescriptor {
   readonly action: AdminQualityMissionControlAction;
@@ -35,7 +43,7 @@ export type AdminQualityMissionActionResolution =
     };
 
 export function missionActionDescriptors(
-  status: AdminQualityMissionStatus
+  status: AdminQualityMissionStatus,
 ): readonly AdminQualityMissionActionDescriptor[] {
   switch (status) {
     case 'approved':
@@ -64,7 +72,12 @@ export function missionActionDescriptors(
       return [{ action: 'reset', label: 'Reouvrir', tone: 'neutral' }];
     default:
       return [
-        { action: 'approve', label: 'Valider mission', tone: 'primary', hookId: 'admin-quality-approve-mission' },
+        {
+          action: 'approve',
+          label: 'Valider mission',
+          tone: 'primary',
+          hookId: 'admin-quality-approve-mission',
+        },
         { action: 'auto-delegate', label: 'Deleguer', tone: 'secondary' },
         { action: 'defer', label: 'Differer', tone: 'neutral' },
       ];
@@ -73,7 +86,7 @@ export function missionActionDescriptors(
 
 export function resolveMissionAction(
   action: AdminQualityMissionControlAction,
-  recommendation: AdminQualityMissionRecommendation
+  recommendation: AdminQualityMissionRecommendation,
 ): AdminQualityMissionActionResolution | null {
   switch (action) {
     case 'approve':
@@ -88,7 +101,11 @@ export function resolveMissionAction(
         return { kind: 'status', status: 'in-progress', message: 'Mission approuvee et deleguee.' };
       }
       if (recommendation.status === 'blocked') {
-        return { kind: 'status', status: 'approved', message: 'Mission debloquee et remise en file.' };
+        return {
+          kind: 'status',
+          status: 'approved',
+          message: 'Mission debloquee et remise en file.',
+        };
       }
       return null;
     case 'defer':
@@ -98,7 +115,11 @@ export function resolveMissionAction(
     case 'reset':
       return { kind: 'reset', message: 'Mission reinitialisee.' };
     case 'return-proof':
-      return { kind: 'status', status: 'proof-returned', message: 'La preuve est marquee comme revenue.' };
+      return {
+        kind: 'status',
+        status: 'proof-returned',
+        message: 'La preuve est marquee comme revenue.',
+      };
     case 'complete':
       return { kind: 'status', status: 'done', message: 'Mission cloturee localement.' };
     default:

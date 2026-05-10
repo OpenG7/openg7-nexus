@@ -30,45 +30,59 @@ describe('ImportationApiClient HTTP mode', () => {
   });
 
   it('suppresses the global error toast for optional importation endpoints', () => {
-    service.getSuppliers({
-      periodGranularity: 'month',
-      periodValue: null,
-      originScope: 'global',
-      originCodes: [],
-      hsSections: [],
-      compareMode: false,
-      compareWith: null,
-    }).subscribe();
-    service.getRiskFlags({
-      periodGranularity: 'month',
-      periodValue: null,
-      originScope: 'global',
-      originCodes: [],
-      hsSections: [],
-      compareMode: false,
-      compareWith: null,
-    }).subscribe();
+    service
+      .getSuppliers({
+        periodGranularity: 'month',
+        periodValue: null,
+        originScope: 'global',
+        originCodes: [],
+        hsSections: [],
+        compareMode: false,
+        compareWith: null,
+      })
+      .subscribe();
+    service
+      .getRiskFlags({
+        periodGranularity: 'month',
+        periodValue: null,
+        originScope: 'global',
+        originCodes: [],
+        hsSections: [],
+        compareMode: false,
+        compareWith: null,
+      })
+      .subscribe();
     service.getAnnotations().subscribe();
     service.getWatchlists().subscribe();
     service.getKnowledgeBase('fr').subscribe();
 
-    const suppliersRequest = httpMock.expectOne((request) => request.url === 'https://cms.local/api/import-suppliers');
+    const suppliersRequest = httpMock.expectOne(
+      (request) => request.url === 'https://cms.local/api/import-suppliers',
+    );
     expect(suppliersRequest.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     suppliersRequest.flush({ suppliers: [] });
 
-    const riskFlagsRequest = httpMock.expectOne((request) => request.url === 'https://cms.local/api/import-risk-flags');
+    const riskFlagsRequest = httpMock.expectOne(
+      (request) => request.url === 'https://cms.local/api/import-risk-flags',
+    );
     expect(riskFlagsRequest.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     riskFlagsRequest.flush([]);
 
-    const annotationsRequest = httpMock.expectOne((request) => request.url === 'https://cms.local/api/import-annotations');
+    const annotationsRequest = httpMock.expectOne(
+      (request) => request.url === 'https://cms.local/api/import-annotations',
+    );
     expect(annotationsRequest.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     annotationsRequest.flush({ annotations: [] });
 
-    const watchlistsRequest = httpMock.expectOne((request) => request.url === 'https://cms.local/api/import-watchlists');
+    const watchlistsRequest = httpMock.expectOne(
+      (request) => request.url === 'https://cms.local/api/import-watchlists',
+    );
     expect(watchlistsRequest.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     watchlistsRequest.flush({ watchlists: [] });
 
-    const knowledgeRequest = httpMock.expectOne((request) => request.url === 'https://cms.local/api/import-knowledge');
+    const knowledgeRequest = httpMock.expectOne(
+      (request) => request.url === 'https://cms.local/api/import-knowledge',
+    );
     expect(knowledgeRequest.request.context.get(SUPPRESS_ERROR_TOAST)).toBeTrue();
     knowledgeRequest.flush({ articles: [], cta: null });
   });
@@ -102,29 +116,33 @@ describe('ImportationApiClient mock mode', () => {
     let commoditiesValue: unknown;
     let knowledgeValue: unknown;
 
-    service.getFlows({
-      periodGranularity: 'month',
-      periodValue: null,
-      originScope: 'global',
-      originCodes: [],
-      hsSections: [],
-      compareMode: false,
-      compareWith: null,
-    }).subscribe((value) => {
-      flowsValue = value;
-    });
+    service
+      .getFlows({
+        periodGranularity: 'month',
+        periodValue: null,
+        originScope: 'global',
+        originCodes: [],
+        hsSections: [],
+        compareMode: false,
+        compareWith: null,
+      })
+      .subscribe((value) => {
+        flowsValue = value;
+      });
 
-    service.getCommodities({
-      periodGranularity: 'month',
-      periodValue: null,
-      originScope: 'global',
-      originCodes: [],
-      hsSections: [],
-      compareMode: false,
-      compareWith: null,
-    }).subscribe((value) => {
-      commoditiesValue = value;
-    });
+    service
+      .getCommodities({
+        periodGranularity: 'month',
+        periodValue: null,
+        originScope: 'global',
+        originCodes: [],
+        hsSections: [],
+        compareMode: false,
+        compareWith: null,
+      })
+      .subscribe((value) => {
+        commoditiesValue = value;
+      });
 
     service.getKnowledgeBase('fr').subscribe((value) => {
       knowledgeValue = value;
@@ -140,31 +158,33 @@ describe('ImportationApiClient mock mode', () => {
       jasmine.objectContaining({
         coverage: 0.91,
         dataProvider: 'OpenG7 importation mock set',
-      })
+      }),
     );
     expect(commoditiesValue).toEqual(
       jasmine.objectContaining({
         top: jasmine.any(Array),
         emerging: jasmine.any(Array),
         risk: jasmine.any(Array),
-      })
+      }),
     );
     expect(knowledgeValue).toEqual(
       jasmine.objectContaining({
         articles: jasmine.any(Array),
         cta: jasmine.objectContaining({ id: 'cta-fr' }),
-      })
+      }),
     );
   });
 
   it('updates watchlists from local mocks without issuing HTTP requests', () => {
     let watchlistValue: unknown;
 
-    service.updateWatchlist('watch-pharma-g7', {
-      name: 'Intrants pharma G7 plus',
-    }).subscribe((value) => {
-      watchlistValue = value;
-    });
+    service
+      .updateWatchlist('watch-pharma-g7', {
+        name: 'Intrants pharma G7 plus',
+      })
+      .subscribe((value) => {
+        watchlistValue = value;
+      });
 
     httpMock.expectNone('https://cms.local/api/import-watchlists/watch-pharma-g7');
 
@@ -172,7 +192,7 @@ describe('ImportationApiClient mock mode', () => {
       jasmine.objectContaining({
         id: 'watch-pharma-g7',
         name: 'Intrants pharma G7 plus',
-      })
+      }),
     );
   });
 });

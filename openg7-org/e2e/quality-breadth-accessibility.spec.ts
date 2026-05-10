@@ -2,10 +2,14 @@ import './setup';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
-import { DEFAULT_PROFILE, mockCompanyApis, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
+import {
+  DEFAULT_PROFILE,
+  mockCompanyApis,
+  mockProfileAndFavoritesApis,
+} from './helpers/domain-mocks';
 
 async function enableMockFeed(page: Page): Promise<void> {
-  await page.route('**/runtime-config.js', async route => {
+  await page.route('**/runtime-config.js', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/javascript',
@@ -29,7 +33,7 @@ async function waitForAngularFeedStream(page: Page): Promise<void> {
 
 async function expectAssociatedLabel(control: Locator): Promise<void> {
   await expect(control).toBeVisible();
-  const hasLabel = await control.evaluate(element => {
+  const hasLabel = await control.evaluate((element) => {
     if (
       !(element instanceof HTMLInputElement) &&
       !(element instanceof HTMLSelectElement) &&
@@ -49,7 +53,11 @@ async function expectAssociatedLabel(control: Locator): Promise<void> {
   expect(hasLabel).toBeTruthy();
 }
 
-async function activateWithKeyboard(page: Page, target: Locator, key: 'Enter' | 'Space' = 'Enter'): Promise<void> {
+async function activateWithKeyboard(
+  page: Page,
+  target: Locator,
+  key: 'Enter' | 'Space' = 'Enter',
+): Promise<void> {
   await target.focus();
   await expect(target).toBeFocused();
   await page.keyboard.press(key);
@@ -60,7 +68,10 @@ test.describe('Quality breadth accessibility', () => {
     await enableMockFeed(page);
     await mockProfileAndFavoritesApis(page);
 
-    await loginAsAuthenticatedE2eUser(page, '/feed?type=REQUEST&sector=energy&fromProvince=AB&mode=IMPORT&sort=VOLUME&q=fuel');
+    await loginAsAuthenticatedE2eUser(
+      page,
+      '/feed?type=REQUEST&sector=energy&fromProvince=AB&mode=IMPORT&sort=VOLUME&q=fuel',
+    );
     await waitForAngularFeedStream(page);
 
     const searchInput = page.locator('#feed-search');
@@ -81,15 +92,13 @@ test.describe('Quality breadth accessibility', () => {
 
     await expect(page.locator('[data-og7="feed-active-filters"]')).toHaveCount(0);
     await expect(searchInput).toHaveValue('');
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get('type'))
-      .toBeNull();
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get('q'))
-      .toBeNull();
+    await expect.poll(() => new URL(page.url()).searchParams.get('type')).toBeNull();
+    await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBeNull();
   });
 
-  test('keeps profile notification controls labeled and savable without mouse input', async ({ page }) => {
+  test('keeps profile notification controls labeled and savable without mouse input', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page);
 
     await loginAsAuthenticatedE2eUser(page, '/profile');
@@ -115,8 +124,16 @@ test.describe('Quality breadth accessibility', () => {
     await page.keyboard.type('https://hooks.openg7.test/profile-a11y');
 
     const [updateRequest, updateResponse] = await Promise.all([
-      page.waitForRequest(request => request.method().toUpperCase() === 'PUT' && request.url().includes('/api/users/me/profile')),
-      page.waitForResponse(response => response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/users/me/profile')),
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' &&
+          request.url().includes('/api/users/me/profile'),
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/users/me/profile'),
+      ),
       activateWithKeyboard(page, saveButton),
     ]);
 
@@ -142,7 +159,9 @@ test.describe('Quality breadth accessibility', () => {
     await expect(page.locator('[data-og7="user-profile-unsaved-changes"]')).toHaveCount(0);
   });
 
-  test('keeps admin trust review decisions keyboard-operable with labeled critical controls', async ({ page }) => {
+  test('keeps admin trust review decisions keyboard-operable with labeled critical controls', async ({
+    page,
+  }) => {
     await mockProfileAndFavoritesApis(page, {
       ...DEFAULT_PROFILE,
       roles: ['admin'],
@@ -171,8 +190,15 @@ test.describe('Quality breadth accessibility', () => {
     await page.keyboard.type('Keyboard-only correction review note.');
 
     const [saveRequest, saveResponse] = await Promise.all([
-      page.waitForRequest(request => request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001')),
-      page.waitForResponse(response => response.request().method().toUpperCase() === 'PUT' && response.url().includes('/api/companies/1001')),
+      page.waitForRequest(
+        (request) =>
+          request.method().toUpperCase() === 'PUT' && request.url().includes('/api/companies/1001'),
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.request().method().toUpperCase() === 'PUT' &&
+          response.url().includes('/api/companies/1001'),
+      ),
       activateWithKeyboard(page, saveButton),
     ]);
 
@@ -187,8 +213,10 @@ test.describe('Quality breadth accessibility', () => {
     expect(savePayload.data?.verificationStatus).toBe('correctionRequested');
     expect(savePayload.data?.trustHistory).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ notes: expect.stringContaining('Keyboard-only correction review note.') }),
-      ])
+        expect.objectContaining({
+          notes: expect.stringContaining('Keyboard-only correction review note.'),
+        }),
+      ]),
     );
   });
 });

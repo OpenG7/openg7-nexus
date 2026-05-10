@@ -3,8 +3,8 @@
     <a
       class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition-colors ring-1 ring-inset ring-white/30 text-white/90 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       [routerLink]="cta.routerLink ?? null"
-      [attr.href]="cta.routerLink ? null : cta.href ?? null"
-      [attr.aria-label]="(cta.ariaLabel ?? cta.label) | translate"
+      [attr.href]="cta.routerLink ? null : (cta.href ?? null)"
+      [attr.aria-label]="cta.ariaLabel ?? cta.label | translate"
       (click)="onCtaClick($event, cta)"
       data-og7="action"
       data-og7-id="view-sectors"
@@ -16,8 +16,8 @@
     <a
       class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition-colors bg-white/10 text-white ring-1 ring-inset ring-white/15 hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       [routerLink]="cta.routerLink ?? null"
-      [attr.href]="cta.routerLink ? null : cta.href ?? null"
-      [attr.aria-label]="(cta.ariaLabel ?? cta.label) | translate"
+      [attr.href]="cta.routerLink ? null : (cta.href ?? null)"
+      [attr.aria-label]="cta.ariaLabel ?? cta.label | translate"
       (click)="onCtaClick($event, cta)"
       data-og7="action"
       data-og7-id="pro-mode"
@@ -29,8 +29,8 @@
     <a
       class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-base font-semibold transition-colors bg-white/10 text-white ring-1 ring-inset ring-white/15 hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       [routerLink]="cta.routerLink ?? null"
-      [attr.href]="cta.routerLink ? null : cta.href ?? null"
-      [attr.aria-label]="(cta.ariaLabel ?? cta.label) | translate"
+      [attr.href]="cta.routerLink ? null : (cta.href ?? null)"
+      [attr.aria-label]="cta.ariaLabel ?? cta.label | translate"
       (click)="onCtaClick($event, cta)"
       data-og7="action"
       data-og7-id="preview"
