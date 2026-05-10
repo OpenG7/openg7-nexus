@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import {
   OpportunityOfferRecord,
@@ -78,6 +79,10 @@ class FavoritesServiceMock {
   setItems(items: string[]): void {
     this.listSig.set(items);
   }
+}
+
+class FeedActionsServiceMock {
+  readonly record = jasmine.createSpy('record').and.resolveTo(null);
 }
 
 class OpportunityReportQueueServiceMock {
@@ -366,6 +371,7 @@ describe('FeedOpportunityDetailPage', () => {
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         { provide: FavoritesService, useValue: favorites },
+        { provide: FeedActionsService, useValue: new FeedActionsServiceMock() },
         { provide: OpportunityReportQueueService, useValue: reportQueue },
         { provide: OpportunityConversationDraftsService, useValue: conversationDrafts },
         { provide: OpportunityOffersService, useValue: opportunityOffers },
@@ -1034,6 +1040,7 @@ describe('FeedOpportunityDetailPage real template', () => {
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         { provide: FavoritesService, useValue: favorites },
+        { provide: FeedActionsService, useValue: new FeedActionsServiceMock() },
         { provide: OpportunityReportQueueService, useValue: reportQueue },
         { provide: OpportunityConversationDraftsService, useValue: conversationDrafts },
         { provide: OpportunityOffersService, useValue: opportunityOffers },

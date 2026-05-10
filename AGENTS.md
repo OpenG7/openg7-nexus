@@ -756,6 +756,7 @@ Le contrat OpenAPI est versionnÃ© dans `packages/contracts/spec/openapi.json`.
 | Import annotations | `/api/import-annotations`    | â€”                                | annotations collaboratives persistÃ©es |
 | Import watchlists | `/api/import-watchlists`      | GET / POST / PUT JSON             | watchlists importation persistÃ©es |
 | Import report schedule | `/api/import-reports/schedule` | POST JSON (`period`, `recipients`, `format`, `frequency`, `notes`) | planification de rapports importation |
+| Feed actions | `/api/users/me/feed-actions` | GET / POST JSON (`targetType`, `targetId`, `action`, `status`, `sourceRoute`, `targetRoute`, `metadata`, `occurredAt`, `correlationId`) | journal user-scoped idempotent des actions header/detail feed |
 | Opportunity offers | `/api/users/me/opportunity-offers` | GET / POST JSON (`opportunityId`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`) | persistance des offres utilisateur sur opportunites |
 | Opportunity offer attachments | `/api/users/me/opportunity-offer-attachments` | POST multipart (`files`) | televersement securise des pieces jointes d'offres (PDF/images, taille limitee, scan signature) |
 
@@ -1628,6 +1629,8 @@ _MAJ (enhanced) : 2026-03-14 00:00:00Z_
 - Analytics carte -> feed corridor (`map_open_corridor_feed`) : `corridorId`, `sector`, `fromProvince`, `toProvince`, `mode`, `priority`, `decisionItemId`, `cmsKey`, `input`, `sourceRoute`, `targetRoute`.
 - Analytics endpoint (si configure) : `event`, `detail`, `priority`, `timestamp`.
 - Notification webhook/email (si active) : `notification.id`, `notification.type`, `notification.title`, `notification.message`, `notification.source`, `notification.createdAt`, `notification.metadata`, `recipient`.
+- `GET /api/users/me/feed-actions` : `targetType`, `targetId`, `action` (query params optionnels).
+- `POST /api/users/me/feed-actions` : `targetType`, `targetId`, `action`, `status`, `sourceRoute`, `targetRoute`, `metadata`, `occurredAt`, `correlationId`, `idempotencyKey`.
 - `POST /api/users/me/opportunity-offers` : `opportunityId`, `opportunityTitle`, `opportunityRoute`, `feedItemId`, `recipientKind`, `recipientLabel`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`, `submittedAt`, `correlationId`, `idempotencyKey`.
 - `POST /api/users/me/opportunity-offer-attachments` : multipart `files`, sortie `id`, `name`, `mime`, `size`, `url`, `scanStatus` ; types autorises PDF/JPG/PNG/WebP, taille max configuree.
 - Events UI locaux (non persistes backend) :
@@ -1640,9 +1643,6 @@ _MAJ (enhanced) : 2026-03-14 00:00:00Z_
 - Renforcer la securite documentaire des offres : antivirus externe, quarantaine et expiration des fichiers orphelins.
 - Durcir la persistance de creation d alerte indicateur (au-dela du mapping `POST /api/feed`) :
 - `indicatorId`, `thresholdDirection`, `thresholdValue`, `window`, `frequency`, `notifyDelta`, `note`, `createdAt`, `deliveryChannels`.
-- Persister les actions header/detail aujourd hui locales :
-- `targetType`, `targetId`, `action`, `status`, `timestamp`, `actorId`.
-- Couvre : `save`, `subscribe`, `reportUpdate`, `archive`, `duplicate`.
 - Persister le flux Q/R opportunite :
 - `opportunityId`, `tab`, `content`, `authorId`, `authorLabel`, `createdAt`, `replyToMessageId`.
 - Telemetrie blueprint explicite (trace operationnelle) :

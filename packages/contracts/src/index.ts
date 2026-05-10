@@ -17,6 +17,7 @@ export type HydrocarbonSignal = components['schemas']['HydrocarbonSignal'];
 export type HydrocarbonSignalResponse = components['schemas']['HydrocarbonSignalResponse'];
 export type HydrocarbonSignalCollectionResponse =
   components['schemas']['HydrocarbonSignalCollectionResponse'];
+export type FeedActionRecord = components['schemas']['FeedActionRecord'];
 export type OpportunityOfferRecord = components['schemas']['OpportunityOfferRecord'];
 export type OpportunityOfferAttachmentRecord =
   components['schemas']['OpportunityOfferAttachmentRecord'];
@@ -41,6 +42,7 @@ export const endpoints = {
   statistics: '/api/statistics',
   billingPlans: '/billing/plans',
   hydrocarbonSignals: '/api/hydrocarbon-signals',
+  feedActions: '/api/users/me/feed-actions',
   opportunityOffers: '/api/users/me/opportunity-offers',
   opportunityOfferAttachments: '/api/users/me/opportunity-offer-attachments',
 } as const;

@@ -16,6 +16,7 @@ export const STRAPI_ROUTES = {
     meProfileLogoutOthers: '/api/users/me/profile/sessions/logout-others',
     meProfileEmailChange: '/api/users/me/profile/email-change',
     meFavorites: '/api/users/me/favorites',
+    meFeedActions: '/api/users/me/feed-actions',
     meOpportunityOffers: '/api/users/me/opportunity-offers',
     meOpportunityOfferAttachments: '/api/users/me/opportunity-offer-attachments',
     meSavedSearches: '/api/users/me/saved-searches',

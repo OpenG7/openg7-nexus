@@ -12,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import {
   CreateIndicatorAlertRulePayload,
   IndicatorAlertRuleRecord,
@@ -83,6 +84,7 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
   private readonly notifications = injectNotificationStore();
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly indicatorAlertDrafts = inject(IndicatorAlertDraftsService);
+  private readonly feedActions = inject(FeedActionsService);
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -464,6 +466,13 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
           itemId: detail.item.id,
           indicatorAlertRuleId: record.id,
         },
+      });
+      void this.recordIndicatorAction('subscribe', detail, {
+        indicatorAlertRuleId: record.id,
+        thresholdDirection: draft.thresholdDirection,
+        thresholdValue: draft.thresholdValue,
+        window: draft.window,
+        frequency: draft.frequency,
       });
     } catch (error) {
       const message = this.resolveLoadError(error);
@@ -1002,6 +1011,29 @@ export class FeedIndicatorDetailPage extends FeedDetailPageBase {
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/indicators/${id}`;
+  }
+
+  private recordIndicatorAction(
+    action: 'subscribe',
+    detail: IndicatorDetailVm,
+    metadata: Record<string, unknown> = {},
+  ): Promise<unknown> {
+    return this.feedActions.record(
+      {
+        targetType: 'indicator',
+        targetId: detail.item.id,
+        action,
+        status: 'completed',
+        sourceRoute: this.currentInternalUrl(),
+        metadata: {
+          title: detail.title,
+          ...metadata,
+        },
+      },
+      {
+        idempotencyKey: `feed-action:${action}:indicator:${detail.item.id}:${Date.now()}`,
+      },
+    );
   }
 
   protected override isExpectedItem(item: FeedItem | null): item is FeedItem {

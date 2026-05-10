@@ -12,6 +12,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import {
   FEED_ALERT_SUBSCRIPTION_SOURCE_TYPE,
@@ -61,6 +62,7 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
   private readonly connectionMatcher = inject(FeedConnectionMatchService);
   private readonly alertUpdateQueue = inject(AlertUpdateQueueService);
   private readonly userAlerts = inject(UserAlertsService);
+  private readonly feedActions = inject(FeedActionsService);
   private readonly activeLanguage = toSignal(
     this.translate.onLangChange.pipe(
       map(event => event.lang),
@@ -203,6 +205,10 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
       subscriptionAlertId: result.entry?.id ?? null,
       result: result.status,
     };
+    void this.recordAlertAction('subscribe', detail, {
+      ...metadata,
+      status: result.status,
+    }, result.status === 'error' || result.status === 'invalid' ? 'failed' : 'completed');
 
     if (result.status === 'created') {
       this.notifications.success(
@@ -267,10 +273,12 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
           text: detail.summaryHeadline,
           url,
         });
+        void this.recordAlertAction('share', detail, { method: 'native' });
         return;
       }
       if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
+        void this.recordAlertAction('share', detail, { method: 'clipboard' });
         this.notifications.success(this.translate.instant('feed.alert.detail.shareCopied'), {
           source: 'feed',
           metadata: {
@@ -344,6 +352,10 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
         route: this.currentInternalUrl(),
         payload,
       });
+      void this.recordAlertAction('report-update', detail, {
+        reportId: record.id,
+        reason: payload.reason,
+      }, 'queued');
 
       this.reportSubmitState.set('success');
       this.reportSubmitError.set(null);
@@ -1054,6 +1066,30 @@ export class FeedAlertDetailPage extends FeedDetailPageBase {
     }
     const id = this.itemId() ?? 'unknown';
     return `/feed/alerts/${id}`;
+  }
+
+  private recordAlertAction(
+    action: 'subscribe' | 'report-update' | 'share',
+    detail: AlertDetailVm,
+    metadata: Record<string, unknown> = {},
+    status: 'completed' | 'queued' | 'failed' = 'completed',
+  ): Promise<unknown> {
+    return this.feedActions.record(
+      {
+        targetType: 'alert',
+        targetId: detail.item.id,
+        action,
+        status,
+        sourceRoute: this.currentInternalUrl(),
+        metadata: {
+          title: detail.title,
+          ...metadata,
+        },
+      },
+      {
+        idempotencyKey: `feed-action:${action}:alert:${detail.item.id}:${Date.now()}`,
+      },
+    );
   }
 
   private closeReportDrawerAfterSuccess(): void {

@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
+import { FeedActionsService } from '@app/core/feed-actions.service';
 import {
   IndicatorAlertRuleRecord,
   IndicatorAlertRulesService,
@@ -140,6 +141,10 @@ class IndicatorAlertDraftsServiceMock {
   }
 }
 
+class FeedActionsServiceMock {
+  readonly record = jasmine.createSpy('record').and.resolveTo(null);
+}
+
 function createIndicatorItem(id: string): FeedItem {
   return {
     id,
@@ -213,6 +218,7 @@ describe('FeedIndicatorDetailPage', () => {
         { provide: Store, useValue: store },
         { provide: IndicatorAlertRulesService, useValue: indicatorAlertRules },
         { provide: IndicatorAlertDraftsService, useValue: indicatorAlertDrafts },
+        { provide: FeedActionsService, useValue: new FeedActionsServiceMock() },
         { provide: NotificationStore, useValue: notifications },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
