@@ -4,11 +4,13 @@ import {
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AdminQualityWorkspaceDrawerComponent } from '@openg7/admin-quality';
+import {
+  AdminQualityActionRecord,
+  AdminQualityDelegationPlan,
+  AdminQualityWorkspaceDrawerComponent,
+} from '@openg7/admin-quality';
 
 import { ADMIN_QUALITY_NOTIFICATIONS } from '../data-access/admin-quality.ports';
-import { AdminQualityActionRecord } from '../pages/admin-quality-action-registry';
-import { AdminQualityDelegationPlan } from '../pages/admin-quality-delegation';
 
 function buildDelegationPlan(
   overrides: Partial<AdminQualityDelegationPlan> = {},

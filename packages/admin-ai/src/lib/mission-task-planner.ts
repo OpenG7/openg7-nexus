@@ -1,5 +1,17 @@
-import { AdminQualityDelegationDifficulty } from './admin-quality-delegation';
-import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
+export type AdminQualityDelegationDifficulty = 'Easy' | 'Medium' | 'Hard';
+
+export interface AdminQualityMissionRecommendation {
+  readonly id: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly whyNow: string;
+  readonly acceptanceCriteria: readonly string[];
+  readonly validationCommands: readonly string[];
+  readonly targetFiles: readonly string[];
+  readonly dependencies: readonly string[];
+  readonly suggestedOwner: string;
+  readonly operatorPrompt: string;
+}
 
 export type AdminQualityMissionTaskKind = 'alignment' | 'implementation' | 'validation' | 'proof';
 
@@ -51,7 +63,7 @@ const USAGE_PROFILES: Record<AdminQualityDelegationDifficulty, AdminQualityMissi
 
 export function buildMissionTasks(
   recommendation: AdminQualityMissionRecommendation,
-  difficulty: AdminQualityDelegationDifficulty
+  difficulty: AdminQualityDelegationDifficulty,
 ): readonly AdminQualityMissionTask[] {
   const usage = USAGE_PROFILES[difficulty];
   const tasks: AdminQualityMissionTask[] = [];
@@ -73,7 +85,7 @@ export function buildMissionTasks(
       support: recommendation.summary,
       estimatedUnits: usage.implementation,
       blocking: false,
-    }))
+    })),
   );
 
   tasks.push(
@@ -81,10 +93,13 @@ export function buildMissionTasks(
       id: `${recommendation.id}::validation::${index}`,
       kind: 'validation' as const,
       headline: command,
-      support: recommendation.acceptanceCriteria[index] ?? recommendation.acceptanceCriteria[0] ?? recommendation.whyNow,
+      support:
+        recommendation.acceptanceCriteria[index] ??
+        recommendation.acceptanceCriteria[0] ??
+        recommendation.whyNow,
       estimatedUnits: usage.validation,
       blocking: false,
-    }))
+    })),
   );
 
   tasks.push({
@@ -101,7 +116,7 @@ export function buildMissionTasks(
 
 export function summarizeMissionQuota(
   tasks: readonly AdminQualityMissionTask[],
-  availableUnits: number
+  availableUnits: number,
 ): AdminQualityMissionQuotaSummary {
   const requiredUnits = tasks.reduce((sum, task) => sum + task.estimatedUnits, 0);
   const remainingUnits = availableUnits - requiredUnits;

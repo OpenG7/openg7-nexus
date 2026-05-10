@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { COMPANY_STATUSES, CompanyRecord, CompanyService, CompanyStatus } from '@app/core/services/company.service';
 import { TranslateModule } from '@ngx-translate/core';
-
-import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
+import { AdminNavigationPillsComponent } from '@openg7/admin-quality';
+import type { AdminNavigationPillItem } from '@openg7/admin-quality';
 
 const STATUS_LABELS: Record<CompanyStatus, string> = {
   pending: 'Pending review',

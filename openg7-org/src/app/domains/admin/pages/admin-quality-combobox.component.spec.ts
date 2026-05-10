@@ -1,7 +1,6 @@
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { TestBed } from '@angular/core/testing';
-
-import { AdminQualityComboboxComponent } from './admin-quality-combobox.component';
+import { AdminQualityComboboxComponent } from '@openg7/admin-quality';
 
 describe('AdminQualityComboboxComponent', () => {
   beforeEach(async () => {

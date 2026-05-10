@@ -16,9 +16,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "ngc -p tsconfig.json"
+    "build": "yarn workspace @openg7/admin-ai build && ngc -p tsconfig.json"
   },
   "dependencies": {
+    "@openg7/admin-ai": "workspace:*",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {

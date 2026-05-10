@@ -1,5 +1,8 @@
-import { missionActionDescriptors, resolveMissionAction } from './admin-quality-mission-actions';
-import { AdminQualityMissionRecommendation } from './admin-quality-mission-control';
+import {
+  AdminQualityMissionRecommendation,
+  missionActionDescriptors,
+  resolveMissionAction,
+} from '@openg7/admin-quality';
 
 function buildRecommendation(
   overrides: Partial<AdminQualityMissionRecommendation> = {}

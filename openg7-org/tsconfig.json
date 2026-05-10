@@ -26,6 +26,8 @@
       "@app/shared/*": ["src/app/shared/*"],
       "@omnedia/ngx-three-globe": ["../ngx-three-globe/src/public-api.ts"],
       "@omnedia/ngx-three-globe/*": ["../ngx-three-globe/src/*"],
+      "@openg7/admin-ai": ["../packages/admin-ai/src/index.ts"],
+      "@openg7/admin-ai/*": ["../packages/admin-ai/src/lib/*"],
       "@openg7/admin-quality": ["../packages/admin-quality/src/public-api.ts"],
       "@openg7/admin-quality/*": ["../packages/admin-quality/src/*"],
       "@openg7/contracts": ["../packages/contracts/src/index.ts"],
