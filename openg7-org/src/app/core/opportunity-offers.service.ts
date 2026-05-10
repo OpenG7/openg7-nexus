@@ -1,6 +1,8 @@
-import { Injectable, PLATFORM_ID, computed, inject } from '@angular/core';
+import { Injectable, Injector, PLATFORM_ID, computed, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from './auth/auth.service';
+import { OpportunityOffersApiService } from './services/opportunity-offers-api.service';
 import { createUserScopedPersistentState } from './storage/user-scoped-persistent-state';
 
 const STORAGE_KEY_PREFIX = 'og7.opportunity-offers.v1';
@@ -29,6 +31,7 @@ export interface OpportunityOfferRecord {
   opportunityId: string;
   opportunityTitle: string;
   opportunityRoute: string | null;
+  feedItemId?: string | null;
   recipientKind: OpportunityOfferRecipientKind;
   recipientLabel: string;
   senderUserId: string;
@@ -39,6 +42,7 @@ export interface OpportunityOfferRecord {
   endDate: string;
   pricingModel: string;
   comment: string;
+  attachmentId?: string | null;
   attachmentName: string | null;
   status: OpportunityOfferStatus;
   allocatedCapacityMw: number | null;
@@ -48,6 +52,8 @@ export interface OpportunityOfferRecord {
   submittedAt: string;
   withdrawnAt: string | null;
   activities: readonly OpportunityOfferActivityRecord[];
+  correlationId?: string | null;
+  idempotencyKey?: string | null;
 }
 
 export interface CreateOpportunityOfferPayload {
@@ -64,9 +70,17 @@ export interface CreateOpportunityOfferPayload {
   attachmentName?: string | null;
 }
 
+export interface PersistOpportunityOfferOptions {
+  feedItemId?: string | null;
+  attachmentId?: string | null;
+  correlationId?: string | null;
+  idempotencyKey?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OpportunityOffersService {
   private readonly auth = inject(AuthService);
+  private readonly injector = inject(Injector);
   private readonly state = createUserScopedPersistentState<OpportunityOfferRecord[]>({
     auth: this.auth,
     platformId: inject(PLATFORM_ID),
@@ -82,7 +96,9 @@ export class OpportunityOffersService {
     this.state.refresh();
   }
 
-  entriesForOpportunity(opportunityId: string | null | undefined): readonly OpportunityOfferRecord[] {
+  entriesForOpportunity(
+    opportunityId: string | null | undefined,
+  ): readonly OpportunityOfferRecord[] {
     const normalizedId = this.normalizeId(opportunityId);
     if (!normalizedId) {
       return [];
@@ -123,8 +139,40 @@ export class OpportunityOffersService {
     const nextEntries = this.sortEntries([record, ...this.entries()]);
     this.state.setForCurrentUser(
       nextEntries,
-      'Opportunity offers require an authenticated session.'
+      'Opportunity offers require an authenticated session.',
     );
+    return record;
+  }
+
+  async submit(
+    payload: CreateOpportunityOfferPayload,
+    options: PersistOpportunityOfferOptions = {},
+  ): Promise<OpportunityOfferRecord> {
+    this.currentUserOrThrow();
+    const api = this.resolveApiService();
+    if (!api) {
+      return this.create(payload);
+    }
+
+    const operationKey = options.correlationId?.trim() || this.generateId();
+    const idempotencyKey = options.idempotencyKey?.trim() || operationKey;
+    const record = this.normalizeRecord(
+      await firstValueFrom(
+        api.createMine(
+          {
+            ...payload,
+            feedItemId: options.feedItemId ?? null,
+            attachmentId: options.attachmentId ?? null,
+            correlationId: operationKey,
+          },
+          {
+            idempotencyKey,
+            suppressErrorToast: true,
+          },
+        ),
+      ),
+    );
+    this.upsertRecord(record);
     return record;
   }
 
@@ -154,7 +202,7 @@ export class OpportunityOffersService {
               type: 'qualified',
               actor: 'system',
               createdAt: now,
-            })
+            }),
           );
         }
         newActivities.push(
@@ -162,7 +210,7 @@ export class OpportunityOffersService {
             type: 'inDiscussion',
             actor: 'system',
             createdAt: now,
-          })
+          }),
         );
 
         updatedRecord = {
@@ -172,19 +220,19 @@ export class OpportunityOffersService {
           activities: this.sortActivities([...newActivities, ...entry.activities]),
         };
         return updatedRecord;
-      })
+      }),
     );
 
     this.state.setForCurrentUser(
       nextEntries,
-      'Opportunity offers require an authenticated session.'
+      'Opportunity offers require an authenticated session.',
     );
     return updatedRecord;
   }
 
   markPartiallyServed(
     id: string,
-    allocation: { allocatedCapacityMw: number; remainingOpportunityCapacityMw: number | null }
+    allocation: { allocatedCapacityMw: number; remainingOpportunityCapacityMw: number | null },
   ): OpportunityOfferRecord | null {
     const normalizedId = this.normalizeId(id);
     if (!normalizedId) {
@@ -193,14 +241,18 @@ export class OpportunityOffersService {
 
     const allocatedCapacityMw = this.normalizeNumber(allocation.allocatedCapacityMw);
     const remainingOpportunityCapacityMw = this.normalizeNullableNumber(
-      allocation.remainingOpportunityCapacityMw
+      allocation.remainingOpportunityCapacityMw,
     );
 
     let updatedRecord: OpportunityOfferRecord | null = null;
     const now = new Date().toISOString();
     const nextEntries = this.sortEntries(
       this.entries().map((entry) => {
-        if (entry.id !== normalizedId || entry.status === 'withdrawn' || entry.status === 'partiallyServed') {
+        if (
+          entry.id !== normalizedId ||
+          entry.status === 'withdrawn' ||
+          entry.status === 'partiallyServed'
+        ) {
           return entry;
         }
 
@@ -211,7 +263,7 @@ export class OpportunityOffersService {
               type: 'qualified',
               actor: 'system',
               createdAt: now,
-            })
+            }),
           );
         }
         if (!entry.activities.some((activity) => activity.type === 'inDiscussion')) {
@@ -220,7 +272,7 @@ export class OpportunityOffersService {
               type: 'inDiscussion',
               actor: 'system',
               createdAt: now,
-            })
+            }),
           );
         }
         newActivities.push(
@@ -228,7 +280,7 @@ export class OpportunityOffersService {
             type: 'partiallyServed',
             actor: 'system',
             createdAt: now,
-          })
+          }),
         );
 
         updatedRecord = {
@@ -240,12 +292,12 @@ export class OpportunityOffersService {
           activities: this.sortActivities([...newActivities, ...entry.activities]),
         };
         return updatedRecord;
-      })
+      }),
     );
 
     this.state.setForCurrentUser(
       nextEntries,
-      'Opportunity offers require an authenticated session.'
+      'Opportunity offers require an authenticated session.',
     );
     return updatedRecord;
   }
@@ -278,19 +330,19 @@ export class OpportunityOffersService {
           ]),
         };
         return updatedRecord;
-      })
+      }),
     );
 
     this.state.setForCurrentUser(
       nextEntries,
-      'Opportunity offers require an authenticated session.'
+      'Opportunity offers require an authenticated session.',
     );
     return updatedRecord;
   }
 
   private currentUserOrThrow(): { id: string; email: string; label: string } {
     const userId = this.state.requireCurrentUserId(
-      'Opportunity offers require an authenticated session.'
+      'Opportunity offers require an authenticated session.',
     );
     const profile = this.auth.user();
     const email = this.normalizeText(profile?.email, 'unknown@openg7.local');
@@ -314,9 +366,7 @@ export class OpportunityOffersService {
 
   private normalizeRecord(candidate: unknown): OpportunityOfferRecord {
     const record =
-      candidate && typeof candidate === 'object'
-        ? (candidate as Record<string, unknown>)
-        : {};
+      candidate && typeof candidate === 'object' ? (candidate as Record<string, unknown>) : {};
     const now = new Date().toISOString();
     const createdAt = this.normalizeIsoTimestamp(record['createdAt']) ?? now;
     const updatedAt = this.normalizeIsoTimestamp(record['updatedAt']) ?? createdAt;
@@ -337,6 +387,7 @@ export class OpportunityOffersService {
       opportunityId: this.normalizeId(record['opportunityId']) ?? 'opportunity',
       opportunityTitle: this.normalizeText(record['opportunityTitle'], 'Opportunity'),
       opportunityRoute: this.normalizeRoute(record['opportunityRoute']),
+      feedItemId: this.normalizeNullableText(record['feedItemId']),
       recipientKind: this.normalizeRecipientKind(record['recipientKind']),
       recipientLabel: this.normalizeText(record['recipientLabel'], 'Unknown recipient'),
       senderUserId: this.normalizeId(record['senderUserId']) ?? 'user',
@@ -347,16 +398,42 @@ export class OpportunityOffersService {
       endDate: this.normalizeText(record['endDate'], ''),
       pricingModel: this.normalizeText(record['pricingModel'], 'spot'),
       comment: this.normalizeText(record['comment'], ''),
+      attachmentId: this.normalizeNullableText(record['attachmentId']),
       attachmentName: this.normalizeNullableText(record['attachmentName']),
       status,
       allocatedCapacityMw: this.normalizeNullableNumber(record['allocatedCapacityMw']),
-      remainingOpportunityCapacityMw: this.normalizeNullableNumber(record['remainingOpportunityCapacityMw']),
+      remainingOpportunityCapacityMw: this.normalizeNullableNumber(
+        record['remainingOpportunityCapacityMw'],
+      ),
       createdAt,
       updatedAt: this.maxTimestamp(updatedAt, activities[0]?.createdAt ?? null),
       submittedAt,
       withdrawnAt,
       activities,
+      correlationId: this.normalizeNullableText(record['correlationId']),
+      idempotencyKey: this.normalizeNullableText(record['idempotencyKey']),
     };
+  }
+
+  private upsertRecord(record: OpportunityOfferRecord): void {
+    const nextEntries = this.sortEntries([
+      record,
+      ...this.entries().filter(
+        (entry) => entry.id !== record.id && entry.reference !== record.reference,
+      ),
+    ]);
+    this.state.setForCurrentUser(
+      nextEntries,
+      'Opportunity offers require an authenticated session.',
+    );
+  }
+
+  private resolveApiService(): OpportunityOffersApiService | null {
+    try {
+      return this.injector.get(OpportunityOffersApiService);
+    } catch {
+      return null;
+    }
   }
 
   private sortEntries(entries: readonly OpportunityOfferRecord[]): OpportunityOfferRecord[] {
@@ -389,13 +466,13 @@ export class OpportunityOffersService {
       submittedAt: string;
       withdrawnAt: string | null;
       status: OpportunityOfferStatus;
-    }
+    },
   ): OpportunityOfferActivityRecord[] {
     if (Array.isArray(candidate)) {
       const normalized = this.sortActivities(
         candidate
           .map((entry) => this.normalizeActivity(entry))
-          .filter((entry): entry is OpportunityOfferActivityRecord => Boolean(entry))
+          .filter((entry): entry is OpportunityOfferActivityRecord => Boolean(entry)),
       );
       if (normalized.length > 0) {
         return normalized;
@@ -426,7 +503,7 @@ export class OpportunityOffersService {
           type: 'inDiscussion',
           actor: 'system',
           createdAt: fallback.createdAt,
-        })
+        }),
       );
     }
 
@@ -436,7 +513,7 @@ export class OpportunityOffersService {
           type: 'partiallyServed',
           actor: 'system',
           createdAt: fallback.createdAt,
-        })
+        }),
       );
     }
 
@@ -446,7 +523,7 @@ export class OpportunityOffersService {
           type: 'withdrawn',
           actor: 'sender',
           createdAt: fallback.withdrawnAt,
-        })
+        }),
       );
     }
 
@@ -455,9 +532,7 @@ export class OpportunityOffersService {
 
   private normalizeActivity(candidate: unknown): OpportunityOfferActivityRecord | null {
     const activity =
-      candidate && typeof candidate === 'object'
-        ? (candidate as Record<string, unknown>)
-        : {};
+      candidate && typeof candidate === 'object' ? (candidate as Record<string, unknown>) : {};
     const createdAt = this.normalizeIsoTimestamp(activity['createdAt']);
     if (!createdAt) {
       return null;
@@ -502,7 +577,9 @@ export class OpportunityOffersService {
     };
   }
 
-  private sortActivities(entries: readonly OpportunityOfferActivityRecord[]): OpportunityOfferActivityRecord[] {
+  private sortActivities(
+    entries: readonly OpportunityOfferActivityRecord[],
+  ): OpportunityOfferActivityRecord[] {
     return [...entries].sort((left, right) => {
       const timestampOrder = this.toTimestamp(right.createdAt) - this.toTimestamp(left.createdAt);
       if (timestampOrder !== 0) {

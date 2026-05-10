@@ -665,6 +665,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me/opportunity-offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List opportunity offers for the authenticated user */
+        get: {
+            parameters: {
+                query?: {
+                    opportunityId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OpportunityOfferCollectionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Submit an offer for an opportunity */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "Idempotency-Key"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OpportunityOfferCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OpportunityOfferResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/hydrocarbon-signals": {
         parameters: {
             query?: never;
@@ -1471,6 +1535,79 @@ export interface components {
             originId?: string | null;
             connectionMatchId?: number | null;
             metadata?: components["schemas"]["FeedPublicationMetadata"];
+        };
+        OpportunityOfferActivityRecord: {
+            id: string;
+            /** @enum {string} */
+            type: "submitted" | "tracked" | "qualified" | "inDiscussion" | "partiallyServed" | "withdrawn";
+            /** @enum {string} */
+            actor: "sender" | "system";
+            /** Format: date-time */
+            createdAt: string;
+        };
+        OpportunityOfferRecord: {
+            id: string;
+            reference: string;
+            opportunityId: string;
+            opportunityTitle: string;
+            opportunityRoute?: string | null;
+            feedItemId?: string | null;
+            /** @enum {string} */
+            recipientKind: "GOV" | "COMPANY" | "PARTNER" | "USER";
+            recipientLabel: string;
+            senderUserId: string;
+            senderLabel: string;
+            /** Format: email */
+            senderEmail: string;
+            capacityMw: number;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            pricingModel: string;
+            comment: string;
+            attachmentId?: string | null;
+            attachmentName?: string | null;
+            /** @enum {string} */
+            status: "submitted" | "inDiscussion" | "partiallyServed" | "withdrawn";
+            allocatedCapacityMw?: number | null;
+            remainingOpportunityCapacityMw?: number | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            submittedAt: string;
+            /** Format: date-time */
+            withdrawnAt?: string | null;
+            activities: components["schemas"]["OpportunityOfferActivityRecord"][];
+            correlationId?: string | null;
+            idempotencyKey?: string | null;
+        };
+        OpportunityOfferCreateRequest: {
+            opportunityId: string;
+            opportunityTitle: string;
+            opportunityRoute?: string | null;
+            feedItemId?: string | null;
+            /** @enum {string} */
+            recipientKind: "GOV" | "COMPANY" | "PARTNER" | "USER";
+            recipientLabel: string;
+            capacityMw: number;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            pricingModel: string;
+            comment: string;
+            attachmentId?: string | null;
+            attachmentName?: string | null;
+            correlationId?: string | null;
+        };
+        OpportunityOfferResponse: {
+            data: components["schemas"]["OpportunityOfferRecord"];
+        };
+        OpportunityOfferCollectionResponse: {
+            data: components["schemas"]["OpportunityOfferRecord"][];
         };
         BillingPlanPrice: {
             amount: number;

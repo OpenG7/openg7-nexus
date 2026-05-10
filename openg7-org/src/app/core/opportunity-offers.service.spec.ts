@@ -1,11 +1,13 @@
 import { PLATFORM_ID, computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { AuthService } from './auth/auth.service';
 import {
   CreateOpportunityOfferPayload,
   OpportunityOffersService,
 } from './opportunity-offers.service';
+import { OpportunityOffersApiService } from './services/opportunity-offers-api.service';
 
 describe('OpportunityOffersService', () => {
   let authState: ReturnType<typeof signal<boolean>>;
@@ -17,6 +19,7 @@ describe('OpportunityOffersService', () => {
       lastName: string;
     } | null>
   >;
+  let offersApi: jasmine.SpyObj<OpportunityOffersApiService>;
 
   const createService = () => TestBed.inject(OpportunityOffersService);
 
@@ -30,10 +33,15 @@ describe('OpportunityOffersService', () => {
     } | null>(null);
 
     clearOpportunityOfferStorage();
+    offersApi = jasmine.createSpyObj<OpportunityOffersApiService>('OpportunityOffersApiService', [
+      'createMine',
+      'listMine',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
         OpportunityOffersService,
+        { provide: OpportunityOffersApiService, useValue: offersApi },
         {
           provide: AuthService,
           useValue: {
@@ -72,6 +80,64 @@ describe('OpportunityOffersService', () => {
     expect(service.entries().length).toBe(1);
     expect(service.entries()[0]?.opportunityTitle).toBe('Short-term import of 300 MW');
     expect(service.entries()[0]?.senderEmail).toBe('user-1@openg7.test');
+  });
+
+  it('persists submitted offers remotely and mirrors the server record locally', async () => {
+    authState.set(true);
+    userState.set({
+      id: 'user-1',
+      email: 'user-1@openg7.test',
+      firstName: 'Open',
+      lastName: 'G7',
+    });
+    offersApi.createMine.and.returnValue(
+      of({
+        ...createPayload(),
+        id: 'remote-offer-1',
+        reference: 'OG7-OFR-20260115-REMOTE',
+        opportunityRoute: '/feed/opportunities/request-001',
+        feedItemId: 'feed-offer-1',
+        recipientKind: 'PARTNER',
+        senderUserId: 'user-1',
+        senderLabel: 'Open G7',
+        senderEmail: 'user-1@openg7.test',
+        attachmentId: null,
+        attachmentName: 'term-sheet.pdf',
+        status: 'submitted',
+        allocatedCapacityMw: null,
+        remainingOpportunityCapacityMw: null,
+        createdAt: '2026-01-15T10:00:00.000Z',
+        updatedAt: '2026-01-15T10:00:00.000Z',
+        submittedAt: '2026-01-15T10:00:00.000Z',
+        withdrawnAt: null,
+        activities: [],
+        correlationId: 'corr-1',
+        idempotencyKey: 'idem-1',
+      }),
+    );
+
+    const service = createService();
+    const record = await service.submit(createPayload(), {
+      feedItemId: 'feed-offer-1',
+      idempotencyKey: 'idem-1',
+      correlationId: 'corr-1',
+    });
+
+    expect(offersApi.createMine).toHaveBeenCalledWith(
+      {
+        ...createPayload(),
+        feedItemId: 'feed-offer-1',
+        attachmentId: null,
+        correlationId: 'corr-1',
+      },
+      {
+        idempotencyKey: 'idem-1',
+        suppressErrorToast: true,
+      },
+    );
+    expect(record.id).toBe('remote-offer-1');
+    expect(service.entries()[0]?.id).toBe('remote-offer-1');
+    expect(service.entries()[0]?.feedItemId).toBe('feed-offer-1');
   });
 
   it('keeps offers partitioned by user id', () => {
@@ -155,7 +221,7 @@ describe('OpportunityOffersService', () => {
 });
 
 function createPayload(
-  patch: Partial<CreateOpportunityOfferPayload> = {}
+  patch: Partial<CreateOpportunityOfferPayload> = {},
 ): CreateOpportunityOfferPayload {
   return {
     opportunityId: 'request-001',

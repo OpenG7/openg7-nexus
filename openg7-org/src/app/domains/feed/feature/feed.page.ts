@@ -16,7 +16,10 @@ import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
 import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
+import {
+  OpportunityOffersService,
+  type OpportunityOfferRecord,
+} from '@app/core/opportunity-offers.service';
 import {
   feedCategorySig,
   feedFormKeySig,
@@ -38,8 +41,10 @@ import {
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
+  buildOpportunityOfferIdempotencyKey,
   buildOpportunityOfferDraft,
   buildOpportunityOfferRecordPayload,
+  createOpportunityOfferOperationKey,
   resolveOpportunityOfferSubmitErrorMessage,
 } from './feed-offer-submission.helpers';
 import { FeedPublishSectionComponent } from './feed-publish-section/feed-publish-section.component';
@@ -85,6 +90,7 @@ export class FeedPage {
     initialValue: this.route.snapshot.data,
   });
   private pendingContactPayload: OpportunityOfferPayload | null = null;
+  private pendingContactOperationKey: string | null = null;
   private contactStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly items = this.feed.items;
@@ -321,6 +327,7 @@ export class FeedPage {
 
   handleContactSubmitted(payload: OpportunityOfferPayload): void {
     this.pendingContactPayload = payload;
+    this.pendingContactOperationKey = createOpportunityOfferOperationKey();
     void this.submitContactPayload(payload);
   }
 
@@ -371,6 +378,8 @@ export class FeedPage {
     }
 
     this.contactSubmitState.set('submitting');
+    const operationKey = this.pendingContactOperationKey ?? createOpportunityOfferOperationKey();
+    this.pendingContactOperationKey = operationKey;
     const outcome = await this.feed.publishDraft(
       buildOpportunityOfferDraft(
         item,
@@ -378,6 +387,9 @@ export class FeedPage {
         this.items().find((entry) => entry.sectorId)?.sectorId ?? null,
         this.translate,
       ),
+      {
+        idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'feed'),
+      },
     );
     const errorMessage = resolveOpportunityOfferSubmitErrorMessage(outcome, this.translate);
 
@@ -394,12 +406,36 @@ export class FeedPage {
       return;
     }
 
-    const record = this.opportunityOffers.create(
-      buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload),
-    );
+    let record: OpportunityOfferRecord;
+    try {
+      record = await this.opportunityOffers.submit(
+        buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload),
+        {
+          feedItemId: outcome.item?.id ?? null,
+          idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'record'),
+          correlationId: operationKey,
+        },
+      );
+    } catch (error) {
+      const message = this.translate.instant('feed.opportunity.detail.offer.status.errorGeneric');
+      this.contactSubmitState.set('error');
+      this.contactSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: item.id,
+          feedItemId: outcome.item?.id ?? null,
+          correlationId: operationKey,
+        },
+      });
+      return;
+    }
     this.contactSubmitState.set('success');
     this.contactSubmitError.set(null);
     this.pendingContactPayload = null;
+    this.pendingContactOperationKey = null;
     this.notifications.success(
       this.translate.instant('feed.opportunity.detail.offer.status.successReference', {
         reference: record.reference,
@@ -409,8 +445,10 @@ export class FeedPage {
         metadata: {
           action: 'create-opportunity-offer',
           itemId: item.id,
+          feedItemId: outcome.item?.id ?? null,
           offerId: record.id,
           offerReference: record.reference,
+          correlationId: operationKey,
         },
       },
     );
@@ -429,6 +467,7 @@ export class FeedPage {
   private resetContactSubmitState(): void {
     this.clearContactStatusTimer();
     this.pendingContactPayload = null;
+    this.pendingContactOperationKey = null;
     this.contactSubmitState.set('idle');
     this.contactSubmitError.set(null);
   }

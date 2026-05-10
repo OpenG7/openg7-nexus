@@ -174,6 +174,9 @@ class OpportunityOffersServiceMock {
     status: 'submitted',
     ...payload,
   }));
+  readonly submit = jasmine
+    .createSpy('submit')
+    .and.callFake(async (payload) => this.create(payload));
   readonly withdraw = jasmine.createSpy('withdraw');
 }
 
@@ -860,19 +863,26 @@ describe('FeedPage', () => {
     expect(publishedDraft.fromProvinceId).toBe('qc');
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 340, unit: 'MW' });
-    expect(opportunityOffers.create).toHaveBeenCalledWith({
-      opportunityId: 'opportunity-300mw',
-      opportunityTitle: 'Item opportunity-300mw',
-      opportunityRoute: '/feed',
-      recipientKind: 'PARTNER',
-      recipientLabel: 'Grid Ops',
-      capacityMw: 340,
-      startDate: '2026-01-20',
-      endDate: '2026-02-18',
-      pricingModel: 'spot',
-      comment: 'Firm import block for winter peak support.',
-      attachmentName: 'term-sheet.pdf',
-    });
+    expect(opportunityOffers.submit).toHaveBeenCalledWith(
+      {
+        opportunityId: 'opportunity-300mw',
+        opportunityTitle: 'Item opportunity-300mw',
+        opportunityRoute: '/feed',
+        recipientKind: 'PARTNER',
+        recipientLabel: 'Grid Ops',
+        capacityMw: 340,
+        startDate: '2026-01-20',
+        endDate: '2026-02-18',
+        pricingModel: 'spot',
+        comment: 'Firm import block for winter peak support.',
+        attachmentName: 'term-sheet.pdf',
+      },
+      jasmine.objectContaining({
+        feedItemId: null,
+        correlationId: jasmine.any(String),
+        idempotencyKey: jasmine.stringMatching(/:record$/),
+      }),
+    );
     expect(notifications.success).toHaveBeenCalledWith(
       'feed.opportunity.detail.offer.status.successReference',
       {
@@ -880,8 +890,10 @@ describe('FeedPage', () => {
         metadata: {
           action: 'create-opportunity-offer',
           itemId: 'opportunity-300mw',
+          feedItemId: null,
           offerId: 'offer-record-1',
           offerReference: 'OG7-OFR-20260120-AB12',
+          correlationId: jasmine.any(String),
         },
       },
     );
@@ -919,7 +931,7 @@ describe('FeedPage', () => {
 
     expect(component.contactSubmitState()).toBe('error');
     expect(component.contactSubmitError()).toBe('feed.error.generic');
-    expect(opportunityOffers.create).not.toHaveBeenCalled();
+    expect(opportunityOffers.submit).not.toHaveBeenCalled();
     expect(notifications.error).toHaveBeenCalledWith('feed.error.generic', {
       source: 'feed',
       metadata: {

@@ -50,9 +50,7 @@ class StoreMock {
     { id: 'on', name: 'Ontario' },
     { id: 'qc', name: 'Quebec' },
   ]);
-  private readonly sectorsSig = signal([
-    { id: 'energy', name: 'Energy' },
-  ]);
+  private readonly sectorsSig = signal([{ id: 'energy', name: 'Energy' }]);
   private selectCallCount = 0;
 
   readonly selectSignal = jasmine.createSpy('selectSignal').and.callFake(() => {
@@ -70,10 +68,10 @@ class FavoritesServiceMock {
   readonly list = this.listSig.asReadonly();
   readonly refresh = jasmine.createSpy('refresh');
   readonly add = jasmine.createSpy('add').and.callFake((item: string) => {
-    this.listSig.update(current => (current.includes(item) ? current : [...current, item]));
+    this.listSig.update((current) => (current.includes(item) ? current : [...current, item]));
   });
   readonly remove = jasmine.createSpy('remove').and.callFake((item: string) => {
-    this.listSig.update(current => current.filter(entry => entry !== item));
+    this.listSig.update((current) => current.filter((entry) => entry !== item));
   });
 
   setItems(items: string[]): void {
@@ -117,14 +115,25 @@ class OpportunityReportQueueServiceMock {
       comment: string;
       createdAt: string;
       status: 'pending';
-    } | null
+    } | null,
   ): void {
     this.pendingReport = record;
   }
 }
 
 class OpportunityConversationDraftsServiceMock {
-  private readonly entriesSig = signal<Record<string, readonly { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }[]>>({});
+  private readonly entriesSig = signal<
+    Record<
+      string,
+      readonly {
+        id: string;
+        tab: 'questions' | 'offers' | 'history';
+        author: string;
+        content: string;
+        createdAt: string;
+      }[]
+    >
+  >({});
 
   messagesFor(itemId: string | null | undefined) {
     if (!itemId) {
@@ -133,15 +142,33 @@ class OpportunityConversationDraftsServiceMock {
     return this.entriesSig()[itemId] ?? [];
   }
 
-  append(itemId: string, message: { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }) {
-    this.entriesSig.update(current => ({
+  append(
+    itemId: string,
+    message: {
+      id: string;
+      tab: 'questions' | 'offers' | 'history';
+      author: string;
+      content: string;
+      createdAt: string;
+    },
+  ) {
+    this.entriesSig.update((current) => ({
       ...current,
       [itemId]: [message, ...(current[itemId] ?? [])],
     }));
   }
 
-  setMessages(itemId: string, messages: readonly { id: string; tab: 'questions' | 'offers' | 'history'; author: string; content: string; createdAt: string }[]) {
-    this.entriesSig.update(current => ({
+  setMessages(
+    itemId: string,
+    messages: readonly {
+      id: string;
+      tab: 'questions' | 'offers' | 'history';
+      author: string;
+      content: string;
+      createdAt: string;
+    }[],
+  ) {
+    this.entriesSig.update((current) => ({
       ...current,
       [itemId]: messages,
     }));
@@ -155,61 +182,68 @@ class OpportunityOffersServiceMock {
 
   readonly refresh = jasmine.createSpy('refresh');
   readonly withdraw = jasmine.createSpy('withdraw');
-  readonly create = jasmine.createSpy('create').and.callFake((payload: {
-    opportunityId: string;
-    opportunityTitle: string;
-    opportunityRoute?: string | null;
-    recipientKind: 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
-    recipientLabel: string;
-    capacityMw: number;
-    startDate: string;
-    endDate: string;
-    pricingModel: string;
-    comment: string;
-    attachmentName?: string | null;
-  }) => {
-    const record: OpportunityOfferRecord = {
-      id: 'offer-record-1',
-      reference: 'OG7-OFR-20260115-AB12',
-      opportunityId: payload.opportunityId,
-      opportunityTitle: payload.opportunityTitle,
-      opportunityRoute: payload.opportunityRoute ?? null,
-      recipientKind: payload.recipientKind,
-      recipientLabel: payload.recipientLabel,
-      senderUserId: 'user-1',
-      senderLabel: 'E2E User',
-      senderEmail: 'e2e.user@openg7.test',
-      capacityMw: payload.capacityMw,
-      startDate: payload.startDate,
-      endDate: payload.endDate,
-      pricingModel: payload.pricingModel,
-      comment: payload.comment,
-      attachmentName: payload.attachmentName ?? null,
-      status: 'submitted',
-      allocatedCapacityMw: null,
-      remainingOpportunityCapacityMw: null,
-      createdAt: '2026-01-15T10:06:00.000Z',
-      updatedAt: '2026-01-15T10:06:00.000Z',
-      submittedAt: '2026-01-15T10:06:00.000Z',
-      withdrawnAt: null,
-      activities: [
-        {
-          id: 'offer-activity-track-1',
-          type: 'tracked',
-          actor: 'system',
+  readonly create = jasmine
+    .createSpy('create')
+    .and.callFake(
+      (payload: {
+        opportunityId: string;
+        opportunityTitle: string;
+        opportunityRoute?: string | null;
+        recipientKind: 'GOV' | 'COMPANY' | 'PARTNER' | 'USER';
+        recipientLabel: string;
+        capacityMw: number;
+        startDate: string;
+        endDate: string;
+        pricingModel: string;
+        comment: string;
+        attachmentName?: string | null;
+      }) => {
+        const record: OpportunityOfferRecord = {
+          id: 'offer-record-1',
+          reference: 'OG7-OFR-20260115-AB12',
+          opportunityId: payload.opportunityId,
+          opportunityTitle: payload.opportunityTitle,
+          opportunityRoute: payload.opportunityRoute ?? null,
+          recipientKind: payload.recipientKind,
+          recipientLabel: payload.recipientLabel,
+          senderUserId: 'user-1',
+          senderLabel: 'E2E User',
+          senderEmail: 'e2e.user@openg7.test',
+          capacityMw: payload.capacityMw,
+          startDate: payload.startDate,
+          endDate: payload.endDate,
+          pricingModel: payload.pricingModel,
+          comment: payload.comment,
+          attachmentName: payload.attachmentName ?? null,
+          status: 'submitted',
+          allocatedCapacityMw: null,
+          remainingOpportunityCapacityMw: null,
           createdAt: '2026-01-15T10:06:00.000Z',
-        },
-        {
-          id: 'offer-activity-submit-1',
-          type: 'submitted',
-          actor: 'sender',
-          createdAt: '2026-01-15T10:06:00.000Z',
-        },
-      ],
-    };
-    this.entriesSig.update((current) => [record, ...current]);
-    return record;
-  });
+          updatedAt: '2026-01-15T10:06:00.000Z',
+          submittedAt: '2026-01-15T10:06:00.000Z',
+          withdrawnAt: null,
+          activities: [
+            {
+              id: 'offer-activity-track-1',
+              type: 'tracked',
+              actor: 'system',
+              createdAt: '2026-01-15T10:06:00.000Z',
+            },
+            {
+              id: 'offer-activity-submit-1',
+              type: 'submitted',
+              actor: 'sender',
+              createdAt: '2026-01-15T10:06:00.000Z',
+            },
+          ],
+        };
+        this.entriesSig.update((current) => [record, ...current]);
+        return record;
+      },
+    );
+  readonly submit = jasmine
+    .createSpy('submit')
+    .and.callFake(async (payload) => this.create(payload));
 
   entriesForOpportunity(itemId: string | null | undefined): readonly OpportunityOfferRecord[] {
     if (!itemId) {
@@ -281,21 +315,26 @@ describe('FeedOpportunityDetailPage', () => {
     });
 
     routeParamMap$ = new BehaviorSubject(convertToParamMap({ itemId: 'opportunity-300mw' }));
-    queryParamMap$ = new BehaviorSubject(convertToParamMap({
-      source: 'corridors-realtime',
-      corridorId: 'essential-services',
-    }));
+    queryParamMap$ = new BehaviorSubject(
+      convertToParamMap({
+        source: 'corridors-realtime',
+        corridorId: 'essential-services',
+      }),
+    );
     const routeStub: Pick<ActivatedRoute, 'paramMap' | 'queryParamMap' | 'snapshot'> = {
       paramMap: routeParamMap$.asObservable(),
       queryParamMap: queryParamMap$.asObservable(),
       get snapshot() {
-        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>((params, key) => {
-          const value = queryParamMap$.value.get(key);
-          if (typeof value === 'string') {
-            params[key] = value;
-          }
-          return params;
-        }, {});
+        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>(
+          (params, key) => {
+            const value = queryParamMap$.value.get(key);
+            if (typeof value === 'string') {
+              params[key] = value;
+            }
+            return params;
+          },
+          {},
+        );
         return {
           paramMap: routeParamMap$.value,
           queryParamMap: queryParamMap$.value,
@@ -368,30 +407,42 @@ describe('FeedOpportunityDetailPage', () => {
     expect(publishedDraft.fromProvinceId).toBe('qc');
     expect(publishedDraft.toProvinceId).toBe('on');
     expect(publishedDraft.quantity).toEqual({ value: 320, unit: 'MW' });
-    expect(opportunityOffers.create).toHaveBeenCalledTimes(1);
-    expect(opportunityOffers.create).toHaveBeenCalledWith({
-      opportunityId: 'opportunity-300mw',
-      opportunityTitle: 'Short-term import of 300 MW',
-      opportunityRoute: '/feed/opportunities/opportunity-300mw',
-      recipientKind: 'PARTNER',
-      recipientLabel: 'Hydro Desk',
-      capacityMw: 320,
-      startDate: '2026-01-15',
-      endDate: '2026-02-15',
-      pricingModel: 'spot',
-      comment: 'Firm import block for winter peak support.',
-      attachmentName: 'term-sheet.pdf',
-    });
-    expect(component.offerSubmitState()).toBe('success');
-    expect(notifications.success).toHaveBeenCalledWith('feed.opportunity.detail.offer.status.successReference', {
-      source: 'feed',
-      metadata: {
-        action: 'create-opportunity-offer',
-        itemId: 'opportunity-300mw',
-        offerId: 'offer-record-1',
-        offerReference: 'OG7-OFR-20260115-AB12',
+    expect(opportunityOffers.submit).toHaveBeenCalledTimes(1);
+    expect(opportunityOffers.submit).toHaveBeenCalledWith(
+      {
+        opportunityId: 'opportunity-300mw',
+        opportunityTitle: 'Short-term import of 300 MW',
+        opportunityRoute: '/feed/opportunities/opportunity-300mw',
+        recipientKind: 'PARTNER',
+        recipientLabel: 'Hydro Desk',
+        capacityMw: 320,
+        startDate: '2026-01-15',
+        endDate: '2026-02-15',
+        pricingModel: 'spot',
+        comment: 'Firm import block for winter peak support.',
+        attachmentName: 'term-sheet.pdf',
       },
-    });
+      jasmine.objectContaining({
+        feedItemId: null,
+        correlationId: jasmine.any(String),
+        idempotencyKey: jasmine.stringMatching(/:record$/),
+      }),
+    );
+    expect(component.offerSubmitState()).toBe('success');
+    expect(notifications.success).toHaveBeenCalledWith(
+      'feed.opportunity.detail.offer.status.successReference',
+      {
+        source: 'feed',
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: 'opportunity-300mw',
+          feedItemId: null,
+          offerId: 'offer-record-1',
+          offerReference: 'OG7-OFR-20260115-AB12',
+          correlationId: jasmine.any(String),
+        },
+      },
+    );
   });
 
   it('exposes trade-map context when a pinned corridor query is preserved into the detail page', async () => {
@@ -456,7 +507,7 @@ describe('FeedOpportunityDetailPage', () => {
 
     expect(component.offerSubmitState()).toBe('error');
     expect(component.offerSubmitError()).toBe('feed.error.generic');
-    expect(opportunityOffers.create).not.toHaveBeenCalled();
+    expect(opportunityOffers.submit).not.toHaveBeenCalled();
     expect(notifications.error).toHaveBeenCalledWith('feed.error.generic', {
       source: 'feed',
       metadata: {
@@ -640,7 +691,9 @@ describe('FeedOpportunityDetailPage', () => {
     component.handleQnaSubmit('Need validation from grid operator');
     fixture.detectChanges();
 
-    const newMessage = component.qnaMessages().find(message => message.content === 'Need validation from grid operator');
+    const newMessage = component
+      .qnaMessages()
+      .find((message) => message.content === 'Need validation from grid operator');
     expect(newMessage?.tab).toBe('history');
   });
 
@@ -663,7 +716,9 @@ describe('FeedOpportunityDetailPage', () => {
       qnaMessages: () => readonly { content: string }[];
     };
 
-    expect(component.qnaMessages().some(message => message.content === 'Persisted local follow-up')).toBeTrue();
+    expect(
+      component.qnaMessages().some((message) => message.content === 'Persisted local follow-up'),
+    ).toBeTrue();
   });
 
   it('surfaces persisted tracked offers inside the offers tab conversation stream', async () => {
@@ -689,7 +744,9 @@ describe('FeedOpportunityDetailPage', () => {
       qnaMessages: () => readonly { tab: 'questions' | 'offers' | 'history'; content: string }[];
     };
 
-    expect(component.qnaMessages().some((message) => message.content.includes('OG7-OFR-20260115-AB12'))).toBeTrue();
+    expect(
+      component.qnaMessages().some((message) => message.content.includes('OG7-OFR-20260115-AB12')),
+    ).toBeTrue();
   });
 
   it('exposes linked alerts with stable ids that resolve to real alert detail routes', async () => {
@@ -701,7 +758,10 @@ describe('FeedOpportunityDetailPage', () => {
       detailVm: () => { alerts: readonly { id: string }[] } | null;
     };
 
-    expect(component.detailVm()?.alerts.map(alert => alert.id)).toEqual(['alert-001', 'alert-002']);
+    expect(component.detailVm()?.alerts.map((alert) => alert.id)).toEqual([
+      'alert-001',
+      'alert-002',
+    ]);
   });
 
   it('navigates to alert detail when opening a related alert from context aside', async () => {
@@ -920,13 +980,16 @@ describe('FeedOpportunityDetailPage real template', () => {
       paramMap: routeParamMap$.asObservable(),
       queryParamMap: queryParamMap$.asObservable(),
       get snapshot() {
-        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>((params, key) => {
-          const value = queryParamMap$.value.get(key);
-          if (typeof value === 'string') {
-            params[key] = value;
-          }
-          return params;
-        }, {});
+        const queryParams = queryParamMap$.value.keys.reduce<Record<string, string>>(
+          (params, key) => {
+            const value = queryParamMap$.value.get(key);
+            if (typeof value === 'string') {
+              params[key] = value;
+            }
+            return params;
+          },
+          {},
+        );
         return {
           paramMap: routeParamMap$.value,
           queryParamMap: queryParamMap$.value,
@@ -1000,8 +1063,12 @@ describe('FeedOpportunityDetailPage real template', () => {
     fixture.detectChanges();
 
     const content = fixture.nativeElement.textContent;
-    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-detail-page"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="opportunity-detail-page"]'),
+    ).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="publication-metadata-card"]'),
+    ).toBeTruthy();
     expect(content).toContain('feed.publicationMetadata.title');
     expect(content).toContain('forms.energySurplus.title');
     expect(content).toContain('hydroelectric');
@@ -1011,7 +1078,8 @@ describe('FeedOpportunityDetailPage real template', () => {
     routeParamMap$.next(convertToParamMap({ itemId: 'hydrocarbon-opportunity-001' }));
     const item = createOpportunityItem('hydrocarbon-opportunity-001', {
       title: '48 000 barils disponibles apres ralentissement de corridor',
-      summary: 'Northern Prairie Energy cherche des acheteurs ou stockeurs pour absorber un surplus temporaire.',
+      summary:
+        'Northern Prairie Energy cherche des acheteurs ou stockeurs pour absorber un surplus temporaire.',
       fromProvinceId: 'ab',
       toProvinceId: 'bc',
       mode: 'EXPORT',
@@ -1049,7 +1117,9 @@ describe('FeedOpportunityDetailPage real template', () => {
 
     const content = fixture.nativeElement.textContent;
     expect(content).toContain('feed.opportunity.detail.hydrocarbon.title');
-    expect(fixture.nativeElement.querySelector('[data-og7="hydrocarbon-detail-card"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="hydrocarbon-detail-card"]'),
+    ).toBeTruthy();
     expect(content).toContain('feed.opportunity.detail.hydrocarbon.window');
     expect(content).toContain('forms.hydrocarbonSurplus.fields.publicationType.options.slowdown');
     expect(content).toContain('forms.hydrocarbonSurplus.fields.qualityGrade.options.wcs');

@@ -1047,6 +1047,71 @@ export interface ApiNationalProjectNationalProject extends Struct.CollectionType
   };
 }
 
+export interface ApiOpportunityOfferOpportunityOffer extends Struct.CollectionTypeSchema {
+  collectionName: 'opportunity_offers';
+  info: {
+    displayName: 'Opportunity Offer';
+    pluralName: 'opportunity-offers';
+    singularName: 'opportunity-offer';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    activities: Schema.Attribute.JSON;
+    allocatedCapacityMw: Schema.Attribute.Decimal;
+    attachmentId: Schema.Attribute.String;
+    attachmentName: Schema.Attribute.String;
+    capacityMw: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    comment: Schema.Attribute.Text & Schema.Attribute.Required;
+    correlationId: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    endDate: Schema.Attribute.Date & Schema.Attribute.Required;
+    feedItemId: Schema.Attribute.String;
+    idempotencyKey: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::opportunity-offer.opportunity-offer'
+    > &
+      Schema.Attribute.Private;
+    opportunityId: Schema.Attribute.String & Schema.Attribute.Required;
+    opportunityRoute: Schema.Attribute.String;
+    opportunityTitle: Schema.Attribute.String & Schema.Attribute.Required;
+    pricingModel: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    recipientKind: Schema.Attribute.Enumeration<['GOV', 'COMPANY', 'PARTNER', 'USER']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'PARTNER'>;
+    recipientLabel: Schema.Attribute.String & Schema.Attribute.Required;
+    reference: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Unique;
+    remainingOpportunityCapacityMw: Schema.Attribute.Decimal;
+    senderEmail: Schema.Attribute.Email & Schema.Attribute.Required;
+    senderLabel: Schema.Attribute.String & Schema.Attribute.Required;
+    senderUserId: Schema.Attribute.String & Schema.Attribute.Required;
+    startDate: Schema.Attribute.Date & Schema.Attribute.Required;
+    status: Schema.Attribute.Enumeration<
+      ['submitted', 'inDiscussion', 'partiallyServed', 'withdrawn']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'submitted'>;
+    submittedAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<'manyToOne', 'plugin::users-permissions.user'> &
+      Schema.Attribute.Required;
+    withdrawnAt: Schema.Attribute.DateTime;
+  };
+}
+
 export interface ApiProvinceProvince extends Struct.CollectionTypeSchema {
   collectionName: 'provinces';
   info: {
@@ -1697,6 +1762,7 @@ declare module '@strapi/strapi' {
       'api::import-report-schedule.import-report-schedule': ApiImportReportScheduleImportReportSchedule;
       'api::import-watchlist.import-watchlist': ApiImportWatchlistImportWatchlist;
       'api::national-project.national-project': ApiNationalProjectNationalProject;
+      'api::opportunity-offer.opportunity-offer': ApiOpportunityOfferOpportunityOffer;
       'api::province.province': ApiProvinceProvince;
       'api::saved-search.saved-search': ApiSavedSearchSavedSearch;
       'api::sector.sector': ApiSectorSector;

@@ -108,7 +108,7 @@ export class FeedRealtimeService {
   private readonly analytics = inject(AnalyticsService);
   private readonly opportunityArchive = inject(OpportunityArchiveService);
   private readonly useMockFeed = Boolean(
-    this.featureFlags?.['feedMocks'] ?? this.featureFlags?.['homeFeedMocks']
+    this.featureFlags?.['feedMocks'] ?? this.featureFlags?.['homeFeedMocks'],
   );
 
   private eventSource: EventSource | null = null;
@@ -134,7 +134,9 @@ export class FeedRealtimeService {
   private readonly stateSig = this.store.selectSignal(selectFeedState);
   private readonly onboardingSeenSig = this.store.selectSignal(selectFeedOnboardingSeen);
 
-  readonly items = computed(() => this.itemsSig().map(item => this.opportunityArchive.apply(item)));
+  readonly items = computed(() =>
+    this.itemsSig().map((item) => this.opportunityArchive.apply(item)),
+  );
   readonly loading = this.loadingSig;
   readonly error = this.errorSig;
   readonly onboardingSeen = this.onboardingSeenSig;
@@ -155,48 +157,42 @@ export class FeedRealtimeService {
     }
 
     if (!this.browser) {
-      effect(
-        () => {
-          const snapshot = toFeedSnapshot(this.stateSig());
-          this.transferState.set(TRANSFER_STATE_KEY, snapshot);
-        }
-      );
+      effect(() => {
+        const snapshot = toFeedSnapshot(this.stateSig());
+        this.transferState.set(TRANSFER_STATE_KEY, snapshot);
+      });
     }
 
-    effect(
-      () => {
-        const filters = this.filtersSig();
-        this.updateSignalIfChanged(fromProvinceIdSig, filters.fromProvinceId);
-        this.updateSignalIfChanged(toProvinceIdSig, filters.toProvinceId);
-        this.updateSignalIfChanged(sectorIdSig, filters.sectorId);
-        this.updateSignalIfChanged(feedFormKeySig, filters.formKey);
-        this.updateSignalIfChanged(feedCategorySig, filters.category);
-        this.updateSignalIfChanged(feedTypeSig, filters.type);
-        this.updateSignalIfChanged(feedModeSig, filters.mode);
-        this.updateSignalIfChanged(feedSearchSig, filters.search);
-        this.updateSignalIfChanged(feedSortSig, filters.sort);
-      }
-    );
+    effect(() => {
+      const filters = this.filtersSig();
+      this.updateSignalIfChanged(fromProvinceIdSig, filters.fromProvinceId);
+      this.updateSignalIfChanged(toProvinceIdSig, filters.toProvinceId);
+      this.updateSignalIfChanged(sectorIdSig, filters.sectorId);
+      this.updateSignalIfChanged(feedFormKeySig, filters.formKey);
+      this.updateSignalIfChanged(feedCategorySig, filters.category);
+      this.updateSignalIfChanged(feedTypeSig, filters.type);
+      this.updateSignalIfChanged(feedModeSig, filters.mode);
+      this.updateSignalIfChanged(feedSearchSig, filters.search);
+      this.updateSignalIfChanged(feedSortSig, filters.sort);
+    });
 
-    effect(
-      () => {
-        const filters: FeedFilterState = {
-          fromProvinceId: fromProvinceIdSig(),
-          toProvinceId: toProvinceIdSig(),
-          sectorId: sectorIdSig(),
-          formKey: feedFormKeySig(),
-          category: feedCategorySig(),
-          type: feedTypeSig(),
-          mode: feedModeSig(),
-          sort: feedSortSig(),
-          search: feedSearchSig(),
-        };
-        const current = this.filtersSig();
-        if (!this.equalFilters(current, filters)) {
-          this.store.dispatch(FeedActions.applyFilters({ filters }));
-        }
+    effect(() => {
+      const filters: FeedFilterState = {
+        fromProvinceId: fromProvinceIdSig(),
+        toProvinceId: toProvinceIdSig(),
+        sectorId: sectorIdSig(),
+        formKey: feedFormKeySig(),
+        category: feedCategorySig(),
+        type: feedTypeSig(),
+        mode: feedModeSig(),
+        sort: feedSortSig(),
+        search: feedSearchSig(),
+      };
+      const current = this.filtersSig();
+      if (!this.equalFilters(current, filters)) {
+        this.store.dispatch(FeedActions.applyFilters({ filters }));
       }
-    );
+    });
 
     effect(() => {
       const hydrated = this.hydratedSig();
@@ -212,18 +208,18 @@ export class FeedRealtimeService {
       this.fetchPage({ replace: true });
     });
 
-    effect(
-      () => {
-        const itemId = this.drawerSig();
-        if (focusItemIdSig() !== itemId) {
-          focusItemIdSig.set(itemId);
-        }
+    effect(() => {
+      const itemId = this.drawerSig();
+      if (focusItemIdSig() !== itemId) {
+        focusItemIdSig.set(itemId);
       }
-    );
+    });
 
     if (this.browser) {
       if (this.useMockFeed) {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: true, reconnecting: false }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: true, reconnecting: false }),
+        );
         this.store.dispatch(FeedActions.setConnectionError({ error: null }));
       } else {
         this.connect();
@@ -268,7 +264,7 @@ export class FeedRealtimeService {
       return null;
     }
 
-    const existing = this.items().find(item => item.id === normalizedId);
+    const existing = this.items().find((item) => item.id === normalizedId);
     if (existing) {
       return this.normalizeItem(existing);
     }
@@ -282,7 +278,9 @@ export class FeedRealtimeService {
     const context = createSilentHttpContext();
 
     try {
-      const response = await firstValueFrom(this.http.get<ItemResponse | FeedItem>(url, { context }));
+      const response = await firstValueFrom(
+        this.http.get<ItemResponse | FeedItem>(url, { context }),
+      );
       return this.normalizeItemResponse(response);
     } catch (error) {
       const status = error instanceof HttpErrorResponse ? error.status : null;
@@ -364,7 +362,7 @@ export class FeedRealtimeService {
       return validation;
     }
 
-    void this.commitPublish(context).catch(error => {
+    void this.commitPublish(context).catch((error) => {
       const message = this.extractError(error);
       this.handlePublishFailure({
         tempId: context.optimisticItem.id,
@@ -376,7 +374,10 @@ export class FeedRealtimeService {
     return validation;
   }
 
-  async publishDraft(draft: FeedComposerDraft, options?: FeedPublishOptions): Promise<FeedPublishOutcome> {
+  async publishDraft(
+    draft: FeedComposerDraft,
+    options?: FeedPublishOptions,
+  ): Promise<FeedPublishOutcome> {
     const { validation, context } = this.startPublish(draft, options);
     if (!context) {
       return {
@@ -415,11 +416,15 @@ export class FeedRealtimeService {
     this.scheduleReconnect(0);
   }
 
-  private createPublishContext(draft: FeedComposerDraft, options?: FeedPublishOptions): PublishContext {
+  private createPublishContext(
+    draft: FeedComposerDraft,
+    options?: FeedPublishOptions,
+  ): PublishContext {
     this.markOnboardingSeen();
     const normalizedDraft = this.normalizeDraft(draft);
     const metadata = this.normalizePublicationMetadata(options?.metadata);
-    const idempotencyKey = this.generateIdempotencyKey();
+    const idempotencyKey =
+      this.normalizeIdempotencyKey(options?.idempotencyKey) ?? this.generateIdempotencyKey();
     const optimisticItem = this.buildOptimisticItem(normalizedDraft, idempotencyKey, metadata);
     return {
       normalizedDraft,
@@ -441,7 +446,7 @@ export class FeedRealtimeService {
         draft: context.normalizedDraft,
         item: context.optimisticItem,
         idempotencyKey: context.idempotencyKey,
-      })
+      }),
     );
     this.emitAnalytics('feed.item.publish.started', this.buildPublishAnalyticsPayload(context));
 
@@ -464,10 +469,14 @@ export class FeedRealtimeService {
     }
 
     const response = await firstValueFrom(
-      this.http.post<ItemResponse | FeedItem>(this.composeUrl(COLLECTION_ENDPOINT), this.createPublishRequestBody(context), {
-        headers: this.createPublishHeaders(context),
-        context: createSilentHttpContext(),
-      })
+      this.http.post<ItemResponse | FeedItem>(
+        this.composeUrl(COLLECTION_ENDPOINT),
+        this.createPublishRequestBody(context),
+        {
+          headers: this.createPublishHeaders(context),
+          context: createSilentHttpContext(),
+        },
+      ),
     );
     const item = this.normalizeItemResponse(response);
     this.handlePublishSuccess({
@@ -482,7 +491,7 @@ export class FeedRealtimeService {
   }
 
   private createPublishRequestBody(
-    context: PublishContext
+    context: PublishContext,
   ): FeedComposerDraft & { metadata?: FeedPublicationMetadata | null } {
     return {
       ...context.normalizedDraft,
@@ -501,7 +510,7 @@ export class FeedRealtimeService {
 
   private cacheMockItem(item: FeedItem): void {
     const existing = this.mockFeedCache ?? [];
-    const withoutDuplicate = existing.filter(entry => entry.id !== item.id);
+    const withoutDuplicate = existing.filter((entry) => entry.id !== item.id);
     this.mockFeedCache = [item, ...withoutDuplicate];
   }
 
@@ -540,15 +549,22 @@ export class FeedRealtimeService {
       ...this.buildPublishAnalyticsPayload(publishContext),
       reason: error,
     });
-    this.notifications.error(this.translate.instant('feed.notifications.publishFailure', { reason: error }), {
-      source: 'feed',
-      context,
-      metadata: { reason: error },
-      deliver: { email: true },
-    });
+    this.notifications.error(
+      this.translate.instant('feed.notifications.publishFailure', { reason: error }),
+      {
+        source: 'feed',
+        context,
+        metadata: { reason: error },
+        deliver: { email: true },
+      },
+    );
   }
 
-  private fetchPage(options: { cursor?: string | null; append?: boolean; replace?: boolean }): void {
+  private fetchPage(options: {
+    cursor?: string | null;
+    append?: boolean;
+    replace?: boolean;
+  }): void {
     const { cursor, append, replace } = options;
     const filters = this.filtersSig();
     const params = this.buildParams({ ...filters, cursor });
@@ -556,7 +572,7 @@ export class FeedRealtimeService {
       this.store.dispatch(FeedActions.loadInitial({ replace: true }));
     } else {
       this.store.dispatch(
-        FeedActions.loadPage({ cursor: cursor ?? null, append: Boolean(append) })
+        FeedActions.loadPage({ cursor: cursor ?? null, append: Boolean(append) }),
       );
     }
     if (this.useMockFeed) {
@@ -569,26 +585,29 @@ export class FeedRealtimeService {
     }
     const url = this.composeUrl(COLLECTION_ENDPOINT);
     const context = createSilentHttpContext();
-    this.http
-      .get<ItemResponse>(url, { params, context })
-      .subscribe({
-        next: response => {
-          const items = this.normalizeArrayResponse(response?.data);
-          const nextCursor = response?.cursor ?? null;
-          this.store.dispatch(FeedActions.loadSuccess({ items, cursor: nextCursor, append: Boolean(append) }));
-          this.emitAnalytics('feed.page.loaded', { count: items.length, cursor: nextCursor });
-        },
-        error: error => {
-          const message = this.extractError(error);
-          this.store.dispatch(FeedActions.loadFailure({ error: message }));
-          this.notifications.error(this.translate.instant('feed.notifications.loadError', { reason: message }), {
+    this.http.get<ItemResponse>(url, { params, context }).subscribe({
+      next: (response) => {
+        const items = this.normalizeArrayResponse(response?.data);
+        const nextCursor = response?.cursor ?? null;
+        this.store.dispatch(
+          FeedActions.loadSuccess({ items, cursor: nextCursor, append: Boolean(append) }),
+        );
+        this.emitAnalytics('feed.page.loaded', { count: items.length, cursor: nextCursor });
+      },
+      error: (error) => {
+        const message = this.extractError(error);
+        this.store.dispatch(FeedActions.loadFailure({ error: message }));
+        this.notifications.error(
+          this.translate.instant('feed.notifications.loadError', { reason: message }),
+          {
             source: 'feed',
             context: error,
             metadata: { cursor, append },
             deliver: { email: true },
-          });
-        },
-      });
+          },
+        );
+      },
+    });
   }
 
   private async resolveAndDispatchMockPage(options: {
@@ -614,18 +633,25 @@ export class FeedRealtimeService {
           items,
           cursor: nextCursor,
           append,
-        })
+        }),
       );
-      this.emitAnalytics('feed.page.loaded', { count: items.length, cursor: nextCursor, source: 'mock' });
+      this.emitAnalytics('feed.page.loaded', {
+        count: items.length,
+        cursor: nextCursor,
+        source: 'mock',
+      });
     } catch (error) {
       const message = this.extractError(error);
       this.store.dispatch(FeedActions.loadFailure({ error: message }));
-      this.notifications.error(this.translate.instant('feed.notifications.loadError', { reason: message }), {
-        source: 'feed',
-        context: error,
-        metadata: { cursor, append, source: 'mock' },
-        deliver: { email: true },
-      });
+      this.notifications.error(
+        this.translate.instant('feed.notifications.loadError', { reason: message }),
+        {
+          source: 'feed',
+          context: error,
+          metadata: { cursor, append, source: 'mock' },
+          deliver: { email: true },
+        },
+      );
     }
   }
 
@@ -652,17 +678,21 @@ export class FeedRealtimeService {
     this.store.dispatch(FeedActions.setConnectionStatus({ connected: false, reconnecting: true }));
     this.eventSource.onopen = () =>
       this.zone.run(() => {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: true, reconnecting: false }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: true, reconnecting: false }),
+        );
         this.reconnectAttempts = 0;
         this.notifyConnectionRestored('sse');
       });
     this.eventSource.onerror = () =>
       this.zone.run(() => {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: false, reconnecting: true }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: false, reconnecting: true }),
+        );
         this.notifyConnectionLost('sse');
         this.scheduleReconnect();
       });
-    this.eventSource.onmessage = event =>
+    this.eventSource.onmessage = (event) =>
       this.zone.run(() => {
         this.handleIncomingEvent(event.data, event.lastEventId ?? undefined);
       });
@@ -680,22 +710,28 @@ export class FeedRealtimeService {
     this.store.dispatch(FeedActions.setConnectionStatus({ connected: false, reconnecting: true }));
     this.socket.onopen = () =>
       this.zone.run(() => {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: true, reconnecting: false }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: true, reconnecting: false }),
+        );
         this.reconnectAttempts = 0;
         this.notifyConnectionRestored('ws');
       });
     this.socket.onerror = () =>
       this.zone.run(() => {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: false, reconnecting: true }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: false, reconnecting: true }),
+        );
         this.notifyConnectionLost('ws');
       });
     this.socket.onclose = () =>
       this.zone.run(() => {
-        this.store.dispatch(FeedActions.setConnectionStatus({ connected: false, reconnecting: true }));
+        this.store.dispatch(
+          FeedActions.setConnectionStatus({ connected: false, reconnecting: true }),
+        );
         this.notifyConnectionLost('ws');
         this.scheduleReconnect();
       });
-    this.socket.onmessage = event =>
+    this.socket.onmessage = (event) =>
       this.zone.run(() => {
         this.handleIncomingEvent(event.data);
       });
@@ -710,7 +746,10 @@ export class FeedRealtimeService {
     }
     let envelope: FeedRealtimeEnvelope | null = null;
     try {
-      envelope = typeof raw === 'string' ? (JSON.parse(raw) as FeedRealtimeEnvelope) : (raw as FeedRealtimeEnvelope);
+      envelope =
+        typeof raw === 'string'
+          ? (JSON.parse(raw) as FeedRealtimeEnvelope)
+          : (raw as FeedRealtimeEnvelope);
     } catch (error) {
       console.warn('[feed] Failed to parse realtime payload', error);
       return;
@@ -745,10 +784,15 @@ export class FeedRealtimeService {
       this.connect();
     }, delay);
     if (attempt === 1) {
-      this.notifications.info(this.translate.instant('feed.notifications.reconnecting', { seconds: Math.round(delay / 1000) }), {
-        source: 'feed',
-        metadata: { attempt, delay },
-      });
+      this.notifications.info(
+        this.translate.instant('feed.notifications.reconnecting', {
+          seconds: Math.round(delay / 1000),
+        }),
+        {
+          source: 'feed',
+          metadata: { attempt, delay },
+        },
+      );
     }
   }
 
@@ -841,8 +885,8 @@ export class FeedRealtimeService {
 
     if (!this.mockFeedRequest) {
       this.mockFeedRequest = firstValueFrom(this.http.get<CatalogMockResponse>(CATALOG_MOCK_PATH))
-        .then(payload => this.normalizeArrayResponse(payload?.feedItems ?? []))
-        .then(items => {
+        .then((payload) => this.normalizeArrayResponse(payload?.feedItems ?? []))
+        .then((items) => {
           this.mockFeedCache = items;
           return items;
         })
@@ -856,7 +900,7 @@ export class FeedRealtimeService {
 
   private async resolveMockItemById(itemId: string): Promise<FeedItem | null> {
     const items = await this.resolveMockFeedItems();
-    const item = items.find(entry => entry.id === itemId);
+    const item = items.find((entry) => entry.id === itemId);
     return item ? this.normalizeItem(item) : null;
   }
 
@@ -880,12 +924,14 @@ export class FeedRealtimeService {
     return `${base}${path}`;
   }
 
-  private normalizeArrayResponse(data: FeedItem | readonly FeedItem[] | null | undefined): FeedItem[] {
+  private normalizeArrayResponse(
+    data: FeedItem | readonly FeedItem[] | null | undefined,
+  ): FeedItem[] {
     if (!data) {
       return [];
     }
     return Array.isArray(data)
-      ? data.map(item => this.normalizeItem(item))
+      ? data.map((item) => this.normalizeItem(item))
       : [this.normalizeItem(data as FeedItem)];
   }
 
@@ -924,7 +970,7 @@ export class FeedRealtimeService {
   private buildOptimisticItem(
     draft: FeedComposerDraft,
     key: string,
-    metadata: FeedPublicationMetadata | null
+    metadata: FeedPublicationMetadata | null,
   ): FeedItem {
     const now = new Date().toISOString();
     return {
@@ -970,7 +1016,9 @@ export class FeedRealtimeService {
     };
   }
 
-  private normalizePublicationMetadata(value: FeedPublicationMetadata | null | undefined): FeedPublicationMetadata | null {
+  private normalizePublicationMetadata(
+    value: FeedPublicationMetadata | null | undefined,
+  ): FeedPublicationMetadata | null {
     if (!value || typeof value !== 'object') {
       return null;
     }
@@ -1029,8 +1077,8 @@ export class FeedRealtimeService {
     if (Array.isArray(value)) {
       const normalized = value
         .slice(0, 50)
-        .map(entry => this.sanitizeMetadataValue(entry, depth + 1))
-        .filter(entry => entry !== undefined);
+        .map((entry) => this.sanitizeMetadataValue(entry, depth + 1))
+        .filter((entry) => entry !== undefined);
       return normalized.length ? normalized : undefined;
     }
     if (typeof value === 'object') {
@@ -1039,7 +1087,9 @@ export class FeedRealtimeService {
     return undefined;
   }
 
-  private normalizeOriginType(value: FeedOriginType | string | null | undefined): FeedOriginType | null {
+  private normalizeOriginType(
+    value: FeedOriginType | string | null | undefined,
+  ): FeedOriginType | null {
     if (typeof value !== 'string') {
       return null;
     }
@@ -1095,6 +1145,11 @@ export class FeedRealtimeService {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
 
+  private normalizeIdempotencyKey(value: string | null | undefined): string | null {
+    const normalized = value?.trim();
+    return normalized ? normalized.slice(0, 140) : null;
+  }
+
   private equalFilters(a: FeedFilterState, b: FeedFilterState): boolean {
     return (
       a.fromProvinceId === b.fromProvinceId &&
@@ -1126,12 +1181,13 @@ export class FeedRealtimeService {
     }
   }
 
-
   private emitAnalytics(event: string, payload: Record<string, unknown>): void {
     this.analytics.emit(event, payload);
   }
 
-  private buildPublishAnalyticsPayload(source: PublishContext | FeedItem | null | undefined): Record<string, unknown> {
+  private buildPublishAnalyticsPayload(
+    source: PublishContext | FeedItem | null | undefined,
+  ): Record<string, unknown> {
     const metadata = source?.metadata ?? null;
     const formKey = metadata?.publicationForm?.formKey ?? null;
 
