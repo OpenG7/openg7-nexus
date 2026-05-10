@@ -113,7 +113,7 @@ export class AdminQualityCommandRailComponent {
   scopeBadgeClasses(filtered: boolean): string {
     return filtered
       ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
-      : 'border-white/10 bg-white/[0.05] text-slate-200';
+      : 'border-white/10 bg-white/5 text-slate-200';
   }
 
   badgeClasses(accent: AdminQualityCommandMetric['accent']): string {

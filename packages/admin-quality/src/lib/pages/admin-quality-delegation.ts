@@ -314,7 +314,7 @@ function defaultTargetFiles(entry: AdminQualityMatrixEntry): readonly string[] {
     .filter((item) => item.endsWith('.spec.ts') || item.endsWith('.ts'))
     .map((item) => item.startsWith('src/') || item.startsWith('e2e/') ? `openg7-org/${item}` : item);
 
-  return fileRefs.length ? fileRefs : ['openg7-org/src/app/domains/admin/pages/admin-quality.page.ts'];
+  return fileRefs.length ? fileRefs : ['packages/admin-quality/src/lib/pages/admin-quality.page.ts'];
 }
 
 function defaultAcceptanceCriteria(entry: AdminQualityMatrixEntry, mode: AdminQualityDelegationMode): readonly string[] {

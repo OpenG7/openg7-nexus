@@ -75,8 +75,8 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
       class="relative overflow-hidden rounded-[28px] border border-sky-500/25 bg-[#040d1d]/96 p-3 text-white shadow-[0_36px_110px_-58px_rgba(14,165,233,0.72)] sm:p-4"
       data-og7="admin-quality-coverage-matrix"
     >
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.22),_transparent_34%),radial-gradient(circle_at_88%_12%,_rgba(14,165,233,0.16),_transparent_22%),linear-gradient(180deg,_rgba(2,6,23,0.28),_rgba(2,6,23,0.06))]"></div>
-      <div class="pointer-events-none absolute inset-x-6 top-16 h-px bg-gradient-to-r from-transparent via-sky-300/20 to-transparent"></div>
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.22),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(14,165,233,0.16),transparent_22%),linear-gradient(180deg,rgba(2,6,23,0.28),rgba(2,6,23,0.06))]"></div>
+      <div class="pointer-events-none absolute inset-x-6 top-16 h-px bg-linear-to-r from-transparent via-sky-300/20 to-transparent"></div>
       <div class="pointer-events-none absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl"></div>
 
       <div class="relative space-y-3">
@@ -88,7 +88,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
 
           <button
             type="button"
-            class="inline-flex items-center gap-3 self-start rounded-[14px] border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/[0.08]"
+            class="inline-flex items-center gap-3 self-start rounded-[14px] border border-white/10 bg-white/4 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/8"
             (click)="toggleLegend()"
             [attr.aria-expanded]="legendOpen()"
             aria-controls="admin-quality-coverage-matrix-legend-panel"
@@ -125,7 +125,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
           >
             @for (item of toneLegend; track item.tone) {
               <div
-                class="flex items-center gap-3 rounded-[16px] border border-white/10 bg-white/[0.04] px-3 py-2.5"
+                class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/4 px-3 py-2.5"
                 data-og7="admin-quality-coverage-matrix-legend-item"
                 [attr.data-og7-id]="item.tone"
               >
@@ -221,7 +221,7 @@ const COVERAGE_TONE_LEGEND: readonly CoverageToneLegendItem[] = [
                       <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
                           <span
-                            class="inline-flex min-w-[4.5rem] items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                            class="inline-flex min-w-18 items-center justify-center rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
                             [ngClass]="statusChipClasses(entry.e2eStatus)"
                           >
                             {{ statusChipLabel(entry.e2eStatus) }}
@@ -436,7 +436,7 @@ export class AdminQualityCoverageMatrixComponent {
   rowClasses(entry: AdminQualityMatrixEntry): string {
     return this.isSelected(entry)
       ? 'bg-sky-400/[0.08] shadow-[inset_4px_0_0_rgba(56,189,248,0.95)]'
-      : 'bg-slate-950/28 hover:bg-white/[0.04]';
+      : 'bg-slate-950/28 hover:bg-white/4';
   }
 
   selectedEntry(): AdminQualityMatrixEntry | null {
@@ -653,7 +653,7 @@ export class AdminQualityCoverageMatrixComponent {
       case 'partiel':
         return 'border-amber-400/25 bg-amber-400/12 text-amber-100';
       case 'hors MVP':
-        return 'border-white/12 bg-white/[0.05] text-slate-100';
+        return 'border-white/12 bg-white/5 text-slate-100';
       default:
         return 'border-rose-400/25 bg-rose-400/12 text-rose-100';
     }
@@ -705,7 +705,7 @@ export class AdminQualityCoverageMatrixComponent {
       case 'product-gap':
         return 'border-violet-400/25 bg-violet-400/10 text-violet-100';
       case 'scope-limit':
-        return 'border-white/12 bg-white/[0.05] text-slate-100';
+        return 'border-white/12 bg-white/5 text-slate-100';
       default:
         return 'border-amber-400/25 bg-amber-400/10 text-amber-100';
     }

@@ -3,12 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES, strapiAdminQualityMissionDecisionById } from '@app/core/api/strapi.routes';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
-import { Observable, map } from 'rxjs';
-
 import type {
   AdminQualityMissionKind,
   AdminQualityMissionStatus,
-} from '../pages/admin-quality-mission-control';
+} from '@openg7/admin-quality';
+import { Observable, map } from 'rxjs';
 
 export interface AdminQualityMissionDecisionRecord {
   readonly recommendationId: string;

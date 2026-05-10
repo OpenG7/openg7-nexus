@@ -13,13 +13,15 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
-import { finalize } from 'rxjs';
-
 import {
   ADMIN_AI_PROVIDER_OPTIONS,
   AdminAiProvider,
   resolveAdminAiProviderOption,
-} from '../data-access/admin-ai-providers';
+} from '@openg7/admin-ai/admin-ai-providers';
+import { AdminNavigationPillsComponent } from '@openg7/admin-quality';
+import type { AdminNavigationPillItem } from '@openg7/admin-quality';
+import { finalize } from 'rxjs';
+
 import {
   AdminOpsBackupFile,
   AdminOpsCodexDispatchResponse,
@@ -28,8 +30,6 @@ import {
   AdminOpsService,
   AdminOpsSnapshot,
 } from '../data-access/admin-ops.service';
-
-import { AdminNavigationPillItem, AdminNavigationPillsComponent } from './admin-navigation-pills.component';
 
 type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
 

@@ -6,11 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const appRoot = path.join(repoRoot, 'openg7-org', 'src', 'app');
+const adminQualityPackageRoot = path.join(repoRoot, 'packages', 'admin-quality', 'src', 'lib');
 const e2eRoot = path.join(repoRoot, 'openg7-org', 'e2e');
 const outputFile = path.join(
-  appRoot,
-  'domains',
-  'admin',
+  adminQualityPackageRoot,
   'pages',
   'admin-quality-action-discovery.generated.ts',
 );
@@ -59,7 +58,9 @@ function detectTrigger(tagName, attributesSource) {
 }
 
 function collectDiscoveredActions() {
-  const htmlFiles = walkFiles(appRoot, (filePath) => filePath.endsWith('.html'));
+  const htmlFiles = [appRoot, adminQualityPackageRoot].flatMap((root) =>
+    walkFiles(root, (filePath) => filePath.endsWith('.html')),
+  );
   const actionMap = new Map();
   const elementPattern = /<(button|a)\b[\s\S]*?>/gi;
 
@@ -100,7 +101,9 @@ function collectDiscoveredActions() {
     }
   }
 
-  const appSpecFiles = walkFiles(appRoot, (filePath) => filePath.endsWith('.spec.ts'));
+  const appSpecFiles = [appRoot, adminQualityPackageRoot].flatMap((root) =>
+    walkFiles(root, (filePath) => filePath.endsWith('.spec.ts')),
+  );
   const e2eSpecFiles = walkFiles(e2eRoot, (filePath) => filePath.endsWith('.spec.ts'));
 
   for (const action of actionMap.values()) {
