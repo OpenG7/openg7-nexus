@@ -69,6 +69,7 @@ strapi/*.db
 strapi/*.sqlite
 strapi/.env
 strapi/.env.*
+strapi/types/generated/
 # Legacy/new Strapi workspaces rely on the root Yarn lockfile
 strapi-legacy/yarn.lock
 strapi/yarn.lock
@@ -90,3 +91,4 @@ docs/reference/
 .env
 .env.*
 !.env.example
+strapi/types/generated/contentTypes.d.ts
