@@ -67,6 +67,64 @@
   font-weight: 600;
 }
 
+.og7-feed__source-context--corridor {
+  width: min(100%, 64rem);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  border-radius: 1rem;
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.og7-feed__source-context-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+}
+
+.og7-feed__source-chips,
+.og7-feed__source-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.og7-feed__source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.85rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: rgba(6, 17, 45, 0.48);
+  color: var(--og7-feed-text);
+  font-size: 0.78rem;
+}
+
+.og7-feed__source-actions button {
+  min-height: 1.85rem;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.08);
+  color: var(--og7-feed-text-strong);
+  padding: 0.25rem 0.65rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.og7-feed__source-actions button:hover,
+.og7-feed__source-actions button:focus-visible {
+  background: rgba(125, 211, 252, 0.16);
+}
+
+.og7-feed__source-actions button:focus-visible {
+  outline: 2px solid var(--og7-feed-accent);
+  outline-offset: 2px;
+}
+
 .og7-feed__layout {
   display: grid;
   gap: 1rem;

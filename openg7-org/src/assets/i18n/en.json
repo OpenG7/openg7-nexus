@@ -985,7 +985,25 @@
     "context": {
       "homeFeedPanels": "Context preserved from the home feed panels.",
       "corridorFocus": "Focused corridor:",
-      "tradeMap": "Context preserved from the trade map."
+      "tradeMap": "Context preserved from the trade map.",
+      "returnMap": "Map",
+      "reset": "Reset",
+      "chips": {
+        "sector": "Sector",
+        "route": "Route",
+        "mode": "Mode",
+        "priority": "Priority"
+      },
+      "mode": {
+        "IMPORT": "Import",
+        "EXPORT": "Export",
+        "BOTH": "Import/export"
+      },
+      "priority": {
+        "standard": "Standard",
+        "elevated": "Elevated",
+        "critical": "Critical"
+      }
     },
     "views": {
       "hydrocarbons": {

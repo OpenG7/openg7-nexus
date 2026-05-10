@@ -138,6 +138,8 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Carte & data viz | [data-og7="map-corridor-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Carte resume du corridor courant. |
 | Carte & data viz | [data-og7="map-cinematic-status"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etat du mode idle/cadrage automatique de la carte home. |
 | Carte & data viz | [data-og7="map-corridor-beat"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Etapes narratives cliquables du corridor courant. |
+| Carte & data viz | [data-og7="map-corridor-downstream"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Pont decisionnel du corridor courant vers le feed prefiltre. |
+| Carte & data viz | [data-og7="action"][data-og7-id="map-open-corridor-feed"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | CTA clavier/souris pour ouvrir le feed focalise sur le corridor courant. |
 | Carte & data viz | [data-og7="map-hub-card"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Mini-fiche ouverte apres clic sur un hub de la carte. |
 | Carte & data viz | [data-og7="map-hub-prompt"] | HomeOpenlayersMapComponent | openg7-org/src/app/domains/home/feature/home-map-section/home-openlayers-map.component.ts | ok | Indication de decouverte pour l'ouverture des mini-fiches hub. |
 | Carte & data viz | [data-og7="corridors-realtime"] | HomeCorridorsRealtimeComponent | openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html | ok |  |
@@ -149,6 +151,15 @@ Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-
 | Layout / nav / a11y | [data-og7-id="alerts"] | SiteHeaderComponent | openg7-org/src/app/shared/components/layout/site-header/site-header.component.html | ok | Lien menu profil vers /alerts (desktop + mobile). |
 | Commerce & entreprises | [data-og7="company-table"] | CompanyTableComponent | openg7-org/src/app/shared/components/company/company-table.component.ts | ok |  |
 | Commerce & entreprises | [data-og7="company-detail"] | CompanyDetailComponent | openg7-org/src/app/shared/components/company/company-detail.component.ts | ok |  |
+| Flux & social | [data-og7="feed-page"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Conteneur principal du feed. |
+| Flux & social | [data-og7="feed-source-context"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Bandeau de contexte source/corridor preserve depuis la carte ou les surfaces amont. |
+| Flux & social | [data-og7="feed-source-chips"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Groupe de chips du contexte corridor (secteur, route, mode, priorite). |
+| Flux & social | [data-og7="feed-source-chip"][data-og7-id="sector"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip secteur du contexte corridor feed. |
+| Flux & social | [data-og7="feed-source-chip"][data-og7-id="route"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip route du contexte corridor feed. |
+| Flux & social | [data-og7="feed-source-chip"][data-og7-id="mode"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip mode import/export du contexte corridor feed. |
+| Flux & social | [data-og7="feed-source-chip"][data-og7-id="priority"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Chip priorite du contexte corridor feed. |
+| Flux & social | [data-og7="action"][data-og7-id="feed-context-return-map"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Retour clavier/souris vers la carte d'origine du contexte feed. |
+| Flux & social | [data-og7="action"][data-og7-id="feed-context-reset"] | FeedPage | openg7-org/src/app/domains/feed/feature/feed.page.html | ok | Reinitialisation du contexte source/corridor du feed. |
 | Flux & social | [data-og7="opportunity-detail-page"] | FeedOpportunityDetailPage | openg7-org/src/app/domains/feed/feature/pages/feed-opportunity-detail.page.html | ok | Conteneur detail opportunite. |
 | Flux & social | [data-og7="opportunity-detail-header"] | OpportunityDetailHeaderComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html | ok | Header sticky + actions detail. |
 | Flux & social | [data-og7="opportunity-detail-body"] | OpportunityDetailBodyComponent | openg7-org/src/app/domains/feed/feature/components/opportunity-detail-body.component.html | ok | Resume/specs/modalites/documents. |
@@ -293,6 +304,8 @@ IntÃ©grer la carte (Leaflet) et ses contrÃ´les (basemap-toggle, zoom-control
   - Fiche corridor : `[data-og7="map-corridor-card"]`  
   - Etat cinematic : `[data-og7="map-cinematic-status"]`  
   - Etapes corridor : `[data-og7="map-corridor-beat"]`  
+  - Pont corridor vers feed : `[data-og7="map-corridor-downstream"]`  
+  - CTA feed corridor : `[data-og7="action"] [data-og7-id="map-open-corridor-feed"]`  
   - Fiche hub : `[data-og7="map-hub-card"]`
 
 ### 1.4 â€” Filtres & rÃ©sultats
@@ -1605,11 +1618,12 @@ _MAJ (enhanced) : 2026-03-14 00:00:00Z_
 - `POST /api/feed` : `type`, `title`, `summary`, `sectorId`, `fromProvinceId`, `toProvinceId`, `mode`, `quantity.value`, `quantity.unit`, `tags`.
 - `BLUEPRINT-OP-19` (creer une alerte depuis un indicateur) publie via `POST /api/feed` avec mapping : `type=ALERT`, `title`, `summary`, `sectorId`, `fromProvinceId`, `toProvinceId`, `mode`, `tags`.
 - Header HTTP : `Idempotency-Key` (publication feed).
-- Navigation router (query params) : `type`, `mode`, `sector`, `fromProvince`, `toProvince`, `q`.
+- Navigation router (query params) : `type`, `mode`, `sector`, `fromProvince`, `toProvince`, `q`, `source`, `corridorId`, `priority`, `feedItemId`.
 - `BLUEPRINT-OP-13` (creer opportunite liee depuis alerte) : `draftSource`, `draftAlertId`, `draftType`, `draftMode`, `draftSectorId`, `draftFromProvinceId`, `draftToProvinceId`, `draftTitle`, `draftSummary`, `draftTags`.
 - Share Web API : `title`, `text`, `url`.
 - Clipboard fallback : `url`.
 - Analytics feed (dataLayer/custom event) : `event`, `itemId`, `type`, `source`, `reason`, `count`, `cursor`.
+- Analytics carte -> feed corridor (`map_open_corridor_feed`) : `corridorId`, `sector`, `fromProvince`, `toProvince`, `mode`, `priority`, `decisionItemId`, `cmsKey`, `input`, `sourceRoute`, `targetRoute`.
 - Analytics endpoint (si configure) : `event`, `detail`, `priority`, `timestamp`.
 - Notification webhook/email (si active) : `notification.id`, `notification.type`, `notification.title`, `notification.message`, `notification.source`, `notification.createdAt`, `notification.metadata`, `recipient`.
 - Events UI locaux (non persistes backend) :

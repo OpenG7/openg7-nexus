@@ -14,6 +14,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { resolveCorridorContext } from '@app/core/config/corridor-context';
 import { FavoritesService } from '@app/core/favorites.service';
+import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import {
@@ -30,7 +31,10 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { HydrocarbonSignalsPanelComponent } from './components/hydrocarbon-signals-panel.component';
-import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
+import {
+  OpportunityOfferPayload,
+  OpportunityOfferSubmitState,
+} from './components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from './components/opportunity-offer-drawer.component';
 import { buildFeedFavoriteKey, isFeedOpportunityType } from './feed-item.helpers';
 import {
@@ -66,11 +70,14 @@ export class FeedPage {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly notifications = injectNotificationStore();
   private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly opportunityEngagement = inject(OpportunityEngagementService);
   private readonly translate = inject(TranslateService);
-  private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>('publishSection');
+  private readonly publishSectionRef = viewChild<{ focusPrimaryAction?: () => void }>(
+    'publishSection',
+  );
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
@@ -100,7 +107,8 @@ export class FeedPage {
     }
   });
   readonly corridorContext = computed(() => {
-    if (this.sourceContext() !== 'corridors-realtime') {
+    const sourceContext = this.sourceContext();
+    if (sourceContext !== 'corridors-realtime' && sourceContext !== 'trade-map') {
       return null;
     }
     return resolveCorridorContext(this.normalizeQueryParam(this.queryParamMap().get('corridorId')));
@@ -129,7 +137,9 @@ export class FeedPage {
     const panel = this.routeData()?.['hydrocarbonSignalsPanel'];
     return panel && typeof panel === 'object' ? (panel as { limit?: number }) : null;
   });
-  readonly hydrocarbonSignalsPanelLimit = computed(() => this.hydrocarbonSignalsPanel()?.limit ?? 3);
+  readonly hydrocarbonSignalsPanelLimit = computed(
+    () => this.hydrocarbonSignalsPanel()?.limit ?? 3,
+  );
   readonly selectedFromProvinceId = computed(() => this.liveFilters().fromProvinceId);
   readonly selectedToProvinceId = computed(() => this.liveFilters().toProvinceId);
   private readonly liveFilters = computed<FeedFilterState>(() => ({
@@ -183,7 +193,6 @@ export class FeedPage {
         replaceUrl: true,
       });
     });
-
   }
 
   @HostListener('window:focus')
@@ -234,6 +243,35 @@ export class FeedPage {
   handleComposeRequested(): void {
     this.feed.markOnboardingSeen();
     this.publishSectionRef()?.focusPrimaryAction?.();
+  }
+
+  returnToSourceMap(): void {
+    const corridorContext = this.corridorContext();
+    this.analytics.emit('feed_context_return_map', {
+      corridorId: corridorContext?.id ?? null,
+      source: this.sourceContext(),
+      targetRoute: '/',
+    });
+    void this.router.navigate(['/'], { fragment: 'map' });
+  }
+
+  resetSourceContext(): void {
+    const corridorContext = this.corridorContext();
+    this.analytics.emit('feed_context_reset', {
+      corridorId: corridorContext?.id ?? null,
+      source: this.sourceContext(),
+    });
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        source: null,
+        corridorId: null,
+        feedItemId: null,
+        partner: null,
+        priority: null,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   handleSaveItem(item: FeedItem): void {
@@ -294,7 +332,7 @@ export class FeedPage {
   }
 
   openItem(itemId: string): void {
-    const item = this.items().find(entry => entry.id === itemId);
+    const item = this.items().find((entry) => entry.id === itemId);
     const routeSegment =
       item?.type === 'ALERT'
         ? 'alerts'
@@ -334,7 +372,12 @@ export class FeedPage {
 
     this.contactSubmitState.set('submitting');
     const outcome = await this.feed.publishDraft(
-      buildOpportunityOfferDraft(item, payload, this.items().find(entry => entry.sectorId)?.sectorId ?? null, this.translate)
+      buildOpportunityOfferDraft(
+        item,
+        payload,
+        this.items().find((entry) => entry.sectorId)?.sectorId ?? null,
+        this.translate,
+      ),
     );
     const errorMessage = resolveOpportunityOfferSubmitErrorMessage(outcome, this.translate);
 
@@ -352,7 +395,7 @@ export class FeedPage {
     }
 
     const record = this.opportunityOffers.create(
-      buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload)
+      buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload),
     );
     this.contactSubmitState.set('success');
     this.contactSubmitError.set(null);
@@ -369,7 +412,7 @@ export class FeedPage {
           offerId: record.id,
           offerReference: record.reference,
         },
-      }
+      },
     );
     this.closeContactDrawerAfterSuccess();
   }
@@ -382,7 +425,6 @@ export class FeedPage {
       this.contactSubmitState.set('idle');
     }, 750);
   }
-
 
   private resetContactSubmitState(): void {
     this.clearContactStatusTimer();
@@ -402,14 +444,15 @@ export class FeedPage {
   private redirectToLogin(): void {
     const navigation = this.opportunityEngagement.buildLoginNavigation(
       this.currentInternalUrl('/feed'),
-      '/feed'
+      '/feed',
     );
     void this.router.navigate(navigation.commands, navigation.extras);
   }
 
   private currentInternalUrl(fallback = '/feed'): string {
     const navigation = this.router.getCurrentNavigation();
-    const url = navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
+    const url =
+      navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
   }
 
@@ -417,6 +460,12 @@ export class FeedPage {
     const corridorId = this.normalizeQueryParam(this.queryParamMap().get('corridorId'));
     if (!corridorId) {
       return null;
+    }
+
+    const corridorContext = resolveCorridorContext(corridorId);
+    const decisionItemId = corridorContext?.decisionItemId ?? null;
+    if (decisionItemId && this.items().some((entry) => entry.id === decisionItemId)) {
+      return decisionItemId;
     }
 
     const sectorId =
@@ -428,7 +477,11 @@ export class FeedPage {
     return item?.id ?? null;
   }
 
-  private matchesTradeMapItem(item: FeedItem, sectorId: string | null, partner: string | null): boolean {
+  private matchesTradeMapItem(
+    item: FeedItem,
+    sectorId: string | null,
+    partner: string | null,
+  ): boolean {
     if (sectorId && item.sectorId !== sectorId) {
       return false;
     }
@@ -485,7 +538,7 @@ function buildFeedFilterQueryParams(filters: FeedFilterState): Record<string, st
 
 function buildFeedPageQueryParams(
   queryParamMap: ParamMap,
-  filters: FeedFilterState
+  filters: FeedFilterState,
 ): Record<string, string | string[] | null> {
   const preservedParams: Record<string, string | string[]> = {};
 

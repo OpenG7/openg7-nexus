@@ -726,7 +726,25 @@
     "context": {
       "homeFeedPanels": "Contexte conserve depuis les panneaux du fil sur l'accueil.",
       "corridorFocus": "Corridor suivi :",
-      "tradeMap": "Contexte conserve depuis la carte des echanges."
+      "tradeMap": "Contexte conserve depuis la carte des echanges.",
+      "returnMap": "Carte",
+      "reset": "Reinitialiser",
+      "chips": {
+        "sector": "Secteur",
+        "route": "Route",
+        "mode": "Mode",
+        "priority": "Priorite"
+      },
+      "mode": {
+        "IMPORT": "Import",
+        "EXPORT": "Export",
+        "BOTH": "Import/export"
+      },
+      "priority": {
+        "standard": "Standard",
+        "elevated": "Elevee",
+        "critical": "Critique"
+      }
     },
     "views": {
       "hydrocarbons": {
