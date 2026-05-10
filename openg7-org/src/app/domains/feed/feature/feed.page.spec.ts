@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { AnalyticsService } from '@app/core/observability/analytics.service';
 import { NotificationStore } from '@app/core/observability/notification.store';
 import { OpportunityOffersService } from '@app/core/opportunity-offers.service';
 import { selectProvinces, selectSectors } from '@app/state/catalog/catalog.selectors';
@@ -24,7 +25,10 @@ import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './components/opportunity-detail.models';
+import {
+  OpportunityOfferPayload,
+  OpportunityOfferSubmitState,
+} from './components/opportunity-detail.models';
 import { parseFeedFilters } from './feed-route-filters';
 import { FeedPage } from './feed.page';
 import { FeedComposerDraft, FeedItem } from './models/feed.models';
@@ -151,10 +155,10 @@ class FavoritesServiceMock {
   readonly list = this.itemsSig.asReadonly();
   readonly refresh = jasmine.createSpy('refresh');
   readonly add = jasmine.createSpy('add').and.callFake((item: string) => {
-    this.itemsSig.update(current => (current.includes(item) ? current : [...current, item]));
+    this.itemsSig.update((current) => (current.includes(item) ? current : [...current, item]));
   });
   readonly remove = jasmine.createSpy('remove').and.callFake((item: string) => {
-    this.itemsSig.update(current => current.filter(entry => entry !== item));
+    this.itemsSig.update((current) => current.filter((entry) => entry !== item));
   });
 
   setItems(items: string[]): void {
@@ -173,7 +177,11 @@ class OpportunityOffersServiceMock {
   readonly withdraw = jasmine.createSpy('withdraw');
 }
 
-function createFeedItem(type: FeedItem['type'], id: string, overrides: Partial<FeedItem> = {}): FeedItem {
+function createFeedItem(
+  type: FeedItem['type'],
+  id: string,
+  overrides: Partial<FeedItem> = {},
+): FeedItem {
   return {
     id,
     createdAt: '2026-01-15T10:00:00.000Z',
@@ -238,6 +246,7 @@ describe('FeedPage', () => {
   let feed: FeedRealtimeServiceMock;
   let favorites: FavoritesServiceMock;
   let opportunityOffers: OpportunityOffersServiceMock;
+  let analytics: jasmine.SpyObj<AnalyticsService>;
   let notifications: { success: jasmine.Spy; info: jasmine.Spy; error: jasmine.Spy };
   let router: jasmine.SpyObj<Router>;
   let queryParamMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
@@ -250,6 +259,7 @@ describe('FeedPage', () => {
     feed = new FeedRealtimeServiceMock();
     favorites = new FavoritesServiceMock();
     opportunityOffers = new OpportunityOffersServiceMock();
+    analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['emit']);
     notifications = {
       success: jasmine.createSpy('success'),
       info: jasmine.createSpy('info'),
@@ -272,7 +282,10 @@ describe('FeedPage', () => {
       queryParamMap: queryParamMap$.asObservable(),
       data: routeData$.asObservable(),
       get snapshot() {
-        return { queryParamMap: queryParamMap$.value, data: routeData$.value } as ActivatedRoute['snapshot'];
+        return {
+          queryParamMap: queryParamMap$.value,
+          data: routeData$.value,
+        } as ActivatedRoute['snapshot'];
       },
     };
 
@@ -282,6 +295,7 @@ describe('FeedPage', () => {
         { provide: FeedRealtimeService, useValue: feed },
         { provide: FavoritesService, useValue: favorites },
         { provide: OpportunityOffersService, useValue: opportunityOffers },
+        { provide: AnalyticsService, useValue: analytics },
         { provide: NotificationStore, useValue: notifications },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
@@ -316,6 +330,24 @@ describe('FeedPage', () => {
             homeFeedPanels: 'Context preserved from the home feed panels.',
             corridorFocus: 'Focused corridor:',
             tradeMap: 'Context preserved from the trade map.',
+            returnMap: 'Map',
+            reset: 'Reset',
+            chips: {
+              sector: 'Sector',
+              route: 'Route',
+              mode: 'Mode',
+              priority: 'Priority',
+            },
+            mode: {
+              IMPORT: 'Import',
+              EXPORT: 'Export',
+              BOTH: 'Import/export',
+            },
+            priority: {
+              standard: 'Standard',
+              elevated: 'Elevated',
+              critical: 'Critical',
+            },
           },
         },
         home: {
@@ -325,9 +357,24 @@ describe('FeedPage', () => {
               qcOn: 'QC -> ON',
             },
           },
+          map: {
+            overlay: {
+              sectorsList: {
+                energy: 'Energy',
+                manufacturing: 'Manufacturing',
+                agriFood: 'Agri-food',
+              },
+              corridorLabels: {
+                flowEnergy: 'Quebec to Ontario',
+                flowBattery: 'Alberta to Ontario',
+                flowFood: 'British Columbia to Ontario',
+                flowQcUsne: 'Quebec to US Northeast',
+              },
+            },
+          },
         },
       },
-      true
+      true,
     );
     translate.use('en');
   });
@@ -365,12 +412,15 @@ describe('FeedPage', () => {
   });
 
   it('highlights a home feed panel item when source context is present', () => {
-    queryParamMap$.next(convertToParamMap({ source: 'home-feed-panels', feedItemId: 'request-001' }));
+    queryParamMap$.next(
+      convertToParamMap({ source: 'home-feed-panels', feedItemId: 'request-001' }),
+    );
 
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     expect(stream.highlightedItemId()).toBe('request-001');
     expect(fixture.nativeElement.querySelector('[data-og7="feed-source-context"]')).toBeTruthy();
   });
@@ -381,19 +431,25 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     expect(stream.highlightedItemId()).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-og7="feed-source-context"]')).toBeNull();
   });
 
   it('shows corridor context when the feed is opened from realtime corridors', () => {
-    queryParamMap$.next(convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }));
+    queryParamMap$.next(
+      convertToParamMap({ source: 'corridors-realtime', corridorId: 'essential-services' }),
+    );
 
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
-    const context = fixture.nativeElement.querySelector('[data-og7="feed-source-context"]') as HTMLElement;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
+    const context = fixture.nativeElement.querySelector(
+      '[data-og7="feed-source-context"]',
+    ) as HTMLElement;
 
     expect(stream.highlightedItemId()).toBeNull();
     expect(context).toBeTruthy();
@@ -403,17 +459,129 @@ describe('FeedPage', () => {
   });
 
   it('shows map context when the feed is opened from a trade map drilldown', () => {
-    queryParamMap$.next(convertToParamMap({ source: 'trade-map', sector: 'energy', type: 'REQUEST' }));
+    queryParamMap$.next(
+      convertToParamMap({ source: 'trade-map', sector: 'energy', type: 'REQUEST' }),
+    );
 
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
-    const context = fixture.nativeElement.querySelector('[data-og7="feed-source-context"]') as HTMLElement;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
+    const context = fixture.nativeElement.querySelector(
+      '[data-og7="feed-source-context"]',
+    ) as HTMLElement;
 
     expect(stream.highlightedItemId()).toBeNull();
     expect(context).toBeTruthy();
     expect(context.textContent).toContain('Context preserved from the trade map.');
+  });
+
+  it('shows corridor context when the feed is opened from a trade map corridor', () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        sector: 'energy',
+        type: 'REQUEST',
+      }),
+    );
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const context = fixture.nativeElement.querySelector(
+      '[data-og7="feed-source-context"]',
+    ) as HTMLElement;
+
+    expect(context).toBeTruthy();
+    expect(context.textContent).toContain('Focused corridor:');
+    expect(context.textContent).toContain('Quebec to Ontario');
+    expect(
+      context.querySelector('[data-og7="feed-source-chip"][data-og7-id="sector"]')?.textContent,
+    ).toContain('Energy');
+    expect(
+      context.querySelector('[data-og7="feed-source-chip"][data-og7-id="route"]')?.textContent,
+    ).toContain('QC -> ON');
+    expect(
+      context.querySelector('[data-og7="feed-source-chip"][data-og7-id="priority"]')?.textContent,
+    ).toContain('Critical');
+    expect(context.textContent).not.toContain('Context preserved from the trade map.');
+  });
+
+  it('resolves all trade map corridor contexts for downstream filtering', () => {
+    const cases = [
+      ['flow-energy', 'Quebec to Ontario', 'QC', 'ON'],
+      ['flow-battery', 'Alberta to Ontario', 'AB', 'ON'],
+      ['flow-food', 'British Columbia to Ontario', 'BC', 'ON'],
+      ['flow-qc-usne', 'Quebec to US Northeast', 'QC', null],
+    ] as const;
+
+    for (const [corridorId, label, fromProvinceId, toProvinceId] of cases) {
+      queryParamMap$.next(convertToParamMap({ source: 'trade-map', corridorId }));
+      applySharedFeedFiltersFromQuery(queryParamMap$.value);
+
+      const fixture = TestBed.createComponent(FeedPage);
+      fixture.detectChanges();
+      const context = fixture.nativeElement.querySelector(
+        '[data-og7="feed-source-context"]',
+      ) as HTMLElement;
+
+      expect(context.textContent).toContain(label);
+      expect(fromProvinceIdSig()).toBe(fromProvinceId);
+      expect(toProvinceIdSig()).toBe(toProvinceId);
+      fixture.destroy();
+      resetSharedFeedFilters();
+    }
+  });
+
+  it('offers context reset and return-to-map actions for corridor sessions', () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        sector: 'energy',
+        type: 'REQUEST',
+      }),
+    );
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+    router.navigate.calls.reset();
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-og7="action"][data-og7-id="feed-context-return-map"]',
+      ) as HTMLButtonElement
+    ).click();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/'], { fragment: 'map' });
+    expect(analytics.emit).toHaveBeenCalledWith(
+      'feed_context_return_map',
+      jasmine.objectContaining({ corridorId: 'flow-energy' }),
+    );
+
+    router.navigate.calls.reset();
+    analytics.emit.calls.reset();
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-og7="action"][data-og7-id="feed-context-reset"]',
+      ) as HTMLButtonElement
+    ).click();
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      jasmine.objectContaining({
+        relativeTo: jasmine.anything(),
+        queryParamsHandling: 'merge',
+        queryParams: jasmine.objectContaining({ source: null, corridorId: null, priority: null }),
+      }),
+    );
+    expect(analytics.emit).toHaveBeenCalledWith(
+      'feed_context_reset',
+      jasmine.objectContaining({ corridorId: 'flow-energy' }),
+    );
   });
 
   it('highlights the first matching item when the feed is opened from a pinned trade-map corridor', () => {
@@ -439,7 +607,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
 
     expect(stream.highlightedItemId()).toBe('request-001');
   });
@@ -490,7 +659,7 @@ describe('FeedPage', () => {
         mode: 'IMPORT',
         sort: 'URGENCY',
         q: 'winter peak',
-      })
+      }),
     );
 
     const fixture = TestBed.createComponent(FeedPage);
@@ -554,8 +723,12 @@ describe('FeedPage', () => {
     const panel = fixture.debugElement.query(By.directive(HydrocarbonSignalsPanelStubComponent));
     expect(panel).toBeTruthy();
     expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).limit()).toBe(3);
-    expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).originProvinceId()).toBe('ab');
-    expect((panel.componentInstance as HydrocarbonSignalsPanelStubComponent).targetProvinceId()).toBeNull();
+    expect(
+      (panel.componentInstance as HydrocarbonSignalsPanelStubComponent).originProvinceId(),
+    ).toBe('ab');
+    expect(
+      (panel.componentInstance as HydrocarbonSignalsPanelStubComponent).targetProvinceId(),
+    ).toBeNull();
   });
 
   it('routes indicator items to /feed/indicators/:id', () => {
@@ -565,9 +738,12 @@ describe('FeedPage', () => {
 
     component.openItem('indicator-spot-ontario');
 
-    expect(router.navigate).toHaveBeenCalledWith(['/feed', 'indicators', 'indicator-spot-ontario'], {
-      queryParamsHandling: 'preserve',
-    });
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/feed', 'indicators', 'indicator-spot-ontario'],
+      {
+        queryParamsHandling: 'preserve',
+      },
+    );
   });
 
   it('routes alert items to /feed/alerts/:id', () => {
@@ -599,7 +775,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.saveItem.emit(item);
     expect(favorites.add).toHaveBeenCalledWith('opportunity:opportunity-300mw');
 
@@ -612,7 +789,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.contactItem.emit(item);
     fixture.detectChanges();
 
@@ -631,7 +809,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.contactItem.emit(item);
 
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
@@ -644,7 +823,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.contactItem.emit(item);
 
     expect(router.navigate).toHaveBeenCalledWith(['/linkup', 73], {
@@ -660,7 +840,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.contactItem.emit(item);
     fixture.detectChanges();
 
@@ -692,15 +873,18 @@ describe('FeedPage', () => {
       comment: 'Firm import block for winter peak support.',
       attachmentName: 'term-sheet.pdf',
     });
-    expect(notifications.success).toHaveBeenCalledWith('feed.opportunity.detail.offer.status.successReference', {
-      source: 'feed',
-      metadata: {
-        action: 'create-opportunity-offer',
-        itemId: 'opportunity-300mw',
-        offerId: 'offer-record-1',
-        offerReference: 'OG7-OFR-20260120-AB12',
+    expect(notifications.success).toHaveBeenCalledWith(
+      'feed.opportunity.detail.offer.status.successReference',
+      {
+        source: 'feed',
+        metadata: {
+          action: 'create-opportunity-offer',
+          itemId: 'opportunity-300mw',
+          offerId: 'offer-record-1',
+          offerReference: 'OG7-OFR-20260120-AB12',
+        },
       },
-    });
+    );
   });
 
   it('surfaces an error toast when contact submission fails', async () => {
@@ -718,7 +902,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     stream.contactItem.emit(item);
     fixture.detectChanges();
 
@@ -748,7 +933,8 @@ describe('FeedPage', () => {
     const fixture = TestBed.createComponent(FeedPage);
     fixture.detectChanges();
 
-    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent)).componentInstance as FeedStreamStubComponent;
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
     const publishSection = fixture.debugElement.query(By.directive(FeedPublishSectionStubComponent))
       .componentInstance as FeedPublishSectionStubComponent;
 
@@ -794,7 +980,7 @@ describe('FeedPage shared-link hydration', () => {
       convertToParamMap({
         formKey: 'energy-surplus-offer',
         fromProvince: 'qc',
-      })
+      }),
     );
     routeData$ = new BehaviorSubject<Record<string, unknown>>({});
     applySharedFeedFiltersFromQuery(queryParamMap$.value);
@@ -803,7 +989,10 @@ describe('FeedPage shared-link hydration', () => {
       queryParamMap: queryParamMap$.asObservable(),
       data: routeData$.asObservable(),
       get snapshot() {
-        return { queryParamMap: queryParamMap$.value, data: routeData$.value } as ActivatedRoute['snapshot'];
+        return {
+          queryParamMap: queryParamMap$.value,
+          data: routeData$.value,
+        } as ActivatedRoute['snapshot'];
       },
     };
 
@@ -813,7 +1002,14 @@ describe('FeedPage shared-link hydration', () => {
         { provide: FeedRealtimeService, useValue: feed },
         { provide: FavoritesService, useValue: new FavoritesServiceMock() },
         { provide: OpportunityOffersService, useValue: new OpportunityOffersServiceMock() },
-        { provide: NotificationStore, useValue: { success: jasmine.createSpy(), info: jasmine.createSpy(), error: jasmine.createSpy() } },
+        {
+          provide: NotificationStore,
+          useValue: {
+            success: jasmine.createSpy(),
+            info: jasmine.createSpy(),
+            error: jasmine.createSpy(),
+          },
+        },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: routeStub },
         { provide: Store, useClass: StoreMock },
@@ -923,7 +1119,7 @@ describe('FeedPage shared-link hydration', () => {
           },
         },
       },
-      true
+      true,
     );
     translate.use('fr');
   });

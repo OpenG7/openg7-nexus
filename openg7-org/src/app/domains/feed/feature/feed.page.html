@@ -2,14 +2,85 @@
   <header class="og7-feed__header">
     <h1 id="feed-heading">{{ pageTitleKey() | translate }}</h1>
     <p class="og7-feed__subtitle">{{ pageSubtitleKey() | translate }}</p>
-    <p *ngIf="pageContextKey() as pageContextKey" class="og7-feed__source-context" data-og7="feed-view-context">
+    <p
+      *ngIf="pageContextKey() as pageContextKey"
+      class="og7-feed__source-context"
+      data-og7="feed-view-context"
+    >
       {{ pageContextKey | translate }}
     </p>
-    <p *ngIf="corridorContext() as corridorContext" class="og7-feed__source-context" data-og7="feed-source-context">
-      {{ 'feed.context.corridorFocus' | translate }}
-      <strong>{{ corridorContext.labelKey | translate }}</strong>
-      <span *ngIf="corridorContext.routeKey"> - {{ corridorContext.routeKey | translate }}</span>
-    </p>
+    <div
+      *ngIf="corridorContext() as corridorContext"
+      class="og7-feed__source-context og7-feed__source-context--corridor"
+      data-og7="feed-source-context"
+      [attr.data-og7-id]="corridorContext.id"
+    >
+      <span class="og7-feed__source-context-main">
+        {{ 'feed.context.corridorFocus' | translate }}
+        <strong>{{ corridorContext.labelKey | translate }}</strong>
+        <span *ngIf="corridorContext.routeKey"> - {{ corridorContext.routeKey | translate }}</span>
+      </span>
+      <span class="og7-feed__source-chips" data-og7="feed-source-chips">
+        <span
+          *ngIf="corridorContext.sectorLabelKey"
+          class="og7-feed__source-chip"
+          data-og7="feed-source-chip"
+          data-og7-id="sector"
+        >
+          {{ 'feed.context.chips.sector' | translate }}
+          <strong>{{ corridorContext.sectorLabelKey | translate }}</strong>
+        </span>
+        <span
+          *ngIf="corridorContext.fromProvinceId"
+          class="og7-feed__source-chip"
+          data-og7="feed-source-chip"
+          data-og7-id="route"
+        >
+          {{ 'feed.context.chips.route' | translate }}
+          <strong
+            >{{ corridorContext.fromProvinceId }}<ng-container *ngIf="corridorContext.toProvinceId">
+              -> {{ corridorContext.toProvinceId }}</ng-container
+            ></strong
+          >
+        </span>
+        <span
+          *ngIf="corridorContext.mode"
+          class="og7-feed__source-chip"
+          data-og7="feed-source-chip"
+          data-og7-id="mode"
+        >
+          {{ 'feed.context.chips.mode' | translate }}
+          <strong>{{ ('feed.context.mode.' + corridorContext.mode) | translate }}</strong>
+        </span>
+        <span
+          *ngIf="corridorContext.priorityLabelKey"
+          class="og7-feed__source-chip"
+          data-og7="feed-source-chip"
+          data-og7-id="priority"
+        >
+          {{ 'feed.context.chips.priority' | translate }}
+          <strong>{{ corridorContext.priorityLabelKey | translate }}</strong>
+        </span>
+      </span>
+      <span class="og7-feed__source-actions">
+        <button
+          type="button"
+          data-og7="action"
+          data-og7-id="feed-context-return-map"
+          (click)="returnToSourceMap()"
+        >
+          {{ 'feed.context.returnMap' | translate }}
+        </button>
+        <button
+          type="button"
+          data-og7="action"
+          data-og7-id="feed-context-reset"
+          (click)="resetSourceContext()"
+        >
+          {{ 'feed.context.reset' | translate }}
+        </button>
+      </span>
+    </div>
     <p
       *ngIf="!corridorContext() && sourceContextKey() as sourceContextKey"
       class="og7-feed__source-context"
@@ -55,9 +126,7 @@
       <h2 class="og7-feed__aside-title" [attr.id]="shortcutsHeadingId">
         {{ 'feed.shortcuts.title' | translate }}
       </h2>
-      <p class="og7-feed__aside-description">
-        {{ 'feed.shortcuts.description' | translate }}
-      </p>
+      <p class="og7-feed__aside-description">{{ 'feed.shortcuts.description' | translate }}</p>
       <ul class="og7-feed__shortcut-list">
         <li>
           <kbd>P</kbd>

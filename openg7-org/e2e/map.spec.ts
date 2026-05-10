@@ -10,11 +10,16 @@ test.describe('Trade map', () => {
 
     await mapSection.scrollIntoViewIfNeeded();
     await expect(tradeMap).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'ready',
+    );
     await expect(page.locator('[data-og7="map-decision-panel"]')).toBeVisible();
     await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="agri-food"]')).toBeVisible();
     await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="energy"]')).toBeVisible();
-    await expect(page.locator('[data-og7="map-drilldown"][data-og7-id="digital-services"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="map-drilldown"][data-og7-id="digital-services"]'),
+    ).toBeVisible();
 
     await expect(page.locator('[data-og7="map-legend"]')).toBeVisible();
     await expect(page.locator('[data-og7="map-sector-rail"]')).toBeVisible();
@@ -33,10 +38,15 @@ test.describe('Trade map', () => {
 
     await mapSection.scrollIntoViewIfNeeded();
     await expect(corridorCard).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'ready',
+    );
     await expect(corridorCard).toHaveAttribute('data-og7-id', 'flow-energy');
 
-    const energyTradeBeat = page.locator('[data-og7="map-corridor-beat"][data-og7-id="energy-trade"]');
+    const energyTradeBeat = page.locator(
+      '[data-og7="map-corridor-beat"][data-og7-id="energy-trade"]',
+    );
     await energyTradeBeat.dispatchEvent('click');
     await expect(energyTradeBeat).toHaveAttribute('aria-pressed', 'true');
 
@@ -83,7 +93,10 @@ test.describe('Trade map', () => {
 
     await mapSection.scrollIntoViewIfNeeded();
     await expect(energyDrilldown).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute('data-og7-state', 'ready');
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'ready',
+    );
 
     await energyDrilldown.dispatchEvent('click');
 
@@ -96,15 +109,9 @@ test.describe('Trade map', () => {
     await page.keyboard.press('Enter');
 
     await expect(page).toHaveURL(/\/feed/);
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get('source'))
-      .toBe('trade-map');
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get('sector'))
-      .toBe('energy');
-    await expect
-      .poll(() => new URL(page.url()).searchParams.get('type'))
-      .toBe('REQUEST');
+    await expect.poll(() => new URL(page.url()).searchParams.get('source')).toBe('trade-map');
+    await expect.poll(() => new URL(page.url()).searchParams.get('sector')).toBe('energy');
+    await expect.poll(() => new URL(page.url()).searchParams.get('type')).toBe('REQUEST');
 
     await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
     await expect(page.locator('[data-og7="feed-source-context"]')).toBeVisible();
@@ -116,8 +123,116 @@ test.describe('Trade map', () => {
       .poll(async () =>
         page
           .locator('[data-feed-item-id]')
-          .evaluateAll((elements) => elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''))
+          .evaluateAll((elements) =>
+            elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+          ),
       )
       .toEqual(['request-001', 'request-002', 'request-008']);
+  });
+
+  test('opens a corridor-focused request feed from keyboard-driven map controls', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      const global = window as typeof window & {
+        __og7AnalyticsEvents?: Array<{ event?: string; payload?: Record<string, unknown> }>;
+      };
+      global.__og7AnalyticsEvents = [];
+      window.addEventListener('og7-analytics', (event: Event) => {
+        global.__og7AnalyticsEvents?.push((event as CustomEvent).detail);
+      });
+    });
+
+    const mapSection = page.locator('[data-og7="home-map"]');
+    const energyTradeBeat = page.locator(
+      '[data-og7="map-corridor-beat"][data-og7-id="energy-trade"]',
+    );
+    const downstreamBridge = page.locator('[data-og7="map-corridor-downstream"]');
+    const openCorridorFeed = page.locator(
+      '[data-og7="action"][data-og7-id="map-open-corridor-feed"]',
+    );
+
+    await mapSection.scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-og7="map-corridor-card"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-og7="map-cinematic-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'ready',
+    );
+
+    await energyTradeBeat.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(energyTradeBeat).toHaveAttribute('aria-pressed', 'true');
+    await expect(downstreamBridge).toHaveAttribute('data-og7-id', 'flow-energy');
+    await expect(downstreamBridge).toContainText(/Quebec to Ontario|Québec vers Ontario/i);
+    await expect(openCorridorFeed).toHaveAttribute('data-og7-corridor-id', 'flow-energy');
+
+    await openCorridorFeed.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page).toHaveURL(/\/feed/);
+    await expect.poll(() => new URL(page.url()).searchParams.get('source')).toBe('trade-map');
+    await expect.poll(() => new URL(page.url()).searchParams.get('corridorId')).toBe('flow-energy');
+    await expect.poll(() => new URL(page.url()).searchParams.get('sector')).toBe('energy');
+    await expect.poll(() => new URL(page.url()).searchParams.get('type')).toBe('REQUEST');
+    await expect.poll(() => new URL(page.url()).searchParams.get('fromProvince')).toBe('QC');
+    await expect.poll(() => new URL(page.url()).searchParams.get('toProvince')).toBe('ON');
+    await expect.poll(() => new URL(page.url()).searchParams.get('mode')).toBe('BOTH');
+    await expect.poll(() => new URL(page.url()).searchParams.get('priority')).toBe('critical');
+    await expect.poll(() => new URL(page.url()).searchParams.get('feedItemId')).toBe('request-001');
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const events =
+            (
+              window as typeof window & {
+                __og7AnalyticsEvents?: Array<{ event?: string; payload?: Record<string, unknown> }>;
+              }
+            ).__og7AnalyticsEvents ?? [];
+          return events.find((entry) => entry.event === 'map_open_corridor_feed') ?? null;
+        }),
+      )
+      .toMatchObject({
+        event: 'map_open_corridor_feed',
+        payload: {
+          corridorId: 'flow-energy',
+          sector: 'energy',
+          fromProvince: 'QC',
+          toProvince: 'ON',
+          input: 'keyboard',
+        },
+      });
+
+    await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
+    await expect(page.locator('[data-og7="feed-source-context"]')).toContainText(
+      /Quebec to Ontario|Québec vers Ontario/i,
+    );
+    await expect(page.locator('[data-og7="feed-source-chip"][data-og7-id="route"]')).toContainText(
+      /QC\s*->\s*ON/,
+    );
+    await expect(
+      page.locator('[data-og7="feed-source-chip"][data-og7-id="priority"]'),
+    ).toBeVisible();
+    await expect(page.locator('#feed-type')).toHaveValue(/REQUEST$/);
+    await expect(page.locator('#feed-sector')).toHaveValue(/energy$/);
+    await expect(page.locator('#feed-from')).toHaveValue(/QC$/);
+    await expect(page.locator('#feed-to')).toHaveValue(/ON$/);
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="sector"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]'),
+    ).toBeVisible();
+    await expect
+      .poll(async () =>
+        page
+          .locator('[data-feed-item-id]')
+          .evaluateAll((elements) =>
+            elements.map((element) => element.getAttribute('data-feed-item-id') ?? ''),
+          ),
+      )
+      .toEqual(['request-001']);
   });
 });
