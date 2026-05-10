@@ -18,6 +18,8 @@ export type HydrocarbonSignalResponse = components['schemas']['HydrocarbonSignal
 export type HydrocarbonSignalCollectionResponse =
   components['schemas']['HydrocarbonSignalCollectionResponse'];
 export type OpportunityOfferRecord = components['schemas']['OpportunityOfferRecord'];
+export type OpportunityOfferAttachmentRecord =
+  components['schemas']['OpportunityOfferAttachmentRecord'];
 
 // Réponses Strapi usuelles
 export interface StrapiList<T> {
@@ -40,4 +42,5 @@ export const endpoints = {
   billingPlans: '/billing/plans',
   hydrocarbonSignals: '/api/hydrocarbon-signals',
   opportunityOffers: '/api/users/me/opportunity-offers',
+  opportunityOfferAttachments: '/api/users/me/opportunity-offer-attachments',
 } as const;

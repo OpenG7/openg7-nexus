@@ -12,5 +12,11 @@ export default {
       handler: 'opportunity-offer.createMe',
       config: {},
     },
+    {
+      method: 'POST',
+      path: '/users/me/opportunity-offer-attachments',
+      handler: 'opportunity-offer.uploadAttachment',
+      config: {},
+    },
   ],
 };

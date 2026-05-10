@@ -729,6 +729,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me/opportunity-offer-attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload an attachment for an authenticated opportunity offer */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "Idempotency-Key"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** Format: binary */
+                        files: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OpportunityOfferAttachmentResponse"];
+                    };
+                };
+                /** @description Attachment too large */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unsupported attachment type */
+                415: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/hydrocarbon-signals": {
         parameters: {
             query?: never;
@@ -1602,6 +1661,19 @@ export interface components {
             attachmentId?: string | null;
             attachmentName?: string | null;
             correlationId?: string | null;
+        };
+        OpportunityOfferAttachmentRecord: {
+            id: string;
+            name: string;
+            /** @enum {string} */
+            mime: "application/pdf" | "image/jpeg" | "image/png" | "image/webp";
+            size: number;
+            url: string | null;
+            /** @enum {string} */
+            scanStatus: "passed";
+        };
+        OpportunityOfferAttachmentResponse: {
+            data: components["schemas"]["OpportunityOfferAttachmentRecord"];
         };
         OpportunityOfferResponse: {
             data: components["schemas"]["OpportunityOfferRecord"];

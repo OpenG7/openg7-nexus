@@ -512,6 +512,19 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     this.offerSubmitState.set('submitting');
     const operationKey = this.pendingOfferOperationKey ?? createOpportunityOfferOperationKey();
     this.pendingOfferOperationKey = operationKey;
+    let preparedPayload = payload;
+    if (!payload.attachmentId && payload.attachmentFile) {
+      const uploadedPayload = await this.prepareOfferAttachmentPayload(
+        payload,
+        operationKey,
+        detail.item.id,
+      );
+      if (!uploadedPayload) {
+        return;
+      }
+      preparedPayload = uploadedPayload;
+      this.pendingOfferPayload = preparedPayload;
+    }
     const outcome = await this.feed.publishDraft(
       buildOpportunityOfferDraft(
         {
@@ -522,7 +535,7 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
           mode: detail.item.mode,
           tags: detail.item.tags,
         },
-        payload,
+        preparedPayload,
         this.sectors()[0]?.id ?? null,
         this.translate,
       ),
@@ -560,10 +573,11 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
             source: detail.item.source,
           },
           this.currentInternalUrl(),
-          payload,
+          preparedPayload,
         ),
         {
           feedItemId: outcome.item?.id ?? null,
+          attachmentId: preparedPayload.attachmentId ?? null,
           idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'record'),
           correlationId: operationKey,
         },
@@ -607,6 +621,44 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
       },
     );
     this.closeOfferDrawerAfterSuccess();
+  }
+
+  private async prepareOfferAttachmentPayload(
+    payload: OpportunityOfferPayload,
+    operationKey: string,
+    itemId: string,
+  ): Promise<OpportunityOfferPayload | null> {
+    if (payload.attachmentId || !payload.attachmentFile) {
+      return payload;
+    }
+
+    try {
+      const attachment = await this.opportunityOffers.uploadAttachment(payload.attachmentFile, {
+        idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'attachment'),
+      });
+      return {
+        ...payload,
+        attachmentFile: null,
+        attachmentId: attachment.id,
+        attachmentName: attachment.name || payload.attachmentName,
+      };
+    } catch (error) {
+      const message = this.translate.instant(
+        'feed.opportunity.detail.offer.status.attachmentUploadError',
+      );
+      this.offerSubmitState.set('error');
+      this.offerSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'upload-opportunity-offer-attachment',
+          itemId,
+          correlationId: operationKey,
+        },
+      });
+      return null;
+    }
   }
 
   private buildOfferMessage(offer: OpportunityOfferRecord): string {

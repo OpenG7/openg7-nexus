@@ -14,6 +14,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { OpportunityContextAsideComponent } from '../components/opportunity-context-aside.component';
 import { OpportunityDetailHeaderComponent } from '../components/opportunity-detail-header.component';
+import { OpportunityOfferPayload } from '../components/opportunity-detail.models';
 import { OpportunityOfferDrawerComponent } from '../components/opportunity-offer-drawer.component';
 import { OpportunityReportDrawerComponent } from '../components/opportunity-report-drawer.component';
 import { FeedComposerDraft, FeedItem } from '../models/feed.models';
@@ -196,6 +197,7 @@ class OpportunityOffersServiceMock {
         endDate: string;
         pricingModel: string;
         comment: string;
+        attachmentId?: string | null;
         attachmentName?: string | null;
       }) => {
         const record: OpportunityOfferRecord = {
@@ -214,6 +216,7 @@ class OpportunityOffersServiceMock {
           endDate: payload.endDate,
           pricingModel: payload.pricingModel,
           comment: payload.comment,
+          attachmentId: payload.attachmentId ?? null,
           attachmentName: payload.attachmentName ?? null,
           status: 'submitted',
           allocatedCapacityMw: null,
@@ -244,6 +247,14 @@ class OpportunityOffersServiceMock {
   readonly submit = jasmine
     .createSpy('submit')
     .and.callFake(async (payload) => this.create(payload));
+  readonly uploadAttachment = jasmine.createSpy('uploadAttachment').and.resolveTo({
+    id: 'upload-1',
+    name: 'term-sheet.pdf',
+    mime: 'application/pdf',
+    size: 42,
+    url: '/uploads/term-sheet.pdf',
+    scanStatus: 'passed',
+  });
 
   entriesForOpportunity(itemId: string | null | undefined): readonly OpportunityOfferRecord[] {
     if (!itemId) {
@@ -420,10 +431,12 @@ describe('FeedOpportunityDetailPage', () => {
         endDate: '2026-02-15',
         pricingModel: 'spot',
         comment: 'Firm import block for winter peak support.',
+        attachmentId: null,
         attachmentName: 'term-sheet.pdf',
       },
       jasmine.objectContaining({
         feedItemId: null,
+        attachmentId: null,
         correlationId: jasmine.any(String),
         idempotencyKey: jasmine.stringMatching(/:record$/),
       }),
@@ -1128,13 +1141,16 @@ describe('FeedOpportunityDetailPage real template', () => {
   });
 });
 
-function createOfferPayload() {
+function createOfferPayload(patch: Partial<OpportunityOfferPayload> = {}): OpportunityOfferPayload {
   return {
     capacityMw: 320,
     startDate: '2026-01-15',
     endDate: '2026-02-15',
     pricingModel: 'spot',
     comment: 'Firm import block for winter peak support.',
+    attachmentFile: null,
+    attachmentId: null,
     attachmentName: 'term-sheet.pdf',
+    ...patch,
   };
 }

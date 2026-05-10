@@ -380,10 +380,23 @@ export class FeedPage {
     this.contactSubmitState.set('submitting');
     const operationKey = this.pendingContactOperationKey ?? createOpportunityOfferOperationKey();
     this.pendingContactOperationKey = operationKey;
+    let preparedPayload = payload;
+    if (!payload.attachmentId && payload.attachmentFile) {
+      const uploadedPayload = await this.prepareContactAttachmentPayload(
+        payload,
+        operationKey,
+        item.id,
+      );
+      if (!uploadedPayload) {
+        return;
+      }
+      preparedPayload = uploadedPayload;
+      this.pendingContactPayload = preparedPayload;
+    }
     const outcome = await this.feed.publishDraft(
       buildOpportunityOfferDraft(
         item,
-        payload,
+        preparedPayload,
         this.items().find((entry) => entry.sectorId)?.sectorId ?? null,
         this.translate,
       ),
@@ -409,9 +422,10 @@ export class FeedPage {
     let record: OpportunityOfferRecord;
     try {
       record = await this.opportunityOffers.submit(
-        buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), payload),
+        buildOpportunityOfferRecordPayload(item, this.currentInternalUrl(), preparedPayload),
         {
           feedItemId: outcome.item?.id ?? null,
+          attachmentId: preparedPayload.attachmentId ?? null,
           idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'record'),
           correlationId: operationKey,
         },
@@ -453,6 +467,44 @@ export class FeedPage {
       },
     );
     this.closeContactDrawerAfterSuccess();
+  }
+
+  private async prepareContactAttachmentPayload(
+    payload: OpportunityOfferPayload,
+    operationKey: string,
+    itemId: string,
+  ): Promise<OpportunityOfferPayload | null> {
+    if (payload.attachmentId || !payload.attachmentFile) {
+      return payload;
+    }
+
+    try {
+      const attachment = await this.opportunityOffers.uploadAttachment(payload.attachmentFile, {
+        idempotencyKey: buildOpportunityOfferIdempotencyKey(operationKey, 'attachment'),
+      });
+      return {
+        ...payload,
+        attachmentFile: null,
+        attachmentId: attachment.id,
+        attachmentName: attachment.name || payload.attachmentName,
+      };
+    } catch (error) {
+      const message = this.translate.instant(
+        'feed.opportunity.detail.offer.status.attachmentUploadError',
+      );
+      this.contactSubmitState.set('error');
+      this.contactSubmitError.set(message);
+      this.notifications.error(message, {
+        source: 'feed',
+        context: error,
+        metadata: {
+          action: 'upload-opportunity-offer-attachment',
+          itemId,
+          correlationId: operationKey,
+        },
+      });
+      return null;
+    }
   }
 
   private closeContactDrawerAfterSuccess(): void {

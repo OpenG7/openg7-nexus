@@ -18,6 +18,14 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { OpportunityOfferPayload, OpportunityOfferSubmitState } from './opportunity-detail.models';
 
+const MAX_ATTACHMENT_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_ATTACHMENT_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+] as const;
+
 @Component({
   selector: 'og7-opportunity-offer-drawer',
   standalone: true,
@@ -31,6 +39,7 @@ export class OpportunityOfferDrawerComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly panelRef = viewChild<ElementRef<HTMLElement>>('panel');
   private previousFocusedElement: HTMLElement | null = null;
+  private selectedAttachmentFile: File | null = null;
 
   readonly open = input(false);
   readonly initialCapacityMw = input(300);
@@ -46,7 +55,12 @@ export class OpportunityOfferDrawerComponent {
 
   protected readonly visible = computed(() => this.open());
   protected readonly submitAttempted = signal(false);
+  protected readonly attachmentErrorKey = signal<string | null>(null);
   protected readonly minCommentLength = 10;
+  protected readonly acceptedAttachmentTypes = ACCEPTED_ATTACHMENT_MIME_TYPES.join(',');
+  protected readonly maxAttachmentFileSizeMb = Math.round(
+    MAX_ATTACHMENT_FILE_SIZE_BYTES / (1024 * 1024),
+  );
   /**
    * Computed signal that indicates whether the form submission is currently in progress.
    * Returns true when the submit state equals 'submitting', false otherwise.
@@ -91,6 +105,8 @@ export class OpportunityOfferDrawerComponent {
         comment: '',
         attachmentName: '',
       });
+      this.selectedAttachmentFile = null;
+      this.attachmentErrorKey.set(null);
       this.form.markAsPristine();
       this.form.markAsUntouched();
       this.submitAttempted.set(false);
@@ -144,9 +160,9 @@ export class OpportunityOfferDrawerComponent {
 
     const focusableElements = Array.from(
       panel.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter(element => !element.hasAttribute('hidden') && element.tabIndex !== -1);
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((element) => !element.hasAttribute('hidden') && element.tabIndex !== -1);
 
     if (!focusableElements.length) {
       event.preventDefault();
@@ -180,7 +196,33 @@ export class OpportunityOfferDrawerComponent {
       return;
     }
     const file = target.files?.item(0);
-    this.form.controls.attachmentName.setValue(file?.name ?? '');
+    this.selectedAttachmentFile = null;
+    this.attachmentErrorKey.set(null);
+    this.form.controls.attachmentName.setErrors(null);
+
+    if (!file) {
+      this.form.controls.attachmentName.setValue('');
+      return;
+    }
+
+    const validationErrorKey = this.validateAttachmentFile(file);
+    if (validationErrorKey) {
+      this.form.controls.attachmentName.setValue(file.name);
+      this.form.controls.attachmentName.setErrors({ invalidAttachment: true });
+      this.attachmentErrorKey.set(validationErrorKey);
+      target.value = '';
+      return;
+    }
+
+    this.selectedAttachmentFile = file;
+    this.form.controls.attachmentName.setValue(file.name);
+  }
+
+  protected clearAttachment(): void {
+    this.selectedAttachmentFile = null;
+    this.attachmentErrorKey.set(null);
+    this.form.controls.attachmentName.setValue('');
+    this.form.controls.attachmentName.setErrors(null);
   }
 
   protected submit(): void {
@@ -198,8 +240,26 @@ export class OpportunityOfferDrawerComponent {
       endDate: value.endDate,
       pricingModel: value.pricingModel,
       comment: value.comment.trim(),
+      attachmentFile: this.selectedAttachmentFile,
+      attachmentId: null,
       attachmentName: value.attachmentName.trim() || null,
     });
+  }
+
+  private validateAttachmentFile(file: File): string | null {
+    if (
+      !ACCEPTED_ATTACHMENT_MIME_TYPES.includes(
+        file.type as (typeof ACCEPTED_ATTACHMENT_MIME_TYPES)[number],
+      )
+    ) {
+      return 'feed.opportunity.detail.offer.validation.attachmentType';
+    }
+
+    if (file.size > MAX_ATTACHMENT_FILE_SIZE_BYTES) {
+      return 'feed.opportunity.detail.offer.validation.attachmentTooLarge';
+    }
+
+    return null;
   }
 
   private restoreFocus(): void {

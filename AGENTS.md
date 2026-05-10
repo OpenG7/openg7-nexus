@@ -757,6 +757,7 @@ Le contrat OpenAPI est versionnÃ© dans `packages/contracts/spec/openapi.json`.
 | Import watchlists | `/api/import-watchlists`      | GET / POST / PUT JSON             | watchlists importation persistÃ©es |
 | Import report schedule | `/api/import-reports/schedule` | POST JSON (`period`, `recipients`, `format`, `frequency`, `notes`) | planification de rapports importation |
 | Opportunity offers | `/api/users/me/opportunity-offers` | GET / POST JSON (`opportunityId`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`) | persistance des offres utilisateur sur opportunites |
+| Opportunity offer attachments | `/api/users/me/opportunity-offer-attachments` | POST multipart (`files`) | televersement securise des pieces jointes d'offres (PDF/images, taille limitee, scan signature) |
 
 **Shape de rÃ©ponse (par dÃ©faut Strapi v4/v5)** :  
 ```json
@@ -1628,14 +1629,15 @@ _MAJ (enhanced) : 2026-03-14 00:00:00Z_
 - Analytics endpoint (si configure) : `event`, `detail`, `priority`, `timestamp`.
 - Notification webhook/email (si active) : `notification.id`, `notification.type`, `notification.title`, `notification.message`, `notification.source`, `notification.createdAt`, `notification.metadata`, `recipient`.
 - `POST /api/users/me/opportunity-offers` : `opportunityId`, `opportunityTitle`, `opportunityRoute`, `feedItemId`, `recipientKind`, `recipientLabel`, `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentId`, `attachmentName`, `submittedAt`, `correlationId`, `idempotencyKey`.
+- `POST /api/users/me/opportunity-offer-attachments` : multipart `files`, sortie `id`, `name`, `mime`, `size`, `url`, `scanStatus` ; types autorises PDF/JPG/PNG/WebP, taille max configuree.
 - Events UI locaux (non persistes backend) :
-- `OpportunityOfferPayload` : `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentName` (miroir UI, persiste via `/api/users/me/opportunity-offers`).
+- `OpportunityOfferPayload` : `capacityMw`, `startDate`, `endDate`, `pricingModel`, `comment`, `attachmentFile`, `attachmentId`, `attachmentName` (upload multipart puis persistance via `/api/users/me/opportunity-offers`).
 - `IndicatorAlertDraft` : `thresholdDirection`, `thresholdValue`, `window`, `frequency`, `notifyDelta`, `note`.
 - Q/R opportunite : `content` (soumis localement).
 
 ### TO-BE - Proprietes a ajouter pour couvrir totalement mission + blueprints
 
-- Completer la piece jointe binaire des offres opportunite : `attachmentId`, stockage fichier et scan securite.
+- Renforcer la securite documentaire des offres : antivirus externe, quarantaine et expiration des fichiers orphelins.
 - Durcir la persistance de creation d alerte indicateur (au-dela du mapping `POST /api/feed`) :
 - `indicatorId`, `thresholdDirection`, `thresholdValue`, `window`, `frequency`, `notifyDelta`, `note`, `createdAt`, `deliveryChannels`.
 - Persister les actions header/detail aujourd hui locales :

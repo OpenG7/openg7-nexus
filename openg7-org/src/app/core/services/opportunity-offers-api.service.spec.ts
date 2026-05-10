@@ -74,4 +74,36 @@ describe('OpportunityOffersApiService', () => {
       },
     });
   });
+
+  it('uploads opportunity offer attachments as multipart form data', () => {
+    const file = new File(['%PDF-1.4'], 'term-sheet.pdf', { type: 'application/pdf' });
+
+    service
+      .uploadAttachment(file, { idempotencyKey: 'operation-1:attachment' })
+      .subscribe((attachment) => {
+        expect(attachment.id).toBe('upload-1');
+        expect(attachment.scanStatus).toBe('passed');
+      });
+
+    const request = http.expectOne(
+      'https://api.openg7.test/api/users/me/opportunity-offer-attachments',
+    );
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('operation-1:attachment');
+    expect(request.request.body instanceof FormData).toBeTrue();
+    const uploadedFile = (request.request.body as FormData).get('files') as File;
+    expect(uploadedFile.name).toBe(file.name);
+    expect(uploadedFile.type).toBe(file.type);
+
+    request.flush({
+      data: {
+        id: 'upload-1',
+        name: 'term-sheet.pdf',
+        mime: 'application/pdf',
+        size: 42,
+        url: '/uploads/term-sheet.pdf',
+        scanStatus: 'passed',
+      },
+    });
+  });
 });

@@ -31,13 +31,26 @@ describe('OpportunityOfferDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const capacityInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="capacity"]');
-    const startDateInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="start-date"]');
-    const endDateInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="end-date"]');
-    const pricingSelect: HTMLSelectElement = fixture.nativeElement.querySelector('[data-og7-id="pricing-model"]');
-    const commentInput: HTMLTextAreaElement = fixture.nativeElement.querySelector('[data-og7-id="comment"]');
-    const attachmentInput: HTMLInputElement = fixture.nativeElement.querySelector('[data-og7-id="attachment"]');
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-offer-submit"]');
+    const capacityInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="capacity"]',
+    );
+    const startDateInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="start-date"]',
+    );
+    const endDateInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="end-date"]',
+    );
+    const pricingSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="pricing-model"]',
+    );
+    const commentInput: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector('[data-og7-id="comment"]');
+    const attachmentInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="attachment"]',
+    );
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-offer-submit"]',
+    );
 
     capacityInput.value = '320';
     capacityInput.dispatchEvent(new Event('input'));
@@ -73,8 +86,65 @@ describe('OpportunityOfferDrawerComponent', () => {
       endDate: '2026-02-15',
       pricingModel: 'indexed',
       comment: 'Indexed offer for winter balancing support.',
+      attachmentFile: file,
+      attachmentId: null,
       attachmentName: 'term-sheet.pdf',
     });
+  });
+
+  it('blocks unsupported attachment types before submission', () => {
+    const fixture = TestBed.createComponent(OpportunityOfferDrawerComponent);
+    const submittedSpy = jasmine.createSpy('submitted');
+    fixture.componentInstance.submitted.subscribe(submittedSpy);
+
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const capacityInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="capacity"]',
+    );
+    const startDateInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="start-date"]',
+    );
+    const endDateInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="end-date"]',
+    );
+    const commentInput: HTMLTextAreaElement =
+      fixture.nativeElement.querySelector('[data-og7-id="comment"]');
+    const attachmentInput: HTMLInputElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="attachment"]',
+    );
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-offer-submit"]',
+    );
+
+    capacityInput.value = '320';
+    capacityInput.dispatchEvent(new Event('input'));
+    startDateInput.value = '2026-01-15';
+    startDateInput.dispatchEvent(new Event('input'));
+    endDateInput.value = '2026-02-15';
+    endDateInput.dispatchEvent(new Event('input'));
+    commentInput.value = 'Firm import block for winter peak support.';
+    commentInput.dispatchEvent(new Event('input'));
+
+    const file = new File(['binary'], 'tool.exe', { type: 'application/x-msdownload' });
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    Object.defineProperty(attachmentInput, 'files', {
+      value: transfer.files,
+      configurable: true,
+    });
+    attachmentInput.dispatchEvent(new Event('change'));
+
+    fixture.detectChanges();
+    submitButton.click();
+    fixture.detectChanges();
+
+    expect(submittedSpy).not.toHaveBeenCalled();
+    expect(attachmentInput.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.textContent).toContain(
+      'feed.opportunity.detail.offer.validation.attachmentType',
+    );
   });
 
   it('shows inline validation errors when submit is attempted with an invalid form', () => {
@@ -85,15 +155,31 @@ describe('OpportunityOfferDrawerComponent', () => {
     fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
-    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector('[data-og7-id="opportunity-offer-submit"]');
+    const submitButton: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[data-og7-id="opportunity-offer-submit"]',
+    );
 
     submitButton.click();
     fixture.detectChanges();
 
     expect(submittedSpy).not.toHaveBeenCalled();
-    expect(fixture.nativeElement.querySelector('[data-og7="opportunity-offer-validation"][data-og7-id="summary"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelectorAll('.opportunity-offer-drawer__field-error').length).toBeGreaterThan(0);
-    expect((fixture.nativeElement.querySelector('[data-og7-id="start-date"]') as HTMLInputElement).getAttribute('aria-invalid')).toBe('true');
-    expect((fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement).getAttribute('aria-invalid')).toBe('true');
+    expect(
+      fixture.nativeElement.querySelector(
+        '[data-og7="opportunity-offer-validation"][data-og7-id="summary"]',
+      ),
+    ).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelectorAll('.opportunity-offer-drawer__field-error').length,
+    ).toBeGreaterThan(0);
+    expect(
+      (
+        fixture.nativeElement.querySelector('[data-og7-id="start-date"]') as HTMLInputElement
+      ).getAttribute('aria-invalid'),
+    ).toBe('true');
+    expect(
+      (
+        fixture.nativeElement.querySelector('[data-og7-id="comment"]') as HTMLTextAreaElement
+      ).getAttribute('aria-invalid'),
+    ).toBe('true');
   });
 });

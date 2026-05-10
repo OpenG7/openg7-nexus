@@ -50,6 +50,8 @@ export interface OpportunityOfferPayload {
   readonly endDate: string;
   readonly pricingModel: string;
   readonly comment: string;
+  readonly attachmentFile?: File | null;
+  readonly attachmentId?: string | null;
   readonly attachmentName: string | null;
 }
 

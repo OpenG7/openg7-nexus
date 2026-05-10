@@ -858,6 +858,7 @@
           "pricing": "Modalite de prix",
           "comment": "Commentaire",
           "attachment": "Piece jointe",
+          "clearAttachment": "Retirer",
           "retry": "Reessayer",
           "generatedTitlePrefix": "Offre",
           "status": {
@@ -865,11 +866,14 @@
             "successReference": "Offre enregistree sous la reference {{ reference }}.",
             "existingOfferRedirect": "L'offre {{ reference }} existe deja. Ouverture du suivi.",
             "offline": "Hors ligne : offre sauvegardee localement. Reessayez une fois reconnecte.",
+            "attachmentUploadError": "Impossible de televerser la piece jointe. Essayez un autre fichier ou reessayez.",
             "errorGeneric": "Impossible d'envoyer l'offre. Reessayez."
           },
           "validation": {
             "summary": "Corrigez les champs obligatoires avant d'envoyer l'offre.",
-            "capacityMin": "La capacite doit etre superieure ou egale a 1 MW."
+            "capacityMin": "La capacite doit etre superieure ou egale a 1 MW.",
+            "attachmentType": "Utilisez un fichier PDF, PNG, JPG ou WebP.",
+            "attachmentTooLarge": "La piece jointe doit faire {{ maxMb }} Mo ou moins."
           },
           "send": "Envoyer l'offre",
           "sending": "Envoi..."

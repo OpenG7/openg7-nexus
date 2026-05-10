@@ -7,6 +7,7 @@ import { map, Observable } from 'rxjs';
 
 import type {
   CreateOpportunityOfferPayload,
+  OpportunityOfferAttachmentRecord,
   OpportunityOfferRecord,
 } from '../opportunity-offers.service';
 
@@ -27,6 +28,10 @@ interface OpportunityOfferRecordResponse {
 
 interface OpportunityOfferCollectionResponse {
   data: OpportunityOfferRecord[];
+}
+
+interface OpportunityOfferAttachmentResponse {
+  data: OpportunityOfferAttachmentRecord;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +59,27 @@ export class OpportunityOffersApiService {
           ? new HttpContext().set(SUPPRESS_ERROR_TOAST, true)
           : undefined,
       })
+      .pipe(map((response) => response.data));
+  }
+
+  uploadAttachment(
+    file: File,
+    options: PersistOpportunityOfferOptions = {},
+  ): Observable<OpportunityOfferAttachmentRecord> {
+    const payload = new FormData();
+    payload.append('files', file, file.name);
+
+    return this.http
+      .post<OpportunityOfferAttachmentResponse>(
+        STRAPI_ROUTES.users.meOpportunityOfferAttachments,
+        payload,
+        {
+          headers: this.createHeaders(options),
+          context: options.suppressErrorToast
+            ? new HttpContext().set(SUPPRESS_ERROR_TOAST, true)
+            : undefined,
+        },
+      )
       .pipe(map((response) => response.data));
   }
 

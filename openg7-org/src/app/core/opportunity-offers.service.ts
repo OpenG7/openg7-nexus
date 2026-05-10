@@ -56,6 +56,15 @@ export interface OpportunityOfferRecord {
   idempotencyKey?: string | null;
 }
 
+export interface OpportunityOfferAttachmentRecord {
+  id: string;
+  name: string;
+  mime: string;
+  size: number;
+  url: string | null;
+  scanStatus: 'passed';
+}
+
 export interface CreateOpportunityOfferPayload {
   opportunityId: string;
   opportunityTitle: string;
@@ -67,6 +76,7 @@ export interface CreateOpportunityOfferPayload {
   endDate: string;
   pricingModel: string;
   comment: string;
+  attachmentId?: string | null;
   attachmentName?: string | null;
 }
 
@@ -125,6 +135,7 @@ export class OpportunityOffersService {
       endDate: payload.endDate,
       pricingModel: payload.pricingModel,
       comment: payload.comment,
+      attachmentId: payload.attachmentId ?? null,
       attachmentName: payload.attachmentName ?? null,
       status: 'submitted',
       allocatedCapacityMw: null,
@@ -174,6 +185,24 @@ export class OpportunityOffersService {
     );
     this.upsertRecord(record);
     return record;
+  }
+
+  async uploadAttachment(
+    file: File,
+    options: Pick<PersistOpportunityOfferOptions, 'idempotencyKey'> = {},
+  ): Promise<OpportunityOfferAttachmentRecord> {
+    this.currentUserOrThrow();
+    const api = this.resolveApiService();
+    if (!api) {
+      throw new Error('Opportunity offer attachment upload requires the API service.');
+    }
+
+    return firstValueFrom(
+      api.uploadAttachment(file, {
+        idempotencyKey: options.idempotencyKey ?? null,
+        suppressErrorToast: true,
+      }),
+    );
   }
 
   markInDiscussion(id: string): OpportunityOfferRecord | null {

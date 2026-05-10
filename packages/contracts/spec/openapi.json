@@ -488,6 +488,55 @@
         }
       }
     },
+    "/api/users/me/opportunity-offer-attachments": {
+      "post": {
+        "summary": "Upload an attachment for an authenticated opportunity offer",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["files"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityOfferAttachmentResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Attachment too large"
+          },
+          "415": {
+            "description": "Unsupported attachment type"
+          }
+        }
+      }
+    },
     "/api/hydrocarbon-signals": {
       "get": {
         "summary": "List hydrocarbon publication projections",
@@ -1570,6 +1619,31 @@
           "pricingModel",
           "comment"
         ]
+      },
+      "OpportunityOfferAttachmentRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "mime": {
+            "type": "string",
+            "enum": ["application/pdf", "image/jpeg", "image/png", "image/webp"]
+          },
+          "size": { "type": "number" },
+          "url": { "type": "string", "nullable": true },
+          "scanStatus": {
+            "type": "string",
+            "enum": ["passed"]
+          }
+        },
+        "required": ["id", "name", "mime", "size", "url", "scanStatus"]
+      },
+      "OpportunityOfferAttachmentResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/OpportunityOfferAttachmentRecord" }
+        },
+        "required": ["data"]
       },
       "OpportunityOfferResponse": {
         "type": "object",

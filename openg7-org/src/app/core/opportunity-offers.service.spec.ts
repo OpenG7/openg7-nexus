@@ -36,6 +36,7 @@ describe('OpportunityOffersService', () => {
     offersApi = jasmine.createSpyObj<OpportunityOffersApiService>('OpportunityOffersApiService', [
       'createMine',
       'listMine',
+      'uploadAttachment',
     ]);
 
     TestBed.configureTestingModule({
@@ -101,7 +102,7 @@ describe('OpportunityOffersService', () => {
         senderUserId: 'user-1',
         senderLabel: 'Open G7',
         senderEmail: 'user-1@openg7.test',
-        attachmentId: null,
+        attachmentId: 'upload-1',
         attachmentName: 'term-sheet.pdf',
         status: 'submitted',
         allocatedCapacityMw: null,
@@ -119,6 +120,7 @@ describe('OpportunityOffersService', () => {
     const service = createService();
     const record = await service.submit(createPayload(), {
       feedItemId: 'feed-offer-1',
+      attachmentId: 'upload-1',
       idempotencyKey: 'idem-1',
       correlationId: 'corr-1',
     });
@@ -127,7 +129,7 @@ describe('OpportunityOffersService', () => {
       {
         ...createPayload(),
         feedItemId: 'feed-offer-1',
-        attachmentId: null,
+        attachmentId: 'upload-1',
         correlationId: 'corr-1',
       },
       {
@@ -138,6 +140,39 @@ describe('OpportunityOffersService', () => {
     expect(record.id).toBe('remote-offer-1');
     expect(service.entries()[0]?.id).toBe('remote-offer-1');
     expect(service.entries()[0]?.feedItemId).toBe('feed-offer-1');
+    expect(service.entries()[0]?.attachmentId).toBe('upload-1');
+  });
+
+  it('uploads offer attachments through the API service', async () => {
+    authState.set(true);
+    userState.set({
+      id: 'user-1',
+      email: 'user-1@openg7.test',
+      firstName: 'Open',
+      lastName: 'G7',
+    });
+    offersApi.uploadAttachment.and.returnValue(
+      of({
+        id: 'upload-1',
+        name: 'term-sheet.pdf',
+        mime: 'application/pdf',
+        size: 42,
+        url: '/uploads/term-sheet.pdf',
+        scanStatus: 'passed',
+      }),
+    );
+
+    const service = createService();
+    const file = new File(['%PDF-1.4'], 'term-sheet.pdf', { type: 'application/pdf' });
+    const attachment = await service.uploadAttachment(file, {
+      idempotencyKey: 'corr-1:attachment',
+    });
+
+    expect(offersApi.uploadAttachment).toHaveBeenCalledWith(file, {
+      idempotencyKey: 'corr-1:attachment',
+      suppressErrorToast: true,
+    });
+    expect(attachment.id).toBe('upload-1');
   });
 
   it('keeps offers partitioned by user id', () => {

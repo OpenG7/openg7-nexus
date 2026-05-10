@@ -70,6 +70,7 @@ export function buildOpportunityOfferRecordPayload(
     endDate: payload.endDate,
     pricingModel: payload.pricingModel,
     comment: payload.comment,
+    attachmentId: payload.attachmentId ?? null,
     attachmentName: payload.attachmentName,
   };
 }
@@ -104,7 +105,7 @@ export function createOpportunityOfferOperationKey(): string {
 
 export function buildOpportunityOfferIdempotencyKey(
   operationKey: string,
-  step: 'feed' | 'record',
+  step: 'attachment' | 'feed' | 'record',
 ): string {
   return `${operationKey}:${step}`.slice(0, 140);
 }
