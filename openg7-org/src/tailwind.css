@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source '../../packages/admin-quality/src';
 @import './app/shared/styles/tokens.css';
 @import './app/shared/styles/utilities.css';
 @import './app/shared/styles/static-pages.css';
