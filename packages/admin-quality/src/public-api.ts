@@ -1,6 +1,7 @@
 export * from './lib/admin-quality.tokens';
 export * from './lib/data-access/admin-ai-providers';
 export * from './lib/data-access/admin-ops.service';
+export * from './lib/data-access/admin-quality-browser.service';
 export * from './lib/data-access/admin-quality-matrix.service';
 export * from './lib/data-access/admin-quality-mission-decisions.service';
 export * from './lib/feature/admin-quality-workspace-drawer.component';

@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   AfterViewInit,
@@ -8,7 +8,6 @@ import {
   ElementRef,
   NgZone,
   OnInit,
-  PLATFORM_ID,
   ViewChild,
   computed,
   effect,
@@ -26,6 +25,7 @@ import {
   isAdminAiProvider,
   resolveAdminAiProviderOption,
 } from '../data-access/admin-ai-providers';
+import { AdminQualityBrowserService } from '../data-access/admin-quality-browser.service';
 import {
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
@@ -749,10 +749,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly missionDecisionService = inject(ADMIN_QUALITY_MISSION_DECISIONS_PORT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly notifications = inject(ADMIN_QUALITY_NOTIFICATIONS);
   private readonly routeConfig = inject(ADMIN_QUALITY_ROUTE_CONFIG);
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly browser = inject(AdminQualityBrowserService);
+  private readonly isBrowser = this.browser.isBrowser;
   private aiOpsRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private liveTickTimer: ReturnType<typeof setInterval> | null = null;
   private readonly syncingSignalGuidanceTrackingIds = new Set<string>();
@@ -3410,35 +3410,34 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   async speakMissionControl(state: AdminQualityMissionControlState): Promise<void> {
-    if (!this.isBrowser || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    try {
+      this.speaking.set(true);
+      this.browser.speak(state.spokenBriefing, {
+        lang: 'fr-CA',
+        rate: 0.98,
+        pitch: 1,
+        onEnd: () => this.speaking.set(false),
+        onError: () => {
+          this.speaking.set(false);
+          this.notifications.error("Impossible de lire l'analyse AI.", {
+            source: 'admin-quality',
+          });
+        },
+      });
+      this.notifications.info('Analyse AI lue a voix haute.', { source: 'admin-quality' });
+    } catch {
+      this.speaking.set(false);
       this.notifications.info('Synthese vocale indisponible dans ce navigateur.', {
         source: 'admin-quality',
       });
-      return;
     }
-
-    const utterance = new SpeechSynthesisUtterance(state.spokenBriefing);
-    utterance.lang = 'fr-CA';
-    utterance.rate = 0.98;
-    utterance.pitch = 1;
-    utterance.onend = () => this.speaking.set(false);
-    utterance.onerror = () => {
-      this.speaking.set(false);
-      this.notifications.error("Impossible de lire l'analyse AI.", { source: 'admin-quality' });
-    };
-
-    window.speechSynthesis.cancel();
-    this.speaking.set(true);
-    window.speechSynthesis.speak(utterance);
-    this.notifications.info('Analyse AI lue a voix haute.', { source: 'admin-quality' });
   }
 
   stopMissionVoice(notify = true): void {
-    if (!this.isBrowser || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    if (!this.browser.cancelSpeech()) {
       return;
     }
 
-    window.speechSynthesis.cancel();
     const wasSpeaking = this.speaking();
     this.speaking.set(false);
 
@@ -3954,11 +3953,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   private confirmAiDispatch(recommendation: AdminQualityMissionRecommendation): boolean {
-    if (!this.isBrowser || typeof window === 'undefined' || typeof window.confirm !== 'function') {
-      return true;
-    }
-
-    return window.confirm(
+    return this.browser.confirm(
       [
         `Lancer ${this.selectedAiProviderLabel()} depuis la console de pilotage ?`,
         '',
@@ -4748,51 +4743,18 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     }
 
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(value);
-      } else {
-        this.legacyCopy(value);
-      }
+      await this.browser.copyText(value);
       this.notifications.success(successMessage, { source: 'admin-quality' });
     } catch {
-      try {
-        this.legacyCopy(value);
-        this.notifications.success(successMessage, { source: 'admin-quality' });
-      } catch {
-        this.notifications.error("Impossible de copier l'action de delegation.", {
-          source: 'admin-quality',
-        });
-      }
-    }
-  }
-
-  private legacyCopy(value: string): void {
-    if (!this.isBrowser || typeof document === 'undefined') {
-      throw new Error('copy_unavailable');
-    }
-
-    const textarea = document.createElement('textarea');
-    textarea.value = value;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    const ok = document.execCommand('copy');
-    document.body.removeChild(textarea);
-
-    if (!ok) {
-      throw new Error('copy_failed');
+      this.notifications.error("Impossible de copier l'action de delegation.", {
+        source: 'admin-quality',
+      });
     }
   }
 
   private restoreMissionDecisions(): void {
-    if (!this.isBrowser || typeof localStorage === 'undefined') {
-      return;
-    }
-
     try {
-      const rawValue = localStorage.getItem(MISSION_CONTROL_STORAGE_KEY);
+      const rawValue = this.browser.readStorageItem(MISSION_CONTROL_STORAGE_KEY);
       if (!rawValue) {
         return;
       }
@@ -4808,17 +4770,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
       this.missionDecisions.set(next);
     } catch {
-      localStorage.removeItem(MISSION_CONTROL_STORAGE_KEY);
+      this.browser.removeStorageItem(MISSION_CONTROL_STORAGE_KEY);
     }
   }
 
   private persistMissionDecisions(): void {
-    if (!this.isBrowser || typeof localStorage === 'undefined') {
-      return;
-    }
-
     try {
-      localStorage.setItem(MISSION_CONTROL_STORAGE_KEY, JSON.stringify(this.missionDecisions()));
+      this.browser.writeStorageItem(
+        MISSION_CONTROL_STORAGE_KEY,
+        JSON.stringify(this.missionDecisions()),
+      );
     } catch {
       this.notifications.error('Impossible de persister le pilotage local des missions.', {
         source: 'admin-quality',
@@ -4882,12 +4843,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   }
 
   private restoreViewState(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
     try {
-      const rawValue = localStorage.getItem(VIEW_STATE_STORAGE_KEY);
+      const rawValue = this.browser.readStorageItem(VIEW_STATE_STORAGE_KEY);
       if (!rawValue) {
         return;
       }
@@ -4936,12 +4893,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         this.signalDelegationTraces.set(parsed.signalDelegationTraces);
       }
     } catch {
-      localStorage.removeItem(VIEW_STATE_STORAGE_KEY);
+      this.browser.removeStorageItem(VIEW_STATE_STORAGE_KEY);
     }
   }
 
   private persistViewState(): void {
-    if (!this.viewStateReady() || typeof localStorage === 'undefined' || !this.snapshot()) {
+    if (!this.viewStateReady() || !this.snapshot()) {
       return;
     }
 
@@ -4962,7 +4919,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     };
 
     try {
-      localStorage.setItem(VIEW_STATE_STORAGE_KEY, JSON.stringify(state));
+      this.browser.writeStorageItem(VIEW_STATE_STORAGE_KEY, JSON.stringify(state));
     } catch {
       // Ignore local persistence failures to avoid noisy toasts during passive navigation.
     }
