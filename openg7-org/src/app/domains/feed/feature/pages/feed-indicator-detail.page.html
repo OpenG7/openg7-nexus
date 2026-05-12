@@ -1,196 +1,201 @@
 <section class="feed-indicator-detail" data-og7="indicator-detail-page">
-  <ng-container *ngIf="detailVm() as detail; else emptyState">
-    <p
-      *ngIf="tradeMapContext() as context"
-      class="mb-4 flex flex-wrap items-center gap-2 rounded-3xl border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-50"
-      data-og7="feed-source-context"
-    >
-      <span>{{ 'feed.context.tradeMap' | translate }}</span>
-      <strong>{{ context.headline }}</strong>
-      <span *ngIf="context.partner">· {{ context.partner }}</span>
-    </p>
+  <div class="feed-indicator-detail__inner">
+    <ng-container *ngIf="detailVm() as detail; else emptyState">
+      <p
+        *ngIf="tradeMapContext() as context"
+        class="mb-4 flex flex-wrap items-center gap-2 rounded-3xl border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-50"
+        data-og7="feed-source-context"
+      >
+        <span>{{ 'feed.context.tradeMap' | translate }}</span>
+        <strong>{{ context.headline }}</strong>
+        <span *ngIf="context.partner">· {{ context.partner }}</span>
+      </p>
 
-    <og7-indicator-hero
-      [title]="detail.title"
-      [subtitle]="detail.subtitle"
-      [deltaPctLabel]="deltaPctLabel()"
-      [deltaAbsLabel]="deltaAbsLabel()"
-      [windowHours]="windowHours()"
-      [granularityLabel]="granularityLabel()"
-      [timeframe]="timeframe()"
-      [granularity]="granularity()"
-      [compact]="headerCompact()"
-      [subscribed]="subscribed()"
-      [subscribePending]="subscribePending()"
-      [subscribeDisabled]="subscribeDisabled()"
-      [connectionState]="connectionState()"
-      [lastUpdatedLabel]="lastUpdatedLabel()"
-      (subscribe)="subscribe()"
-      (share)="share()"
-      (createAlert)="openAlertDrawer()"
-      (timeframeChange)="setTimeframe($event)"
-      (granularityChange)="setGranularity($event)"
-    ></og7-indicator-hero>
+      <og7-indicator-hero
+        [title]="detail.title"
+        [subtitle]="detail.subtitle"
+        [deltaPctLabel]="deltaPctLabel()"
+        [deltaAbsLabel]="deltaAbsLabel()"
+        [windowHours]="windowHours()"
+        [granularityLabel]="granularityLabel()"
+        [timeframe]="timeframe()"
+        [granularity]="granularity()"
+        [compact]="headerCompact()"
+        [subscribed]="subscribed()"
+        [subscribePending]="subscribePending()"
+        [subscribeDisabled]="subscribeDisabled()"
+        [connectionState]="connectionState()"
+        [lastUpdatedLabel]="lastUpdatedLabel()"
+        (subscribe)="subscribe()"
+        (share)="share()"
+        (createAlert)="openAlertDrawer()"
+        (timeframeChange)="setTimeframe($event)"
+        (granularityChange)="setGranularity($event)"
+      ></og7-indicator-hero>
 
-    <p
-      class="feed-indicator-detail__offline"
-      *ngIf="connectionState() === 'offline'"
-      data-og7="indicator-offline"
-    >
-      {{ 'feed.indicator.detail.offline' | translate }}
-    </p>
+      <p
+        class="feed-indicator-detail__offline"
+        *ngIf="connectionState() === 'offline'"
+        data-og7="indicator-offline"
+      >
+        {{ 'feed.indicator.detail.offline' | translate }}
+      </p>
 
-    <div class="feed-indicator-detail__layout">
-      <div class="feed-indicator-detail__main">
-        <og7-indicator-chart
-          [chartTitle]="chartTitle()"
-          [completedAtLabel]="detail.completedLabel"
-          [levelLabel]="levelLabel()"
-          [points]="series()"
-          [unitLabel]="unitLabel()"
-          [loading]="loading()"
-          [error]="error()"
-          (retry)="retry()"
-        ></og7-indicator-chart>
+      <div class="feed-indicator-detail__layout">
+        <div class="feed-indicator-detail__main">
+          <og7-indicator-chart
+            [chartTitle]="chartTitle()"
+            [completedAtLabel]="detail.completedLabel"
+            [levelLabel]="levelLabel()"
+            [points]="series()"
+            [unitLabel]="unitLabel()"
+            [loading]="loading()"
+            [error]="error()"
+            (retry)="retry()"
+          ></og7-indicator-chart>
 
-        <section
-          class="feed-indicator-detail__decision"
-          *ngIf="decisionFlowVm() as decision"
-          data-og7="indicator-decision-flow"
-        >
-          <div class="feed-indicator-detail__decision-header">
-            <p class="feed-indicator-detail__decision-kicker">
-              {{ 'feed.indicator.detail.decision.kicker' | translate }}
-            </p>
-            <h2>{{ decision.title }}</h2>
-            <p>{{ decision.summary }}</p>
-          </div>
-
-          <div class="feed-indicator-detail__decision-grid">
-            <article class="feed-indicator-detail__decision-card" data-og7-id="protected-services">
-              <span
-                >{{ 'feed.indicator.detail.decision.cards.protectedServices' | translate }}</span
-              >
-              <strong>{{ decision.protectedServices }}</strong>
-            </article>
-
-            <article class="feed-indicator-detail__decision-card" data-og7-id="priority-sector">
-              <span>{{ 'feed.indicator.detail.decision.cards.prioritySector' | translate }}</span>
-              <strong>{{ decision.prioritySector }}</strong>
-            </article>
-
-            <article
-              class="feed-indicator-detail__decision-card"
-              data-og7-id="interprovincial-dependency"
-            >
-              <span
-                >{{ 'feed.indicator.detail.decision.cards.interprovincialDependency' | translate
-                }}</span
-              >
-              <strong>{{ decision.interprovincialDependency }}</strong>
-            </article>
-
-            <article class="feed-indicator-detail__decision-card" data-og7-id="capacity-signal">
-              <span>{{ 'feed.indicator.detail.decision.cards.capacitySignal' | translate }}</span>
-              <strong>{{ decision.capacitySignal }}</strong>
-            </article>
-          </div>
-
-          <ol class="feed-indicator-detail__decision-steps">
-            <li
-              *ngFor="let step of decision.steps; let index = index"
-              [attr.data-og7-id]="'decision-step-' + (index + 1)"
-            >
-              <span>{{ index + 1 }}</span>
-              <p>{{ step }}</p>
-            </li>
-          </ol>
-
-          <button
-            *ngIf="decision.actionItemId"
-            type="button"
-            class="feed-indicator-detail__decision-action"
-            data-og7="action"
-            data-og7-id="indicator-decision-open-target"
-            (click)="openDecisionTarget()"
+          <section
+            class="feed-indicator-detail__decision"
+            *ngIf="decisionFlowVm() as decision"
+            data-og7="indicator-decision-flow"
           >
-            {{ decision.actionLabel }}
-          </button>
-        </section>
+            <div class="feed-indicator-detail__decision-header">
+              <p class="feed-indicator-detail__decision-kicker">
+                {{ 'feed.indicator.detail.decision.kicker' | translate }}
+              </p>
+              <h2>{{ decision.title }}</h2>
+              <p>{{ decision.summary }}</p>
+            </div>
 
-        <og7-indicator-key-data
-          [currentValueLabel]="keyCurrentValueLabel()"
-          [variationLabel]="keyVariationLabel()"
-          [factors]="detail.keyFactors"
-          [miniStatLabel]="miniStatLabel()"
-          [miniStatDelta]="miniStatDelta()"
-          [miniStatSeries]="miniStatSeries()"
-        ></og7-indicator-key-data>
+            <div class="feed-indicator-detail__decision-grid">
+              <article
+                class="feed-indicator-detail__decision-card"
+                data-og7-id="protected-services"
+              >
+                <span
+                  >{{ 'feed.indicator.detail.decision.cards.protectedServices' | translate }}</span
+                >
+                <strong>{{ decision.protectedServices }}</strong>
+              </article>
 
-        <og7-publication-metadata-card
-          [metadata]="detail.item.metadata ?? null"
-        ></og7-publication-metadata-card>
+              <article class="feed-indicator-detail__decision-card" data-og7-id="priority-sector">
+                <span>{{ 'feed.indicator.detail.decision.cards.prioritySector' | translate }}</span>
+                <strong>{{ decision.prioritySector }}</strong>
+              </article>
+
+              <article
+                class="feed-indicator-detail__decision-card"
+                data-og7-id="interprovincial-dependency"
+              >
+                <span
+                  >{{ 'feed.indicator.detail.decision.cards.interprovincialDependency' | translate
+                  }}</span
+                >
+                <strong>{{ decision.interprovincialDependency }}</strong>
+              </article>
+
+              <article class="feed-indicator-detail__decision-card" data-og7-id="capacity-signal">
+                <span>{{ 'feed.indicator.detail.decision.cards.capacitySignal' | translate }}</span>
+                <strong>{{ decision.capacitySignal }}</strong>
+              </article>
+            </div>
+
+            <ol class="feed-indicator-detail__decision-steps">
+              <li
+                *ngFor="let step of decision.steps; let index = index"
+                [attr.data-og7-id]="'decision-step-' + (index + 1)"
+              >
+                <span>{{ index + 1 }}</span>
+                <p>{{ step }}</p>
+              </li>
+            </ol>
+
+            <button
+              *ngIf="decision.actionItemId"
+              type="button"
+              class="feed-indicator-detail__decision-action"
+              data-og7="action"
+              data-og7-id="indicator-decision-open-target"
+              (click)="openDecisionTarget()"
+            >
+              {{ decision.actionLabel }}
+            </button>
+          </section>
+
+          <og7-indicator-key-data
+            [currentValueLabel]="keyCurrentValueLabel()"
+            [variationLabel]="keyVariationLabel()"
+            [factors]="detail.keyFactors"
+            [miniStatLabel]="miniStatLabel()"
+            [miniStatDelta]="miniStatDelta()"
+            [miniStatSeries]="miniStatSeries()"
+          ></og7-indicator-key-data>
+
+          <og7-publication-metadata-card
+            [metadata]="detail.item.metadata ?? null"
+          ></og7-publication-metadata-card>
+        </div>
+
+        <aside class="feed-indicator-detail__aside">
+          <og7-indicator-stats-aside
+            [stats]="detail.stats"
+            (openDetails)="openStatsDetails()"
+          ></og7-indicator-stats-aside>
+
+          <og7-indicator-related-list
+            data-og7="indicator-related-alerts"
+            [title]="'feed.indicator.detail.related.alerts' | translate"
+            [entries]="detail.relatedAlerts"
+            [containerHook]="'indicator-related-alerts'"
+            [footerLabelKey]="'feed.indicator.detail.related.viewAlerts'"
+            (openEntry)="openRelatedEntry($event)"
+            (openFooter)="openRelatedCollection('alert')"
+          ></og7-indicator-related-list>
+
+          <og7-indicator-related-list
+            data-og7="indicator-related-opportunities"
+            [title]="'feed.indicator.detail.related.opportunities' | translate"
+            [entries]="detail.relatedOpportunities"
+            [containerHook]="'indicator-related-opportunities'"
+            [footerLabelKey]="'feed.indicator.detail.related.viewOpportunities'"
+            (openEntry)="openRelatedEntry($event)"
+            (openFooter)="openRelatedCollection('opportunity')"
+          ></og7-indicator-related-list>
+        </aside>
       </div>
 
-      <aside class="feed-indicator-detail__aside">
-        <og7-indicator-stats-aside
-          [stats]="detail.stats"
-          (openDetails)="openStatsDetails()"
-        ></og7-indicator-stats-aside>
+      <og7-indicator-alert-drawer
+        [open]="drawerOpen()"
+        [mode]="alertDrawerMode()"
+        [indicatorTitle]="detail.title"
+        [existingRule]="activeAlertRule()"
+        [initialDraft]="pendingAlertDraft()"
+        [submitState]="alertSubmitState()"
+        [submitError]="alertSubmitError()"
+        [retryEnabled]="alertRetryEnabled()"
+        (closed)="closeAlertDrawer()"
+        (submitted)="onAlertDraftSubmitted($event)"
+        (retryRequested)="onAlertDraftRetryRequested()"
+      ></og7-indicator-alert-drawer>
+    </ng-container>
 
-        <og7-indicator-related-list
-          data-og7="indicator-related-alerts"
-          [title]="'feed.indicator.detail.related.alerts' | translate"
-          [entries]="detail.relatedAlerts"
-          [containerHook]="'indicator-related-alerts'"
-          [footerLabelKey]="'feed.indicator.detail.related.viewAlerts'"
-          (openEntry)="openRelatedEntry($event)"
-          (openFooter)="openRelatedCollection('alert')"
-        ></og7-indicator-related-list>
-
-        <og7-indicator-related-list
-          data-og7="indicator-related-opportunities"
-          [title]="'feed.indicator.detail.related.opportunities' | translate"
-          [entries]="detail.relatedOpportunities"
-          [containerHook]="'indicator-related-opportunities'"
-          [footerLabelKey]="'feed.indicator.detail.related.viewOpportunities'"
-          (openEntry)="openRelatedEntry($event)"
-          (openFooter)="openRelatedCollection('opportunity')"
-        ></og7-indicator-related-list>
-      </aside>
-    </div>
-
-    <og7-indicator-alert-drawer
-      [open]="drawerOpen()"
-      [mode]="alertDrawerMode()"
-      [indicatorTitle]="detail.title"
-      [existingRule]="activeAlertRule()"
-      [initialDraft]="pendingAlertDraft()"
-      [submitState]="alertSubmitState()"
-      [submitError]="alertSubmitError()"
-      [retryEnabled]="alertRetryEnabled()"
-      (closed)="closeAlertDrawer()"
-      (submitted)="onAlertDraftSubmitted($event)"
-      (retryRequested)="onAlertDraftRetryRequested()"
-    ></og7-indicator-alert-drawer>
-  </ng-container>
-
-  <ng-template #emptyState>
-    <article
-      class="feed-indicator-detail__empty"
-      *ngIf="loading(); else missingState"
-      data-og7="indicator-detail-loading"
-    >
-      <h2>{{ 'feed.indicator.detail.loadingTitle' | translate }}</h2>
-      <p>{{ 'feed.indicator.detail.loadingBody' | translate }}</p>
-    </article>
-
-    <ng-template #missingState>
-      <article class="feed-indicator-detail__empty" data-og7="indicator-detail-missing">
-        <h2>{{ 'feed.indicator.detail.notFoundTitle' | translate }}</h2>
-        <p>{{ error() || ('feed.indicator.detail.notFoundBody' | translate) }}</p>
-        <a routerLink="/feed">{{ 'feed.indicator.detail.backToFeed' | translate }}</a>
+    <ng-template #emptyState>
+      <article
+        class="feed-indicator-detail__empty"
+        *ngIf="loading(); else missingState"
+        data-og7="indicator-detail-loading"
+      >
+        <h2>{{ 'feed.indicator.detail.loadingTitle' | translate }}</h2>
+        <p>{{ 'feed.indicator.detail.loadingBody' | translate }}</p>
       </article>
+
+      <ng-template #missingState>
+        <article class="feed-indicator-detail__empty" data-og7="indicator-detail-missing">
+          <h2>{{ 'feed.indicator.detail.notFoundTitle' | translate }}</h2>
+          <p>{{ error() || ('feed.indicator.detail.notFoundBody' | translate) }}</p>
+          <a routerLink="/feed">{{ 'feed.indicator.detail.backToFeed' | translate }}</a>
+        </article>
+      </ng-template>
     </ng-template>
-  </ng-template>
+  </div>
 </section>
