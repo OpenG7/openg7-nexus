@@ -814,6 +814,41 @@
                   <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/80">
                     Mission HUD
                   </p>
+                  <div
+                    class="ml-auto inline-flex items-center gap-1 rounded-full border border-cyan-300/18 bg-slate-950/54 px-1 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                    data-og7="admin-quality-cockpit-navigation"
+                  >
+                    <button
+                      type="button"
+                      class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/5 text-sm font-semibold text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/12 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white/3 disabled:text-slate-500"
+                      [disabled]="!missionCockpitCanGoPrevious()"
+                      [attr.aria-disabled]="!missionCockpitCanGoPrevious()"
+                      aria-label="Mission precedente"
+                      data-og7="action"
+                      data-og7-id="admin-quality-cockpit-previous"
+                      (click)="moveMissionCockpit(-1)"
+                    >
+                      <span aria-hidden="true">&#8592;</span>
+                    </button>
+                    <span
+                      class="min-w-10 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-100"
+                      data-og7-id="admin-quality-cockpit-position"
+                    >
+                      {{ missionCockpitPositionLabel() }}
+                    </span>
+                    <button
+                      type="button"
+                      class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/5 text-sm font-semibold text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/12 disabled:cursor-not-allowed disabled:border-white/8 disabled:bg-white/3 disabled:text-slate-500"
+                      [disabled]="!missionCockpitCanGoNext()"
+                      [attr.aria-disabled]="!missionCockpitCanGoNext()"
+                      aria-label="Mission suivante"
+                      data-og7="action"
+                      data-og7-id="admin-quality-cockpit-next"
+                      (click)="moveMissionCockpit(1)"
+                    >
+                      <span aria-hidden="true">&#8594;</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div class="min-w-0">

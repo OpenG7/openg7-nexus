@@ -9,7 +9,7 @@
     class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(2,6,23,0.12),rgba(2,6,23,0))]"
   ></div>
 
-  <section class="mx-auto flex w-full max-w-6xl flex-col gap-8" data-og7="admin-ops">
+  <section class="mx-auto flex w-full max-w-6xl flex-col gap-8">
     <header
       id="ops-overview"
       class="og7-admin-ops-hero-shell relative overflow-hidden rounded-4xl border border-white/14 bg-[linear-gradient(145deg,#081225_0%,#10203d_46%,#0a1730_74%,#071121_100%)] shadow-[0_40px_124px_rgba(15,23,42,0.32)]"
@@ -92,7 +92,7 @@
             <button
               type="button"
               data-og7-id="admin-ops-refresh"
-              class="inline-flex min-w-44 items-center justify-center rounded-xl border border-white/12 bg-white/8 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/14 disabled:cursor-not-allowed disabled:opacity-60"
+              class="inline-flex min-w-44 items-center justify-center rounded-xl border border-cyan-100/35 bg-cyan-300/15 px-4 py-3 text-sm font-semibold text-cyan-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_14px_34px_rgba(8,47,73,0.24)] backdrop-blur-md transition hover:border-cyan-100/55 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:border-cyan-100/50 disabled:bg-cyan-300/20 disabled:text-white disabled:opacity-100"
               (click)="refresh()"
               [disabled]="loading() || refreshing()"
             >
@@ -201,23 +201,26 @@
       }
     </section>
     } @if (snapshot(); as vm) {
-    <section id="ops-overview-signals" class="space-y-4">
+    <section
+      id="ops-overview-signals"
+      class="rounded-[1.6rem] border border-cyan-100/14 bg-slate-950/46 p-5 shadow-[0_22px_64px_rgba(2,6,23,0.22)] backdrop-blur-md"
+    >
       <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/86">
             Operating picture
           </p>
-          <h2 class="mt-2 text-xl font-semibold text-slate-900">
+          <h2 class="mt-2 text-xl font-semibold text-white">
             Priority signals before operator action
           </h2>
         </div>
-        <p class="max-w-2xl text-sm leading-6 text-slate-600">
+        <p class="max-w-2xl text-sm leading-6 text-slate-200">
           This layer answers the first three operator questions: Is the platform healthy, is the
           evidence fresh, and where is the next intervention required?
         </p>
       </div>
 
-      <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article
           class="og7-admin-ops-surface og7-admin-ops-signal-card rounded-[1.6rem] border p-5"
           [ngClass]="overviewSignalCardClasses(healthSignalTone(vm))"

@@ -1685,7 +1685,15 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       return entry.signalDispatch[signalContext.signalId] ?? null;
     });
   readonly selectedSignalDispatchReady = computed(() => {
+    if (!this.selectedSignalContext()) {
+      return false;
+    }
+
     if (!this.selectedAiDispatchReady()) {
+      return false;
+    }
+
+    if (this.selectedMission()?.status === 'done') {
       return false;
     }
 
@@ -1705,6 +1713,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
     if (!this.selectedAiDispatchReady()) {
       return this.selectedAiDispatchBlockedMessage();
+    }
+
+    if (this.selectedMission()?.status === 'done') {
+      return `${signalContext.label} est rattache a une mission cloturee. Rouvrez la mission ou selectionnez un autre signal avant de lancer une delegation.`;
     }
 
     const serverState = this.selectedSignalServerDispatchState();
@@ -1791,8 +1803,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       return steps[this.activeMissionHudTimelineIndex(steps)] ?? null;
     },
   );
+  readonly missionCockpitRecommendations = computed<readonly AdminQualityMissionRecommendation[]>(
+    () => this.missionControl()?.recommendations ?? [],
+  );
   readonly selectedMission = computed<AdminQualityMissionRecommendation | null>(() => {
-    const recommendations = this.missionControl()?.recommendations ?? [];
+    const recommendations = this.missionCockpitRecommendations();
     if (!recommendations.length) {
       return null;
     }
@@ -1802,6 +1817,23 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       recommendations.find((recommendation) => recommendation.id === selectedId) ??
       recommendations[0]
     );
+  });
+  readonly selectedMissionIndex = computed(() => {
+    const recommendations = this.missionCockpitRecommendations();
+    const mission = this.selectedMission();
+    return mission ? recommendations.findIndex((candidate) => candidate.id === mission.id) : -1;
+  });
+  readonly missionCockpitCanGoPrevious = computed(() => this.selectedMissionIndex() > 0);
+  readonly missionCockpitCanGoNext = computed(() => {
+    const index = this.selectedMissionIndex();
+    return index >= 0 && index < this.missionCockpitRecommendations().length - 1;
+  });
+  readonly missionCockpitPositionLabel = computed(() => {
+    const recommendations = this.missionCockpitRecommendations();
+    const index = this.selectedMissionIndex();
+    return recommendations.length && index >= 0
+      ? `${index + 1} / ${recommendations.length}`
+      : '0 / 0';
   });
   readonly selectedMissionTasks = computed<readonly AdminQualityMissionTask[]>(() => {
     const mission = this.selectedMission();
@@ -2248,7 +2280,20 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   selectMission(recommendation: AdminQualityMissionRecommendation): void {
     this.stopVoiceForContextChange();
+    this.clearSelectedSignalContext();
     this.selectedMissionId.set(recommendation.id);
+    this.setMissionHudSection('mission', 'manual-targeting');
+  }
+
+  moveMissionCockpit(direction: -1 | 1): void {
+    const recommendations = this.missionCockpitRecommendations();
+    const currentIndex = this.selectedMissionIndex();
+    const nextRecommendation = recommendations[currentIndex + direction];
+    if (!nextRecommendation) {
+      return;
+    }
+
+    this.selectMission(nextRecommendation);
   }
 
   openWorkspace(surface: AdminQualityWorkspaceSurface = this.activeWorkspaceSurface()): void {
@@ -3788,6 +3833,10 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedMissionId.set(
       this.resolveMissionSelectionAfterStatusChange(recommendation.id, status),
     );
+    if (status === 'done') {
+      this.clearSelectedSignalContext();
+      this.setMissionHudSection('mission', 'manual-targeting');
+    }
     this.saveMissionDecisionToServer(recommendation, status, message);
     this.notifications.success(message, { source: 'admin-quality' });
   }
@@ -3823,6 +3872,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       .slice(0, currentIndex)
       .find((recommendation) => recommendation.status !== 'done');
     return previousOpenRecommendation?.id ?? recommendationId;
+  }
+
+  private clearSelectedSignalContext(): void {
+    this.selectedSignalContext.set(null);
+    this.selectedSignalDraftPrompt.set('');
+    this.selectedSignalRecommendationsDraft.set('');
   }
 
   private loadAiDispatchReadiness(silent: boolean): void {

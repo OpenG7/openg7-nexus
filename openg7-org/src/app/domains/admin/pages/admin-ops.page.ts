@@ -169,10 +169,16 @@ const ADMIN_OPS_LIVE_TICK_INTERVAL_MS = 1_000;
         position: relative;
       }
 
+      .og7-admin-ops-hero-grid > * {
+        position: relative;
+        z-index: 1;
+      }
+
       .og7-admin-ops-hero-shell::before {
         content: '';
         position: absolute;
         inset: 0;
+        z-index: 0;
         background:
           radial-gradient(circle at 12% 18%, rgba(16, 185, 129, 0.18), transparent 22%),
           radial-gradient(circle at 86% 14%, rgba(250, 204, 21, 0.14), transparent 18%),
@@ -185,6 +191,7 @@ const ADMIN_OPS_LIVE_TICK_INTERVAL_MS = 1_000;
         content: '';
         position: absolute;
         inset: 0;
+        z-index: 0;
         border-radius: inherit;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.08),
@@ -196,6 +203,7 @@ const ADMIN_OPS_LIVE_TICK_INTERVAL_MS = 1_000;
         content: '';
         position: absolute;
         inset: 0;
+        z-index: 0;
         background-image:
           linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
           linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);

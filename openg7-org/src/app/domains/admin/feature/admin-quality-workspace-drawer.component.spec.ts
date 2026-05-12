@@ -296,6 +296,26 @@ describe('AdminQualityWorkspaceDrawerComponent', () => {
     expect(closeSpy).toHaveBeenCalledTimes(3);
   });
 
+  it('closes from the outside workspace layer without closing from inside the panel', () => {
+    const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
+    const closeSpy = jasmine.createSpy('closeRequested');
+    fixture.componentInstance.closeRequested.subscribe(closeSpy);
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const outsideLayer = root.querySelector(
+      '[data-og7-id="admin-quality-workspace-click-outside"]',
+    ) as HTMLElement;
+    const panel = root.querySelector('[data-og7="admin-quality-workspace-drawer"]') as HTMLElement;
+
+    panel.click();
+    expect(closeSpy).not.toHaveBeenCalled();
+
+    outsideLayer.click();
+    expect(closeSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('emits surfaceChanged and exposes accessible tabs', () => {
     const fixture = TestBed.createComponent(AdminQualityWorkspaceDrawerComponent);
     const surfaceChangedSpy = jasmine.createSpy('surfaceChanged');
