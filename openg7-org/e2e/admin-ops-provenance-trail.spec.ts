@@ -255,6 +255,12 @@ test.describe('Admin ops provenance trail', () => {
     await expect(
       securityEntry.locator('[data-og7="admin-ops-provenance-generated-at"]'),
     ).toContainText('2026-03-14');
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
+    await expect(
+      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
+    ).toHaveAttribute('data-og7-state', 'fresh');
 
     await page.locator('[data-og7-id="admin-ops-refresh"]').click();
 
@@ -271,6 +277,12 @@ test.describe('Admin ops provenance trail', () => {
         '[data-og7="admin-ops-provenance-entry"][data-og7-id="imports"] [data-og7="admin-ops-provenance-generated-at"]',
       ),
     ).toContainText('2026-04-01');
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Northern Logistics Network',
+    );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).not.toContainText(
+      'Quebec Battery Alliance',
+    );
   });
 
   test('marks provenance as preserved-last-good when a refresh fails after a valid snapshot', async ({
@@ -307,6 +319,18 @@ test.describe('Admin ops provenance trail', () => {
     await expect(
       securityEntry.locator('[data-og7="admin-ops-provenance-generated-at"]'),
     ).toContainText('2026-03-14');
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).not.toContainText(
+      'Atlantic Grid Components',
+    );
+    await expect(
+      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
+    ).toHaveAttribute('data-og7-state', 'preserved-last-good');
+    await expect(page.locator('[data-og7-id="admin-ops-sensitive-action-status"]')).toContainText(
+      'last successful snapshot',
+    );
   });
 });
 

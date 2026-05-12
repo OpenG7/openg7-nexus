@@ -40,6 +40,16 @@ interface AdminOpsProvenanceEntry {
   readonly generatedAt: string;
 }
 
+interface AdminOpsSensitiveActionEntry {
+  readonly id: string;
+  readonly eyebrow: 'Import' | 'Security';
+  readonly title: string;
+  readonly summary: string;
+  readonly occurredAt: string;
+  readonly route: string;
+  readonly tone: 'ready' | 'warning' | 'offline';
+}
+
 interface AdminOpsDiagnosticItem {
   readonly id: string;
   readonly label: string;
@@ -547,6 +557,75 @@ export class AdminOpsPage implements OnInit {
     }
 
     return 'Each block lists the API source and snapshot timestamp currently displayed.';
+  });
+  readonly sensitiveActionEntries = computed<readonly AdminOpsSensitiveActionEntry[]>(() => {
+    const snapshot = this.snapshot();
+    if (!snapshot) {
+      return [];
+    }
+
+    const importEntries = snapshot.imports.recent.map((entry) => {
+      const businessId = entry.businessId?.trim() ? entry.businessId.trim() : 'no-business-id';
+      const source = entry.source?.trim() ? entry.source.trim() : 'unknown source';
+      const occurredAt = entry.updatedAt ?? entry.importedAt ?? snapshot.imports.generatedAt;
+
+      return {
+        id: `import-${entry.id}`,
+        eyebrow: 'Import' as const,
+        title: entry.name,
+        summary: `${businessId} · ${source} · ${entry.status}`,
+        occurredAt,
+        route: '/api/admin/ops/imports',
+        tone: this.importEntrySeverity(entry),
+      };
+    });
+    const securityEntries: AdminOpsSensitiveActionEntry[] = [];
+
+    if (snapshot.security.sessions.revoked > 0) {
+      securityEntries.push({
+        id: 'security-revoked-sessions',
+        eyebrow: 'Security',
+        title: 'Session revocations observed',
+        summary: `${snapshot.security.sessions.revoked} revoked sessions across ${snapshot.security.sessions.scannedUsers} scanned users.`,
+        occurredAt: snapshot.security.generatedAt,
+        route: '/api/admin/ops/security',
+        tone: 'warning',
+      });
+    }
+
+    if (snapshot.security.users.blocked > 0) {
+      securityEntries.push({
+        id: 'security-blocked-users',
+        eyebrow: 'Security',
+        title: 'Blocked accounts still present',
+        summary: `${snapshot.security.users.blocked} blocked users remain visible in the latest security snapshot.`,
+        occurredAt: snapshot.security.generatedAt,
+        route: '/api/admin/ops/security',
+        tone: 'warning',
+      });
+    }
+
+    return [...importEntries, ...securityEntries]
+      .sort(
+        (left, right) =>
+          this.timestampValue(right.occurredAt) - this.timestampValue(left.occurredAt),
+      )
+      .slice(0, 6);
+  });
+  readonly sensitiveActionMessage = computed(() => {
+    if (!this.snapshot()) {
+      return null;
+    }
+
+    if (!this.sensitiveActionEntries().length) {
+      return 'No sensitive import or security action is present in the current snapshot yet.';
+    }
+
+    if (this.error()) {
+      return 'Trace preserved from the last successful snapshot while the latest refresh failed.';
+    }
+
+    return 'Recent import and security actions compiled from the latest snapshot.';
   });
 
   readonly aiIgnitionModules = computed<readonly AdminOpsAiIgnitionModule[]>(() => {
@@ -1213,6 +1292,7 @@ export class AdminOpsPage implements OnInit {
   trackImportEntry = (_: number, item: { id: string }) => item.id;
   trackSource = (_: number, item: { source: string }) => item.source;
   trackProvenanceEntry = (_: number, item: AdminOpsProvenanceEntry) => item.id;
+  trackSensitiveActionEntry = (_: number, item: AdminOpsSensitiveActionEntry) => item.id;
   trackAiIgnitionModule = (_: number, module: AdminOpsAiIgnitionModule) =>
     `${module.provider}:${module.secretName ?? 'socket'}`;
   trackControlPlaneKey = (_: number, key: AdminOpsControlPlaneKey) => key.id;
@@ -1402,6 +1482,30 @@ export class AdminOpsPage implements OnInit {
     }
   }
 
+  sensitiveActionToneClasses(
+    tone: AdminOpsSensitiveActionEntry['tone'],
+  ): 'border-emerald-200 bg-emerald-50 text-emerald-700' | 'border-amber-200 bg-amber-50 text-amber-700' | 'border-rose-200 bg-rose-50 text-rose-700' {
+    switch (tone) {
+      case 'ready':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'warning':
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+      default:
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+    }
+  }
+
+  sensitiveActionToneLabel(tone: AdminOpsSensitiveActionEntry['tone']): string {
+    switch (tone) {
+      case 'ready':
+        return 'Recorded';
+      case 'warning':
+        return 'Review';
+      default:
+        return 'Action needed';
+    }
+  }
+
   backupFileSeverity(file: AdminOpsBackupFile): 'fresh' | 'aging' | 'stale' {
     const ageMs = this.liveNow() - new Date(file.modifiedAt).getTime();
     const ageHours = ageMs / 3_600_000;
@@ -1527,6 +1631,15 @@ export class AdminOpsPage implements OnInit {
     }
     const hours = Math.floor(minutes / 60);
     return `${hours}h ago`;
+  }
+
+  private timestampValue(value: string | null | undefined): number {
+    if (!value) {
+      return 0;
+    }
+
+    const timestamp = new Date(value).getTime();
+    return Number.isFinite(timestamp) ? timestamp : 0;
   }
 
   private resolveError(error: unknown): string {

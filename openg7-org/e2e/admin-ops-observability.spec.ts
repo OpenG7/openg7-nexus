@@ -310,6 +310,17 @@ test.describe('Admin ops observability', () => {
     await expect(page.locator('[data-og7="admin-ops-security-controls"]')).toContainText(
       '42 total, 4 new (7d), 1 blocked',
     );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
+    await expect(
+      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
+    ).toHaveAttribute('data-og7-state', 'fresh');
+    await expect(
+      page.locator(
+        '[data-og7="admin-ops-sensitive-action-entry"][data-og7-id="import-imp-1"] [data-og7="admin-ops-sensitive-action-source"]',
+      ),
+    ).toContainText('/api/admin/ops/imports');
 
     const refreshButton = page.locator('[data-og7-id="admin-ops-refresh"]');
     await refreshButton.click();
@@ -328,6 +339,12 @@ test.describe('Admin ops observability', () => {
       '45 total, 5 new (7d), 0 blocked',
     );
     await expect(page.locator('[data-og7="admin-ops-import-sources"]')).toContainText('bulk: 8');
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Northern Logistics Network',
+    );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).not.toContainText(
+      'Quebec Battery Alliance',
+    );
     await expect(refreshButton).toContainText('Refresh');
     await expect(page.locator('[data-og7-id="admin-ops-error"]')).toHaveCount(0);
   });
@@ -346,6 +363,9 @@ test.describe('Admin ops observability', () => {
     await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
       'Quebec Battery Alliance',
     );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
 
     const refreshButton = page.locator('[data-og7-id="admin-ops-refresh"]');
     await refreshButton.click();
@@ -360,6 +380,15 @@ test.describe('Admin ops observability', () => {
     await expect(page.locator('[data-og7="admin-ops-import-activity"]')).toContainText(
       'Quebec Battery Alliance',
     );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
+      'Quebec Battery Alliance',
+    );
+    await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).not.toContainText(
+      'Atlantic Grid Components',
+    );
+    await expect(
+      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
+    ).toHaveAttribute('data-og7-state', 'preserved-last-good');
   });
 });
 
