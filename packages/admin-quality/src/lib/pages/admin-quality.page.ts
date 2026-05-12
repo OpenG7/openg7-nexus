@@ -25,13 +25,13 @@ import {
   isAdminAiProvider,
   resolveAdminAiProviderOption,
 } from '../data-access/admin-ai-providers';
-import { AdminQualityBrowserService } from '../data-access/admin-quality-browser.service';
 import {
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
   AdminOpsAiProofSnapshot,
   AdminOpsSecuritySnapshot,
 } from '../data-access/admin-ops.service';
+import { AdminQualityBrowserService } from '../data-access/admin-quality-browser.service';
 import {
   AdminQualityMatrixBucket,
   AdminQualityMatrixEntry,
