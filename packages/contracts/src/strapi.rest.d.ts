@@ -356,7 +356,13 @@ export interface paths {
         /** Get canonical admin operations audit log snapshot */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    limit?: number;
+                    category?: "import" | "security" | "ai" | "backup" | "admin-quality" | "governance";
+                    severity?: "ready" | "warning" | "offline";
+                    from?: string;
+                    to?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1484,10 +1490,10 @@ export interface components {
         AdminOpsAuditLogEntry: {
             id?: string;
             /** @enum {string} */
-            category?: "import" | "security";
+            category?: "import" | "security" | "ai" | "backup" | "admin-quality" | "governance";
             action?: string;
             /** @enum {string} */
-            eyebrow?: "Import" | "Security";
+            eyebrow?: "Import" | "Security" | "AI" | "Backup" | "Admin quality" | "Governance";
             title?: string;
             summary?: string;
             /** Format: date-time */

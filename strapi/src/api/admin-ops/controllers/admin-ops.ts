@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -7,6 +8,7 @@ import type { Context } from 'koa';
 const USER_UID = 'plugin::users-permissions.user' as any;
 const COMPANY_UID = 'api::company.company' as any;
 const FEED_UID = 'api::feed.feed' as any;
+const ADMIN_OPS_AUDIT_LOG_UID = 'api::admin-ops-audit-log.admin-ops-audit-log' as any;
 const SESSION_STORE_PLUGIN = 'openg7-auth-sessions';
 const SESSION_KEY_PREFIX = 'user';
 const DEFAULT_BACKUP_RETENTION_DAYS = 30;
@@ -90,12 +92,44 @@ interface AdminOpsUserLike {
 }
 
 type AdminOpsAuditLogSeverity = 'ready' | 'warning' | 'offline';
+type AdminOpsAuditLogCategory =
+  | 'import'
+  | 'security'
+  | 'ai'
+  | 'backup'
+  | 'admin-quality'
+  | 'governance';
+type AdminOpsAuditLogEyebrow =
+  | 'Import'
+  | 'Security'
+  | 'AI'
+  | 'Backup'
+  | 'Admin quality'
+  | 'Governance';
+
+const AUDIT_LOG_CATEGORIES = new Set<AdminOpsAuditLogCategory>([
+  'import',
+  'security',
+  'ai',
+  'backup',
+  'admin-quality',
+  'governance',
+]);
+const AUDIT_LOG_SEVERITIES = new Set<AdminOpsAuditLogSeverity>(['ready', 'warning', 'offline']);
+const AUDIT_LOG_EYEBROWS = new Set<AdminOpsAuditLogEyebrow>([
+  'Import',
+  'Security',
+  'AI',
+  'Backup',
+  'Admin quality',
+  'Governance',
+]);
 
 interface AdminOpsAuditLogEntry {
   readonly id: string;
-  readonly category: 'import' | 'security';
+  readonly category: AdminOpsAuditLogCategory;
   readonly action: string;
-  readonly eyebrow: 'Import' | 'Security';
+  readonly eyebrow: AdminOpsAuditLogEyebrow;
   readonly title: string;
   readonly summary: string;
   readonly occurredAt: string;
@@ -104,6 +138,45 @@ interface AdminOpsAuditLogEntry {
   readonly actor: string;
   readonly target: string;
   readonly metadata: Record<string, string | number | boolean | null>;
+}
+
+interface AdminOpsAuditLogDraft extends Omit<AdminOpsAuditLogEntry, 'id'> {
+  readonly eventId: string;
+  readonly actorId?: string | null;
+  readonly targetId?: string | null;
+  readonly correlationId?: string | null;
+  readonly idempotencyKey?: string | null;
+  readonly ipHash?: string | null;
+  readonly userAgentHash?: string | null;
+  readonly schemaVersion?: number;
+  readonly policyVersion?: string | null;
+  readonly locale?: string | null;
+  readonly timezone?: string | null;
+  readonly retentionUntil?: string | null;
+}
+
+interface AdminOpsAuditLogEntity {
+  readonly id?: number | string;
+  readonly eventId?: unknown;
+  readonly category?: unknown;
+  readonly action?: unknown;
+  readonly eyebrow?: unknown;
+  readonly title?: unknown;
+  readonly summary?: unknown;
+  readonly occurredAt?: unknown;
+  readonly sourceRoute?: unknown;
+  readonly severity?: unknown;
+  readonly actor?: unknown;
+  readonly target?: unknown;
+  readonly metadata?: unknown;
+}
+
+interface AdminOpsAuditLogQuery {
+  readonly limit: number;
+  readonly category: AdminOpsAuditLogCategory | null;
+  readonly severity: AdminOpsAuditLogSeverity | null;
+  readonly from: string | null;
+  readonly to: string | null;
 }
 
 interface AiDispatchConfig {
@@ -1364,15 +1437,6 @@ async function buildImportsSnapshot(strapi: Core.Strapi) {
   };
 }
 
-function timestampValue(value: string | null | undefined): number {
-  if (!value) {
-    return 0;
-  }
-
-  const timestamp = new Date(value).getTime();
-  return Number.isFinite(timestamp) ? timestamp : 0;
-}
-
 function auditSeverityFromImportStatus(status: string): AdminOpsAuditLogSeverity {
   const normalized = status.trim().toLowerCase();
   if (/(failed|error|rejected|blocked)/.test(normalized)) {
@@ -1384,10 +1448,280 @@ function auditSeverityFromImportStatus(status: string): AdminOpsAuditLogSeverity
   return 'warning';
 }
 
-async function buildAuditLogSnapshot(strapi: Core.Strapi) {
-  const generatedAt = new Date().toISOString();
+function normalizeAuditLogCategory(value: unknown): AdminOpsAuditLogCategory | null {
+  const normalized = normalizeString(value, 40);
+  return normalized && AUDIT_LOG_CATEGORIES.has(normalized as AdminOpsAuditLogCategory)
+    ? (normalized as AdminOpsAuditLogCategory)
+    : null;
+}
+
+function normalizeAuditLogSeverity(value: unknown): AdminOpsAuditLogSeverity | null {
+  const normalized = normalizeString(value, 40);
+  return normalized && AUDIT_LOG_SEVERITIES.has(normalized as AdminOpsAuditLogSeverity)
+    ? (normalized as AdminOpsAuditLogSeverity)
+    : null;
+}
+
+function normalizeAuditLogEyebrow(value: unknown): AdminOpsAuditLogEyebrow | null {
+  const normalized = normalizeString(value, 80);
+  return normalized && AUDIT_LOG_EYEBROWS.has(normalized as AdminOpsAuditLogEyebrow)
+    ? (normalized as AdminOpsAuditLogEyebrow)
+    : null;
+}
+
+function firstQueryValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
+function normalizeAuditLogQuery(value: unknown): AdminOpsAuditLogQuery {
+  const query = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const record = query as Record<string, unknown>;
+
+  return {
+    limit: Math.min(
+      parsePositiveInteger(firstQueryValue(record.limit), DEFAULT_AUDIT_LOG_LIMIT),
+      250,
+    ),
+    category: normalizeAuditLogCategory(firstQueryValue(record.category)),
+    severity: normalizeAuditLogSeverity(firstQueryValue(record.severity)),
+    from: normalizeIsoDate(firstQueryValue(record.from)),
+    to: normalizeIsoDate(firstQueryValue(record.to)),
+  };
+}
+
+function normalizeAuditMetadata(value: unknown): Record<string, string | number | boolean | null> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  const metadata: Record<string, string | number | boolean | null> = {};
+  Object.entries(value as Record<string, unknown>).forEach(([key, entry]) => {
+    if (entry == null) {
+      metadata[key] = null;
+      return;
+    }
+    if (typeof entry === 'string' || typeof entry === 'boolean') {
+      metadata[key] = entry;
+      return;
+    }
+    if (typeof entry === 'number') {
+      metadata[key] = Number.isFinite(entry) ? entry : null;
+    }
+  });
+  return metadata;
+}
+
+function buildAuditLogFilters(query: AdminOpsAuditLogQuery): Record<string, unknown> {
+  const filters: Record<string, unknown> = {};
+  if (query.category) {
+    filters.category = query.category;
+  }
+  if (query.severity) {
+    filters.severity = query.severity;
+  }
+
+  const occurredAt: Record<string, string> = {};
+  if (query.from) {
+    occurredAt.$gte = query.from;
+  }
+  if (query.to) {
+    occurredAt.$lte = query.to;
+  }
+  if (Object.keys(occurredAt).length > 0) {
+    filters.occurredAt = occurredAt;
+  }
+
+  return filters;
+}
+
+function toAuditLogEntry(
+  value: AdminOpsAuditLogEntity | AdminOpsAuditLogDraft,
+): AdminOpsAuditLogEntry {
+  const fallbackId = 'id' in value ? value.id : null;
+  const eventId = normalizeString(value.eventId, 180) ?? String(fallbackId ?? 'audit-unknown');
+
+  return {
+    id: eventId,
+    category: normalizeAuditLogCategory(value.category) ?? 'security',
+    action: normalizeString(value.action, 140) ?? 'admin.ops.audit.unknown',
+    eyebrow: normalizeAuditLogEyebrow(value.eyebrow) ?? 'Security',
+    title: normalizeString(value.title, 220) ?? 'Admin operation',
+    summary: normalizeString(value.summary, 1_000) ?? 'No audit summary available.',
+    occurredAt: normalizeIsoDate(value.occurredAt) ?? new Date().toISOString(),
+    sourceRoute: normalizeString(value.sourceRoute, 240) ?? '/api/admin/ops/audit-log',
+    severity: normalizeAuditLogSeverity(value.severity) ?? 'warning',
+    actor: normalizeString(value.actor, 180) ?? 'system',
+    target: normalizeString(value.target, 220) ?? 'admin-ops',
+    metadata: normalizeAuditMetadata(value.metadata),
+  };
+}
+
+async function appendAuditLogEvent(
+  strapi: Core.Strapi,
+  event: AdminOpsAuditLogDraft,
+): Promise<boolean> {
+  const eventId = normalizeString(event.eventId, 180);
+  if (!eventId) {
+    return false;
+  }
+
+  const existing = normalizeFindManyResult(
+    (await strapi.entityService.findMany(ADMIN_OPS_AUDIT_LOG_UID, {
+      fields: ['id'],
+      filters: { eventId },
+      limit: 1,
+    })) as AdminOpsAuditLogEntity[] | AdminOpsAuditLogEntity | null,
+  );
+
+  if (existing.length > 0) {
+    return false;
+  }
+
+  await strapi.entityService.create(ADMIN_OPS_AUDIT_LOG_UID, {
+    data: {
+      eventId,
+      category: event.category,
+      action: event.action,
+      eyebrow: event.eyebrow,
+      title: event.title,
+      summary: event.summary,
+      occurredAt: event.occurredAt,
+      sourceRoute: event.sourceRoute,
+      severity: event.severity,
+      actor: event.actor,
+      actorId: event.actorId ?? null,
+      target: event.target,
+      targetId: event.targetId ?? null,
+      correlationId: event.correlationId ?? null,
+      idempotencyKey: event.idempotencyKey ?? null,
+      ipHash: event.ipHash ?? null,
+      userAgentHash: event.userAgentHash ?? null,
+      metadata: event.metadata,
+      schemaVersion: event.schemaVersion ?? 1,
+      policyVersion: event.policyVersion ?? null,
+      locale: event.locale ?? null,
+      timezone: event.timezone ?? null,
+      retentionUntil: event.retentionUntil ?? null,
+    } as any,
+  });
+
+  return true;
+}
+
+async function safeAppendAuditLogEvent(
+  strapi: Core.Strapi,
+  event: AdminOpsAuditLogDraft,
+): Promise<void> {
+  try {
+    await appendAuditLogEvent(strapi, event);
+  } catch (error: unknown) {
+    strapi.log.warn(`[ops] Failed to append audit log event: ${toErrorMessage(error)}`);
+  }
+}
+
+function hashAuditValue(value: unknown): string | null {
+  const normalized = normalizeString(value, 1_000);
+  if (!normalized) {
+    return null;
+  }
+  return createHash('sha256').update(normalized).digest('hex');
+}
+
+function auditHeader(ctx: Context, name: string): string | null {
+  const headers = (ctx.headers ?? {}) as Record<string, unknown>;
+  return normalizeString(headers[name] ?? headers[name.toLowerCase()], 320);
+}
+
+function auditRequestHashes(ctx: Context): { ipHash: string | null; userAgentHash: string | null } {
+  const forwardedFor = auditHeader(ctx, 'x-forwarded-for');
+  const clientIp = forwardedFor?.split(',')[0]?.trim() || normalizeString(ctx.ip, 120);
+
+  return {
+    ipHash: hashAuditValue(clientIp),
+    userAgentHash: hashAuditValue(auditHeader(ctx, 'user-agent')),
+  };
+}
+
+function auditRequestCorrelation(ctx: Context): {
+  correlationId: string | null;
+  idempotencyKey: string | null;
+} {
+  return {
+    correlationId: auditHeader(ctx, 'x-correlation-id') ?? auditHeader(ctx, 'correlation-id'),
+    idempotencyKey: auditHeader(ctx, 'idempotency-key'),
+  };
+}
+
+function auditUserContext(ctx: Context): { actor: string; actorId: string | null } {
+  const user = ctx.state?.user as Record<string, unknown> | null | undefined;
+  const userId = user?.id == null ? null : String(user.id);
+  const email = normalizeString(user?.email, 180);
+  const username = normalizeString(user?.username, 180);
+
+  return {
+    actor: email ?? username ?? (userId ? `user:${userId}` : 'authenticated-admin'),
+    actorId: userId,
+  };
+}
+
+function buildAiDispatchAuditEvent(
+  ctx: Context,
+  config: AiDispatchConfig,
+  input: AiDispatchInput,
+  response: Record<string, unknown>,
+): AdminOpsAuditLogDraft {
+  const { actor, actorId } = auditUserContext(ctx);
+  const { correlationId, idempotencyKey } = auditRequestCorrelation(ctx);
+  const { ipHash, userAgentHash } = auditRequestHashes(ctx);
+  const eventEntropy = idempotencyKey
+    ? `${config.selectedProvider}:${idempotencyKey}`
+    : `${config.selectedProvider}:${randomUUID()}`;
+  const eventHash = hashAuditValue(eventEntropy)?.slice(0, 24) ?? randomUUID();
+  const requestedAt = normalizeIsoDate(response.requestedAt) ?? new Date().toISOString();
+
+  return {
+    eventId: `audit-ai-dispatch-${config.selectedProvider}-${eventHash}`,
+    category: 'ai',
+    action: 'admin.ops.ai.dispatch.queued',
+    eyebrow: 'AI',
+    title: `${ADMIN_AI_PROVIDER_LABELS[config.selectedProvider]} workflow dispatch queued`,
+    summary: `${input.scope} -> ${config.workflow} on ${input.baseBranch}`,
+    occurredAt: requestedAt,
+    sourceRoute: '/api/admin/ops/ai/dispatch',
+    severity: 'ready',
+    actor,
+    actorId,
+    target: config.workflow,
+    targetId: `${config.owner ?? 'unknown'}/${config.repo ?? 'unknown'}:${config.workflow}`,
+    correlationId,
+    idempotencyKey,
+    ipHash,
+    userAgentHash,
+    metadata: {
+      provider: config.selectedProvider,
+      owner: config.owner,
+      repo: config.repo,
+      workflow: config.workflow,
+      ref: config.ref,
+      scope: input.scope,
+      baseBranch: input.baseBranch,
+      draftPr: input.draftPr,
+      model: input.model,
+      effort: input.effort,
+      taskLength: input.task.length,
+    },
+  };
+}
+
+async function buildDerivedAuditLogEvents(
+  strapi: Core.Strapi,
+  generatedAt: string,
+): Promise<{ events: AdminOpsAuditLogDraft[]; sourceTruncated: boolean }> {
   const auditLimit = parsePositiveInteger(process.env.OPS_AUDIT_LOG_LIMIT, DEFAULT_AUDIT_LOG_LIMIT);
-  const entries: AdminOpsAuditLogEntry[] = [];
+  const events: AdminOpsAuditLogDraft[] = [];
   let sourceTruncated = false;
 
   const companies = normalizeFindManyResult(
@@ -1413,8 +1747,8 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
     const source = metadata.source ?? 'unknown source';
     const occurredAt = metadata.importedAt ?? normalizeIsoDate(company.updatedAt) ?? generatedAt;
 
-    entries.push({
-      id: `audit-import-${companyId}`,
+    events.push({
+      eventId: `audit-import-${companyId}`,
       category: 'import',
       action: 'company.import.recorded',
       eyebrow: 'Import',
@@ -1424,7 +1758,13 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
       sourceRoute: '/api/admin/ops/imports',
       severity: auditSeverityFromImportStatus(status),
       actor: source,
+      actorId: null,
       target: businessId ?? companyId,
+      targetId: companyId,
+      correlationId: null,
+      idempotencyKey: null,
+      ipHash: null,
+      userAgentHash: null,
       metadata: {
         companyId,
         businessId,
@@ -1453,8 +1793,8 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
     const occurredAt =
       normalizeIsoDate(user.updatedAt) ?? normalizeIsoDate(user.createdAt) ?? generatedAt;
 
-    entries.push({
-      id: `audit-security-blocked-user-${userId}`,
+    events.push({
+      eventId: `audit-security-blocked-user-${userId}`,
       category: 'security',
       action: 'security.user.blocked',
       eyebrow: 'Security',
@@ -1464,7 +1804,13 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
       sourceRoute: '/api/admin/ops/security',
       severity: 'warning',
       actor: 'security-policy',
+      actorId: null,
       target: email ?? username ?? userId,
+      targetId: userId,
+      correlationId: null,
+      idempotencyKey: null,
+      ipHash: null,
+      userAgentHash: null,
       metadata: {
         userId,
         email,
@@ -1506,8 +1852,8 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
   }
 
   if (revokedSessions > 0) {
-    entries.push({
-      id: 'audit-security-revoked-sessions',
+    events.push({
+      eventId: `audit-security-revoked-sessions-${generatedAt.slice(0, 10)}`,
       category: 'security',
       action: 'security.session.revocation.detected',
       eyebrow: 'Security',
@@ -1517,7 +1863,13 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
       sourceRoute: '/api/admin/ops/security',
       severity: 'warning',
       actor: 'session-store',
+      actorId: null,
       target: 'user-sessions',
+      targetId: 'user-sessions',
+      correlationId: null,
+      idempotencyKey: null,
+      ipHash: null,
+      userAgentHash: null,
       metadata: {
         revokedSessions,
         scannedUsers: usersForSessionScan.length,
@@ -1526,13 +1878,38 @@ async function buildAuditLogSnapshot(strapi: Core.Strapi) {
     });
   }
 
-  entries.sort((left, right) => timestampValue(right.occurredAt) - timestampValue(left.occurredAt));
+  return { events, sourceTruncated };
+}
+
+async function syncDerivedAuditLogEvents(
+  strapi: Core.Strapi,
+  generatedAt: string,
+): Promise<boolean> {
+  const { events, sourceTruncated } = await buildDerivedAuditLogEvents(strapi, generatedAt);
+  for (const event of events) {
+    await appendAuditLogEvent(strapi, event);
+  }
+  return sourceTruncated;
+}
+
+async function buildAuditLogSnapshot(strapi: Core.Strapi, rawQuery?: unknown) {
+  const generatedAt = new Date().toISOString();
+  const query = normalizeAuditLogQuery(rawQuery);
+  const sourceTruncated = await syncDerivedAuditLogEvents(strapi, generatedAt);
+  const records = normalizeFindManyResult(
+    (await strapi.entityService.findMany(ADMIN_OPS_AUDIT_LOG_UID, {
+      filters: buildAuditLogFilters(query),
+      sort: ['occurredAt:desc', 'id:desc'],
+      limit: query.limit + 1,
+    })) as AdminOpsAuditLogEntity[] | AdminOpsAuditLogEntity | null,
+  );
+  const entries = records.slice(0, query.limit).map((record) => toAuditLogEntry(record));
 
   return {
     generatedAt,
     source: 'admin-ops-audit-log' as const,
-    truncated: sourceTruncated || entries.length > auditLimit,
-    entries: entries.slice(0, auditLimit),
+    truncated: sourceTruncated || records.length > query.limit,
+    entries,
   };
 }
 
@@ -1709,7 +2086,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
 
   async auditLog(ctx: Context) {
     try {
-      ctx.body = { data: await buildAuditLogSnapshot(strapi) };
+      ctx.body = { data: await buildAuditLogSnapshot(strapi, ctx.query) };
     } catch (error: unknown) {
       strapi.log.error(`[ops] Failed to build audit log: ${toErrorMessage(error)}`);
       ctx.internalServerError('owner.ops.auditLog.failed');
@@ -1756,8 +2133,13 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     try {
+      const response = await dispatchAiWorkflow(config, input);
+      await safeAppendAuditLogEvent(
+        strapi,
+        buildAiDispatchAuditEvent(ctx, config, input, response),
+      );
       ctx.body = {
-        data: await dispatchAiWorkflow(config, input),
+        data: response,
       };
     } catch (error: unknown) {
       strapi.log.error(

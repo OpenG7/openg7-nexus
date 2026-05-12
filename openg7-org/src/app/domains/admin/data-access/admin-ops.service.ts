@@ -126,9 +126,9 @@ export interface AdminOpsSecuritySnapshot {
 
 export interface AdminOpsAuditLogEntry {
   id: string;
-  category: 'import' | 'security';
+  category: 'import' | 'security' | 'ai' | 'backup' | 'admin-quality' | 'governance';
   action: string;
-  eyebrow: 'Import' | 'Security';
+  eyebrow: 'Import' | 'Security' | 'AI' | 'Backup' | 'Admin quality' | 'Governance';
   title: string;
   summary: string;
   occurredAt: string;

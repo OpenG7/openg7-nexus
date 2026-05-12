@@ -16,6 +16,7 @@ const OPS_ACTIONS = [
   'api::admin-ops.admin-ops.proofs',
   'api::admin-ops.admin-ops.dispatchCodexWorkflow',
 ];
+const AUDIT_LOG_UID = 'api::admin-ops-audit-log.admin-ops-audit-log';
 
 function applyTestEnvironment() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -509,6 +510,33 @@ async function run() {
       'Expected company import audit entry.',
     );
 
+    const persistedAuditEntries = await app.entityService.findMany(AUDIT_LOG_UID, {
+      filters: { action: 'company.import.recorded' },
+      limit: 5,
+    });
+    assert.ok(
+      persistedAuditEntries?.some((entry) =>
+        String(entry.eventId ?? '').startsWith('audit-import-'),
+      ),
+      'Expected canonical import audit entries to be persisted.',
+    );
+
+    const filteredAuditLog = await requestJson(
+      `${baseUrl}/api/admin/ops/audit-log?category=import&limit=1`,
+      {
+        headers: authHeaders(adminUser.jwt),
+      },
+    );
+    assert.equal(filteredAuditLog.status, 200, 'Expected filtered audit log endpoint access.');
+    assert.ok(
+      filteredAuditLog.body?.data?.entries?.length <= 1,
+      'Expected audit log limit to be applied.',
+    );
+    assert.ok(
+      filteredAuditLog.body?.data?.entries?.every((entry) => entry.category === 'import'),
+      'Expected category filter to be applied.',
+    );
+
     const proofs = await requestJson(`${baseUrl}/api/admin/ops/ai/proofs`, {
       headers: authHeaders(adminUser.jwt),
     });
@@ -597,6 +625,18 @@ async function run() {
       workflowDispatchCalls[0]?.url,
       'https://api.github.test/repos/OpenG7/openg7-nexus/actions/workflows/copilot-pr.yml/dispatches',
       'Expected the copilot workflow to be selected.',
+    );
+
+    const aiAuditLog = await requestJson(`${baseUrl}/api/admin/ops/audit-log?category=ai`, {
+      headers: authHeaders(adminUser.jwt),
+    });
+    assert.equal(aiAuditLog.status, 200, 'Expected AI audit log endpoint access.');
+    assert.ok(
+      aiAuditLog.body?.data?.entries?.some(
+        (entry) =>
+          entry.action === 'admin.ops.ai.dispatch.queued' && entry.metadata?.provider === 'copilot',
+      ),
+      'Expected copilot workflow dispatch audit entry.',
     );
 
     const legacyCodexDispatch = await requestJson(`${baseUrl}/api/admin/ops/codex/dispatch`, {
