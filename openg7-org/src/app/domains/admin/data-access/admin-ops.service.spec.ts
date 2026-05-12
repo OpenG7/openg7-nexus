@@ -145,4 +145,40 @@ describe('AdminOpsService', () => {
       },
     });
   });
+
+  it('reads canonical audit log snapshots from the admin ops audit-log endpoint', () => {
+    service.getAuditLog().subscribe((response) => {
+      expect(response.source).toBe('admin-ops-audit-log');
+      expect(response.entries.length).toBe(1);
+      expect(response.entries[0]?.action).toBe('company.import.recorded');
+      expect(response.entries[0]?.sourceRoute).toBe('/api/admin/ops/imports');
+    });
+
+    const request = httpMock.expectOne('https://cms.local/api/admin/ops/audit-log');
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      data: {
+        generatedAt: '2026-04-30T00:00:00.000Z',
+        source: 'admin-ops-audit-log',
+        truncated: false,
+        entries: [
+          {
+            id: 'audit-import-42',
+            category: 'import',
+            action: 'company.import.recorded',
+            eyebrow: 'Import',
+            title: 'Quebec Battery Alliance',
+            summary: 'QC-7788 - manual - approved',
+            occurredAt: '2026-04-30T00:00:00.000Z',
+            sourceRoute: '/api/admin/ops/imports',
+            severity: 'ready',
+            actor: 'manual',
+            target: 'QC-7788',
+            metadata: { companyId: '42', businessId: 'QC-7788', source: 'manual' },
+          },
+        ],
+      },
+    });
+  });
 });

@@ -23,6 +23,7 @@ import type { AdminNavigationPillItem } from '@openg7/admin-quality';
 import { finalize } from 'rxjs';
 
 import {
+  AdminOpsAuditLogEntry,
   AdminOpsBackupFile,
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
@@ -31,7 +32,7 @@ import {
   AdminOpsSnapshot,
 } from '../data-access/admin-ops.service';
 
-type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
+type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security' | 'auditLog';
 
 interface AdminOpsProvenanceEntry {
   readonly id: AdminOpsProvenanceId;
@@ -40,15 +41,7 @@ interface AdminOpsProvenanceEntry {
   readonly generatedAt: string;
 }
 
-interface AdminOpsSensitiveActionEntry {
-  readonly id: string;
-  readonly eyebrow: 'Import' | 'Security';
-  readonly title: string;
-  readonly summary: string;
-  readonly occurredAt: string;
-  readonly route: string;
-  readonly tone: 'ready' | 'warning' | 'offline';
-}
+type AdminOpsSensitiveActionEntry = AdminOpsAuditLogEntry;
 
 interface AdminOpsDiagnosticItem {
   readonly id: string;
@@ -98,6 +91,7 @@ const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
   { id: 'backups', label: 'Backups', route: '/api/admin/ops/backups' },
   { id: 'imports', label: 'Imports', route: '/api/admin/ops/imports' },
   { id: 'security', label: 'Security', route: '/api/admin/ops/security' },
+  { id: 'auditLog', label: 'Audit log', route: '/api/admin/ops/audit-log' },
 ];
 
 const ADMIN_OPS_CODEX_SCOPES: readonly AdminOpsCodexScope[] = [
@@ -517,6 +511,7 @@ export class AdminOpsPage implements OnInit {
       snapshot.backups.generatedAt,
       snapshot.imports.generatedAt,
       snapshot.security.generatedAt,
+      snapshot.auditLog.generatedAt,
     ]
       .map((entry) => new Date(entry).getTime())
       .filter((entry) => Number.isFinite(entry));
@@ -559,53 +554,7 @@ export class AdminOpsPage implements OnInit {
     return 'Each block lists the API source and snapshot timestamp currently displayed.';
   });
   readonly sensitiveActionEntries = computed<readonly AdminOpsSensitiveActionEntry[]>(() => {
-    const snapshot = this.snapshot();
-    if (!snapshot) {
-      return [];
-    }
-
-    const importEntries = snapshot.imports.recent.map((entry) => {
-      const businessId = entry.businessId?.trim() ? entry.businessId.trim() : 'no-business-id';
-      const source = entry.source?.trim() ? entry.source.trim() : 'unknown source';
-      const occurredAt = entry.updatedAt ?? entry.importedAt ?? snapshot.imports.generatedAt;
-
-      return {
-        id: `import-${entry.id}`,
-        eyebrow: 'Import' as const,
-        title: entry.name,
-        summary: `${businessId} · ${source} · ${entry.status}`,
-        occurredAt,
-        route: '/api/admin/ops/imports',
-        tone: this.importEntrySeverity(entry),
-      };
-    });
-    const securityEntries: AdminOpsSensitiveActionEntry[] = [];
-
-    if (snapshot.security.sessions.revoked > 0) {
-      securityEntries.push({
-        id: 'security-revoked-sessions',
-        eyebrow: 'Security',
-        title: 'Session revocations observed',
-        summary: `${snapshot.security.sessions.revoked} revoked sessions across ${snapshot.security.sessions.scannedUsers} scanned users.`,
-        occurredAt: snapshot.security.generatedAt,
-        route: '/api/admin/ops/security',
-        tone: 'warning',
-      });
-    }
-
-    if (snapshot.security.users.blocked > 0) {
-      securityEntries.push({
-        id: 'security-blocked-users',
-        eyebrow: 'Security',
-        title: 'Blocked accounts still present',
-        summary: `${snapshot.security.users.blocked} blocked users remain visible in the latest security snapshot.`,
-        occurredAt: snapshot.security.generatedAt,
-        route: '/api/admin/ops/security',
-        tone: 'warning',
-      });
-    }
-
-    return [...importEntries, ...securityEntries]
+    return [...(this.snapshot()?.auditLog.entries ?? [])]
       .sort(
         (left, right) =>
           this.timestampValue(right.occurredAt) - this.timestampValue(left.occurredAt),
@@ -625,7 +574,7 @@ export class AdminOpsPage implements OnInit {
       return 'Trace preserved from the last successful snapshot while the latest refresh failed.';
     }
 
-    return 'Recent import and security actions compiled from the latest snapshot.';
+    return 'Recent import and security actions loaded from the canonical audit log.';
   });
 
   readonly aiIgnitionModules = computed<readonly AdminOpsAiIgnitionModule[]>(() => {
@@ -853,7 +802,7 @@ export class AdminOpsPage implements OnInit {
         });
       }
 
-      const unavailableAiModules = snapshot.security.aiKeys.filter(
+      const unavailableAiModules = (snapshot.security.aiKeys ?? []).filter(
         (module) => module.state !== 'ready',
       ).length;
       if (unavailableAiModules > 0) {
@@ -1483,9 +1432,12 @@ export class AdminOpsPage implements OnInit {
   }
 
   sensitiveActionToneClasses(
-    tone: AdminOpsSensitiveActionEntry['tone'],
-  ): 'border-emerald-200 bg-emerald-50 text-emerald-700' | 'border-amber-200 bg-amber-50 text-amber-700' | 'border-rose-200 bg-rose-50 text-rose-700' {
-    switch (tone) {
+    severity: AdminOpsSensitiveActionEntry['severity'],
+  ):
+    | 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    | 'border-amber-200 bg-amber-50 text-amber-700'
+    | 'border-rose-200 bg-rose-50 text-rose-700' {
+    switch (severity) {
       case 'ready':
         return 'border-emerald-200 bg-emerald-50 text-emerald-700';
       case 'warning':
@@ -1495,8 +1447,8 @@ export class AdminOpsPage implements OnInit {
     }
   }
 
-  sensitiveActionToneLabel(tone: AdminOpsSensitiveActionEntry['tone']): string {
-    switch (tone) {
+  sensitiveActionToneLabel(severity: AdminOpsSensitiveActionEntry['severity']): string {
+    switch (severity) {
       case 'ready':
         return 'Recorded';
       case 'warning':

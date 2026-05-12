@@ -164,6 +164,27 @@ class AdminOpsServiceMock {
           suspendedCompanies: 0,
         },
       },
+      auditLog: {
+        generatedAt: '2026-04-26T00:00:00.000Z',
+        source: 'admin-ops-audit-log',
+        truncated: false,
+        entries: [
+          {
+            id: 'audit-security-revoked-sessions',
+            category: 'security',
+            action: 'security.session.revocation.detected',
+            eyebrow: 'Security',
+            title: 'Session revocations observed',
+            summary: '1 revoked sessions across 10 scanned users.',
+            occurredAt: '2026-04-26T00:00:00.000Z',
+            sourceRoute: '/api/admin/ops/security',
+            severity: 'warning',
+            actor: 'session-store',
+            target: 'user-sessions',
+            metadata: { revokedSessions: 1, scannedUsers: 10, truncated: false },
+          },
+        ],
+      },
     }),
   );
 

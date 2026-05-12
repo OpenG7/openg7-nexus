@@ -12,6 +12,7 @@ const OPS_ACTIONS = [
   'api::admin-ops.admin-ops.backups',
   'api::admin-ops.admin-ops.imports',
   'api::admin-ops.admin-ops.security',
+  'api::admin-ops.admin-ops.auditLog',
   'api::admin-ops.admin-ops.proofs',
   'api::admin-ops.admin-ops.dispatchCodexWorkflow',
 ];
@@ -491,6 +492,21 @@ async function run() {
         ?.state,
       'ready',
       'Expected GitHub ingest token secret to be visible as ready in the control plane.',
+    );
+
+    const auditLog = await requestJson(`${baseUrl}/api/admin/ops/audit-log`, {
+      headers: authHeaders(adminUser.jwt),
+    });
+    assert.equal(auditLog.status, 200, 'Expected admin audit log endpoint access.');
+    assert.equal(
+      auditLog.body?.data?.source,
+      'admin-ops-audit-log',
+      'Expected canonical audit log source marker.',
+    );
+    assert.ok(Array.isArray(auditLog.body?.data?.entries), 'Expected audit log entries list.');
+    assert.ok(
+      auditLog.body?.data?.entries?.some((entry) => entry.action === 'company.import.recorded'),
+      'Expected company import audit entry.',
     );
 
     const proofs = await requestJson(`${baseUrl}/api/admin/ops/ai/proofs`, {

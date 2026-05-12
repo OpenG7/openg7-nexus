@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
 import { DEFAULT_PROFILE, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
 
-type AdminOpsEndpoint = 'health' | 'backups' | 'imports' | 'security';
+type AdminOpsEndpoint = 'health' | 'backups' | 'imports' | 'security' | 'auditLog';
 
 interface MockRouteResponse {
   status?: number;
@@ -17,6 +17,7 @@ interface AdminOpsScenario {
   backups: MockRouteResponse;
   imports: MockRouteResponse;
   security: MockRouteResponse;
+  auditLog: MockRouteResponse;
 }
 
 const ADMIN_PROFILE = {
@@ -88,6 +89,27 @@ const INITIAL_SNAPSHOT: AdminOpsScenario = {
     },
     auth: { sessionIdleTimeoutMs: 3_600_000 },
     moderation: { pendingCompanies: 1, suspendedCompanies: 0 },
+  }),
+  auditLog: success({
+    generatedAt: '2026-03-14T09:50:00.000Z',
+    source: 'admin-ops-audit-log',
+    truncated: false,
+    entries: [
+      {
+        id: 'audit-import-imp-1',
+        category: 'import',
+        action: 'company.import.recorded',
+        eyebrow: 'Import',
+        title: 'Quebec Battery Alliance',
+        summary: 'QC-7788 - manual - approved',
+        occurredAt: '2026-03-14T07:00:00.000Z',
+        sourceRoute: '/api/admin/ops/imports',
+        severity: 'ready',
+        actor: 'manual',
+        target: 'QC-7788',
+        metadata: { companyId: 'imp-1', businessId: 'QC-7788', source: 'manual' },
+      },
+    ],
   }),
 };
 
@@ -171,6 +193,30 @@ const REFRESHED_SNAPSHOT: AdminOpsScenario = {
     },
     150,
   ),
+  auditLog: success(
+    {
+      generatedAt: '2026-04-01T10:15:00.000Z',
+      source: 'admin-ops-audit-log',
+      truncated: false,
+      entries: [
+        {
+          id: 'audit-import-imp-2',
+          category: 'import',
+          action: 'company.import.recorded',
+          eyebrow: 'Import',
+          title: 'Northern Logistics Network',
+          summary: 'ON-9911 - bulk - approved',
+          occurredAt: '2026-04-01T08:10:00.000Z',
+          sourceRoute: '/api/admin/ops/imports',
+          severity: 'ready',
+          actor: 'bulk',
+          target: 'ON-9911',
+          metadata: { companyId: 'imp-2', businessId: 'ON-9911', source: 'bulk' },
+        },
+      ],
+    },
+    150,
+  ),
 };
 
 const REFRESH_ERROR_SNAPSHOT: AdminOpsScenario = {
@@ -230,6 +276,30 @@ const REFRESH_ERROR_SNAPSHOT: AdminOpsScenario = {
     150,
   ),
   security: failure('Security snapshot unavailable.', 503, 150),
+  auditLog: success(
+    {
+      generatedAt: '2026-04-01T10:30:00.000Z',
+      source: 'admin-ops-audit-log',
+      truncated: false,
+      entries: [
+        {
+          id: 'audit-import-imp-3',
+          category: 'import',
+          action: 'company.import.recorded',
+          eyebrow: 'Import',
+          title: 'Atlantic Grid Components',
+          summary: 'NB-0010 - bulk - approved',
+          occurredAt: '2026-04-01T09:05:00.000Z',
+          sourceRoute: '/api/admin/ops/imports',
+          severity: 'ready',
+          actor: 'bulk',
+          target: 'NB-0010',
+          metadata: { companyId: 'imp-3', businessId: 'NB-0010', source: 'bulk' },
+        },
+      ],
+    },
+    150,
+  ),
 };
 
 test.describe('Admin ops provenance trail', () => {
@@ -258,9 +328,10 @@ test.describe('Admin ops provenance trail', () => {
     await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).toContainText(
       'Quebec Battery Alliance',
     );
-    await expect(
-      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
-    ).toHaveAttribute('data-og7-state', 'fresh');
+    await expect(page.locator('[data-og7-id="admin-ops-sensitive-action-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'fresh',
+    );
 
     await page.locator('[data-og7-id="admin-ops-refresh"]').click();
 
@@ -325,9 +396,10 @@ test.describe('Admin ops provenance trail', () => {
     await expect(page.locator('[data-og7="admin-ops-sensitive-action-trail"]')).not.toContainText(
       'Atlantic Grid Components',
     );
-    await expect(
-      page.locator('[data-og7-id="admin-ops-sensitive-action-status"]'),
-    ).toHaveAttribute('data-og7-state', 'preserved-last-good');
+    await expect(page.locator('[data-og7-id="admin-ops-sensitive-action-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'preserved-last-good',
+    );
     await expect(page.locator('[data-og7-id="admin-ops-sensitive-action-status"]')).toContainText(
       'last successful snapshot',
     );
@@ -367,6 +439,7 @@ async function mockAdminOpsSequence(
     backups: 0,
     imports: 0,
     security: 0,
+    auditLog: 0,
   };
 
   const routes: Record<AdminOpsEndpoint, string> = {
@@ -374,6 +447,7 @@ async function mockAdminOpsSequence(
     backups: '**/api/admin/ops/backups',
     imports: '**/api/admin/ops/imports',
     security: '**/api/admin/ops/security',
+    auditLog: '**/api/admin/ops/audit-log',
   };
 
   for (const endpoint of Object.keys(routes) as AdminOpsEndpoint[]) {

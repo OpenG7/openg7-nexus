@@ -14,6 +14,7 @@ const DEFAULT_BACKUP_MAX_FILES = 25;
 const DEFAULT_UPLOAD_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const DEFAULT_UPLOAD_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const DEFAULT_IMPORT_SCAN_LIMIT = 2000;
+const DEFAULT_AUDIT_LOG_LIMIT = 50;
 const DEFAULT_SECURITY_SESSION_SCAN_LIMIT = 250;
 const DEFAULT_SESSION_IDLE_TIMEOUT_MS = 12 * 60 * 60 * 1000;
 const DEFAULT_AI_GITHUB_API_URL = 'https://api.github.com';
@@ -77,6 +78,32 @@ interface ImportedCompanyLike {
   readonly status?: unknown;
   readonly importMetadata?: unknown;
   readonly updatedAt?: unknown;
+}
+
+interface AdminOpsUserLike {
+  readonly id?: number | string;
+  readonly email?: unknown;
+  readonly username?: unknown;
+  readonly blocked?: unknown;
+  readonly createdAt?: unknown;
+  readonly updatedAt?: unknown;
+}
+
+type AdminOpsAuditLogSeverity = 'ready' | 'warning' | 'offline';
+
+interface AdminOpsAuditLogEntry {
+  readonly id: string;
+  readonly category: 'import' | 'security';
+  readonly action: string;
+  readonly eyebrow: 'Import' | 'Security';
+  readonly title: string;
+  readonly summary: string;
+  readonly occurredAt: string;
+  readonly sourceRoute: string;
+  readonly severity: AdminOpsAuditLogSeverity;
+  readonly actor: string;
+  readonly target: string;
+  readonly metadata: Record<string, string | number | boolean | null>;
 }
 
 interface AiDispatchConfig {
@@ -1337,6 +1364,178 @@ async function buildImportsSnapshot(strapi: Core.Strapi) {
   };
 }
 
+function timestampValue(value: string | null | undefined): number {
+  if (!value) {
+    return 0;
+  }
+
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function auditSeverityFromImportStatus(status: string): AdminOpsAuditLogSeverity {
+  const normalized = status.trim().toLowerCase();
+  if (/(failed|error|rejected|blocked)/.test(normalized)) {
+    return 'offline';
+  }
+  if (/(imported|complete|completed|approved|ok|success)/.test(normalized)) {
+    return 'ready';
+  }
+  return 'warning';
+}
+
+async function buildAuditLogSnapshot(strapi: Core.Strapi) {
+  const generatedAt = new Date().toISOString();
+  const auditLimit = parsePositiveInteger(process.env.OPS_AUDIT_LOG_LIMIT, DEFAULT_AUDIT_LOG_LIMIT);
+  const entries: AdminOpsAuditLogEntry[] = [];
+  let sourceTruncated = false;
+
+  const companies = normalizeFindManyResult(
+    (await strapi.entityService.findMany(COMPANY_UID, {
+      fields: ['id', 'name', 'businessId', 'status', 'importMetadata', 'updatedAt'],
+      publicationState: 'preview',
+      sort: ['updatedAt:desc', 'id:desc'],
+      limit: auditLimit,
+    })) as ImportedCompanyLike[] | ImportedCompanyLike | null,
+  );
+  sourceTruncated ||= companies.length >= auditLimit;
+
+  for (const company of companies) {
+    const metadata = extractImportMetadata(company.importMetadata);
+    if (!metadata.source && !metadata.importedAt) {
+      continue;
+    }
+
+    const companyId = String(company.id ?? 'unknown');
+    const businessId = normalizeString(company.businessId, 80);
+    const name = normalizeString(company.name, 180) ?? 'Unknown company';
+    const status = normalizeString(company.status, 40) ?? 'unknown';
+    const source = metadata.source ?? 'unknown source';
+    const occurredAt = metadata.importedAt ?? normalizeIsoDate(company.updatedAt) ?? generatedAt;
+
+    entries.push({
+      id: `audit-import-${companyId}`,
+      category: 'import',
+      action: 'company.import.recorded',
+      eyebrow: 'Import',
+      title: name,
+      summary: `${businessId ?? 'no-business-id'} - ${source} - ${status}`,
+      occurredAt,
+      sourceRoute: '/api/admin/ops/imports',
+      severity: auditSeverityFromImportStatus(status),
+      actor: source,
+      target: businessId ?? companyId,
+      metadata: {
+        companyId,
+        businessId,
+        source,
+        status,
+        importedAt: metadata.importedAt,
+        updatedAt: normalizeIsoDate(company.updatedAt),
+      },
+    });
+  }
+
+  const blockedUsers = normalizeFindManyResult(
+    (await strapi.db.query(USER_UID).findMany({
+      select: ['id', 'email', 'username', 'blocked', 'createdAt', 'updatedAt'],
+      where: { blocked: true },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+      limit: Math.min(auditLimit, 20),
+    })) as AdminOpsUserLike[] | AdminOpsUserLike | null,
+  );
+  sourceTruncated ||= blockedUsers.length >= Math.min(auditLimit, 20);
+
+  for (const user of blockedUsers) {
+    const userId = String(user.id ?? 'unknown');
+    const email = normalizeString(user.email, 180);
+    const username = normalizeString(user.username, 180);
+    const occurredAt =
+      normalizeIsoDate(user.updatedAt) ?? normalizeIsoDate(user.createdAt) ?? generatedAt;
+
+    entries.push({
+      id: `audit-security-blocked-user-${userId}`,
+      category: 'security',
+      action: 'security.user.blocked',
+      eyebrow: 'Security',
+      title: 'Blocked account present',
+      summary: `${email ?? username ?? `User ${userId}`} is blocked in the latest user snapshot.`,
+      occurredAt,
+      sourceRoute: '/api/admin/ops/security',
+      severity: 'warning',
+      actor: 'security-policy',
+      target: email ?? username ?? userId,
+      metadata: {
+        userId,
+        email,
+        username,
+        blocked: Boolean(user.blocked),
+      },
+    });
+  }
+
+  const sessionScanLimit = parsePositiveInteger(
+    process.env.OPS_SECURITY_SESSION_SCAN_LIMIT,
+    DEFAULT_SECURITY_SESSION_SCAN_LIMIT,
+  );
+  const usersForSessionScan = normalizeFindManyResult(
+    (await strapi.db.query(USER_UID).findMany({
+      select: ['id'],
+      orderBy: [{ updatedAt: 'desc' }],
+      limit: sessionScanLimit,
+    })) as Array<{ id?: number | string }> | { id?: number | string } | null,
+  );
+  sourceTruncated ||= usersForSessionScan.length >= sessionScanLimit;
+  let revokedSessions = 0;
+
+  for (const user of usersForSessionScan) {
+    if (!user?.id) {
+      continue;
+    }
+    try {
+      const store = strapi.store({
+        type: 'plugin',
+        name: SESSION_STORE_PLUGIN,
+        key: `${SESSION_KEY_PREFIX}:${String(user.id)}`,
+      });
+      const rawState = await store.get();
+      revokedSessions += parseSessionState(rawState).revoked;
+    } catch {
+      // Ignore malformed session buckets and continue.
+    }
+  }
+
+  if (revokedSessions > 0) {
+    entries.push({
+      id: 'audit-security-revoked-sessions',
+      category: 'security',
+      action: 'security.session.revocation.detected',
+      eyebrow: 'Security',
+      title: 'Session revocations observed',
+      summary: `${revokedSessions} revoked sessions across ${usersForSessionScan.length} scanned users.`,
+      occurredAt: generatedAt,
+      sourceRoute: '/api/admin/ops/security',
+      severity: 'warning',
+      actor: 'session-store',
+      target: 'user-sessions',
+      metadata: {
+        revokedSessions,
+        scannedUsers: usersForSessionScan.length,
+        truncated: usersForSessionScan.length >= sessionScanLimit,
+      },
+    });
+  }
+
+  entries.sort((left, right) => timestampValue(right.occurredAt) - timestampValue(left.occurredAt));
+
+  return {
+    generatedAt,
+    source: 'admin-ops-audit-log' as const,
+    truncated: sourceTruncated || entries.length > auditLimit,
+    entries: entries.slice(0, auditLimit),
+  };
+}
+
 function parseSessionState(value: unknown): { active: number; revoked: number } {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return { active: 0, revoked: 0 };
@@ -1505,6 +1704,15 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     } catch (error: unknown) {
       strapi.log.error(`[ops] Failed to build security snapshot: ${toErrorMessage(error)}`);
       ctx.internalServerError('owner.ops.security.failed');
+    }
+  },
+
+  async auditLog(ctx: Context) {
+    try {
+      ctx.body = { data: await buildAuditLogSnapshot(strapi) };
+    } catch (error: unknown) {
+      strapi.log.error(`[ops] Failed to build audit log: ${toErrorMessage(error)}`);
+      ctx.internalServerError('owner.ops.auditLog.failed');
     }
   },
 

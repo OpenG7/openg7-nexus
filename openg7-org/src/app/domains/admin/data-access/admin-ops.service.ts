@@ -124,6 +124,28 @@ export interface AdminOpsSecuritySnapshot {
   };
 }
 
+export interface AdminOpsAuditLogEntry {
+  id: string;
+  category: 'import' | 'security';
+  action: string;
+  eyebrow: 'Import' | 'Security';
+  title: string;
+  summary: string;
+  occurredAt: string;
+  sourceRoute: string;
+  severity: 'ready' | 'warning' | 'offline';
+  actor: string;
+  target: string;
+  metadata: Record<string, string | number | boolean | null>;
+}
+
+export interface AdminOpsAuditLogSnapshot {
+  generatedAt: string;
+  source: 'admin-ops-audit-log';
+  truncated: boolean;
+  entries: AdminOpsAuditLogEntry[];
+}
+
 export interface AdminOpsAiProofArtifact {
   id: number | null;
   name: string;
@@ -174,6 +196,7 @@ export interface AdminOpsSnapshot {
   backups: AdminOpsBackupsSnapshot;
   imports: AdminOpsImportsSnapshot;
   security: AdminOpsSecuritySnapshot;
+  auditLog: AdminOpsAuditLogSnapshot;
 }
 
 export interface AdminOpsCodexDispatchRequest {
@@ -238,6 +261,12 @@ export class AdminOpsService {
       .pipe(map((response) => response.data));
   }
 
+  getAuditLog(): Observable<AdminOpsAuditLogSnapshot> {
+    return this.http
+      .get<StrapiDataResponse<AdminOpsAuditLogSnapshot>>(STRAPI_ROUTES.admin.opsAuditLog)
+      .pipe(map((response) => response.data));
+  }
+
   getAiProofs(): Observable<AdminOpsAiProofSnapshot> {
     return this.http
       .get<StrapiDataResponse<AdminOpsAiProofSnapshot>>(STRAPI_ROUTES.admin.opsAiProofs)
@@ -264,6 +293,7 @@ export class AdminOpsService {
       backups: this.getBackups(),
       imports: this.getImports(),
       security: this.getSecurity(),
+      auditLog: this.getAuditLog(),
     });
   }
 }
