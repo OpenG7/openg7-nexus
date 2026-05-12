@@ -739,6 +739,7 @@ export const selectFilteredFlows = createSelector(selectMapState, (s) => s.filte
 ## 9) Foire aux dÃ©cisions (rappels Codex)
 
 - **Signal-first** : pas dâ€™over-engineering NgRx ; prioriser des `signal()` locaux.
+- **Templates Angular modernes** : utiliser les blocs de contrÃ´le `@if`, `@for`, `@switch` et `@defer` pour tout nouveau template ou toute modification de template. Ne pas introduire `*ngIf`, `*ngFor`, `*ngSwitch` ou les `ng-template` de remplacement sauf contrainte legacy explicitement documentÃ©e, car l'ancienne syntaxe est dÃ©prÃ©ciÃ©e et prÃ©vue pour retrait Angular v22.
 - **Selectors stables** : **pas** de classes Tailwind pour cibler ; toujours `data-og7*`.
 - **SÃ©curitÃ©** : jamais stocker JWT en `localStorage` non chiffrÃ© ; prÃ©fÃ©rer `sessionStorage` + Web Crypto.
 - **i18n** : aucun texte en dur ; tout passe par `TranslateService`.

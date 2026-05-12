@@ -2456,14 +2456,28 @@ describe('AdminQualityPage', () => {
     expect(root.textContent).toContain('Refresh matrice');
   });
 
-  it('selects the next mission after closing the current one', () => {
+  it('selects the next mission after closing the current one without keeping stale signal dispatch armed', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
     const component = fixture.componentInstance;
+    const entry = component.selectedEntry();
+
+    expect(entry?.id).toBe('advanced-discovery');
+
+    component.selectCoverageSignal({
+      entry: entry!,
+      signalId: 'e2e',
+      shortLabel: 'E',
+      label: 'E - End-to-end',
+      attention: true,
+    });
+    fixture.detectChanges();
+
     const currentMission = component.selectedMission();
 
     expect(currentMission?.id).toBe('advanced-discovery::core');
+    expect(component.selectedSignalContext()?.signalId).toBe('e2e');
 
     component.handleMissionAction({
       action: 'complete',
@@ -2476,12 +2490,68 @@ describe('AdminQualityPage', () => {
 
     expect(component.selectedMission()?.id).toBe('advanced-discovery::safety-net');
     expect(component.selectedMission()?.status).toBe('proposed');
+    expect(component.missionControl()?.phase).toBe('awaiting-human');
+    expect(component.missionHudActiveSection()).toBe('mission');
+    expect(component.selectedSignalContext()).toBeNull();
+    expect(component.selectedSignalDispatchReady()).toBeFalse();
     expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
       jasmine.objectContaining({
         recommendationId: 'advanced-discovery::core',
         status: 'done',
       }),
     );
+  });
+
+  it('moves the mission cockpit backward and forward with arrow controls', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const entry = component.selectedEntry();
+    const previousButton = () =>
+      root.querySelector('[data-og7-id="admin-quality-cockpit-previous"]') as HTMLButtonElement;
+    const nextButton = () =>
+      root.querySelector('[data-og7-id="admin-quality-cockpit-next"]') as HTMLButtonElement;
+    const position = () => root.querySelector('[data-og7-id="admin-quality-cockpit-position"]');
+
+    component.selectCoverageSignal({
+      entry: entry!,
+      signalId: 'e2e',
+      shortLabel: 'E',
+      label: 'E - End-to-end',
+      attention: true,
+    });
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::core');
+    expect(previousButton().disabled).toBeTrue();
+    expect(nextButton().disabled).toBeFalse();
+    expect(position()?.textContent).toContain('1 / 3');
+
+    nextButton().click();
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::safety-net');
+    expect(component.selectedSignalContext()).toBeNull();
+    expect(component.selectedSignalDispatchReady()).toBeFalse();
+    expect(component.missionHudActiveSection()).toBe('mission');
+    expect(previousButton().disabled).toBeFalse();
+    expect(nextButton().disabled).toBeFalse();
+    expect(position()?.textContent).toContain('2 / 3');
+
+    nextButton().click();
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::governance');
+    expect(nextButton().disabled).toBeTrue();
+    expect(position()?.textContent).toContain('3 / 3');
+
+    previousButton().click();
+    fixture.detectChanges();
+
+    expect(component.selectedMission()?.id).toBe('advanced-discovery::safety-net');
+    expect(position()?.textContent).toContain('2 / 3');
   });
 
   it('renders the compact actions list in the workspace drawer and updates it on row change', () => {

@@ -187,7 +187,7 @@ function resolvePhase(
   if (statuses.some((status) => status === 'approved')) {
     return 'ready';
   }
-  if (statuses.some((status) => status === 'done')) {
+  if (statuses.every((status) => status === 'done')) {
     return 'completed';
   }
   return 'awaiting-human';
