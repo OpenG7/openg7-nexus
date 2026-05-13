@@ -1,0 +1,138 @@
+{
+  "generatedAt": "2026-05-13T18:18:05.550Z",
+  "status": "planned",
+  "apply": false,
+  "branch": "feat/admin-quality-agent",
+  "commitSha": "d8c83782d250f8f7835e41c261615c132317f29a",
+  "changedFiles": [
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.html",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.spec.ts",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.ts",
+    "packages/admin-quality/src/lib/pages/admin-quality-action-discovery.generated.ts"
+  ],
+  "finalChangedFiles": [
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.html",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.spec.ts",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.ts",
+    "packages/admin-quality/src/lib/pages/admin-quality-action-discovery.generated.ts"
+  ],
+  "impact": {
+    "entryIds": [
+      "public-discovery"
+    ],
+    "mode": "targeted",
+    "reason": "Targeted impact map matched changed files."
+  },
+  "selectedEntryIds": [
+    "public-discovery"
+  ],
+  "entries": [
+    {
+      "entryId": "public-discovery",
+      "domain": "Decouverte publique",
+      "priority": "basse",
+      "managementBucket": "covered",
+      "autoActionable": true,
+      "green": true,
+      "mode": "hardening",
+      "nextMove": "Maintenir la couverture smoke et la regression globale a chaque release.",
+      "observedGap": "Pas de manque critique dans le perimetre actuel de decouverte.",
+      "suggestedCommands": [
+        "yarn --cwd openg7-org exec playwright test e2e/use-case-audit.spec.ts --workers=1 --reporter=dot"
+      ],
+      "blockingReason": null
+    }
+  ],
+  "actions": [
+    {
+      "id": "checklist-verify",
+      "title": "Verify product checklist",
+      "status": "planned",
+      "reason": "Ensure the product checklist is synchronized with the current repository state.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn checklist:verify",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "validate-quality-actions",
+      "title": "Validate action discovery",
+      "status": "planned",
+      "reason": "Ensure generated admin-quality action discovery is current.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn validate:quality-actions",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "validate-selectors",
+      "title": "Validate data-og7 selectors",
+      "status": "planned",
+      "reason": "Ensure AGENTS.md selectors still exist in front-end code.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn validate:selectors",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "validate-sitemap",
+      "title": "Validate sitemap",
+      "status": "planned",
+      "reason": "Ensure public sitemap output matches the generator.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn workspace @openg7/web validate:sitemap",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "admin-quality-integration",
+      "title": "Validate admin-quality matrix API",
+      "status": "planned",
+      "reason": "Verify Strapi ingest, proof manifest, and recalculation flows.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn --cwd strapi test:integration:admin-quality-matrix",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "lint",
+      "title": "Run lint",
+      "status": "planned",
+      "reason": "Catch repository-wide static analysis failures before proof publication.",
+      "startedAt": "2026-05-13T18:18:05.451Z",
+      "finishedAt": "2026-05-13T18:18:05.451Z",
+      "commands": [
+        {
+          "command": "yarn lint",
+          "status": "planned"
+        }
+      ]
+    }
+  ],
+  "truncatedActionCount": 0,
+  "proofManifestPath": "matrix-proof-manifest.json",
+  "ingest": {
+    "status": "not-requested",
+    "message": null
+  }
+}

@@ -99,7 +99,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 527,
+        line: 545,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1062,7 +1062,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 519,
+        line: 537,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1302,7 +1302,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 497,
+        line: 515,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1634,13 +1634,15 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 582,
+        line: 600,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
       },
     ],
-    specFiles: [],
+    specFiles: [
+      'openg7-org/src/app/shared/components/layout/site-header/site-header.component.spec.ts',
+    ],
     e2eFiles: [
       'openg7-org/e2e/notification-panel.spec.ts',
       'openg7-org/e2e/quality-breadth-cross-surface-a11y-depth.spec.ts',
@@ -1671,7 +1673,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 598,
+        line: 634,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1690,7 +1692,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 475,
+        line: 493,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -2714,7 +2716,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 511,
+        line: 529,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,

@@ -12,11 +12,15 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
-import { injectNotificationStore } from '@app/core/observability/notification.store';
+import {
+  NotificationAction,
+  NotificationEntry,
+  injectNotificationStore,
+} from '@app/core/observability/notification.store';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
 import { UserAlertsService } from '@app/core/user-alerts.service';
@@ -26,10 +30,14 @@ import { TranslateModule, TranslateService, LangChangeEvent } from '@ngx-transla
 type LangCode = 'en' | 'fr';
 interface HeaderNotificationItem {
   id: string;
+  channel: 'local' | 'user-alert';
   title: string | null;
   message: string;
   read: boolean;
   severity: 'info' | 'success' | 'warning' | 'critical' | 'error';
+  source: string | null;
+  actions: readonly NotificationAction[];
+  createdAt: number;
 }
 
 @Component({
@@ -56,6 +64,7 @@ export class SiteHeaderComponent {
   private readonly favorites = inject(FavoritesService);
   private readonly authConfig = inject(AuthConfigService);
   private readonly notifications = injectNotificationStore();
+  private readonly router = inject(Router);
   private readonly rbac = inject(RbacFacadeService);
   private readonly userAlerts = inject(UserAlertsService);
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
@@ -107,34 +116,33 @@ export class SiteHeaderComponent {
   readonly favoritesCountSig = this.favorites.count;
   readonly hasFavoritesSig = computed(() => this.favoritesCountSig() > 0);
 
-  readonly unreadCount = computed(() =>
-    this.isAuthSig() ? this.userAlerts.unreadCount() : this.notifications.unreadCount(),
-  );
+  readonly unreadCount = computed(() => {
+    const localUnreadCount = this.notifications.unreadCount();
+    return this.isAuthSig() ? this.userAlerts.unreadCount() + localUnreadCount : localUnreadCount;
+  });
   readonly hasUnread = computed(() => this.unreadCount() > 0);
   readonly notificationEntries = computed<ReadonlyArray<HeaderNotificationItem>>(() => {
+    const localEntries = this.notifications
+      .entries()
+      .map((entry) => this.mapLocalNotification(entry));
+
     if (this.isAuthSig()) {
-      return this.userAlerts
-        .entries()
-        .slice(0, 5)
-        .map((entry) => ({
-          id: entry.id,
-          title: entry.title || null,
-          message: entry.message,
-          read: entry.isRead,
-          severity: entry.severity,
-        }));
+      const userAlertEntries = this.userAlerts.entries().map((entry) => ({
+        id: entry.id,
+        channel: 'user-alert' as const,
+        title: entry.title || null,
+        message: entry.message,
+        read: entry.isRead,
+        severity: entry.severity,
+        source: 'user-alerts',
+        actions: [],
+        createdAt: this.toTimestamp(entry.createdAt),
+      }));
+
+      return this.sortHeaderNotifications([...localEntries, ...userAlertEntries]).slice(0, 5);
     }
 
-    return this.notifications
-      .entries()
-      .slice(0, 5)
-      .map((entry) => ({
-        id: entry.id,
-        title: entry.title ?? null,
-        message: entry.message,
-        read: entry.read,
-        severity: entry.type,
-      }));
+    return this.sortHeaderNotifications(localEntries).slice(0, 5);
   });
 
   constructor() {
@@ -237,14 +245,70 @@ export class SiteHeaderComponent {
     this.isMobileMenuOpen.set(false);
   }
 
-  trackNotification = (_: number, item: { id: string }) => item.id;
+  trackNotification = (_: number, item: { id: string; channel?: string }) =>
+    `${item.channel ?? 'notification'}:${item.id}`;
 
-  markNotificationAsRead(notificationId: string): void {
-    if (!this.isAuthSig()) {
+  markNotificationAsRead(notification: HeaderNotificationItem): void {
+    if (notification.channel === 'local') {
+      this.notifications.markAsRead(notification.id);
       return;
     }
 
-    this.userAlerts.markRead(notificationId, true);
+    if (this.isAuthSig()) {
+      this.userAlerts.markRead(notification.id, true);
+    }
+  }
+
+  performNotificationAction(
+    notification: HeaderNotificationItem,
+    action: NotificationAction,
+    event?: Event,
+  ): void {
+    event?.stopPropagation();
+
+    if (action.kind === 'route' && action.route) {
+      void this.router.navigateByUrl(action.route);
+      this.isNotifOpen.set(false);
+      this.notifications.markAsRead(notification.id);
+      return;
+    }
+
+    if (action.kind === 'copy' && action.command) {
+      void this.copyText(action.command)
+        .then(() => {
+          this.notifications.success('Commande agent copiee.', {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+          this.notifications.markAsRead(notification.id);
+        })
+        .catch(() => {
+          this.notifications.error('Impossible de copier la commande agent.', {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+        });
+      return;
+    }
+
+    if (action.kind === 'snooze') {
+      const source = notification.source ?? 'site-header';
+      this.notifications.snoozeSource(source, action.durationMs ?? 30 * 60 * 1000);
+      this.notifications.info('Notifications agent suspendues temporairement.', {
+        source: 'site-header',
+        metadata: {
+          parentNotificationId: notification.id,
+          actionId: action.id,
+          snoozedSource: source,
+        },
+      });
+      this.notifications.markAsRead(notification.id);
+      return;
+    }
+
+    if (action.kind === 'dismiss') {
+      this.notifications.dismiss(notification.id);
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -296,5 +360,67 @@ export class SiteHeaderComponent {
     this.isMoreOpen.set(false);
     this.isNotifOpen.set(false);
     this.isProfileOpen.set(false);
+  }
+
+  private mapLocalNotification(entry: NotificationEntry): HeaderNotificationItem {
+    return {
+      id: entry.id,
+      channel: 'local',
+      title: entry.title ?? null,
+      message: entry.message,
+      read: entry.read,
+      severity: entry.type,
+      source: entry.source ?? null,
+      actions: entry.actions ?? [],
+      createdAt: entry.createdAt,
+    };
+  }
+
+  private sortHeaderNotifications(
+    entries: readonly HeaderNotificationItem[],
+  ): readonly HeaderNotificationItem[] {
+    return [...entries].sort((left, right) => {
+      const unreadOrder = Number(left.read) - Number(right.read);
+      if (unreadOrder !== 0) {
+        return unreadOrder;
+      }
+      return right.createdAt - left.createdAt;
+    });
+  }
+
+  private toTimestamp(candidate: string | null | undefined): number {
+    if (!candidate) {
+      return 0;
+    }
+
+    const timestamp = Date.parse(candidate);
+    return Number.isFinite(timestamp) ? timestamp : 0;
+  }
+
+  private async copyText(value: string): Promise<void> {
+    const clipboard = globalThis.navigator?.clipboard;
+    if (clipboard?.writeText) {
+      await clipboard.writeText(value);
+      return;
+    }
+
+    if (typeof globalThis.document === 'undefined') {
+      throw new Error('copy_unavailable');
+    }
+
+    const documentRef = globalThis.document;
+    const textarea = documentRef.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    documentRef.body.appendChild(textarea);
+    textarea.select();
+    const copied = documentRef.execCommand('copy');
+    documentRef.body.removeChild(textarea);
+
+    if (!copied) {
+      throw new Error('copy_failed');
+    }
   }
 }
