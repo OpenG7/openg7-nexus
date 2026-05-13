@@ -31,6 +31,7 @@ import {
   AdminOpsAiProofSnapshot,
   AdminOpsSecuritySnapshot,
 } from '../data-access/admin-ops.service';
+import { AdminQualityAgentAdvisorService } from '../data-access/admin-quality-agent-advisor.service';
 import { AdminQualityBrowserService } from '../data-access/admin-quality-browser.service';
 import {
   AdminQualityMatrixBucket,
@@ -745,6 +746,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [AdminQualityAgentAdvisorService],
 })
 export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly service = inject(ADMIN_QUALITY_MATRIX_PORT);
@@ -754,6 +756,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly ngZone = inject(NgZone);
   private readonly notifications = inject(ADMIN_QUALITY_NOTIFICATIONS);
   private readonly routeConfig = inject(ADMIN_QUALITY_ROUTE_CONFIG);
+  private readonly agentAdvisor = inject(AdminQualityAgentAdvisorService);
   private readonly browser = inject(AdminQualityBrowserService);
   private readonly isBrowser = this.browser.isBrowser;
   private aiOpsRefreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -1892,6 +1895,26 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       }
       this.pendingMissionControlLockReason = null;
       previousSection = currentSection;
+    });
+
+    effect(() => {
+      const snapshot = this.snapshot();
+      if (!snapshot || this.loading()) {
+        return;
+      }
+      this.agentAdvisor.announceWorkload({
+        snapshot,
+        proofGapCount: this.proofGapCount(),
+        refreshRequiredCount: this.matrixRefreshRequiredCount(),
+      });
+    });
+
+    effect(() => {
+      const item = this.buildNowPrimaryAction();
+      if (!item || this.loading()) {
+        return;
+      }
+      this.agentAdvisor.announceNextWork(item);
     });
 
     let previousProofSignature: string | null = null;

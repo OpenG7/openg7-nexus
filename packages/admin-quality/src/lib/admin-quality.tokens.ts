@@ -43,6 +43,16 @@ export interface AdminQualityNotificationOptions {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly AdminQualityNotificationAction[];
+}
+
+export interface AdminQualityNotificationAction {
+  readonly id: string;
+  readonly label: string;
+  readonly kind: 'copy' | 'route' | 'snooze' | 'dismiss';
+  readonly command?: string | null;
+  readonly route?: string | null;
+  readonly durationMs?: number | null;
 }
 
 export interface AdminQualityNotificationPort {

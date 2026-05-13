@@ -5,6 +5,16 @@ import { patchState, signalStore, withComputed, withMethods, withState } from '@
 import { API_URL, NOTIFICATION_WEBHOOK_URL } from '../config/environment.tokens';
 
 type NotificationKind = 'success' | 'info' | 'error';
+export type NotificationActionKind = 'copy' | 'route' | 'snooze' | 'dismiss';
+
+export interface NotificationAction {
+  readonly id: string;
+  readonly label: string;
+  readonly kind: NotificationActionKind;
+  readonly command?: string | null;
+  readonly route?: string | null;
+  readonly durationMs?: number | null;
+}
 
 export interface NotificationEntry {
   readonly id: string;
@@ -14,6 +24,7 @@ export interface NotificationEntry {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly NotificationAction[];
   readonly createdAt: number;
   readonly read: boolean;
 }
@@ -27,6 +38,7 @@ export interface NotificationOptions {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly NotificationAction[];
   readonly deliver?: NotificationDeliveryOptions;
 }
 
@@ -39,6 +51,7 @@ export interface NotificationPreferences {
 interface NotificationState {
   readonly items: readonly NotificationEntry[];
   readonly preferences: NotificationPreferences;
+  readonly snoozedSources: Record<string, number>;
   readonly lastDeliveryError: string | null;
 }
 
@@ -50,6 +63,7 @@ const DEFAULT_STATE: NotificationState = {
     emailAddress: null,
     webhookUrl: null,
   },
+  snoozedSources: {},
   lastDeliveryError: null,
 };
 
@@ -83,6 +97,32 @@ function sanitizeUrl(url: string | null | undefined): string | null {
     return null;
   }
   return null;
+}
+
+function normalizeActions(
+  actions: readonly NotificationAction[] | undefined,
+): readonly NotificationAction[] {
+  return (actions ?? [])
+    .map((action) => ({
+      ...action,
+      label: action.label.trim(),
+      command: action.command?.trim() || null,
+      route: action.route?.trim() || null,
+    }))
+    .filter((action) => {
+      if (!action.id || !action.label) {
+        return false;
+      }
+      switch (action.kind) {
+        case 'copy':
+          return Boolean(action.command);
+        case 'route':
+          return Boolean(action.route);
+        default:
+          return true;
+      }
+    })
+    .slice(0, 4);
 }
 
 export const NotificationStore = signalStore(
@@ -163,7 +203,19 @@ export const NotificationStore = signalStore(
         });
     };
 
+    const isSourceSnoozed = (source: string | null | undefined, now = Date.now()) => {
+      if (!source) {
+        return false;
+      }
+      const until = store.snoozedSources()[source] ?? 0;
+      return until > now;
+    };
+
     const push = (type: NotificationKind, message: string, options?: NotificationOptions) => {
+      if (type !== 'error' && isSourceSnoozed(options?.source)) {
+        return undefined;
+      }
+
       const entry: NotificationEntry = {
         id: generateNotificationId(),
         type,
@@ -172,6 +224,7 @@ export const NotificationStore = signalStore(
         source: options?.source ?? null,
         context: options?.context,
         metadata: options?.metadata ?? null,
+        actions: normalizeActions(options?.actions),
         createdAt: Date.now(),
         read: false,
       };
@@ -230,6 +283,24 @@ export const NotificationStore = signalStore(
       resetDeliveryError() {
         patchState(store, { lastDeliveryError: null });
       },
+      snoozeSource(source: string, durationMs: number) {
+        const trimmed = source.trim();
+        if (!trimmed || durationMs <= 0) {
+          return;
+        }
+        patchState(store, {
+          snoozedSources: {
+            ...store.snoozedSources(),
+            [trimmed]: Date.now() + durationMs,
+          },
+        });
+      },
+      clearSourceSnooze(source: string) {
+        const trimmed = source.trim();
+        const { [trimmed]: _, ...rest } = store.snoozedSources();
+        patchState(store, { snoozedSources: rest });
+      },
+      isSourceSnoozed,
     };
   }),
 );

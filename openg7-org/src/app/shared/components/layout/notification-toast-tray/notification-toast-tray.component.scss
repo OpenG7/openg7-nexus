@@ -72,6 +72,29 @@
   color: rgba(226, 232, 240, 0.94);
 }
 
+.notification-toast-tray__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.notification-toast-tray__action {
+  min-height: 2rem;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  border-radius: 0.8rem;
+  background: rgba(14, 165, 233, 0.14);
+  color: #e0f2fe;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+}
+
+.notification-toast-tray__action:hover {
+  background: rgba(14, 165, 233, 0.22);
+}
+
 @media (max-width: 640px) {
   .notification-toast-tray {
     top: auto;

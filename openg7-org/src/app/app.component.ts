@@ -25,6 +25,7 @@ import { filter, map } from 'rxjs';
 import { FEATURE_FLAGS } from './core/config/environment.tokens';
 import { GlobalShortcutsService } from './core/shortcuts/global-shortcuts.service';
 import { Og7ModalContainerComponent } from './core/ui/modal/og7-modal-container.component';
+import { AdminQualityHomeAgentService } from './domains/admin/data-access/admin-quality-home-agent.service';
 @Component({
   selector: 'og7-shell-root',
   standalone: true,
@@ -56,6 +57,7 @@ export class AppComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly globalShortcuts = inject(GlobalShortcutsService);
+  private readonly adminQualityHomeAgent = inject(AdminQualityHomeAgentService);
   private readonly featureFlags = inject(FEATURE_FLAGS);
   private readonly router = inject(Router);
 
@@ -81,6 +83,7 @@ export class AppComponent {
 
   constructor() {
     void this.globalShortcuts;
+    void this.adminQualityHomeAgent;
     void this.loadComponentLabIfEnabled();
     if (this.isBrowser) {
       afterNextRender(() => {

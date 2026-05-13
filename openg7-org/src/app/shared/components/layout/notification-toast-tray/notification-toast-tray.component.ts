@@ -7,8 +7,10 @@ import {
   effect,
   inject,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   NotificationEntry,
+  NotificationAction,
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,6 +28,7 @@ const MAX_VISIBLE_TOASTS = 4;
 export class NotificationToastTrayComponent {
   private readonly notificationsStore = injectNotificationStore();
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   readonly notifications = computed(() =>
@@ -82,7 +85,76 @@ export class NotificationToastTrayComponent {
     return entry.type === 'error';
   }
 
+  performAction(entry: NotificationEntry, action: NotificationAction): void {
+    if (action.kind === 'route' && action.route) {
+      void this.router.navigateByUrl(action.route);
+      this.dismiss(entry.id);
+      return;
+    }
+
+    if (action.kind === 'copy' && action.command) {
+      void this.copyText(action.command)
+        .then(() => {
+          this.notificationsStore.success('Commande agent copiee.', {
+            source: entry.source ?? 'notification-toast',
+            metadata: { parentNotificationId: entry.id, actionId: action.id },
+          });
+          this.dismiss(entry.id);
+        })
+        .catch(() => {
+          this.notificationsStore.error('Impossible de copier la commande agent.', {
+            source: entry.source ?? 'notification-toast',
+            metadata: { parentNotificationId: entry.id, actionId: action.id },
+          });
+        });
+      return;
+    }
+
+    if (action.kind === 'snooze') {
+      const source = entry.source ?? 'notification-toast';
+      const durationMs = action.durationMs ?? 30 * 60 * 1000;
+      this.notificationsStore.snoozeSource(source, durationMs);
+      this.notificationsStore.info('Notifications agent suspendues temporairement.', {
+        source: 'notification-toast',
+        metadata: { parentNotificationId: entry.id, actionId: action.id, snoozedSource: source },
+      });
+      this.dismiss(entry.id);
+      return;
+    }
+
+    if (action.kind === 'dismiss') {
+      this.dismiss(entry.id);
+    }
+  }
+
   private durationFor(type: NotificationEntry['type']): number {
     return type === 'error' ? 8000 : 5000;
+  }
+
+  private async copyText(value: string): Promise<void> {
+    const clipboard = globalThis.navigator?.clipboard;
+    if (clipboard?.writeText) {
+      await clipboard.writeText(value);
+      return;
+    }
+
+    if (typeof globalThis.document === 'undefined') {
+      throw new Error('copy_unavailable');
+    }
+
+    const documentRef = globalThis.document;
+    const textarea = documentRef.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    documentRef.body.appendChild(textarea);
+    textarea.select();
+    const copied = documentRef.execCommand('copy');
+    documentRef.body.removeChild(textarea);
+
+    if (!copied) {
+      throw new Error('copy_failed');
+    }
   }
 }
