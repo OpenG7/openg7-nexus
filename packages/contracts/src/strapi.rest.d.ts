@@ -346,6 +346,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ops/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get canonical admin operations audit log snapshot */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    category?: "import" | "security" | "ai" | "backup" | "admin-quality" | "governance";
+                    severity?: "ready" | "warning" | "offline";
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminOpsAuditLogResponse"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/ops/ai/proofs": {
         parameters: {
             query?: never;
@@ -1426,6 +1475,36 @@ export interface components {
                     pendingCompanies?: number;
                     suspendedCompanies?: number;
                 };
+            };
+        };
+        AdminOpsAuditLogResponse: {
+            data?: {
+                /** Format: date-time */
+                generatedAt?: string;
+                /** @enum {string} */
+                source?: "admin-ops-audit-log";
+                truncated?: boolean;
+                entries?: components["schemas"]["AdminOpsAuditLogEntry"][];
+            };
+        };
+        AdminOpsAuditLogEntry: {
+            id?: string;
+            /** @enum {string} */
+            category?: "import" | "security" | "ai" | "backup" | "admin-quality" | "governance";
+            action?: string;
+            /** @enum {string} */
+            eyebrow?: "Import" | "Security" | "AI" | "Backup" | "Admin quality" | "Governance";
+            title?: string;
+            summary?: string;
+            /** Format: date-time */
+            occurredAt?: string;
+            sourceRoute?: string;
+            /** @enum {string} */
+            severity?: "ready" | "warning" | "offline";
+            actor?: string;
+            target?: string;
+            metadata?: {
+                [key: string]: (string | number | boolean) | null;
             };
         };
         AdminOpsAiProofResponse: {

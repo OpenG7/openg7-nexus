@@ -54,6 +54,7 @@
     "generate:sitemap": "yarn workspace @openg7/web generate:sitemap",
     "generate:runtime-config": "yarn workspace @openg7/web generate:runtime-config",
     "generate:quality-actions": "node ./scripts/generate-admin-quality-action-discovery.mjs",
+    "generate:quality-proof-manifest": "yarn workspace @openg7/tooling generate:admin-quality-proof-manifest",
     "validate:quality-actions": "node ./scripts/generate-admin-quality-action-discovery.mjs --check",
     "validate:preprod-runtime-config": "yarn workspace @openg7/web validate:preprod-config",
     "docs": "typedoc --options typedoc.core.json",

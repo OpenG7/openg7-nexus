@@ -54,6 +54,7 @@ export interface AdminQualityMatrixEntry {
   readonly signalDispatch: Partial<
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
+  readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -139,6 +140,13 @@ export interface AdminQualityMatrixRecalculationSnapshot {
     readonly blockedCount: number;
   };
   readonly entries: readonly AdminQualityMatrixRecalculationEntry[];
+}
+
+export interface AdminQualityMatrixStoredRecalculation {
+  readonly generatedAt: string;
+  readonly scope: AdminQualityMatrixRecalculationScope;
+  readonly automatic: boolean;
+  readonly entry: AdminQualityMatrixRecalculationEntry;
 }
 
 export interface AdminQualityMatrixApplyProposalResult {
@@ -351,6 +359,7 @@ export class AdminQualityMatrixService {
           ? entry.repoSignalSummary
           : null,
       signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
+      lastRecalculation: this.normalizeStoredRecalculation(entry.lastRecalculation),
     };
   }
 
@@ -510,6 +519,34 @@ export class AdminQualityMatrixService {
         ),
       },
       entries,
+    };
+  }
+
+  private normalizeStoredRecalculation(
+    value: Partial<AdminQualityMatrixStoredRecalculation> | null | undefined,
+  ): AdminQualityMatrixStoredRecalculation | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const entry = this.normalizeRecalculationEntry(value.entry);
+    if (!entry) {
+      return null;
+    }
+
+    return {
+      generatedAt:
+        typeof value.generatedAt === 'string' && value.generatedAt.trim()
+          ? value.generatedAt
+          : EMPTY_RECALCULATION_SNAPSHOT.generatedAt,
+      scope:
+        value.scope === 'selected-entry' ||
+        value.scope === 'all' ||
+        value.scope === 'refresh-required'
+          ? value.scope
+          : 'refresh-required',
+      automatic: Boolean(value.automatic),
+      entry,
     };
   }
 

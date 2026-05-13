@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const repoRoot = path.resolve(import.meta.dirname, '..');
+const impactMapPath = path.join(repoRoot, 'tools', 'admin-quality-matrix-impact-map.json');
 const matrixSnapshotPath = path.join(
   repoRoot,
   'openg7-org',
@@ -22,128 +23,9 @@ function loadKnownEntryIds() {
 }
 
 const ALL_ENTRY_IDS = loadKnownEntryIds();
-
-const IMPACT_RULES = [
-  {
-    entryIds: ['public-discovery'],
-    prefixes: [
-      'docs/',
-      'README.md',
-      'index.html',
-      'openg7-org/src/app/domains/home/',
-      'openg7-org/src/app/shared/components/hero/',
-      'openg7-org/src/app/shared/components/layout/site-header',
-    ],
-  },
-  {
-    entryIds: ['advanced-discovery'],
-    prefixes: [
-      'openg7-org/src/app/domains/search/',
-      'openg7-org/src/app/shared/components/filters/',
-      'openg7-org/src/app/shared/components/search/',
-      'openg7-org/src/app/shared/components/company/company-table',
-      'openg7-org/src/app/shared/components/company/company-detail',
-    ],
-  },
-  {
-    entryIds: ['geospatial'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/map/',
-      'openg7-org/src/app/shared/components/map-frame/',
-      'openg7-org/src/app/domains/home/feature/home-map-section/',
-      'openg7-org/src/app/domains/home/feature/home-corridors-realtime/',
-      'strapi/src/api/corridors/',
-      'strapi/src/api/exchange/',
-    ],
-  },
-  {
-    entryIds: ['onboarding-imports'],
-    prefixes: [
-      'openg7-org/src/app/domains/auth/',
-      'openg7-org/src/app/company-registration-form/',
-      'openg7-org/src/app/import/',
-      'strapi/src/api/company-import/',
-    ],
-  },
-  {
-    entryIds: ['importation-analytics'],
-    prefixes: [
-      'openg7-org/src/app/domains/importation/',
-      'docs/frontend/importation-page.md',
-      'strapi/src/api/importation/',
-    ],
-  },
-  {
-    entryIds: ['feed-signals'],
-    prefixes: [
-      'openg7-org/src/app/domains/feed/',
-      'strapi/src/api/feed/',
-      'strapi/src/api/hydrocarbon-signal/',
-    ],
-  },
-  {
-    entryIds: ['business-lifecycle'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/company/',
-      'openg7-org/src/app/shared/components/partner/',
-      'openg7-org/src/app/domains/partners/',
-      'strapi/src/api/company/',
-    ],
-  },
-  {
-    entryIds: ['linkup-workflow'],
-    prefixes: [
-      'openg7-org/src/app/domains/matchmaking/',
-      'openg7-org/src/app/shared/components/connection/',
-      'strapi/src/api/connection/',
-    ],
-  },
-  {
-    entryIds: ['alerts-notifications'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/layout/notification-panel',
-      'openg7-org/src/app/domains/account/pages/alerts',
-      'strapi/src/api/user-alert/',
-    ],
-  },
-  {
-    entryIds: ['account-data'],
-    prefixes: [
-      'openg7-org/src/app/domains/account/',
-      'openg7-org/src/app/core/auth/',
-      'strapi/src/api/account-profile/',
-      'strapi/src/api/saved-search/',
-      'strapi/src/api/user-favorite/',
-    ],
-  },
-  {
-    entryIds: ['rbac'],
-    prefixes: [
-      'openg7-org/src/app/core/auth/',
-      'strapi/src/seed/01-roles-permissions',
-      'strapi/src/extensions/users-permissions/',
-      'strapi/src/policies/',
-    ],
-  },
-  {
-    entryIds: ['trust-validation'],
-    prefixes: [
-      'openg7-org/src/app/domains/admin/pages/admin-trust',
-      'openg7-org/src/app/shared/components/partner/',
-      'strapi/src/api/admin-quality-',
-    ],
-  },
-];
-
-const GLOBAL_PREFIXES = [
-  'AGENTS.md',
-  'package.json',
-  'openg7-org/src/app/domains/admin/',
-  'openg7-org/src/app/core/api/',
-  'strapi/src/api/admin-quality-matrix/',
-  'packages/contracts/',
-  'packages/tooling/',
-];
+const impactMap = JSON.parse(readFileSync(impactMapPath, 'utf8'));
+const IMPACT_RULES = Array.isArray(impactMap.rules) ? impactMap.rules : [];
+const GLOBAL_PREFIXES = Array.isArray(impactMap.globalPrefixes) ? impactMap.globalPrefixes : [];
 
 function normalizeFiles(rawValue) {
   const files =

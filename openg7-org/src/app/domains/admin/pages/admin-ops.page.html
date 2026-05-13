@@ -812,6 +812,91 @@
         </li>
         }
       </ul>
+
+      <div
+        class="mt-5 rounded-[1.35rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,1))] p-4"
+      >
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+              Observability and traceability
+            </p>
+            <h3 class="mt-2 text-sm font-semibold text-slate-900">Sensitive action trace</h3>
+            @if (sensitiveActionMessage(); as message) {
+            <p
+              class="mt-2 text-sm leading-6 text-slate-600"
+              data-og7-id="admin-ops-sensitive-action-status"
+              [attr.data-og7-state]="provenanceState()"
+            >
+              {{ message }}
+            </p>
+            }
+          </div>
+          <span
+            class="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600"
+          >
+            {{ sensitiveActionEntries().length }} traced
+          </span>
+        </div>
+
+        @if (!sensitiveActionEntries().length) {
+        <p
+          class="mt-4 rounded-xl border border-dashed border-slate-200 bg-white px-4 py-3 text-sm text-slate-500"
+        >
+          No sensitive import or security action is currently available in the latest snapshot.
+        </p>
+        } @else {
+        <ol
+          class="mt-4 space-y-3"
+          data-og7="admin-ops-sensitive-action-trail"
+          [attr.data-og7-state]="provenanceState()"
+        >
+          @for (entry of sensitiveActionEntries(); track trackSensitiveActionEntry($index, entry)) {
+          <li
+            class="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm"
+            data-og7="admin-ops-sensitive-action-entry"
+            [attr.data-og7-id]="entry.id"
+            [attr.data-og7-state]="provenanceState()"
+          >
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                  {{ entry.eyebrow }}
+                </p>
+                <h4
+                  class="mt-2 text-sm font-semibold text-slate-900"
+                  data-og7="admin-ops-sensitive-action-title"
+                >
+                  {{ entry.title }}
+                </h4>
+                <p
+                  class="mt-2 text-sm leading-6 text-slate-600"
+                  data-og7="admin-ops-sensitive-action-summary"
+                >
+                  {{ entry.summary }}
+                </p>
+              </div>
+              <span
+                class="inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                data-og7="admin-ops-sensitive-action-badge"
+                [ngClass]="sensitiveActionToneClasses(entry.severity)"
+              >
+                {{ sensitiveActionToneLabel(entry.severity) }}
+              </span>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+              <span data-og7="admin-ops-sensitive-action-at">
+                {{ entry.occurredAt | date: 'yyyy-MM-dd HH:mm:ss' }}
+              </span>
+              <span class="font-mono text-slate-600" data-og7="admin-ops-sensitive-action-source">
+                {{ entry.sourceRoute }}
+              </span>
+            </div>
+          </li>
+          }
+        </ol>
+        }
+      </div>
     </article>
 
     <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -1237,7 +1322,7 @@
       </div>
 
       @if (vm.imports.sources.length) {
-      <div class="mt-4" data-og7="admin-ops-import-sources">
+      <div class="mt-4">
         <h3 class="mb-2 text-sm font-semibold text-slate-800">Import sources (scan)</h3>
         <ul class="flex flex-wrap gap-2">
           @for (source of vm.imports.sources; track trackSource($index, source)) {

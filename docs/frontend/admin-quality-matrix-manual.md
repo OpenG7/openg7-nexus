@@ -1,6 +1,6 @@
 # Manuel d'utilisation de la matrice QA admin
 
-Ce manuel explique comment utiliser la page `/admin/quality` comme cockpit de pilotage du développement OpenG7. Il couvre la lecture des voyants, l'obtention des preuves, le bouton `Generer le plan QA`, le backlog pilote par la matrice et les criteres de confiance avant d'utiliser les couleurs.
+Ce manuel explique comment utiliser la page `/admin/quality` comme cockpit de pilotage du développement OpenG7. Il couvre la lecture des voyants, l'obtention des preuves, les plans QA manuels ou automatiques, le backlog pilote par la matrice et les criteres de confiance avant d'utiliser les couleurs.
 
 ## Objectif de la matrice
 
@@ -11,7 +11,7 @@ La matrice QA ne sert pas seulement a afficher des statuts. Elle relie quatre in
 3. les preuves disponibles ou attendues;
 4. le prochain mouvement de developpement ou de validation.
 
-Le principe important est volontaire: un signal de merge ne rend pas automatiquement un voyant vert. Le merge signale qu'une ligne doit etre relue; la couleur change seulement apres une proposition QA appliquee par un Owner/Admin.
+Le principe important est volontaire: un signal de merge ne rend pas automatiquement un voyant vert. Le merge signale qu'une ligne doit etre relue et peut generer un plan QA automatique; la couleur change seulement apres une proposition QA appliquee par un Owner/Admin.
 
 ## Acces et roles
 
@@ -44,7 +44,7 @@ Avant d'utiliser les couleurs pour prendre une decision, verifiez cette checklis
 
 1. Le badge de source de matrice n'indique pas `stale` ou `fallback`.
 2. La ligne n'affiche pas `Refresh matrice`.
-3. Le plan QA a ete genere apres les derniers merges ou retours de mission.
+3. Un plan QA manuel ou automatique a ete genere apres les derniers merges ou retours de mission.
 4. Les propositions pertinentes ont ete appliquees par un Owner/Admin.
 5. Les preuves recentes sont rattachees a la bonne entree de matrice.
 

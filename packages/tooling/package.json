@@ -4,12 +4,14 @@
   "private": true,
   "type": "module",
   "bin": {
+    "generate-admin-quality-proof-manifest": "./bin/generate-admin-quality-proof-manifest.mjs",
     "validate-selectors": "./bin/validate-selectors.mjs"
   },
   "exports": {
     "./check-server": "./src/check-server.js"
   },
   "scripts": {
+    "generate:admin-quality-proof-manifest": "node ./bin/generate-admin-quality-proof-manifest.mjs",
     "validate:selectors": "node ./bin/validate-selectors.mjs"
   }
 }

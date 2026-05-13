@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
 import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
 
@@ -13,6 +16,7 @@ type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
 type MatrixImpactMode = 'provided' | 'targeted' | 'global' | 'none';
+type MatrixRecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
 type MatrixSignalId = 'summary' | 'business' | 'implementation' | 'e2e' | 'readiness' | 'priority';
 type MatrixSignalConfirmationSource =
   | 'repo-signal'
@@ -52,6 +56,12 @@ interface MatrixEntryEntity {
   readonly lastRepoSignalCommit?: unknown;
   readonly lastRepoSignalSource?: unknown;
   readonly lastRepoSignalSummary?: unknown;
+  readonly lastRecalculationAt?: unknown;
+  readonly lastRecalculationScope?: unknown;
+  readonly lastRecalculationAutomatic?: unknown;
+  readonly lastRecalculationResult?: unknown;
+  readonly lastRecalculationPlan?: unknown;
+  readonly lastAppliedProposal?: unknown;
   readonly createdAt?: unknown;
   readonly updatedAt?: unknown;
 }
@@ -65,10 +75,23 @@ interface MatrixIngestPayload {
   readonly summary: string | null;
   readonly changedFiles: readonly string[];
   readonly impactedEntryIds: readonly string[];
+  readonly proofManifest: MatrixProofManifest | null;
+}
+
+interface MatrixProofManifest {
+  readonly commitSha: string | null;
+  readonly workflowRunId: string | null;
+  readonly workflow: string | null;
+  readonly generatedAt: string;
+  readonly entryIds: readonly string[];
+  readonly checks: readonly string[];
+  readonly specs: readonly string[];
+  readonly artifactUrl: string | null;
+  readonly status: string;
 }
 
 interface MatrixRecalculatePayload {
-  readonly scope: 'refresh-required' | 'selected-entry' | 'all';
+  readonly scope: MatrixRecalculationScope;
   readonly entryId: string | null;
 }
 
@@ -80,6 +103,16 @@ interface MatrixImpactResolution {
   readonly entryIds: readonly string[];
   readonly mode: MatrixImpactMode;
   readonly reason: string;
+}
+
+interface MatrixImpactRule {
+  readonly entryIds: readonly string[];
+  readonly prefixes: readonly string[];
+}
+
+interface MatrixImpactMap {
+  readonly rules: readonly MatrixImpactRule[];
+  readonly globalPrefixes: readonly string[];
 }
 
 interface MatrixIngestImpactResolution {
@@ -147,6 +180,25 @@ interface MatrixDevelopmentCommand {
   readonly blockingReason: string | null;
 }
 
+interface MatrixRecalculationEntryResponse {
+  readonly entryId: string;
+  readonly domain: string;
+  readonly result: MatrixRecalculationResult;
+  readonly confidence: MatrixRecalculationConfidence;
+  readonly current: MatrixCoverageState;
+  readonly proposed: MatrixCoverageState | null;
+  readonly reasons: readonly string[];
+  readonly evidence: readonly string[];
+  readonly factualSignals: {
+    readonly reviewedAt: string | null;
+    readonly repoSignalAt: string | null;
+    readonly repoSignalCommit: string | null;
+    readonly repoSignalSource: string | null;
+    readonly latestDecisionAt: string | null;
+  };
+  readonly pilot: MatrixDevelopmentCommand;
+}
+
 const COVERAGE_SIGNAL_IDS: readonly MatrixCoverageSignalId[] = [
   'summary',
   'business',
@@ -154,130 +206,72 @@ const COVERAGE_SIGNAL_IDS: readonly MatrixCoverageSignalId[] = [
   'e2e',
 ];
 
-const MATRIX_IMPACT_RULES: readonly {
-  readonly entryIds: readonly string[];
-  readonly prefixes: readonly string[];
-}[] = [
-  {
-    entryIds: ['public-discovery'],
-    prefixes: [
-      'docs/',
-      'README.md',
-      'index.html',
-      'openg7-org/src/app/domains/home/',
-      'openg7-org/src/app/shared/components/hero/',
-      'openg7-org/src/app/shared/components/layout/site-header',
-    ],
-  },
-  {
-    entryIds: ['advanced-discovery'],
-    prefixes: [
-      'openg7-org/src/app/domains/search/',
-      'openg7-org/src/app/shared/components/filters/',
-      'openg7-org/src/app/shared/components/search/',
-      'openg7-org/src/app/shared/components/company/company-table',
-      'openg7-org/src/app/shared/components/company/company-detail',
-    ],
-  },
-  {
-    entryIds: ['geospatial'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/map/',
-      'openg7-org/src/app/shared/components/map-frame/',
-      'openg7-org/src/app/domains/home/feature/home-map-section/',
-      'openg7-org/src/app/domains/home/feature/home-corridors-realtime/',
-      'strapi/src/api/corridors/',
-      'strapi/src/api/exchange/',
-    ],
-  },
-  {
-    entryIds: ['onboarding-imports'],
-    prefixes: [
-      'openg7-org/src/app/domains/auth/',
-      'openg7-org/src/app/company-registration-form/',
-      'openg7-org/src/app/import/',
-      'strapi/src/api/company-import/',
-    ],
-  },
-  {
-    entryIds: ['importation-analytics'],
-    prefixes: [
-      'openg7-org/src/app/domains/importation/',
-      'docs/frontend/importation-page.md',
-      'strapi/src/api/importation/',
-    ],
-  },
-  {
-    entryIds: ['feed-signals'],
-    prefixes: [
-      'openg7-org/src/app/domains/feed/',
-      'strapi/src/api/feed/',
-      'strapi/src/api/hydrocarbon-signal/',
-    ],
-  },
-  {
-    entryIds: ['business-lifecycle'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/company/',
-      'openg7-org/src/app/shared/components/partner/',
-      'openg7-org/src/app/domains/partners/',
-      'strapi/src/api/company/',
-    ],
-  },
-  {
-    entryIds: ['linkup-workflow'],
-    prefixes: [
-      'openg7-org/src/app/domains/matchmaking/',
-      'openg7-org/src/app/shared/components/connection/',
-      'strapi/src/api/connection/',
-    ],
-  },
-  {
-    entryIds: ['alerts-notifications'],
-    prefixes: [
-      'openg7-org/src/app/shared/components/layout/notification-panel',
-      'openg7-org/src/app/domains/account/pages/alerts',
-      'strapi/src/api/user-alert/',
-    ],
-  },
-  {
-    entryIds: ['account-data'],
-    prefixes: [
-      'openg7-org/src/app/domains/account/',
-      'openg7-org/src/app/core/auth/',
-      'strapi/src/api/account-profile/',
-      'strapi/src/api/saved-search/',
-      'strapi/src/api/user-favorite/',
-    ],
-  },
-  {
-    entryIds: ['rbac'],
-    prefixes: [
-      'openg7-org/src/app/core/auth/',
-      'strapi/src/seed/01-roles-permissions',
-      'strapi/src/extensions/users-permissions/',
-      'strapi/src/policies/',
-    ],
-  },
-  {
-    entryIds: ['trust-validation'],
-    prefixes: [
-      'openg7-org/src/app/domains/admin/pages/admin-trust',
-      'openg7-org/src/app/shared/components/partner/',
-      'strapi/src/api/admin-quality-',
-    ],
-  },
-];
+function matrixImpactMapPath(): string {
+  const candidates = [
+    path.resolve(process.cwd(), '..', 'tools', 'admin-quality-matrix-impact-map.json'),
+    path.resolve(process.cwd(), 'tools', 'admin-quality-matrix-impact-map.json'),
+    path.resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      'tools',
+      'admin-quality-matrix-impact-map.json',
+    ),
+    path.resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      '..',
+      'tools',
+      'admin-quality-matrix-impact-map.json',
+    ),
+  ];
 
-const MATRIX_GLOBAL_IMPACT_PREFIXES: readonly string[] = [
-  'AGENTS.md',
-  'package.json',
-  'openg7-org/src/app/domains/admin/',
-  'openg7-org/src/app/core/api/',
-  'strapi/src/api/admin-quality-matrix/',
-  'packages/contracts/',
-  'packages/tooling/',
-];
+  for (const candidate of candidates) {
+    try {
+      readFileSync(candidate, 'utf8');
+      return candidate;
+    } catch {
+      // Try the next runtime layout candidate.
+    }
+  }
+
+  return candidates[0];
+}
+
+function normalizeImpactMapRule(value: unknown): MatrixImpactRule | null {
+  const record = normalizeObject(value);
+  const entryIds = normalizeStringArray(record.entryIds);
+  const prefixes = normalizeStringArray(record.prefixes);
+  if (!entryIds.length || !prefixes.length) {
+    return null;
+  }
+
+  return { entryIds, prefixes };
+}
+
+function loadMatrixImpactMap(): MatrixImpactMap {
+  const raw = readFileSync(matrixImpactMapPath(), 'utf8');
+  const parsed = JSON.parse(raw) as Record<string, unknown>;
+  const rules = Array.isArray(parsed.rules)
+    ? parsed.rules
+        .map((rule) => normalizeImpactMapRule(rule))
+        .filter((rule): rule is MatrixImpactRule => rule !== null)
+    : [];
+
+  return {
+    rules,
+    globalPrefixes: normalizeStringArray(parsed.globalPrefixes),
+  };
+}
+
+const MATRIX_IMPACT_MAP = loadMatrixImpactMap();
 
 function normalizeString(value: unknown, maxLength = 1000): string | null {
   if (typeof value !== 'string') {
@@ -408,7 +402,7 @@ function resolveChangedFileImpact(
   let touchedProductCode = false;
 
   for (const file of changedFiles) {
-    if (matchesMatrixPrefix(file, MATRIX_GLOBAL_IMPACT_PREFIXES)) {
+    if (matchesMatrixPrefix(file, MATRIX_IMPACT_MAP.globalPrefixes)) {
       requiresGlobalRefresh = true;
     }
 
@@ -416,7 +410,7 @@ function resolveChangedFileImpact(
       touchedProductCode = true;
     }
 
-    for (const rule of MATRIX_IMPACT_RULES) {
+    for (const rule of MATRIX_IMPACT_MAP.rules) {
       if (matchesMatrixPrefix(file, rule.prefixes)) {
         rule.entryIds.forEach((entryId) => matchedEntryIds.add(entryId));
       }
@@ -471,6 +465,35 @@ function resolveIngestImpact(
   };
 }
 
+function normalizeRecalculationScope(value: unknown): MatrixRecalculationScope | null {
+  return value === 'selected-entry' || value === 'all' || value === 'refresh-required'
+    ? value
+    : null;
+}
+
+function toStoredRecalculationResponse(entity: MatrixEntryEntity) {
+  const plan = normalizeObject(entity.lastRecalculationPlan);
+  const entry = normalizeObject(plan.entry);
+  const generatedAt = normalizeDate(plan.generatedAt) ?? normalizeDate(entity.lastRecalculationAt);
+  const scope =
+    normalizeRecalculationScope(plan.scope) ??
+    normalizeRecalculationScope(entity.lastRecalculationScope);
+
+  if (!generatedAt || !scope || !Object.keys(entry).length) {
+    return null;
+  }
+
+  return {
+    generatedAt,
+    scope,
+    automatic:
+      typeof plan.automatic === 'boolean'
+        ? plan.automatic
+        : normalizeBoolean(entity.lastRecalculationAutomatic),
+    entry,
+  };
+}
+
 function toMatrixEntryResponse(
   entity: MatrixEntryEntity,
   signalDispatch: MatrixSignalDispatchSnapshot = {},
@@ -495,6 +518,7 @@ function toMatrixEntryResponse(
     repoSignalSource: normalizeString(entity.lastRepoSignalSource),
     repoSignalSummary: normalizeString(entity.lastRepoSignalSummary),
     signalDispatch,
+    lastRecalculation: toStoredRecalculationResponse(entity),
   };
 }
 
@@ -535,6 +559,31 @@ function requireIngestToken(ctx: Context): boolean {
   return true;
 }
 
+function sanitizeProofManifest(value: unknown): MatrixProofManifest | null {
+  const record = normalizeObject(value);
+  if (!Object.keys(record).length) {
+    return null;
+  }
+
+  const entryIds = uniqueSorted(normalizeStringArray(record.entryIds));
+  if (!entryIds.length) {
+    return null;
+  }
+
+  return {
+    commitSha: normalizeString(record.commitSha, 180),
+    workflowRunId:
+      normalizeString(record.workflowRunId, 120) ?? normalizeString(record.workflowRunNumber, 120),
+    workflow: normalizeString(record.workflow, 180),
+    generatedAt: normalizeDate(record.generatedAt) ?? new Date().toISOString(),
+    entryIds,
+    checks: normalizeStringArray(record.checks),
+    specs: normalizeStringArray(record.specs),
+    artifactUrl: normalizeString(record.artifactUrl, 500),
+    status: normalizeString(record.status, 80) ?? 'unknown',
+  };
+}
+
 function sanitizeIngestPayload(body: unknown): MatrixIngestPayload {
   const record =
     body && typeof body === 'object' && !Array.isArray(body)
@@ -549,6 +598,7 @@ function sanitizeIngestPayload(body: unknown): MatrixIngestPayload {
   const summary = normalizeString(record.summary, 1000);
   const changedFiles = normalizeStringArray(record.changedFiles);
   const impactedEntryIds = Array.from(new Set(normalizeStringArray(record.impactedEntryIds)));
+  const proofManifest = sanitizeProofManifest(record.proofManifest);
 
   if (!commitSha) {
     throw new Error('commitSha is required.');
@@ -563,6 +613,7 @@ function sanitizeIngestPayload(body: unknown): MatrixIngestPayload {
     summary,
     changedFiles,
     impactedEntryIds,
+    proofManifest,
   };
 }
 
@@ -578,11 +629,10 @@ function sanitizeRecalculatePayload(body: unknown): MatrixRecalculatePayload {
     throw new Error('entryId is required when scope=selected-entry.');
   }
 
+  const normalizedScope = normalizeRecalculationScope(scope);
+
   return {
-    scope:
-      scope === 'selected-entry' || scope === 'all' || scope === 'refresh-required'
-        ? scope
-        : 'refresh-required',
+    scope: normalizedScope ?? 'refresh-required',
     entryId,
   };
 }
@@ -1163,7 +1213,8 @@ function buildLatestCompletedDecisionByEntryId(
 
   for (const decision of decisions) {
     const entryId = normalizeString(decision.entryId, 180);
-    if (!entryId || normalizeString(decision.status, 40) !== 'done') {
+    const status = normalizeString(decision.status, 40);
+    if (!entryId || (status !== 'done' && status !== 'proof-returned')) {
       continue;
     }
 
@@ -1358,7 +1409,7 @@ function buildRecalculationEntry(
   entry: MatrixEntryEntity,
   latestCompletedDecision: MissionDecisionEntity | null | undefined,
   signalDispatch: MatrixSignalDispatchSnapshot = {},
-) {
+): MatrixRecalculationEntryResponse {
   const current = toCoverageState(entry);
   const deadline = reviewedAtDeadline(entry);
   const repoSignalAt = normalizeDate(entry.lastRepoSignalAt);
@@ -1383,7 +1434,7 @@ function buildRecalculationEntry(
     reasons.push('Un signal repo plus recent que la derniere revue a ete detecte.');
   }
   if (completedDecisionNewer) {
-    reasons.push('Une mission marquee done est plus recente que la derniere revue.');
+    reasons.push('Une mission avec preuve retournee ou done est plus recente que la derniere revue.');
   }
 
   const signalDrivenReasons = COVERAGE_SIGNAL_IDS.flatMap((signalId) => {
@@ -1530,6 +1581,202 @@ function buildRecalculationEntry(
   });
 }
 
+function buildRecalculationSummary(entries: readonly MatrixRecalculationEntryResponse[]) {
+  return {
+    analyzedCount: entries.length,
+    proposalCount: entries.filter((entry) => entry.result === 'proposal-review-required').length,
+    unchangedCount: entries.filter((entry) => entry.result === 'unchanged').length,
+    blockedCount: entries.filter((entry) => entry.result.startsWith('blocked-')).length,
+  };
+}
+
+async function persistRecalculationPlan(
+  strapi: Core.Strapi,
+  entry: MatrixEntryEntity,
+  recalculation: MatrixRecalculationEntryResponse,
+  scope: MatrixRecalculationScope,
+  automatic: boolean,
+  generatedAt: string,
+): Promise<void> {
+  if (!entry.id) {
+    return;
+  }
+
+  await strapi.entityService.update(MATRIX_ENTRY_UID, entry.id, {
+    data: {
+      lastRecalculationAt: generatedAt,
+      lastRecalculationScope: scope,
+      lastRecalculationAutomatic: automatic,
+      lastRecalculationResult: recalculation.result,
+      lastRecalculationPlan: {
+        generatedAt,
+        scope,
+        automatic,
+        entry: recalculation,
+      },
+    } as any,
+  });
+}
+
+function proofManifestDecisionStatus(status: string): 'proof-returned' | 'blocked' | 'approved' {
+  const normalized = status.toLowerCase();
+  if (/\b(success|succeeded|passed|completed|green|ok)\b/.test(normalized)) {
+    return 'proof-returned';
+  }
+  if (/\b(fail|failed|error|cancelled|canceled|red)\b/.test(normalized)) {
+    return 'blocked';
+  }
+  return 'approved';
+}
+
+async function persistProofManifestDecisions(
+  strapi: Core.Strapi,
+  manifest: MatrixProofManifest | null,
+  fallbackCommitSha: string,
+): Promise<string[]> {
+  if (!manifest) {
+    return [];
+  }
+
+  const persistedEntryIds: string[] = [];
+  const proofKey =
+    manifest.workflowRunId ?? manifest.commitSha ?? fallbackCommitSha.slice(0, 12) ?? 'unknown';
+  const status = proofManifestDecisionStatus(manifest.status);
+
+  for (const entryId of manifest.entryIds) {
+    const existingEntry = await findEntryByEntryId(strapi, entryId);
+    if (!existingEntry?.id) {
+      continue;
+    }
+
+    const recommendationId = `${entryId}::proof-manifest::${proofKey}`;
+    const existingDecision = normalizeFindManyResult(
+      await strapi.entityService.findMany(MISSION_DECISION_UID, {
+        filters: { recommendationId },
+        limit: 1,
+      }),
+    )[0] as MissionDecisionEntity | undefined;
+    const data = {
+      recommendationId,
+      entryId,
+      kind: 'governance',
+      status,
+      title: `CI proof manifest - ${entryId}`,
+      message: `Manifest ${manifest.status} for ${manifest.workflow ?? 'workflow'} on ${manifest.commitSha ?? fallbackCommitSha}.`,
+      operatorPrompt: 'Relire le manifest CI avant toute promotion automatique de matrice.',
+      metadata: {
+        traceType: 'proof-manifest',
+        commitSha: manifest.commitSha ?? fallbackCommitSha,
+        workflowRunId: manifest.workflowRunId,
+        workflow: manifest.workflow,
+        generatedAt: manifest.generatedAt,
+        checks: manifest.checks,
+        specs: manifest.specs,
+        artifactUrl: manifest.artifactUrl,
+        status: manifest.status,
+      },
+      decidedByUserId: 'ci',
+    };
+
+    if (existingDecision?.id) {
+      await strapi.entityService.update(MISSION_DECISION_UID, existingDecision.id, {
+        data: data as any,
+      });
+    } else {
+      await strapi.entityService.create(MISSION_DECISION_UID, {
+        data: data as any,
+      });
+    }
+    persistedEntryIds.push(entryId);
+  }
+
+  return persistedEntryIds;
+}
+
+function pilotActionTitle(actionType: MatrixPilotActionType): string {
+  switch (actionType) {
+    case 'implement-feature':
+      return 'Implementer la prochaine surface';
+    case 'add-test':
+      return 'Ajouter la preuve QA';
+    case 'fix-proof-gap':
+      return 'Combler le gap de preuve';
+    case 'update-contract':
+      return 'Mettre a jour le contrat API';
+    case 'review-product-scope':
+      return 'Arbitrer le scope produit';
+    case 'close-entry':
+      return 'Cloturer la ligne matrice';
+    default:
+      return 'Valider la ligne matrice';
+  }
+}
+
+async function ensurePilotMissionDecision(
+  strapi: Core.Strapi,
+  recalculation: MatrixRecalculationEntryResponse,
+): Promise<void> {
+  if (recalculation.pilot.priority === 'later') {
+    return;
+  }
+
+  const recommendationId = `${recalculation.entryId}::core`;
+  const existing = normalizeFindManyResult(
+    await strapi.entityService.findMany(MISSION_DECISION_UID, {
+      filters: { recommendationId },
+      limit: 1,
+    }),
+  )[0] as MissionDecisionEntity | undefined;
+  const existingStatus = normalizeString(existing?.status, 40);
+  if (
+    existingStatus &&
+    existingStatus !== 'proposed' &&
+    existingStatus !== 'deferred' &&
+    existingStatus !== 'rejected'
+  ) {
+    return;
+  }
+
+  const data = {
+    recommendationId,
+    entryId: recalculation.entryId,
+    kind: 'core',
+    status: 'proposed',
+    title: pilotActionTitle(recalculation.pilot.actionType),
+    message: recalculation.pilot.rationale.join('\n'),
+    operatorPrompt: [
+      `Objectif: ${pilotActionTitle(recalculation.pilot.actionType)} pour ${recalculation.domain}.`,
+      '',
+      'Fichiers cibles:',
+      ...recalculation.pilot.targetFiles.map((item) => `- ${item}`),
+      '',
+      'Commandes suggerees:',
+      ...recalculation.pilot.suggestedCommands.map((item) => `- ${item}`),
+      '',
+      'Preuves attendues:',
+      ...recalculation.pilot.expectedEvidence.map((item) => `- ${item}`),
+    ].join('\n'),
+    metadata: {
+      traceType: 'pilot-command',
+      generatedAt: new Date().toISOString(),
+      result: recalculation.result,
+      confidence: recalculation.confidence,
+      pilot: recalculation.pilot,
+    },
+    decidedByUserId: 'system',
+  };
+
+  if (existing?.id) {
+    await strapi.entityService.update(MISSION_DECISION_UID, existing.id, {
+      data: data as any,
+    });
+  } else {
+    await strapi.entityService.create(MISSION_DECISION_UID, {
+      data: data as any,
+    });
+  }
+}
+
 function sourceStatusFor(generatedAt: string): MatrixSourceStatus {
   const generatedTime = new Date(generatedAt).getTime();
   if (!Number.isFinite(generatedTime)) {
@@ -1663,21 +1910,32 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           ),
         ),
       );
+      const generatedAt = new Date().toISOString();
+
+      await Promise.all(
+        scopedEntries.map((entry, index) => {
+          const recalculation = recalculatedEntries[index];
+          return recalculation
+            ? Promise.all([
+                persistRecalculationPlan(
+                  strapi,
+                  entry,
+                  recalculation,
+                  payload.scope,
+                  false,
+                  generatedAt,
+                ),
+                ensurePilotMissionDecision(strapi, recalculation),
+              ]).then(() => undefined)
+            : Promise.resolve();
+        }),
+      );
 
       ctx.body = {
         data: {
-          generatedAt: new Date().toISOString(),
+          generatedAt,
           scope: payload.scope,
-          summary: {
-            analyzedCount: recalculatedEntries.length,
-            proposalCount: recalculatedEntries.filter(
-              (entry) => entry.result === 'proposal-review-required',
-            ).length,
-            unchangedCount: recalculatedEntries.filter((entry) => entry.result === 'unchanged')
-              .length,
-            blockedCount: recalculatedEntries.filter((entry) => entry.result.startsWith('blocked-'))
-              .length,
-          },
+          summary: buildRecalculationSummary(recalculatedEntries),
           entries: recalculatedEntries,
         },
       };
@@ -1763,6 +2021,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       const payload = sanitizeIngestPayload(ctx.request.body);
       const impact = resolveIngestImpact(payload, await findKnownEntryIds(strapi));
       const updatedEntryIds: string[] = [];
+      const updatedEntries: MatrixEntryEntity[] = [];
       const signalSummary = [
         payload.summary,
         `impact=${impact.impactMode}`,
@@ -1780,7 +2039,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           continue;
         }
 
-        await strapi.entityService.update(MATRIX_ENTRY_UID, existing.id, {
+        const updated = await strapi.entityService.update(MATRIX_ENTRY_UID, existing.id, {
           data: {
             lastRepoSignalAt: payload.mergedAt,
             lastRepoSignalCommit: payload.commitSha,
@@ -1789,7 +2048,72 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           } as any,
         });
         updatedEntryIds.push(entryId);
+        updatedEntries.push(updated as MatrixEntryEntity);
       }
+
+      const proofManifestEntryIds = await persistProofManifestDecisions(
+        strapi,
+        payload.proofManifest,
+        payload.commitSha,
+      );
+      const recalculationTargetEntriesById = new Map<string, MatrixEntryEntity>();
+      for (const entry of updatedEntries) {
+        const entryId = normalizeString(entry.entryId, 180);
+        if (entryId) {
+          recalculationTargetEntriesById.set(entryId, entry);
+        }
+      }
+      for (const entryId of proofManifestEntryIds) {
+        if (recalculationTargetEntriesById.has(entryId)) {
+          continue;
+        }
+        const entry = await findEntryByEntryId(strapi, entryId);
+        if (entry) {
+          recalculationTargetEntriesById.set(entryId, entry);
+        }
+      }
+      const recalculationTargetEntries = Array.from(recalculationTargetEntriesById.values());
+
+      const rawDecisions = await strapi.entityService.findMany(MISSION_DECISION_UID, {
+        sort: ['updatedAt:desc'],
+        limit: 1_000,
+      });
+      const decisions = normalizeFindManyResult(rawDecisions) as MissionDecisionEntity[];
+      const latestCompletedDecisionByEntryId = buildLatestCompletedDecisionByEntryId(decisions);
+      const latestSignalGuidanceByEntryId = buildLatestSignalGuidanceByEntryId(decisions);
+      const latestServerConfirmationByEntryId = buildLatestServerConfirmationByEntryId(decisions);
+      const recalculationGeneratedAt = new Date().toISOString();
+      const recalculatedEntries = recalculationTargetEntries.map((entry) => {
+        const entryId = normalizeString(entry.entryId, 180) ?? '';
+        return buildRecalculationEntry(
+          entry,
+          latestCompletedDecisionByEntryId.get(entryId),
+          resolveSignalDispatchSnapshot(
+            entry,
+            latestSignalGuidanceByEntryId.get(entryId),
+            latestServerConfirmationByEntryId.get(entryId),
+          ),
+        );
+      });
+
+      await Promise.all(
+        recalculationTargetEntries.map((entry, index) => {
+          const recalculation = recalculatedEntries[index];
+          return recalculation
+            ? Promise.all([
+                persistRecalculationPlan(
+                  strapi,
+                  entry,
+                  recalculation,
+                  'refresh-required',
+                  true,
+                  recalculationGeneratedAt,
+                ),
+                ensurePilotMissionDecision(strapi, recalculation),
+              ]).then(() => undefined)
+            : Promise.resolve();
+        }),
+      );
 
       ctx.body = {
         data: {
@@ -1801,9 +2125,16 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
           derivedEntryIds: impact.derivedEntryIds,
           resolvedEntryIds: impact.resolvedEntryIds,
           updatedEntryIds,
+          proofManifestEntryIds,
           ignoredEntryIds: impact.resolvedEntryIds.filter(
             (entryId) => !updatedEntryIds.includes(entryId),
           ),
+          recalculation: {
+            generatedAt: recalculationGeneratedAt,
+            scope: 'refresh-required',
+            summary: buildRecalculationSummary(recalculatedEntries),
+            entries: recalculatedEntries,
+          },
         },
       };
     } catch (error: unknown) {

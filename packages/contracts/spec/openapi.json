@@ -140,6 +140,61 @@
         }
       }
     },
+    "/api/admin/ops/audit-log": {
+      "get": {
+        "summary": "Get canonical admin operations audit log snapshot",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 250, "default": 50 }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["import", "security", "ai", "backup", "admin-quality", "governance"]
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "enum": ["ready", "warning", "offline"] }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "format": "date-time" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOpsAuditLogResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/api/admin/ops/ai/proofs": {
       "get": {
         "summary": "Get the latest GitHub proof telemetry for each AI provider workflow",
@@ -1136,6 +1191,52 @@
                   "suspendedCompanies": { "type": "integer" }
                 }
               }
+            }
+          }
+        }
+      },
+      "AdminOpsAuditLogResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "generatedAt": { "type": "string", "format": "date-time" },
+              "source": { "type": "string", "enum": ["admin-ops-audit-log"] },
+              "truncated": { "type": "boolean" },
+              "entries": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/AdminOpsAuditLogEntry" }
+              }
+            }
+          }
+        }
+      },
+      "AdminOpsAuditLogEntry": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["import", "security", "ai", "backup", "admin-quality", "governance"]
+          },
+          "action": { "type": "string" },
+          "eyebrow": {
+            "type": "string",
+            "enum": ["Import", "Security", "AI", "Backup", "Admin quality", "Governance"]
+          },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "occurredAt": { "type": "string", "format": "date-time" },
+          "sourceRoute": { "type": "string" },
+          "severity": { "type": "string", "enum": ["ready", "warning", "offline"] },
+          "actor": { "type": "string" },
+          "target": { "type": "string" },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true,
+              "oneOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
             }
           }
         }

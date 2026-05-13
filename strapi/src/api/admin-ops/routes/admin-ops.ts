@@ -34,6 +34,14 @@ export default {
     },
     {
       method: 'GET',
+      path: '/admin/ops/audit-log',
+      handler: 'admin-ops.auditLog',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
+      method: 'GET',
       path: '/admin/ops/ai/proofs',
       handler: 'admin-ops.proofs',
       config: {

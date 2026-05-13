@@ -2,19 +2,22 @@
 
 Pour le mode operateur complet de la page `/admin/quality`, voir aussi [`../frontend/admin-quality-matrix-manual.md`](../frontend/admin-quality-matrix-manual.md).
 
-Ce guide couvre le signal post-merge qui maintient la console `admin/quality` en etat `Refresh matrice` lorsqu'un merge sur `main` touche une surface suivie par la matrice.
+Ce guide couvre le signal post-merge qui maintient la console `admin/quality` en etat `Refresh matrice` lorsqu'un merge sur `main` touche une surface suivie par la matrice. L'ingestion lance aussi un recalcul cible et stocke le dernier plan QA, sans appliquer automatiquement les voyants.
 
 ## Vue d'ensemble
 
-La chaine repose sur trois maillons:
+La chaine repose sur quatre maillons:
 
 1. Strapi sert la matrice via `GET /api/admin/quality/matrix`.
 2. GitHub Actions publie un signal de merge via `.github/workflows/admin-quality-matrix-sync.yml` sur `POST /api/admin/quality/matrix/ingest`.
-3. Le front marque une ligne `Refresh matrice` quand `repoSignalAt` ou une mission cloturee est plus recente que `reviewedAt`.
+3. Strapi deduit les lignes impactees, enregistre le signal repo, accepte un `proofManifest` optionnel, lance un recalcul cible, stocke `lastRecalculation` et cree/met a jour une mission pilote.
+4. Le front marque une ligne `Refresh matrice` quand `repoSignalAt` ou une mission cloturee est plus recente que `reviewedAt`, et affiche le dernier `Plan auto` quand il existe.
 
-Le workflow ne reecrit pas directement les colonnes metier. Il publie un fait horodate qui force une relecture humaine de la ligne impactee.
+Le workflow ne reecrit pas directement les colonnes metier. Il publie un fait horodate, et Strapi produit un plan QA exploitable qui force une relecture humaine de la ligne impactee.
 
 L'endpoint d'ingestion accepte des `impactedEntryIds` explicites, mais peut aussi les deduire depuis `changedFiles`. La reponse expose `impactMode`, `impactReason`, `providedEntryIds`, `derivedEntryIds` et `resolvedEntryIds` pour diagnostiquer le mapping applique.
+
+L'endpoint accepte aussi `proofManifest` avec `commitSha`, `workflowRunId`, `workflow`, `generatedAt`, `entryIds`, `checks`, `specs`, `artifactUrl` et `status`. Le workflow `.github/workflows/ci-validate.yml` genere `matrix-proof-manifest.json` apres validations reussies, l'upload comme artifact et le republie vers Strapi sur `push main` quand les secrets d'ingestion sont configures.
 
 ## Secrets requis
 
@@ -63,7 +66,7 @@ ADMIN_QUALITY_MATRIX_INGEST_TOKEN=<meme valeur que STRAPI_ADMIN_QUALITY_INGEST_T
 2. Ajouter dans GitHub les secrets `ADMIN_QUALITY_MATRIX_INGEST_URL` et `ADMIN_QUALITY_MATRIX_INGEST_TOKEN`.
 3. Verifier que `.github/workflows/admin-quality-matrix-sync.yml` est actif sur `push` vers `main`.
 4. Faire un merge test qui touche une surface mappee.
-5. Confirmer dans `admin/quality` que la ligne correspondante passe en `Refresh matrice`.
+5. Confirmer dans `admin/quality` que la ligne correspondante passe en `Refresh matrice` et qu'un badge `Plan auto` apparait apres ingestion.
 
 ## Rotation des secrets
 
@@ -105,9 +108,17 @@ Verifier:
 
 Verifier:
 
-1. le mapping dans `scripts/resolve-admin-quality-matrix-impact.mjs`
+1. le mapping partage dans `tools/admin-quality-matrix-impact-map.json`
 2. les fichiers reels modifies par le merge
 3. si le changement aurait du etre traite comme impact global plutot que cible
+
+### Le workflow publie `200` mais aucun plan auto n'apparait
+
+Verifier:
+
+1. que `resolvedEntryIds` contient au moins une entree existante dans Strapi
+2. que la reponse d'ingestion contient `recalculation.generatedAt`
+3. que `GET /api/admin/quality/matrix` retourne `entries[].lastRecalculation`
 
 ## Validations a lancer
 
@@ -121,10 +132,12 @@ node scripts/resolve-admin-quality-matrix-impact.mjs openg7-org/src/app/domains/
 En CI:
 
 - `.github/workflows/ci-validate.yml` execute le test `test:integration:admin-quality-matrix`
+- `.github/workflows/ci-validate.yml` produit l'artifact `matrix-proof-manifest.json` et le republie vers Strapi sur `push main` si les secrets d'ingestion existent
 - `.github/workflows/admin-quality-matrix-sync.yml` publie le signal post-merge
 
 ## Limites actuelles
 
-- le mapping fichier -> domaine reste heuristique et doit rester aligne entre le script CI et Strapi
-- le workflow signale qu'une ligne doit etre relue, mais ne modifie pas automatiquement les statuts metier
+- le mapping fichier -> domaine reste heuristique, meme s'il est maintenant centralise dans `tools/admin-quality-matrix-impact-map.json`
+- le workflow signale qu'une ligne doit etre relue et Strapi genere un plan, mais aucun statut metier n'est applique automatiquement
+- l'artifact `matrix-proof-manifest.json` est produit par `ci-validate.yml`, mais les workflows E2E dedies ne produisent pas encore chacun leur manifest fin
 - la revue finale reste volontairement humaine

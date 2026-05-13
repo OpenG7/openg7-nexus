@@ -2,13 +2,15 @@
 
 Ce document decoupe les ajouts necessaires pour reduire au maximum les operations manuelles autour de `/admin/quality`.
 
+Etat verifie: l'ingestion autonome, le recalcul automatique cible, le stockage du dernier plan et la creation de missions pilote cote Strapi existent deja. Les lots ci-dessous distinguent donc ce qui est livre de ce qui reste a brancher dans la CI, l'UI ou la gouvernance.
+
 ## Lot 1 - Ingestion autonome des impacts
 
-Statut: demarre.
+Statut: livre.
 
 Objectif: permettre a Strapi de deduire les entrees de matrice impactees a partir de `changedFiles`, meme si `impactedEntryIds` est absent du payload CI.
 
-Travail inclus:
+Travail livre:
 
 - ajouter un resolveur d'impact cote `POST /api/admin/quality/matrix/ingest`;
 - reutiliser les memes familles de prefixes que le script CI `scripts/resolve-admin-quality-matrix-impact.mjs`;
@@ -24,9 +26,11 @@ yarn --cwd strapi test:integration:admin-quality-matrix
 
 ## Lot 2 - Recalcul automatique apres ingestion
 
+Statut: livre cote Strapi et expose cote front.
+
 Objectif: ne plus attendre un clic manuel sur `Generer le plan QA` apres un merge.
 
-Travail prevu:
+Travail livre:
 
 - lancer un recalcul cible sur `resolvedEntryIds` a la fin de l'ingestion;
 - stocker le dernier plan genere dans une collection ou un champ dedie;
@@ -40,14 +44,22 @@ Garde-fou:
 
 ## Lot 3 - Proof manifest CI
 
+Statut: branchement CI principal livre, extension E2E dediee restante.
+
 Objectif: remplacer la lecture humaine des artifacts par une preuve machine-readable.
 
-Travail prevu:
+Travail livre:
 
-- generer un artifact `matrix-proof-manifest.json` dans les workflows E2E/unitaires critiques;
-- inclure `commitSha`, `workflowRunId`, `entryIds`, `checks`, `specs`, `artifactUrl`, `status`;
-- faire lire ce manifeste par Strapi;
-- rattacher automatiquement les preuves aux lignes de matrice concernees.
+- `POST /api/admin/quality/matrix/ingest` accepte `proofManifest`;
+- Strapi persiste une decision de mission `proof-manifest` par entree connue;
+- les entrees du manifest sont ajoutees au recalcul automatique cible.
+- le workflow `.github/workflows/ci-validate.yml` genere et publie l'artifact `matrix-proof-manifest.json` apres validations reussies;
+- sur `push main`, `ci-validate.yml` republie le manifest vers `POST /api/admin/quality/matrix/ingest` quand les secrets d'ingestion sont configures.
+
+Travail restant:
+
+- etendre le manifest aux workflows E2E/unitaires dedies hors `ci-validate` si une preuve plus fine par parcours devient necessaire;
+- rattacher un lien artifact plus precis si GitHub expose une URL d'artifact stable au moment de la generation.
 
 Critere de sortie:
 
@@ -67,13 +79,20 @@ Travail prevu:
 
 ## Lot 5 - Creation automatique de missions ou tickets
 
+Statut: missions pilote Strapi livre, tickets externes restant.
+
 Objectif: transformer le backlog pilote par la matrice en travail executable sans recopie manuelle.
 
-Travail prevu:
+Travail livre:
 
-- creer ou mettre a jour une mission admin ops pour chaque commande `now` ou `blocked`;
-- dedoublonner par `entryId` + `actionType`;
-- inclure `targetFiles`, `suggestedCommands`, `expectedEvidence`;
+- creer ou mettre a jour une mission admin quality pour chaque commande pilote dont la priorite n'est pas `later`;
+- dedoublonner les missions pilote via `entryId::core`;
+- inclure `targetFiles`, `suggestedCommands`, `expectedEvidence` dans le prompt operateur.
+
+Travail restant:
+
+- creer ou mettre a jour un ticket externe si un outil de suivi est branche;
+- affiner la deduplication si plusieurs `actionType` simultanes doivent coexister pour une meme entree;
 - exposer le lien mission/ticket dans le drawer `/admin/quality`.
 
 ## Lot 6 - Lancement des validations depuis l'UI
@@ -134,19 +153,23 @@ Travail prevu:
 
 ## Lot 10 - Cartographie d'impact partagee
 
+Statut: source JSON partagee livree, test de divergence restant.
+
 Objectif: eviter la divergence entre le script CI et Strapi.
 
-Travail prevu:
+Travail livre:
 
-- extraire la map d'impact dans un module partage ou un fichier JSON versionne;
-- consommer la meme source depuis `scripts/resolve-admin-quality-matrix-impact.mjs` et Strapi;
+- la source versionnee `tools/admin-quality-matrix-impact-map.json` alimente le script CI et le controleur Strapi.
+
+Travail restant:
+
 - ajouter un test qui compare les deux sorties sur un jeu de chemins reference.
 
 ## Ordre recommande
 
-1. Terminer le lot 1.
-2. Ajouter le lot 2 pour supprimer le clic de recalcul courant.
-3. Ajouter le lot 3 pour rendre les preuves exploitables automatiquement.
-4. Ajouter les lots 4 et 5 pour transformer le plan en travail sans recopie.
-5. Ajouter le lot 6 pour lancer les validations depuis l'admin.
+1. Ajouter le lot 4 pour commenter l'impact sur PR avant merge.
+2. Finaliser le lot 5 seulement si un outil de tickets externe doit etre synchronise.
+3. Ajouter le lot 6 pour lancer les validations depuis l'admin.
+4. Ajouter le lot 9 avant toute auto-application de statut.
+5. Etendre le lot 3 aux workflows E2E dedies si les preuves `ci-validate` sont trop larges.
 6. Ajouter le lot 7 seulement quand l'audit trail du lot 9 est en place.

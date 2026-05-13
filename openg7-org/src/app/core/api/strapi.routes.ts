@@ -30,6 +30,7 @@ export const STRAPI_ROUTES = {
     opsBackups: '/api/admin/ops/backups',
     opsImports: '/api/admin/ops/imports',
     opsSecurity: '/api/admin/ops/security',
+    opsAuditLog: '/api/admin/ops/audit-log',
     opsAiProofs: '/api/admin/ops/ai/proofs',
     opsAiDispatch: '/api/admin/ops/ai/dispatch',
     opsCodexDispatch: '/api/admin/ops/codex/dispatch',

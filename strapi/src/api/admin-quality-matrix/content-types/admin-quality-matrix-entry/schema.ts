@@ -99,6 +99,25 @@ const schema = {
     lastRepoSignalSummary: {
       type: 'text',
     },
+    lastRecalculationAt: {
+      type: 'datetime',
+    },
+    lastRecalculationScope: {
+      type: 'string',
+    },
+    lastRecalculationAutomatic: {
+      type: 'boolean',
+      default: false,
+    },
+    lastRecalculationResult: {
+      type: 'string',
+    },
+    lastRecalculationPlan: {
+      type: 'json',
+    },
+    lastAppliedProposal: {
+      type: 'json',
+    },
   },
 } as unknown as Struct.CollectionTypeSchema;
 

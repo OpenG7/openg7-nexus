@@ -1551,4 +1551,32 @@ export async function mockAdminOpsApis(page: Page): Promise<void> {
       }),
     );
   });
+
+  await page.route('**/api/admin/ops/audit-log', async (route) => {
+    await route.fulfill(
+      json({
+        data: {
+          generatedAt: '2026-03-14T09:50:00.000Z',
+          source: 'admin-ops-audit-log',
+          truncated: false,
+          entries: [
+            {
+              id: 'audit-import-imp-1',
+              category: 'import',
+              action: 'company.import.recorded',
+              eyebrow: 'Import',
+              title: 'Quebec Battery Alliance',
+              summary: 'QC-7788 - manual - approved',
+              occurredAt: '2026-03-14T07:00:00.000Z',
+              sourceRoute: '/api/admin/ops/imports',
+              severity: 'ready',
+              actor: 'manual',
+              target: 'QC-7788',
+              metadata: { companyId: 'imp-1', businessId: 'QC-7788', source: 'manual' },
+            },
+          ],
+        },
+      }),
+    );
+  });
 }

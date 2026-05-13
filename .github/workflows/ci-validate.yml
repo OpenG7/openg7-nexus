@@ -21,10 +21,36 @@ jobs:
       CONTENT_SECURITY_POLICY: '{}'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
+      - name: Collect changed files
+        id: changed
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > changed-files.txt
+          else
+            before="${{ github.event.before }}"
+            after="${{ github.sha }}"
+            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+              git diff-tree --no-commit-id --name-only -r "$after" > changed-files.txt
+            else
+              git diff --name-only "$before" "$after" > changed-files.txt
+            fi
+          fi
+          echo "count=$(wc -l < changed-files.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve impacted matrix entries
+        if: ${{ steps.changed.outputs.count != '0' }}
+        id: impact
+        shell: bash
+        run: |
+          export MATRIX_CHANGED_FILES="$(cat changed-files.txt)"
+          node scripts/resolve-admin-quality-matrix-impact.mjs > impact.json
       - name: Install native build dependencies
         run: |
           sudo apt-get update
@@ -49,3 +75,79 @@ jobs:
         run: yarn validate:preprod-runtime-config
       - name: Build web for preproduction
         run: yarn --cwd openg7-org build:preprod
+      - name: Generate admin-quality proof manifest
+        if: ${{ steps.changed.outputs.count != '0' }}
+        run: >-
+          yarn generate:quality-proof-manifest --
+          --impact impact.json
+          --output matrix-proof-manifest.json
+          --status success
+          --check "yarn lint"
+          --check "yarn checklist:verify"
+          --check "yarn validate:selectors"
+          --check "yarn --cwd strapi test:integration:admin-quality-matrix"
+          --check "yarn workspace @openg7/web validate:sitemap"
+          --check "yarn prebuild:web"
+          --check "yarn validate:preprod-runtime-config"
+          --check "yarn --cwd openg7-org build:preprod"
+          --spec "strapi/scripts/test-admin-quality-matrix-api-integration.js"
+          --spec "openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.spec.ts"
+          --spec "openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts"
+
+      - name: Upload admin-quality proof manifest
+        if: ${{ steps.changed.outputs.count != '0' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-proof-manifest
+          path: matrix-proof-manifest.json
+          if-no-files-found: error
+
+      - name: Publish proof manifest to Strapi
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.changed.outputs.count != '0' }}
+        env:
+          INGEST_URL: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_URL }}
+          INGEST_TOKEN: ${{ secrets.ADMIN_QUALITY_MATRIX_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const { readFileSync } = require('node:fs');
+
+          if (!process.env.INGEST_URL || !process.env.INGEST_TOKEN) {
+            console.log('Admin quality ingest secrets are not configured; proof manifest publish skipped.');
+            process.exit(0);
+          }
+
+          const impact = JSON.parse(readFileSync('impact.json', 'utf8'));
+          const proofManifest = JSON.parse(readFileSync('matrix-proof-manifest.json', 'utf8'));
+          const payload = {
+            mergedAt: proofManifest.generatedAt,
+            commitSha: proofManifest.commitSha,
+            source: 'github-actions',
+            workflow: process.env.GITHUB_WORKFLOW,
+            branch: process.env.GITHUB_REF_NAME,
+            summary: `${impact.mode} proof manifest after CI validation`,
+            changedFiles: impact.changedFiles,
+            impactedEntryIds: impact.entryIds,
+            proofManifest,
+          };
+
+          fetch(process.env.INGEST_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.INGEST_TOKEN}`,
+            },
+            body: JSON.stringify(payload),
+          })
+            .then(async (response) => {
+              const text = await response.text();
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${text}`);
+              }
+              process.stdout.write(text);
+            })
+            .catch((error) => {
+              console.error(error.message);
+              process.exit(1);
+            });
+          NODE

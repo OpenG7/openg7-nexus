@@ -7,7 +7,7 @@ import {
   NotificationStoreApi,
 } from '@app/core/observability/notification.store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AdminQualityPage } from '@openg7/admin-quality';
+import { AdminQualityBrowserService, AdminQualityPage } from '@openg7/admin-quality';
 import { of, throwError } from 'rxjs';
 
 import { AdminOpsService } from '../data-access/admin-ops.service';
@@ -2331,7 +2331,9 @@ describe('AdminQualityPage', () => {
   });
 
   it('dispatches the selected mission directly from Mission Control when delegation starts', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+    const confirmSpy = spyOn(TestBed.inject(AdminQualityBrowserService), 'confirm').and.returnValue(
+      true,
+    );
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();
 
@@ -2349,6 +2351,7 @@ describe('AdminQualityPage', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.selectedMission()?.status).toBe('in-progress');
+    expect(confirmSpy).toHaveBeenCalledWith(jasmine.stringContaining('Lancer Codex'));
     expect(missionDecisions.saveDecision).toHaveBeenCalledWith(
       jasmine.objectContaining({
         recommendationId: 'advanced-discovery::core',

@@ -92,6 +92,7 @@ export default async () => {
       backups: true,
       imports: true,
       security: true,
+      auditLog: true,
       proofs: true,
       dispatchCodexWorkflow: true,
     },

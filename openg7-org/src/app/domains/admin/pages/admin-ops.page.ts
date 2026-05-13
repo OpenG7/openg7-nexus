@@ -23,6 +23,7 @@ import type { AdminNavigationPillItem } from '@openg7/admin-quality';
 import { finalize } from 'rxjs';
 
 import {
+  AdminOpsAuditLogEntry,
   AdminOpsBackupFile,
   AdminOpsCodexDispatchResponse,
   AdminOpsCodexScope,
@@ -31,7 +32,7 @@ import {
   AdminOpsSnapshot,
 } from '../data-access/admin-ops.service';
 
-type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security';
+type AdminOpsProvenanceId = 'health' | 'backups' | 'imports' | 'security' | 'auditLog';
 
 interface AdminOpsProvenanceEntry {
   readonly id: AdminOpsProvenanceId;
@@ -39,6 +40,8 @@ interface AdminOpsProvenanceEntry {
   readonly route: string;
   readonly generatedAt: string;
 }
+
+type AdminOpsSensitiveActionEntry = AdminOpsAuditLogEntry;
 
 interface AdminOpsDiagnosticItem {
   readonly id: string;
@@ -88,6 +91,7 @@ const ADMIN_OPS_PROVENANCE_CONFIG: ReadonlyArray<{
   { id: 'backups', label: 'Backups', route: '/api/admin/ops/backups' },
   { id: 'imports', label: 'Imports', route: '/api/admin/ops/imports' },
   { id: 'security', label: 'Security', route: '/api/admin/ops/security' },
+  { id: 'auditLog', label: 'Audit log', route: '/api/admin/ops/audit-log' },
 ];
 
 const ADMIN_OPS_CODEX_SCOPES: readonly AdminOpsCodexScope[] = [
@@ -515,6 +519,7 @@ export class AdminOpsPage implements OnInit {
       snapshot.backups.generatedAt,
       snapshot.imports.generatedAt,
       snapshot.security.generatedAt,
+      snapshot.auditLog.generatedAt,
     ]
       .map((entry) => new Date(entry).getTime())
       .filter((entry) => Number.isFinite(entry));
@@ -555,6 +560,29 @@ export class AdminOpsPage implements OnInit {
     }
 
     return 'Each block lists the API source and snapshot timestamp currently displayed.';
+  });
+  readonly sensitiveActionEntries = computed<readonly AdminOpsSensitiveActionEntry[]>(() => {
+    return [...(this.snapshot()?.auditLog.entries ?? [])]
+      .sort(
+        (left, right) =>
+          this.timestampValue(right.occurredAt) - this.timestampValue(left.occurredAt),
+      )
+      .slice(0, 6);
+  });
+  readonly sensitiveActionMessage = computed(() => {
+    if (!this.snapshot()) {
+      return null;
+    }
+
+    if (!this.sensitiveActionEntries().length) {
+      return 'No sensitive import or security action is present in the current snapshot yet.';
+    }
+
+    if (this.error()) {
+      return 'Trace preserved from the last successful snapshot while the latest refresh failed.';
+    }
+
+    return 'Recent import and security actions loaded from the canonical audit log.';
   });
 
   readonly aiIgnitionModules = computed<readonly AdminOpsAiIgnitionModule[]>(() => {
@@ -782,7 +810,7 @@ export class AdminOpsPage implements OnInit {
         });
       }
 
-      const unavailableAiModules = snapshot.security.aiKeys.filter(
+      const unavailableAiModules = (snapshot.security.aiKeys ?? []).filter(
         (module) => module.state !== 'ready',
       ).length;
       if (unavailableAiModules > 0) {
@@ -1221,6 +1249,7 @@ export class AdminOpsPage implements OnInit {
   trackImportEntry = (_: number, item: { id: string }) => item.id;
   trackSource = (_: number, item: { source: string }) => item.source;
   trackProvenanceEntry = (_: number, item: AdminOpsProvenanceEntry) => item.id;
+  trackSensitiveActionEntry = (_: number, item: AdminOpsSensitiveActionEntry) => item.id;
   trackAiIgnitionModule = (_: number, module: AdminOpsAiIgnitionModule) =>
     `${module.provider}:${module.secretName ?? 'socket'}`;
   trackControlPlaneKey = (_: number, key: AdminOpsControlPlaneKey) => key.id;
@@ -1410,6 +1439,33 @@ export class AdminOpsPage implements OnInit {
     }
   }
 
+  sensitiveActionToneClasses(
+    severity: AdminOpsSensitiveActionEntry['severity'],
+  ):
+    | 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    | 'border-amber-200 bg-amber-50 text-amber-700'
+    | 'border-rose-200 bg-rose-50 text-rose-700' {
+    switch (severity) {
+      case 'ready':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'warning':
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+      default:
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+    }
+  }
+
+  sensitiveActionToneLabel(severity: AdminOpsSensitiveActionEntry['severity']): string {
+    switch (severity) {
+      case 'ready':
+        return 'Recorded';
+      case 'warning':
+        return 'Review';
+      default:
+        return 'Action needed';
+    }
+  }
+
   backupFileSeverity(file: AdminOpsBackupFile): 'fresh' | 'aging' | 'stale' {
     const ageMs = this.liveNow() - new Date(file.modifiedAt).getTime();
     const ageHours = ageMs / 3_600_000;
@@ -1535,6 +1591,15 @@ export class AdminOpsPage implements OnInit {
     }
     const hours = Math.floor(minutes / 60);
     return `${hours}h ago`;
+  }
+
+  private timestampValue(value: string | null | undefined): number {
+    if (!value) {
+      return 0;
+    }
+
+    const timestamp = new Date(value).getTime();
+    return Number.isFinite(timestamp) ? timestamp : 0;
   }
 
   private resolveError(error: unknown): string {
