@@ -87,9 +87,7 @@
             </span>
             }
           </div>
-          }
-
-          @if (latestStoredMatrixRecalculation(); as storedPlan) {
+          } @if (latestStoredMatrixRecalculation(); as storedPlan) {
           <div
             class="inline-flex max-w-full shrink-0 items-center gap-2 rounded-[14px] border border-emerald-300/18 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
             data-og7-id="admin-quality-last-stored-plan"
@@ -102,8 +100,8 @@
               P
             </span>
             <span class="max-w-full whitespace-nowrap">
-              {{ storedPlan.automatic ? 'Plan auto' : 'Dernier plan' }} le
-              {{ storedPlan.generatedAt | date: 'yyyy-MM-dd HH:mm' }}
+              {{ storedPlan.automatic ? 'Plan auto' : 'Dernier plan' }} le {{ storedPlan.generatedAt
+              | date: 'yyyy-MM-dd HH:mm' }}
             </span>
           </div>
           }
@@ -218,6 +216,15 @@
       </div>
     </div>
   </header>
+
+  <og7-admin-quality-agent-panel
+    [entries]="entries()"
+    [selectedEntry]="selectedEntry()"
+    [proofGapCount]="proofGapCount()"
+    [productWorkCount]="productWorkCount()"
+    [refreshRequiredCount]="matrixRefreshRequiredCount()"
+    [actionCount]="totalRegisteredActions()"
+  />
 
   @if (error(); as message) {
   <p

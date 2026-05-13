@@ -75,6 +75,7 @@ import {
   buildActionRegistry,
   buildUndocumentedDiscoveredActions,
 } from './admin-quality-action-registry';
+import { AdminQualityAgentPanelComponent } from './admin-quality-agent-panel.component';
 import {
   AdminQualityComboboxComponent,
   AdminQualityComboboxOption,
@@ -291,6 +292,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     RouterLink,
     TranslateModule,
     AdminQualityComboboxComponent,
+    AdminQualityAgentPanelComponent,
     AdminNavigationPillsComponent,
     AdminQualityCommandRailComponent,
     AdminQualityCoverageMatrixComponent,
@@ -1314,8 +1316,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     () => this.snapshot()?.sourceStatus ?? null,
   );
   readonly matrixSourceMessage = computed(() => this.snapshot()?.sourceMessage ?? null);
-  readonly latestStoredMatrixRecalculation =
-    computed<AdminQualityMatrixStoredRecalculation | null>(() => {
+  readonly latestStoredMatrixRecalculation = computed<AdminQualityMatrixStoredRecalculation | null>(
+    () => {
       return (
         this.entries()
           .map((entry) => entry.lastRecalculation ?? null)
@@ -1329,7 +1331,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
               (this.parseTimestamp(left.generatedAt) ?? 0),
           )[0] ?? null
       );
-    });
+    },
+  );
   readonly actionRegistry = computed(() => buildActionRegistry(this.entries()));
   readonly undocumentedActions = computed(() => buildUndocumentedDiscoveredActions(this.entries()));
 

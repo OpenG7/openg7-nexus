@@ -6,6 +6,7 @@ export * from './lib/data-access/admin-quality-matrix.service';
 export * from './lib/data-access/admin-quality-mission-decisions.service';
 export * from './lib/feature/admin-quality-workspace-drawer.component';
 export * from './lib/pages/admin-navigation-pills.component';
+export * from './lib/pages/admin-quality-agent-panel.component';
 export * from './lib/pages/admin-quality-action-registry';
 export * from './lib/pages/admin-quality-combobox.component';
 export * from './lib/pages/admin-quality-command-rail.component';
