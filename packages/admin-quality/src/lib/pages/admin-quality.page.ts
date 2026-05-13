@@ -47,6 +47,7 @@ import {
   AdminQualityMatrixSnapshot,
   AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
+  AdminQualityMatrixStoredRecalculation,
 } from '../data-access/admin-quality-matrix.service';
 import { AdminQualityMissionDecisionRecord } from '../data-access/admin-quality-mission-decisions.service';
 import {
@@ -1313,6 +1314,22 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     () => this.snapshot()?.sourceStatus ?? null,
   );
   readonly matrixSourceMessage = computed(() => this.snapshot()?.sourceMessage ?? null);
+  readonly latestStoredMatrixRecalculation =
+    computed<AdminQualityMatrixStoredRecalculation | null>(() => {
+      return (
+        this.entries()
+          .map((entry) => entry.lastRecalculation ?? null)
+          .filter(
+            (recalculation): recalculation is AdminQualityMatrixStoredRecalculation =>
+              recalculation !== null,
+          )
+          .sort(
+            (left, right) =>
+              (this.parseTimestamp(right.generatedAt) ?? 0) -
+              (this.parseTimestamp(left.generatedAt) ?? 0),
+          )[0] ?? null
+      );
+    });
   readonly actionRegistry = computed(() => buildActionRegistry(this.entries()));
   readonly undocumentedActions = computed(() => buildUndocumentedDiscoveredActions(this.entries()));
 
@@ -2021,6 +2038,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       .subscribe({
         next: (snapshot) => {
           this.snapshot.set(snapshot);
+          this.hydrateStoredMatrixRecalculation(snapshot);
           this.loading.set(false);
           this.error.set(null);
         },
@@ -2029,6 +2047,42 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
           this.loading.set(false);
         },
       });
+  }
+
+  private hydrateStoredMatrixRecalculation(snapshot: AdminQualityMatrixSnapshot): void {
+    if (this.matrixRecalculation()) {
+      return;
+    }
+
+    const storedRecalculations = snapshot.entries
+      .map((entry) => entry.lastRecalculation ?? null)
+      .filter(
+        (recalculation): recalculation is AdminQualityMatrixStoredRecalculation =>
+          recalculation !== null,
+      )
+      .sort(
+        (left, right) =>
+          (this.parseTimestamp(right.generatedAt) ?? 0) -
+          (this.parseTimestamp(left.generatedAt) ?? 0),
+      );
+
+    if (!storedRecalculations.length) {
+      return;
+    }
+
+    const entries = storedRecalculations.map((recalculation) => recalculation.entry);
+    this.matrixRecalculation.set({
+      generatedAt: storedRecalculations[0].generatedAt,
+      scope: storedRecalculations[0].scope,
+      summary: {
+        analyzedCount: entries.length,
+        proposalCount: entries.filter((entry) => entry.result === 'proposal-review-required')
+          .length,
+        unchangedCount: entries.filter((entry) => entry.result === 'unchanged').length,
+        blockedCount: entries.filter((entry) => entry.result.startsWith('blocked-')).length,
+      },
+      entries,
+    });
   }
 
   private resolveMatrixLoadError(error: unknown): string {

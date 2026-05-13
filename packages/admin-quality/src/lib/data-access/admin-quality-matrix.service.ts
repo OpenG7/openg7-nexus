@@ -46,6 +46,7 @@ export interface AdminQualityMatrixEntry {
   readonly signalDispatch: Partial<
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
+  readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -131,6 +132,13 @@ export interface AdminQualityMatrixRecalculationSnapshot {
     readonly blockedCount: number;
   };
   readonly entries: readonly AdminQualityMatrixRecalculationEntry[];
+}
+
+export interface AdminQualityMatrixStoredRecalculation {
+  readonly generatedAt: string;
+  readonly scope: AdminQualityMatrixRecalculationScope;
+  readonly automatic: boolean;
+  readonly entry: AdminQualityMatrixRecalculationEntry;
 }
 
 export interface AdminQualityMatrixApplyProposalResult {
