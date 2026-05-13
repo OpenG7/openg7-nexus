@@ -371,6 +371,9 @@ async function run() {
     assert.deepEqual(ok.body?.data?.resolvedEntryIds, ['trust-validation', 'unknown-entry']);
     assert.deepEqual(ok.body?.data?.updatedEntryIds, ['trust-validation']);
     assert.deepEqual(ok.body?.data?.ignoredEntryIds, ['unknown-entry']);
+    assert.equal(ok.body?.data?.recalculation?.scope, 'refresh-required');
+    assert.equal(ok.body?.data?.recalculation?.summary?.analyzedCount, 1);
+    assert.equal(ok.body?.data?.recalculation?.entries?.[0]?.entryId, 'trust-validation');
 
     const updated = await findMatrixEntryByEntryId(app, 'trust-validation');
     assert.ok(updated, 'Expected matrix entry to still exist after ingest.');
@@ -378,6 +381,21 @@ async function run() {
     assert.equal(updated.lastRepoSignalSource, 'github-actions');
     assert.equal(updated.lastRepoSignalAt, repoMergedAt);
     assert.match(updated.lastRepoSignalSummary, /targeted sync after merge to main/i);
+    assert.equal(updated.lastRecalculationAutomatic, true);
+    assert.equal(updated.lastRecalculationScope, 'refresh-required');
+    assert.equal(updated.lastRecalculationPlan?.automatic, true);
+    assert.equal(updated.lastRecalculationPlan?.entry?.entryId, 'trust-validation');
+
+    const pilotDecision = normalizeFindManyResult(
+      await app.entityService.findMany(MISSION_DECISION_UID, {
+        filters: { recommendationId: 'trust-validation::core' },
+        limit: 1,
+      }),
+    )[0];
+    assert.ok(pilotDecision, 'Expected ingest recalculation to create a pilot mission decision.');
+    assert.equal(pilotDecision.entryId, 'trust-validation');
+    assert.equal(pilotDecision.status, 'proposed');
+    assert.equal(pilotDecision.metadata?.traceType, 'pilot-command');
 
     const derivedOnly = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
       method: 'POST',
@@ -404,7 +422,10 @@ async function run() {
     assert.deepEqual(derivedOnly.body?.data?.derivedEntryIds, ['trust-validation']);
     assert.deepEqual(derivedOnly.body?.data?.resolvedEntryIds, ['trust-validation']);
     assert.deepEqual(derivedOnly.body?.data?.updatedEntryIds, ['trust-validation']);
+    assert.deepEqual(derivedOnly.body?.data?.proofManifestEntryIds, []);
     assert.deepEqual(derivedOnly.body?.data?.ignoredEntryIds, []);
+    assert.equal(derivedOnly.body?.data?.recalculation?.scope, 'refresh-required');
+    assert.equal(derivedOnly.body?.data?.recalculation?.summary?.analyzedCount, 1);
 
     const derivedUpdated = await findMatrixEntryByEntryId(app, 'trust-validation');
     assert.ok(derivedUpdated, 'Expected matrix entry to still exist after derived ingest.');
@@ -412,6 +433,8 @@ async function run() {
     assert.equal(derivedUpdated.lastRepoSignalAt, derivedRepoMergedAt);
     assert.match(derivedUpdated.lastRepoSignalSummary, /impact=targeted/i);
     assert.match(derivedUpdated.lastRepoSignalSummary, /derived sync after merge to main/i);
+    assert.equal(derivedUpdated.lastRecalculationAutomatic, true);
+    assert.equal(derivedUpdated.lastRecalculationPlan?.automatic, true);
 
     const snapshotAfterRepoIngest = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
       headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
@@ -424,6 +447,66 @@ async function run() {
     assert.equal(
       snapshotAfterRepoIngest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
       null,
+    );
+
+    const proofManifestIngest = await requestJson(`${baseUrl}/api/admin/quality/matrix/ingest`, {
+      method: 'POST',
+      headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+      body: JSON.stringify({
+        mergedAt: new Date(Date.now() + 50_000).toISOString(),
+        commitSha: 'feed501proof',
+        source: 'github-actions',
+        workflow: 'Admin Quality Proof Pack',
+        branch: 'main',
+        summary: 'proof manifest after merge to main',
+        changedFiles: [],
+        proofManifest: {
+          commitSha: 'feed501proof',
+          workflowRunId: '501',
+          workflow: 'Admin Quality Proof Pack',
+          generatedAt: new Date(Date.now() + 50_000).toISOString(),
+          entryIds: ['trust-validation'],
+          checks: ['strapi integration'],
+          specs: ['strapi/scripts/test-admin-quality-matrix-api-integration.js'],
+          artifactUrl: 'https://example.test/artifacts/matrix-proof-manifest.json',
+          status: 'success',
+        },
+      }),
+    });
+    assert.equal(proofManifestIngest.status, 200, 'Expected proof manifest ingest to succeed.');
+    assert.deepEqual(proofManifestIngest.body?.data?.proofManifestEntryIds, ['trust-validation']);
+    assert.equal(proofManifestIngest.body?.data?.recalculation?.scope, 'refresh-required');
+    assert.equal(proofManifestIngest.body?.data?.recalculation?.summary?.analyzedCount, 1);
+
+    const proofManifestDecision = normalizeFindManyResult(
+      await app.entityService.findMany(MISSION_DECISION_UID, {
+        filters: { recommendationId: 'trust-validation::proof-manifest::501' },
+        limit: 1,
+      }),
+    )[0];
+    assert.ok(
+      proofManifestDecision,
+      'Expected ingest proof manifest to create a proof mission decision.',
+    );
+    assert.equal(proofManifestDecision.entryId, 'trust-validation');
+    assert.equal(proofManifestDecision.status, 'proof-returned');
+    assert.equal(proofManifestDecision.metadata?.traceType, 'proof-manifest');
+    assert.equal(
+      proofManifestDecision.metadata?.artifactUrl,
+      'https://example.test/artifacts/matrix-proof-manifest.json',
+    );
+
+    const snapshotAfterProofManifest = await requestJson(`${baseUrl}/api/admin/quality/matrix`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(
+      snapshotAfterProofManifest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.pending,
+      false,
+      'Expected proof manifest to confirm the pending e2e signal.',
+    );
+    assert.equal(
+      snapshotAfterProofManifest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
+      'proof-returned',
     );
 
     await app.entityService.update(MISSION_DECISION_UID, signalGuidanceDecision.id, {
