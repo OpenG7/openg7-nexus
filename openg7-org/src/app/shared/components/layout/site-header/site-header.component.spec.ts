@@ -449,6 +449,43 @@ describe('SiteHeaderComponent', () => {
     expect(component.isNotifOpen()).toBeFalse();
   });
 
+  it('renders the GitHub Action status light in the desktop alert box', () => {
+    auth.isAuthenticatedSig.set(true);
+    notifications.entries.set([
+      {
+        id: 'agent-github-action-1',
+        type: 'info',
+        title: 'Codex - GitHub Actions',
+        message: 'Workflow #42 is executing.',
+        source: 'admin-quality-agent',
+        metadata: {
+          githubActionStatus: {
+            state: 'in-progress',
+            label: 'GitHub Actions - en traitement',
+            detail: 'Workflow #42 is executing.',
+            workflow: 'codex.yml',
+            runUrl: 'https://github.test/run/42',
+            runNumber: 42,
+            correlationId: 'og7-test-correlation',
+            updatedAt: '2026-05-13T00:00:00.000Z',
+          },
+        },
+        actions: [],
+        createdAt: Date.now(),
+        read: false,
+      },
+    ]);
+
+    component.toggleNotif();
+    fixture.detectChanges();
+
+    const status: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-github-action-state="in-progress"]',
+    );
+    expect(status?.textContent).toContain('GitHub Actions - en traitement');
+    expect(status?.textContent).toContain('#42');
+  });
+
   it('renders the login link for guests with the /login target and computed label', () => {
     const authConfig = TestBed.inject(AuthConfigService) as unknown as MockAuthConfigService;
     const loginLinks = fixture.debugElement

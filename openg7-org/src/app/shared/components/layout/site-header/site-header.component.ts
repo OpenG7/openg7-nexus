@@ -5,6 +5,7 @@ import {
   DestroyRef,
   HostListener,
   Input,
+  Injector,
   Output,
   EventEmitter,
   computed,
@@ -12,6 +13,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
@@ -19,8 +21,18 @@ import { FavoritesService } from '@app/core/favorites.service';
 import {
   NotificationAction,
   NotificationEntry,
+  NotificationCodexDispatch,
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
+import {
+  GithubActionNotificationStatus,
+  readGithubActionNotificationStatus,
+} from '@app/core/observability/github-action-notification-status';
+import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import {
+  AdminOpsCodexDispatchRequest,
+  AdminOpsService,
+} from '@app/domains/admin/data-access/admin-ops.service';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
 import { UserAlertsService } from '@app/core/user-alerts.service';
@@ -37,6 +49,7 @@ interface HeaderNotificationItem {
   severity: 'info' | 'success' | 'warning' | 'critical' | 'error';
   source: string | null;
   actions: readonly NotificationAction[];
+  metadata: Record<string, unknown> | null;
   createdAt: number;
 }
 
@@ -59,6 +72,7 @@ export class SiteHeaderComponent {
   @Output() menuToggle = new EventEmitter<void>();
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly translate = inject(TranslateService);
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
@@ -70,6 +84,8 @@ export class SiteHeaderComponent {
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
   private activeQuickSearchRef: Og7ModalRef<void> | null = null;
   private lastNotifTrigger: HTMLElement | null = null;
+  private adminOpsService: AdminOpsService | null | undefined;
+  private githubActionTracker: AdminGithubActionTrackerService | null | undefined;
 
   readonly isMobileMenuOpen = signal(false);
   readonly isLangOpen = signal(false);
@@ -136,6 +152,7 @@ export class SiteHeaderComponent {
         severity: entry.severity,
         source: 'user-alerts',
         actions: [],
+        metadata: null,
         createdAt: this.toTimestamp(entry.createdAt),
       }));
 
@@ -291,6 +308,11 @@ export class SiteHeaderComponent {
       return;
     }
 
+    if (action.kind === 'codex-dispatch') {
+      this.dispatchCodexAction(notification, action);
+      return;
+    }
+
     if (action.kind === 'snooze') {
       const source = notification.source ?? 'site-header';
       this.notifications.snoozeSource(source, action.durationMs ?? 30 * 60 * 1000);
@@ -309,6 +331,82 @@ export class SiteHeaderComponent {
     if (action.kind === 'dismiss') {
       this.notifications.dismiss(notification.id);
     }
+  }
+
+  githubActionStatus(notification: HeaderNotificationItem): GithubActionNotificationStatus | null {
+    return readGithubActionNotificationStatus(notification.metadata);
+  }
+
+  githubActionStateClass(status: GithubActionNotificationStatus): string {
+    return `site-header__github-light--${status.state}`;
+  }
+
+  private dispatchCodexAction(
+    notification: HeaderNotificationItem,
+    action: NotificationAction,
+  ): void {
+    const codexDispatch = action.codexDispatch;
+    if (!codexDispatch?.task.trim()) {
+      this.notifications.error('Prompt Codex indisponible pour cette tache.', {
+        source: notification.source ?? 'site-header',
+        metadata: { parentNotificationId: notification.id, actionId: action.id },
+      });
+      return;
+    }
+
+    const adminOps = this.resolveAdminOpsService();
+    if (!adminOps) {
+      this.notifications.error('Console Ops indisponible pour lancer Codex.', {
+        source: notification.source ?? 'site-header',
+        metadata: { parentNotificationId: notification.id, actionId: action.id },
+      });
+      return;
+    }
+
+    const tracker = this.resolveGithubActionTracker();
+    const correlation = tracker?.createDispatchCorrelation(action.id) ?? null;
+    const request = {
+      ...this.toCodexDispatchRequest(codexDispatch),
+      correlationId: correlation?.correlationId ?? null,
+      idempotencyKey: correlation?.idempotencyKey ?? null,
+    };
+
+    adminOps
+      .dispatchCodexWorkflow(request, correlation ?? undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (tracker && correlation) {
+            tracker.startTracking(result, {
+              source: notification.source ?? 'site-header',
+              parentNotificationId: notification.id,
+              actionId: action.id,
+              ...correlation,
+            });
+          } else {
+            this.notifications.info(
+              `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              {
+                source: notification.source ?? 'site-header',
+                metadata: {
+                  parentNotificationId: notification.id,
+                  actionId: action.id,
+                  workflow: result.workflow,
+                  ref: result.ref,
+                },
+              },
+            );
+          }
+          this.notifications.markAsRead(notification.id);
+          this.isNotifOpen.set(false);
+        },
+        error: (error: unknown) => {
+          this.notifications.error(this.resolveDispatchError(error, codexDispatch.provider), {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+        },
+      });
   }
 
   @HostListener('document:click', ['$event'])
@@ -372,8 +470,63 @@ export class SiteHeaderComponent {
       severity: entry.type,
       source: entry.source ?? null,
       actions: entry.actions ?? [],
+      metadata: entry.metadata ?? null,
       createdAt: entry.createdAt,
     };
+  }
+
+  private resolveGithubActionTracker(): AdminGithubActionTrackerService | null {
+    if (this.githubActionTracker !== undefined) {
+      return this.githubActionTracker;
+    }
+
+    try {
+      this.githubActionTracker = this.injector.get(AdminGithubActionTrackerService, null);
+    } catch {
+      this.githubActionTracker = null;
+    }
+
+    return this.githubActionTracker;
+  }
+
+  private resolveAdminOpsService(): AdminOpsService | null {
+    if (this.adminOpsService !== undefined) {
+      return this.adminOpsService;
+    }
+
+    try {
+      this.adminOpsService = this.injector.get(AdminOpsService, null);
+    } catch {
+      this.adminOpsService = null;
+    }
+
+    return this.adminOpsService;
+  }
+
+  private toCodexDispatchRequest(
+    dispatch: NotificationCodexDispatch,
+  ): AdminOpsCodexDispatchRequest {
+    return {
+      provider: dispatch.provider,
+      task: dispatch.task,
+      scope: dispatch.scope,
+      baseBranch: dispatch.baseBranch ?? 'main',
+      draftPr: dispatch.draftPr ?? true,
+      model: dispatch.model ?? null,
+      effort: dispatch.effort ?? null,
+    };
+  }
+
+  private providerLabel(provider: NotificationCodexDispatch['provider']): string {
+    return provider === 'codex' ? 'Codex' : provider;
+  }
+
+  private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`;
   }
 
   private sortHeaderNotifications(

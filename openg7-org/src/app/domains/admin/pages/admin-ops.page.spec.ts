@@ -207,6 +207,8 @@ class AdminOpsServiceMock {
           draftPr: payload.draftPr,
           model: payload.model,
           effort: payload.effort,
+          correlationId: payload.correlationId ?? null,
+          idempotencyKey: payload.idempotencyKey ?? null,
           taskLength: payload.task.length,
         },
       }),

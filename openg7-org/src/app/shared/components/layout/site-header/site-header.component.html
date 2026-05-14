@@ -472,6 +472,22 @@
               <span class="block text-[11px] text-cyan-100/70" *ngIf="notification.source">{{
                 notification.source
               }}</span>
+              @if (githubActionStatus(notification); as status) {
+                <span
+                  class="site-header__github-status"
+                  [attr.data-github-action-state]="status.state"
+                >
+                  <span
+                    class="site-header__github-light"
+                    [ngClass]="githubActionStateClass(status)"
+                    aria-hidden="true"
+                  ></span>
+                  <span>{{ status.label }}</span>
+                  @if (status.runNumber) {
+                    <span>#{{ status.runNumber }}</span>
+                  }
+                </span>
+              }
             </button>
             @if (notification.actions.length) {
               <div class="mt-2 flex flex-wrap gap-1.5" data-og7-id="header-alert-actions-mobile">
@@ -613,6 +629,22 @@
           <span class="block text-[11px] text-cyan-100/70" *ngIf="notification.source">{{
             notification.source
           }}</span>
+          @if (githubActionStatus(notification); as status) {
+            <span
+              class="site-header__github-status"
+              [attr.data-github-action-state]="status.state"
+            >
+              <span
+                class="site-header__github-light"
+                [ngClass]="githubActionStateClass(status)"
+                aria-hidden="true"
+              ></span>
+              <span>{{ status.label }}</span>
+              @if (status.runNumber) {
+                <span>#{{ status.runNumber }}</span>
+              }
+            </span>
+          }
         </button>
         @if (notification.actions.length) {
           <div class="mt-2 flex flex-wrap gap-1.5" data-og7-id="header-alert-actions">

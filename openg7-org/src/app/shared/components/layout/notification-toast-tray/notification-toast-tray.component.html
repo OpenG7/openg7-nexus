@@ -34,6 +34,23 @@
           </div>
           <p class="notification-toast-tray__message">{{ item.message }}</p>
 
+          @if (githubActionStatus(item); as status) {
+            <div
+              class="notification-toast-tray__github-status"
+              [attr.data-github-action-state]="status.state"
+            >
+              <span
+                class="notification-toast-tray__github-light"
+                [ngClass]="githubActionStateClass(status)"
+                aria-hidden="true"
+              ></span>
+              <span class="notification-toast-tray__github-label">{{ status.label }}</span>
+              @if (status.runNumber) {
+                <span class="notification-toast-tray__github-run">#{{ status.runNumber }}</span>
+              }
+            </div>
+          }
+
           @if (item.actions?.length) {
             <div class="notification-toast-tray__actions" data-og7="notification-toast-actions">
               @for (action of item.actions; track action.id) {

@@ -79,8 +79,14 @@ describe('AdminQualityHomeAgentService', () => {
         actions: jasmine.arrayContaining([
           jasmine.objectContaining({
             label: 'Codex Preuve: Qualite admin',
-            kind: 'copy',
-            command: 'yarn admin:quality:agent -- --entry-id AG-1',
+            kind: 'codex-dispatch',
+            codexDispatch: jasmine.objectContaining({
+              provider: 'codex',
+              task: jasmine.stringContaining('Objectif:'),
+              baseBranch: 'main',
+              draftPr: true,
+              model: 'gpt-5.4',
+            }),
           }),
         ]),
         metadata: jasmine.objectContaining({

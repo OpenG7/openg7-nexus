@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { NotificationEntry, NotificationStore } from '@app/core/observability/notification.store';
+import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import { AdminOpsService } from '@app/domains/admin/data-access/admin-ops.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
 
@@ -38,11 +40,46 @@ class MockNotificationStore {
   success = jasmine.createSpy('success');
   error = jasmine.createSpy('error');
   info = jasmine.createSpy('info');
+  markAsRead = jasmine.createSpy('markAsRead');
   snoozeSource = jasmine.createSpy('snoozeSource');
 }
 
 class MockRouter {
   navigateByUrl = jasmine.createSpy('navigateByUrl').and.resolveTo(true);
+}
+
+class MockAdminOpsService {
+  dispatchCodexWorkflow = jasmine.createSpy('dispatchCodexWorkflow').and.returnValue(
+    of({
+      queued: true,
+      provider: 'github-actions',
+      selectedProvider: 'codex',
+      owner: 'openg7',
+      repo: 'platform',
+      workflow: 'codex.yml',
+      ref: 'main',
+      requestedAt: '2026-05-13T00:00:00.000Z',
+      request: {
+        selectedProvider: 'codex',
+        scope: 'openg7-org',
+        baseBranch: 'main',
+        draftPr: true,
+        model: 'gpt-5.4',
+        effort: null,
+        correlationId: 'og7-test-correlation',
+        idempotencyKey: 'og7-test-correlation-dispatch-codex',
+        taskLength: 24,
+      },
+    }),
+  );
+}
+
+class MockGithubActionTrackerService {
+  createDispatchCorrelation = jasmine.createSpy('createDispatchCorrelation').and.returnValue({
+    correlationId: 'og7-test-correlation',
+    idempotencyKey: 'og7-test-correlation-dispatch-codex',
+  });
+  startTracking = jasmine.createSpy('startTracking');
 }
 
 function createNotification(overrides: Partial<NotificationEntry> = {}): NotificationEntry {
@@ -65,6 +102,8 @@ describe('NotificationToastTrayComponent', () => {
   let fixture: ComponentFixture<NotificationToastTrayComponent>;
   let notifications: MockNotificationStore;
   let router: MockRouter;
+  let adminOps: MockAdminOpsService;
+  let tracker: MockGithubActionTrackerService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -72,12 +111,18 @@ describe('NotificationToastTrayComponent', () => {
       providers: [
         { provide: NotificationStore, useClass: MockNotificationStore },
         { provide: Router, useClass: MockRouter },
+        { provide: AdminOpsService, useClass: MockAdminOpsService },
+        { provide: AdminGithubActionTrackerService, useClass: MockGithubActionTrackerService },
         { provide: TranslateService, useClass: MockTranslateService },
       ],
     }).compileComponents();
 
     notifications = TestBed.inject(NotificationStore) as unknown as MockNotificationStore;
     router = TestBed.inject(Router) as unknown as MockRouter;
+    adminOps = TestBed.inject(AdminOpsService) as unknown as MockAdminOpsService;
+    tracker = TestBed.inject(
+      AdminGithubActionTrackerService,
+    ) as unknown as MockGithubActionTrackerService;
     fixture = TestBed.createComponent(NotificationToastTrayComponent);
   });
 
@@ -153,5 +198,85 @@ describe('NotificationToastTrayComponent', () => {
     expect(fixture.debugElement.query(By.css('[data-og7="notification-toast"]'))).toBeNull();
     expect(notifications.dismiss).not.toHaveBeenCalled();
     expect(notifications.entries()).toEqual([jasmine.objectContaining({ id: 'toast-1' })]);
+  });
+
+  it('dispatches Codex actions without deleting the bell history', () => {
+    const payload = {
+      provider: 'codex' as const,
+      task: 'Build the admin-quality proof.',
+      scope: 'openg7-org' as const,
+      baseBranch: 'main',
+      draftPr: true,
+      model: 'gpt-5.4',
+      effort: null,
+    };
+    notifications.entries.set([
+      createNotification({
+        actions: [
+          {
+            id: 'dispatch-codex',
+            label: 'Lancer Codex',
+            kind: 'codex-dispatch',
+            codexDispatch: payload,
+          },
+        ],
+      }),
+    ]);
+    fixture.detectChanges();
+
+    const action = fixture.debugElement.query(By.css('[data-og7="action"]'));
+    action.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(adminOps.dispatchCodexWorkflow).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        ...payload,
+        correlationId: 'og7-test-correlation',
+        idempotencyKey: 'og7-test-correlation-dispatch-codex',
+      }),
+      {
+        correlationId: 'og7-test-correlation',
+        idempotencyKey: 'og7-test-correlation-dispatch-codex',
+      },
+    );
+    expect(tracker.startTracking).toHaveBeenCalledWith(
+      jasmine.objectContaining({ workflow: 'codex.yml', ref: 'main' }),
+      {
+        source: 'admin-quality-agent',
+        parentNotificationId: 'toast-1',
+        actionId: 'dispatch-codex',
+        correlationId: 'og7-test-correlation',
+        idempotencyKey: 'og7-test-correlation-dispatch-codex',
+      },
+    );
+    expect(notifications.markAsRead).toHaveBeenCalledWith('toast-1');
+    expect(fixture.debugElement.query(By.css('[data-og7="notification-toast"]'))).toBeNull();
+    expect(notifications.dismiss).not.toHaveBeenCalled();
+    expect(notifications.entries()).toEqual([jasmine.objectContaining({ id: 'toast-1' })]);
+  });
+
+  it('renders a GitHub Action status light when status metadata is present', () => {
+    notifications.entries.set([
+      createNotification({
+        metadata: {
+          githubActionStatus: {
+            state: 'in-progress',
+            label: 'GitHub Actions - en traitement',
+            detail: 'Workflow #42 is executing.',
+            workflow: 'codex.yml',
+            runUrl: 'https://github.test/run/42',
+            runNumber: 42,
+            correlationId: 'og7-test-correlation',
+            updatedAt: '2026-05-13T00:00:00.000Z',
+          },
+        },
+      }),
+    ]);
+    fixture.detectChanges();
+
+    const status = fixture.debugElement.query(By.css('[data-github-action-state="in-progress"]'));
+    expect(status).withContext('GitHub Action status should be rendered').toBeTruthy();
+    expect(status.nativeElement.textContent).toContain('GitHub Actions - en traitement');
+    expect(status.nativeElement.textContent).toContain('#42');
   });
 });

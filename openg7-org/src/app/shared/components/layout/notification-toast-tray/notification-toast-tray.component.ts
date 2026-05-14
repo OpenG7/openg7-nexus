@@ -3,17 +3,29 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Injector,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
   NotificationEntry,
   NotificationAction,
+  NotificationCodexDispatch,
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
+import {
+  GithubActionNotificationStatus,
+  readGithubActionNotificationStatus,
+} from '@app/core/observability/github-action-notification-status';
+import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import {
+  AdminOpsCodexDispatchRequest,
+  AdminOpsService,
+} from '@app/domains/admin/data-access/admin-ops.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 const MAX_VISIBLE_TOASTS = 4;
@@ -36,9 +48,12 @@ interface DismissTimerState {
 export class NotificationToastTrayComponent {
   private readonly notificationsStore = injectNotificationStore();
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly dismissTimers = new Map<string, DismissTimerState>();
   private readonly hiddenToastIds = signal<ReadonlySet<string>>(new Set());
+  private adminOpsService: AdminOpsService | null | undefined;
+  private githubActionTracker: AdminGithubActionTrackerService | null | undefined;
 
   readonly notifications = computed(() => {
     const hiddenToastIds = this.hiddenToastIds();
@@ -128,6 +143,14 @@ export class NotificationToastTrayComponent {
     return entry.type === 'error';
   }
 
+  githubActionStatus(entry: NotificationEntry): GithubActionNotificationStatus | null {
+    return readGithubActionNotificationStatus(entry.metadata);
+  }
+
+  githubActionStateClass(status: GithubActionNotificationStatus): string {
+    return `notification-toast-tray__github-light--${status.state}`;
+  }
+
   performAction(entry: NotificationEntry, action: NotificationAction): void {
     if (action.kind === 'route' && action.route) {
       void this.router.navigateByUrl(action.route);
@@ -153,6 +176,11 @@ export class NotificationToastTrayComponent {
       return;
     }
 
+    if (action.kind === 'codex-dispatch') {
+      this.dispatchCodexAction(entry, action);
+      return;
+    }
+
     if (action.kind === 'snooze') {
       const source = entry.source ?? 'notification-toast';
       const durationMs = action.durationMs ?? 30 * 60 * 1000;
@@ -168,6 +196,71 @@ export class NotificationToastTrayComponent {
     if (action.kind === 'dismiss') {
       this.hideToast(entry.id);
     }
+  }
+
+  private dispatchCodexAction(entry: NotificationEntry, action: NotificationAction): void {
+    const codexDispatch = action.codexDispatch;
+    if (!codexDispatch?.task.trim()) {
+      this.notificationsStore.error('Prompt Codex indisponible pour cette tache.', {
+        source: entry.source ?? 'notification-toast',
+        metadata: { parentNotificationId: entry.id, actionId: action.id },
+      });
+      return;
+    }
+
+    const adminOps = this.resolveAdminOpsService();
+    if (!adminOps) {
+      this.notificationsStore.error('Console Ops indisponible pour lancer Codex.', {
+        source: entry.source ?? 'notification-toast',
+        metadata: { parentNotificationId: entry.id, actionId: action.id },
+      });
+      return;
+    }
+
+    const tracker = this.resolveGithubActionTracker();
+    const correlation = tracker?.createDispatchCorrelation(action.id) ?? null;
+    const request = {
+      ...this.toCodexDispatchRequest(codexDispatch),
+      correlationId: correlation?.correlationId ?? null,
+      idempotencyKey: correlation?.idempotencyKey ?? null,
+    };
+
+    adminOps
+      .dispatchCodexWorkflow(request, correlation ?? undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (tracker && correlation) {
+            tracker.startTracking(result, {
+              source: entry.source ?? 'notification-toast',
+              parentNotificationId: entry.id,
+              actionId: action.id,
+              ...correlation,
+            });
+          } else {
+            this.notificationsStore.info(
+              `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              {
+                source: entry.source ?? 'notification-toast',
+                metadata: {
+                  parentNotificationId: entry.id,
+                  actionId: action.id,
+                  workflow: result.workflow,
+                  ref: result.ref,
+                },
+              },
+            );
+          }
+          this.notificationsStore.markAsRead(entry.id);
+          this.hideToast(entry.id);
+        },
+        error: (error: unknown) => {
+          this.notificationsStore.error(this.resolveDispatchError(error, codexDispatch.provider), {
+            source: entry.source ?? 'notification-toast',
+            metadata: { parentNotificationId: entry.id, actionId: action.id },
+          });
+        },
+      });
   }
 
   private durationFor(type: NotificationEntry['type']): number {
@@ -192,6 +285,60 @@ export class NotificationToastTrayComponent {
       clearTimeout(state.timeout);
     }
     this.dismissTimers.delete(entryId);
+  }
+
+  private resolveAdminOpsService(): AdminOpsService | null {
+    if (this.adminOpsService !== undefined) {
+      return this.adminOpsService;
+    }
+
+    try {
+      this.adminOpsService = this.injector.get(AdminOpsService, null);
+    } catch {
+      this.adminOpsService = null;
+    }
+
+    return this.adminOpsService;
+  }
+
+  private resolveGithubActionTracker(): AdminGithubActionTrackerService | null {
+    if (this.githubActionTracker !== undefined) {
+      return this.githubActionTracker;
+    }
+
+    try {
+      this.githubActionTracker = this.injector.get(AdminGithubActionTrackerService, null);
+    } catch {
+      this.githubActionTracker = null;
+    }
+
+    return this.githubActionTracker;
+  }
+
+  private toCodexDispatchRequest(
+    dispatch: NotificationCodexDispatch,
+  ): AdminOpsCodexDispatchRequest {
+    return {
+      provider: dispatch.provider,
+      task: dispatch.task,
+      scope: dispatch.scope,
+      baseBranch: dispatch.baseBranch ?? 'main',
+      draftPr: dispatch.draftPr ?? true,
+      model: dispatch.model ?? null,
+      effort: dispatch.effort ?? null,
+    };
+  }
+
+  private providerLabel(provider: NotificationCodexDispatch['provider']): string {
+    return provider === 'codex' ? 'Codex' : provider;
+  }
+
+  private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`;
   }
 
   private async copyText(value: string): Promise<void> {

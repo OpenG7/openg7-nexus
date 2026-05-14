@@ -1,0 +1,124 @@
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { NotificationStore } from '@app/core/observability/notification.store';
+import { of } from 'rxjs';
+
+import { AdminGithubActionTrackerService } from './admin-github-action-tracker.service';
+import { AdminOpsCodexDispatchResponse, AdminOpsService } from './admin-ops.service';
+
+class MockNotificationStore {
+  info = jasmine.createSpy('info').and.returnValue('track-1');
+  updateEntry = jasmine.createSpy('updateEntry');
+}
+
+class MockAdminOpsService {
+  getAiProofs = jasmine.createSpy('getAiProofs').and.returnValue(
+    of({
+      generatedAt: '2026-05-13T00:01:00.000Z',
+      providers: [
+        {
+          provider: 'codex',
+          label: 'Codex',
+          workflow: 'codex.yml',
+          state: 'completed',
+          summary: 'Workflow #42 completed with 1 artifact.',
+          run: {
+            id: 420,
+            number: 42,
+            url: 'https://github.test/actions/runs/420',
+            displayTitle: 'Codex og7-test-correlation / openg7-org',
+            correlationId: 'og7-test-correlation',
+            status: 'completed',
+            conclusion: 'success',
+            branch: 'main',
+            createdAt: '2026-05-13T00:00:01.000Z',
+            updatedAt: '2026-05-13T00:01:00.000Z',
+          },
+          artifacts: [],
+          pullRequest: null,
+        },
+      ],
+    }),
+  );
+}
+
+describe('AdminGithubActionTrackerService', () => {
+  let service: AdminGithubActionTrackerService;
+  let notifications: MockNotificationStore;
+  let ops: MockAdminOpsService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        AdminGithubActionTrackerService,
+        { provide: NotificationStore, useClass: MockNotificationStore },
+        { provide: AdminOpsService, useClass: MockAdminOpsService },
+      ],
+    });
+
+    service = TestBed.inject(AdminGithubActionTrackerService);
+    notifications = TestBed.inject(NotificationStore) as unknown as MockNotificationStore;
+    ops = TestBed.inject(AdminOpsService) as unknown as MockAdminOpsService;
+  });
+
+  it('creates a tracked notification and updates it with the correlated GitHub run state', fakeAsync(() => {
+    service.startTracking(createDispatch(), {
+      source: 'admin-quality-agent',
+      parentNotificationId: 'agent-1',
+      actionId: 'dispatch-codex',
+      correlationId: 'og7-test-correlation',
+      idempotencyKey: 'og7-test-correlation-dispatch-codex',
+    });
+
+    tick(0);
+
+    expect(notifications.info).toHaveBeenCalledWith(
+      'Dispatch recu; en attente du run codex.yml.',
+      jasmine.objectContaining({
+        title: 'Codex - GitHub Actions',
+        metadata: jasmine.objectContaining({
+          correlationId: 'og7-test-correlation',
+          githubActionStatus: jasmine.objectContaining({ state: 'queued' }),
+        }),
+      }),
+    );
+    expect(ops.getAiProofs).toHaveBeenCalledWith('og7-test-correlation');
+    expect(notifications.updateEntry).toHaveBeenCalledWith(
+      'track-1',
+      jasmine.objectContaining({
+        type: 'success',
+        message: 'Workflow #42 completed with 1 artifact.',
+        metadata: jasmine.objectContaining({
+          githubActionStatus: jasmine.objectContaining({
+            state: 'completed',
+            runNumber: 42,
+            runUrl: 'https://github.test/actions/runs/420',
+          }),
+        }),
+      }),
+    );
+  }));
+});
+
+function createDispatch(): AdminOpsCodexDispatchResponse {
+  return {
+    queued: true,
+    provider: 'github-actions',
+    selectedProvider: 'codex',
+    owner: 'OpenG7',
+    repo: 'openg7-platform',
+    workflow: 'codex.yml',
+    ref: 'main',
+    requestedAt: '2026-05-13T00:00:00.000Z',
+    request: {
+      selectedProvider: 'codex',
+      scope: 'openg7-org',
+      baseBranch: 'main',
+      draftPr: true,
+      model: 'gpt-5.4',
+      effort: null,
+      correlationId: 'og7-test-correlation',
+      idempotencyKey: 'og7-test-correlation-dispatch-codex',
+      taskLength: 32,
+    },
+  };
+}

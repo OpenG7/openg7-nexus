@@ -1271,6 +1271,8 @@
                         "id": { "type": "integer", "nullable": true },
                         "number": { "type": "integer", "nullable": true },
                         "url": { "type": "string", "nullable": true },
+                        "displayTitle": { "type": "string", "nullable": true },
+                        "correlationId": { "type": "string", "nullable": true },
                         "status": { "type": "string", "nullable": true },
                         "conclusion": { "type": "string", "nullable": true },
                         "branch": { "type": "string", "nullable": true },
@@ -1332,7 +1334,9 @@
           "baseBranch": { "type": "string" },
           "draftPr": { "type": "boolean" },
           "model": { "type": "string", "nullable": true },
-          "effort": { "type": "string", "nullable": true }
+          "effort": { "type": "string", "nullable": true },
+          "correlationId": { "type": "string", "nullable": true },
+          "idempotencyKey": { "type": "string", "nullable": true }
         }
       },
       "AdminOpsCodexDispatchResponse": {
@@ -1373,6 +1377,8 @@
                   "draftPr": { "type": "boolean" },
                   "model": { "type": "string", "nullable": true },
                   "effort": { "type": "string", "nullable": true },
+                    "correlationId": { "type": "string", "nullable": true },
+                    "idempotencyKey": { "type": "string", "nullable": true },
                   "taskLength": { "type": "integer" }
                 }
               }

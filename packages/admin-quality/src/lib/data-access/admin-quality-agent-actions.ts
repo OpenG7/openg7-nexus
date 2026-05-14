@@ -1,16 +1,22 @@
 import type { AdminQualityNotificationAction } from '../admin-quality.tokens';
+import { buildDelegationPlan } from '../pages/admin-quality-delegation';
 
+import { resolveAdminAiProviderOption } from './admin-ai-providers';
 import type { AdminQualityMatrixEntry } from './admin-quality-matrix.service';
+import type { AdminOpsCodexScope } from './admin-ops.service';
 
 const MAX_AGENT_TASK_ACTIONS = 4;
 const TASK_LABEL_MAX_LENGTH = 34;
+const CODEX_PROVIDER = 'codex' as const;
 
 export interface AdminQualityAgentTaskActionInput {
   readonly entryId: string;
   readonly domain: string;
   readonly actionLabel: string;
+  readonly task?: string | null;
+  readonly targetFiles?: readonly string[];
+  readonly nextMove?: string | null;
 }
-
 
 export function buildAdminQualityAgentTaskActions(
   entries: readonly AdminQualityMatrixEntry[],
@@ -20,24 +26,67 @@ export function buildAdminQualityAgentTaskActions(
     .slice()
     .sort(compareCodexDevelopmentCandidates)
     .slice(0, MAX_AGENT_TASK_ACTIONS)
-    .map((entry) =>
-      buildAdminQualityAgentTaskAction({
+    .map((entry) => {
+      const plan = buildDelegationPlan(entry);
+      return buildAdminQualityAgentTaskAction({
         entryId: entry.id,
         domain: entry.domain,
         actionLabel: actionLabelForEntry(entry),
-      }),
-    );
+        task: plan.codexPrompt,
+        targetFiles: plan.targetFiles,
+        nextMove: entry.nextMove,
+      });
+    });
 }
 
 export function buildAdminQualityAgentTaskAction(
   input: AdminQualityAgentTaskActionInput,
 ): AdminQualityNotificationAction {
+  const targetFiles = input.targetFiles ?? [];
+  const codexModel = resolveAdminAiProviderOption(CODEX_PROVIDER).defaultModel;
+
   return {
     id: `admin-quality-agent-task-${sanitizeActionId(input.entryId)}`,
     label: compactTaskLabel(`Codex ${input.actionLabel}`, input.domain),
-    kind: 'copy',
-    command: `yarn admin:quality:agent -- --entry-id ${input.entryId}`,
+    kind: 'codex-dispatch',
+    codexDispatch: {
+      provider: CODEX_PROVIDER,
+      task: input.task?.trim() || buildFallbackCodexTask(input),
+      scope: resolveCodexScope(targetFiles),
+      baseBranch: 'main',
+      draftPr: true,
+      model: codexModel,
+      effort: null,
+    },
   };
+}
+
+function buildFallbackCodexTask(input: AdminQualityAgentTaskActionInput): string {
+  return [
+    `Objectif: ${input.actionLabel} pour le domaine "${input.domain}".`,
+    `Entry id: ${input.entryId}`,
+    input.nextMove ? `Resultat attendu: ${input.nextMove}` : null,
+    '',
+    'Utilise la matrice admin-quality pour generer le developpement cible, garder les changements limites au scope et proposer les validations pertinentes.',
+  ]
+    .filter((line): line is string => line !== null)
+    .join('\n');
+}
+
+function resolveCodexScope(targetFiles: readonly string[]): AdminOpsCodexScope {
+  if (targetFiles.length && targetFiles.every((file) => file.startsWith('strapi/'))) {
+    return 'strapi';
+  }
+  if (targetFiles.some((file) => file.startsWith('packages/contracts/'))) {
+    return 'packages-contracts';
+  }
+  if (targetFiles.some((file) => file.startsWith('packages/tooling/'))) {
+    return 'packages-tooling';
+  }
+  if (targetFiles.some((file) => file.startsWith('openg7-org/'))) {
+    return 'openg7-org';
+  }
+  return 'repository-root';
 }
 
 function isCodexDevelopmentCandidate(entry: AdminQualityMatrixEntry): boolean {
