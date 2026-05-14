@@ -19,23 +19,23 @@ import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
 import {
+  GithubActionNotificationStatus,
+  readGithubActionNotificationStatus,
+} from '@app/core/observability/github-action-notification-status';
+import {
   NotificationAction,
   NotificationEntry,
   NotificationCodexDispatch,
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
-import {
-  GithubActionNotificationStatus,
-  readGithubActionNotificationStatus,
-} from '@app/core/observability/github-action-notification-status';
+import { RbacFacadeService } from '@app/core/security/rbac.facade';
+import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
+import { UserAlertsService } from '@app/core/user-alerts.service';
 import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
 import {
   AdminOpsCodexDispatchRequest,
   AdminOpsService,
 } from '@app/domains/admin/data-access/admin-ops.service';
-import { RbacFacadeService } from '@app/core/security/rbac.facade';
-import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
-import { UserAlertsService } from '@app/core/user-alerts.service';
 import { QuickSearchLauncherService } from '@app/domains/search/feature/quick-search-modal/quick-search-launcher.service';
 import { TranslateModule, TranslateService, LangChangeEvent } from '@ngx-translate/core';
 

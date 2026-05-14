@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 
 import {
+  buildAdminQualityAgentTaskAction,
+  buildAdminQualityAgentTaskActions,
+} from './admin-quality-agent-actions';
+import {
   AdminQualityMatrixEntry,
   AdminQualityMatrixSnapshot,
 } from './admin-quality-matrix.service';
 import { ADMIN_QUALITY_NOTIFICATIONS, ADMIN_QUALITY_ROUTE_CONFIG } from './admin-quality.ports';
-import {
-  buildAdminQualityAgentTaskAction,
-  buildAdminQualityAgentTaskActions,
-} from './admin-quality-agent-actions';
 
 export interface AdminQualityAgentWorkloadAdviceInput {
   readonly snapshot: AdminQualityMatrixSnapshot;

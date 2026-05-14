@@ -99,7 +99,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 545,
+        line: 561,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1062,7 +1062,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 537,
+        line: 553,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1302,7 +1302,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 515,
+        line: 531,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1634,7 +1634,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 600,
+        line: 616,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1673,7 +1673,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 634,
+        line: 666,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1692,7 +1692,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 493,
+        line: 509,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -2716,7 +2716,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 529,
+        line: 545,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,

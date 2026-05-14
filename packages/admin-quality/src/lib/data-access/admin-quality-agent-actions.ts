@@ -2,8 +2,8 @@ import type { AdminQualityNotificationAction } from '../admin-quality.tokens';
 import { buildDelegationPlan } from '../pages/admin-quality-delegation';
 
 import { resolveAdminAiProviderOption } from './admin-ai-providers';
-import type { AdminQualityMatrixEntry } from './admin-quality-matrix.service';
 import type { AdminOpsCodexScope } from './admin-ops.service';
+import type { AdminQualityMatrixEntry } from './admin-quality-matrix.service';
 
 const MAX_AGENT_TASK_ACTIONS = 4;
 const TASK_LABEL_MAX_LENGTH = 34;
