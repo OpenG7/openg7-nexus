@@ -5,6 +5,10 @@ import {
   AdminQualityMatrixSnapshot,
 } from './admin-quality-matrix.service';
 import { ADMIN_QUALITY_NOTIFICATIONS, ADMIN_QUALITY_ROUTE_CONFIG } from './admin-quality.ports';
+import {
+  buildAdminQualityAgentTaskAction,
+  buildAdminQualityAgentTaskActions,
+} from './admin-quality-agent-actions';
 
 export interface AdminQualityAgentWorkloadAdviceInput {
   readonly snapshot: AdminQualityMatrixSnapshot;
@@ -65,29 +69,16 @@ export class AdminQualityAgentAdvisorService {
       return;
     }
 
+    const taskActions = buildAdminQualityAgentTaskActions(openEntries);
+
     this.notifications.info(
       `Agent admin-quality: ${openEntries.length} chantier(s) ouvert(s), ${automationReadyCount} automatisable(s), ${decisionCount} decision(s) humaine(s), ${input.proofGapCount} preuve(s) a renforcer.`,
       {
         title: 'Agent admin-quality',
         source: AGENT_SOURCE,
-        actions: [
-          this.openAgentCockpitAction(),
-          {
-            id: 'admin-quality-agent-toast-copy-preview',
-            label: 'Copier diagnostic',
-            kind: 'copy' as const,
-            command: 'yarn admin:quality:agent',
-          },
-          automationReadyCount
-            ? {
-                id: 'admin-quality-agent-toast-copy-apply',
-                label: 'Copier apply',
-                kind: 'copy' as const,
-                command: 'yarn admin:quality:agent:apply',
-              }
-            : null,
-          this.snoozeAgentAction(),
-        ].filter((action): action is NonNullable<typeof action> => action !== null),
+        actions: taskActions.length
+          ? taskActions
+          : [this.openAgentCockpitAction(), this.snoozeAgentAction()],
         metadata: {
           kind: 'agent-workload',
           openCount: openEntries.length,
@@ -95,6 +86,7 @@ export class AdminQualityAgentAdvisorService {
           decisionCount,
           proofCount: input.proofGapCount,
           refreshCount: input.refreshRequiredCount,
+          taskActionCount: taskActions.length,
         },
       },
     );
@@ -113,14 +105,11 @@ export class AdminQualityAgentAdvisorService {
         title: 'Proposition agent',
         source: AGENT_SOURCE,
         actions: [
-          this.openAgentCockpitAction(),
-          {
-            id: 'admin-quality-agent-toast-copy-selected',
-            label: 'Copier chantier',
-            kind: 'copy' as const,
-            command: `yarn admin:quality:agent -- --entry-id ${input.entryId}`,
-          },
-          this.snoozeAgentAction(),
+          buildAdminQualityAgentTaskAction({
+            entryId: input.entryId,
+            domain: input.domain,
+            actionLabel: input.actionLabel,
+          }),
         ],
         metadata: {
           kind: 'agent-next-work',

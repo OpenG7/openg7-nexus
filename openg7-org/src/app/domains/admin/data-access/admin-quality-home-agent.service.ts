@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
 import { AuthUser } from '@app/core/auth/auth.types';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
+import { buildAdminQualityAgentTaskActions } from '@openg7/admin-quality';
 import { filter, finalize, map } from 'rxjs/operators';
 
 import { AdminQualityMatrixEntry, AdminQualityMatrixService } from './admin-quality-matrix.service';
@@ -97,29 +98,16 @@ export class AdminQualityHomeAgentService {
             return;
           }
 
+          const taskActions = buildAdminQualityAgentTaskActions(openEntries);
+
           this.notifications.info(
             `Agent de developpement actif pour ${user.email}: ${openEntries.length} chantier(s), ${automationReadyCount} automatisable(s), ${decisionCount} decision(s) humaine(s).`,
             {
               title: 'Agent admin-quality',
               source: AGENT_SOURCE,
-              actions: [
-                this.openAgentCockpitAction(),
-                {
-                  id: 'admin-quality-agent-home-copy-preview',
-                  label: 'Copier diagnostic',
-                  kind: 'copy' as const,
-                  command: 'yarn admin:quality:agent',
-                },
-                automationReadyCount
-                  ? {
-                      id: 'admin-quality-agent-home-copy-apply',
-                      label: 'Copier apply',
-                      kind: 'copy' as const,
-                      command: 'yarn admin:quality:agent:apply',
-                    }
-                  : null,
-                this.snoozeAgentAction(),
-              ].filter((action): action is NonNullable<typeof action> => action !== null),
+              actions: taskActions.length
+                ? taskActions
+                : [this.openAgentCockpitAction(), this.snoozeAgentAction()],
               metadata: {
                 kind: 'home-agent-activation',
                 userId: user.id,
@@ -129,6 +117,7 @@ export class AdminQualityHomeAgentService {
                 automationReadyCount,
                 decisionCount,
                 proofCount,
+                taskActionCount: taskActions.length,
                 generatedAt: snapshot.generatedAt,
               },
             },

@@ -1,5 +1,6 @@
 export * from './lib/admin-quality.tokens';
 export * from './lib/data-access/admin-ai-providers';
+export * from './lib/data-access/admin-quality-agent-actions';
 export * from './lib/data-access/admin-quality-agent-advisor.service';
 export * from './lib/data-access/admin-ops.service';
 export * from './lib/data-access/admin-quality-browser.service';

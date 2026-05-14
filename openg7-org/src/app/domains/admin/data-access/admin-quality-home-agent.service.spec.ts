@@ -76,9 +76,24 @@ describe('AdminQualityHomeAgentService', () => {
       jasmine.stringMatching(/contact@openg7\.org/),
       jasmine.objectContaining({
         source: 'admin-quality-agent',
-        metadata: jasmine.objectContaining({ roleGate: 'system-admin', openCount: 1 }),
+        actions: jasmine.arrayContaining([
+          jasmine.objectContaining({
+            label: 'Codex Preuve: Qualite admin',
+            kind: 'copy',
+            command: 'yarn admin:quality:agent -- --entry-id AG-1',
+          }),
+        ]),
+        metadata: jasmine.objectContaining({
+          roleGate: 'system-admin',
+          openCount: 1,
+          taskActionCount: 1,
+        }),
       }),
     );
+
+    const [, options] = notifications.info.calls.mostRecent().args;
+    expect(options?.actions?.some((action) => action.label === 'Copier diagnostic')).toBeFalse();
+    expect(options?.actions?.some((action) => action.label === 'Copier apply')).toBeFalse();
   });
 
   it('waits until the system admin reaches the home page before activating', () => {

@@ -15,6 +15,8 @@
           [attr.role]="isError(item) ? 'alert' : 'status'"
           data-og7="notification-toast"
           [attr.data-og7-id]="item.type"
+          (mouseenter)="pauseDismissTimer(item.id)"
+          (mouseleave)="resumeDismissTimer(item.id)"
         >
           <div class="notification-toast-tray__header">
             <p class="notification-toast-tray__title">
@@ -23,7 +25,7 @@
             <button
               type="button"
               class="notification-toast-tray__dismiss"
-              (click)="dismiss(item.id)"
+              (click)="hideToast(item.id)"
               [attr.aria-label]="'notifications.panel.dismiss' | translate"
               data-og7="notification-toast-dismiss"
             >

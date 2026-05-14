@@ -6,6 +6,7 @@ import {
   computed,
   effect,
   inject,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -16,6 +17,13 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 const MAX_VISIBLE_TOASTS = 4;
+
+interface DismissTimerState {
+  readonly timeout: ReturnType<typeof setTimeout> | null;
+  readonly startedAt: number;
+  readonly remainingMs: number;
+  readonly paused: boolean;
+}
 
 @Component({
   selector: 'og7-notification-toast-tray',
@@ -29,11 +37,16 @@ export class NotificationToastTrayComponent {
   private readonly notificationsStore = injectNotificationStore();
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
-  private readonly dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly dismissTimers = new Map<string, DismissTimerState>();
+  private readonly hiddenToastIds = signal<ReadonlySet<string>>(new Set());
 
-  readonly notifications = computed(() =>
-    this.notificationsStore.entries().slice(0, MAX_VISIBLE_TOASTS),
-  );
+  readonly notifications = computed(() => {
+    const hiddenToastIds = this.hiddenToastIds();
+    return this.notificationsStore
+      .entries()
+      .filter((entry) => !hiddenToastIds.has(entry.id))
+      .slice(0, MAX_VISIBLE_TOASTS);
+  });
 
   constructor() {
     effect(() => {
@@ -45,24 +58,20 @@ export class NotificationToastTrayComponent {
           continue;
         }
 
-        const timer = setTimeout(() => {
-          this.dismiss(entry.id);
-        }, this.durationFor(entry.type));
-        this.dismissTimers.set(entry.id, timer);
+        this.startDismissTimer(entry.id, this.durationFor(entry.type));
       }
 
-      for (const [entryId, timer] of this.dismissTimers.entries()) {
+      for (const entryId of this.dismissTimers.keys()) {
         if (currentIds.has(entryId)) {
           continue;
         }
-        clearTimeout(timer);
-        this.dismissTimers.delete(entryId);
+        this.clearDismissTimer(entryId);
       }
     });
 
     this.destroyRef.onDestroy(() => {
-      for (const timer of this.dismissTimers.values()) {
-        clearTimeout(timer);
+      for (const entryId of this.dismissTimers.keys()) {
+        this.clearDismissTimer(entryId);
       }
       this.dismissTimers.clear();
     });
@@ -73,12 +82,46 @@ export class NotificationToastTrayComponent {
   }
 
   dismiss(entryId: string): void {
-    const timer = this.dismissTimers.get(entryId);
-    if (timer) {
-      clearTimeout(timer);
-      this.dismissTimers.delete(entryId);
-    }
+    this.clearDismissTimer(entryId);
     this.notificationsStore.dismiss(entryId);
+  }
+
+  hideToast(entryId: string): void {
+    this.clearDismissTimer(entryId);
+    this.hiddenToastIds.update((hiddenToastIds) => {
+      const next = new Set(hiddenToastIds);
+      next.add(entryId);
+      return next;
+    });
+  }
+
+  pauseDismissTimer(entryId: string): void {
+    const state = this.dismissTimers.get(entryId);
+    if (!state || state.paused || !state.timeout) {
+      return;
+    }
+
+    clearTimeout(state.timeout);
+    this.dismissTimers.set(entryId, {
+      timeout: null,
+      startedAt: state.startedAt,
+      remainingMs: Math.max(0, state.remainingMs - (Date.now() - state.startedAt)),
+      paused: true,
+    });
+  }
+
+  resumeDismissTimer(entryId: string): void {
+    const state = this.dismissTimers.get(entryId);
+    if (!state || !state.paused) {
+      return;
+    }
+
+    if (state.remainingMs <= 0) {
+      this.hideToast(entryId);
+      return;
+    }
+
+    this.startDismissTimer(entryId, state.remainingMs);
   }
 
   isError(entry: NotificationEntry): boolean {
@@ -88,7 +131,7 @@ export class NotificationToastTrayComponent {
   performAction(entry: NotificationEntry, action: NotificationAction): void {
     if (action.kind === 'route' && action.route) {
       void this.router.navigateByUrl(action.route);
-      this.dismiss(entry.id);
+      this.hideToast(entry.id);
       return;
     }
 
@@ -99,7 +142,7 @@ export class NotificationToastTrayComponent {
             source: entry.source ?? 'notification-toast',
             metadata: { parentNotificationId: entry.id, actionId: action.id },
           });
-          this.dismiss(entry.id);
+          this.hideToast(entry.id);
         })
         .catch(() => {
           this.notificationsStore.error('Impossible de copier la commande agent.', {
@@ -118,17 +161,37 @@ export class NotificationToastTrayComponent {
         source: 'notification-toast',
         metadata: { parentNotificationId: entry.id, actionId: action.id, snoozedSource: source },
       });
-      this.dismiss(entry.id);
+      this.hideToast(entry.id);
       return;
     }
 
     if (action.kind === 'dismiss') {
-      this.dismiss(entry.id);
+      this.hideToast(entry.id);
     }
   }
 
   private durationFor(type: NotificationEntry['type']): number {
     return type === 'error' ? 8000 : 5000;
+  }
+
+  private startDismissTimer(entryId: string, durationMs: number): void {
+    const timeout = setTimeout(() => {
+      this.hideToast(entryId);
+    }, durationMs);
+    this.dismissTimers.set(entryId, {
+      timeout,
+      startedAt: Date.now(),
+      remainingMs: durationMs,
+      paused: false,
+    });
+  }
+
+  private clearDismissTimer(entryId: string): void {
+    const state = this.dismissTimers.get(entryId);
+    if (state?.timeout) {
+      clearTimeout(state.timeout);
+    }
+    this.dismissTimers.delete(entryId);
   }
 
   private async copyText(value: string): Promise<void> {
