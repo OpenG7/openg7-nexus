@@ -260,6 +260,13 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
 
     await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7-id="admin-trust-evidence-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'validated',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-evidence-status"]')).toContainText(
+      'Validated',
+    );
     await page.locator('[data-og7-id="admin-trust-quick-correction"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
@@ -326,6 +333,10 @@ test.describe('Company or partner enrichment lifecycle', () => {
           occurredAt: '2026-04-01',
         }),
         expect.objectContaining({
+          label: 'Evidence package needs follow-up',
+          notes: 'Provide renewed chamber certificate and updated grid compliance memo.',
+        }),
+        expect.objectContaining({
           label: 'Corrections requested',
           notes: 'Provide renewed chamber certificate and updated grid compliance memo.',
         }),
@@ -338,6 +349,19 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     await expect(page.locator('[data-og7-id="admin-trust-status"]')).toHaveValue(
       'correctionRequested',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-evidence-status"]')).toHaveAttribute(
+      'data-og7-state',
+      'followUp',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-evidence-status"]')).toContainText(
+      'Needs follow-up',
+    );
+    await expect(page.locator('[data-og7="admin-trust-evidence-trace"]')).toContainText(
+      'Evidence package needs follow-up',
+    );
+    await expect(page.locator('[data-og7="admin-trust-evidence-trace"]')).toContainText(
+      'Provide renewed chamber certificate and updated grid compliance memo.',
     );
     await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText(
       'Correction requested',
@@ -384,6 +408,10 @@ test.describe('Company or partner enrichment lifecycle', () => {
     );
     expect(approvalPayload.data?.trustHistory).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Evidence package validated',
+          notes: 'Renewed evidence package approved after corrective review.',
+        }),
         expect.objectContaining({
           label: 'Verification approved',
           notes: 'Renewed evidence package approved after corrective review.',
@@ -439,6 +467,9 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     await page.goto('/partners/1001?role=supplier');
     const trustPanel = page.locator('[data-og7="partner-trust"]');
+    const evidenceLifecycle = page.locator('[data-og7="partner-evidence-lifecycle"]');
+    const evidenceStatus = page.locator('[data-og7-id="partner-evidence-status"]');
+    const evidenceTrace = page.locator('[data-og7="partner-evidence-trace"]');
     const publicationLifecycle = page.locator('[data-og7="partner-publication-lifecycle"]');
     const publicationStatus = page.locator('[data-og7-id="partner-publication-status"]');
     const publicationTrace = page.locator('[data-og7="partner-publication-trace"]');
@@ -446,6 +477,15 @@ test.describe('Company or partner enrichment lifecycle', () => {
     const reviewDecision = page.locator('[data-og7="partner-trust-review-decision"]');
 
     await expect(trustPanel).toBeVisible();
+    await expect(evidenceLifecycle).toBeVisible();
+    await expect(evidenceStatus).toHaveAttribute('data-og7-state', 'validated');
+    await expect(page.locator('[data-og7-id="partner-evidence-summary"]')).toContainText(
+      'validated for downstream review',
+    );
+    await expect(evidenceTrace).toContainText('Evidence package validated');
+    await expect(evidenceTrace).toContainText(
+      'Renewed evidence package approved after corrective review.',
+    );
     await expect(publicationLifecycle).toBeVisible();
     await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
     await expect(page.locator('[data-og7-id="partner-publication-summary"]')).toContainText(
@@ -480,6 +520,12 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await page.reload();
 
     await expect(trustPanel).toBeVisible();
+    await expect(evidenceLifecycle).toBeVisible();
+    await expect(evidenceStatus).toHaveAttribute('data-og7-state', 'validated');
+    await expect(evidenceTrace).toContainText('Evidence package validated');
+    await expect(evidenceTrace).toContainText(
+      'Renewed evidence package approved after corrective review.',
+    );
     await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
     await expect(publicationTrace).toContainText('Publication approved');
     await expect(publicationTrace).toContainText(

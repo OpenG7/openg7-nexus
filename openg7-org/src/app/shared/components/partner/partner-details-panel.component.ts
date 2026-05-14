@@ -34,6 +34,8 @@ import { of, switchMap } from 'rxjs';
 import { Og7DualQrPanelComponent } from '../qr/og7-dual-qr-panel.component';
 type PartnerDetailsTab = 'details' | 'collaboration' | 'qr';
 const PUBLICATION_HISTORY_PREFIX = 'Publication ';
+const EVIDENCE_HISTORY_PREFIX = 'Evidence package ';
+type PartnerEvidenceLifecycleState = 'missing' | 'queued' | 'validated' | 'followUp';
 let nextPanelId = 0;
 
 @Component({
@@ -231,6 +233,15 @@ export class PartnerDetailsPanelComponent {
   protected readonly partnerVerificationSources = computed<PartnerVerificationSource[]>(() => [
     ...(this.selectedPartner()?.verificationSources ?? []),
   ]);
+  protected readonly partnerEvidenceLifecycleState = computed<PartnerEvidenceLifecycleState>(() =>
+    this.resolveEvidenceLifecycleState(this.partnerVerificationSources()),
+  );
+  protected readonly partnerEvidenceLifecycleStatusKey = computed(
+    () => `partner.panel.evidence.status.${this.partnerEvidenceLifecycleState()}`,
+  );
+  protected readonly partnerEvidenceLifecycleSummaryKey = computed(
+    () => `partner.panel.evidence.summary.${this.partnerEvidenceLifecycleState()}`,
+  );
   protected readonly partnerTrustHistory = computed<PartnerTrustRecord[]>(() => {
     const history = this.selectedPartner()?.trustHistory ?? [];
     return [...history].sort((a, b) => {
@@ -258,6 +269,10 @@ export class PartnerDetailsPanelComponent {
     const publicationTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
     return publicationTrail.find((record) => this.isPublicationHistoryEntry(record)) ?? null;
   });
+  protected readonly partnerLatestEvidenceEntry = computed(() => {
+    const evidenceTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+    return evidenceTrail.find((record) => this.isEvidenceHistoryEntry(record)) ?? null;
+  });
   protected readonly partnerLatestReviewEntry = computed(() => {
     const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
     return (
@@ -265,10 +280,14 @@ export class PartnerDetailsPanelComponent {
         (record) =>
           record.type === 'evaluation' &&
           !this.isPublicationHistoryEntry(record) &&
+          !this.isEvidenceHistoryEntry(record) &&
           Boolean(record.notes?.trim()),
       ) ??
       reviewTrail.find(
-        (record) => record.type === 'evaluation' && !this.isPublicationHistoryEntry(record),
+        (record) =>
+          record.type === 'evaluation' &&
+          !this.isPublicationHistoryEntry(record) &&
+          !this.isEvidenceHistoryEntry(record),
       ) ??
       null
     );
@@ -543,6 +562,19 @@ export class PartnerDetailsPanelComponent {
     }
   }
 
+  protected evidenceLifecycleStatusClass(state: PartnerEvidenceLifecycleState): string {
+    switch (state) {
+      case 'validated':
+        return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
+      case 'followUp':
+        return 'bg-orange-500/15 text-orange-700 border border-orange-200';
+      case 'queued':
+        return 'bg-amber-500/15 text-amber-700 border border-amber-200';
+      default:
+        return 'bg-slate-200/60 text-slate-600 border border-slate-200';
+    }
+  }
+
   protected verificationSourceStatusClass(status: PartnerVerificationSource['status']): string {
     switch (status) {
       case 'validated':
@@ -598,6 +630,26 @@ export class PartnerDetailsPanelComponent {
 
   private isPublicationHistoryEntry(record: PartnerTrustRecord | null | undefined): boolean {
     return Boolean(record?.label?.startsWith(PUBLICATION_HISTORY_PREFIX));
+  }
+
+  private isEvidenceHistoryEntry(record: PartnerTrustRecord | null | undefined): boolean {
+    return Boolean(record?.label?.startsWith(EVIDENCE_HISTORY_PREFIX));
+  }
+
+  private resolveEvidenceLifecycleState(
+    sources: readonly Pick<PartnerVerificationSource, 'status'>[] | null | undefined,
+  ): PartnerEvidenceLifecycleState {
+    const list = sources ?? [];
+    if (!list.length) {
+      return 'missing';
+    }
+    if (list.some((source) => source.status === 'revoked')) {
+      return 'followUp';
+    }
+    if (list.every((source) => source.status === 'validated')) {
+      return 'validated';
+    }
+    return 'queued';
   }
 
   protected close(): void {

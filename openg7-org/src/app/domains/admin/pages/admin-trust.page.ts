@@ -60,6 +60,17 @@ const HISTORY_DIRECTION_LABELS: Record<CompanyTrustDirection, string> = {
   outbound: 'Outbound',
 };
 
+type EvidenceLifecycleState = 'missing' | 'queued' | 'validated' | 'followUp';
+
+const EVIDENCE_ENTRY_LABELS: Record<EvidenceLifecycleState, string> = {
+  missing: 'Evidence package removed',
+  queued: 'Evidence package queued',
+  validated: 'Evidence package validated',
+  followUp: 'Evidence package needs follow-up',
+};
+
+const EVIDENCE_HISTORY_PREFIX = 'Evidence package ';
+
 @Component({
   standalone: true,
   selector: 'og7-admin-trust-page',
@@ -87,6 +98,12 @@ export class AdminTrustPage implements OnInit {
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
   protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
+  protected readonly selectedEvidenceLifecycleState = computed<EvidenceLifecycleState>(() =>
+    this.evidenceLifecycleState(this.sources()),
+  );
+  protected readonly selectedEvidenceLifecycleEntry = computed(() =>
+    this.latestEvidenceEntry(this.history()),
+  );
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
@@ -218,6 +235,32 @@ export class AdminTrustPage implements OnInit {
     return HISTORY_DIRECTION_LABELS[direction] ?? direction;
   }
 
+  evidenceLifecycleLabel(state: EvidenceLifecycleState): string {
+    switch (state) {
+      case 'validated':
+        return 'Validated';
+      case 'followUp':
+        return 'Needs follow-up';
+      case 'queued':
+        return 'Queued';
+      default:
+        return 'Missing';
+    }
+  }
+
+  evidenceLifecycleSummary(state: EvidenceLifecycleState): string {
+    switch (state) {
+      case 'validated':
+        return 'All attached evidence sources are validated for downstream review.';
+      case 'followUp':
+        return 'At least one source is revoked or needs corrective follow-up.';
+      case 'queued':
+        return 'The evidence package exists but still needs validation before approval.';
+      default:
+        return 'No evidence package is currently attached to this partner.';
+    }
+  }
+
   reviewSummary(company: CompanyRecord): string {
     switch (company.verificationStatus) {
       case 'verified':
@@ -255,7 +298,7 @@ export class AdminTrustPage implements OnInit {
     if (sources.some((source) => source.status === 'revoked')) {
       reasons.push('At least one badge source is revoked and needs follow-up.');
     }
-    if (!history.some((record) => record.type === 'evaluation')) {
+    if (!history.some((record) => record.type === 'evaluation' && !this.isEvidenceEntry(record))) {
       reasons.push('No formal evaluation has been logged for this company.');
     }
     if (company.verificationStatus !== nextStatus) {
@@ -454,11 +497,14 @@ export class AdminTrustPage implements OnInit {
 
     const nextStatus = this.statusControl.value;
     const nextPublicationStatus = this.publicationStatusControl.value;
+    const nextSources = this.sources();
     const publicationStatusChanged = company.status !== nextPublicationStatus;
+    const evidenceEntry = this.buildEvidenceEntry(company, nextSources);
     const publicationEntry = this.buildPublicationEntry(company, nextPublicationStatus);
     const decisionEntry = this.buildReviewEntry(company, nextStatus, publicationStatusChanged);
     const trustHistory = [
       ...this.history(),
+      ...(evidenceEntry ? [evidenceEntry] : []),
       ...(publicationEntry ? [publicationEntry] : []),
       ...(decisionEntry ? [decisionEntry] : []),
     ];
@@ -468,7 +514,7 @@ export class AdminTrustPage implements OnInit {
       .updateVerification(company.id, {
         status: nextPublicationStatus,
         verificationStatus: nextStatus,
-        verificationSources: this.sources(),
+        verificationSources: nextSources,
         trustHistory,
       })
       .subscribe({
@@ -536,6 +582,88 @@ export class AdminTrustPage implements OnInit {
     sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined,
   ): boolean {
     return (sources ?? []).some((source) => source.status === 'validated');
+  }
+
+  private evidenceLifecycleState(
+    sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined,
+  ): EvidenceLifecycleState {
+    const list = sources ?? [];
+    if (!list.length) {
+      return 'missing';
+    }
+    if (list.some((source) => source.status === 'revoked')) {
+      return 'followUp';
+    }
+    if (list.every((source) => source.status === 'validated')) {
+      return 'validated';
+    }
+    return 'queued';
+  }
+
+  private latestEvidenceEntry(
+    history: readonly CompanyTrustRecord[] | null | undefined,
+  ): CompanyTrustRecord | null {
+    const trail = [...(history ?? [])].reverse();
+    return trail.find((record) => this.isEvidenceEntry(record)) ?? null;
+  }
+
+  private isEvidenceEntry(record: CompanyTrustRecord | null | undefined): boolean {
+    return Boolean(record?.label?.startsWith(EVIDENCE_HISTORY_PREFIX));
+  }
+
+  private buildEvidenceEntry(
+    company: CompanyRecord,
+    nextSources: readonly CompanyVerificationSource[],
+  ): CompanyTrustRecord | null {
+    if (!this.sourcesChanged(company.verificationSources, nextSources)) {
+      return null;
+    }
+
+    const nextState = this.evidenceLifecycleState(nextSources);
+    const reviewNote = this.reviewNoteControl.value.trim();
+    return {
+      id: null,
+      label: EVIDENCE_ENTRY_LABELS[nextState],
+      type: 'evaluation',
+      direction: 'inbound',
+      occurredAt: this.today(),
+      score: null,
+      notes: reviewNote || this.defaultEvidenceNote(nextState),
+    };
+  }
+
+  private sourcesChanged(
+    current: readonly CompanyVerificationSource[],
+    next: readonly CompanyVerificationSource[],
+  ): boolean {
+    if (current.length !== next.length) {
+      return true;
+    }
+
+    return current.some(
+      (source, index) => this.sourceSignature(source) !== this.sourceSignature(next[index]),
+    );
+  }
+
+  private sourceSignature(
+    source: CompanyVerificationSource | undefined,
+  ): string {
+    if (!source) {
+      return '';
+    }
+
+    return JSON.stringify({
+      id: source.id ?? null,
+      name: source.name.trim(),
+      type: source.type,
+      status: source.status,
+      referenceId: source.referenceId?.trim() || null,
+      url: source.url?.trim() || null,
+      evidenceUrl: source.evidenceUrl?.trim() || null,
+      issuedAt: source.issuedAt || null,
+      lastCheckedAt: source.lastCheckedAt || null,
+      notes: source.notes?.trim() || null,
+    });
   }
 
   private buildReviewEntry(
@@ -634,6 +762,19 @@ export class AdminTrustPage implements OnInit {
         return 'Profile has been removed from public discovery pending follow-up.';
       default:
         return 'Profile remains queued until publication checks are complete.';
+    }
+  }
+
+  private defaultEvidenceNote(state: EvidenceLifecycleState): string {
+    switch (state) {
+      case 'validated':
+        return 'All attached evidence sources are validated and ready for downstream trust review.';
+      case 'followUp':
+        return 'At least one attached evidence source needs corrective follow-up.';
+      case 'queued':
+        return 'Evidence package changes were queued for validation.';
+      default:
+        return 'The evidence package was removed from this partner profile.';
     }
   }
 

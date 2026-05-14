@@ -136,8 +136,30 @@
               Public profile status:
               <strong>{{ publicationStatusLabel(publicationStatusControl.value) }}</strong>
             </p>
+            <p>
+              Evidence package:
+              <strong
+                data-og7-id="admin-trust-evidence-status"
+                [attr.data-og7-state]="selectedEvidenceLifecycleState()"
+                >{{ evidenceLifecycleLabel(selectedEvidenceLifecycleState()) }}</strong
+              >
+            </p>
+            <p class="text-xs leading-relaxed text-slate-500">
+              {{ evidenceLifecycleSummary(selectedEvidenceLifecycleState()) }}
+            </p>
             <p>Total badges: <strong>{{ sources().length }}</strong></p>
             <p>Recorded events: <strong>{{ history().length }}</strong></p>
+            @if (selectedEvidenceLifecycleEntry(); as evidenceEntry) {
+            <div
+              class="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600"
+              data-og7="admin-trust-evidence-trace"
+            >
+              <p class="font-semibold text-slate-800">{{ evidenceEntry.label }}</p>
+              @if (evidenceEntry.notes) {
+              <p class="mt-1 leading-relaxed">{{ evidenceEntry.notes }}</p>
+              }
+            </div>
+            }
           </div>
         </div>
 

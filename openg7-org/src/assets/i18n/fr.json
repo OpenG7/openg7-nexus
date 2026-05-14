@@ -4715,6 +4715,24 @@
         "reviewDecisionTitle": "Dernière décision de revue",
         "reviewDecisionDate": "Revu le {{ value }}"
       },
+      "evidence": {
+        "title": "Cycle du dossier de preuves",
+        "statusHelp": "Suit si le dossier de preuves est absent, en file, en suivi correctif, ou entièrement validé pour la revue aval.",
+        "status": {
+          "missing": "Preuves absentes",
+          "queued": "En file",
+          "validated": "Validé",
+          "followUp": "Suivi requis"
+        },
+        "summary": {
+          "missing": "Aucun dossier de preuves n'est actuellement rattaché à ce partenaire.",
+          "queued": "Le dossier de preuves existe mais attend encore sa validation ou sa complétion.",
+          "validated": "Toutes les sources de preuves rattachées sont validées pour la revue aval.",
+          "followUp": "Au moins une source de preuves est révoquée ou demande un suivi correctif."
+        },
+        "latestTitle": "Dernière mise à jour des preuves",
+        "latestDate": "Mis à jour le {{ value }}"
+      },
       "publication": {
         "title": "Cycle de publication public",
         "statusHelp": "Suit si ce profil partenaire est en attente, publié ou temporairement retiré de la découverte.",

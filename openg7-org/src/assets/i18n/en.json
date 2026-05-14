@@ -4763,6 +4763,24 @@
           }
         }
       },
+      "evidence": {
+        "title": "Evidence package lifecycle",
+        "statusHelp": "Track whether the supporting evidence package is missing, queued, needs follow-up, or is fully validated for downstream review.",
+        "status": {
+          "missing": "Missing evidence",
+          "queued": "Queued",
+          "validated": "Validated",
+          "followUp": "Needs follow-up"
+        },
+        "summary": {
+          "missing": "No supporting evidence package is currently attached to this partner.",
+          "queued": "The evidence package exists but still awaits validation or completion.",
+          "validated": "All attached evidence sources are validated for downstream review.",
+          "followUp": "At least one evidence source is revoked or needs corrective follow-up."
+        },
+        "latestTitle": "Latest evidence update",
+        "latestDate": "Updated {{ value }}"
+      },
       "publication": {
         "title": "Public profile lifecycle",
         "statusHelp": "Track whether this partner profile is queued, published, or temporarily hidden from discovery.",
