@@ -6175,6 +6175,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@openg7/tooling@workspace:packages/tooling"
   bin:
+    admin-quality-agent: ./bin/admin-quality-agent.mjs
     generate-admin-quality-proof-manifest: ./bin/generate-admin-quality-proof-manifest.mjs
     validate-selectors: ./bin/validate-selectors.mjs
   languageName: unknown
