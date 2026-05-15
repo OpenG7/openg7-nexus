@@ -440,7 +440,7 @@
       </button>
       <div
         *ngIf="isNotifOpen()"
-        class="w-full rounded-xl border border-white/15 bg-slate-900/90 p-3 text-sm text-white/80"
+        class="site-header__notifications-panel site-header__notifications-panel--mobile flex w-full flex-col rounded-xl border border-white/15 bg-slate-900/90 p-3 text-sm text-white/80"
         data-og7="notif"
         data-og7-id="header-mobile-alerts-panel"
       >
@@ -450,7 +450,10 @@
         <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
           {{ 'header.notifications.empty' | translate }}
         </p>
-        <ul *ngIf="notificationEntries().length" class="space-y-1 text-sm text-white/80">
+        <ul
+          *ngIf="notificationEntries().length"
+          class="site-header__notifications-list space-y-1 text-sm text-white/80"
+        >
           <li
             *ngFor="let notification of notificationEntries(); trackBy: trackNotification"
             class="rounded-lg bg-white/5 p-2"
@@ -597,7 +600,7 @@
 
   <div
     *ngIf="isNotifOpen()"
-    class="absolute right-4 top-16 hidden w-80 overflow-hidden rounded-xl border border-white/10 bg-slate-800/95 p-3 shadow-2xl backdrop-blur sm:block"
+    class="site-header__notifications-panel absolute right-4 top-16 hidden w-80 rounded-xl border border-white/10 bg-slate-800/95 p-3 shadow-2xl backdrop-blur sm:flex sm:flex-col"
     data-og7="notif"
     data-og7-id="header-alerts-panel"
   >
@@ -607,7 +610,10 @@
     <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
       {{ 'header.notifications.empty' | translate }}
     </p>
-    <ul *ngIf="notificationEntries().length" class="space-y-1 text-sm text-white/80">
+    <ul
+      *ngIf="notificationEntries().length"
+      class="site-header__notifications-list space-y-1 text-sm text-white/80"
+    >
       <li
         *ngFor="let notification of notificationEntries(); trackBy: trackNotification"
         class="rounded-lg bg-white/5 p-2"

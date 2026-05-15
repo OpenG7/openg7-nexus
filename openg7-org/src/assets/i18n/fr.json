@@ -534,6 +534,14 @@
       "locked": "Booster ma visibilité"
     }
   },
+  "codexLiveTimeline": {
+    "eyebrow": "Timeline temps réel",
+    "streamTitle": "Flux live",
+    "hide": "Masquer la timeline Codex",
+    "close": "Fermer la timeline Codex",
+    "openRun": "Ouvrir le run",
+    "openPullRequest": "Ouvrir la PR"
+  },
   "footer": {
     "links": {
       "ariaLabel": "Navigation de pied de page",

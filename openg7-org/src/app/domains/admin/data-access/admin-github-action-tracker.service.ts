@@ -4,6 +4,7 @@ import {
   GithubActionNotificationStatus,
   githubActionStatusMetadata,
 } from '@app/core/observability/github-action-notification-status';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { catchError, of, Subscription, switchMap, timer } from 'rxjs';
 
@@ -26,12 +27,14 @@ export interface AdminGithubActionTrackingContext extends AdminGithubActionDispa
   readonly source: string | null;
   readonly parentNotificationId: string;
   readonly actionId: string;
+  readonly timelineRunId?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AdminGithubActionTrackerService {
   private readonly ops = inject(AdminOpsService);
   private readonly notifications = injectNotificationStore();
+  private readonly liveTimeline = inject(CodexLiveTimelineService);
   private readonly subscriptions = new Map<string, Subscription>();
 
   createDispatchCorrelation(actionId: string): AdminGithubActionDispatchCorrelation {
@@ -76,6 +79,7 @@ export class AdminGithubActionTrackerService {
     });
 
     if (notificationId) {
+      this.liveTimeline.recordGithubStatus(context.timelineRunId, initialStatus);
       this.pollGithubAction(notificationId, dispatch, context);
     }
 
@@ -99,6 +103,7 @@ export class AdminGithubActionTrackerService {
         attempts += 1;
         const status = this.resolveStatus(snapshot, dispatch, context, attempts);
         this.updateNotification(notificationId, status, context, dispatch);
+        this.updateLiveTimeline(snapshot, status, context, dispatch);
 
         if (this.isTerminal(status.state) || attempts >= GITHUB_ACTION_MAX_POLLS) {
           if (attempts >= GITHUB_ACTION_MAX_POLLS && !this.isTerminal(status.state)) {
@@ -128,7 +133,9 @@ export class AdminGithubActionTrackerService {
     context: AdminGithubActionTrackingContext,
     attempts: number,
   ): GithubActionNotificationStatus {
-    const proof = snapshot?.providers.find((provider) => provider.provider === dispatch.selectedProvider);
+    const proof = snapshot?.providers.find(
+      (provider) => provider.provider === dispatch.selectedProvider,
+    );
     const run = proof?.run ?? null;
     const requestedAtMs = Date.parse(dispatch.requestedAt);
     const runCreatedAtMs = Date.parse(run?.createdAt ?? '');
@@ -136,7 +143,8 @@ export class AdminGithubActionTrackerService {
       Boolean(run) &&
       run?.correlationId === context.correlationId &&
       (!Number.isFinite(requestedAtMs) ||
-        (Number.isFinite(runCreatedAtMs) && runCreatedAtMs >= requestedAtMs - TRACKED_RUN_GRACE_MS));
+        (Number.isFinite(runCreatedAtMs) &&
+          runCreatedAtMs >= requestedAtMs - TRACKED_RUN_GRACE_MS));
 
     if (!snapshot) {
       return this.buildStatus({
@@ -190,6 +198,26 @@ export class AdminGithubActionTrackerService {
       },
       read: false,
     });
+  }
+
+  private updateLiveTimeline(
+    snapshot: AdminOpsAiProofSnapshot | null,
+    status: GithubActionNotificationStatus,
+    context: AdminGithubActionTrackingContext,
+    dispatch: AdminOpsCodexDispatchResponse,
+  ): void {
+    this.liveTimeline.recordGithubStatus(context.timelineRunId, status);
+
+    const proof = snapshot?.providers.find(
+      (provider) => provider.provider === dispatch.selectedProvider,
+    );
+    if (proof?.pullRequest) {
+      this.liveTimeline.recordPullRequest(context.timelineRunId, {
+        number: proof.pullRequest.number,
+        url: proof.pullRequest.url,
+        title: proof.pullRequest.title,
+      });
+    }
   }
 
   private buildStatus(input: {
@@ -247,6 +275,10 @@ export class AdminGithubActionTrackerService {
   }
 
   private sanitizeToken(value: string): string {
-    return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    return value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 }

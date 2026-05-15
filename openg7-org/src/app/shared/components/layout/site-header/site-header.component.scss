@@ -116,6 +116,43 @@
   background-color: transparent;
 }
 
+:host .site-header__notifications-panel {
+  max-height: calc(100vh - 5rem);
+  overflow: hidden;
+}
+
+:host .site-header__notifications-panel--mobile {
+  max-height: min(32rem, calc(100vh - 10rem));
+}
+
+:host .site-header__notifications-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
+  scrollbar-color: rgba(148, 163, 184, 0.95) rgba(15, 23, 42, 0.4);
+  scrollbar-width: thin;
+}
+
+:host .site-header__notifications-list::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+:host .site-header__notifications-list::-webkit-scrollbar-track {
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+:host .site-header__notifications-list::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.95);
+}
+
+:host .site-header__notifications-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.95);
+}
+
 :host .site-header__github-status {
   display: inline-flex;
   align-items: center;

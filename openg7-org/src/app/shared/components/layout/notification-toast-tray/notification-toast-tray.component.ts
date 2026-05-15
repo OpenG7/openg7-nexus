@@ -15,6 +15,7 @@ import {
   GithubActionNotificationStatus,
   readGithubActionNotificationStatus,
 } from '@app/core/observability/github-action-notification-status';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   NotificationEntry,
   NotificationAction,
@@ -50,6 +51,7 @@ export class NotificationToastTrayComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
+  private readonly liveTimeline = inject(CodexLiveTimelineService);
   private readonly dismissTimers = new Map<string, DismissTimerState>();
   private readonly hiddenToastIds = signal<ReadonlySet<string>>(new Set());
   private adminOpsService: AdminOpsService | null | undefined;
@@ -208,12 +210,23 @@ export class NotificationToastTrayComponent {
       return;
     }
 
+    const timelineRunId = this.liveTimeline.start({
+      provider: codexDispatch.provider,
+      task: codexDispatch.task,
+      source: entry.source ?? 'notification-toast',
+      actionLabel: action.label,
+    });
+
     const adminOps = this.resolveAdminOpsService();
     if (!adminOps) {
       this.notificationsStore.error('Console Ops indisponible pour lancer Codex.', {
         source: entry.source ?? 'notification-toast',
         metadata: { parentNotificationId: entry.id, actionId: action.id },
       });
+      this.liveTimeline.recordDispatchError(
+        timelineRunId,
+        'Console Ops indisponible pour lancer Codex.',
+      );
       return;
     }
 
@@ -230,11 +243,16 @@ export class NotificationToastTrayComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
+          this.liveTimeline.recordDispatchQueued(timelineRunId, {
+            workflow: result.workflow,
+            ref: result.ref,
+          });
           if (tracker && correlation) {
             tracker.startTracking(result, {
               source: entry.source ?? 'notification-toast',
               parentNotificationId: entry.id,
               actionId: action.id,
+              timelineRunId,
               ...correlation,
             });
           } else {
@@ -250,15 +268,27 @@ export class NotificationToastTrayComponent {
                 },
               },
             );
+            this.liveTimeline.recordGithubStatus(timelineRunId, {
+              state: 'queued',
+              label: 'GitHub Actions - en file',
+              detail: `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              workflow: result.workflow,
+              runUrl: null,
+              runNumber: null,
+              correlationId: correlation?.correlationId ?? null,
+              updatedAt: new Date().toISOString(),
+            });
           }
           this.notificationsStore.markAsRead(entry.id);
           this.hideToast(entry.id);
         },
         error: (error: unknown) => {
-          this.notificationsStore.error(this.resolveDispatchError(error, codexDispatch.provider), {
+          const message = this.resolveDispatchError(error, codexDispatch.provider);
+          this.notificationsStore.error(message, {
             source: entry.source ?? 'notification-toast',
             metadata: { parentNotificationId: entry.id, actionId: action.id },
           });
+          this.liveTimeline.recordDispatchError(timelineRunId, message);
         },
       });
   }
