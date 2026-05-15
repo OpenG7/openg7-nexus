@@ -1,3 +1,29 @@
+// Bouton flottant pour rouvrir la timeline
+.codex-live-timeline__floating-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  &:hover, &:focus {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+    border-color: #6366f1;
+    outline: none;
+  }
+  svg {
+    display: block;
+  }
+}
 .codex-live-timeline {
   position: fixed;
   right: 1rem;
