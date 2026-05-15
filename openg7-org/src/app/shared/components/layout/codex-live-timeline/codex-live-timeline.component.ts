@@ -29,6 +29,10 @@ export class CodexLiveTimelineComponent {
     this.timeline.clear();
   }
 
+  show(): void {
+    this.timeline.show();
+  }
+
   trackStep = (_: number, step: CodexLiveTimelineStep) => step.id;
   trackEvent = (_: number, event: CodexLiveTimelineEvent) => event.id;
 }

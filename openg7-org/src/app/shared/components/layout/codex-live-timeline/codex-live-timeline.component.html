@@ -109,3 +109,20 @@
     </aside>
   }
 }
+
+<!-- Bouton flottant pour rouvrir la timeline -->
+@if (!isOpen() && run()) {
+  <button
+    type="button"
+    class="codex-live-timeline__floating-btn"
+    (click)="show()"
+    aria-label="Afficher la timeline"
+    data-og7="codex-live-timeline-fab"
+  >
+    <!-- Icône horloge SVG inline -->
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="#444" stroke-width="2" fill="#fff"/>
+      <path d="M12 7v5l3 3" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+}
