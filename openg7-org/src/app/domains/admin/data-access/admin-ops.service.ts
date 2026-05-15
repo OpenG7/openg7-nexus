@@ -168,6 +168,8 @@ export interface AdminOpsAiProofRun {
   id: number | null;
   number: number | null;
   url: string | null;
+  displayTitle: string | null;
+  correlationId: string | null;
   status: string | null;
   conclusion: string | null;
   branch: string | null;
@@ -207,6 +209,13 @@ export interface AdminOpsCodexDispatchRequest {
   draftPr: boolean;
   model: string | null;
   effort: string | null;
+  correlationId?: string | null;
+  idempotencyKey?: string | null;
+}
+
+export interface AdminOpsCodexDispatchOptions {
+  correlationId?: string | null;
+  idempotencyKey?: string | null;
 }
 
 export interface AdminOpsCodexDispatchResponse {
@@ -225,6 +234,8 @@ export interface AdminOpsCodexDispatchResponse {
     draftPr: boolean;
     model: string | null;
     effort: string | null;
+    correlationId: string | null;
+    idempotencyKey: string | null;
     taskLength: number;
   };
 }
@@ -267,21 +278,43 @@ export class AdminOpsService {
       .pipe(map((response) => response.data));
   }
 
-  getAiProofs(): Observable<AdminOpsAiProofSnapshot> {
+  getAiProofs(correlationId?: string | null): Observable<AdminOpsAiProofSnapshot> {
+    const params = correlationId ? { correlationId } : undefined;
     return this.http
-      .get<StrapiDataResponse<AdminOpsAiProofSnapshot>>(STRAPI_ROUTES.admin.opsAiProofs)
+      .get<StrapiDataResponse<AdminOpsAiProofSnapshot>>(STRAPI_ROUTES.admin.opsAiProofs, {
+        params,
+      })
       .pipe(map((response) => response.data));
   }
 
   dispatchCodexWorkflow(
     payload: AdminOpsCodexDispatchRequest,
+    options?: AdminOpsCodexDispatchOptions,
   ): Observable<AdminOpsCodexDispatchResponse> {
+    const correlationId = options?.correlationId ?? payload.correlationId ?? null;
+    const idempotencyKey = options?.idempotencyKey ?? payload.idempotencyKey ?? null;
+    const headers: Record<string, string> = {};
+    if (correlationId) {
+      headers['X-Correlation-Id'] = correlationId;
+    }
+    if (idempotencyKey) {
+      headers['Idempotency-Key'] = idempotencyKey;
+    }
+    const body: AdminOpsCodexDispatchRequest = { ...payload };
+    if (correlationId) {
+      body.correlationId = correlationId;
+    }
+    if (idempotencyKey) {
+      body.idempotencyKey = idempotencyKey;
+    }
+
     return this.http
       .post<StrapiDataResponse<AdminOpsCodexDispatchResponse>>(
         STRAPI_ROUTES.admin.opsAiDispatch,
-        payload,
+        body,
         {
           context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
+          headers,
         },
       )
       .pipe(map((response) => response.data));

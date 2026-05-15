@@ -25,7 +25,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-ops.page.html',
-        line: 907,
+        line: 1062,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -41,7 +41,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-ops.page.html',
-        line: 678,
+        line: 735,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -57,7 +57,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-ops.page.html',
-        line: 1027,
+        line: 1195,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -73,7 +73,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-ops.page.html',
-        line: 84,
+        line: 92,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -92,14 +92,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 271,
+        line: 296,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 490,
+        line: 561,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -111,13 +111,61 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     e2eFiles: [],
   },
   {
+    id: 'admin-quality-agent-copy-apply',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'packages/admin-quality/src/lib/pages/admin-quality-agent-panel.component.html',
+        line: 130,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: [],
+    e2eFiles: [],
+  },
+  {
+    id: 'admin-quality-agent-copy-preview',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'packages/admin-quality/src/lib/pages/admin-quality-agent-panel.component.html',
+        line: 120,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: [],
+    e2eFiles: [],
+  },
+  {
+    id: 'admin-quality-agent-copy-selected',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'packages/admin-quality/src/lib/pages/admin-quality-agent-panel.component.html',
+        line: 141,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: [],
+    e2eFiles: [],
+  },
+  {
     id: 'admin-quality-apply-proposal',
     trigger: 'button',
     hasActionHook: true,
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 199,
+        line: 237,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -136,7 +184,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 348,
+        line: 421,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -152,7 +200,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 252,
+        line: 307,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -168,7 +216,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 371,
+        line: 448,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -184,7 +232,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 332,
+        line: 405,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -200,7 +248,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 236,
+        line: 291,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -216,7 +264,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 340,
+        line: 413,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -232,7 +280,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 244,
+        line: 299,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -242,13 +290,45 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     e2eFiles: [],
   },
   {
+    id: 'admin-quality-cockpit-next',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
+        line: 865,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: ['openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts'],
+    e2eFiles: [],
+  },
+  {
+    id: 'admin-quality-cockpit-previous',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
+        line: 847,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: ['openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts'],
+    e2eFiles: [],
+  },
+  {
     id: 'admin-quality-confirm-dispatch',
     trigger: 'button',
     hasActionHook: true,
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 592,
+        line: 853,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -267,7 +347,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 582,
+        line: 841,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -285,7 +365,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 642,
+        line: 920,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -303,7 +383,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1227,
+        line: 1461,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -319,7 +399,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1217,
+        line: 1448,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -335,7 +415,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1053,
+        line: 1242,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -351,7 +431,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1029,
+        line: 1218,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -367,7 +447,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1177,
+        line: 1406,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -383,7 +463,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1744,
+        line: 2017,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -399,7 +479,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1727,
+        line: 2000,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -415,7 +495,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1710,
+        line: 1983,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -431,7 +511,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 651,
+        line: 931,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -450,7 +530,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality-mission-control.component.html',
-        line: 93,
+        line: 96,
         tag: 'a',
         trigger: 'link',
         hasActionHook: true,
@@ -466,7 +546,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1875,
+        line: 2171,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -482,7 +562,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 115,
+        line: 140,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -498,7 +578,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 640,
+        line: 774,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -514,7 +594,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1485,
+        line: 1740,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -530,7 +610,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1394,
+        line: 1645,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -546,7 +626,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1402,
+        line: 1653,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -580,7 +660,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/feature/admin-quality-workspace-drawer.component.html',
-        line: 44,
+        line: 62,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -599,7 +679,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 145,
+        line: 167,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -619,7 +699,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 177,
+        line: 199,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -635,7 +715,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 169,
+        line: 191,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -651,7 +731,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 153,
+        line: 175,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -667,7 +747,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 161,
+        line: 183,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -683,7 +763,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 185,
+        line: 207,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -699,7 +779,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 137,
+        line: 159,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -715,7 +795,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/admin/pages/admin-trust.page.html',
-        line: 544,
+        line: 627,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -736,7 +816,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/static/pages/governance.page.html',
-        line: 154,
+        line: 160,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -752,7 +832,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 84,
+        line: 99,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -771,7 +851,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 141,
+        line: 165,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -787,7 +867,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/pages/feed-alert-detail.page.html',
-        line: 96,
+        line: 94,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -803,7 +883,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-context-aside.component.html',
-        line: 31,
+        line: 35,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -821,7 +901,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 73,
+        line: 88,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -841,7 +921,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 61,
+        line: 76,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -860,7 +940,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 40,
+        line: 55,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -876,7 +956,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 22,
+        line: 37,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -897,7 +977,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 132,
+        line: 155,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -913,7 +993,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-update-drawer.component.html',
-        line: 151,
+        line: 176,
         tag: 'button',
         trigger: 'submit',
         hasActionHook: true,
@@ -935,7 +1015,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-update-drawer.component.html',
-        line: 62,
+        line: 70,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -955,7 +1035,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/alert-detail-header.component.html',
-        line: 51,
+        line: 66,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -975,14 +1055,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 261,
+        line: 286,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 482,
+        line: 553,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1002,7 +1082,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 44,
+        line: 59,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1018,7 +1098,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 57,
+        line: 74,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1034,7 +1114,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 31,
+        line: 44,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1054,7 +1134,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/importation/components/overview-header/importation-overview-header.component.html',
-        line: 155,
+        line: 186,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1073,7 +1153,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/importation/components/overview-header/importation-overview-header.component.html',
-        line: 114,
+        line: 136,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1089,7 +1169,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/importation/components/overview-header/importation-overview-header.component.html',
-        line: 71,
+        line: 82,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1105,14 +1185,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 153,
+        line: 162,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 379,
+        line: 404,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1128,7 +1208,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/static/pages/credits.page.html',
-        line: 70,
+        line: 79,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1144,7 +1224,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/marketing/pages/strategic-sectors.page.html',
-        line: 77,
+        line: 89,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1196,7 +1276,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/profile.page.html',
-        line: 607,
+        line: 654,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1215,14 +1295,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 238,
+        line: 260,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 463,
+        line: 531,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1240,7 +1320,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 44,
+        line: 54,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1256,7 +1336,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 132,
+        line: 150,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1272,7 +1352,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 139,
+        line: 157,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1288,7 +1368,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 109,
+        line: 123,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1304,7 +1384,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 34,
+        line: 44,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1320,7 +1400,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/favorites.page.html',
-        line: 98,
+        line: 112,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1336,7 +1416,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/og7-feed-stream/og7-feed-stream.component.html',
-        line: 111,
+        line: 142,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1358,7 +1438,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
-        line: 41,
+        line: 56,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1374,7 +1454,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/og7-feed-card/og7-feed-card.component.html',
-        line: 67,
+        line: 74,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1384,13 +1464,45 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     e2eFiles: ['openg7-org/e2e/opportunity-engagement.spec.ts'],
   },
   {
+    id: 'feed-context-reset',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'openg7-org/src/app/domains/feed/feature/feed.page.html',
+        line: 74,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: ['openg7-org/src/app/domains/feed/feature/feed.page.spec.ts'],
+    e2eFiles: [],
+  },
+  {
+    id: 'feed-context-return-map',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'openg7-org/src/app/domains/feed/feature/feed.page.html',
+        line: 66,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: ['openg7-org/src/app/domains/feed/feature/feed.page.spec.ts'],
+    e2eFiles: [],
+  },
+  {
     id: 'feed-login-to-publish',
     trigger: 'link',
     hasActionHook: true,
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
-        line: 124,
+        line: 150,
         tag: 'a',
         trigger: 'link',
         hasActionHook: true,
@@ -1408,7 +1520,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/og7-feed-card/og7-feed-card.component.html',
-        line: 48,
+        line: 55,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1456,7 +1568,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
-        line: 57,
+        line: 74,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1472,7 +1584,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/feed-publish-section/feed-publish-section.component.html',
-        line: 67,
+        line: 84,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1490,7 +1602,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/og7-feed-card/og7-feed-card.component.html',
-        line: 57,
+        line: 64,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1522,13 +1634,15 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 543,
+        line: 616,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
       },
     ],
-    specFiles: [],
+    specFiles: [
+      'openg7-org/src/app/shared/components/layout/site-header/site-header.component.spec.ts',
+    ],
     e2eFiles: [
       'openg7-org/e2e/notification-panel.spec.ts',
       'openg7-org/e2e/quality-breadth-cross-surface-a11y-depth.spec.ts',
@@ -1541,7 +1655,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 429,
+        line: 459,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1559,7 +1673,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 555,
+        line: 666,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1578,7 +1692,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 441,
+        line: 509,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1610,7 +1724,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-feed-panels/home-feed-panels.component.html',
-        line: 13,
+        line: 17,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1626,7 +1740,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-feed-panels/home-feed-panels.component.html',
-        line: 109,
+        line: 139,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1642,7 +1756,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-feed-panels/home-feed-panels.component.html',
-        line: 61,
+        line: 77,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1660,7 +1774,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html',
-        line: 190,
+        line: 227,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1679,7 +1793,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 235,
+        line: 268,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1695,7 +1809,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 227,
+        line: 259,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1711,7 +1825,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html',
-        line: 201,
+        line: 238,
         tag: 'button',
         trigger: 'submit',
         hasActionHook: true,
@@ -1732,7 +1846,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-alert-drawer.component.html',
-        line: 89,
+        line: 105,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1748,7 +1862,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-chart.component.html',
-        line: 9,
+        line: 12,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1764,7 +1878,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html',
-        line: 43,
+        line: 49,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1786,7 +1900,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/pages/feed-indicator-detail.page.html',
-        line: 94,
+        line: 113,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1834,7 +1948,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html',
-        line: 34,
+        line: 40,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1850,7 +1964,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/indicator-hero.component.html',
-        line: 17,
+        line: 23,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1873,7 +1987,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/static/pages/credits.page.html',
-        line: 62,
+        line: 71,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -1889,7 +2003,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.html',
-        line: 193,
+        line: 201,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1921,7 +2035,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/profile.page.html',
-        line: 691,
+        line: 735,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1937,7 +2051,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html',
-        line: 160,
+        line: 182,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1953,7 +2067,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.html',
-        line: 67,
+        line: 80,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -1969,7 +2083,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 312,
+        line: 337,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -1985,7 +2099,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/marketing/pages/strategic-sectors.page.html',
-        line: 94,
+        line: 106,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2001,7 +2115,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/marketing/pages/strategic-sectors.page.html',
-        line: 212,
+        line: 228,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2017,7 +2131,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 52,
+        line: 59,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2036,7 +2150,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
-        line: 202,
+        line: 224,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2054,7 +2168,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 74,
+        line: 90,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2070,7 +2184,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 33,
+        line: 45,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2093,13 +2207,29 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     ],
   },
   {
+    id: 'opportunity-offer-attachment-clear',
+    trigger: 'button',
+    hasActionHook: true,
+    sourceFiles: [
+      {
+        file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html',
+        line: 174,
+        tag: 'button',
+        trigger: 'button',
+        hasActionHook: true,
+      },
+    ],
+    specFiles: [],
+    e2eFiles: [],
+  },
+  {
     id: 'opportunity-offer-open',
     trigger: 'button',
     hasActionHook: false,
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 385,
+        line: 425,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2115,7 +2245,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 367,
+        line: 407,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2131,7 +2261,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 376,
+        line: 416,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2147,7 +2277,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html',
-        line: 144,
+        line: 223,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2163,7 +2293,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-offer-drawer.component.html',
-        line: 156,
+        line: 235,
         tag: 'button',
         trigger: 'submit',
         hasActionHook: true,
@@ -2188,7 +2318,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 355,
+        line: 398,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2207,7 +2337,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/alerts.page.html',
-        line: 393,
+        line: 433,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2239,7 +2369,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 109,
+        line: 125,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2257,7 +2387,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 97,
+        line: 113,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2275,7 +2405,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-report-drawer.component.html',
-        line: 105,
+        line: 158,
         tag: 'button',
         trigger: 'submit',
         hasActionHook: true,
@@ -2293,7 +2423,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-report-drawer.component.html',
-        line: 46,
+        line: 59,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2309,7 +2439,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 44,
+        line: 56,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2327,7 +2457,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-qna.component.html',
-        line: 42,
+        line: 46,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2343,7 +2473,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 55,
+        line: 71,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2359,7 +2489,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/feed/feature/components/opportunity-detail-header.component.html',
-        line: 87,
+        line: 103,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -2427,7 +2557,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-modal.component.html',
-        line: 49,
+        line: 53,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2443,7 +2573,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/marketing/pages/pricing.page.html',
-        line: 416,
+        line: 575,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -2459,7 +2589,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/profile.page.html',
-        line: 636,
+        line: 680,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2475,7 +2605,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/static/pages/credits.page.html',
-        line: 159,
+        line: 173,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2491,7 +2621,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/statistics/pages/statistics.page.html',
-        line: 197,
+        line: 184,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2510,7 +2640,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/statistics/pages/statistics.page.html',
-        line: 342,
+        line: 340,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2526,7 +2656,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/statistics/pages/statistics.page.html',
-        line: 249,
+        line: 246,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2542,7 +2672,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/saved-searches.page.html',
-        line: 117,
+        line: 132,
         tag: 'button',
         trigger: 'submit',
         hasActionHook: false,
@@ -2563,7 +2693,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/account/pages/saved-searches.page.html',
-        line: 174,
+        line: 198,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2579,14 +2709,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 251,
+        line: 276,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 474,
+        line: 545,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -2602,14 +2732,14 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 13,
+        line: 15,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
       },
       {
         file: 'openg7-org/src/app/shared/components/layout/site-header/site-header.component.html',
-        line: 341,
+        line: 366,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2641,7 +2771,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/home/feature/home-corridors-realtime/home-corridors-realtime.component.html',
-        line: 125,
+        line: 131,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -2657,7 +2787,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'openg7-org/src/app/domains/marketing/pages/pricing.page.html',
-        line: 408,
+        line: 567,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,

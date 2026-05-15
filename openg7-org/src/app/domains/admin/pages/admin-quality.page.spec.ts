@@ -468,6 +468,8 @@ class AdminOpsServiceMock {
           draftPr: true,
           model: 'gpt-5.4',
           effort: null,
+          correlationId: null,
+          idempotencyKey: null,
           taskLength: 49,
         },
       }),

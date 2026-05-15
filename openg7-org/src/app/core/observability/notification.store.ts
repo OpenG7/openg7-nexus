@@ -5,6 +5,36 @@ import { patchState, signalStore, withComputed, withMethods, withState } from '@
 import { API_URL, NOTIFICATION_WEBHOOK_URL } from '../config/environment.tokens';
 
 type NotificationKind = 'success' | 'info' | 'error';
+export type NotificationActionKind = 'copy' | 'route' | 'snooze' | 'dismiss' | 'codex-dispatch';
+
+export type NotificationCodexProvider = 'codex' | 'copilot' | 'claude' | 'gemini';
+
+export type NotificationCodexScope =
+  | 'openg7-org'
+  | 'strapi'
+  | 'packages-contracts'
+  | 'packages-tooling'
+  | 'repository-root';
+
+export interface NotificationCodexDispatch {
+  readonly provider: NotificationCodexProvider;
+  readonly task: string;
+  readonly scope: NotificationCodexScope;
+  readonly baseBranch?: string | null;
+  readonly draftPr?: boolean | null;
+  readonly model?: string | null;
+  readonly effort?: string | null;
+}
+
+export interface NotificationAction {
+  readonly id: string;
+  readonly label: string;
+  readonly kind: NotificationActionKind;
+  readonly command?: string | null;
+  readonly route?: string | null;
+  readonly durationMs?: number | null;
+  readonly codexDispatch?: NotificationCodexDispatch | null;
+}
 
 export interface NotificationEntry {
   readonly id: string;
@@ -14,6 +44,7 @@ export interface NotificationEntry {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly NotificationAction[];
   readonly createdAt: number;
   readonly read: boolean;
 }
@@ -27,7 +58,19 @@ export interface NotificationOptions {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly NotificationAction[];
   readonly deliver?: NotificationDeliveryOptions;
+}
+
+export interface NotificationEntryUpdate {
+  readonly type?: NotificationEntry['type'];
+  readonly message?: string;
+  readonly title?: string | null;
+  readonly source?: string | null;
+  readonly context?: unknown;
+  readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly NotificationAction[];
+  readonly read?: boolean;
 }
 
 export interface NotificationPreferences {
@@ -39,6 +82,7 @@ export interface NotificationPreferences {
 interface NotificationState {
   readonly items: readonly NotificationEntry[];
   readonly preferences: NotificationPreferences;
+  readonly snoozedSources: Record<string, number>;
   readonly lastDeliveryError: string | null;
 }
 
@@ -50,6 +94,7 @@ const DEFAULT_STATE: NotificationState = {
     emailAddress: null,
     webhookUrl: null,
   },
+  snoozedSources: {},
   lastDeliveryError: null,
 };
 
@@ -83,6 +128,53 @@ function sanitizeUrl(url: string | null | undefined): string | null {
     return null;
   }
   return null;
+}
+
+function normalizeActions(
+  actions: readonly NotificationAction[] | undefined,
+): readonly NotificationAction[] {
+  return (actions ?? [])
+    .map((action) => ({
+      ...action,
+      label: action.label.trim(),
+      command: action.command?.trim() || null,
+      route: action.route?.trim() || null,
+      codexDispatch: normalizeCodexDispatch(action.codexDispatch),
+    }))
+    .filter((action) => {
+      if (!action.id || !action.label) {
+        return false;
+      }
+      switch (action.kind) {
+        case 'copy':
+          return Boolean(action.command);
+        case 'route':
+          return Boolean(action.route);
+        case 'codex-dispatch':
+          return Boolean(action.codexDispatch?.task);
+        default:
+          return true;
+      }
+    })
+    .slice(0, 4);
+}
+
+function normalizeCodexDispatch(
+  dispatch: NotificationCodexDispatch | null | undefined,
+): NotificationCodexDispatch | null {
+  if (!dispatch?.task.trim()) {
+    return null;
+  }
+
+  return {
+    provider: dispatch.provider,
+    task: dispatch.task.trim(),
+    scope: dispatch.scope,
+    baseBranch: dispatch.baseBranch?.trim() || 'main',
+    draftPr: dispatch.draftPr ?? true,
+    model: dispatch.model?.trim() || null,
+    effort: dispatch.effort?.trim() || null,
+  };
 }
 
 export const NotificationStore = signalStore(
@@ -163,7 +255,19 @@ export const NotificationStore = signalStore(
         });
     };
 
+    const isSourceSnoozed = (source: string | null | undefined, now = Date.now()) => {
+      if (!source) {
+        return false;
+      }
+      const until = store.snoozedSources()[source] ?? 0;
+      return until > now;
+    };
+
     const push = (type: NotificationKind, message: string, options?: NotificationOptions) => {
+      if (type !== 'error' && isSourceSnoozed(options?.source)) {
+        return undefined;
+      }
+
       const entry: NotificationEntry = {
         id: generateNotificationId(),
         type,
@@ -172,6 +276,7 @@ export const NotificationStore = signalStore(
         source: options?.source ?? null,
         context: options?.context,
         metadata: options?.metadata ?? null,
+        actions: normalizeActions(options?.actions),
         createdAt: Date.now(),
         read: false,
       };
@@ -209,6 +314,26 @@ export const NotificationStore = signalStore(
         const next = store.items().map((item) => ({ ...item, read: true }));
         patchState(store, { items: next });
       },
+      updateEntry(id: string, update: NotificationEntryUpdate) {
+        const next = store.items().map((item) => {
+          if (item.id !== id) {
+            return item;
+          }
+
+          return {
+            ...item,
+            type: update.type ?? item.type,
+            message: update.message ?? item.message,
+            title: typeof update.title === 'undefined' ? item.title : update.title,
+            source: typeof update.source === 'undefined' ? item.source : update.source,
+            context: typeof update.context === 'undefined' ? item.context : update.context,
+            metadata: typeof update.metadata === 'undefined' ? item.metadata : update.metadata,
+            actions: update.actions ? normalizeActions(update.actions) : item.actions,
+            read: update.read ?? item.read,
+          };
+        });
+        patchState(store, { items: next });
+      },
       dismiss(id: string) {
         const next = store.items().filter((item) => item.id !== id);
         patchState(store, { items: next });
@@ -230,6 +355,24 @@ export const NotificationStore = signalStore(
       resetDeliveryError() {
         patchState(store, { lastDeliveryError: null });
       },
+      snoozeSource(source: string, durationMs: number) {
+        const trimmed = source.trim();
+        if (!trimmed || durationMs <= 0) {
+          return;
+        }
+        patchState(store, {
+          snoozedSources: {
+            ...store.snoozedSources(),
+            [trimmed]: Date.now() + durationMs,
+          },
+        });
+      },
+      clearSourceSnooze(source: string) {
+        const trimmed = source.trim();
+        const { [trimmed]: _, ...rest } = store.snoozedSources();
+        patchState(store, { snoozedSources: rest });
+      },
+      isSourceSnoozed,
     };
   }),
 );

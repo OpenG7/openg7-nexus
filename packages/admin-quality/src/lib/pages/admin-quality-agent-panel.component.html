@@ -1,0 +1,166 @@
+<section
+  class="relative overflow-hidden rounded-[28px] border border-cyan-300/18 bg-[linear-gradient(180deg,rgba(4,14,31,0.96),rgba(6,18,38,0.93))] px-4 py-4 text-slate-100 shadow-[0_30px_90px_-60px_rgba(34,211,238,0.55)]"
+  data-og7="admin-quality-agent-panel"
+  [attr.data-og7-state]="agentState()"
+>
+  <div
+    class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.08),transparent_24%,transparent_76%,rgba(16,185,129,0.08)),radial-gradient(circle_at_82%_18%,rgba(56,189,248,0.15),transparent_26%)]"
+  ></div>
+  <div
+    class="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-cyan-200/30 to-transparent"
+  ></div>
+
+  <div class="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(24rem,0.8fr)]">
+    <div class="min-w-0 space-y-4">
+      <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+            Agent vivant
+          </p>
+          <h2 class="mt-1 text-2xl font-semibold tracking-tight text-white">
+            Robot de preuves admin-quality
+          </h2>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+            La boucle visualise ce que l'agent peut automatiser maintenant, les preuves qui seront
+            produites et les lignes qui restent bloquees par une decision produit.
+          </p>
+        </div>
+
+        <span
+          class="inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-semibold"
+          [class]="agentStateClasses(agentState())"
+          data-og7-id="admin-quality-agent-state"
+        >
+          {{ agentStateLabel() }}
+        </span>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" data-og7="admin-quality-agent-metrics">
+        <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Ouvert</p>
+          <p class="mt-1 text-2xl font-semibold text-white">{{ openEntries().length }}</p>
+        </div>
+        <div class="rounded-2xl border border-cyan-300/18 bg-cyan-400/8 px-3 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+            Automatisable
+          </p>
+          <p class="mt-1 text-2xl font-semibold text-white">{{ autoActionableEntries().length }}</p>
+        </div>
+        <div class="rounded-2xl border border-sky-300/18 bg-sky-400/8 px-3 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-200">Preuves</p>
+          <p class="mt-1 text-2xl font-semibold text-white">{{ proofGapCount() }}</p>
+        </div>
+        <div class="rounded-2xl border border-amber-300/18 bg-amber-400/8 px-3 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-200">
+            Produit
+          </p>
+          <p class="mt-1 text-2xl font-semibold text-white">{{ productWorkCount() }}</p>
+        </div>
+        <div class="rounded-2xl border border-emerald-300/18 bg-emerald-400/8 px-3 py-3">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
+            Progression
+          </p>
+          <p class="mt-1 text-2xl font-semibold text-white">{{ agentProgressPercent() }}%</p>
+        </div>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-5" data-og7="admin-quality-agent-stages">
+        @for (stage of stages(); track stage.id) {
+          <article
+            class="relative min-h-40 overflow-hidden rounded-2xl border px-3 py-3"
+            [class]="stageClasses(stage.state)"
+            [attr.data-og7-id]="stage.id"
+            [attr.data-og7-state]="stage.state"
+          >
+            @if (stage.state === 'running') {
+              <span
+                class="og7-agent-flow absolute inset-x-3 top-0 h-px bg-linear-to-r from-transparent via-cyan-100/70 to-transparent"
+                aria-hidden="true"
+              ></span>
+            }
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-80">
+              {{ stage.label }}
+            </p>
+            <p class="mt-2 text-lg font-semibold text-white">{{ stage.metric }}</p>
+            <p class="mt-2 text-xs leading-5 text-current/80">{{ stage.detail }}</p>
+          </article>
+        }
+      </div>
+    </div>
+
+    <aside
+      class="relative grid gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+      data-og7="admin-quality-agent-command-deck"
+    >
+      <div class="relative mx-auto flex h-32 w-32 items-center justify-center">
+        <span class="absolute inset-0 rounded-full border border-cyan-300/20"></span>
+        <span
+          class="og7-agent-orbit absolute inset-2 rounded-full border border-dashed border-cyan-200/28"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="og7-agent-pulse inline-flex h-16 w-16 items-center justify-center rounded-full border border-cyan-200/30 bg-cyan-400/12 text-xl font-semibold text-cyan-50 shadow-[0_0_38px_-16px_rgba(34,211,238,0.9)]"
+          aria-hidden="true"
+        >
+          AI
+        </span>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/85">
+          Commandes operateur
+        </p>
+        <p class="text-sm leading-6 text-slate-300">
+          Le navigateur copie les commandes; l'execution reste dans le terminal, CI ou un worker
+          autorise.
+        </p>
+      </div>
+
+      <div class="grid gap-2" data-og7="admin-quality-agent-commands">
+        <button
+          type="button"
+          class="inline-flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-cyan-300/24 bg-cyan-400/10 px-3 py-2 text-left text-xs font-semibold text-cyan-50 transition hover:bg-cyan-400/16"
+          data-og7="action"
+          data-og7-id="admin-quality-agent-copy-preview"
+          (click)="copyCommand(previewCommand())"
+        >
+          <span class="truncate">{{ previewCommand() }}</span>
+          <span class="shrink-0">Copier</span>
+        </button>
+        <button
+          type="button"
+          class="inline-flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-emerald-300/24 bg-emerald-400/10 px-3 py-2 text-left text-xs font-semibold text-emerald-50 transition hover:bg-emerald-400/16"
+          data-og7="action"
+          data-og7-id="admin-quality-agent-copy-apply"
+          (click)="copyCommand(applyCommand())"
+        >
+          <span class="truncate">{{ applyCommand() }}</span>
+          <span class="shrink-0">Copier</span>
+        </button>
+        @if (selectedEntryCommand(); as command) {
+          <button
+            type="button"
+            class="inline-flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-left text-xs font-semibold text-slate-100 transition hover:bg-white/10"
+            data-og7="action"
+            data-og7-id="admin-quality-agent-copy-selected"
+            (click)="copyCommand(command)"
+          >
+            <span class="truncate">{{ command }}</span>
+            <span class="shrink-0">Copier</span>
+          </button>
+        }
+      </div>
+
+      @if (copiedCommand(); as copied) {
+        <p
+          class="rounded-2xl border border-emerald-300/22 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-50"
+          data-og7-id="admin-quality-agent-copy-state"
+        >
+          {{
+            copied === 'unavailable' ? 'Copie indisponible dans ce navigateur.' : 'Commande copiee.'
+          }}
+        </p>
+      }
+    </aside>
+  </div>
+</section>

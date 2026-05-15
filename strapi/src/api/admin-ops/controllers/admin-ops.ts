@@ -202,6 +202,8 @@ interface AiDispatchInput {
   readonly draftPr: boolean;
   readonly model: string | null;
   readonly effort: string | null;
+  readonly correlationId: string | null;
+  readonly idempotencyKey: string | null;
 }
 
 interface AiIgnitionModuleSnapshot {
@@ -248,6 +250,8 @@ interface AiProofRunSnapshot {
   readonly id: number | null;
   readonly number: number | null;
   readonly url: string | null;
+  readonly displayTitle: string | null;
+  readonly correlationId: string | null;
   readonly status: string | null;
   readonly conclusion: string | null;
   readonly branch: string | null;
@@ -593,11 +597,15 @@ function parseAiProofRun(value: unknown): AiProofRunSnapshot | null {
   }
 
   const record = value as Record<string, unknown>;
+  const displayTitle = normalizeText(record.display_title ?? record.name, 240);
+  const correlationId = extractCorrelationId(displayTitle);
 
   return {
     id: normalizeInteger(record.id),
     number: normalizeInteger(record.run_number),
     url: normalizeUrl(record.html_url),
+    displayTitle,
+    correlationId,
     status: normalizeText(record.status, 80),
     conclusion: normalizeText(record.conclusion, 80),
     branch: normalizeText(record.head_branch, 160),
@@ -606,8 +614,18 @@ function parseAiProofRun(value: unknown): AiProofRunSnapshot | null {
   };
 }
 
+function extractCorrelationId(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const match = value.match(/og7-[a-z0-9-]+/i);
+  return match?.[0] ?? null;
+}
+
 async function fetchLatestWorkflowRun(
   config: AiDispatchConfig,
+  correlationId?: string | null,
 ): Promise<AiProofRunSnapshot | null> {
   if (!config.owner || !config.repo) {
     return null;
@@ -616,12 +634,18 @@ async function fetchLatestWorkflowRun(
   const runsUrl = new URL(
     `${config.apiUrl}/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/actions/workflows/${encodeURIComponent(config.workflow)}/runs`,
   );
-  runsUrl.searchParams.set('per_page', '1');
+  runsUrl.searchParams.set('per_page', correlationId ? '10' : '1');
   runsUrl.searchParams.set('branch', config.ref);
   runsUrl.searchParams.set('event', 'workflow_dispatch');
 
   const payload = await fetchGitHubJson<GitHubWorkflowRunListPayload>(config, runsUrl.toString());
-  const run = payload?.workflow_runs?.[0];
+  const runs = Array.isArray(payload?.workflow_runs) ? payload.workflow_runs : [];
+  const run = correlationId
+    ? runs.find((candidate) => {
+        const parsed = parseAiProofRun(candidate);
+        return parsed?.correlationId === correlationId;
+      })
+    : runs[0];
   return parseAiProofRun(run);
 }
 
@@ -733,7 +757,16 @@ function buildAiProofSummary(
   }
 }
 
-async function buildAiProofProviders(): Promise<AiProofProviderSnapshot[]> {
+function normalizeAiProofQuery(rawQuery?: unknown): { correlationId: string | null } {
+  const query = rawQuery && typeof rawQuery === 'object' ? (rawQuery as Record<string, unknown>) : {};
+  return {
+    correlationId: normalizeWorkflowToken(query.correlationId ?? query.correlation_id, 160),
+  };
+}
+
+async function buildAiProofProviders(
+  query: { correlationId: string | null },
+): Promise<AiProofProviderSnapshot[]> {
   return Promise.all(
     ADMIN_AI_PROVIDERS.map(async (provider) => {
       const config = getAiDispatchConfig(provider);
@@ -755,7 +788,7 @@ async function buildAiProofProviders(): Promise<AiProofProviderSnapshot[]> {
       }
 
       try {
-        const run = await fetchLatestWorkflowRun(config);
+        const run = await fetchLatestWorkflowRun(config, query.correlationId);
         if (!run) {
           return {
             ...baseSnapshot,
@@ -795,10 +828,11 @@ async function buildAiProofProviders(): Promise<AiProofProviderSnapshot[]> {
   );
 }
 
-async function buildAiProofSnapshot() {
+async function buildAiProofSnapshot(rawQuery?: unknown) {
+  const query = normalizeAiProofQuery(rawQuery);
   return {
     generatedAt: new Date().toISOString(),
-    providers: await buildAiProofProviders(),
+    providers: await buildAiProofProviders(query),
   };
 }
 
@@ -1137,6 +1171,8 @@ function validateAiDispatchInput(
       draftPr: parseBoolean(record.draftPr ?? record.draft_pr, true),
       model: normalizeText(record.model, 120),
       effort: normalizeText(record.effort, 80),
+      correlationId: normalizeWorkflowToken(record.correlationId ?? record.correlation_id, 160),
+      idempotencyKey: normalizeWorkflowToken(record.idempotencyKey ?? record.idempotency_key, 160),
     },
     error: null,
   };
@@ -1178,6 +1214,8 @@ async function dispatchAiWorkflow(
           draft_pr: input.draftPr ? 'true' : 'false',
           model: input.model ?? '',
           effort: input.effort ?? '',
+          correlation_id: input.correlationId ?? '',
+          idempotency_key: input.idempotencyKey ?? '',
         },
       }),
     });
@@ -1203,6 +1241,8 @@ async function dispatchAiWorkflow(
         draftPr: input.draftPr,
         model: input.model,
         effort: input.effort,
+        correlationId: input.correlationId,
+        idempotencyKey: input.idempotencyKey,
         taskLength: input.task.length,
       },
     };
@@ -1674,7 +1714,9 @@ function buildAiDispatchAuditEvent(
   response: Record<string, unknown>,
 ): AdminOpsAuditLogDraft {
   const { actor, actorId } = auditUserContext(ctx);
-  const { correlationId, idempotencyKey } = auditRequestCorrelation(ctx);
+  const requestCorrelation = auditRequestCorrelation(ctx);
+  const correlationId = input.correlationId ?? requestCorrelation.correlationId;
+  const idempotencyKey = input.idempotencyKey ?? requestCorrelation.idempotencyKey;
   const { ipHash, userAgentHash } = auditRequestHashes(ctx);
   const eventEntropy = idempotencyKey
     ? `${config.selectedProvider}:${idempotencyKey}`
@@ -2095,7 +2137,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
 
   async proofs(ctx: Context) {
     try {
-      ctx.body = { data: await buildAiProofSnapshot() };
+      ctx.body = { data: await buildAiProofSnapshot(ctx.query) };
     } catch (error: unknown) {
       strapi.log.error(`[ops] Failed to build AI proof snapshot: ${toErrorMessage(error)}`);
       ctx.internalServerError('owner.ops.ai.proofs.failed');
