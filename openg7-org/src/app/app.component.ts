@@ -14,6 +14,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { CodexLiveTimelineComponent } from '@app/shared/components/layout/codex-live-timeline/codex-live-timeline.component';
 import { NotificationToastTrayComponent } from '@app/shared/components/layout/notification-toast-tray/notification-toast-tray.component';
 import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
 import { SiteHeaderComponent } from '@app/shared/components/layout/site-header/site-header.component';
@@ -38,6 +39,7 @@ import { AdminQualityHomeAgentService } from './domains/admin/data-access/admin-
     SiteHeaderComponent,
     UnderConstructionBannerComponent,
     Og7OnboardingFlowComponent,
+    CodexLiveTimelineComponent,
     NotificationToastTrayComponent,
     Og7ModalContainerComponent,
     RouterLink,

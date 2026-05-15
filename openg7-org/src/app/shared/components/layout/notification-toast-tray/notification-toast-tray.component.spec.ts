@@ -241,13 +241,14 @@ describe('NotificationToastTrayComponent', () => {
     );
     expect(tracker.startTracking).toHaveBeenCalledWith(
       jasmine.objectContaining({ workflow: 'codex.yml', ref: 'main' }),
-      {
+      jasmine.objectContaining({
         source: 'admin-quality-agent',
         parentNotificationId: 'toast-1',
         actionId: 'dispatch-codex',
         correlationId: 'og7-test-correlation',
         idempotencyKey: 'og7-test-correlation-dispatch-codex',
-      },
+        timelineRunId: jasmine.any(String),
+      }),
     );
     expect(notifications.markAsRead).toHaveBeenCalledWith('toast-1');
     expect(fixture.debugElement.query(By.css('[data-og7="notification-toast"]'))).toBeNull();

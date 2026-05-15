@@ -22,6 +22,7 @@ import {
   GithubActionNotificationStatus,
   readGithubActionNotificationStatus,
 } from '@app/core/observability/github-action-notification-status';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   NotificationAction,
   NotificationEntry,
@@ -79,6 +80,7 @@ export class SiteHeaderComponent {
   private readonly authConfig = inject(AuthConfigService);
   private readonly notifications = injectNotificationStore();
   private readonly router = inject(Router);
+  private readonly liveTimeline = inject(CodexLiveTimelineService);
   private readonly rbac = inject(RbacFacadeService);
   private readonly userAlerts = inject(UserAlertsService);
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
@@ -354,12 +356,23 @@ export class SiteHeaderComponent {
       return;
     }
 
+    const timelineRunId = this.liveTimeline.start({
+      provider: codexDispatch.provider,
+      task: codexDispatch.task,
+      source: notification.source ?? 'site-header',
+      actionLabel: action.label,
+    });
+
     const adminOps = this.resolveAdminOpsService();
     if (!adminOps) {
       this.notifications.error('Console Ops indisponible pour lancer Codex.', {
         source: notification.source ?? 'site-header',
         metadata: { parentNotificationId: notification.id, actionId: action.id },
       });
+      this.liveTimeline.recordDispatchError(
+        timelineRunId,
+        'Console Ops indisponible pour lancer Codex.',
+      );
       return;
     }
 
@@ -376,11 +389,16 @@ export class SiteHeaderComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
+          this.liveTimeline.recordDispatchQueued(timelineRunId, {
+            workflow: result.workflow,
+            ref: result.ref,
+          });
           if (tracker && correlation) {
             tracker.startTracking(result, {
               source: notification.source ?? 'site-header',
               parentNotificationId: notification.id,
               actionId: action.id,
+              timelineRunId,
               ...correlation,
             });
           } else {
@@ -396,15 +414,27 @@ export class SiteHeaderComponent {
                 },
               },
             );
+            this.liveTimeline.recordGithubStatus(timelineRunId, {
+              state: 'queued',
+              label: 'GitHub Actions - en file',
+              detail: `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              workflow: result.workflow,
+              runUrl: null,
+              runNumber: null,
+              correlationId: correlation?.correlationId ?? null,
+              updatedAt: new Date().toISOString(),
+            });
           }
           this.notifications.markAsRead(notification.id);
           this.isNotifOpen.set(false);
         },
         error: (error: unknown) => {
-          this.notifications.error(this.resolveDispatchError(error, codexDispatch.provider), {
+          const message = this.resolveDispatchError(error, codexDispatch.provider);
+          this.notifications.error(message, {
             source: notification.source ?? 'site-header',
             metadata: { parentNotificationId: notification.id, actionId: action.id },
           });
+          this.liveTimeline.recordDispatchError(timelineRunId, message);
         },
       });
   }

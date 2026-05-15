@@ -534,6 +534,14 @@
       "locked": "Boost visibility"
     }
   },
+  "codexLiveTimeline": {
+    "eyebrow": "Real-time timeline",
+    "streamTitle": "Live stream",
+    "hide": "Hide Codex timeline",
+    "close": "Close Codex timeline",
+    "openRun": "Open run",
+    "openPullRequest": "Open PR"
+  },
   "footer": {
     "links": {
       "ariaLabel": "Footer navigation",
