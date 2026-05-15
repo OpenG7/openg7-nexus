@@ -34,6 +34,8 @@ import { of, switchMap } from 'rxjs';
 import { Og7DualQrPanelComponent } from '../qr/og7-dual-qr-panel.component';
 type PartnerDetailsTab = 'details' | 'collaboration' | 'qr';
 const PUBLICATION_HISTORY_PREFIX = 'Publication ';
+const PROFILE_EVOLUTION_HISTORY_PREFIX = 'Profile evolution: ';
+type PartnerProfileEvolutionStatus = 'queued' | 'reviewing' | 'synced' | 'paused';
 let nextPanelId = 0;
 
 @Component({
@@ -248,15 +250,36 @@ export class PartnerDetailsPanelComponent {
       return bTime - aTime;
     });
   });
+  protected readonly partnerTrustAuditHistory = computed<PartnerTrustRecord[]>(() =>
+    this.partnerTrustHistory().filter(
+      (record) =>
+        !this.isPublicationHistoryEntry(record) && !this.isProfileEvolutionHistoryEntry(record),
+    ),
+  );
   protected readonly partnerTrustHistoryPreview = computed(() =>
-    this.partnerTrustHistory().slice(0, 3),
+    this.partnerTrustAuditHistory().slice(0, 3),
   );
   protected readonly partnerTrustHistoryHasMore = computed(
-    () => this.partnerTrustHistory().length > this.partnerTrustHistoryPreview().length,
+    () => this.partnerTrustAuditHistory().length > this.partnerTrustHistoryPreview().length,
   );
   protected readonly partnerLatestPublicationEntry = computed(() => {
     const publicationTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
     return publicationTrail.find((record) => this.isPublicationHistoryEntry(record)) ?? null;
+  });
+  protected readonly partnerLatestProfileEvolutionEntry = computed(() => {
+    const evolutionTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
+    return evolutionTrail.find((record) => this.isProfileEvolutionHistoryEntry(record)) ?? null;
+  });
+  protected readonly partnerProfileEvolutionStatus = computed<PartnerProfileEvolutionStatus | null>(
+    () => this.profileEvolutionStatusFromRecord(this.partnerLatestProfileEvolutionEntry()),
+  );
+  protected readonly partnerProfileEvolutionStatusKey = computed(() => {
+    const status = this.partnerProfileEvolutionStatus();
+    return status ? `partner.panel.profileLifecycle.status.${status}` : null;
+  });
+  protected readonly partnerProfileEvolutionSummaryKey = computed(() => {
+    const status = this.partnerProfileEvolutionStatus();
+    return status ? `partner.panel.profileLifecycle.summary.${status}` : null;
   });
   protected readonly partnerLatestReviewEntry = computed(() => {
     const reviewTrail = [...(this.selectedPartner()?.trustHistory ?? [])].reverse();
@@ -265,10 +288,14 @@ export class PartnerDetailsPanelComponent {
         (record) =>
           record.type === 'evaluation' &&
           !this.isPublicationHistoryEntry(record) &&
+          !this.isProfileEvolutionHistoryEntry(record) &&
           Boolean(record.notes?.trim()),
       ) ??
       reviewTrail.find(
-        (record) => record.type === 'evaluation' && !this.isPublicationHistoryEntry(record),
+        (record) =>
+          record.type === 'evaluation' &&
+          !this.isPublicationHistoryEntry(record) &&
+          !this.isProfileEvolutionHistoryEntry(record),
       ) ??
       null
     );
@@ -543,6 +570,19 @@ export class PartnerDetailsPanelComponent {
     }
   }
 
+  protected profileEvolutionStatusClass(status: PartnerProfileEvolutionStatus): string {
+    switch (status) {
+      case 'reviewing':
+        return 'bg-sky-500/15 text-sky-700 border border-sky-200';
+      case 'synced':
+        return 'bg-emerald-500/15 text-emerald-700 border border-emerald-200';
+      case 'paused':
+        return 'bg-slate-500/15 text-slate-700 border border-slate-200';
+      default:
+        return 'bg-amber-500/15 text-amber-700 border border-amber-200';
+    }
+  }
+
   protected verificationSourceStatusClass(status: PartnerVerificationSource['status']): string {
     switch (status) {
       case 'validated':
@@ -598,6 +638,27 @@ export class PartnerDetailsPanelComponent {
 
   private isPublicationHistoryEntry(record: PartnerTrustRecord | null | undefined): boolean {
     return Boolean(record?.label?.startsWith(PUBLICATION_HISTORY_PREFIX));
+  }
+
+  private isProfileEvolutionHistoryEntry(record: PartnerTrustRecord | null | undefined): boolean {
+    return this.profileEvolutionStatusFromRecord(record) != null;
+  }
+
+  private profileEvolutionStatusFromRecord(
+    record: PartnerTrustRecord | null | undefined,
+  ): PartnerProfileEvolutionStatus | null {
+    switch (record?.label?.trim()) {
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}Edit queued`:
+        return 'queued';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}Edit under review`:
+        return 'reviewing';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}Edit synced`:
+        return 'synced';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}Edit paused`:
+        return 'paused';
+      default:
+        return null;
+    }
   }
 
   protected close(): void {

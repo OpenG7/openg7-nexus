@@ -303,6 +303,80 @@
                       </div>
                     }
 
+                    @if (partnerProfileEvolutionStatusKey(); as profileEvolutionStatusKey) {
+                      <div
+                        class="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                        data-og7="partner-profile-lifecycle"
+                        [attr.data-og7-state]="partnerProfileEvolutionStatus()"
+                      >
+                        <div class="space-y-2">
+                          <h4 class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle">
+                            {{ 'partner.panel.profileLifecycle.title' | translate }}
+                          </h4>
+                          <p class="text-xs leading-relaxed text-subtle">
+                            {{ 'partner.panel.profileLifecycle.statusHelp' | translate }}
+                          </p>
+                        </div>
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                          <div class="space-y-2">
+                            <span
+                              class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em]"
+                              [ngClass]="
+                                profileEvolutionStatusClass(
+                                  partnerProfileEvolutionStatus() ?? 'queued'
+                                )
+                              "
+                              data-og7-id="partner-profile-status"
+                              [attr.data-og7-state]="partnerProfileEvolutionStatus()"
+                            >
+                              {{ profileEvolutionStatusKey | translate }}
+                            </span>
+                            @if (partnerProfileEvolutionSummaryKey(); as profileEvolutionSummaryKey) {
+                              <p
+                                class="text-xs leading-relaxed text-body"
+                                data-og7-id="partner-profile-summary"
+                              >
+                                {{ profileEvolutionSummaryKey | translate }}
+                              </p>
+                            }
+                          </div>
+                          @if (partnerLatestProfileEvolutionEntry(); as profileEvolutionEntry) {
+                            <span class="text-xs uppercase tracking-[0.2em] text-subtle">
+                              {{
+                                'partner.panel.profileLifecycle.latestDate'
+                                  | translate
+                                    : {
+                                        value:
+                                          formatDate(profileEvolutionEntry.occurredAt) ??
+                                          profileEvolutionEntry.occurredAt,
+                                      }
+                              }}
+                            </span>
+                          }
+                        </div>
+                        @if (partnerLatestProfileEvolutionEntry(); as profileEvolutionEntry) {
+                          <div
+                            class="rounded-2xl border border-slate-200 bg-white p-4"
+                            data-og7="partner-profile-trace"
+                          >
+                            <p
+                              class="text-xs font-semibold uppercase tracking-[0.25em] text-subtle"
+                            >
+                              {{ 'partner.panel.profileLifecycle.latestTitle' | translate }}
+                            </p>
+                            <p class="mt-2 text-sm font-semibold text-title">
+                              {{ profileEvolutionEntry.label }}
+                            </p>
+                            @if (profileEvolutionEntry.notes) {
+                              <p class="mt-2 text-xs leading-relaxed text-body">
+                                {{ profileEvolutionEntry.notes }}
+                              </p>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+
                     <div
                       class="og7-partner-panel__info-card space-y-3 rounded-3xl p-4 shadow-sm ring-1 ring-[color:rgba(34,211,238,0.3)]"
                     >

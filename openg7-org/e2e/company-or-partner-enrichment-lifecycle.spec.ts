@@ -261,9 +261,13 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
     await page.locator('[data-og7-id="admin-trust-quick-correction"]').click();
+    await page.locator('[data-og7-id="admin-trust-profile-quick-review"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
       .fill('Provide renewed chamber certificate and updated grid compliance memo.');
+    await page
+      .locator('[data-og7-id="admin-trust-profile-note"]')
+      .fill('Profile update package reopened to align new evidence and partner-facing copy.');
 
     const newSourceForm = page.locator('[data-og7="admin-trust-new-source"]');
     await newSourceForm.locator('[formcontrolname="name"]').fill('Independent Audit Desk');
@@ -329,6 +333,10 @@ test.describe('Company or partner enrichment lifecycle', () => {
           label: 'Corrections requested',
           notes: 'Provide renewed chamber certificate and updated grid compliance memo.',
         }),
+        expect.objectContaining({
+          label: 'Profile evolution: Edit under review',
+          notes: 'Profile update package reopened to align new evidence and partner-facing copy.',
+        }),
       ]),
     );
 
@@ -339,17 +347,30 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await expect(page.locator('[data-og7-id="admin-trust-status"]')).toHaveValue(
       'correctionRequested',
     );
+    await expect(page.locator('[data-og7-id="admin-trust-profile-status"]')).toHaveValue(
+      'reviewing',
+    );
     await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText(
       'Correction requested',
+    );
+    await expect(page.locator('[data-og7="admin-trust-profile-trace"]')).toContainText(
+      'Profile evolution: Edit under review',
+    );
+    await expect(page.locator('[data-og7="admin-trust-profile-trace"]')).toContainText(
+      'Profile update package reopened to align new evidence and partner-facing copy.',
     );
     await expect(page.locator('text=Independent Audit Desk')).toBeVisible();
 
     const sourceCard = page.locator('li').filter({ hasText: 'Independent Audit Desk' }).first();
     await sourceCard.locator('select').nth(1).selectOption('validated');
     await page.locator('[data-og7-id="admin-trust-quick-verify"]').click();
+    await page.locator('[data-og7-id="admin-trust-profile-quick-sync"]').click();
     await page
       .locator('[data-og7-id="admin-trust-review-note"]')
       .fill('Renewed evidence package approved after corrective review.');
+    await page
+      .locator('[data-og7-id="admin-trust-profile-note"]')
+      .fill('Company and partner surfaces refreshed with the corrected proof bundle.');
 
     const [approvalRequest, approvalResponse] = await Promise.all([
       page.waitForRequest(
@@ -387,6 +408,10 @@ test.describe('Company or partner enrichment lifecycle', () => {
         expect.objectContaining({
           label: 'Verification approved',
           notes: 'Renewed evidence package approved after corrective review.',
+        }),
+        expect.objectContaining({
+          label: 'Profile evolution: Edit synced',
+          notes: 'Company and partner surfaces refreshed with the corrected proof bundle.',
         }),
       ]),
     );
@@ -433,6 +458,9 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await expect(page.locator('[data-og7-id="admin-trust-publication-status"]')).toHaveValue(
       'approved',
     );
+    await expect(page.locator('[data-og7-id="admin-trust-profile-status"]')).toHaveValue(
+      'synced',
+    );
     await expect(page.locator('[data-og7-id="admin-trust-company-1001"]')).toContainText(
       'Published',
     );
@@ -440,6 +468,9 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await page.goto('/partners/1001?role=supplier');
     const trustPanel = page.locator('[data-og7="partner-trust"]');
     const publicationLifecycle = page.locator('[data-og7="partner-publication-lifecycle"]');
+    const profileLifecycle = page.locator('[data-og7="partner-profile-lifecycle"]');
+    const profileStatus = page.locator('[data-og7-id="partner-profile-status"]');
+    const profileTrace = page.locator('[data-og7="partner-profile-trace"]');
     const publicationStatus = page.locator('[data-og7-id="partner-publication-status"]');
     const publicationTrace = page.locator('[data-og7="partner-publication-trace"]');
     const statusBadge = page.locator('[data-og7-id="partner-trust-status"]');
@@ -447,6 +478,15 @@ test.describe('Company or partner enrichment lifecycle', () => {
 
     await expect(trustPanel).toBeVisible();
     await expect(publicationLifecycle).toBeVisible();
+    await expect(profileLifecycle).toBeVisible();
+    await expect(profileStatus).toHaveAttribute('data-og7-state', 'synced');
+    await expect(page.locator('[data-og7-id="partner-profile-summary"]')).toContainText(
+      'durably synced across partner surfaces',
+    );
+    await expect(profileTrace).toContainText('Profile evolution: Edit synced');
+    await expect(profileTrace).toContainText(
+      'Company and partner surfaces refreshed with the corrected proof bundle.',
+    );
     await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
     await expect(page.locator('[data-og7-id="partner-publication-summary"]')).toContainText(
       'visible across public discovery and partner surfaces',
@@ -480,6 +520,11 @@ test.describe('Company or partner enrichment lifecycle', () => {
     await page.reload();
 
     await expect(trustPanel).toBeVisible();
+    await expect(profileStatus).toHaveAttribute('data-og7-state', 'synced');
+    await expect(profileTrace).toContainText('Profile evolution: Edit synced');
+    await expect(profileTrace).toContainText(
+      'Company and partner surfaces refreshed with the corrected proof bundle.',
+    );
     await expect(publicationStatus).toHaveAttribute('data-og7-state', 'approved');
     await expect(publicationTrace).toContainText('Publication approved');
     await expect(publicationTrace).toContainText(
