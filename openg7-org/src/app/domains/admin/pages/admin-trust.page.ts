@@ -22,6 +22,11 @@ import {
   CompanyVerificationStatus,
 } from '@app/core/services/company.service';
 
+import {
+  AdminTrustDraftsService,
+  AdminTrustLifecycleDraft,
+} from '../data-access/admin-trust-drafts.service';
+
 const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   unverified: 'Unverified',
   pending: 'Pending review',
@@ -77,16 +82,22 @@ export class AdminTrustPage implements OnInit {
   private readonly companiesService = inject(CompanyService);
   private readonly notifications = injectNotificationStore();
   private readonly fb = inject(FormBuilder);
+  private readonly trustDrafts = inject(AdminTrustDraftsService);
 
   protected readonly companies = this.companiesService.companies();
   protected readonly loading = this.companiesService.loading();
   protected readonly error = this.companiesService.error();
+  protected readonly queuedDraftCompanyIds = this.trustDrafts.queuedCompanyIds;
 
   protected readonly selectedCompany = signal<CompanyRecord | null>(null);
   protected readonly sources = signal<CompanyVerificationSource[]>([]);
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
   protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
+  protected readonly selectedDraft = computed(() => {
+    const company = this.selectedCompany();
+    return company ? this.trustDrafts.draftFor(company.id) : null;
+  });
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
@@ -174,11 +185,8 @@ export class AdminTrustPage implements OnInit {
 
   selectCompany(company: CompanyRecord): void {
     this.selectedCompany.set(company);
-    this.statusControl.setValue(company.verificationStatus);
-    this.publicationStatusControl.setValue(company.status);
-    this.sources.set(company.verificationSources.slice());
-    this.history.set(company.trustHistory.slice());
-    this.reviewNoteControl.setValue('');
+    const draft = this.trustDrafts.draftFor(company.id);
+    this.applyEditorState(company, draft);
   }
 
   statusLabel(status: CompanyVerificationStatus): string {
@@ -299,6 +307,33 @@ export class AdminTrustPage implements OnInit {
     if (!this.reviewNoteControl.value.trim()) {
       this.reviewNoteControl.setValue(this.defaultPublicationNote(status));
     }
+  }
+
+  queueDraft(): void {
+    const company = this.selectedCompany();
+    if (!company) {
+      return;
+    }
+
+    this.trustDrafts.saveDraft({
+      companyId: company.id,
+      verificationStatus: this.statusControl.value,
+      publicationStatus: this.publicationStatusControl.value,
+      verificationSources: this.cloneSources(this.sources()),
+      trustHistory: this.cloneHistory(this.history()),
+      reviewNote: this.reviewNoteControl.value.trim(),
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  discardDraft(): void {
+    const company = this.selectedCompany();
+    if (!company) {
+      return;
+    }
+
+    this.trustDrafts.clearDraft(company.id);
+    this.applyEditorState(company, null);
   }
 
   setSourceType(index: number, raw: string): void {
@@ -473,16 +508,13 @@ export class AdminTrustPage implements OnInit {
       })
       .subscribe({
         next: (updated) => {
+          this.trustDrafts.clearDraft(updated.id);
           this.notifications.success('Trust and publication data updated.', {
             source: 'admin-trust',
             metadata: { companyId: updated.id },
           });
           this.selectedCompany.set(updated);
-          this.statusControl.setValue(updated.verificationStatus);
-          this.publicationStatusControl.setValue(updated.status);
-          this.sources.set(updated.verificationSources.slice());
-          this.history.set(updated.trustHistory.slice());
-          this.reviewNoteControl.setValue('');
+          this.applyEditorState(updated, null);
           this.saving.set(false);
         },
         error: () => {
@@ -536,6 +568,31 @@ export class AdminTrustPage implements OnInit {
     sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined,
   ): boolean {
     return (sources ?? []).some((source) => source.status === 'validated');
+  }
+
+  private applyEditorState(
+    company: CompanyRecord,
+    draft: AdminTrustLifecycleDraft | null,
+  ): void {
+    this.statusControl.setValue(draft?.verificationStatus ?? company.verificationStatus);
+    this.publicationStatusControl.setValue(draft?.publicationStatus ?? company.status);
+    this.sources.set(
+      this.cloneSources(draft?.verificationSources ?? company.verificationSources),
+    );
+    this.history.set(this.cloneHistory(draft?.trustHistory ?? company.trustHistory));
+    this.reviewNoteControl.setValue(draft?.reviewNote ?? '');
+  }
+
+  private cloneSources(
+    sources: readonly CompanyVerificationSource[] | null | undefined,
+  ): CompanyVerificationSource[] {
+    return (sources ?? []).map((source) => ({ ...source }));
+  }
+
+  private cloneHistory(
+    history: readonly CompanyTrustRecord[] | null | undefined,
+  ): CompanyTrustRecord[] {
+    return (history ?? []).map((record) => ({ ...record }));
   }
 
   private buildReviewEntry(

@@ -286,6 +286,34 @@ test.describe('Company or partner enrichment lifecycle', () => {
       .fill('Operations team requested remediation evidence.');
     await newHistoryForm.getByRole('button', { name: 'Add entry' }).click();
 
+    await page.locator('[data-og7-id="admin-trust-queue-draft"]').click();
+    await expect(page.locator('[data-og7="admin-trust-draft"]')).toBeVisible();
+    await expect(page.locator('[data-og7-id="admin-trust-draft-summary"]')).toContainText(
+      'Correction requested',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-draft-note"]')).toContainText(
+      'Provide renewed chamber certificate and updated grid compliance memo.',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-company-draft-1001"]')).toBeVisible();
+
+    await page.reload();
+    await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
+    await expect(page.locator('[data-og7-id="admin-trust-company-draft-1001"]')).toBeVisible();
+
+    await page.locator('[data-og7-id="admin-trust-company-1001"]').click();
+    await expect(page.locator('[data-og7="admin-trust-draft"]')).toBeVisible();
+    await expect(page.locator('[data-og7-id="admin-trust-status"]')).toHaveValue(
+      'correctionRequested',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-review-note"]')).toHaveValue(
+      'Provide renewed chamber certificate and updated grid compliance memo.',
+    );
+    await expect(page.locator('[data-og7-id="admin-trust-draft-note"]')).toContainText(
+      'Provide renewed chamber certificate and updated grid compliance memo.',
+    );
+    await expect(page.locator('text=Independent Audit Desk')).toBeVisible();
+    await expect(page.getByText('Corrective action review')).toBeVisible();
+
     const [correctionRequest, correctionResponse] = await Promise.all([
       page.waitForRequest(
         (request) =>
@@ -331,6 +359,8 @@ test.describe('Company or partner enrichment lifecycle', () => {
         }),
       ]),
     );
+    await expect(page.locator('[data-og7="admin-trust-draft"]')).toHaveCount(0);
+    await expect(page.locator('[data-og7-id="admin-trust-company-draft-1001"]')).toHaveCount(0);
 
     await page.reload();
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();

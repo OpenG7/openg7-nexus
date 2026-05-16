@@ -70,6 +70,14 @@
                 <p class="text-xs text-slate-500">
                   Publication · {{ publicationStatusLabel(company.status) }}
                 </p>
+                @if (queuedDraftCompanyIds().includes(company.id)) {
+                <p
+                  class="mt-1 inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-sky-700"
+                  [attr.data-og7-id]="'admin-trust-company-draft-' + company.id"
+                >
+                  Queued draft
+                </p>
+                }
                 <p class="mt-1 text-[0.7rem] leading-relaxed text-slate-500">
                   {{ reviewSummary(company) }}
                 </p>
@@ -152,6 +160,43 @@
               partner surface in sync.
             </p>
           </header>
+
+          @if (selectedDraft(); as draft) {
+          <article
+            class="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-slate-700"
+            data-og7="admin-trust-draft"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="space-y-2">
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-700">
+                  Queued lifecycle draft
+                </p>
+                <p class="font-semibold text-slate-900" data-og7-id="admin-trust-draft-summary">
+                  {{ statusLabel(draft.verificationStatus) }} ·
+                  {{ publicationStatusLabel(draft.publicationStatus) }}
+                </p>
+                <p class="text-xs text-slate-500" data-og7-id="admin-trust-draft-meta">
+                  {{ draft.verificationSources.length }} sources ·
+                  {{ draft.trustHistory.length }} events · queued locally
+                  {{ draft.updatedAt | date: 'medium' }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="rounded-lg border border-sky-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 hover:border-sky-400"
+                data-og7-id="admin-trust-draft-discard"
+                (click)="discardDraft()"
+              >
+                Discard draft
+              </button>
+            </div>
+            @if (draft.reviewNote) {
+            <p class="mt-3 text-xs leading-relaxed text-slate-600" data-og7-id="admin-trust-draft-note">
+              {{ draft.reviewNote }}
+            </p>
+            }
+          </article>
+          }
 
           <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]">
             <div class="space-y-3">
@@ -624,6 +669,14 @@
         </section>
 
         <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-lg border border-sky-300 bg-sky-50 px-5 py-2 text-sm font-semibold text-sky-700 hover:bg-sky-100"
+            data-og7-id="admin-trust-queue-draft"
+            (click)="queueDraft()"
+          >
+            Queue draft
+          </button>
           <button
             type="button"
             class="rounded-lg border border-emerald-400 bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
