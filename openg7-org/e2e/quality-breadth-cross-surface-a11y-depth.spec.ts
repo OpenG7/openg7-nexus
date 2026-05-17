@@ -1,7 +1,11 @@
 import './setup';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
-import { type E2eAuthProfile, seedAuthenticatedSession } from './helpers/auth-session';
+import {
+  type E2eAuthProfile,
+  mockAuthenticatedSessionApis,
+  seedAuthenticatedSession,
+} from './helpers/auth-session';
 
 interface AlertRecord {
   id: string;
@@ -53,6 +57,30 @@ async function activateWithKeyboard(
   await target.focus();
   await expect(target).toBeFocused();
   await page.keyboard.press(key);
+}
+
+async function expectAssociatedLabel(control: Locator): Promise<void> {
+  await expect(control).toBeVisible();
+  const hasLabel = await control.evaluate((element) => {
+    if (
+      !(
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLSelectElement ||
+        element instanceof HTMLTextAreaElement
+      )
+    ) {
+      return false;
+    }
+
+    const labels = element.labels;
+    if (labels && labels.length > 0) {
+      return true;
+    }
+
+    return Boolean(element.getAttribute('aria-label') || element.getAttribute('aria-labelledby'));
+  });
+
+  expect(hasLabel).toBeTruthy();
 }
 
 async function mockNotificationInboxApis(
@@ -438,5 +466,95 @@ test.describe('Quality breadth cross-surface accessibility depth', () => {
     await expect(page.locator('[data-og7="user-alert-item"]').first()).toContainText(
       'Rail capacity risk',
     );
+  });
+
+  test('keeps the alert update drawer keyboard-usable across compose and view states with accessible field errors', async ({
+    page,
+  }) => {
+    await mockAuthenticatedSessionApis(page);
+    await seedAuthenticatedSession(page, PROFILE);
+
+    await page.goto('/feed/alerts/alert-001');
+    await expect(page.locator('[data-og7="alert-detail-page"]')).toBeVisible();
+
+    const reportButton = page.locator('[data-og7-id="alert-report-update"]');
+    const drawer = page.locator('[data-og7="alert-update-drawer"]');
+    const dialog = drawer.locator('[role="dialog"]');
+    const closeButton = drawer.locator('header button').first();
+    const reasonSelect = drawer.locator('[data-og7="alert-update-field"][data-og7-id="reason"]');
+    const summaryInput = drawer.locator('[data-og7="alert-update-field"][data-og7-id="summary"]');
+    const sourceUrlInput = drawer.locator(
+      '[data-og7="alert-update-field"][data-og7-id="source-url"]',
+    );
+    const submitButton = drawer.locator('[data-og7-id="alert-update-submit"]');
+    const summaryError = drawer.locator('#og7-alert-update-summary-error');
+    const sourceUrlError = drawer.locator('#og7-alert-update-source-url-error');
+
+    await activateWithKeyboard(page, reportButton);
+
+    await expect(drawer).toBeVisible();
+    await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog).toHaveAttribute('aria-labelledby', 'og7-alert-update-title');
+    await expect(dialog).toHaveAttribute('aria-describedby', 'og7-alert-update-description');
+    await expect(dialog).toBeFocused();
+
+    await expectAssociatedLabel(reasonSelect);
+    await expectAssociatedLabel(summaryInput);
+    await expectAssociatedLabel(sourceUrlInput);
+
+    await page.keyboard.press('Tab');
+    await expect(closeButton).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(submitButton).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(closeButton).toBeFocused();
+
+    await sourceUrlInput.fill('operator-update');
+    await activateWithKeyboard(page, submitButton);
+
+    await expect(summaryError).toBeVisible();
+    await expect(sourceUrlError).toBeVisible();
+    await expect(summaryInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(summaryInput).toHaveAttribute('aria-describedby', 'og7-alert-update-summary-error');
+    await expect(sourceUrlInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(sourceUrlInput).toHaveAttribute(
+      'aria-describedby',
+      'og7-alert-update-source-url-error',
+    );
+
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(reportButton).toBeFocused();
+
+    await activateWithKeyboard(page, reportButton);
+    await expect(drawer).toBeVisible();
+
+    await reasonSelect.selectOption('resolved');
+    await summaryInput.fill('Transmission icing confirmed by the latest operator update.');
+    await sourceUrlInput.fill('https://example.com/operator-update');
+    await activateWithKeyboard(page, submitButton);
+
+    await expect(
+      drawer.locator('[data-og7="alert-update-status"][data-og7-id="success"]'),
+    ).toHaveAttribute('role', 'status');
+    await expect(drawer).toBeHidden();
+
+    const viewButton = page.locator('[data-og7-id="alert-view-my-report"]');
+    const viewCloseButton = drawer.locator('[data-og7-id="alert-update-view-close"]');
+
+    await expect(viewButton).toBeVisible();
+    await activateWithKeyboard(page, viewButton);
+
+    await expect(drawer).toBeVisible();
+    await expect(dialog).toHaveAttribute('aria-labelledby', 'og7-alert-update-title');
+    await expect(dialog).toHaveAttribute('aria-describedby', 'og7-alert-update-description');
+    await page.keyboard.press('Tab');
+    await expect(closeButton).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(viewCloseButton).toBeFocused();
+
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(viewButton).toBeFocused();
   });
 });
