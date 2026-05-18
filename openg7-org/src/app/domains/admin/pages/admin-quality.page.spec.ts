@@ -1,7 +1,7 @@
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import {
   NotificationStore,
   NotificationStoreApi,
@@ -767,6 +767,18 @@ describe('AdminQualityPage', () => {
         '[data-og7="admin-quality-domain-icon"][data-og7-id="advanced-discovery"]',
       ),
     ).not.toBeNull();
+  });
+
+  it('selects the matrix entry requested by the entryId query parameter', () => {
+    const route = TestBed.inject(ActivatedRoute);
+    Object.defineProperty(route.snapshot, 'queryParamMap', {
+      value: convertToParamMap({ entryId: 'observability' }),
+    });
+
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedEntry()?.id).toBe('observability');
   });
 
   it('keeps the hero status pills high contrast on the QA cockpit shell', () => {

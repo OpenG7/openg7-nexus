@@ -1,15 +1,85 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, DestroyRef } from '@angular/core';
 
 import { ANALYTICS_ENDPOINT, API_URL } from '../config/environment.tokens';
+import { createSilentHttpContext } from '../http/error.interceptor.tokens';
 import { RbacFacadeService } from '../security/rbac.facade';
 
+/**
+ * Registre des événements officiels pour éviter les chaînes magiques.
+ */
+export type AnalyticsEventName =
+  | 'login_success'
+  | 'login_failure'
+  | 'codex_dispatch_started'
+  | 'notification_read'
+  | 'linkup_status_changed'
+  | 'meeting_slots_proposed'
+  | 'attachment_toggled'
+  | 'app_error'
+  | 'auth_sso_attempt'
+  | 'auth_sso_failed'
+  | 'billboard_viewed'
+  | 'partner_card_download'
+  | 'partner_card_share'
+  | 'partner_intro_requested'
+  | 'financing_cta_clicked'
+  | 'intro_template_loaded'
+  | 'intro_draft_resumed'
+  | 'feed.item.publish'
+  | 'feed.item.publish.failed'
+  | 'feed.item.publish.started'
+  | 'feed.item.received'
+  | 'feed.page.loaded'
+  | 'feed_context_return_map'
+  | 'feed_context_reset'
+  | 'home_feed_panel_item_opened'
+  | 'home_feed_panel_connect_requested'
+  | 'home_feed_panel_view_all_requested'
+  | 'hydrocarbon_signal_published'
+  | 'hydrocarbon_signal_contact_requested'
+  | 'map_open_corridor_feed'
+  | 'opportunity_connect_clicked'
+  | 'connection_created_success'
+  | 'connection_create_failed'
+  | 'importation_page_viewed'
+  | 'importation_filter_updated'
+  | 'importation_map_drilldown'
+  | 'importation_timeline_playback'
+  | 'importation_watchlist_created'
+  | 'importation_export_requested'
+  | 'search_performed'
+  | 'search_opened'
+  | 'search_typed'
+  | 'search_saved'
+  | 'search_save_failed'
+  | 'search_save_denied'
+  | 'search_autocomplete_selected'
+  | 'result_impression'
+  | 'empty_state_seen'
+  | 'search_time_to_first_result'
+  | 'result_selected'
+  | 'search_callback_requested'
+  | 'meeting_confirmed'
+  | 'meeting_cancelled'
+  | 'filter_cleared'
+  | 'filter_applied'
+  | 'document_viewed'
+  | 'qr_scanned_buyer'
+  | 'qr_scanned_supplier';
+
 interface AnalyticsEnvelope {
-  readonly event: string;
+  readonly event: AnalyticsEventName;
   readonly detail: Record<string, unknown>;
   readonly priority: boolean;
   readonly timestamp: string;
+}
+
+interface FlushOptions {
+  readonly allowRetry?: boolean;
+  readonly drain?: boolean;
+  readonly preferBeacon?: boolean;
 }
 
 type DataLayerEntry = Record<string, unknown>;
@@ -31,8 +101,20 @@ export class AnalyticsService {
   private readonly apiUrl = inject(API_URL, { optional: true }) ?? '';
   private readonly explicitEndpoint = inject(ANALYTICS_ENDPOINT, { optional: true }) ?? null;
   private readonly endpoint = this.resolveEndpoint();
+  private readonly destroyRef = inject(DestroyRef);
 
   private dataLayerInitialized = false;
+  private buffer: AnalyticsEnvelope[] = [];
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly BATCH_SIZE = 10;
+  private readonly FLUSH_INTERVAL_MS = 2000;
+  private readonly MAX_BUFFER_SIZE = 100;
+
+  constructor() {
+    if (this.browser) {
+      this.registerLifecycleFlush();
+    }
+  }
 
   /**
    * Contexte : Invoked by UI components and domain services whenever an analytics event must be recorded.
@@ -43,11 +125,11 @@ export class AnalyticsService {
    * @returns void
    */
   emit(
-    eventName: string,
+    eventName: AnalyticsEventName,
     detail?: Record<string, unknown>,
     options?: { priority?: boolean },
   ): void {
-    const isPriority = options?.priority ?? false;
+    const isPriority = options?.priority === true;
     if (isPriority && !this.rbac.hasPermission('premium:analytics')) {
       return;
     }
@@ -60,11 +142,27 @@ export class AnalyticsService {
 
     this.forwardToDataLayer(envelope);
     this.dispatchCustomEvents(envelope);
-    this.forwardToEndpoint(envelope);
+
+    if (!this.endpoint) {
+      return;
+    }
+
+    this.buffer.push(envelope);
+
+    if (isPriority || this.buffer.length >= this.BATCH_SIZE) {
+      this.flush();
+    } else {
+      this.scheduleFlush();
+    }
+  }
+
+  private scheduleFlush(): void {
+    if (this.flushTimer) return;
+    this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_INTERVAL_MS);
   }
 
   private buildEnvelope(
-    eventName: string,
+    eventName: AnalyticsEventName,
     detail: Record<string, unknown> | undefined,
     priority: boolean,
   ): AnalyticsEnvelope {
@@ -121,40 +219,128 @@ export class AnalyticsService {
     }
   }
 
-  private forwardToEndpoint(envelope: AnalyticsEnvelope): void {
-    if (!this.endpoint) {
+  private registerLifecycleFlush(): void {
+    const flushForPageExit = () =>
+      this.flush({ allowRetry: false, drain: true, preferBeacon: true });
+    const flushWhenHidden = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        flushForPageExit();
+      }
+    };
+
+    window.addEventListener('beforeunload', flushForPageExit);
+    window.addEventListener('pagehide', flushForPageExit);
+    document.addEventListener('visibilitychange', flushWhenHidden);
+
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('beforeunload', flushForPageExit);
+      window.removeEventListener('pagehide', flushForPageExit);
+      document.removeEventListener('visibilitychange', flushWhenHidden);
+      this.flush({ allowRetry: false, drain: true });
+    });
+  }
+
+  private flush(options: FlushOptions = {}): void {
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
+
+    if (this.buffer.length === 0) {
       return;
     }
-    const payload = { ...envelope };
-    try {
-      const navigatorRef: Navigator | undefined =
-        typeof navigator !== 'undefined' ? navigator : undefined;
-      if (navigatorRef && typeof navigatorRef.sendBeacon === 'function') {
-        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        const accepted = navigatorRef.sendBeacon(this.endpoint, blob);
-        if (accepted) {
-          return;
-        }
-      }
-    } catch {
-      // Fall back to other transports if sendBeacon fails.
+
+    if (!this.endpoint) {
+      this.buffer = [];
+      return;
+    }
+
+    do {
+      const payload = this.buffer.splice(0, this.BATCH_SIZE);
+      this.forwardBatchToEndpoint(payload, options);
+    } while (options.drain === true && this.buffer.length > 0);
+
+    if (this.buffer.length > 0) {
+      this.scheduleFlush();
+    }
+  }
+
+  private forwardBatchToEndpoint(
+    payload: readonly AnalyticsEnvelope[],
+    options: FlushOptions,
+  ): void {
+    if (!this.endpoint || payload.length === 0) {
+      return;
+    }
+
+    if (options.preferBeacon === true && this.trySendBeacon(payload)) {
+      return;
     }
 
     if (this.http) {
-      this.http.post(this.endpoint, payload).subscribe({
-        next: () => undefined,
-        error: () => undefined,
-      });
+      this.http
+        .post(this.endpoint, payload, {
+          context: createSilentHttpContext(),
+          headers: { 'X-OG7-Batch': 'true' },
+        })
+        .subscribe({
+          error: (err) => this.handleBatchFailure(payload, options, err),
+        });
+      return;
+    }
+
+    if (options.preferBeacon !== true && this.trySendBeacon(payload)) {
       return;
     }
 
     if (typeof fetch === 'function') {
       void fetch(this.endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-OG7-Batch': 'true',
+        },
         body: JSON.stringify(payload),
         keepalive: true,
-      }).catch(() => undefined);
+      })
+        .then((response) => {
+          if (!response.ok) {
+            this.handleBatchFailure(payload, options, response.status);
+          }
+        })
+        .catch((err) => this.handleBatchFailure(payload, options, err));
+      return;
+    }
+
+    this.handleBatchFailure(payload, options);
+  }
+
+  private trySendBeacon(payload: readonly AnalyticsEnvelope[]): boolean {
+    try {
+      if (this.browser && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        return navigator.sendBeacon(this.endpoint ?? '', blob);
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  }
+
+  private handleBatchFailure(
+    payload: readonly AnalyticsEnvelope[],
+    options: FlushOptions,
+    err?: unknown,
+  ): void {
+    if (options.allowRetry === false) {
+      return;
+    }
+    const combined = [...payload, ...this.buffer];
+    this.buffer = combined.slice(Math.max(0, combined.length - this.MAX_BUFFER_SIZE));
+    this.scheduleFlush();
+
+    if (err) {
+      console.error('Analytics batch flush failed', err);
     }
   }
 

@@ -14,7 +14,10 @@ import {
 import { FEATURE_FLAGS } from '@app/core/config/environment.tokens';
 import { API_URL } from '@app/core/config/environment.tokens';
 import { createSilentHttpContext } from '@app/core/http/error.interceptor.tokens';
-import { AnalyticsService } from '@app/core/observability/analytics.service';
+import {
+  AnalyticsService,
+  type AnalyticsEventName,
+} from '@app/core/observability/analytics.service';
 import { injectNotificationStore } from '@app/core/observability/notification.store';
 import { selectCatalogFeedItems } from '@app/state/catalog/catalog.selectors';
 import {
@@ -1181,7 +1184,7 @@ export class FeedRealtimeService {
     }
   }
 
-  private emitAnalytics(event: string, payload: Record<string, unknown>): void {
+  private emitAnalytics(event: AnalyticsEventName, payload: Record<string, unknown>): void {
     this.analytics.emit(event, payload);
   }
 

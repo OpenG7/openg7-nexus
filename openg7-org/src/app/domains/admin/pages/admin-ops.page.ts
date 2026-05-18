@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -22,6 +21,7 @@ import { AdminNavigationPillsComponent } from '@openg7/admin-quality';
 import type { AdminNavigationPillItem } from '@openg7/admin-quality';
 import { finalize } from 'rxjs';
 
+import { resolveAdminOpsErrorMessage } from '../data-access/admin-ops-error-message';
 import {
   AdminOpsAuditLogEntry,
   AdminOpsBackupFile,
@@ -1603,42 +1603,7 @@ export class AdminOpsPage implements OnInit {
   }
 
   private resolveError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 401 || error.status === 403) {
-        return 'Access denied. This dashboard is restricted to owner/admin accounts.';
-      }
-      if (typeof error.error === 'string' && error.error.trim()) {
-        return error.error;
-      }
-      if (error.error && typeof error.error === 'object') {
-        const message = (error.error as { message?: unknown }).message;
-        if (typeof message === 'string' && message.trim()) {
-          return message;
-        }
-      }
-      if (typeof error.message === 'string' && error.message.trim()) {
-        return error.message;
-      }
-    }
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
-    }
-    if (error && typeof error === 'object') {
-      const payload = error as { error?: unknown; message?: unknown };
-      if (typeof payload.message === 'string' && payload.message.trim()) {
-        return payload.message;
-      }
-      if (payload.error && typeof payload.error === 'object') {
-        const message = (payload.error as { message?: unknown }).message;
-        if (typeof message === 'string' && message.trim()) {
-          return message;
-        }
-      }
-      if (typeof payload.error === 'string' && payload.error.trim()) {
-        return payload.error;
-      }
-    }
-    return 'Unable to load operations data.';
+    return resolveAdminOpsErrorMessage(error, 'Unable to load operations data.');
   }
 
   private applyCodexRoutePrefill(): void {
