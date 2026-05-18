@@ -1,11 +1,15 @@
 import { Injectable, inject } from '@angular/core';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   GithubActionNotificationState,
   GithubActionNotificationStatus,
   githubActionStatusMetadata,
 } from '@app/core/observability/github-action-notification-status';
-import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
-import { injectNotificationStore } from '@app/core/observability/notification.store';
+import {
+  injectNotificationStore,
+  NotificationAction,
+  NotificationEntry,
+} from '@app/core/observability/notification.store';
 import { catchError, of, Subscription, switchMap, timer } from 'rxjs';
 
 import {
@@ -17,6 +21,8 @@ import {
 const GITHUB_ACTION_POLL_INTERVAL_MS = 15_000;
 const GITHUB_ACTION_MAX_POLLS = 80;
 const TRACKED_RUN_GRACE_MS = 120_000;
+const ACTION_STATUS_SUFFIX_PATTERN =
+  /\s+-\s+(en file|en cours|termine|echec|suivi indisponible)(?: #\d+)?$/i;
 
 export interface AdminGithubActionDispatchCorrelation {
   readonly correlationId: string;
@@ -49,6 +55,7 @@ export class AdminGithubActionTrackerService {
     dispatch: AdminOpsCodexDispatchResponse,
     context: AdminGithubActionTrackingContext,
   ): string | void {
+    const trackingId = this.trackingId(context);
     const initialStatus = this.buildStatus({
       state: 'queued',
       label: 'GitHub Actions - en file',
@@ -56,7 +63,29 @@ export class AdminGithubActionTrackerService {
       dispatch,
       context,
     });
-    const notificationId = this.notifications.info(initialStatus.detail, {
+    const notificationId = this.updateNotification(
+      context.parentNotificationId,
+      initialStatus,
+      context,
+      dispatch,
+    )
+      ? context.parentNotificationId
+      : this.createStandaloneTrackingNotification(initialStatus, context, dispatch);
+
+    if (notificationId) {
+      this.liveTimeline.recordGithubStatus(context.timelineRunId, initialStatus);
+      this.pollGithubAction(trackingId, notificationId, dispatch, context);
+    }
+
+    return notificationId;
+  }
+
+  private createStandaloneTrackingNotification(
+    initialStatus: GithubActionNotificationStatus,
+    context: AdminGithubActionTrackingContext,
+    dispatch: AdminOpsCodexDispatchResponse,
+  ): string | void {
+    return this.notifications.info(initialStatus.detail, {
       title: 'Codex - GitHub Actions',
       source: context.source ?? 'admin-quality-agent',
       metadata: {
@@ -77,21 +106,15 @@ export class AdminGithubActionTrackerService {
         },
       ],
     });
-
-    if (notificationId) {
-      this.liveTimeline.recordGithubStatus(context.timelineRunId, initialStatus);
-      this.pollGithubAction(notificationId, dispatch, context);
-    }
-
-    return notificationId;
   }
 
   private pollGithubAction(
+    trackingId: string,
     notificationId: string,
     dispatch: AdminOpsCodexDispatchResponse,
     context: AdminGithubActionTrackingContext,
   ): void {
-    this.stopTracking(notificationId);
+    this.stopTracking(trackingId);
     let attempts = 0;
     const subscription = timer(0, GITHUB_ACTION_POLL_INTERVAL_MS)
       .pipe(
@@ -120,11 +143,11 @@ export class AdminGithubActionTrackerService {
               dispatch,
             );
           }
-          this.stopTracking(notificationId);
+          this.stopTracking(trackingId);
         }
       });
 
-    this.subscriptions.set(notificationId, subscription);
+    this.subscriptions.set(trackingId, subscription);
   }
 
   private resolveStatus(
@@ -183,11 +206,17 @@ export class AdminGithubActionTrackerService {
     status: GithubActionNotificationStatus,
     context: AdminGithubActionTrackingContext,
     dispatch: AdminOpsCodexDispatchResponse,
-  ): void {
+  ): boolean {
+    const entry = this.notificationEntry(notificationId);
+    if (!entry) {
+      return false;
+    }
+
     this.notifications.updateEntry(notificationId, {
       type: status.state === 'failed' ? 'error' : status.state === 'completed' ? 'success' : 'info',
       message: status.detail,
       metadata: {
+        ...(entry.metadata ?? {}),
         parentNotificationId: context.parentNotificationId,
         actionId: context.actionId,
         workflow: dispatch.workflow,
@@ -196,8 +225,11 @@ export class AdminGithubActionTrackerService {
         idempotencyKey: context.idempotencyKey,
         ...githubActionStatusMetadata(status),
       },
+      actions: this.actionsWithStatus(entry.actions ?? [], context.actionId, status),
       read: false,
     });
+
+    return true;
   }
 
   private updateLiveTimeline(
@@ -258,6 +290,56 @@ export class AdminGithubActionTrackerService {
 
   private isTerminal(state: GithubActionNotificationState): boolean {
     return state === 'completed' || state === 'failed';
+  }
+
+  private notificationEntry(notificationId: string): NotificationEntry | null {
+    return this.notifications.entries().find((entry) => entry.id === notificationId) ?? null;
+  }
+
+  private actionsWithStatus(
+    actions: readonly NotificationAction[],
+    actionId: string,
+    status: GithubActionNotificationStatus,
+  ): readonly NotificationAction[] {
+    return actions.map((action) => {
+      if (action.id !== actionId) {
+        return action;
+      }
+
+      return {
+        ...action,
+        label: this.actionLabelWithStatus(action.label, status),
+        kind: 'route' as const,
+        route: '/admin/ops',
+        command: null,
+        codexDispatch: null,
+      };
+    });
+  }
+
+  private actionLabelWithStatus(label: string, status: GithubActionNotificationStatus): string {
+    const baseLabel = label.replace(ACTION_STATUS_SUFFIX_PATTERN, '').trim() || label;
+    const runSuffix = status.runNumber ? ` #${status.runNumber}` : '';
+    return `${baseLabel} - ${this.actionStatusLabel(status.state)}${runSuffix}`;
+  }
+
+  private actionStatusLabel(state: GithubActionNotificationState): string {
+    switch (state) {
+      case 'queued':
+        return 'en file';
+      case 'in-progress':
+        return 'en cours';
+      case 'completed':
+        return 'termine';
+      case 'failed':
+        return 'echec';
+      default:
+        return 'suivi indisponible';
+    }
+  }
+
+  private trackingId(context: AdminGithubActionTrackingContext): string {
+    return `${context.parentNotificationId}:${context.actionId}:${context.correlationId}`;
   }
 
   private stopTracking(notificationId: string): void {

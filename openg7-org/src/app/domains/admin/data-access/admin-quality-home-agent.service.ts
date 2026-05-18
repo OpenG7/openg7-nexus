@@ -10,6 +10,7 @@ import { filter, finalize, map } from 'rxjs/operators';
 import { AdminQualityMatrixEntry, AdminQualityMatrixService } from './admin-quality-matrix.service';
 
 const AGENT_SOURCE = 'admin-quality-agent';
+const AGENT_WORKLOAD_DEDUPE_KEY = `${AGENT_SOURCE}:workload`;
 const HOME_AGENT_SNOOZE_MS = 30 * 60 * 1000;
 const SYSTEM_ADMIN_ROLES = new Set(['admin', 'owner']);
 
@@ -88,6 +89,7 @@ export class AdminQualityHomeAgentService {
                 actions: [this.openAgentCockpitAction(), this.snoozeAgentAction()],
                 metadata: {
                   kind: 'home-agent-activation',
+                  dedupeKey: this.homeAgentDedupeKey(),
                   userId: user.id,
                   userEmail: user.email,
                   roleGate: 'system-admin',
@@ -110,6 +112,7 @@ export class AdminQualityHomeAgentService {
                 : [this.openAgentCockpitAction(), this.snoozeAgentAction()],
               metadata: {
                 kind: 'home-agent-activation',
+                dedupeKey: this.homeAgentDedupeKey(),
                 userId: user.id,
                 userEmail: user.email,
                 roleGate: 'system-admin',
@@ -145,6 +148,10 @@ export class AdminQualityHomeAgentService {
       kind: 'snooze' as const,
       durationMs: HOME_AGENT_SNOOZE_MS,
     };
+  }
+
+  private homeAgentDedupeKey(): string {
+    return AGENT_WORKLOAD_DEDUPE_KEY;
   }
 
   private isSystemAdmin(user: AuthUser | null): user is AuthUser {
