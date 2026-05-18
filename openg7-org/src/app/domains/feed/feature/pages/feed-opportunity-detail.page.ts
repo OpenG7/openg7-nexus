@@ -47,7 +47,12 @@ import {
 import { FeedItem } from '../models/feed.models';
 import { OpportunityArchiveService } from '../services/opportunity-archive.service';
 import { OpportunityConversationDraftsService } from '../services/opportunity-conversation-drafts.service';
-import { OpportunityEngagementService } from '../services/opportunity-engagement.service';
+import {
+  OPPORTUNITY_ENGAGEMENT_CONTEXT_QUERY_PARAM_KEYS,
+  OpportunityEngagementService,
+  isOpportunityEngagementSource,
+  type OpportunityEngagementSource,
+} from '../services/opportunity-engagement.service';
 import { OpportunityReportQueueService } from '../services/opportunity-report-queue.service';
 
 import { FeedDetailPageBase } from './feed-detail-page.base';
@@ -253,7 +258,8 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     const existingOffer = this.existingSubmittedOffer();
     const decision = this.opportunityEngagement.plan({
       item,
-      source: 'feed',
+      source: this.resolveEngagementSource(),
+      sourceQueryParams: this.currentEngagementQueryParams(),
       fallback: 'drawer',
       currentUrl: this.currentInternalUrl(`/feed/opportunities/${this.itemId() ?? item.id}`),
       requiresAuthentication: true,
@@ -1032,6 +1038,25 @@ export class FeedOpportunityDetailPage extends FeedDetailPageBase {
     const url =
       navigation?.finalUrl?.toString() ?? navigation?.extractedUrl?.toString() ?? this.router.url;
     return this.opportunityEngagement.normalizeInternalUrl(url, fallback);
+  }
+
+  private resolveEngagementSource(): OpportunityEngagementSource {
+    const source = this.normalizeDetailQueryParam(this.detailQueryParamMap().get('source'));
+    return isOpportunityEngagementSource(source) ? source : 'feed';
+  }
+
+  private currentEngagementQueryParams(): Record<string, string> {
+    const params = this.detailQueryParamMap();
+    const queryParams: Record<string, string> = {};
+
+    for (const key of OPPORTUNITY_ENGAGEMENT_CONTEXT_QUERY_PARAM_KEYS) {
+      const value = this.normalizeDetailQueryParam(params.get(key));
+      if (value) {
+        queryParams[key] = value;
+      }
+    }
+
+    return queryParams;
   }
 
   private recordOpportunityAction(

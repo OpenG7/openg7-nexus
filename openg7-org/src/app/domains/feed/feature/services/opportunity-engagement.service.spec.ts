@@ -93,6 +93,53 @@ describe('OpportunityEngagementService', () => {
     });
   });
 
+  it('preserves inherited map context when a linkup decision is opened', () => {
+    const decision = service.plan({
+      item: {
+        id: 'request-001',
+        type: 'REQUEST',
+        connectionMatchId: 73,
+      },
+      source: 'trade-map',
+      sourceQueryParams: {
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        feedItemId: 'stale-id',
+        priority: 'critical',
+        sector: 'energy',
+        type: 'REQUEST',
+        fromProvince: 'QC',
+        toProvince: 'ON',
+        mode: 'BOTH',
+      },
+      fallback: 'drawer',
+      requiresAuthentication: true,
+      isAuthenticated: true,
+    });
+
+    expect(decision).toEqual({
+      kind: 'open-linkup',
+      matchId: 73,
+      navigation: {
+        commands: ['/linkup', 73],
+        extras: {
+          queryParams: {
+            source: 'trade-map',
+            corridorId: 'flow-energy',
+            feedItemId: 'request-001',
+            priority: 'critical',
+            sector: 'energy',
+            type: 'REQUEST',
+            fromProvince: 'QC',
+            toProvince: 'ON',
+            mode: 'BOTH',
+          },
+        },
+        route: '/linkup/73',
+      },
+    });
+  });
+
   it('routes home feed panel engagement to opportunity detail when no linkup exists', () => {
     const decision = service.plan({
       item: {
