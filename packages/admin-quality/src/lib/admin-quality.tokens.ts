@@ -43,6 +43,36 @@ export interface AdminQualityNotificationOptions {
   readonly source?: string | null;
   readonly context?: unknown;
   readonly metadata?: Record<string, unknown> | null;
+  readonly actions?: readonly AdminQualityNotificationAction[];
+}
+
+export type AdminQualityCodexProvider = 'codex' | 'copilot' | 'claude' | 'gemini';
+
+export type AdminQualityCodexScope =
+  | 'openg7-org'
+  | 'strapi'
+  | 'packages-contracts'
+  | 'packages-tooling'
+  | 'repository-root';
+
+export interface AdminQualityCodexDispatch {
+  readonly provider: AdminQualityCodexProvider;
+  readonly task: string;
+  readonly scope: AdminQualityCodexScope;
+  readonly baseBranch?: string | null;
+  readonly draftPr?: boolean | null;
+  readonly model?: string | null;
+  readonly effort?: string | null;
+}
+
+export interface AdminQualityNotificationAction {
+  readonly id: string;
+  readonly label: string;
+  readonly kind: 'copy' | 'route' | 'snooze' | 'dismiss' | 'codex-dispatch';
+  readonly command?: string | null;
+  readonly route?: string | null;
+  readonly durationMs?: number | null;
+  readonly codexDispatch?: AdminQualityCodexDispatch | null;
 }
 
 export interface AdminQualityNotificationPort {

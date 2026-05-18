@@ -1,0 +1,28 @@
+{
+  "commitSha": "d8c83782d250f8f7835e41c261615c132317f29a",
+  "workflowRunId": null,
+  "workflow": "admin-quality-agent",
+  "generatedAt": "2026-05-13T18:18:05.581Z",
+  "entryIds": [
+    "public-discovery"
+  ],
+  "checks": [
+    "yarn --cwd strapi test:integration:admin-quality-matrix",
+    "yarn checklist:verify",
+    "yarn lint",
+    "yarn validate:quality-actions",
+    "yarn validate:selectors",
+    "yarn workspace @openg7/web validate:sitemap"
+  ],
+  "specs": [
+    "strapi/scripts/test-admin-quality-matrix-api-integration.js"
+  ],
+  "artifactUrl": null,
+  "status": "planned",
+  "changedFiles": [
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.html",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.spec.ts",
+    "openg7-org/src/app/shared/components/layout/site-header/site-header.component.ts",
+    "packages/admin-quality/src/lib/pages/admin-quality-action-discovery.generated.ts"
+  ]
+}

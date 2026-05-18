@@ -1,6 +1,6 @@
 <header
   data-og7="site-header"
-  class="sticky top-0 z-50 w-full border-b border-white/10 bg-gradient-to-r from-slate-950/85 via-slate-900/70 to-slate-950/85 backdrop-blur"
+  class="sticky top-0 z-50 w-full border-b border-white/10 bg-linear-to-r from-slate-950/85 via-slate-900/70 to-slate-950/85 backdrop-blur"
   role="banner"
 >
   <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-3 sm:px-4">
@@ -247,7 +247,7 @@
               </ng-template>
             </span>
             <span
-              class="hidden max-w-[140px] truncate text-left text-xs font-medium text-white lg:block"
+              class="hidden max-w-35 truncate text-left text-xs font-medium text-white lg:block"
             >
               {{ displayNameSig() }}
             </span>
@@ -440,7 +440,7 @@
       </button>
       <div
         *ngIf="isNotifOpen()"
-        class="w-full rounded-xl border border-white/15 bg-slate-900/90 p-3 text-sm text-white/80"
+        class="site-header__notifications-panel site-header__notifications-panel--mobile flex w-full flex-col rounded-xl border border-white/15 bg-slate-900/90 p-3 text-sm text-white/80"
         data-og7="notif"
         data-og7-id="header-mobile-alerts-panel"
       >
@@ -450,7 +450,10 @@
         <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
           {{ 'header.notifications.empty' | translate }}
         </p>
-        <ul *ngIf="notificationEntries().length" class="space-y-1 text-sm text-white/80">
+        <ul
+          *ngIf="notificationEntries().length"
+          class="site-header__notifications-list space-y-1 text-sm text-white/80"
+        >
           <li
             *ngFor="let notification of notificationEntries(); trackBy: trackNotification"
             class="rounded-lg bg-white/5 p-2"
@@ -459,8 +462,8 @@
             <button
               type="button"
               class="w-full text-left"
-              (click)="markNotificationAsRead(notification.id)"
-              [disabled]="notification.read || !isAuthSig()"
+              (click)="markNotificationAsRead(notification)"
+              [disabled]="notification.read"
               data-og7-id="header-alert-item-mobile"
             >
               <span class="block font-medium text-white/90">{{
@@ -469,7 +472,41 @@
               <span class="block text-xs text-white/60" *ngIf="notification.title">{{
                 notification.message
               }}</span>
+              <span class="block text-[11px] text-cyan-100/70" *ngIf="notification.source">{{
+                notification.source
+              }}</span>
+              @if (githubActionStatus(notification); as status) {
+                <span
+                  class="site-header__github-status"
+                  [attr.data-github-action-state]="status.state"
+                >
+                  <span
+                    class="site-header__github-light"
+                    [ngClass]="githubActionStateClass(status)"
+                    aria-hidden="true"
+                  ></span>
+                  <span>{{ status.label }}</span>
+                  @if (status.runNumber) {
+                    <span>#{{ status.runNumber }}</span>
+                  }
+                </span>
+              }
             </button>
+            @if (notification.actions.length) {
+              <div class="mt-2 flex flex-wrap gap-1.5" data-og7-id="header-alert-actions-mobile">
+                @for (action of notification.actions; track action.id) {
+                  <button
+                    type="button"
+                    class="rounded-md border border-white/15 px-2 py-1 text-[11px] font-semibold text-white/80 transition hover:bg-white/10"
+                    data-og7="action"
+                    [attr.data-og7-id]="action.id"
+                    (click)="performNotificationAction(notification, action, $event)"
+                  >
+                    {{ action.label }}
+                  </button>
+                }
+              </div>
+            }
           </li>
         </ul>
         <a
@@ -563,7 +600,7 @@
 
   <div
     *ngIf="isNotifOpen()"
-    class="absolute right-4 top-16 hidden w-80 overflow-hidden rounded-xl border border-white/10 bg-slate-800/95 p-3 shadow-2xl backdrop-blur sm:block"
+    class="site-header__notifications-panel absolute right-4 top-16 hidden w-80 rounded-xl border border-white/10 bg-slate-800/95 p-3 shadow-2xl backdrop-blur sm:flex sm:flex-col"
     data-og7="notif"
     data-og7-id="header-alerts-panel"
   >
@@ -573,7 +610,10 @@
     <p *ngIf="!notificationEntries().length" class="text-sm text-white/60">
       {{ 'header.notifications.empty' | translate }}
     </p>
-    <ul *ngIf="notificationEntries().length" class="space-y-1 text-sm text-white/80">
+    <ul
+      *ngIf="notificationEntries().length"
+      class="site-header__notifications-list space-y-1 text-sm text-white/80"
+    >
       <li
         *ngFor="let notification of notificationEntries(); trackBy: trackNotification"
         class="rounded-lg bg-white/5 p-2"
@@ -582,8 +622,8 @@
         <button
           type="button"
           class="w-full text-left"
-          (click)="markNotificationAsRead(notification.id)"
-          [disabled]="notification.read || !isAuthSig()"
+          (click)="markNotificationAsRead(notification)"
+          [disabled]="notification.read"
           data-og7-id="header-alert-item"
         >
           <span class="block font-medium text-white/90">{{
@@ -592,7 +632,41 @@
           <span class="block text-xs text-white/60" *ngIf="notification.title">{{
             notification.message
           }}</span>
+          <span class="block text-[11px] text-cyan-100/70" *ngIf="notification.source">{{
+            notification.source
+          }}</span>
+          @if (githubActionStatus(notification); as status) {
+            <span
+              class="site-header__github-status"
+              [attr.data-github-action-state]="status.state"
+            >
+              <span
+                class="site-header__github-light"
+                [ngClass]="githubActionStateClass(status)"
+                aria-hidden="true"
+              ></span>
+              <span>{{ status.label }}</span>
+              @if (status.runNumber) {
+                <span>#{{ status.runNumber }}</span>
+              }
+            </span>
+          }
         </button>
+        @if (notification.actions.length) {
+          <div class="mt-2 flex flex-wrap gap-1.5" data-og7-id="header-alert-actions">
+            @for (action of notification.actions; track action.id) {
+              <button
+                type="button"
+                class="rounded-md border border-white/15 px-2 py-1 text-[11px] font-semibold text-white/80 transition hover:bg-white/10"
+                data-og7="action"
+                [attr.data-og7-id]="action.id"
+                (click)="performNotificationAction(notification, action, $event)"
+              >
+                {{ action.label }}
+              </button>
+            }
+          </div>
+        }
       </li>
     </ul>
     <a

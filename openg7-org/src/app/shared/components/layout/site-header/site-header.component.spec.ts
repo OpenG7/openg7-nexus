@@ -81,6 +81,12 @@ class MockNotificationStore {
   entries = signal<any[]>([]);
   unreadCount = signal(0);
   markAllRead = jasmine.createSpy('markAllRead');
+  markAsRead = jasmine.createSpy('markAsRead');
+  dismiss = jasmine.createSpy('dismiss');
+  snoozeSource = jasmine.createSpy('snoozeSource');
+  success = jasmine.createSpy('success');
+  info = jasmine.createSpy('info');
+  error = jasmine.createSpy('error');
   clearHistory = jasmine.createSpy('clearHistory');
 }
 
@@ -317,7 +323,7 @@ describe('SiteHeaderComponent', () => {
     expect(component.isProfileOpen()).toBeFalse();
   });
 
-  it('uses persisted user alerts count when authenticated', () => {
+  it('combines persisted user alerts and agent notifications when authenticated', () => {
     auth.isAuthenticatedSig.set(true);
     notifications.unreadCount.set(7);
     userAlerts.unreadCount.set(2);
@@ -328,7 +334,7 @@ describe('SiteHeaderComponent', () => {
       'button[data-og7="notif"]',
     );
     const badge = notifButton?.querySelector('span.absolute');
-    expect(badge?.textContent?.trim()).toBe('2');
+    expect(badge?.textContent?.trim()).toBe('9');
   });
 
   it('refreshes user alerts when notification panel opens for authenticated users', () => {
@@ -375,6 +381,109 @@ describe('SiteHeaderComponent', () => {
     );
     expect(mobileAlertItem?.textContent).toContain('Saved search update');
     expect(mobileAlertItem?.textContent).toContain('New activity detected in map.');
+  });
+
+  it('renders agent notifications inside the authenticated desktop alert box', () => {
+    auth.isAuthenticatedSig.set(true);
+    notifications.entries.set([
+      {
+        id: 'agent-1',
+        type: 'info',
+        title: 'Agent admin-quality',
+        message: 'Deux chantiers peuvent demarrer.',
+        source: 'admin-quality-agent',
+        actions: [],
+        createdAt: Date.now(),
+        read: false,
+      },
+    ]);
+    notifications.unreadCount.set(1);
+
+    component.toggleNotif();
+    fixture.detectChanges();
+
+    const desktopAlertItem: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="header-alert-item"]',
+    );
+    expect(desktopAlertItem?.textContent).toContain('Agent admin-quality');
+    expect(desktopAlertItem?.textContent).toContain('Deux chantiers peuvent demarrer.');
+    expect(desktopAlertItem?.textContent).toContain('admin-quality-agent');
+
+    desktopAlertItem?.click();
+    expect(notifications.markAsRead).toHaveBeenCalledWith('agent-1');
+  });
+
+  it('runs agent notification actions from the desktop alert box', () => {
+    auth.isAuthenticatedSig.set(true);
+    notifications.entries.set([
+      {
+        id: 'agent-2',
+        type: 'info',
+        title: 'Agent admin-quality',
+        message: 'Ouvrir le cockpit.',
+        source: 'admin-quality-agent',
+        actions: [
+          {
+            id: 'agent-open-cockpit',
+            label: 'Ouvrir cockpit',
+            kind: 'route',
+            route: '/admin/quality',
+          },
+        ],
+        createdAt: Date.now(),
+        read: false,
+      },
+    ]);
+    notifications.unreadCount.set(1);
+
+    component.toggleNotif();
+    fixture.detectChanges();
+
+    const actionButton: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      '[data-og7-id="agent-open-cockpit"]',
+    );
+    actionButton?.click();
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/admin/quality');
+    expect(notifications.markAsRead).toHaveBeenCalledWith('agent-2');
+    expect(component.isNotifOpen()).toBeFalse();
+  });
+
+  it('renders the GitHub Action status light in the desktop alert box', () => {
+    auth.isAuthenticatedSig.set(true);
+    notifications.entries.set([
+      {
+        id: 'agent-github-action-1',
+        type: 'info',
+        title: 'Codex - GitHub Actions',
+        message: 'Workflow #42 is executing.',
+        source: 'admin-quality-agent',
+        metadata: {
+          githubActionStatus: {
+            state: 'in-progress',
+            label: 'GitHub Actions - en traitement',
+            detail: 'Workflow #42 is executing.',
+            workflow: 'codex.yml',
+            runUrl: 'https://github.test/run/42',
+            runNumber: 42,
+            correlationId: 'og7-test-correlation',
+            updatedAt: '2026-05-13T00:00:00.000Z',
+          },
+        },
+        actions: [],
+        createdAt: Date.now(),
+        read: false,
+      },
+    ]);
+
+    component.toggleNotif();
+    fixture.detectChanges();
+
+    const status: HTMLElement | null = fixture.nativeElement.querySelector(
+      '[data-github-action-state="in-progress"]',
+    );
+    expect(status?.textContent).toContain('GitHub Actions - en traitement');
+    expect(status?.textContent).toContain('#42');
   });
 
   it('renders the login link for guests with the /login target and computed label', () => {

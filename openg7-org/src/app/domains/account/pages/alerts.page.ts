@@ -7,6 +7,10 @@ import {
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
 import {
+  NotificationEntry,
+  injectNotificationStore,
+} from '@app/core/observability/notification.store';
+import {
   OpportunityOfferActivityRecord,
   OpportunityOfferRecord,
   OpportunityOffersService,
@@ -15,6 +19,21 @@ import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
 import { UserAlertsService } from '@app/core/user-alerts.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
+
+type AlertsInboxEntrySeverity = UserAlertRecord['severity'];
+type AlertsInboxEntryChannel = 'user-alert' | 'local-notification';
+
+interface AlertsInboxEntry {
+  readonly id: string;
+  readonly channel: AlertsInboxEntryChannel;
+  readonly title: string;
+  readonly message: string;
+  readonly severity: AlertsInboxEntrySeverity;
+  readonly sourceType: string | null;
+  readonly source: string | null;
+  readonly isRead: boolean;
+  readonly createdAt: string | number | null;
+}
 
 @Component({
   standalone: true,
@@ -32,6 +51,7 @@ export class AlertsPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly alerts = inject(UserAlertsService);
+  private readonly notifications = injectNotificationStore();
   private readonly indicatorAlertRules = inject(IndicatorAlertRulesService);
   private readonly opportunityOffers = inject(OpportunityOffersService);
   private readonly translate = inject(TranslateService);
@@ -41,9 +61,16 @@ export class AlertsPage {
   protected readonly markAllReadPending = this.alerts.markAllReadPending;
   protected readonly clearReadPending = this.alerts.clearReadPending;
   protected readonly error = this.alerts.error;
-  protected readonly entries = this.alerts.entries;
-  protected readonly hasEntries = this.alerts.hasEntries;
-  protected readonly unreadCount = this.alerts.unreadCount;
+  protected readonly entries = computed<readonly AlertsInboxEntry[]>(() =>
+    this.sortEntries([
+      ...this.alerts.entries().map((entry) => this.mapUserAlert(entry)),
+      ...this.notifications.entries().map((entry) => this.mapLocalNotification(entry)),
+    ]),
+  );
+  protected readonly hasEntries = computed(() => this.entries().length > 0);
+  protected readonly unreadCount = computed(
+    () => this.entries().filter((entry) => !entry.isRead).length,
+  );
   protected readonly indicatorRuleEntries = this.indicatorAlertRules.entries;
   protected readonly hasIndicatorRuleEntries = this.indicatorAlertRules.hasEntries;
   protected readonly opportunityOfferEntries = this.opportunityOffers.entries;
@@ -78,18 +105,33 @@ export class AlertsPage {
 
   protected onMarkAllRead(): void {
     this.alerts.markAllRead();
+    this.notifications.markAllRead();
   }
 
   protected onClearRead(): void {
     this.alerts.clearRead();
+    this.notifications
+      .entries()
+      .filter((entry) => entry.read)
+      .forEach((entry) => this.notifications.dismiss(entry.id));
   }
 
-  protected onToggleRead(entry: UserAlertRecord): void {
+  protected onToggleRead(entry: AlertsInboxEntry): void {
+    if (entry.channel === 'local-notification') {
+      this.notifications.updateEntry(entry.id, { read: !entry.isRead });
+      return;
+    }
+
     this.alerts.markRead(entry.id, !entry.isRead);
   }
 
-  protected onDelete(id: string): void {
-    this.alerts.remove(id);
+  protected onDelete(entry: AlertsInboxEntry): void {
+    if (entry.channel === 'local-notification') {
+      this.notifications.dismiss(entry.id);
+      return;
+    }
+
+    this.alerts.remove(entry.id);
   }
 
   protected onToggleIndicatorRule(entry: IndicatorAlertRuleRecord): void {
@@ -148,15 +190,15 @@ export class AlertsPage {
     return this.highlightedOpportunityOfferId() === id;
   }
 
-  protected isPending(id: string): boolean {
-    return Boolean(this.pendingById()[id]);
+  protected isPending(entry: AlertsInboxEntry): boolean {
+    return entry.channel === 'user-alert' && Boolean(this.pendingById()[entry.id]);
   }
 
-  protected alertState(entry: UserAlertRecord): 'read' | 'unread' {
+  protected alertState(entry: AlertsInboxEntry): 'read' | 'unread' {
     return entry.isRead ? 'read' : 'unread';
   }
 
-  protected severityClasses(entry: UserAlertRecord): string {
+  protected severityClasses(entry: AlertsInboxEntry): string {
     switch (entry.severity) {
       case 'critical':
         return 'border-rose-200 bg-rose-50 text-rose-700';
@@ -169,7 +211,11 @@ export class AlertsPage {
     }
   }
 
-  protected sourceLabel(entry: UserAlertRecord): string {
+  protected sourceLabel(entry: AlertsInboxEntry): string {
+    if (entry.channel === 'local-notification') {
+      return entry.source?.trim() || 'pages.alerts.sources.system';
+    }
+
     if (entry.sourceType === 'saved-search') {
       return 'pages.alerts.sources.savedSearch';
     }
@@ -262,7 +308,68 @@ export class AlertsPage {
     return Number.isFinite(value) ? value : null;
   }
 
-  protected trackById = (_: number, entry: UserAlertRecord) => entry.id;
+  private mapUserAlert(entry: UserAlertRecord): AlertsInboxEntry {
+    return {
+      id: entry.id,
+      channel: 'user-alert',
+      title: entry.title,
+      message: entry.message,
+      severity: entry.severity,
+      sourceType: entry.sourceType,
+      source: null,
+      isRead: entry.isRead,
+      createdAt: entry.createdAt,
+    };
+  }
+
+  private mapLocalNotification(entry: NotificationEntry): AlertsInboxEntry {
+    return {
+      id: entry.id,
+      channel: 'local-notification',
+      title: entry.title || this.translate.instant(`notifications.types.${entry.type}`),
+      message: entry.message,
+      severity: this.localNotificationSeverity(entry),
+      sourceType: 'notification',
+      source: entry.source ?? null,
+      isRead: entry.read,
+      createdAt: entry.createdAt,
+    };
+  }
+
+  private localNotificationSeverity(entry: NotificationEntry): AlertsInboxEntrySeverity {
+    switch (entry.type) {
+      case 'error':
+        return 'critical';
+      case 'success':
+        return 'success';
+      default:
+        return 'info';
+    }
+  }
+
+  private sortEntries(entries: readonly AlertsInboxEntry[]): readonly AlertsInboxEntry[] {
+    return [...entries].sort((left, right) => {
+      const unreadOrder = Number(left.isRead) - Number(right.isRead);
+      if (unreadOrder !== 0) {
+        return unreadOrder;
+      }
+      return this.toTimestamp(right.createdAt) - this.toTimestamp(left.createdAt);
+    });
+  }
+
+  private toTimestamp(candidate: string | number | null): number {
+    if (typeof candidate === 'number') {
+      return Number.isFinite(candidate) ? candidate : 0;
+    }
+    if (!candidate) {
+      return 0;
+    }
+
+    const parsed = Date.parse(candidate);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  protected trackById = (_: number, entry: AlertsInboxEntry) => `${entry.channel}:${entry.id}`;
   protected trackIndicatorRuleById = (_: number, entry: IndicatorAlertRuleRecord) => entry.id;
   protected trackOpportunityOfferById = (_: number, entry: OpportunityOfferRecord) => entry.id;
   protected trackOpportunityOfferActivityById = (

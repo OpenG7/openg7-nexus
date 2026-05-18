@@ -1,0 +1,128 @@
+@if (isOpen()) {
+  @if (run(); as activeRun) {
+    <aside
+      class="codex-live-timeline"
+      data-og7="codex-live-timeline"
+      role="status"
+      aria-live="polite"
+      aria-relevant="additions text"
+    >
+      <header class="codex-live-timeline__header">
+        <div class="codex-live-timeline__heading">
+          <span class="codex-live-timeline__pulse" aria-hidden="true"></span>
+          <div>
+            <p class="codex-live-timeline__eyebrow">
+              {{ 'codexLiveTimeline.eyebrow' | translate }}
+            </p>
+            <h2 class="codex-live-timeline__title">{{ activeRun.title }}</h2>
+            <p class="codex-live-timeline__subtitle">{{ activeRun.subtitle }}</p>
+          </div>
+        </div>
+
+        <div class="codex-live-timeline__actions">
+          <button
+            type="button"
+            class="codex-live-timeline__icon-button"
+            (click)="hide()"
+            [attr.aria-label]="'codexLiveTimeline.hide' | translate"
+          >
+            <span aria-hidden="true"></span>
+          </button>
+          <button
+            type="button"
+            class="codex-live-timeline__icon-button codex-live-timeline__icon-button--close"
+            (click)="clear()"
+            [attr.aria-label]="'codexLiveTimeline.close' | translate"
+          >
+            <span aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="codex-live-timeline__meta">
+        <span>{{ activeRun.provider }}</span>
+        @if (activeRun.workflow) {
+          <span>{{ activeRun.workflow }}</span>
+        }
+        @if (activeRun.ref) {
+          <span>{{ activeRun.ref }}</span>
+        }
+        @if (activeRun.runNumber) {
+          <span>#{{ activeRun.runNumber }}</span>
+        }
+      </div>
+
+      <ol class="codex-live-timeline__steps">
+        <li
+          *ngFor="let step of activeRun.steps; trackBy: trackStep"
+          class="codex-live-timeline__step"
+          [attr.data-state]="step.state"
+        >
+          <span class="codex-live-timeline__marker" aria-hidden="true"></span>
+          <div class="codex-live-timeline__step-body">
+            <div class="codex-live-timeline__step-row">
+              <span class="codex-live-timeline__step-label">{{ step.label }}</span>
+              @if (step.startedAt) {
+                <time class="codex-live-timeline__step-time">
+                  {{ step.startedAt | date: 'HH:mm:ss' }}
+                </time>
+              }
+            </div>
+            <p class="codex-live-timeline__step-detail">{{ step.detail }}</p>
+          </div>
+        </li>
+      </ol>
+
+      <section class="codex-live-timeline__stream" data-og7="codex-live-timeline-stream">
+        <div class="codex-live-timeline__stream-header">
+          <span>{{ 'codexLiveTimeline.streamTitle' | translate }}</span>
+          @if (!activeRun.terminalState) {
+            <span class="codex-live-timeline__typing" aria-hidden="true"></span>
+          }
+        </div>
+        <ol class="codex-live-timeline__events">
+          <li
+            *ngFor="let event of activeRun.events; trackBy: trackEvent"
+            class="codex-live-timeline__event"
+            [attr.data-state]="event.state"
+          >
+            <time>[{{ event.createdAt | date: 'HH:mm:ss' }}]</time>
+            <span>{{ event.label }}</span>
+          </li>
+        </ol>
+      </section>
+
+      @if (activeRun.runUrl || activeRun.pullRequestUrl) {
+        <footer class="codex-live-timeline__footer">
+          @if (activeRun.runUrl) {
+            <a [href]="activeRun.runUrl" target="_blank" rel="noopener">
+              {{ 'codexLiveTimeline.openRun' | translate }}
+            </a>
+          }
+          @if (activeRun.pullRequestUrl) {
+            <a [href]="activeRun.pullRequestUrl" target="_blank" rel="noopener">
+              {{ 'codexLiveTimeline.openPullRequest' | translate }}
+            </a>
+          }
+        </footer>
+      }
+    </aside>
+  }
+}
+
+<!-- Bouton flottant pour rouvrir la timeline -->
+@if (!isOpen() && run()) {
+  <button
+    type="button"
+    class="codex-live-timeline__floating-btn"
+    (click)="show()"
+    aria-label="Afficher la timeline"
+    data-og7="codex-live-timeline-fab"
+  >
+    <!-- Icône horloge SVG inline -->
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="#444" stroke-width="2" fill="#fff"/>
+      <path d="M12 7v5l3 3" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+}

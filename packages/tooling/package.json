@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "bin": {
+    "admin-quality-agent": "./bin/admin-quality-agent.mjs",
     "generate-admin-quality-proof-manifest": "./bin/generate-admin-quality-proof-manifest.mjs",
     "validate-selectors": "./bin/validate-selectors.mjs"
   },
@@ -11,6 +12,7 @@
     "./check-server": "./src/check-server.js"
   },
   "scripts": {
+    "admin:quality:agent": "node ./bin/admin-quality-agent.mjs",
     "generate:admin-quality-proof-manifest": "node ./bin/generate-admin-quality-proof-manifest.mjs",
     "validate:selectors": "node ./bin/validate-selectors.mjs"
   }

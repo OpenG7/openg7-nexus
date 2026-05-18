@@ -38,6 +38,18 @@ on:
         required: false
         default: ''
         type: string
+      correlation_id:
+        description: 'Identifiant de correlation OpenG7 pour suivre ce run depuis le front.'
+        required: false
+        default: ''
+        type: string
+      idempotency_key:
+        description: 'Cle idempotente optionnelle fournie par le front ou Ops.'
+        required: false
+        default: ''
+        type: string
+
+run-name: Codex ${{ inputs.correlation_id || github.run_id }} / ${{ inputs.scope }}
 
 permissions:
   contents: write
@@ -135,6 +147,7 @@ jobs:
             - Base branch: ${{ github.event.inputs.base_branch }}
             - Branch to publish: ${{ steps.scope.outputs.branch }}
             - Triggered by: @${{ github.actor }}
+            - Correlation id: ${{ github.event.inputs.correlation_id }}
 
             Final message format:
             Summary: short paragraph
@@ -184,6 +197,8 @@ jobs:
             - Working directory: `${{ steps.scope.outputs.workdir }}`
             - Base branch: `${{ github.event.inputs.base_branch }}`
             - Workflow run: `${{ github.run_id }}`
+            - Correlation id: `${{ github.event.inputs.correlation_id }}`
+            - Idempotency key: `${{ github.event.inputs.idempotency_key }}`
 
             ## Codex summary
 
@@ -199,6 +214,7 @@ jobs:
             echo "- Scope: ${{ github.event.inputs.scope }}"
             echo "- Working directory: ${{ steps.scope.outputs.workdir }}"
             echo "- Base branch: ${{ github.event.inputs.base_branch }}"
+            echo "- Correlation id: ${{ github.event.inputs.correlation_id }}"
             if [ -n "${{ steps.create_pr.outputs.pull-request-url }}" ]; then
               echo "- Pull request: ${{ steps.create_pr.outputs.pull-request-url }}"
             else

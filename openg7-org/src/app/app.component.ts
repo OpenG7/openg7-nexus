@@ -14,6 +14,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { CodexLiveTimelineComponent } from '@app/shared/components/layout/codex-live-timeline/codex-live-timeline.component';
 import { NotificationToastTrayComponent } from '@app/shared/components/layout/notification-toast-tray/notification-toast-tray.component';
 import { Og7OnboardingFlowComponent } from '@app/shared/components/layout/og7-onboarding-flow/og7-onboarding-flow.component';
 import { SiteHeaderComponent } from '@app/shared/components/layout/site-header/site-header.component';
@@ -25,6 +26,7 @@ import { filter, map } from 'rxjs';
 import { FEATURE_FLAGS } from './core/config/environment.tokens';
 import { GlobalShortcutsService } from './core/shortcuts/global-shortcuts.service';
 import { Og7ModalContainerComponent } from './core/ui/modal/og7-modal-container.component';
+import { AdminQualityHomeAgentService } from './domains/admin/data-access/admin-quality-home-agent.service';
 @Component({
   selector: 'og7-shell-root',
   standalone: true,
@@ -37,6 +39,7 @@ import { Og7ModalContainerComponent } from './core/ui/modal/og7-modal-container.
     SiteHeaderComponent,
     UnderConstructionBannerComponent,
     Og7OnboardingFlowComponent,
+    CodexLiveTimelineComponent,
     NotificationToastTrayComponent,
     Og7ModalContainerComponent,
     RouterLink,
@@ -56,6 +59,7 @@ export class AppComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly globalShortcuts = inject(GlobalShortcutsService);
+  private readonly adminQualityHomeAgent = inject(AdminQualityHomeAgentService);
   private readonly featureFlags = inject(FEATURE_FLAGS);
   private readonly router = inject(Router);
 
@@ -81,6 +85,7 @@ export class AppComponent {
 
   constructor() {
     void this.globalShortcuts;
+    void this.adminQualityHomeAgent;
     void this.loadComponentLabIfEnabled();
     if (this.isBrowser) {
       afterNextRender(() => {

@@ -86,6 +86,8 @@ describe('AdminOpsService', () => {
           draftPr: true,
           model: 'gpt-5.4',
           effort: 'medium',
+          correlationId: null,
+          idempotencyKey: null,
           taskLength: 49,
         },
       },
@@ -180,5 +182,74 @@ describe('AdminOpsService', () => {
         ],
       },
     });
+  });
+
+  it('passes Codex dispatch correlation headers and payload fields when provided', () => {
+    service
+      .dispatchCodexWorkflow(
+        {
+          provider: 'codex',
+          task: 'Track the GitHub Action status.',
+          scope: 'openg7-org',
+          baseBranch: 'main',
+          draftPr: true,
+          model: 'gpt-5.4',
+          effort: null,
+        },
+        {
+          correlationId: 'og7-test-correlation',
+          idempotencyKey: 'og7-test-correlation-dispatch',
+        },
+      )
+      .subscribe((response) => {
+        expect(response.request.correlationId).toBe('og7-test-correlation');
+      });
+
+    const request = httpMock.expectOne('https://cms.local/api/admin/ops/ai/dispatch');
+    expect(request.request.headers.get('X-Correlation-Id')).toBe('og7-test-correlation');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('og7-test-correlation-dispatch');
+    expect(request.request.body).toEqual(
+      jasmine.objectContaining({
+        correlationId: 'og7-test-correlation',
+        idempotencyKey: 'og7-test-correlation-dispatch',
+      }),
+    );
+
+    request.flush({
+      data: {
+        queued: true,
+        provider: 'github-actions',
+        selectedProvider: 'codex',
+        owner: 'OpenG7',
+        repo: 'openg7-nexus',
+        workflow: 'codex-pr.yml',
+        ref: 'main',
+        requestedAt: '2026-04-26T00:00:00.000Z',
+        request: {
+          selectedProvider: 'codex',
+          scope: 'openg7-org',
+          baseBranch: 'main',
+          draftPr: true,
+          model: 'gpt-5.4',
+          effort: null,
+          correlationId: 'og7-test-correlation',
+          idempotencyKey: 'og7-test-correlation-dispatch',
+          taskLength: 32,
+        },
+      },
+    });
+  });
+
+  it('filters AI proof snapshots by correlation id when requested', () => {
+    service.getAiProofs('og7-test-correlation').subscribe((response) => {
+      expect(response.providers.length).toBe(0);
+    });
+
+    const request = httpMock.expectOne(
+      'https://cms.local/api/admin/ops/ai/proofs?correlationId=og7-test-correlation',
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({ data: { generatedAt: '2026-04-30T00:00:00.000Z', providers: [] } });
   });
 });

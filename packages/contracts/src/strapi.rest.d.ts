@@ -1523,6 +1523,8 @@ export interface components {
                         id?: number | null;
                         number?: number | null;
                         url?: string | null;
+                        displayTitle?: string | null;
+                        correlationId?: string | null;
                         status?: string | null;
                         conclusion?: string | null;
                         branch?: string | null;
@@ -1559,6 +1561,8 @@ export interface components {
             draftPr: boolean;
             model?: string | null;
             effort?: string | null;
+            correlationId?: string | null;
+            idempotencyKey?: string | null;
         };
         AdminOpsCodexDispatchResponse: {
             data?: {
@@ -1582,6 +1586,8 @@ export interface components {
                     draftPr?: boolean;
                     model?: string | null;
                     effort?: string | null;
+                    correlationId?: string | null;
+                    idempotencyKey?: string | null;
                     taskLength?: number;
                 };
             };

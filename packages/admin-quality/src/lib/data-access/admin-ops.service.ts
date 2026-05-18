@@ -77,6 +77,8 @@ export interface AdminOpsAiProofRun {
   id: number | null;
   number: number | null;
   url: string | null;
+  displayTitle: string | null;
+  correlationId: string | null;
   status: string | null;
   conclusion: string | null;
   branch: string | null;
@@ -108,6 +110,8 @@ export interface AdminOpsCodexDispatchRequest {
   draftPr: boolean;
   model: string | null;
   effort: string | null;
+  correlationId?: string | null;
+  idempotencyKey?: string | null;
 }
 
 export interface AdminOpsCodexDispatchResponse {
@@ -126,6 +130,8 @@ export interface AdminOpsCodexDispatchResponse {
     draftPr: boolean;
     model: string | null;
     effort: string | null;
+    correlationId: string | null;
+    idempotencyKey: string | null;
     taskLength: number;
   };
 }

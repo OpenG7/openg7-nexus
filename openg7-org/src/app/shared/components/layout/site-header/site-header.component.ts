@@ -5,6 +5,7 @@ import {
   DestroyRef,
   HostListener,
   Input,
+  Injector,
   Output,
   EventEmitter,
   computed,
@@ -12,24 +13,46 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, RouterLink } from '@angular/router';
 import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
-import { injectNotificationStore } from '@app/core/observability/notification.store';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
+import {
+  GithubActionNotificationStatus,
+  readGithubActionNotificationStatus,
+} from '@app/core/observability/github-action-notification-status';
+import {
+  NotificationAction,
+  NotificationEntry,
+  NotificationCodexDispatch,
+  injectNotificationStore,
+} from '@app/core/observability/notification.store';
 import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
 import { UserAlertsService } from '@app/core/user-alerts.service';
+import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import { resolveAdminOpsErrorMessage } from '@app/domains/admin/data-access/admin-ops-error-message';
+import {
+  AdminOpsCodexDispatchRequest,
+  AdminOpsService,
+} from '@app/domains/admin/data-access/admin-ops.service';
 import { QuickSearchLauncherService } from '@app/domains/search/feature/quick-search-modal/quick-search-launcher.service';
 import { TranslateModule, TranslateService, LangChangeEvent } from '@ngx-translate/core';
 
 type LangCode = 'en' | 'fr';
 interface HeaderNotificationItem {
   id: string;
+  channel: 'local' | 'user-alert';
   title: string | null;
   message: string;
   read: boolean;
   severity: 'info' | 'success' | 'warning' | 'critical' | 'error';
+  source: string | null;
+  actions: readonly NotificationAction[];
+  metadata: Record<string, unknown> | null;
+  createdAt: number;
 }
 
 @Component({
@@ -51,16 +74,21 @@ export class SiteHeaderComponent {
   @Output() menuToggle = new EventEmitter<void>();
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly translate = inject(TranslateService);
   private readonly auth = inject(AuthService);
   private readonly favorites = inject(FavoritesService);
   private readonly authConfig = inject(AuthConfigService);
   private readonly notifications = injectNotificationStore();
+  private readonly router = inject(Router);
+  private readonly liveTimeline = inject(CodexLiveTimelineService);
   private readonly rbac = inject(RbacFacadeService);
   private readonly userAlerts = inject(UserAlertsService);
   private readonly quickSearchLauncher = inject(QuickSearchLauncherService);
   private activeQuickSearchRef: Og7ModalRef<void> | null = null;
   private lastNotifTrigger: HTMLElement | null = null;
+  private adminOpsService: AdminOpsService | null | undefined;
+  private githubActionTracker: AdminGithubActionTrackerService | null | undefined;
 
   readonly isMobileMenuOpen = signal(false);
   readonly isLangOpen = signal(false);
@@ -107,34 +135,34 @@ export class SiteHeaderComponent {
   readonly favoritesCountSig = this.favorites.count;
   readonly hasFavoritesSig = computed(() => this.favoritesCountSig() > 0);
 
-  readonly unreadCount = computed(() =>
-    this.isAuthSig() ? this.userAlerts.unreadCount() : this.notifications.unreadCount(),
-  );
+  readonly unreadCount = computed(() => {
+    const localUnreadCount = this.notifications.unreadCount();
+    return this.isAuthSig() ? this.userAlerts.unreadCount() + localUnreadCount : localUnreadCount;
+  });
   readonly hasUnread = computed(() => this.unreadCount() > 0);
   readonly notificationEntries = computed<ReadonlyArray<HeaderNotificationItem>>(() => {
+    const localEntries = this.notifications
+      .entries()
+      .map((entry) => this.mapLocalNotification(entry));
+
     if (this.isAuthSig()) {
-      return this.userAlerts
-        .entries()
-        .slice(0, 5)
-        .map((entry) => ({
-          id: entry.id,
-          title: entry.title || null,
-          message: entry.message,
-          read: entry.isRead,
-          severity: entry.severity,
-        }));
+      const userAlertEntries = this.userAlerts.entries().map((entry) => ({
+        id: entry.id,
+        channel: 'user-alert' as const,
+        title: entry.title || null,
+        message: entry.message,
+        read: entry.isRead,
+        severity: entry.severity,
+        source: 'user-alerts',
+        actions: [],
+        metadata: null,
+        createdAt: this.toTimestamp(entry.createdAt),
+      }));
+
+      return this.sortHeaderNotifications([...localEntries, ...userAlertEntries]).slice(0, 5);
     }
 
-    return this.notifications
-      .entries()
-      .slice(0, 5)
-      .map((entry) => ({
-        id: entry.id,
-        title: entry.title ?? null,
-        message: entry.message,
-        read: entry.read,
-        severity: entry.type,
-      }));
+    return this.sortHeaderNotifications(localEntries).slice(0, 5);
   });
 
   constructor() {
@@ -237,14 +265,179 @@ export class SiteHeaderComponent {
     this.isMobileMenuOpen.set(false);
   }
 
-  trackNotification = (_: number, item: { id: string }) => item.id;
+  trackNotification = (_: number, item: { id: string; channel?: string }) =>
+    `${item.channel ?? 'notification'}:${item.id}`;
 
-  markNotificationAsRead(notificationId: string): void {
-    if (!this.isAuthSig()) {
+  markNotificationAsRead(notification: HeaderNotificationItem): void {
+    if (notification.channel === 'local') {
+      this.notifications.markAsRead(notification.id);
       return;
     }
 
-    this.userAlerts.markRead(notificationId, true);
+    if (this.isAuthSig()) {
+      this.userAlerts.markRead(notification.id, true);
+    }
+  }
+
+  performNotificationAction(
+    notification: HeaderNotificationItem,
+    action: NotificationAction,
+    event?: Event,
+  ): void {
+    event?.stopPropagation();
+
+    if (action.kind === 'route' && action.route) {
+      void this.router.navigateByUrl(action.route);
+      this.isNotifOpen.set(false);
+      this.notifications.markAsRead(notification.id);
+      return;
+    }
+
+    if (action.kind === 'copy' && action.command) {
+      void this.copyText(action.command)
+        .then(() => {
+          this.notifications.success('Commande agent copiee.', {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+          this.notifications.markAsRead(notification.id);
+        })
+        .catch(() => {
+          this.notifications.error('Impossible de copier la commande agent.', {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+        });
+      return;
+    }
+
+    if (action.kind === 'codex-dispatch') {
+      this.dispatchCodexAction(notification, action);
+      return;
+    }
+
+    if (action.kind === 'snooze') {
+      const source = notification.source ?? 'site-header';
+      this.notifications.snoozeSource(source, action.durationMs ?? 30 * 60 * 1000);
+      this.notifications.info('Notifications agent suspendues temporairement.', {
+        source: 'site-header',
+        metadata: {
+          parentNotificationId: notification.id,
+          actionId: action.id,
+          snoozedSource: source,
+        },
+      });
+      this.notifications.markAsRead(notification.id);
+      return;
+    }
+
+    if (action.kind === 'dismiss') {
+      this.notifications.dismiss(notification.id);
+    }
+  }
+
+  githubActionStatus(notification: HeaderNotificationItem): GithubActionNotificationStatus | null {
+    return readGithubActionNotificationStatus(notification.metadata);
+  }
+
+  githubActionStateClass(status: GithubActionNotificationStatus): string {
+    return `site-header__github-light--${status.state}`;
+  }
+
+  private dispatchCodexAction(
+    notification: HeaderNotificationItem,
+    action: NotificationAction,
+  ): void {
+    const codexDispatch = action.codexDispatch;
+    if (!codexDispatch?.task.trim()) {
+      this.notifications.error('Prompt Codex indisponible pour cette tache.', {
+        source: notification.source ?? 'site-header',
+        metadata: { parentNotificationId: notification.id, actionId: action.id },
+      });
+      return;
+    }
+
+    const timelineRunId = this.liveTimeline.start({
+      provider: codexDispatch.provider,
+      task: codexDispatch.task,
+      source: notification.source ?? 'site-header',
+      actionLabel: action.label,
+    });
+
+    const adminOps = this.resolveAdminOpsService();
+    if (!adminOps) {
+      this.notifications.error('Console Ops indisponible pour lancer Codex.', {
+        source: notification.source ?? 'site-header',
+        metadata: { parentNotificationId: notification.id, actionId: action.id },
+      });
+      this.liveTimeline.recordDispatchError(
+        timelineRunId,
+        'Console Ops indisponible pour lancer Codex.',
+      );
+      return;
+    }
+
+    const tracker = this.resolveGithubActionTracker();
+    const correlation = tracker?.createDispatchCorrelation(action.id) ?? null;
+    const request = {
+      ...this.toCodexDispatchRequest(codexDispatch),
+      correlationId: correlation?.correlationId ?? null,
+      idempotencyKey: correlation?.idempotencyKey ?? null,
+    };
+
+    adminOps
+      .dispatchCodexWorkflow(request, correlation ?? undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.liveTimeline.recordDispatchQueued(timelineRunId, {
+            workflow: result.workflow,
+            ref: result.ref,
+          });
+          if (tracker && correlation) {
+            tracker.startTracking(result, {
+              source: notification.source ?? 'site-header',
+              parentNotificationId: notification.id,
+              actionId: action.id,
+              timelineRunId,
+              ...correlation,
+            });
+          } else {
+            this.notifications.info(
+              `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              {
+                source: notification.source ?? 'site-header',
+                metadata: {
+                  parentNotificationId: notification.id,
+                  actionId: action.id,
+                  workflow: result.workflow,
+                  ref: result.ref,
+                },
+              },
+            );
+            this.liveTimeline.recordGithubStatus(timelineRunId, {
+              state: 'queued',
+              label: 'GitHub Actions - en file',
+              detail: `${this.providerLabel(codexDispatch.provider)} queued via ${result.workflow} on ${result.ref}.`,
+              workflow: result.workflow,
+              runUrl: null,
+              runNumber: null,
+              correlationId: correlation?.correlationId ?? null,
+              updatedAt: new Date().toISOString(),
+            });
+          }
+          this.notifications.markAsRead(notification.id);
+          this.isNotifOpen.set(false);
+        },
+        error: (error: unknown) => {
+          const message = this.resolveDispatchError(error, codexDispatch.provider);
+          this.notifications.error(message, {
+            source: notification.source ?? 'site-header',
+            metadata: { parentNotificationId: notification.id, actionId: action.id },
+          });
+          this.liveTimeline.recordDispatchError(timelineRunId, message);
+        },
+      });
   }
 
   @HostListener('document:click', ['$event'])
@@ -296,5 +489,121 @@ export class SiteHeaderComponent {
     this.isMoreOpen.set(false);
     this.isNotifOpen.set(false);
     this.isProfileOpen.set(false);
+  }
+
+  private mapLocalNotification(entry: NotificationEntry): HeaderNotificationItem {
+    return {
+      id: entry.id,
+      channel: 'local',
+      title: entry.title ?? null,
+      message: entry.message,
+      read: entry.read,
+      severity: entry.type,
+      source: entry.source ?? null,
+      actions: entry.actions ?? [],
+      metadata: entry.metadata ?? null,
+      createdAt: entry.createdAt,
+    };
+  }
+
+  private resolveGithubActionTracker(): AdminGithubActionTrackerService | null {
+    if (this.githubActionTracker !== undefined) {
+      return this.githubActionTracker;
+    }
+
+    try {
+      this.githubActionTracker = this.injector.get(AdminGithubActionTrackerService, null);
+    } catch {
+      this.githubActionTracker = null;
+    }
+
+    return this.githubActionTracker;
+  }
+
+  private resolveAdminOpsService(): AdminOpsService | null {
+    if (this.adminOpsService !== undefined) {
+      return this.adminOpsService;
+    }
+
+    try {
+      this.adminOpsService = this.injector.get(AdminOpsService, null);
+    } catch {
+      this.adminOpsService = null;
+    }
+
+    return this.adminOpsService;
+  }
+
+  private toCodexDispatchRequest(
+    dispatch: NotificationCodexDispatch,
+  ): AdminOpsCodexDispatchRequest {
+    return {
+      provider: dispatch.provider,
+      task: dispatch.task,
+      scope: dispatch.scope,
+      baseBranch: dispatch.baseBranch ?? 'main',
+      draftPr: dispatch.draftPr ?? true,
+      model: dispatch.model ?? null,
+      effort: dispatch.effort ?? null,
+    };
+  }
+
+  private providerLabel(provider: NotificationCodexDispatch['provider']): string {
+    return provider === 'codex' ? 'Codex' : provider;
+  }
+
+  private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
+    return resolveAdminOpsErrorMessage(
+      error,
+      `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`,
+    );
+  }
+
+  private sortHeaderNotifications(
+    entries: readonly HeaderNotificationItem[],
+  ): readonly HeaderNotificationItem[] {
+    return [...entries].sort((left, right) => {
+      const unreadOrder = Number(left.read) - Number(right.read);
+      if (unreadOrder !== 0) {
+        return unreadOrder;
+      }
+      return right.createdAt - left.createdAt;
+    });
+  }
+
+  private toTimestamp(candidate: string | null | undefined): number {
+    if (!candidate) {
+      return 0;
+    }
+
+    const timestamp = Date.parse(candidate);
+    return Number.isFinite(timestamp) ? timestamp : 0;
+  }
+
+  private async copyText(value: string): Promise<void> {
+    const clipboard = globalThis.navigator?.clipboard;
+    if (clipboard?.writeText) {
+      await clipboard.writeText(value);
+      return;
+    }
+
+    if (typeof globalThis.document === 'undefined') {
+      throw new Error('copy_unavailable');
+    }
+
+    const documentRef = globalThis.document;
+    const textarea = documentRef.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    documentRef.body.appendChild(textarea);
+    textarea.select();
+    const copied = documentRef.execCommand('copy');
+    documentRef.body.removeChild(textarea);
+
+    if (!copied) {
+      throw new Error('copy_failed');
+    }
   }
 }

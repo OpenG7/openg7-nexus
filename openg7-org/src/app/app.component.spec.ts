@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { FEATURE_FLAGS } from './core/config/environment.tokens';
 import { GlobalShortcutsService } from './core/shortcuts/global-shortcuts.service';
+import { AdminQualityHomeAgentService } from './domains/admin/data-access/admin-quality-home-agent.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -26,6 +27,7 @@ describe('AppComponent', () => {
           },
         },
         { provide: GlobalShortcutsService, useValue: {} },
+        { provide: AdminQualityHomeAgentService, useValue: {} },
         { provide: FEATURE_FLAGS, useValue: {} },
       ],
     })
