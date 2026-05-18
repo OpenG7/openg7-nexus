@@ -225,7 +225,7 @@ export class AdminGithubActionTrackerService {
         idempotencyKey: context.idempotencyKey,
         ...githubActionStatusMetadata(status),
       },
-      actions: this.actionsWithStatus(entry.actions ?? [], context.actionId, status),
+      actions: this.actionsWithStatus(entry, context.actionId, status),
       read: false,
     });
 
@@ -297,24 +297,71 @@ export class AdminGithubActionTrackerService {
   }
 
   private actionsWithStatus(
-    actions: readonly NotificationAction[],
+    entry: NotificationEntry,
     actionId: string,
     status: GithubActionNotificationStatus,
   ): readonly NotificationAction[] {
-    return actions.map((action) => {
+    const actions = entry.actions ?? [];
+    const resultRoute =
+      status.state === 'completed' ? this.resultRouteForEntry(entry, actionId) : null;
+
+    return actions.flatMap((action) => {
       if (action.id !== actionId) {
-        return action;
+        return [action];
       }
 
-      return {
-        ...action,
-        label: this.actionLabelWithStatus(action.label, status),
-        kind: 'route' as const,
-        route: '/admin/ops',
-        command: null,
-        codexDispatch: null,
-      };
+      if (resultRoute) {
+        return [
+          {
+            ...action,
+            label: this.resultActionLabel(status),
+            kind: 'route' as const,
+            route: resultRoute,
+            command: null,
+            codexDispatch: null,
+          },
+          this.openOpsAction(action.id),
+        ];
+      }
+
+      return [
+        {
+          ...action,
+          label: this.actionLabelWithStatus(action.label, status),
+          kind: 'route' as const,
+          route: '/admin/ops',
+          command: null,
+          codexDispatch: null,
+        },
+      ];
     });
+  }
+
+  private resultRouteForEntry(entry: NotificationEntry, actionId: string): string | null {
+    const entryId =
+      this.normalizedText(entry.metadata?.['entryId']) ??
+      this.entryIdFromAgentActionId(actionId);
+
+    return entryId ? `/admin/quality?entryId=${encodeURIComponent(entryId)}` : null;
+  }
+
+  private entryIdFromAgentActionId(actionId: string): string | null {
+    const prefix = 'admin-quality-agent-task-';
+    return actionId.startsWith(prefix) ? this.normalizedText(actionId.slice(prefix.length)) : null;
+  }
+
+  private openOpsAction(actionId: string): NotificationAction {
+    return {
+      id: `${actionId}-open-ops`,
+      label: 'Voir Ops',
+      kind: 'route',
+      route: '/admin/ops',
+    };
+  }
+
+  private resultActionLabel(status: GithubActionNotificationStatus): string {
+    const runSuffix = status.runNumber ? ` #${status.runNumber}` : '';
+    return `Voir resultat${runSuffix}`;
   }
 
   private actionLabelWithStatus(label: string, status: GithubActionNotificationStatus): string {
@@ -362,5 +409,9 @@ export class AdminGithubActionTrackerService {
       .toLowerCase()
       .replace(/[^a-z0-9-]+/g, '-')
       .replace(/^-+|-+$/g, '');
+  }
+
+  private normalizedText(value: unknown): string | null {
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
   }
 }

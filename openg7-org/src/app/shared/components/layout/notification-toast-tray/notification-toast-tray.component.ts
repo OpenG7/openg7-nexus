@@ -31,6 +31,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 const MAX_VISIBLE_TOASTS = 4;
+const TOAST_REPLAY_GRACE_MS = 10_000;
 
 interface DismissTimerState {
   readonly timeout: ReturnType<typeof setTimeout> | null;
@@ -53,6 +54,7 @@ export class NotificationToastTrayComponent {
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly liveTimeline = inject(CodexLiveTimelineService);
+  private readonly mountedAt = Date.now();
   private readonly dismissTimers = new Map<string, DismissTimerState>();
   private readonly hiddenToastIds = signal<ReadonlySet<string>>(new Set());
   private adminOpsService: AdminOpsService | null | undefined;
@@ -62,7 +64,11 @@ export class NotificationToastTrayComponent {
     const hiddenToastIds = this.hiddenToastIds();
     return this.notificationsStore
       .entries()
-      .filter((entry) => !hiddenToastIds.has(entry.id))
+      .filter(
+        (entry) =>
+          !hiddenToastIds.has(entry.id) &&
+          entry.createdAt >= this.mountedAt - TOAST_REPLAY_GRACE_MS,
+      )
       .slice(0, MAX_VISIBLE_TOASTS);
   });
 

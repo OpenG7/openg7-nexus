@@ -54,8 +54,11 @@
           <span class="notification-panel__item-title">
             {{ item.title || ('notifications.types.' + item.type | translate) }}
           </span>
-          <time class="notification-panel__item-time">
-            {{ item.createdAt | date: 'shortTime' }}
+          <time
+            class="notification-panel__item-time"
+            [attr.title]="item.createdAt | date: 'full'"
+          >
+            {{ item.createdAt | date: 'short' }}
           </time>
         </div>
         <p class="notification-panel__item-message">{{ item.message }}</p>

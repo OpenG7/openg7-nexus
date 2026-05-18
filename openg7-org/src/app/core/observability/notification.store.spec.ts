@@ -85,9 +85,9 @@ describe('NotificationStore', () => {
       actions: [
         {
           id: 'admin-quality-agent-task-proof',
-          label: 'Codex Preuve: Qualite admin - en cours #12',
+          label: 'Voir resultat #12',
           kind: 'route',
-          route: '/admin/ops',
+          route: '/admin/quality?entryId=observability',
           codexDispatch: null,
         },
       ],
@@ -108,9 +108,9 @@ describe('NotificationStore', () => {
     expect(store.entries()[0].message).toBe('Agent admin-quality rafraichi.');
     expect(store.entries()[0].actions?.[0]).toEqual(
       jasmine.objectContaining({
-        label: 'Codex Preuve: Qualite admin - en cours #12',
+        label: 'Voir resultat #12',
         kind: 'route',
-        route: '/admin/ops',
+        route: '/admin/quality?entryId=observability',
       }),
     );
   });
