@@ -558,6 +558,7 @@ describe('FeedOpportunityDetailPage', () => {
   });
 
   it('routes to linkup when the opportunity carries a connection match id', async () => {
+    queryParamMap$.next(convertToParamMap({ source: 'feed' }));
     const linkedItem = createOpportunityItem('opportunity-300mw', { connectionMatchId: 73 });
     feed.findItemById.and.resolveTo(linkedItem);
     feed.items.set([linkedItem]);
@@ -581,6 +582,51 @@ describe('FeedOpportunityDetailPage', () => {
       },
     });
     expect(feed.publishDraft).not.toHaveBeenCalled();
+  });
+
+  it('keeps trade-map query context when routing matched opportunities to linkup', async () => {
+    queryParamMap$.next(
+      convertToParamMap({
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        feedItemId: 'opportunity-300mw',
+        priority: 'critical',
+        sector: 'energy',
+        type: 'REQUEST',
+        fromProvince: 'QC',
+        toProvince: 'ON',
+        mode: 'BOTH',
+      }),
+    );
+    const linkedItem = createOpportunityItem('opportunity-300mw', { connectionMatchId: 73 });
+    feed.findItemById.and.resolveTo(linkedItem);
+    feed.items.set([linkedItem]);
+
+    const fixture = TestBed.createComponent(FeedOpportunityDetailPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance as unknown as {
+      offerDrawerOpen: () => boolean;
+      openOfferDrawer: () => void;
+    };
+
+    component.openOfferDrawer();
+
+    expect(component.offerDrawerOpen()).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/linkup', 73], {
+      queryParams: {
+        source: 'trade-map',
+        corridorId: 'flow-energy',
+        feedItemId: 'opportunity-300mw',
+        priority: 'critical',
+        sector: 'energy',
+        type: 'REQUEST',
+        fromProvince: 'QC',
+        toProvince: 'ON',
+        mode: 'BOTH',
+      },
+    });
   });
 
   it('opens the existing tracked offer instead of the submission drawer when one already exists', async () => {
