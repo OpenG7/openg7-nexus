@@ -549,6 +549,28 @@ describe('FeedPage', () => {
     }
   });
 
+  it('falls back to generic trade map context for an unknown corridor id', () => {
+    queryParamMap$.next(convertToParamMap({ source: 'trade-map', corridorId: 'unknown-flow' }));
+    applySharedFeedFiltersFromQuery(queryParamMap$.value);
+
+    const fixture = TestBed.createComponent(FeedPage);
+    fixture.detectChanges();
+
+    const stream = fixture.debugElement.query(By.directive(FeedStreamStubComponent))
+      .componentInstance as FeedStreamStubComponent;
+    const context = fixture.nativeElement.querySelector(
+      '[data-og7="feed-source-context"]',
+    ) as HTMLElement;
+
+    expect(stream.highlightedItemId()).toBeNull();
+    expect(context).toBeTruthy();
+    expect(context.textContent).toContain('Context preserved from the trade map.');
+    expect(context.textContent).not.toContain('Focused corridor:');
+    expect(context.querySelector('[data-og7="feed-source-chip"]')).toBeNull();
+    expect(fromProvinceIdSig()).toBeNull();
+    expect(toProvinceIdSig()).toBeNull();
+  });
+
   it('offers context reset and return-to-map actions for corridor sessions', () => {
     queryParamMap$.next(
       convertToParamMap({
