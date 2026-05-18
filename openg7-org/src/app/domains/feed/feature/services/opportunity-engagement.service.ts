@@ -4,8 +4,44 @@ import { NavigationExtras } from '@angular/router';
 import { resolveFeedConnectionMatchId } from '../feed-item.helpers';
 import { FeedItem } from '../models/feed.models';
 
-export type OpportunityEngagementSource = 'feed' | 'home-feed-panels';
+export type OpportunityEngagementSource =
+  | 'feed'
+  | 'home-feed-panels'
+  | 'trade-map'
+  | 'corridors-realtime';
 export type OpportunityEngagementFallback = 'detail' | 'drawer';
+export type OpportunityEngagementSourceQueryParams = Readonly<
+  Record<string, string | null | undefined>
+>;
+
+export const OPPORTUNITY_ENGAGEMENT_CONTEXT_QUERY_PARAM_KEYS = [
+  'source',
+  'corridorId',
+  'feedItemId',
+  'priority',
+  'partner',
+  'sector',
+  'sectorId',
+  'type',
+  'fromProvince',
+  'fromProvinceId',
+  'toProvince',
+  'toProvinceId',
+  'mode',
+  'q',
+  'sort',
+] as const;
+
+export function isOpportunityEngagementSource(
+  value: string | null,
+): value is OpportunityEngagementSource {
+  return (
+    value === 'feed' ||
+    value === 'home-feed-panels' ||
+    value === 'trade-map' ||
+    value === 'corridors-realtime'
+  );
+}
 
 export interface OpportunityEngagementNavigation {
   readonly commands: [string, ...(string | number)[]];
@@ -32,6 +68,7 @@ export interface OpportunityEngagementRequest {
   readonly requiresAuthentication?: boolean;
   readonly isAuthenticated?: boolean;
   readonly existingOfferId?: string | null;
+  readonly sourceQueryParams?: OpportunityEngagementSourceQueryParams;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -57,7 +94,12 @@ export class OpportunityEngagementService {
     if (matchId) {
       return {
         kind: 'open-linkup',
-        navigation: this.buildLinkupNavigation(matchId, request.source, itemId),
+        navigation: this.buildLinkupNavigation(
+          matchId,
+          request.source,
+          itemId,
+          request.sourceQueryParams,
+        ),
         matchId,
       };
     }
@@ -65,7 +107,11 @@ export class OpportunityEngagementService {
     if (request.fallback === 'detail') {
       return {
         kind: 'open-detail',
-        navigation: this.buildOpportunityDetailNavigation(itemId, request.source),
+        navigation: this.buildOpportunityDetailNavigation(
+          itemId,
+          request.source,
+          request.sourceQueryParams,
+        ),
       };
     }
 
@@ -91,16 +137,14 @@ export class OpportunityEngagementService {
     matchId: number,
     source: OpportunityEngagementSource,
     itemId?: string | null,
+    sourceQueryParams?: OpportunityEngagementSourceQueryParams,
   ): OpportunityEngagementNavigation {
     const normalizedItemId = this.normalizeId(itemId);
 
     return {
       commands: ['/linkup', matchId],
       extras: {
-        queryParams: {
-          source,
-          ...(normalizedItemId ? { feedItemId: normalizedItemId } : {}),
-        },
+        queryParams: this.buildSourceQueryParams(source, normalizedItemId, sourceQueryParams),
       },
       route: `/linkup/${matchId}`,
     };
@@ -109,6 +153,7 @@ export class OpportunityEngagementService {
   buildOpportunityDetailNavigation(
     itemId: string | null | undefined,
     source: OpportunityEngagementSource,
+    sourceQueryParams?: OpportunityEngagementSourceQueryParams,
   ): OpportunityEngagementNavigation {
     const normalizedItemId = this.normalizeId(itemId);
     const commands: OpportunityEngagementNavigation['commands'] = normalizedItemId
@@ -119,10 +164,7 @@ export class OpportunityEngagementService {
     return {
       commands,
       extras: {
-        queryParams: {
-          source,
-          ...(normalizedItemId ? { feedItemId: normalizedItemId } : {}),
-        },
+        queryParams: this.buildSourceQueryParams(source, normalizedItemId, sourceQueryParams),
       },
       route,
     };
@@ -164,6 +206,32 @@ export class OpportunityEngagementService {
 
     const normalized = value.trim();
     return normalized.length ? normalized : null;
+  }
+
+  private buildSourceQueryParams(
+    source: OpportunityEngagementSource,
+    itemId: string | null,
+    sourceQueryParams?: OpportunityEngagementSourceQueryParams,
+  ): Record<string, string> {
+    const queryParams: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(sourceQueryParams ?? {})) {
+      if (key === 'source' || key === 'feedItemId') {
+        continue;
+      }
+
+      const normalized = this.normalizeId(value);
+      if (normalized) {
+        queryParams[key] = normalized;
+      }
+    }
+
+    queryParams['source'] = source;
+    if (itemId) {
+      queryParams['feedItemId'] = itemId;
+    }
+
+    return queryParams;
   }
 
   private normalizeLocalUrl(value: string | null | undefined): string | null {

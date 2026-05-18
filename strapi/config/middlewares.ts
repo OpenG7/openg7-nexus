@@ -130,6 +130,7 @@ export default [
         'Authorization',
         'Origin',
         'Accept',
+        'X-Correlation-Id',
         'Idempotency-Key',
         'Access-Control-Allow-Credentials',
         'Access-Control-Allow-Headers',

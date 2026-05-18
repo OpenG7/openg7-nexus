@@ -11,11 +11,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   GithubActionNotificationStatus,
   readGithubActionNotificationStatus,
 } from '@app/core/observability/github-action-notification-status';
-import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   NotificationEntry,
   NotificationAction,
@@ -23,6 +23,7 @@ import {
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
 import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import { resolveAdminOpsErrorMessage } from '@app/domains/admin/data-access/admin-ops-error-message';
 import {
   AdminOpsCodexDispatchRequest,
   AdminOpsService,
@@ -30,6 +31,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 const MAX_VISIBLE_TOASTS = 4;
+const TOAST_REPLAY_GRACE_MS = 10_000;
 
 interface DismissTimerState {
   readonly timeout: ReturnType<typeof setTimeout> | null;
@@ -52,6 +54,7 @@ export class NotificationToastTrayComponent {
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly liveTimeline = inject(CodexLiveTimelineService);
+  private readonly mountedAt = Date.now();
   private readonly dismissTimers = new Map<string, DismissTimerState>();
   private readonly hiddenToastIds = signal<ReadonlySet<string>>(new Set());
   private adminOpsService: AdminOpsService | null | undefined;
@@ -61,7 +64,11 @@ export class NotificationToastTrayComponent {
     const hiddenToastIds = this.hiddenToastIds();
     return this.notificationsStore
       .entries()
-      .filter((entry) => !hiddenToastIds.has(entry.id))
+      .filter(
+        (entry) =>
+          !hiddenToastIds.has(entry.id) &&
+          entry.createdAt >= this.mountedAt - TOAST_REPLAY_GRACE_MS,
+      )
       .slice(0, MAX_VISIBLE_TOASTS);
   });
 
@@ -364,11 +371,10 @@ export class NotificationToastTrayComponent {
   }
 
   private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
-    }
-
-    return `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`;
+    return resolveAdminOpsErrorMessage(
+      error,
+      `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`,
+    );
   }
 
   private async copyText(value: string): Promise<void> {

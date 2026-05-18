@@ -52,7 +52,12 @@ import { parseFeedFilters } from './feed-route-filters';
 import { FeedFilterState, FeedItem } from './models/feed.models';
 import { Og7FeedStreamComponent } from './og7-feed-stream/og7-feed-stream.component';
 import { FeedRealtimeService } from './services/feed-realtime.service';
-import { OpportunityEngagementService } from './services/opportunity-engagement.service';
+import {
+  OPPORTUNITY_ENGAGEMENT_CONTEXT_QUERY_PARAM_KEYS,
+  OpportunityEngagementService,
+  isOpportunityEngagementSource,
+  type OpportunityEngagementSource,
+} from './services/opportunity-engagement.service';
 
 @Component({
   selector: 'og7-feed-page',
@@ -302,7 +307,8 @@ export class FeedPage {
 
     const decision = this.opportunityEngagement.plan({
       item,
-      source: 'feed',
+      source: this.resolveEngagementSource(),
+      sourceQueryParams: this.currentEngagementQueryParams(),
       fallback: 'drawer',
       currentUrl: this.currentInternalUrl('/feed'),
       requiresAuthentication: true,
@@ -593,6 +599,25 @@ export class FeedPage {
 
     const normalized = value.trim();
     return normalized.length ? normalized : null;
+  }
+
+  private resolveEngagementSource(): OpportunityEngagementSource {
+    const source = this.sourceContext();
+    return isOpportunityEngagementSource(source) ? source : 'feed';
+  }
+
+  private currentEngagementQueryParams(): Record<string, string> {
+    const params = this.queryParamMap();
+    const queryParams: Record<string, string> = {};
+
+    for (const key of OPPORTUNITY_ENGAGEMENT_CONTEXT_QUERY_PARAM_KEYS) {
+      const value = this.normalizeQueryParam(params.get(key));
+      if (value) {
+        queryParams[key] = value;
+      }
+    }
+
+    return queryParams;
   }
 }
 

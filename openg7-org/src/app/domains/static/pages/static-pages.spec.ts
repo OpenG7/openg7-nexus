@@ -81,7 +81,7 @@ describe('Static informational pages', () => {
     expect(headings).toContain('5. Your rights');
   });
 
-  it('highlights legal credits and partners', () => {
+  it('highlights legal incorporation details and community governance plan', () => {
     const fixture = createComponent(LegalPage);
     const element: HTMLElement = fixture.nativeElement;
     const container = element.querySelector('[data-og7-page="legal"]');
@@ -98,7 +98,15 @@ describe('Static informational pages', () => {
     const highlightLabels = Array.from(
       container!.querySelectorAll('[data-og7-legal-highlight] dt'),
     ).map((dt) => dt.textContent?.trim());
-    expect(highlightLabels).toContain('Registration');
+    expect(highlightLabels).toContain('Corporate name');
+    expect(highlightLabels).toContain('Corporation number');
+
+    const legalText = container!.textContent ?? '';
+    expect(legalText).toContain('17925905 CANADA INC.');
+    expect(legalText).toContain('1792590-5');
+    expect(legalText).toContain('715865036RC0001');
+    expect(legalText).toContain('1182140153');
+    expect(legalText).toContain('not-for-profit for community governance remains planned');
 
     const contactEmails = Array.from(
       container!.querySelectorAll('[data-og7-legal-contact-channel] a'),
