@@ -15,7 +15,7 @@ class MockNotificationStore {
       title: 'Agent admin-quality',
       message: 'Agent de developpement actif.',
       source: 'admin-quality-agent',
-      metadata: { missionId: 'quality-surface' },
+      metadata: { missionId: 'quality-surface', entryId: 'observability' },
       actions: [
         {
           id: 'dispatch-codex',
@@ -122,6 +122,7 @@ describe('AdminGithubActionTrackerService', () => {
         message: 'Workflow #42 completed with 1 artifact.',
         metadata: jasmine.objectContaining({
           missionId: 'quality-surface',
+          entryId: 'observability',
           githubActionStatus: jasmine.objectContaining({
             state: 'completed',
             runNumber: 42,
@@ -131,10 +132,16 @@ describe('AdminGithubActionTrackerService', () => {
         actions: [
           jasmine.objectContaining({
             id: 'dispatch-codex',
-            label: 'Codex Surface: Cycle de vie des... - termine #42',
+            label: 'Voir resultat #42',
+            kind: 'route',
+            route: '/admin/quality?entryId=observability',
+            codexDispatch: null,
+          }),
+          jasmine.objectContaining({
+            id: 'dispatch-codex-open-ops',
+            label: 'Voir Ops',
             kind: 'route',
             route: '/admin/ops',
-            codexDispatch: null,
           }),
         ],
       }),

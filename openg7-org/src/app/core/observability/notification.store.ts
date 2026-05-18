@@ -418,7 +418,7 @@ function shouldPreserveExistingAction(
   return (
     incoming.kind === 'codex-dispatch' &&
     existing.kind === 'route' &&
-    existing.route === '/admin/ops' &&
+    Boolean(existing.route) &&
     !existing.codexDispatch
   );
 }

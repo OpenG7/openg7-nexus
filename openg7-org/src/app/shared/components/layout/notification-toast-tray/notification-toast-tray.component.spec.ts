@@ -146,6 +146,19 @@ describe('NotificationToastTrayComponent', () => {
     expect(notifications.entries()).toEqual([jasmine.objectContaining({ id: 'toast-1' })]);
   }));
 
+  it('does not replay old persisted notifications as active toasts', () => {
+    notifications.entries.set([
+      createNotification({
+        createdAt: Date.now() - 60_000,
+      }),
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('[data-og7="notification-toast"]'))).toBeNull();
+    expect(notifications.dismiss).not.toHaveBeenCalled();
+    expect(notifications.entries()).toEqual([jasmine.objectContaining({ id: 'toast-1' })]);
+  });
+
   it('pauses auto-dismiss while the mouse is over the toast and resumes on leave', fakeAsync(() => {
     notifications.entries.set([createNotification()]);
     fixture.detectChanges();
