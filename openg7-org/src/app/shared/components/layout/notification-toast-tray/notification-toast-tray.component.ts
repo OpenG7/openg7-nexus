@@ -11,11 +11,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   GithubActionNotificationStatus,
   readGithubActionNotificationStatus,
 } from '@app/core/observability/github-action-notification-status';
-import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   NotificationEntry,
   NotificationAction,
@@ -23,6 +23,7 @@ import {
   injectNotificationStore,
 } from '@app/core/observability/notification.store';
 import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import { resolveAdminOpsErrorMessage } from '@app/domains/admin/data-access/admin-ops-error-message';
 import {
   AdminOpsCodexDispatchRequest,
   AdminOpsService,
@@ -364,11 +365,10 @@ export class NotificationToastTrayComponent {
   }
 
   private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
-    }
-
-    return `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`;
+    return resolveAdminOpsErrorMessage(
+      error,
+      `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`,
+    );
   }
 
   private async copyText(value: string): Promise<void> {

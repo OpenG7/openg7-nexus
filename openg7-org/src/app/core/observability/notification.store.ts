@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject } from '@angular/core';
+import { computed, DestroyRef, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { retry, timer, catchError, of } from 'rxjs';
 
 import { API_URL, NOTIFICATION_WEBHOOK_URL } from '../config/environment.tokens';
 
@@ -87,6 +88,10 @@ interface NotificationState {
 }
 
 const MAX_HISTORY = 100;
+const STORAGE_KEY = 'og7.notifications.v1';
+const ADMIN_QUALITY_AGENT_SOURCE = 'admin-quality-agent';
+const ADMIN_QUALITY_AGENT_WORKLOAD_DEDUPE_KEY = `${ADMIN_QUALITY_AGENT_SOURCE}:workload`;
+const ADMIN_QUALITY_AGENT_NEXT_WORK_DEDUPE_PREFIX = `${ADMIN_QUALITY_AGENT_SOURCE}:next-work`;
 const DEFAULT_STATE: NotificationState = {
   items: [],
   preferences: {
@@ -97,6 +102,29 @@ const DEFAULT_STATE: NotificationState = {
   snoozedSources: {},
   lastDeliveryError: null,
 };
+
+interface PersistedNotificationState {
+  readonly items: readonly NotificationEntry[];
+  readonly snoozedSources: Record<string, number>;
+}
+
+interface PersistedNotificationPayload {
+  readonly version: 1;
+  readonly items: readonly PersistedNotificationEntry[];
+  readonly snoozedSources: Record<string, number>;
+}
+
+interface PersistedNotificationEntry {
+  readonly id: string;
+  readonly type: NotificationKind;
+  readonly message: string;
+  readonly title: string | null;
+  readonly source: string | null;
+  readonly metadata: Record<string, unknown> | null;
+  readonly actions: readonly NotificationAction[];
+  readonly createdAt: number;
+  readonly read: boolean;
+}
 
 function generateNotificationId(): string {
   const cryptoApi: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
@@ -159,22 +187,369 @@ function normalizeActions(
     .slice(0, 4);
 }
 
-function normalizeCodexDispatch(
-  dispatch: NotificationCodexDispatch | null | undefined,
-): NotificationCodexDispatch | null {
-  if (!dispatch?.task.trim()) {
+function getNotificationStorage(): Storage | null {
+  try {
+    const storage =
+      typeof window !== 'undefined'
+        ? window.localStorage
+        : (globalThis as { localStorage?: Storage }).localStorage;
+    if (!storage) {
+      return null;
+    }
+    const probeKey = `${STORAGE_KEY}.probe`;
+    storage.setItem(probeKey, '1');
+    storage.removeItem(probeKey);
+    return storage;
+  } catch {
+    return null;
+  }
+}
+
+function readPersistedNotificationState(): PersistedNotificationState | null {
+  const storage = getNotificationStorage();
+  if (!storage) {
+    return null;
+  }
+
+  const raw = storage.getItem(STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    const payload = normalizePersistedPayload(parsed);
+    if (!payload) {
+      storage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return payload;
+  } catch {
+    storage.removeItem(STORAGE_KEY);
+    return null;
+  }
+}
+
+function writePersistedNotificationState(state: PersistedNotificationState): void {
+  const storage = getNotificationStorage();
+  if (!storage) {
+    return;
+  }
+
+  const payload: PersistedNotificationPayload = {
+    version: 1,
+    items: state.items.slice(0, MAX_HISTORY).map(toPersistedNotificationEntry),
+    snoozedSources: normalizeSnoozedSources(state.snoozedSources),
+  };
+
+  try {
+    const serialized = JSON.stringify(payload);
+    try {
+      storage.setItem(STORAGE_KEY, serialized);
+    } catch (e) {
+      if (e instanceof DOMException && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+        // En cas de saturation, on vide les anciennes notifications pour faire de la place
+        storage.setItem(STORAGE_KEY, JSON.stringify({ ...payload, items: payload.items.slice(0, 10) }));
+      }
+    }
+  } catch {
+    // Storage is best-effort; keep the in-memory notification state.
+  }
+}
+
+function normalizePersistedPayload(candidate: unknown): PersistedNotificationState | null {
+  if (!isRecord(candidate) || candidate['version'] !== 1) {
+    return null;
+  }
+
+  const itemsCandidate = candidate['items'];
+  const items = Array.isArray(itemsCandidate)
+    ? itemsCandidate.map(normalizePersistedNotificationEntry).filter(isNotificationEntry)
+    : [];
+
+  return {
+    items: dedupeNotificationEntries(items).slice(0, MAX_HISTORY),
+    snoozedSources: normalizeSnoozedSources(candidate['snoozedSources']),
+  };
+}
+
+function normalizePersistedNotificationEntry(candidate: unknown): NotificationEntry | null {
+  if (!isRecord(candidate)) {
+    return null;
+  }
+
+  const id = normalizeText(candidate['id']);
+  const message = normalizeText(candidate['message']);
+  const type = normalizeNotificationKind(candidate['type']);
+  const createdAt = normalizeTimestamp(candidate['createdAt']);
+  if (!id || !message || !type || createdAt == null) {
     return null;
   }
 
   return {
-    provider: dispatch.provider,
-    task: dispatch.task.trim(),
-    scope: dispatch.scope,
-    baseBranch: dispatch.baseBranch?.trim() || 'main',
-    draftPr: dispatch.draftPr ?? true,
-    model: dispatch.model?.trim() || null,
-    effort: dispatch.effort?.trim() || null,
+    id,
+    type,
+    message,
+    title: normalizeOptionalText(candidate['title']),
+    source: normalizeOptionalText(candidate['source']),
+    context: undefined,
+    metadata: normalizeMetadata(candidate['metadata']),
+    actions: normalizeActions(
+      Array.isArray(candidate['actions'])
+        ? candidate['actions']
+            .map(normalizePersistedNotificationAction)
+            .filter(isNotificationAction)
+        : [],
+    ),
+    createdAt,
+    read: candidate['read'] === true,
   };
+}
+
+function normalizePersistedNotificationAction(candidate: unknown): NotificationAction | null {
+  if (!isRecord(candidate)) {
+    return null;
+  }
+
+  const id = normalizeText(candidate['id']);
+  const label = normalizeText(candidate['label']);
+  const kind = normalizeNotificationActionKind(candidate['kind']);
+  if (!id || !label || !kind) {
+    return null;
+  }
+
+  return {
+    id,
+    label,
+    kind,
+    command: normalizeOptionalText(candidate['command']),
+    route: normalizeOptionalText(candidate['route']),
+    durationMs: normalizeDuration(candidate['durationMs']),
+    codexDispatch: normalizeCodexDispatch(candidate['codexDispatch']),
+  };
+}
+
+function normalizeSnoozedSources(candidate: unknown): Record<string, number> {
+  if (!isRecord(candidate)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(candidate).filter(
+      (entry): entry is [string, number] =>
+        Boolean(entry[0].trim()) && typeof entry[1] === 'number' && Number.isFinite(entry[1]),
+    ),
+  );
+}
+
+function toPersistedNotificationEntry(entry: NotificationEntry): PersistedNotificationEntry {
+  return {
+    id: entry.id,
+    type: entry.type,
+    message: entry.message,
+    title: entry.title ?? null,
+    source: entry.source ?? null,
+    metadata: normalizeMetadata(entry.metadata),
+    actions: entry.actions ?? [],
+    createdAt: entry.createdAt,
+    read: entry.read,
+  };
+}
+
+function notificationDedupeKey(entry: NotificationEntry): string | null {
+  const source = normalizeOptionalText(entry.source);
+  const kind = normalizeText(entry.metadata?.['kind']);
+  if (
+    source === ADMIN_QUALITY_AGENT_SOURCE &&
+    (kind === 'home-agent-activation' || kind === 'agent-workload')
+  ) {
+    return ADMIN_QUALITY_AGENT_WORKLOAD_DEDUPE_KEY;
+  }
+
+  if (source === ADMIN_QUALITY_AGENT_SOURCE && kind === 'agent-next-work') {
+    const entryId = normalizeText(entry.metadata?.['entryId']);
+    return entryId ? `${ADMIN_QUALITY_AGENT_NEXT_WORK_DEDUPE_PREFIX}:${entryId}` : null;
+  }
+
+  return normalizeText(entry.metadata?.['dedupeKey']);
+}
+
+function mergeDedupedNotificationEntry(
+  existing: NotificationEntry,
+  incoming: NotificationEntry,
+): NotificationEntry {
+  return {
+    ...incoming,
+    id: existing.id,
+    metadata: mergeNotificationMetadata(existing.metadata, incoming.metadata),
+    actions: mergeNotificationActions(existing.actions ?? [], incoming.actions ?? []),
+  };
+}
+
+function mergeNotificationMetadata(
+  existing: Record<string, unknown> | null | undefined,
+  incoming: Record<string, unknown> | null | undefined,
+): Record<string, unknown> | null {
+  const merged = {
+    ...(existing ?? {}),
+    ...(incoming ?? {}),
+  };
+  return Object.keys(merged).length ? merged : null;
+}
+
+function mergeNotificationActions(
+  existing: readonly NotificationAction[],
+  incoming: readonly NotificationAction[],
+): readonly NotificationAction[] {
+  const existingById = new Map(existing.map((action) => [action.id, action]));
+  return incoming.map((action) => {
+    const existingAction = existingById.get(action.id);
+    if (existingAction && shouldPreserveExistingAction(existingAction, action)) {
+      return existingAction;
+    }
+    return action;
+  });
+}
+
+function shouldPreserveExistingAction(
+  existing: NotificationAction,
+  incoming: NotificationAction,
+): boolean {
+  return (
+    incoming.kind === 'codex-dispatch' &&
+    existing.kind === 'route' &&
+    existing.route === '/admin/ops' &&
+    !existing.codexDispatch
+  );
+}
+
+function dedupeNotificationEntries(
+  entries: readonly NotificationEntry[],
+): readonly NotificationEntry[] {
+  const deduped: NotificationEntry[] = [];
+
+  for (const entry of entries) {
+    const dedupeKey = notificationDedupeKey(entry);
+    if (!dedupeKey) {
+      deduped.push(entry);
+      continue;
+    }
+
+    const existingIndex = deduped.findIndex(
+      (candidate) => notificationDedupeKey(candidate) === dedupeKey,
+    );
+    if (existingIndex === -1) {
+      deduped.push(entry);
+      continue;
+    }
+
+    const newestEntry = deduped[existingIndex];
+    deduped[existingIndex] = {
+      ...mergeDedupedNotificationEntry(entry, newestEntry),
+      id: newestEntry.id,
+      createdAt: newestEntry.createdAt,
+      read: newestEntry.read,
+    };
+  }
+
+  return deduped;
+}
+
+function normalizeNotificationKind(value: unknown): NotificationKind | null {
+  return value === 'success' || value === 'info' || value === 'error' ? value : null;
+}
+
+function normalizeNotificationActionKind(value: unknown): NotificationActionKind | null {
+  switch (value) {
+    case 'copy':
+    case 'route':
+    case 'snooze':
+    case 'dismiss':
+    case 'codex-dispatch':
+      return value;
+    default:
+      return null;
+  }
+}
+
+function normalizeMetadata(value: unknown): Record<string, unknown> | null {
+  return isRecord(value) ? value : null;
+}
+
+function normalizeText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function normalizeTimestamp(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function normalizeDuration(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function isNotificationEntry(value: NotificationEntry | null): value is NotificationEntry {
+  return value !== null;
+}
+
+function isNotificationAction(value: NotificationAction | null): value is NotificationAction {
+  return value !== null;
+}
+
+function normalizeCodexDispatch(dispatch: unknown): NotificationCodexDispatch | null {
+  if (!isRecord(dispatch)) {
+    return null;
+  }
+
+  const provider = normalizeCodexProvider(dispatch['provider']);
+  const scope = normalizeCodexScope(dispatch['scope']);
+  const task = normalizeText(dispatch['task']);
+  if (!provider || !scope || !task) {
+    return null;
+  }
+
+  return {
+    provider,
+    task,
+    scope,
+    baseBranch: normalizeOptionalText(dispatch['baseBranch']) ?? 'main',
+    draftPr: typeof dispatch['draftPr'] === 'boolean' ? dispatch['draftPr'] : true,
+    model: normalizeOptionalText(dispatch['model']),
+    effort: normalizeOptionalText(dispatch['effort']),
+  };
+}
+
+function normalizeCodexProvider(value: unknown): NotificationCodexProvider | null {
+  switch (value) {
+    case 'codex':
+    case 'copilot':
+    case 'claude':
+    case 'gemini':
+      return value;
+    default:
+      return null;
+  }
+}
+
+function normalizeCodexScope(value: unknown): NotificationCodexScope | null {
+  switch (value) {
+    case 'openg7-org':
+    case 'strapi':
+    case 'packages-contracts':
+    case 'packages-tooling':
+    case 'repository-root':
+      return value;
+    default:
+      return null;
+  }
 }
 
 export const NotificationStore = signalStore(
@@ -192,6 +567,47 @@ export const NotificationStore = signalStore(
     const explicitWebhook = sanitizeUrl(
       inject(NOTIFICATION_WEBHOOK_URL, { optional: true }) ?? null,
     );
+    const destroyRef = inject(DestroyRef);
+    const persisted = readPersistedNotificationState();
+
+    if (persisted) {
+      patchState(store, {
+        items: persisted.items,
+        snoozedSources: persisted.snoozedSources,
+      });
+    }
+
+    // Synchronisation multi-onglets
+    if (typeof window !== 'undefined') {
+      const onStorage = (event: StorageEvent): void => {
+        if (event.key !== STORAGE_KEY || !event.newValue) {
+          return;
+        }
+        const newState = readPersistedNotificationState();
+        if (newState) {
+          patchState(store, {
+            items: newState.items,
+            snoozedSources: newState.snoozedSources,
+          });
+        }
+      };
+      window.addEventListener('storage', onStorage);
+      destroyRef.onDestroy(() => window.removeEventListener('storage', onStorage));
+    }
+
+    const persistCurrentState = () => {
+      writePersistedNotificationState({
+        items: store.items(),
+        snoozedSources: store.snoozedSources(),
+      });
+    };
+
+    const patchAndPersist = (
+      update: Partial<Pick<NotificationState, 'items' | 'snoozedSources'>>,
+    ) => {
+      patchState(store, update);
+      persistCurrentState();
+    };
 
     const resolveWebhookUrl = (): string | null => {
       const pref = store.preferences();
@@ -208,11 +624,20 @@ export const NotificationStore = signalStore(
       return `${apiUrl.replace(/\/$/, '')}/api/notifications/email`;
     };
 
-    const appendNotification = (entry: NotificationEntry) => {
-      const next = [entry, ...store.items()].slice(0, MAX_HISTORY);
-      patchState(store, {
+    const appendNotification = (entry: NotificationEntry): NotificationEntry => {
+      const dedupeKey = notificationDedupeKey(entry);
+      const existing = dedupeKey
+        ? store.items().find((item) => notificationDedupeKey(item) === dedupeKey)
+        : null;
+      const nextEntry = existing ? mergeDedupedNotificationEntry(existing, entry) : entry;
+      const existingItems = existing
+        ? store.items().filter((item) => item.id !== existing.id)
+        : store.items();
+      const next = [nextEntry, ...existingItems].slice(0, MAX_HISTORY);
+      patchAndPersist({
         items: next,
       });
+      return nextEntry;
     };
 
     const deliverByEmail = (entry: NotificationEntry) => {
@@ -241,6 +666,19 @@ export const NotificationStore = signalStore(
           },
           recipient: preferences.emailAddress,
         })
+        .pipe(
+          retry({ 
+            count: 2, 
+            delay: (error) => {
+              console.warn('Notification delivery retry...', error);
+              return timer(3000);
+            }
+          }),
+          catchError((err) => {
+            console.error('Notification delivery permanently failed', err);
+            return of(null);
+          })
+        )
         .subscribe({
           next: () => {
             patchState(store, { lastDeliveryError: null });
@@ -280,12 +718,12 @@ export const NotificationStore = signalStore(
         createdAt: Date.now(),
         read: false,
       };
-      appendNotification(entry);
+      const persistedEntry = appendNotification(entry);
 
       if (options?.deliver?.email ?? type === 'error') {
-        deliverByEmail(entry);
+        deliverByEmail(persistedEntry);
       }
-      return entry.id;
+      return persistedEntry.id;
     };
 
     return {
@@ -308,11 +746,11 @@ export const NotificationStore = signalStore(
               }
             : item,
         );
-        patchState(store, { items: next });
+        patchAndPersist({ items: next });
       },
       markAllRead() {
         const next = store.items().map((item) => ({ ...item, read: true }));
-        patchState(store, { items: next });
+        patchAndPersist({ items: next });
       },
       updateEntry(id: string, update: NotificationEntryUpdate) {
         const next = store.items().map((item) => {
@@ -332,14 +770,14 @@ export const NotificationStore = signalStore(
             read: update.read ?? item.read,
           };
         });
-        patchState(store, { items: next });
+        patchAndPersist({ items: next });
       },
       dismiss(id: string) {
         const next = store.items().filter((item) => item.id !== id);
-        patchState(store, { items: next });
+        patchAndPersist({ items: next });
       },
       clearHistory() {
-        patchState(store, { items: [] });
+        patchAndPersist({ items: [] });
       },
       updatePreferences(preferences: Partial<NotificationPreferences>) {
         const next: NotificationPreferences = {
@@ -360,7 +798,7 @@ export const NotificationStore = signalStore(
         if (!trimmed || durationMs <= 0) {
           return;
         }
-        patchState(store, {
+        patchAndPersist({
           snoozedSources: {
             ...store.snoozedSources(),
             [trimmed]: Date.now() + durationMs,
@@ -370,7 +808,7 @@ export const NotificationStore = signalStore(
       clearSourceSnooze(source: string) {
         const trimmed = source.trim();
         const { [trimmed]: _, ...rest } = store.snoozedSources();
-        patchState(store, { snoozedSources: rest });
+        patchAndPersist({ snoozedSources: rest });
       },
       isSourceSnoozed,
     };

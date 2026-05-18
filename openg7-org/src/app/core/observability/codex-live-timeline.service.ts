@@ -1,4 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+
 import {
   GithubActionNotificationState,
   GithubActionNotificationStatus,
@@ -61,9 +63,13 @@ export interface CodexLiveTimelinePullRequestInfo {
 
 const SYNTHETIC_STEP_DELAYS_MS = [900, 2_100, 3_600];
 const MAX_EVENTS = 18;
+const STORAGE_KEY = 'og7.codex.timeline.v1';
+const EXPIRATION_MS = 1000 * 60 * 60 * 2; // 2 heures
 
 @Injectable({ providedIn: 'root' })
 export class CodexLiveTimelineService {
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly runSig = signal<CodexLiveTimelineRun | null>(null);
   private readonly openSig = signal(false);
   private readonly timers = new Set<ReturnType<typeof setTimeout>>();
@@ -71,6 +77,10 @@ export class CodexLiveTimelineService {
   readonly run = this.runSig.asReadonly();
   readonly isOpen = this.openSig.asReadonly();
   readonly hasActiveRun = computed(() => Boolean(this.runSig()));
+
+  constructor() {
+    this.restoreFromStorage();
+  }
 
   start(input: StartCodexLiveTimelineInput): string {
     this.clearTimers();
@@ -134,6 +144,9 @@ export class CodexLiveTimelineService {
     this.clearTimers();
     this.runSig.set(null);
     this.openSig.set(false);
+    if (this.isBrowser) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   recordDispatchQueued(
@@ -217,7 +230,13 @@ export class CodexLiveTimelineService {
     SYNTHETIC_STEP_DELAYS_MS.forEach((delay, index) => {
       const timer = setTimeout(() => {
         this.timers.delete(timer);
-        this.updateRun(runId, (run) => this.advanceToStep(run, stepIds[index]));
+        this.updateRun(runId, (run) => {
+          // Sécurité critique : On ne modifie pas une timeline déjà en état terminal
+          if (run.terminalState || run.steps.every(s => s.state === 'completed')) {
+            return run;
+          }
+          return this.advanceToStep(run, stepIds[index]);
+        });
       }, delay);
       this.timers.add(timer);
     });
@@ -232,10 +251,49 @@ export class CodexLiveTimelineService {
       return;
     }
 
-    this.runSig.set({
+    const next: CodexLiveTimelineRun = {
       ...updater(current),
       updatedAt: Date.now(),
-    });
+    };
+
+    this.runSig.set(next);
+    this.persistToStorage(next);
+  }
+
+  private persistToStorage(run: CodexLiveTimelineRun): void {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(run));
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  private restoreFromStorage(): void {
+    if (!this.isBrowser) return;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const run = JSON.parse(raw) as CodexLiveTimelineRun;
+      
+      if (Date.now() - run.updatedAt < EXPIRATION_MS) {
+        // On marque la restauration par un événement visuel
+        const restoredRun: CodexLiveTimelineRun = {
+          ...run,
+          events: this.appendEvent(
+            run, 
+            'Session de chantier restauree.', 
+            'completed'
+          )
+        };
+        this.runSig.set(restoredRun);
+        this.openSig.set(true); // On réouvre le panneau pour notifier l'utilisateur
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   private advanceToStep(
