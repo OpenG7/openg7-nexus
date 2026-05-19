@@ -1,5 +1,5 @@
 import './setup';
-import { expect, test } from '@playwright/test';
+import { expect, type Page, type Route, test } from '@playwright/test';
 
 import {
   loginAsAuthenticatedE2eUser,
@@ -20,6 +20,26 @@ interface SavedSearchRecord {
   updatedAt: string;
 }
 
+const indicatorDetailItem = {
+  id: 'indicator-001',
+  createdAt: '2026-01-21T09:00:00.000Z',
+  updatedAt: '2026-01-21T09:03:00.000Z',
+  type: 'INDICATOR',
+  sectorId: 'energy',
+  title: 'Spot electricity price up 12 percent',
+  summary: 'Ontario spot electricity prices rose in the last 72 hours.',
+  fromProvinceId: null,
+  toProvinceId: 'on',
+  mode: 'BOTH',
+  urgency: 2,
+  credibility: 2,
+  tags: ['price', 'spot', 'ontario'],
+  source: {
+    kind: 'GOV',
+    label: 'IESO',
+  },
+} as const;
+
 function createDeferred(): { promise: Promise<void>; resolve: () => void } {
   let resolve!: () => void;
   const promise = new Promise<void>((nextResolve) => {
@@ -27,6 +47,119 @@ function createDeferred(): { promise: Promise<void>; resolve: () => void } {
   });
 
   return { promise, resolve };
+}
+
+async function disableFeedMocks(page: Page): Promise<void> {
+  await page.route('**/runtime-config.js', async (route: Route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: `window.__OG7_CONFIG__ = {
+        FEATURE_FLAGS: {
+          feedMocks: false,
+          homeFeedMocks: false
+        }
+      };`,
+    });
+  });
+}
+
+async function mockIndicatorDetailApi(page: Page): Promise<void> {
+  await page.route('**/api/feed**', async (route: Route) => {
+    const request = route.request();
+    if (request.method().toUpperCase() !== 'GET') {
+      await route.fallback();
+      return;
+    }
+
+    const url = new URL(request.url());
+    if (url.pathname === '/api/feed/indicator-001') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: indicatorDetailItem,
+        }),
+      });
+      return;
+    }
+
+    if (url.pathname === '/api/feed') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [],
+          cursor: null,
+        }),
+      });
+      return;
+    }
+
+    await route.fallback();
+  });
+}
+
+async function installControllableFeedEventSource(
+  page: Page,
+  initiallyConnected: boolean,
+): Promise<void> {
+  await page.addInitScript(
+    ({ connected }: { connected: boolean }) => {
+      const runtimeWindow = window as Window & {
+        __og7FeedStreamConnected?: boolean;
+        __og7SetFeedStreamConnected?: (next: boolean) => void;
+        EventSource?: typeof EventSource;
+      };
+      const instances = new Set<ControlledEventSource>();
+
+      const notifyInstance = (instance: ControlledEventSource): void => {
+        if (runtimeWindow.__og7FeedStreamConnected) {
+          instance.onopen?.(new Event('open'));
+          return;
+        }
+
+        instance.onerror?.(new Event('error'));
+      };
+
+      runtimeWindow.__og7FeedStreamConnected = connected;
+      runtimeWindow.__og7SetFeedStreamConnected = (next: boolean) => {
+        runtimeWindow.__og7FeedStreamConnected = next;
+        for (const instance of instances) {
+          notifyInstance(instance);
+        }
+      };
+
+      class ControlledEventSource {
+        onopen: ((event: Event) => void) | null = null;
+        onerror: ((event: Event) => void) | null = null;
+        onmessage: ((event: MessageEvent<string>) => void) | null = null;
+
+        constructor(_url: string) {
+          instances.add(this);
+          setTimeout(() => {
+            notifyInstance(this);
+          }, 0);
+        }
+
+        close(): void {
+          instances.delete(this);
+        }
+      }
+
+      runtimeWindow.EventSource = ControlledEventSource as unknown as typeof EventSource;
+    },
+    { connected: initiallyConnected },
+  );
+}
+
+async function setFeedStreamConnected(page: Page, next: boolean): Promise<void> {
+  await page.evaluate(({ connected }) => {
+    const runtimeWindow = window as Window & {
+      __og7SetFeedStreamConnected?: (connected: boolean) => void;
+    };
+    runtimeWindow.__og7SetFeedStreamConnected?.(connected);
+  }, { connected: next });
 }
 
 test.describe('Quality breadth offline queueing', () => {
@@ -218,6 +351,9 @@ test.describe('Quality breadth offline queueing', () => {
   test('restores an offline indicator alert draft after reload and retries it successfully once reconnected', async ({
     page,
   }) => {
+    await disableFeedMocks(page);
+    await mockIndicatorDetailApi(page);
+    await installControllableFeedEventSource(page, false);
     await mockAuthenticatedSessionApis(page);
     await seedAuthenticatedSession(page);
 
@@ -241,6 +377,7 @@ test.describe('Quality breadth offline queueing', () => {
     await page.goto('/feed/indicators/indicator-001');
 
     await expect(page.locator('[data-og7="indicator-detail-page"]')).toBeVisible();
+    await expect(page.locator('[data-og7="indicator-offline"]')).toBeVisible();
 
     const subscribeButton = page.locator('[data-og7-id="indicator-subscribe"]');
     await expect(subscribeButton).toHaveText(/S'abonner|Subscribe/i);
@@ -249,17 +386,19 @@ test.describe('Quality breadth offline queueing', () => {
     const drawer = page.locator('[data-og7="indicator-alert-drawer"]');
     const thresholdInput = drawer.locator('[data-og7-id="threshold-value"]');
     const noteInput = drawer.locator('[data-og7-id="note"]');
+    const retryButton = drawer.locator('[data-og7-id="indicator-alert-retry"]');
 
     await expect(drawer).toBeVisible();
     await expect(
       drawer.locator('[data-og7="indicator-alert-status"][data-og7-id="offline"]'),
     ).toBeVisible();
-    await expect(drawer.locator('[data-og7-id="indicator-alert-retry"]')).toBeVisible();
+    await expect(retryButton).toHaveCount(0);
     await expect(thresholdInput).toHaveValue('19');
     await expect(noteInput).toHaveValue('Retry this alert only after the live feed reconnects.');
     await expect(subscribeButton).toHaveText(/S'abonner|Subscribe/i);
 
     await page.reload();
+    await expect(page.locator('[data-og7="indicator-offline"]')).toBeVisible();
     await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(
       /S'abonner|Subscribe/i,
     );
@@ -272,8 +411,13 @@ test.describe('Quality breadth offline queueing', () => {
     await expect(thresholdInput).toHaveValue('19');
     await expect(noteInput).toHaveValue('Retry this alert only after the live feed reconnects.');
     await expect(drawer.locator('[data-og7="indicator-alert-view"]')).toHaveCount(0);
-    await expect(drawer.locator('[data-og7-id="indicator-alert-retry"]')).toBeVisible();
-    await drawer.locator('[data-og7-id="indicator-alert-retry"]').click();
+    await expect(retryButton).toHaveCount(0);
+
+    await setFeedStreamConnected(page, true);
+
+    await expect(page.locator('[data-og7="indicator-offline"]')).toHaveCount(0);
+    await expect(retryButton).toBeVisible();
+    await retryButton.click();
 
     await expect(drawer).toBeHidden();
     await expect(page.locator('[data-og7-id="indicator-subscribe"]')).toHaveText(

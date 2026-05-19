@@ -8,6 +8,8 @@ import {
 import { mockConnectionsApis } from './helpers/domain-mocks';
 
 const QC_ON_ROUTE_PATTERN = /Quebec to Ontario|Qu\S+bec vers Ontario|Qu\S*bec\s*->\s*Ontario/i;
+const QC_US_NE_ROUTE_PATTERN =
+  /Quebec to US Northeast|Qu\S+bec vers (?:le )?Nord-Est am\S+ricain|Qu\S+bec vers le nord-est des \S+tats-Unis/i;
 
 test.describe('Map to feed decision chain', () => {
   test('keeps a map-driven corridor discovery context coherent through detail navigation, back, and reload', async ({
@@ -255,6 +257,75 @@ test.describe('Map to feed decision chain', () => {
       fromProvince: 'QC',
       toProvince: 'ON',
     });
+  });
+
+  test('keeps an export corridor without decision item legible in the feed context', async ({
+    page,
+  }) => {
+    await page.goto(
+      '/feed?source=trade-map&corridorId=flow-qc-usne&priority=elevated&sector=energy&type=REQUEST&fromProvince=QC&mode=EXPORT',
+    );
+    await waitForAngularFeedStream(page);
+
+    const sourceContext = page.locator('[data-og7="feed-source-context"]');
+
+    await expect(page.locator('[data-og7="feed-page"]')).toBeVisible();
+    await expect(sourceContext).toBeVisible();
+    await expect(sourceContext).toContainText(QC_US_NE_ROUTE_PATTERN);
+    await expectSearchParams(page, {
+      source: 'trade-map',
+      corridorId: 'flow-qc-usne',
+      feedItemId: null,
+      priority: 'elevated',
+      sector: 'energy',
+      type: 'REQUEST',
+      fromProvince: 'QC',
+      toProvince: null,
+      mode: 'EXPORT',
+      q: null,
+      sort: null,
+    });
+    await expect(page.locator('#feed-type')).toHaveValue(/REQUEST$/);
+    await expect(page.locator('#feed-sector')).toHaveValue(/energy$/);
+    await expect(page.locator('#feed-from')).toHaveValue(/QC$/);
+    await expect(page.locator('#feed-mode')).toHaveValue(/EXPORT$/);
+    await expect(
+      page.locator('[data-og7="feed-source-chip"][data-og7-id="route"]'),
+    ).toContainText(/\bQC\b/);
+    await expect(
+      page.locator('[data-og7="feed-source-chip"][data-og7-id="route"]'),
+    ).not.toContainText(/->/);
+    await expect(page.locator('[data-og7="feed-source-chip"][data-og7-id="mode"]')).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-source-chip"][data-og7-id="priority"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-og7="feed-filter-chip"][data-og7-id="fromProvince"]'),
+    ).toBeVisible();
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="toProvince"]')).toHaveCount(
+      0,
+    );
+    await expect(page.locator('[data-og7="feed-filter-chip"][data-og7-id="mode"]')).toBeVisible();
+    await expectVisibleItemIds(page, []);
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await waitForAngularFeedStream(page);
+
+    await expect(sourceContext).toBeVisible();
+    await expect(sourceContext).toContainText(QC_US_NE_ROUTE_PATTERN);
+    await expectSearchParams(page, {
+      source: 'trade-map',
+      corridorId: 'flow-qc-usne',
+      feedItemId: null,
+      priority: 'elevated',
+      sector: 'energy',
+      type: 'REQUEST',
+      fromProvince: 'QC',
+      toProvince: null,
+      mode: 'EXPORT',
+    });
+    await expectVisibleItemIds(page, []);
   });
 });
 
