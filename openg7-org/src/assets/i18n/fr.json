@@ -4755,6 +4755,24 @@
         },
         "latestTitle": "Dernière mise à jour de publication",
         "latestDate": "Mis à jour le {{ value }}"
+      },
+      "profileLifecycle": {
+        "title": "Cycle d'évolution du profil",
+        "statusHelp": "Suit les éditions durables d'une entreprise ou d'un partenaire lorsqu'elles passent en file, en revue, en synchronisation ou en pause.",
+        "status": {
+          "queued": "Édition en file",
+          "reviewing": "Édition en revue",
+          "synced": "Édition synchronisée",
+          "paused": "Édition en pause"
+        },
+        "summary": {
+          "queued": "Une édition durable d'entreprise ou de partenaire est en file pour revue.",
+          "reviewing": "Une édition durable d'entreprise ou de partenaire est en revue avant synchronisation.",
+          "synced": "La dernière édition d'entreprise ou de partenaire est synchronisée durablement sur les surfaces partenaire.",
+          "paused": "Le cycle durable d'édition reste en pause jusqu'au prochain paquet de mise à jour."
+        },
+        "latestTitle": "Dernière mise à jour du profil",
+        "latestDate": "Mis à jour le {{ value }}"
       }
     }
   },

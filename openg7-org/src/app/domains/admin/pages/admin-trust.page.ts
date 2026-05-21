@@ -21,6 +21,7 @@ import {
   CompanyVerificationSourceType,
   CompanyVerificationStatus,
 } from '@app/core/services/company.service';
+import { PartnerProfileService } from '@app/core/services/partner-profile.service';
 
 const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   unverified: 'Unverified',
@@ -60,6 +61,17 @@ const HISTORY_DIRECTION_LABELS: Record<CompanyTrustDirection, string> = {
   outbound: 'Outbound',
 };
 
+type CompanyProfileEvolutionStatus = 'queued' | 'reviewing' | 'synced' | 'paused';
+
+const PROFILE_EVOLUTION_STATUS_LABELS: Record<CompanyProfileEvolutionStatus, string> = {
+  queued: 'Edit queued',
+  reviewing: 'Edit under review',
+  synced: 'Edit synced',
+  paused: 'Edit paused',
+};
+
+const PROFILE_EVOLUTION_HISTORY_PREFIX = 'Profile evolution: ';
+
 @Component({
   standalone: true,
   selector: 'og7-admin-trust-page',
@@ -75,6 +87,7 @@ const HISTORY_DIRECTION_LABELS: Record<CompanyTrustDirection, string> = {
  */
 export class AdminTrustPage implements OnInit {
   private readonly companiesService = inject(CompanyService);
+  private readonly partnerProfiles = inject(PartnerProfileService);
   private readonly notifications = injectNotificationStore();
   private readonly fb = inject(FormBuilder);
 
@@ -87,6 +100,7 @@ export class AdminTrustPage implements OnInit {
   protected readonly history = signal<CompanyTrustRecord[]>([]);
   protected readonly saving = signal(false);
   protected readonly reviewNoteControl = this.fb.control('', { nonNullable: true });
+  protected readonly profileEvolutionNoteControl = this.fb.control('', { nonNullable: true });
 
   protected readonly statusControl = this.fb.control<CompanyVerificationStatus>('unverified', {
     nonNullable: true,
@@ -94,6 +108,12 @@ export class AdminTrustPage implements OnInit {
   protected readonly publicationStatusControl = this.fb.control<CompanyStatus>('pending', {
     nonNullable: true,
   });
+  protected readonly profileEvolutionStatusControl = this.fb.control<CompanyProfileEvolutionStatus>(
+    'queued',
+    {
+      nonNullable: true,
+    },
+  );
 
   protected readonly verificationStatuses = [
     'unverified',
@@ -104,10 +124,17 @@ export class AdminTrustPage implements OnInit {
     'suspended',
   ] as const;
   protected readonly publicationStatuses = ['pending', 'approved', 'suspended'] as const;
+  protected readonly profileEvolutionStatuses = ['queued', 'reviewing', 'synced', 'paused'] as const;
   protected readonly sourceTypes = ['registry', 'chamber', 'audit', 'other'] as const;
   protected readonly sourceStatuses = ['pending', 'validated', 'revoked'] as const;
   protected readonly historyTypes = ['transaction', 'evaluation'] as const;
   protected readonly historyDirections = ['inbound', 'outbound'] as const;
+  protected readonly selectedProfileEvolutionEntry = computed(() =>
+    this.latestProfileEvolutionEntry(this.history()),
+  );
+  protected readonly selectedProfileEvolutionStatus = computed(() =>
+    this.profileEvolutionStatusFromHistory(this.history()),
+  );
   protected readonly reviewCompanies = computed(() =>
     [...this.companies()].sort((left, right) => {
       const delta = this.reviewPriority(left) - this.reviewPriority(right);
@@ -176,9 +203,13 @@ export class AdminTrustPage implements OnInit {
     this.selectedCompany.set(company);
     this.statusControl.setValue(company.verificationStatus);
     this.publicationStatusControl.setValue(company.status);
+    this.profileEvolutionStatusControl.setValue(
+      this.profileEvolutionStatusFromHistory(company.trustHistory) ?? 'queued',
+    );
     this.sources.set(company.verificationSources.slice());
     this.history.set(company.trustHistory.slice());
     this.reviewNoteControl.setValue('');
+    this.profileEvolutionNoteControl.setValue('');
   }
 
   statusLabel(status: CompanyVerificationStatus): string {
@@ -187,6 +218,10 @@ export class AdminTrustPage implements OnInit {
 
   publicationStatusLabel(status: CompanyStatus): string {
     return PUBLICATION_STATUS_LABELS[status] ?? status;
+  }
+
+  profileEvolutionStatusLabel(status: CompanyProfileEvolutionStatus): string {
+    return PROFILE_EVOLUTION_STATUS_LABELS[status] ?? status;
   }
 
   reviewToneClass(tone: 'amber' | 'orange' | 'emerald' | 'rose'): string {
@@ -237,6 +272,25 @@ export class AdminTrustPage implements OnInit {
     }
   }
 
+  selectedProfileEvolutionLabel(): string {
+    const status = this.selectedProfileEvolutionStatus();
+    return status ? this.profileEvolutionStatusLabel(status) : 'Not tracked';
+  }
+
+  selectedProfileEvolutionSummary(): string {
+    const status = this.selectedProfileEvolutionStatus();
+    if (!status) {
+      return 'No durable company or partner edit cycle is recorded yet.';
+    }
+    return this.profileEvolutionSummary(status);
+  }
+
+  companyProfileEvolutionStatus(
+    company: Pick<CompanyRecord, 'trustHistory'>,
+  ): CompanyProfileEvolutionStatus | null {
+    return this.profileEvolutionStatusFromHistory(company.trustHistory);
+  }
+
   selectedReviewReasons(): string[] {
     const company = this.selectedCompany();
     if (!company) {
@@ -245,9 +299,12 @@ export class AdminTrustPage implements OnInit {
 
     const nextStatus = this.statusControl.value;
     const nextPublicationStatus = this.publicationStatusControl.value;
+    const nextProfileEvolutionStatus = this.profileEvolutionStatusControl.value;
+    const profileEvolutionNote = this.profileEvolutionNoteControl.value.trim();
     const sources = this.sources();
     const history = this.history();
     const reasons: string[] = [];
+    const currentProfileEvolutionStatus = this.profileEvolutionStatusFromHistory(history);
 
     if (!this.hasValidatedSource(sources)) {
       reasons.push('No validated evidence source is attached yet.');
@@ -263,6 +320,17 @@ export class AdminTrustPage implements OnInit {
     }
     if (company.status !== nextPublicationStatus) {
       reasons.push(`Publication lifecycle: ${this.publicationStatusLabel(nextPublicationStatus)}.`);
+    }
+    if (
+      currentProfileEvolutionStatus !== nextProfileEvolutionStatus &&
+      (currentProfileEvolutionStatus != null || profileEvolutionNote)
+    ) {
+      reasons.push(
+        `Profile evolution: ${this.profileEvolutionStatusLabel(nextProfileEvolutionStatus)}.`,
+      );
+    }
+    if (profileEvolutionNote) {
+      reasons.push('A durable company or partner edit note will be appended to the lifecycle.');
     }
     if (nextStatus === 'correctionRequested') {
       reasons.push('The partner must submit corrected evidence before verification resumes.');
@@ -298,6 +366,13 @@ export class AdminTrustPage implements OnInit {
     this.publicationStatusControl.setValue(status);
     if (!this.reviewNoteControl.value.trim()) {
       this.reviewNoteControl.setValue(this.defaultPublicationNote(status));
+    }
+  }
+
+  applyProfileEvolutionDecision(status: CompanyProfileEvolutionStatus): void {
+    this.profileEvolutionStatusControl.setValue(status);
+    if (!this.profileEvolutionNoteControl.value.trim()) {
+      this.profileEvolutionNoteControl.setValue(this.defaultProfileEvolutionNote(status));
     }
   }
 
@@ -454,11 +529,17 @@ export class AdminTrustPage implements OnInit {
 
     const nextStatus = this.statusControl.value;
     const nextPublicationStatus = this.publicationStatusControl.value;
+    const nextProfileEvolutionStatus = this.profileEvolutionStatusControl.value;
     const publicationStatusChanged = company.status !== nextPublicationStatus;
+    const profileEvolutionEntry = this.buildProfileEvolutionEntry(
+      this.history(),
+      nextProfileEvolutionStatus,
+    );
     const publicationEntry = this.buildPublicationEntry(company, nextPublicationStatus);
     const decisionEntry = this.buildReviewEntry(company, nextStatus, publicationStatusChanged);
     const trustHistory = [
       ...this.history(),
+      ...(profileEvolutionEntry ? [profileEvolutionEntry] : []),
       ...(publicationEntry ? [publicationEntry] : []),
       ...(decisionEntry ? [decisionEntry] : []),
     ];
@@ -473,23 +554,31 @@ export class AdminTrustPage implements OnInit {
       })
       .subscribe({
         next: (updated) => {
-          this.notifications.success('Trust and publication data updated.', {
+          this.partnerProfiles.invalidateProfile(updated.id);
+          this.notifications.success('Trust, publication, and profile evolution data updated.', {
             source: 'admin-trust',
             metadata: { companyId: updated.id },
           });
           this.selectedCompany.set(updated);
           this.statusControl.setValue(updated.verificationStatus);
           this.publicationStatusControl.setValue(updated.status);
+          this.profileEvolutionStatusControl.setValue(
+            this.profileEvolutionStatusFromHistory(updated.trustHistory) ?? 'queued',
+          );
           this.sources.set(updated.verificationSources.slice());
           this.history.set(updated.trustHistory.slice());
           this.reviewNoteControl.setValue('');
+          this.profileEvolutionNoteControl.setValue('');
           this.saving.set(false);
         },
         error: () => {
-          this.notifications.error('Failed to update trust and publication data.', {
+          this.notifications.error(
+            'Failed to update trust, publication, or profile evolution data.',
+            {
             source: 'admin-trust',
             metadata: { companyId: company.id },
-          });
+            },
+          );
           this.saving.set(false);
         },
       });
@@ -536,6 +625,30 @@ export class AdminTrustPage implements OnInit {
     sources: readonly Pick<CompanyVerificationSource, 'status'>[] | null | undefined,
   ): boolean {
     return (sources ?? []).some((source) => source.status === 'validated');
+  }
+
+  private buildProfileEvolutionEntry(
+    history: readonly CompanyTrustRecord[],
+    nextStatus: CompanyProfileEvolutionStatus,
+  ): CompanyTrustRecord | null {
+    const profileEvolutionNote = this.profileEvolutionNoteControl.value.trim();
+    const currentStatus = this.profileEvolutionStatusFromHistory(history);
+    if (currentStatus === nextStatus && !profileEvolutionNote) {
+      return null;
+    }
+    if (currentStatus == null && nextStatus === 'queued' && !profileEvolutionNote) {
+      return null;
+    }
+
+    return {
+      id: null,
+      label: this.profileEvolutionEntryLabel(nextStatus),
+      type: 'evaluation',
+      direction: 'outbound',
+      occurredAt: this.today(),
+      score: null,
+      notes: profileEvolutionNote || this.defaultProfileEvolutionNote(nextStatus),
+    };
   }
 
   private buildReviewEntry(
@@ -609,6 +722,10 @@ export class AdminTrustPage implements OnInit {
     }
   }
 
+  private profileEvolutionEntryLabel(status: CompanyProfileEvolutionStatus): string {
+    return `${PROFILE_EVOLUTION_HISTORY_PREFIX}${this.profileEvolutionStatusLabel(status)}`;
+  }
+
   private defaultReviewNote(status: CompanyVerificationStatus): string {
     switch (status) {
       case 'verified':
@@ -634,6 +751,66 @@ export class AdminTrustPage implements OnInit {
         return 'Profile has been removed from public discovery pending follow-up.';
       default:
         return 'Profile remains queued until publication checks are complete.';
+    }
+  }
+
+  private defaultProfileEvolutionNote(status: CompanyProfileEvolutionStatus): string {
+    switch (status) {
+      case 'reviewing':
+        return 'The current company or partner edit is under stewardship review before sync.';
+      case 'synced':
+        return 'Latest company or partner edits were synced across discovery and partner surfaces.';
+      case 'paused':
+        return 'The current company or partner edit was paused pending follow-up.';
+      default:
+        return 'A durable company or partner edit was queued for steward review.';
+    }
+  }
+
+  private profileEvolutionSummary(status: CompanyProfileEvolutionStatus): string {
+    switch (status) {
+      case 'reviewing':
+        return 'A durable company or partner edit is being reviewed before sync.';
+      case 'synced':
+        return 'The latest company or partner edit is durably synced across surfaces.';
+      case 'paused':
+        return 'The durable edit cycle is paused until the next update package.';
+      default:
+        return 'A durable company or partner edit is queued for steward review.';
+    }
+  }
+
+  private latestProfileEvolutionEntry(
+    history: readonly CompanyTrustRecord[] | null | undefined,
+  ): CompanyTrustRecord | null {
+    const lifecycleTrail = [...(history ?? [])].reverse();
+    return lifecycleTrail.find((record) => this.isProfileEvolutionEntry(record)) ?? null;
+  }
+
+  private profileEvolutionStatusFromHistory(
+    history: readonly CompanyTrustRecord[] | null | undefined,
+  ): CompanyProfileEvolutionStatus | null {
+    return this.profileEvolutionStatusFromLabel(this.latestProfileEvolutionEntry(history)?.label);
+  }
+
+  private isProfileEvolutionEntry(record: CompanyTrustRecord | null | undefined): boolean {
+    return this.profileEvolutionStatusFromLabel(record?.label) != null;
+  }
+
+  private profileEvolutionStatusFromLabel(
+    label: string | null | undefined,
+  ): CompanyProfileEvolutionStatus | null {
+    switch (label?.trim()) {
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}${PROFILE_EVOLUTION_STATUS_LABELS.queued}`:
+        return 'queued';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}${PROFILE_EVOLUTION_STATUS_LABELS.reviewing}`:
+        return 'reviewing';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}${PROFILE_EVOLUTION_STATUS_LABELS.synced}`:
+        return 'synced';
+      case `${PROFILE_EVOLUTION_HISTORY_PREFIX}${PROFILE_EVOLUTION_STATUS_LABELS.paused}`:
+        return 'paused';
+      default:
+        return null;
     }
   }
 

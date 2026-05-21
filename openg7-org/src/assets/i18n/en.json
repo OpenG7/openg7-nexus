@@ -4803,6 +4803,24 @@
         },
         "latestTitle": "Latest publication update",
         "latestDate": "Updated {{ value }}"
+      },
+      "profileLifecycle": {
+        "title": "Profile evolution lifecycle",
+        "statusHelp": "Track durable company or partner edits as they move from queue to review, sync, or pause.",
+        "status": {
+          "queued": "Edit queued",
+          "reviewing": "Edit under review",
+          "synced": "Edit synced",
+          "paused": "Edit paused"
+        },
+        "summary": {
+          "queued": "A durable company or partner edit is queued for steward review.",
+          "reviewing": "A durable company or partner edit is under review before sync.",
+          "synced": "The latest company or partner edit is durably synced across partner surfaces.",
+          "paused": "The durable edit cycle is paused until the next update package."
+        },
+        "latestTitle": "Latest profile update",
+        "latestDate": "Updated {{ value }}"
       }
     },
     "profilePage": {
