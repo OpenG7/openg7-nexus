@@ -3497,44 +3497,61 @@
         "items": {
           "updated": {
             "label": "Dernière mise à jour",
-            "value": "Septembre 2024"
+            "value": "2026-05-12"
           },
           "version": {
             "label": "Version",
-            "value": "v2.4"
+            "value": "v3.0"
           },
           "jurisdiction": {
             "label": "Juridiction",
-            "value": "Ontario, Canada"
+            "value": "Canada et Québec"
           }
         }
       },
       "highlights": {
         "registration": {
-          "label": "Statut juridique",
-          "value": "Organisation à but non lucratif — Loi canadienne sur les organisations à but non lucratif"
+          "label": "Dénomination sociale",
+          "value": "17925905 CANADA INC.",
+          "description": "Société par actions fédérale opérant OpenG7 pendant la phase fondatrice."
+        },
+        "corporationNumber": {
+          "label": "Numéro de société",
+          "value": "1792590-5"
+        },
+        "enterpriseNumber": {
+          "label": "Numéro d’entreprise (NE)",
+          "value": "715865036"
         },
         "businessNumber": {
-          "label": "Numéro d’entreprise fédéral",
-          "value": "NE 78342 5598 RC0001",
-          "description": "Utilisé pour les ententes de programme et les déclarations officielles."
+          "label": "Business number (BN)",
+          "value": "715865036RC0001",
+          "description": "Compte de programme fédéral lié aux obligations administratives de la société."
         },
-        "establishment": {
-          "label": "Constitution",
-          "value": "2018, renouvelée par les membres en 2024"
+        "federalIncorporation": {
+          "label": "Date d’incorporation Canada",
+          "value": "2026-05-10"
         },
-        "jurisdiction": {
-          "label": "Juridiction",
-          "value": "Province de l’Ontario",
-          "description": "Tout litige est interprété selon les lois de l’Ontario et du Canada."
+        "quebecRegistration": {
+          "label": "Date d’immatriculation Québec",
+          "value": "2026-05-12"
+        },
+        "neq": {
+          "label": "Numéro de l’entreprise (NEQ)",
+          "value": "1182140153"
+        },
+        "statusUpdated": {
+          "label": "Date de mise à jour du statut",
+          "value": "2026-05-12"
         }
       },
       "sections": {
         "operator": {
           "title": "Opérateur",
           "paragraphs": [
-            "OpenG7 est exploité par la Coalition OpenG7, initiative sans but lucratif soutenant les partenariats des chaînes d’approvisionnement canadiennes.",
-            "Siège social : 155, av. Laurier Ouest, Ottawa (Ontario), Canada."
+            "OpenG7 est exploité par 17925905 CANADA INC., société par actions constituée au fédéral au Canada le 2026-05-10 et immatriculée au Québec le 2026-05-12.",
+            "La structure actuelle permet de livrer, financer et maintenir la plateforme pendant sa phase fondatrice.",
+            "La création d’une OBNL dédiée à la gouvernance communautaire demeure dans les plans lorsque la communauté OpenG7 aura atteint une maturité et une participation suffisantes."
           ]
         },
         "hosting": {
@@ -3553,12 +3570,12 @@
         },
         "credits": {
           "title": "Partenaires et contributions",
-          "paragraphs": ["OpenG7 remercie les organisations qui soutiennent la plateforme :"],
+          "paragraphs": ["OpenG7 documente les contributions qui soutiennent la plateforme et sa future gouvernance communautaire :"],
           "bullets": [
-            "Innovation, Sciences et Développement économique Canada pour son accompagnement stratégique.",
-            "Affaires mondiales Canada pour l’intelligence de marché internationale.",
-            "Agences provinciales de développement économique pour les flux de données régionaux.",
-            "Associations industrielles et coopératives pour leur expertise sectorielle."
+            "Travail fondateur sur le produit, les données, l’architecture et les opérations.",
+            "Veille réglementaire et préparation des politiques de conformité.",
+            "Préparation progressive d’un modèle d’OBNL lorsque la communauté sera assez large pour le porter.",
+            "Ouverture aux partenaires institutionnels, industriels et communautaires qui contribueront aux prochaines étapes."
           ]
         }
       },

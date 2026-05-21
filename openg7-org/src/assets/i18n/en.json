@@ -3599,44 +3599,61 @@
         "items": {
           "updated": {
             "label": "Last updated",
-            "value": "September 2024"
+            "value": "2026-05-12"
           },
           "version": {
             "label": "Version",
-            "value": "v2.4"
+            "value": "v3.0"
           },
           "jurisdiction": {
             "label": "Jurisdiction",
-            "value": "Ontario, Canada"
+            "value": "Canada and Quebec"
           }
         }
       },
       "highlights": {
         "registration": {
-          "label": "Registration",
-          "value": "Not-for-profit corporation — Canada Not-for-profit Corporations Act"
+          "label": "Corporate name",
+          "value": "17925905 CANADA INC.",
+          "description": "Federal corporation operating OpenG7 during its founding phase."
+        },
+        "corporationNumber": {
+          "label": "Corporation number",
+          "value": "1792590-5"
+        },
+        "enterpriseNumber": {
+          "label": "Enterprise number (NE)",
+          "value": "715865036"
         },
         "businessNumber": {
-          "label": "Federal business number",
-          "value": "BN 78342 5598 RC0001",
-          "description": "Used for program agreements and statutory filings."
+          "label": "Business number (BN)",
+          "value": "715865036RC0001",
+          "description": "Federal program account connected to the corporation's administrative obligations."
         },
-        "establishment": {
-          "label": "Established",
-          "value": "2018, renewed by members in 2024"
+        "federalIncorporation": {
+          "label": "Date of incorporation Canada",
+          "value": "2026-05-10"
         },
-        "jurisdiction": {
-          "label": "Jurisdiction",
-          "value": "Province of Ontario",
-          "description": "All proceedings are subject to Ontario and federal legislation."
+        "quebecRegistration": {
+          "label": "Quebec registration date",
+          "value": "2026-05-12"
+        },
+        "neq": {
+          "label": "Quebec enterprise number (NEQ)",
+          "value": "1182140153"
+        },
+        "statusUpdated": {
+          "label": "Status updated",
+          "value": "2026-05-12"
         }
       },
       "sections": {
         "operator": {
           "title": "Operator",
           "paragraphs": [
-            "OpenG7 is operated by the OpenG7 Coalition, a non-profit initiative supporting Canadian supply chain partnerships.",
-            "Registered office: 155 Laurier Ave W, Ottawa, ON, Canada."
+            "OpenG7 is operated by 17925905 CANADA INC., a federal corporation incorporated in Canada on 2026-05-10 and registered in Quebec on 2026-05-12.",
+            "The current structure supports delivery, financing, and maintenance of the platform during its founding phase.",
+            "A dedicated not-for-profit for community governance remains planned once the OpenG7 community reaches sufficient maturity and participation."
           ]
         },
         "hosting": {
@@ -3655,12 +3672,12 @@
         },
         "credits": {
           "title": "Credits & partners",
-          "paragraphs": ["OpenG7 acknowledges the contributions of the following partners:"],
+          "paragraphs": ["OpenG7 documents the contributions supporting the platform and its future community governance:"],
           "bullets": [
-            "Innovation, Science and Economic Development Canada for strategic guidance.",
-            "Global Affairs Canada for international market intelligence.",
-            "Provincial economic development agencies for regional data pipelines.",
-            "Industry associations and cooperatives for domain expertise."
+            "Foundational product, data, architecture, and operations work.",
+            "Regulatory monitoring and preparation of compliance policies.",
+            "Progressive preparation of a not-for-profit model once the community is broad enough to support it.",
+            "Openness to institutional, industry, and community partners who will contribute to the next stages."
           ]
         }
       },

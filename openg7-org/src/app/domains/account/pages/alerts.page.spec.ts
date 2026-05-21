@@ -5,11 +5,11 @@ import {
   IndicatorAlertRuleRecord,
   IndicatorAlertRulesService,
 } from '@app/core/indicator-alert-rules.service';
+import { NotificationEntry, NotificationStore } from '@app/core/observability/notification.store';
 import {
   OpportunityOfferRecord,
   OpportunityOffersService,
 } from '@app/core/opportunity-offers.service';
-import { NotificationEntry, NotificationStore } from '@app/core/observability/notification.store';
 import { UserAlertRecord } from '@app/core/services/user-alerts-api.service';
 import { UserAlertsService } from '@app/core/user-alerts.service';
 import { TranslateModule } from '@ngx-translate/core';

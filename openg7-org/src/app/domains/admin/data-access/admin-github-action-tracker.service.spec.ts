@@ -1,5 +1,6 @@
+import { signal } from '@angular/core';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { NotificationStore } from '@app/core/observability/notification.store';
+import { NotificationEntry, NotificationStore } from '@app/core/observability/notification.store';
 import { of } from 'rxjs';
 
 import { AdminGithubActionTrackerService } from './admin-github-action-tracker.service';
@@ -7,7 +8,48 @@ import { AdminOpsCodexDispatchResponse, AdminOpsService } from './admin-ops.serv
 
 class MockNotificationStore {
   info = jasmine.createSpy('info').and.returnValue('track-1');
-  updateEntry = jasmine.createSpy('updateEntry');
+  entries = signal<NotificationEntry[]>([
+    {
+      id: 'agent-1',
+      type: 'info',
+      title: 'Agent admin-quality',
+      message: 'Agent de developpement actif.',
+      source: 'admin-quality-agent',
+      metadata: { missionId: 'quality-surface', entryId: 'observability' },
+      actions: [
+        {
+          id: 'dispatch-codex',
+          label: 'Codex Surface: Cycle de vie des...',
+          kind: 'codex-dispatch',
+          codexDispatch: {
+            provider: 'codex',
+            task: 'Cycle de vie des documents.',
+            scope: 'openg7-org',
+            baseBranch: 'main',
+            draftPr: true,
+            model: 'gpt-5.4',
+            effort: null,
+          },
+        },
+      ],
+      createdAt: Date.now(),
+      read: false,
+    },
+  ]);
+  updateEntry = jasmine.createSpy('updateEntry').and.callFake(
+    (id: string, update: Partial<NotificationEntry>) => {
+      this.entries.update((entries) =>
+        entries.map((entry) =>
+          entry.id === id
+            ? {
+                ...entry,
+                ...update,
+              }
+            : entry,
+        ),
+      );
+    },
+  );
 }
 
 class MockAdminOpsService {
@@ -60,7 +102,7 @@ describe('AdminGithubActionTrackerService', () => {
     ops = TestBed.inject(AdminOpsService) as unknown as MockAdminOpsService;
   });
 
-  it('creates a tracked notification and updates it with the correlated GitHub run state', fakeAsync(() => {
+  it('updates the source notification action with the correlated GitHub run state', fakeAsync(() => {
     service.startTracking(createDispatch(), {
       source: 'admin-quality-agent',
       parentNotificationId: 'agent-1',
@@ -71,29 +113,37 @@ describe('AdminGithubActionTrackerService', () => {
 
     tick(0);
 
-    expect(notifications.info).toHaveBeenCalledWith(
-      'Dispatch recu; en attente du run codex.yml.',
-      jasmine.objectContaining({
-        title: 'Codex - GitHub Actions',
-        metadata: jasmine.objectContaining({
-          correlationId: 'og7-test-correlation',
-          githubActionStatus: jasmine.objectContaining({ state: 'queued' }),
-        }),
-      }),
-    );
+    expect(notifications.info).not.toHaveBeenCalled();
     expect(ops.getAiProofs).toHaveBeenCalledWith('og7-test-correlation');
     expect(notifications.updateEntry).toHaveBeenCalledWith(
-      'track-1',
+      'agent-1',
       jasmine.objectContaining({
         type: 'success',
         message: 'Workflow #42 completed with 1 artifact.',
         metadata: jasmine.objectContaining({
+          missionId: 'quality-surface',
+          entryId: 'observability',
           githubActionStatus: jasmine.objectContaining({
             state: 'completed',
             runNumber: 42,
             runUrl: 'https://github.test/actions/runs/420',
           }),
         }),
+        actions: [
+          jasmine.objectContaining({
+            id: 'dispatch-codex',
+            label: 'Voir resultat #42',
+            kind: 'route',
+            route: '/admin/quality?entryId=observability',
+            codexDispatch: null,
+          }),
+          jasmine.objectContaining({
+            id: 'dispatch-codex-open-ops',
+            label: 'Voir Ops',
+            kind: 'route',
+            route: '/admin/ops',
+          }),
+        ],
       }),
     );
   }));

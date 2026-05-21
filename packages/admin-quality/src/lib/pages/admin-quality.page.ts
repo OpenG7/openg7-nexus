@@ -15,7 +15,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
@@ -757,6 +757,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private readonly notifications = inject(ADMIN_QUALITY_NOTIFICATIONS);
   private readonly routeConfig = inject(ADMIN_QUALITY_ROUTE_CONFIG);
   private readonly agentAdvisor = inject(AdminQualityAgentAdvisorService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly browser = inject(AdminQualityBrowserService);
   private readonly isBrowser = this.browser.isBrowser;
   private aiOpsRefreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -1940,6 +1941,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.restoreViewState();
+    this.applyRouteSelectionPrefill();
     this.restoreMissionDecisions();
     this.loadMissionDecisionsFromServer();
     this.loadAiDispatchReadiness(false);
@@ -5030,6 +5032,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     } catch {
       this.browser.removeStorageItem(VIEW_STATE_STORAGE_KEY);
     }
+  }
+
+  private applyRouteSelectionPrefill(): void {
+    const params = this.route?.snapshot.queryParamMap;
+    const entryId =
+      params?.get('entryId') ??
+      params?.get('qualityEntryId') ??
+      params?.get('adminQualityEntryId');
+    const normalizedEntryId = entryId?.trim();
+    if (!normalizedEntryId) {
+      return;
+    }
+
+    this.resetFilters();
+    this.selectedEntryId.set(normalizedEntryId);
   }
 
   private persistViewState(): void {

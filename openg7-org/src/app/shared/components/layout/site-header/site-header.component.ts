@@ -18,11 +18,11 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthConfigService } from '@app/core/auth/auth-config.service';
 import { AuthService } from '@app/core/auth/auth.service';
 import { FavoritesService } from '@app/core/favorites.service';
+import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   GithubActionNotificationStatus,
   readGithubActionNotificationStatus,
 } from '@app/core/observability/github-action-notification-status';
-import { CodexLiveTimelineService } from '@app/core/observability/codex-live-timeline.service';
 import {
   NotificationAction,
   NotificationEntry,
@@ -33,6 +33,7 @@ import { RbacFacadeService } from '@app/core/security/rbac.facade';
 import type { Og7ModalRef } from '@app/core/ui/modal/og7-modal.types';
 import { UserAlertsService } from '@app/core/user-alerts.service';
 import { AdminGithubActionTrackerService } from '@app/domains/admin/data-access/admin-github-action-tracker.service';
+import { resolveAdminOpsErrorMessage } from '@app/domains/admin/data-access/admin-ops-error-message';
 import {
   AdminOpsCodexDispatchRequest,
   AdminOpsService,
@@ -552,11 +553,10 @@ export class SiteHeaderComponent {
   }
 
   private resolveDispatchError(error: unknown, provider: NotificationCodexDispatch['provider']) {
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
-    }
-
-    return `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`;
+    return resolveAdminOpsErrorMessage(
+      error,
+      `${this.providerLabel(provider)} dispatch failed. Verifiez Ops avant de reessayer.`,
+    );
   }
 
   private sortHeaderNotifications(

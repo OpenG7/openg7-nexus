@@ -26,6 +26,8 @@ export interface AdminQualityAgentNextWorkAdviceInput {
 }
 
 const AGENT_SOURCE = 'admin-quality-agent';
+const AGENT_WORKLOAD_DEDUPE_KEY = `${AGENT_SOURCE}:workload`;
+const AGENT_NEXT_WORK_DEDUPE_PREFIX = `${AGENT_SOURCE}:next-work`;
 const AGENT_SNOOZE_MS = 30 * 60 * 1000;
 
 @Injectable()
@@ -63,7 +65,11 @@ export class AdminQualityAgentAdvisorService {
           title: 'Agent admin-quality',
           source: AGENT_SOURCE,
           actions: [this.openAgentCockpitAction(), this.snoozeAgentAction()],
-          metadata: { kind: 'agent-workload', openCount: 0 },
+          metadata: {
+            kind: 'agent-workload',
+            dedupeKey: AGENT_WORKLOAD_DEDUPE_KEY,
+            openCount: 0,
+          },
         },
       );
       return;
@@ -81,6 +87,7 @@ export class AdminQualityAgentAdvisorService {
           : [this.openAgentCockpitAction(), this.snoozeAgentAction()],
         metadata: {
           kind: 'agent-workload',
+          dedupeKey: AGENT_WORKLOAD_DEDUPE_KEY,
           openCount: openEntries.length,
           automationReadyCount,
           decisionCount,
@@ -113,6 +120,7 @@ export class AdminQualityAgentAdvisorService {
         ],
         metadata: {
           kind: 'agent-next-work',
+          dedupeKey: `${AGENT_NEXT_WORK_DEDUPE_PREFIX}:${input.entryId}`,
           entryId: input.entryId,
           tone: input.tone,
           score: input.score,

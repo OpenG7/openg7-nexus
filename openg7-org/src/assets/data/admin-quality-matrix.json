@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T14:00:00.000Z",
+  "generatedAt": "2026-05-17T00:00:00.000Z",
   "entries": [
     {
       "id": "public-discovery",
@@ -21,22 +21,23 @@
       "id": "advanced-discovery",
       "domain": "Recherche et decouverte profonde",
       "need": "Rechercher, filtrer, trier, comparer et conserver le contexte entre pages et details.",
-      "summaryStatus": "non",
+      "summaryStatus": "oui",
       "businessStatus": "oui",
-      "implementationStatus": "partiel",
-      "e2eStatus": "partiel",
+      "implementationStatus": "oui",
+      "e2eStatus": "oui",
       "priority": "haute",
-      "managementBucket": "proof-gap",
+      "managementBucket": "covered",
       "needsProductWorkFirst": false,
-      "observedGap": "Le roundtrip feed, la persistence deeplink, la comparaison et l'heritage de contexte sont prouves, mais une chaine cross-surface reste absente.",
-      "nextMove": "Etendre les preuves actuelles vers une chaine complete home ou map vers feed puis detail puis retour avec contexte conserve.",
+      "observedGap": "La chaine cross-surface est maintenant prouvee via une entree carte -> feed -> detail -> retour -> reload avec contexte conserve.",
+      "nextMove": "Maintenir cette regression croisee; les preuves geospatiales plus riches restent suivies sous le domaine Cartes et geopatial.",
       "evidence": [
         "e2e/feed-advanced-discovery-roundtrip.spec.ts",
         "e2e/feed-deeplink-persistence.spec.ts",
         "e2e/feed-advanced-discovery-comparison.spec.ts",
-        "e2e/feed-stacked-filters-drilldown.spec.ts"
+        "e2e/feed-stacked-filters-drilldown.spec.ts",
+        "e2e/map-to-feed-decision-chain.spec.ts"
       ],
-      "reviewedAt": "2026-04-07"
+      "reviewedAt": "2026-05-17"
     },
     {
       "id": "geospatial",
@@ -49,10 +50,14 @@
       "priority": "haute",
       "managementBucket": "product-gap",
       "needsProductWorkFirst": true,
-      "observedGap": "Le contexte derive des corridors est prouve, mais une vraie chaine de decision pilotee directement par la carte n'est pas encore exposee.",
-      "nextMove": "Definir une interaction carte qui modifie le contexte downstream sur le feed ou un secteur, puis la prouver en E2E.",
-      "evidence": ["e2e/corridors-realtime.spec.ts", "e2e/map.spec.ts"],
-      "reviewedAt": "2026-04-07"
+      "observedGap": "Une premiere chaine directe carte -> feed -> detail est maintenant prouvee, mais les couches, drilldowns plus riches et vues geospatiales de decision restent partiels.",
+      "nextMove": "Exposer ou stabiliser une interaction cartographique plus riche qui change encore le contexte downstream au-dela de la chaine corridor -> feed.",
+      "evidence": [
+        "e2e/corridors-realtime.spec.ts",
+        "e2e/map.spec.ts",
+        "e2e/map-to-feed-decision-chain.spec.ts"
+      ],
+      "reviewedAt": "2026-05-17"
     },
     {
       "id": "onboarding-imports",
