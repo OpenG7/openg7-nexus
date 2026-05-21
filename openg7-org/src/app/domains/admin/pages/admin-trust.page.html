@@ -392,7 +392,14 @@
             } @else {
             <ul class="space-y-3">
               @for (source of sources(); track source.id ?? source.name; let i = $index) {
-              <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <li
+                class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                data-og7="admin-trust-source-item"
+                [attr.data-og7-id]="'admin-trust-source-' + (source.id ?? i)"
+                [attr.data-og7-name]="source.name"
+                [attr.data-og7-state]="source.status"
+                [attr.data-og7-type]="source.type"
+              >
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p class="text-sm font-semibold text-slate-900">{{ source.name }}</p>
@@ -404,6 +411,7 @@
                     <select
                       class="rounded-lg border border-slate-300 px-2 py-1"
                       [value]="source.type"
+                      data-og7-id="admin-trust-source-type"
                       (change)="setSourceType(i, $any($event.target).value)"
                     >
                       @for (type of sourceTypes; track type) {
@@ -413,6 +421,7 @@
                     <select
                       class="rounded-lg border border-slate-300 px-2 py-1"
                       [value]="source.status"
+                      data-og7-id="admin-trust-source-status"
                       (change)="setSourceStatus(i, $any($event.target).value)"
                     >
                       @for (status of sourceStatuses; track status) {
@@ -596,7 +605,14 @@
             } @else {
             <ul class="space-y-3">
               @for (record of history(); track record.id ?? record.label; let i = $index) {
-              <li class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <li
+                class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                data-og7="admin-trust-history-item"
+                [attr.data-og7-id]="'admin-trust-history-' + (record.id ?? i)"
+                [attr.data-og7-label]="record.label"
+                [attr.data-og7-type]="record.type"
+                [attr.data-og7-direction]="record.direction"
+              >
                 <div class="grid gap-3 md:grid-cols-2">
                   <label class="flex flex-col gap-1 text-xs md:col-span-2">
                     <span>Label</span>

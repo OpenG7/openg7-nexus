@@ -21,6 +21,7 @@ import {
   CompanyVerificationSourceType,
   CompanyVerificationStatus,
 } from '@app/core/services/company.service';
+import { PartnerProfileService } from '@app/core/services/partner-profile.service';
 
 const VERIFICATION_STATUS_LABELS: Record<CompanyVerificationStatus, string> = {
   unverified: 'Unverified',
@@ -86,6 +87,7 @@ const PROFILE_EVOLUTION_HISTORY_PREFIX = 'Profile evolution: ';
  */
 export class AdminTrustPage implements OnInit {
   private readonly companiesService = inject(CompanyService);
+  private readonly partnerProfiles = inject(PartnerProfileService);
   private readonly notifications = injectNotificationStore();
   private readonly fb = inject(FormBuilder);
 
@@ -552,6 +554,7 @@ export class AdminTrustPage implements OnInit {
       })
       .subscribe({
         next: (updated) => {
+          this.partnerProfiles.invalidateProfile(updated.id);
           this.notifications.success('Trust, publication, and profile evolution data updated.', {
             source: 'admin-trust',
             metadata: { companyId: updated.id },

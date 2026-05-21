@@ -73,6 +73,20 @@ export class PartnerProfileService {
   }
 
   /**
+   * Contexte : Called after admin trust/publication mutations that can change the public profile.
+   * Raison d'etre : Drops the replayed profile so the next partner surface navigation fetches fresh data.
+   * @param id Identifier of the partner profile to evict from the in-memory cache.
+   * @returns void
+   */
+  invalidateProfile(id: string | number | null | undefined): void {
+    const key = id?.toString().trim();
+    if (!key) {
+      return;
+    }
+    this.cache.delete(key);
+  }
+
+  /**
    * Contexte : Triggered by download actions to retrieve a printable snapshot of the partner profile.
    * Raison d’être : Issues a blob request while suppressing the global error toast.
    * @param id Identifier of the partner profile to download.

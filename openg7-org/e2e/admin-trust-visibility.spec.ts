@@ -3,211 +3,11 @@ import { expect, test } from '@playwright/test';
 
 import { loginAsAuthenticatedE2eUser } from './helpers/auth-session';
 import { DEFAULT_PROFILE, mockProfileAndFavoritesApis } from './helpers/domain-mocks';
-
-type VerificationStatus =
-  | 'unverified'
-  | 'pending'
-  | 'verified'
-  | 'correctionRequested'
-  | 'rejected'
-  | 'suspended';
-type VerificationSourceStatus = 'pending' | 'validated' | 'revoked';
-type VerificationSourceType = 'registry' | 'chamber' | 'audit' | 'other';
-type TrustRecordType = 'transaction' | 'evaluation';
-type TrustDirection = 'inbound' | 'outbound';
-
-interface VerificationSource {
-  id?: number | null;
-  name: string;
-  type: VerificationSourceType;
-  status: VerificationSourceStatus;
-  referenceId?: string | null;
-  url?: string | null;
-  evidenceUrl?: string | null;
-  issuedAt?: string | null;
-  lastCheckedAt?: string | null;
-  notes?: string | null;
-}
-
-interface TrustRecord {
-  id?: number | null;
-  label: string;
-  type: TrustRecordType;
-  direction: TrustDirection;
-  occurredAt: string;
-  amount?: number | null;
-  score?: number | null;
-  notes?: string | null;
-}
-
-interface MutableTrustCompany {
-  id: number;
-  name: string;
-  description: string | null;
-  website: string | null;
-  status: 'pending' | 'approved' | 'suspended';
-  country: string | null;
-  sector: { id: number; name: string };
-  province: { id: number; name: string; code: string };
-  verificationStatus: VerificationStatus;
-  trustScore: number;
-  verificationSources: VerificationSource[];
-  trustHistory: TrustRecord[];
-}
-
-function json(body: unknown, status = 200) {
-  return {
-    status,
-    contentType: 'application/json',
-    body: JSON.stringify(body),
-  };
-}
-
-function mapCompanyToStrapi(company: MutableTrustCompany) {
-  return {
-    id: company.id,
-    attributes: {
-      name: company.name,
-      description: company.description,
-      website: company.website,
-      status: company.status,
-      capacities: [],
-      logoUrl: null,
-      secondaryLogoUrl: null,
-      country: company.country,
-      verificationStatus: company.verificationStatus,
-      verificationSources: company.verificationSources,
-      trustScore: company.trustScore,
-      trustHistory: company.trustHistory,
-      sector: {
-        data: {
-          id: company.sector.id,
-          attributes: {
-            name: company.sector.name,
-          },
-        },
-      },
-      province: {
-        data: {
-          id: company.province.id,
-          attributes: {
-            name: company.province.name,
-          },
-        },
-      },
-    },
-  };
-}
-
-function mapSector(name: string): 'energy' | 'manufacturing' | 'digital-services' {
-  const normalized = name.trim().toLowerCase();
-  if (normalized === 'advanced manufacturing' || normalized === 'manufacturing') {
-    return 'manufacturing';
-  }
-  if (normalized === 'energy') {
-    return 'energy';
-  }
-  return 'digital-services';
-}
-
-function mapPartnerProfile(company: MutableTrustCompany) {
-  return {
-    data: {
-      id: company.id,
-      attributes: {
-        legalName: company.name,
-        displayName: company.name,
-        role: 'supplier',
-        sector: mapSector(company.sector.name),
-        province: company.province.code,
-        website: company.website,
-        mission: {
-          fr: "Surface publique de confiance synchronisee depuis l'admin.",
-          en: 'Public trust surface synchronized from admin data.',
-        },
-        highlights: ['Cross-province resilience operator'],
-        verificationStatus: company.verificationStatus,
-        trustScore: company.trustScore,
-        verificationSources: company.verificationSources,
-        trustHistory: company.trustHistory,
-      },
-    },
-  };
-}
-
-function recomputeTrustScore(status: VerificationStatus, history: readonly TrustRecord[]): number {
-  const latestScore = history.find((entry) => typeof entry.score === 'number')?.score ?? null;
-  if (status === 'rejected') {
-    return latestScore != null ? Math.min(45, Math.round(latestScore)) : 38;
-  }
-  if (status === 'correctionRequested') {
-    return latestScore != null ? Math.min(76, Math.round(latestScore)) : 72;
-  }
-  if (status === 'suspended') {
-    return 61;
-  }
-  if (status === 'verified') {
-    return latestScore != null ? Math.max(88, Math.round(latestScore)) : 92;
-  }
-  if (status === 'pending') {
-    return latestScore != null ? Math.min(86, Math.round(latestScore)) : 78;
-  }
-  return latestScore != null ? Math.max(40, Math.round(latestScore)) : 50;
-}
-
-async function mockAdminTrustVisibilityApis(
-  page: Parameters<typeof test>[0]['page'],
-  company: MutableTrustCompany,
-): Promise<void> {
-  await page.route('**/api/companies**', async (route) => {
-    const request = route.request();
-    const method = request.method().toUpperCase();
-    const url = new URL(request.url());
-    const path = url.pathname.toLowerCase();
-    const companyIdMatch = path.match(/\/api\/companies\/(\d+)\/?$/i);
-    const companyId = companyIdMatch ? Number(companyIdMatch[1]) : null;
-
-    if (method === 'GET' && companyId == null) {
-      await route.fulfill(json({ data: [mapCompanyToStrapi(company)], meta: {} }));
-      return;
-    }
-
-    if (method === 'PUT' && companyId === company.id) {
-      const payload = (request.postDataJSON?.() ?? {}) as {
-        data?: {
-          verificationStatus?: VerificationStatus;
-          verificationSources?: VerificationSource[];
-          trustHistory?: TrustRecord[];
-        };
-      };
-
-      const next = payload.data ?? {};
-      company.verificationStatus = next.verificationStatus ?? company.verificationStatus;
-      company.verificationSources = Array.isArray(next.verificationSources)
-        ? next.verificationSources.map((entry, index) => ({
-            id: entry.id ?? index + 1,
-            ...entry,
-          }))
-        : company.verificationSources;
-      company.trustHistory = Array.isArray(next.trustHistory)
-        ? next.trustHistory.map((entry, index) => ({
-            id: entry.id ?? index + 1,
-            ...entry,
-          }))
-        : company.trustHistory;
-      company.trustScore = recomputeTrustScore(company.verificationStatus, company.trustHistory);
-
-      await route.fulfill(json({ data: mapCompanyToStrapi(company) }));
-      return;
-    }
-
-    await route.fulfill(json({ message: 'Unhandled companies route' }, 404));
-  });
-
-  await page.route(`**/api/partner-profiles/${company.id}**`, async (route) => {
-    await route.fulfill(json(mapPartnerProfile(company)));
-  });
-}
+import {
+  type MutableTrustCompany,
+  type VerificationStatus,
+  mockTrustLifecycleApis,
+} from './helpers/trust-lifecycle-mocks';
 
 test.describe('Admin trust visibility', () => {
   test('persists a trust decision and exposes it on the partner detail surface', async ({
@@ -250,7 +50,7 @@ test.describe('Admin trust visibility', () => {
       ...DEFAULT_PROFILE,
       roles: ['admin'],
     });
-    await mockAdminTrustVisibilityApis(page, company);
+    await mockTrustLifecycleApis(page, company);
 
     await loginAsAuthenticatedE2eUser(page, '/admin/trust');
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
@@ -376,7 +176,7 @@ test.describe('Admin trust visibility', () => {
       ...DEFAULT_PROFILE,
       roles: ['admin'],
     });
-    await mockAdminTrustVisibilityApis(page, company);
+    await mockTrustLifecycleApis(page, company);
 
     await loginAsAuthenticatedE2eUser(page, '/admin/trust');
     await expect(page.locator('[data-og7="admin-trust"]')).toBeVisible();
