@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import {
   buildImpactMapFromMatrix,
@@ -297,7 +298,7 @@ function matchSourceToEntry(source, entry, tokens) {
   return { matched: false, reason: 'no-match', score: 0 };
 }
 
-function discover() {
+export function discoverAdminQualityNeeds() {
   const snapshot = loadMatrixSnapshot();
   const entries = normalizeMatrixEntries(snapshot);
   const impactMap = buildImpactMapFromMatrix(snapshot);
@@ -390,11 +391,13 @@ function discover() {
   };
 }
 
-const args = parseArguments(process.argv.slice(2));
-const outputPath = path.resolve(repoRoot, args.get('output') ?? DEFAULT_OUTPUT);
-const result = discover();
-writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
-process.stdout.write(
-  `Discovered ${result.sourceCounts.total} source(s), ${result.summary.proposalCount} proposal(s), ${result.summary.unmappedSourceCount} unmapped source(s).\n`,
-);
-process.stdout.write(`Wrote ${outputPath}\n`);
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = parseArguments(process.argv.slice(2));
+  const outputPath = path.resolve(repoRoot, args.get('output') ?? DEFAULT_OUTPUT);
+  const result = discoverAdminQualityNeeds();
+  writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+  process.stdout.write(
+    `Discovered ${result.sourceCounts.total} source(s), ${result.summary.proposalCount} proposal(s), ${result.summary.unmappedSourceCount} unmapped source(s).\n`,
+  );
+  process.stdout.write(`Wrote ${outputPath}\n`);
+}

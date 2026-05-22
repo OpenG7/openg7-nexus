@@ -65,7 +65,57 @@ Critere de sortie:
 
 - une ligne de matrice peut afficher `preuve CI verifiee` avec un lien vers le run et l'artifact.
 
-## Lot 4 - Commentaire d'impact automatique sur PR
+## Lot 4 - Reconciliation des besoins decouverts
+
+Statut: socle livre.
+
+Objectif: comparer les signaux detectes par le scanner avec la matrice canonique.
+
+Travail livre:
+
+- `yarn reconcile:admin-quality-matrix` genere des propositions `add-source-ref`, `create-entry` et `mark-stale`;
+- la reconciliation garde la matrice intacte;
+- les propositions portent `proposalId`, `confidence`, `source`, `payload` et `entryId`.
+
+Travail restant:
+
+- ajouter une regle de split/merge quand plusieurs sources non mappees convergent vers le meme domaine;
+- brancher un commentaire PR si la reconciliation doit etre visible avant merge.
+
+## Lot 5 - Rapport agent de propositions
+
+Statut: livre.
+
+Objectif: produire des artefacts lisibles par machine et par humain.
+
+Travail livre:
+
+- `admin-quality-needs-discovery.json` garde le detail brut de decouverte;
+- `admin-quality-needs-proposals.json` contient les propositions normalisees;
+- `admin-quality-needs-proposals.md` donne un resume operateur.
+
+Travail restant:
+
+- publier ces artefacts en CI si la boucle doit devenir systematique.
+
+## Lot 6 - Ingestion Strapi des propositions
+
+Statut: livre.
+
+Objectif: stocker les propositions, leur confiance, leur source et leur historique sans appliquer automatiquement la matrice.
+
+Travail livre:
+
+- collection Strapi `admin-quality-need-proposal`;
+- endpoint tokenise `POST /api/admin/quality/matrix/proposals/ingest`;
+- endpoint admin `GET /api/admin/quality/matrix/proposals`;
+- le script de reconciliation peut publier via `--ingest`.
+
+Travail restant:
+
+- ajouter la revue UI accepter/refuser dans `/admin/quality`.
+
+## Lot 7 - Commentaire d'impact automatique sur PR
 
 Objectif: informer le developpeur avant merge des lignes de matrice impactees et des preuves attendues.
 
@@ -77,7 +127,7 @@ Travail prevu:
 - signaler les fichiers produit sans mapping specifique;
 - bloquer ou avertir si une ligne critique change sans preuve.
 
-## Lot 5 - Creation automatique de missions ou tickets
+## Lot 8 - Creation automatique de missions ou tickets
 
 Statut: missions pilote Strapi livre, tickets externes restant.
 
@@ -95,7 +145,7 @@ Travail restant:
 - affiner la deduplication si plusieurs `actionType` simultanes doivent coexister pour une meme entree;
 - exposer le lien mission/ticket dans le drawer `/admin/quality`.
 
-## Lot 6 - Lancement des validations depuis l'UI
+## Lot 9 - Lancement des validations depuis l'UI
 
 Objectif: eviter de copier les commandes du plan QA dans un terminal.
 
@@ -106,7 +156,7 @@ Travail prevu:
 - suivre le run depuis le proof desk;
 - rattacher automatiquement les artifacts au plan QA.
 
-## Lot 7 - Auto-application controlee des propositions simples
+## Lot 10 - Auto-application controlee des propositions simples
 
 Objectif: appliquer automatiquement seulement les promotions a tres faible risque.
 
@@ -128,7 +178,7 @@ Interdictions:
 - ligne securite/RBAC/compliance;
 - modification de contrat API non validee.
 
-## Lot 8 - Balayage nocturne
+## Lot 11 - Balayage nocturne
 
 Objectif: eviter qu'une matrice devienne silencieusement vieille.
 
@@ -140,7 +190,7 @@ Travail prevu:
 - produire un rapport quotidien;
 - notifier les Owner/Admin si des lignes critiques restent bloquees.
 
-## Lot 9 - Audit trail et rollback
+## Lot 12 - Audit trail et rollback
 
 Objectif: rendre chaque automatisation explicable et reversible.
 
@@ -151,7 +201,7 @@ Travail prevu:
 - exposer l'historique dans le drawer;
 - ajouter une action de rollback admin.
 
-## Lot 10 - Cartographie d'impact partagee
+## Lot 13 - Cartographie d'impact partagee
 
 Statut: source canonique matrice livree, validation de divergence livree.
 
@@ -166,9 +216,9 @@ Travail livre:
 
 Travail restant:
 
-- brancher `validate:admin-quality-impact-map` dans le workflow CI si la verification doit devenir bloquante.
+- ajouter un jeu de fixtures dedie si le mapping doit etre valide hors generation.
 
-## Lot 11 - Scanner de besoins metier
+## Lot 14 - Scanner de besoins metier
 
 Statut: socle livre.
 
@@ -182,14 +232,13 @@ Travail livre:
 
 Travail restant:
 
-- transformer les propositions du rapport en PR ou en decisions Strapi;
 - ajouter une vue de revue dans `/admin/quality`.
 
 ## Ordre recommande
 
-1. Ajouter le lot 4 pour commenter l'impact sur PR avant merge.
-2. Finaliser le lot 5 seulement si un outil de tickets externe doit etre synchronise.
-3. Ajouter le lot 6 pour lancer les validations depuis l'admin.
-4. Ajouter le lot 9 avant toute auto-application de statut.
+1. Ajouter le lot 7 pour commenter l'impact sur PR avant merge.
+2. Finaliser le lot 8 seulement si un outil de tickets externe doit etre synchronise.
+3. Ajouter le lot 9 pour lancer les validations depuis l'admin.
+4. Ajouter le lot 12 avant toute auto-application de statut.
 5. Etendre le lot 3 aux workflows E2E dedies si les preuves `ci-validate` sont trop larges.
-6. Ajouter le lot 7 seulement quand l'audit trail du lot 9 est en place.
+6. Ajouter le lot 10 seulement quand l'audit trail du lot 12 est en place.

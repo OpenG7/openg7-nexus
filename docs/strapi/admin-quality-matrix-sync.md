@@ -121,6 +121,15 @@ Verifier:
 2. que la reponse d'ingestion contient `recalculation.generatedAt`
 3. que `GET /api/admin/quality/matrix` retourne `entries[].lastRecalculation`
 
+### Les propositions de besoins ne remontent pas
+
+Verifier:
+
+1. que le script a ete lance avec `yarn reconcile:admin-quality-matrix -- --ingest`;
+2. que l'URL cible pointe vers `POST /api/admin/quality/matrix/proposals/ingest`;
+3. que le bearer token correspond a `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`;
+4. que `GET /api/admin/quality/matrix/proposals` retourne les propositions stockees.
+
 ## Validations a lancer
 
 Localement:
@@ -128,6 +137,7 @@ Localement:
 ```bash
 yarn --cwd strapi test:integration:admin-quality-matrix
 node scripts/resolve-admin-quality-matrix-impact.mjs openg7-org/src/app/domains/feed/feature/feed.page.ts
+yarn reconcile:admin-quality-matrix
 ```
 
 En CI:

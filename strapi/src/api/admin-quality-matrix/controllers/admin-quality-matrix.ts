@@ -7,6 +7,7 @@ import type { Context } from 'koa';
 const MATRIX_ENTRY_UID = 'api::admin-quality-matrix.admin-quality-matrix-entry' as any;
 const MISSION_DECISION_UID =
   'api::admin-quality-mission-decision.admin-quality-mission-decision' as any;
+const NEED_PROPOSAL_UID = 'api::admin-quality-need-proposal.admin-quality-need-proposal' as any;
 const EMPTY_GENERATED_AT = '2026-04-11T00:00:00.000Z';
 const STALE_AFTER_DAYS = 7;
 const MS_PER_DAY = 86_400_000;
@@ -141,6 +142,43 @@ interface MissionDecisionEntity {
   readonly updatedAt?: unknown;
 }
 
+interface MatrixNeedProposalEntity {
+  readonly id?: number | string;
+  readonly proposalId?: unknown;
+  readonly entryId?: unknown;
+  readonly type?: unknown;
+  readonly status?: unknown;
+  readonly confidence?: unknown;
+  readonly title?: unknown;
+  readonly summary?: unknown;
+  readonly source?: unknown;
+  readonly payload?: unknown;
+  readonly history?: unknown;
+  readonly correlationId?: unknown;
+  readonly reportedAt?: unknown;
+  readonly createdAt?: unknown;
+  readonly updatedAt?: unknown;
+}
+
+interface MatrixNeedProposalPayload {
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: MatrixNeedProposalType;
+  readonly status: MatrixNeedProposalStatus;
+  readonly confidence: MatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+}
+
+interface MatrixNeedProposalsIngestPayload {
+  readonly generatedAt: string;
+  readonly correlationId: string;
+  readonly source: string;
+  readonly proposals: readonly MatrixNeedProposalPayload[];
+}
+
 interface MatrixCoverageState {
   readonly summaryStatus: MatrixStatus;
   readonly businessStatus: MatrixStatus;
@@ -172,6 +210,8 @@ type MatrixPilotActionType =
   | 'run-validation'
   | 'review-product-scope'
   | 'close-entry';
+type MatrixNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+type MatrixNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
 
 interface MatrixDevelopmentCommand {
   readonly score: number;
@@ -674,6 +714,94 @@ function sanitizeApplyProposalPayload(body: unknown): MatrixApplyProposalPayload
   return { entryId };
 }
 
+function normalizeNeedProposalType(value: unknown): MatrixNeedProposalType | null {
+  return value === 'add-source-ref' || value === 'create-entry' || value === 'mark-stale'
+    ? value
+    : null;
+}
+
+function normalizeNeedProposalStatus(value: unknown): MatrixNeedProposalStatus {
+  return value === 'accepted' || value === 'rejected' || value === 'superseded'
+    ? value
+    : 'proposed';
+}
+
+function sanitizeNeedProposal(value: unknown): MatrixNeedProposalPayload | null {
+  const record = normalizeObject(value);
+  const proposalId = normalizeString(record.proposalId, 240);
+  const entryId = normalizeString(record.entryId, 180);
+  const type = normalizeNeedProposalType(record.type);
+  if (!proposalId || !entryId || !type) {
+    return null;
+  }
+
+  return {
+    proposalId,
+    entryId,
+    type,
+    status: normalizeNeedProposalStatus(record.status),
+    confidence: normalizeDiscoveryConfidence(record.confidence),
+    title: normalizeString(record.title, 220),
+    summary: normalizeString(record.summary, 2_000),
+    source: normalizeObject(record.source),
+    payload: normalizeObject(record.payload),
+  };
+}
+
+function sanitizeNeedProposalsIngestPayload(body: unknown): MatrixNeedProposalsIngestPayload {
+  const record = normalizeObject(body);
+  const generatedAt = normalizeDate(record.generatedAt) ?? new Date().toISOString();
+  const correlationId =
+    normalizeString(record.correlationId, 180) ??
+    normalizeString(record.runId, 180) ??
+    `needs-reconcile-${generatedAt}`;
+  const source = normalizeString(record.source, 120) ?? 'admin-quality-needs-reconciler';
+  const proposals = Array.isArray(record.proposals)
+    ? record.proposals
+        .map((proposal) => sanitizeNeedProposal(proposal))
+        .filter((proposal): proposal is MatrixNeedProposalPayload => proposal !== null)
+    : [];
+
+  if (!proposals.length) {
+    throw new Error('At least one valid proposal is required.');
+  }
+
+  return {
+    generatedAt,
+    correlationId,
+    source,
+    proposals,
+  };
+}
+
+function normalizeHistory(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => normalizeObject(item)).filter((item) => Object.keys(item).length > 0);
+}
+
+function toNeedProposalResponse(entity: MatrixNeedProposalEntity) {
+  return {
+    id: entity.id != null ? String(entity.id) : null,
+    proposalId: normalizeString(entity.proposalId, 240) ?? '',
+    entryId: normalizeString(entity.entryId, 180) ?? '',
+    type: normalizeNeedProposalType(entity.type) ?? 'add-source-ref',
+    status: normalizeNeedProposalStatus(entity.status),
+    confidence: normalizeDiscoveryConfidence(entity.confidence),
+    title: normalizeString(entity.title, 220),
+    summary: normalizeString(entity.summary, 2_000),
+    source: normalizeObject(entity.source),
+    payload: normalizeObject(entity.payload),
+    history: normalizeHistory(entity.history),
+    correlationId: normalizeString(entity.correlationId, 180),
+    reportedAt: normalizeDate(entity.reportedAt),
+    createdAt: normalizeDate(entity.createdAt),
+    updatedAt: normalizeDate(entity.updatedAt),
+  };
+}
+
 async function findEntryByEntryId(
   strapi: Core.Strapi,
   entryId: string,
@@ -684,6 +812,66 @@ async function findEntryByEntryId(
   });
 
   return (normalizeFindManyResult(existing)[0] as MatrixEntryEntity | undefined) ?? null;
+}
+
+async function findNeedProposalByProposalId(
+  strapi: Core.Strapi,
+  proposalId: string,
+): Promise<MatrixNeedProposalEntity | null> {
+  const existing = await strapi.entityService.findMany(NEED_PROPOSAL_UID, {
+    filters: { proposalId },
+    limit: 1,
+  });
+
+  return (normalizeFindManyResult(existing)[0] as MatrixNeedProposalEntity | undefined) ?? null;
+}
+
+async function persistNeedProposal(
+  strapi: Core.Strapi,
+  proposal: MatrixNeedProposalPayload,
+  ingest: MatrixNeedProposalsIngestPayload,
+): Promise<{ entity: MatrixNeedProposalEntity; created: boolean }> {
+  const existing = await findNeedProposalByProposalId(strapi, proposal.proposalId);
+  const previousStatus = normalizeNeedProposalStatus(existing?.status);
+  const lockedStatus = previousStatus === 'accepted' || previousStatus === 'rejected';
+  const nextStatus = existing?.id && lockedStatus ? previousStatus : proposal.status;
+  const history = [
+    ...normalizeHistory(existing?.history),
+    {
+      event: existing?.id ? 'updated-from-ingest' : 'created-from-ingest',
+      at: ingest.generatedAt,
+      source: ingest.source,
+      correlationId: ingest.correlationId,
+      previousStatus: existing?.id ? previousStatus : null,
+      nextStatus,
+    },
+  ].slice(-50);
+  const data = {
+    proposalId: proposal.proposalId,
+    entryId: proposal.entryId,
+    type: proposal.type,
+    status: nextStatus,
+    confidence: proposal.confidence,
+    title: proposal.title,
+    summary: proposal.summary,
+    source: proposal.source,
+    payload: proposal.payload,
+    history,
+    correlationId: ingest.correlationId,
+    reportedAt: ingest.generatedAt,
+  };
+
+  if (existing?.id) {
+    const entity = await strapi.entityService.update(NEED_PROPOSAL_UID, existing.id, {
+      data: data as any,
+    });
+    return { entity: entity as MatrixNeedProposalEntity, created: false };
+  }
+
+  const entity = await strapi.entityService.create(NEED_PROPOSAL_UID, {
+    data: data as any,
+  });
+  return { entity: entity as MatrixNeedProposalEntity, created: true };
 }
 
 async function findKnownEntryIds(strapi: Core.Strapi): Promise<string[]> {
@@ -1845,6 +2033,60 @@ function resolveGeneratedAt(entries: readonly MatrixEntryEntity[]): string {
 }
 
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
+  async listNeedProposals(ctx: Context) {
+    const rawProposals = await strapi.entityService.findMany(NEED_PROPOSAL_UID, {
+      sort: ['updatedAt:desc'],
+      limit: 500,
+    });
+    const proposals = normalizeFindManyResult(rawProposals) as MatrixNeedProposalEntity[];
+
+    ctx.body = {
+      data: {
+        generatedAt: new Date().toISOString(),
+        proposals: proposals.map((proposal) => toNeedProposalResponse(proposal)),
+      },
+    };
+  },
+
+  async ingestNeedProposals(ctx: Context) {
+    if (!requireIngestToken(ctx)) {
+      return;
+    }
+
+    try {
+      const payload = sanitizeNeedProposalsIngestPayload(ctx.request.body);
+      const results = await Promise.all(
+        payload.proposals.map((proposal) => persistNeedProposal(strapi, proposal, payload)),
+      );
+      const createdProposalIds = results
+        .filter((result) => result.created)
+        .map((result) => normalizeString(result.entity.proposalId, 240) ?? '')
+        .filter(Boolean);
+      const updatedProposalIds = results
+        .filter((result) => !result.created)
+        .map((result) => normalizeString(result.entity.proposalId, 240) ?? '')
+        .filter(Boolean);
+
+      ctx.body = {
+        data: {
+          generatedAt: payload.generatedAt,
+          correlationId: payload.correlationId,
+          source: payload.source,
+          proposalCount: results.length,
+          createdProposalIds,
+          updatedProposalIds,
+          proposals: results.map((result) => toNeedProposalResponse(result.entity)),
+        },
+      };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Invalid admin quality need proposals ingest payload.';
+      ctx.badRequest(message);
+    }
+  },
+
   async snapshot(ctx: Context) {
     const rawEntries = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
       sort: ['priority:desc', 'domain:asc'],

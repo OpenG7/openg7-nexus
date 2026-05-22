@@ -25,6 +25,22 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/admin/quality/matrix/proposals',
+      handler: 'admin-quality-matrix.listNeedProposals',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/admin/quality/matrix/proposals/ingest',
+      handler: 'admin-quality-matrix.ingestNeedProposals',
+      config: {
+        auth: false,
+      },
+    },
+    {
       method: 'POST',
       path: '/admin/quality/matrix/ingest',
       handler: 'admin-quality-matrix.ingest',

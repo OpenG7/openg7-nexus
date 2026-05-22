@@ -56,6 +56,7 @@
     "generate:quality-actions": "node ./scripts/generate-admin-quality-action-discovery.mjs",
     "generate:admin-quality-impact-map": "node ./scripts/generate-admin-quality-impact-map.mjs",
     "discover:admin-quality-needs": "node ./scripts/discover-admin-quality-needs.mjs",
+    "reconcile:admin-quality-matrix": "node ./scripts/reconcile-admin-quality-matrix.mjs",
     "generate:quality-proof-manifest": "node ./packages/tooling/bin/generate-admin-quality-proof-manifest.mjs",
     "admin:quality:agent": "yarn workspace @openg7/tooling admin:quality:agent",
     "admin:quality:agent:apply": "yarn workspace @openg7/tooling admin:quality:agent -- --apply",

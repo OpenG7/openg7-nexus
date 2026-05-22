@@ -175,6 +175,28 @@ yarn discover:admin-quality-needs
 
 Il lit les docs, specs E2E, routes Angular, selectors, APIs Strapi et i18n, puis propose des `sourceRefs` additionnelles par entree.
 
+La reconciliation transforme cette decouverte en propositions exploitables:
+
+```bash
+yarn reconcile:admin-quality-matrix
+```
+
+Sorties:
+
+- `admin-quality-needs-discovery.json`;
+- `admin-quality-needs-proposals.json`;
+- `admin-quality-needs-proposals.md`.
+
+Pour publier ces propositions vers Strapi sans les appliquer a la matrice:
+
+```bash
+yarn reconcile:admin-quality-matrix -- --ingest \
+  --proposals-ingest-url http://localhost:1337/api/admin/quality/matrix/proposals/ingest \
+  --ingest-token "$STRAPI_ADMIN_QUALITY_INGEST_TOKEN"
+```
+
+Strapi stocke les propositions, leur confiance, leur source, leur payload et leur historique. Les propositions restent au statut `proposed` tant qu'aucune revue admin ne les accepte ou rejette.
+
 ## Comment les fichiers modifies sont relies a la matrice
 
 Le mapping fichier -> entree matrice est resolu par `scripts/resolve-admin-quality-matrix-impact.mjs`.

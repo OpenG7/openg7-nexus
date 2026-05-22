@@ -12,8 +12,10 @@ const MATRIX_ACTIONS = [
   'api::admin-quality-matrix.admin-quality-matrix.snapshot',
   'api::admin-quality-matrix.admin-quality-matrix.recalculate',
   'api::admin-quality-matrix.admin-quality-matrix.applyProposal',
+  'api::admin-quality-matrix.admin-quality-matrix.listNeedProposals',
 ];
 const MISSION_DECISION_UID = 'api::admin-quality-mission-decision.admin-quality-mission-decision';
+const NEED_PROPOSAL_UID = 'api::admin-quality-need-proposal.admin-quality-need-proposal';
 
 function applyTestEnvironment() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -508,6 +510,134 @@ async function run() {
       snapshotAfterProofManifest.body?.data?.entries?.[0]?.signalDispatch?.e2e?.confirmationSource,
       'proof-returned',
     );
+
+    const proposalIngestUnauthorized = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/ingest`,
+      {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          generatedAt: new Date().toISOString(),
+          proposals: [],
+        }),
+      },
+    );
+    assert.equal(
+      proposalIngestUnauthorized.status,
+      401,
+      'Expected proposal ingest without bearer token to be rejected.',
+    );
+
+    const proposalIngestInvalid = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/ingest`,
+      {
+        method: 'POST',
+        headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+        body: JSON.stringify({
+          generatedAt: new Date().toISOString(),
+          proposals: [],
+        }),
+      },
+    );
+    assert.equal(
+      proposalIngestInvalid.status,
+      400,
+      'Expected proposal ingest without valid proposals to fail.',
+    );
+
+    const proposalGeneratedAt = new Date(Date.now() + 60_000).toISOString();
+    const proposalIngestOk = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/ingest`,
+      {
+        method: 'POST',
+        headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+        body: JSON.stringify({
+          generatedAt: proposalGeneratedAt,
+          correlationId: 'needs-reconcile-test-1',
+          source: 'admin-quality-needs-reconciler',
+          proposals: [
+            {
+              proposalId: 'add-source-ref::trust-validation::test',
+              type: 'add-source-ref',
+              status: 'proposed',
+              entryId: 'trust-validation',
+              confidence: 'high',
+              title: 'Add trust source',
+              summary: 'Attach a discovered sourceRef to trust-validation.',
+              source: {
+                agent: 'admin-quality-needs-reconciler',
+                reason: 'integration-test',
+              },
+              payload: {
+                sourceRef: {
+                  type: 'e2e',
+                  path: 'openg7-org/e2e/admin-trust-visibility.spec.ts',
+                },
+              },
+            },
+          ],
+        }),
+      },
+    );
+    assert.equal(proposalIngestOk.status, 200, 'Expected proposal ingest to succeed.');
+    assert.equal(proposalIngestOk.body?.data?.proposalCount, 1);
+    assert.deepEqual(proposalIngestOk.body?.data?.createdProposalIds, [
+      'add-source-ref::trust-validation::test',
+    ]);
+    assert.deepEqual(proposalIngestOk.body?.data?.updatedProposalIds, []);
+
+    const storedProposal = normalizeFindManyResult(
+      await app.entityService.findMany(NEED_PROPOSAL_UID, {
+        filters: { proposalId: 'add-source-ref::trust-validation::test' },
+        limit: 1,
+      }),
+    )[0];
+    assert.ok(storedProposal, 'Expected need proposal ingest to create a stored proposal.');
+    assert.equal(storedProposal.entryId, 'trust-validation');
+    assert.equal(storedProposal.type, 'add-source-ref');
+    assert.equal(storedProposal.confidence, 'high');
+    assert.equal(storedProposal.correlationId, 'needs-reconcile-test-1');
+    assert.equal(storedProposal.history?.[0]?.event, 'created-from-ingest');
+
+    const proposalIngestUpdate = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/ingest`,
+      {
+        method: 'POST',
+        headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+        body: JSON.stringify({
+          generatedAt: new Date(Date.now() + 70_000).toISOString(),
+          correlationId: 'needs-reconcile-test-2',
+          proposals: [
+            {
+              proposalId: 'add-source-ref::trust-validation::test',
+              type: 'add-source-ref',
+              status: 'proposed',
+              entryId: 'trust-validation',
+              confidence: 'medium',
+              title: 'Add trust source again',
+              summary: 'Refresh the discovered sourceRef proposal.',
+              source: { reason: 'integration-test-update' },
+              payload: { sourceRef: { type: 'e2e' } },
+            },
+          ],
+        }),
+      },
+    );
+    assert.equal(proposalIngestUpdate.status, 200, 'Expected proposal re-ingest to succeed.');
+    assert.deepEqual(proposalIngestUpdate.body?.data?.createdProposalIds, []);
+    assert.deepEqual(proposalIngestUpdate.body?.data?.updatedProposalIds, [
+      'add-source-ref::trust-validation::test',
+    ]);
+
+    const listedProposals = await requestJson(`${baseUrl}/api/admin/quality/matrix/proposals`, {
+      headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+    });
+    assert.equal(listedProposals.status, 200, 'Expected owner to list need proposals.');
+    assert.equal(
+      listedProposals.body?.data?.proposals?.[0]?.proposalId,
+      'add-source-ref::trust-validation::test',
+    );
+    assert.equal(listedProposals.body?.data?.proposals?.[0]?.history?.length, 2);
 
     await app.entityService.update(MISSION_DECISION_UID, signalGuidanceDecision.id, {
       data: {

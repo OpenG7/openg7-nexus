@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T22:52:03.626Z",
+  "generatedAt": "2026-05-22T23:37:25.448Z",
   "matrix": {
     "schemaVersion": 2,
     "generatedAt": "2026-05-17T00:00:00.000Z",
@@ -8,12 +8,12 @@
     "globalImpactPrefixCount": 7
   },
   "sourceCounts": {
-    "total": 939,
+    "total": 940,
     "docs": 61,
     "e2e": 65,
     "routes": 8,
     "selectors": 277,
-    "strapiApis": 29,
+    "strapiApis": 30,
     "i18n": 173
   },
   "summary": {
@@ -252,6 +252,21 @@
       "entryId": "advanced-discovery",
       "sourceRef": {
         "type": "doc",
+        "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+        "value": null,
+        "key": null,
+        "label": "Taches d'automatisation de la matrice QA admin",
+        "matchReason": "semantic-token:comparer,conserver,decouverte,discovery,entre",
+        "matchScore": 90,
+        "alreadyDeclared": false
+      },
+      "confidence": "high"
+    },
+    {
+      "type": "add-source-ref",
+      "entryId": "advanced-discovery",
+      "sourceRef": {
+        "type": "doc",
         "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
         "value": null,
         "key": null,
@@ -302,21 +317,6 @@
         "key": null,
         "label": null,
         "matchReason": "semantic-token:advanced,decouverte,discovery,profonde,recherche",
-        "matchScore": 90,
-        "alreadyDeclared": false
-      },
-      "confidence": "high"
-    },
-    {
-      "type": "add-source-ref",
-      "entryId": "advanced-discovery",
-      "sourceRef": {
-        "type": "source",
-        "path": "openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-launcher.service.ts",
-        "value": null,
-        "key": null,
-        "label": null,
-        "matchReason": "impact-rule",
         "matchScore": 90,
         "alreadyDeclared": false
       },
@@ -811,8 +811,8 @@
         "value": null,
         "key": null,
         "label": "Manuel d'utilisation de la matrice QA admin",
-        "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,signals,signaux,statut",
-        "matchScore": 140,
+        "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,publier,signals,signaux,statut",
+        "matchScore": 150,
         "alreadyDeclared": false
       },
       "confidence": "high"
@@ -852,11 +852,11 @@
       "entryId": "feed-signals",
       "sourceRef": {
         "type": "doc",
-        "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
+        "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
         "value": null,
         "key": null,
-        "label": "Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils",
-        "matchReason": "semantic-token:alertes,depuis,feed,metier,proposer,publier,signaux",
+        "label": "Taches d'automatisation de la matrice QA admin",
+        "matchReason": "semantic-token:depuis,metier,publier,signals,signaux,statut,suivre",
         "matchScore": 110,
         "alreadyDeclared": false
       },
@@ -867,12 +867,12 @@
       "entryId": "feed-signals",
       "sourceRef": {
         "type": "doc",
-        "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+        "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
         "value": null,
         "key": null,
-        "label": "Taches d'automatisation de la matrice QA admin",
-        "matchReason": "semantic-token:depuis,metier,signals,signaux,statut,suivre",
-        "matchScore": 100,
+        "label": "Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils",
+        "matchReason": "semantic-token:alertes,depuis,feed,metier,proposer,publier,signaux",
+        "matchScore": 110,
         "alreadyDeclared": false
       },
       "confidence": "high"
@@ -1136,6 +1136,21 @@
       "type": "add-source-ref",
       "entryId": "linkup-workflow",
       "sourceRef": {
+        "type": "doc",
+        "path": "docs/frontend/admin-quality-matrix-manual.md",
+        "value": null,
+        "key": null,
+        "label": "Manuel d'utilisation de la matrice QA admin",
+        "matchReason": "semantic-token:consulter,detail,historique,ouvrir,statut,workflow",
+        "matchScore": 100,
+        "alreadyDeclared": false
+      },
+      "confidence": "high"
+    },
+    {
+      "type": "add-source-ref",
+      "entryId": "linkup-workflow",
+      "sourceRef": {
         "type": "source",
         "path": "openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.spec.ts",
         "value": null,
@@ -1152,11 +1167,11 @@
       "entryId": "linkup-workflow",
       "sourceRef": {
         "type": "doc",
-        "path": "docs/frontend/admin-quality-matrix-manual.md",
+        "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
         "value": null,
         "key": null,
-        "label": "Manuel d'utilisation de la matrice QA admin",
-        "matchReason": "semantic-token:consulter,detail,ouvrir,statut,workflow",
+        "label": "Taches d'automatisation de la matrice QA admin",
+        "matchReason": "semantic-token:detail,historique,statut,suivre,workflow",
         "matchScore": 90,
         "alreadyDeclared": false
       },
@@ -1198,21 +1213,6 @@
       "sourceRef": {
         "type": "source",
         "path": "openg7-org/src/app/domains/matchmaking/data-access/linkup.models.ts",
-        "value": null,
-        "key": null,
-        "label": null,
-        "matchReason": "impact-rule",
-        "matchScore": 90,
-        "alreadyDeclared": false
-      },
-      "confidence": "high"
-    },
-    {
-      "type": "add-source-ref",
-      "entryId": "linkup-workflow",
-      "sourceRef": {
-        "type": "source",
-        "path": "openg7-org/src/app/domains/matchmaking/data-access/linkup.store.ts",
         "value": null,
         "key": null,
         "label": null,
@@ -2846,6 +2846,16 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+          "value": null,
+          "key": null,
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:comparer,conserver,decouverte,discovery,entre",
+          "matchScore": 90,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
           "value": null,
           "key": null,
@@ -2881,16 +2891,6 @@
           "key": null,
           "label": null,
           "matchReason": "semantic-token:advanced,decouverte,discovery,profonde,recherche",
-          "matchScore": 90,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "source",
-          "path": "openg7-org/src/app/domains/search/feature/quick-search-modal/quick-search-launcher.service.ts",
-          "value": null,
-          "key": null,
-          "label": null,
-          "matchReason": "impact-rule",
           "matchScore": 90,
           "alreadyDeclared": false
         }
@@ -2995,6 +2995,16 @@
           "matchReason": "declared-evidence",
           "matchScore": 100,
           "alreadyDeclared": true
+        },
+        {
+          "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+          "value": null,
+          "key": null,
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:comparer,conserver,decouverte,discovery,entre",
+          "matchScore": 90,
+          "alreadyDeclared": false
         },
         {
           "type": "doc",
@@ -3284,16 +3294,6 @@
           "label": null,
           "matchReason": "impact-rule",
           "matchScore": 90,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/homepage-map-ux-working-doc.md",
-          "value": null,
-          "key": null,
-          "label": "Document de travail - Refonte UX de la carte des echanges (homepage)",
-          "matchReason": "semantic-token:conserver,contexte,details,entre",
-          "matchScore": 80,
           "alreadyDeclared": false
         }
       ]
@@ -4814,21 +4814,21 @@
         },
         {
           "type": "doc",
-          "path": "docs/frontend/login-ux-review.md",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
-          "label": "Audit UX/UI — Page de connexion",
-          "matchReason": "semantic-token:creer,fournisseurs,suivre",
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:comparer,creer,suivre",
           "matchScore": 70,
           "alreadyDeclared": false
         },
         {
           "type": "doc",
-          "path": "docs/frontend/opentofu-standardisation-analysis.md",
+          "path": "docs/frontend/login-ux-review.md",
           "value": null,
           "key": null,
-          "label": "Évaluation d'OpenTofu pour la standardisation de l'infrastructure OpenG7",
-          "matchReason": "semantic-token:collaboration,creer,fournisseurs",
+          "label": "Audit UX/UI — Page de connexion",
+          "matchReason": "semantic-token:creer,fournisseurs,suivre",
           "matchScore": 70,
           "alreadyDeclared": false
         }
@@ -4868,8 +4868,8 @@
           "value": null,
           "key": null,
           "label": "Manuel d'utilisation de la matrice QA admin",
-          "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,signals,signaux,statut",
-          "matchScore": 140,
+          "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,publier,signals,signaux,statut",
+          "matchScore": 150,
           "alreadyDeclared": false
         },
         {
@@ -4894,22 +4894,22 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+          "value": null,
+          "key": null,
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:depuis,metier,publier,signals,signaux,statut,suivre",
+          "matchScore": 110,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
           "value": null,
           "key": null,
           "label": "Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils",
           "matchReason": "semantic-token:alertes,depuis,feed,metier,proposer,publier,signaux",
           "matchScore": 110,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
-          "value": null,
-          "key": null,
-          "label": "Taches d'automatisation de la matrice QA admin",
-          "matchReason": "semantic-token:depuis,metier,signals,signaux,statut,suivre",
-          "matchScore": 100,
           "alreadyDeclared": false
         },
         {
@@ -4970,8 +4970,8 @@
           "value": null,
           "key": null,
           "label": "Manuel d'utilisation de la matrice QA admin",
-          "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,signals,signaux,statut",
-          "matchScore": 140,
+          "matchReason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,publier,signals,signaux,statut",
+          "matchScore": 150,
           "alreadyDeclared": false
         },
         {
@@ -4996,22 +4996,22 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
+          "value": null,
+          "key": null,
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:depuis,metier,publier,signals,signaux,statut,suivre",
+          "matchScore": 110,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/hydrocarbures-surplus-baril-use-case.md",
           "value": null,
           "key": null,
           "label": "Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils",
           "matchReason": "semantic-token:alertes,depuis,feed,metier,proposer,publier,signaux",
           "matchScore": 110,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
-          "value": null,
-          "key": null,
-          "label": "Taches d'automatisation de la matrice QA admin",
-          "matchReason": "semantic-token:depuis,metier,signals,signaux,statut,suivre",
-          "matchScore": 100,
           "alreadyDeclared": false
         },
         {
@@ -5907,6 +5907,16 @@
           "alreadyDeclared": false
         },
         {
+          "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-manual.md",
+          "value": null,
+          "key": null,
+          "label": "Manuel d'utilisation de la matrice QA admin",
+          "matchReason": "semantic-token:consulter,detail,historique,ouvrir,statut,workflow",
+          "matchScore": 100,
+          "alreadyDeclared": false
+        },
+        {
           "type": "source",
           "path": "openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.spec.ts",
           "value": null,
@@ -5918,11 +5928,11 @@
         },
         {
           "type": "doc",
-          "path": "docs/frontend/admin-quality-matrix-manual.md",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
-          "label": "Manuel d'utilisation de la matrice QA admin",
-          "matchReason": "semantic-token:consulter,detail,ouvrir,statut,workflow",
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:detail,historique,statut,suivre,workflow",
           "matchScore": 90,
           "alreadyDeclared": false
         },
@@ -5949,16 +5959,6 @@
         {
           "type": "source",
           "path": "openg7-org/src/app/domains/matchmaking/data-access/linkup.models.ts",
-          "value": null,
-          "key": null,
-          "label": null,
-          "matchReason": "impact-rule",
-          "matchScore": 90,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "source",
-          "path": "openg7-org/src/app/domains/matchmaking/data-access/linkup.store.ts",
           "value": null,
           "key": null,
           "label": null,
@@ -6009,6 +6009,16 @@
           "alreadyDeclared": false
         },
         {
+          "type": "doc",
+          "path": "docs/frontend/admin-quality-matrix-manual.md",
+          "value": null,
+          "key": null,
+          "label": "Manuel d'utilisation de la matrice QA admin",
+          "matchReason": "semantic-token:consulter,detail,historique,ouvrir,statut,workflow",
+          "matchScore": 100,
+          "alreadyDeclared": false
+        },
+        {
           "type": "e2e",
           "path": "openg7-org/e2e/linkup-workflow.spec.ts",
           "value": null,
@@ -6030,11 +6040,11 @@
         },
         {
           "type": "doc",
-          "path": "docs/frontend/admin-quality-matrix-manual.md",
+          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
-          "label": "Manuel d'utilisation de la matrice QA admin",
-          "matchReason": "semantic-token:consulter,detail,ouvrir,statut,workflow",
+          "label": "Taches d'automatisation de la matrice QA admin",
+          "matchReason": "semantic-token:detail,historique,statut,suivre,workflow",
           "matchScore": 90,
           "alreadyDeclared": false
         },
@@ -6326,16 +6336,6 @@
           "label": null,
           "matchReason": "impact-rule",
           "matchScore": 90,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
-          "value": null,
-          "key": null,
-          "label": "Taches d'automatisation de la matrice QA admin",
-          "matchReason": "semantic-token:historique,statut,suivre,workflow",
-          "matchScore": 80,
           "alreadyDeclared": false
         },
         {
@@ -8167,12 +8167,22 @@
           "alreadyDeclared": false
         },
         {
+          "type": "strapi-api",
+          "path": "strapi/src/api/admin-quality-need-proposal/",
+          "value": "admin-quality-need-proposal",
+          "key": null,
+          "label": null,
+          "matchReason": "impact-rule",
+          "matchScore": 90,
+          "alreadyDeclared": false
+        },
+        {
           "type": "doc",
           "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
           "label": "Taches d'automatisation de la matrice QA admin",
-          "matchReason": "semantic-token:decisions,rendre,statut,validation",
+          "matchReason": "semantic-token:confiance,rendre,statut,validation",
           "matchScore": 80,
           "alreadyDeclared": false
         },
@@ -8403,16 +8413,6 @@
           "key": null,
           "label": "Angular app structure — domain-first layout",
           "matchReason": "semantic-token:confiance",
-          "matchScore": 50,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/opentofu-standardisation-analysis.md",
-          "value": null,
-          "key": null,
-          "label": "Évaluation d'OpenTofu pour la standardisation de l'infrastructure OpenG7",
-          "matchReason": "semantic-token:validation",
           "matchScore": 50,
           "alreadyDeclared": false
         }
