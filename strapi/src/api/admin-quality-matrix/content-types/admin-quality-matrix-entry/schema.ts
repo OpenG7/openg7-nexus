@@ -3,6 +3,7 @@ import type { Struct } from '@strapi/strapi';
 const matrixStatus = ['oui', 'partiel', 'non', 'hors MVP'] as const;
 const matrixPriority = ['basse', 'moyenne', 'haute'] as const;
 const matrixBucket = ['covered', 'proof-gap', 'product-gap', 'scope-limit'] as const;
+const matrixConfidence = ['low', 'medium', 'high'] as const;
 
 const schema = {
   kind: 'collectionType',
@@ -32,6 +33,24 @@ const schema = {
     need: {
       type: 'text',
       required: true,
+    },
+    acceptanceCriteria: {
+      type: 'json',
+    },
+    sourceRefs: {
+      type: 'json',
+    },
+    impactRules: {
+      type: 'json',
+    },
+    confidence: {
+      type: 'enumeration',
+      enum: matrixConfidence,
+      required: true,
+      default: 'medium',
+    },
+    lastDiscoveredAt: {
+      type: 'date',
     },
     summaryStatus: {
       type: 'enumeration',

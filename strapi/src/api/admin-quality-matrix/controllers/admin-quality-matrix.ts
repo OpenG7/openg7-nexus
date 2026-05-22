@@ -14,6 +14,7 @@ const MS_PER_DAY = 86_400_000;
 type MatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
+type MatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
 type MatrixImpactMode = 'provided' | 'targeted' | 'global' | 'none';
 type MatrixRecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
@@ -41,6 +42,11 @@ interface MatrixEntryEntity {
   readonly entryId?: unknown;
   readonly domain?: unknown;
   readonly need?: unknown;
+  readonly acceptanceCriteria?: unknown;
+  readonly sourceRefs?: unknown;
+  readonly impactRules?: unknown;
+  readonly confidence?: unknown;
+  readonly lastDiscoveredAt?: unknown;
   readonly summaryStatus?: unknown;
   readonly businessStatus?: unknown;
   readonly implementationStatus?: unknown;
@@ -301,6 +307,10 @@ function normalizeBucket(value: unknown): MatrixBucket {
     : 'proof-gap';
 }
 
+function normalizeDiscoveryConfidence(value: unknown): MatrixDiscoveryConfidence {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : 'medium';
+}
+
 function normalizeDate(value: unknown): string | null {
   if (typeof value !== 'string') {
     return null;
@@ -353,6 +363,14 @@ function normalizeObject(value: unknown): Record<string, unknown> {
   }
 
   return value as Record<string, unknown>;
+}
+
+function normalizeJsonObjects(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => normalizeObject(item)).filter((item) => Object.keys(item).length > 0);
 }
 
 function normalizeBoolean(value: unknown): boolean {
@@ -502,6 +520,11 @@ function toMatrixEntryResponse(
     id: normalizeString(entity.entryId) ?? '',
     domain: normalizeString(entity.domain) ?? '',
     need: normalizeString(entity.need) ?? '',
+    acceptanceCriteria: normalizeStringArray(entity.acceptanceCriteria),
+    sourceRefs: normalizeJsonObjects(entity.sourceRefs),
+    impactRules: normalizeJsonObjects(entity.impactRules),
+    confidence: normalizeDiscoveryConfidence(entity.confidence),
+    lastDiscoveredAt: normalizeDate(entity.lastDiscoveredAt)?.slice(0, 10) ?? null,
     summaryStatus: normalizeStatus(entity.summaryStatus),
     businessStatus: normalizeStatus(entity.businessStatus),
     implementationStatus: normalizeStatus(entity.implementationStatus),
@@ -1434,7 +1457,9 @@ function buildRecalculationEntry(
     reasons.push('Un signal repo plus recent que la derniere revue a ete detecte.');
   }
   if (completedDecisionNewer) {
-    reasons.push('Une mission avec preuve retournee ou done est plus recente que la derniere revue.');
+    reasons.push(
+      'Une mission avec preuve retournee ou done est plus recente que la derniere revue.',
+    );
   }
 
   const signalDrivenReasons = COVERAGE_SIGNAL_IDS.flatMap((signalId) => {

@@ -14,6 +14,19 @@ export type AdminQualityMatrixSignalConfirmationSource =
   | 'proof-returned'
   | 'done'
   | 'pull-request-merged';
+export type AdminQualityMatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
+
+export interface AdminQualityMatrixSourceRef {
+  readonly type: string;
+  readonly path: string | null;
+  readonly value: string | null;
+  readonly label: string | null;
+}
+
+export interface AdminQualityMatrixImpactRule {
+  readonly type: string;
+  readonly prefixes: readonly string[];
+}
 
 export interface AdminQualityMatrixSignalDispatchState {
   readonly pending: boolean;
@@ -28,6 +41,11 @@ export interface AdminQualityMatrixEntry {
   readonly id: string;
   readonly domain: string;
   readonly need: string;
+  readonly acceptanceCriteria?: readonly string[];
+  readonly sourceRefs?: readonly AdminQualityMatrixSourceRef[];
+  readonly impactRules?: readonly AdminQualityMatrixImpactRule[];
+  readonly confidence?: AdminQualityMatrixDiscoveryConfidence;
+  readonly lastDiscoveredAt?: string | null;
   readonly summaryStatus: AdminQualityMatrixStatus;
   readonly businessStatus: AdminQualityMatrixStatus;
   readonly implementationStatus: AdminQualityMatrixStatus;

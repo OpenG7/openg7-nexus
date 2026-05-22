@@ -108,9 +108,10 @@ Verifier:
 
 Verifier:
 
-1. le mapping partage dans `tools/admin-quality-matrix-impact-map.json`
-2. les fichiers reels modifies par le merge
-3. si le changement aurait du etre traite comme impact global plutot que cible
+1. les `impactRules` canoniques dans `openg7-org/src/assets/data/admin-quality-matrix.json`
+2. l'artefact derive `tools/admin-quality-matrix-impact-map.json`
+3. les fichiers reels modifies par le merge
+4. si le changement aurait du etre traite comme impact global plutot que cible
 
 ### Le workflow publie `200` mais aucun plan auto n'apparait
 
@@ -137,7 +138,7 @@ En CI:
 
 ## Limites actuelles
 
-- le mapping fichier -> domaine reste heuristique, meme s'il est maintenant centralise dans `tools/admin-quality-matrix-impact-map.json`
+- le mapping fichier -> domaine reste heuristique, meme s'il est maintenant centralise dans la matrice et verifie via `yarn validate:admin-quality-impact-map`
 - le workflow signale qu'une ligne doit etre relue et Strapi genere un plan, mais aucun statut metier n'est applique automatiquement
 - l'artifact `matrix-proof-manifest.json` est produit par `ci-validate.yml`, mais les workflows E2E dedies ne produisent pas encore chacun leur manifest fin
 - la revue finale reste volontairement humaine

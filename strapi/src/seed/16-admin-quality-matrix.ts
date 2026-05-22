@@ -9,6 +9,11 @@ interface MatrixSeedEntry {
   readonly id?: unknown;
   readonly domain?: unknown;
   readonly need?: unknown;
+  readonly acceptanceCriteria?: unknown;
+  readonly sourceRefs?: unknown;
+  readonly impactRules?: unknown;
+  readonly confidence?: unknown;
+  readonly lastDiscoveredAt?: unknown;
   readonly summaryStatus?: unknown;
   readonly businessStatus?: unknown;
   readonly implementationStatus?: unknown;
@@ -49,6 +54,10 @@ function normalizeBucket(value: unknown): 'covered' | 'proof-gap' | 'product-gap
     : 'proof-gap';
 }
 
+function normalizeConfidence(value: unknown): 'low' | 'medium' | 'high' {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : 'medium';
+}
+
 function normalizeEvidence(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -57,6 +66,10 @@ function normalizeEvidence(value: unknown): string[] {
   return value.filter(
     (entry): entry is string => typeof entry === 'string' && entry.trim().length > 0,
   );
+}
+
+function normalizeJsonArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
 }
 
 function matrixSnapshotPath(): string {
@@ -101,6 +114,11 @@ export default async function seedAdminQualityMatrix() {
         entryId,
         domain,
         need,
+        acceptanceCriteria: normalizeJsonArray(entry.acceptanceCriteria),
+        sourceRefs: normalizeJsonArray(entry.sourceRefs),
+        impactRules: normalizeJsonArray(entry.impactRules),
+        confidence: normalizeConfidence(entry.confidence),
+        lastDiscoveredAt: normalizeString(entry.lastDiscoveredAt) ?? reviewedAt,
         summaryStatus: normalizeStatus(entry.summaryStatus),
         businessStatus: normalizeStatus(entry.businessStatus),
         implementationStatus: normalizeStatus(entry.implementationStatus),

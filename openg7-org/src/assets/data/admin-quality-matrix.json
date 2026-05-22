@@ -1,10 +1,51 @@
 {
+  "schemaVersion": 2,
   "generatedAt": "2026-05-17T00:00:00.000Z",
+  "globalImpactRules": [
+    {
+      "type": "path-prefix",
+      "prefixes": [
+        "AGENTS.md",
+        "openg7-org/src/app/core/api/",
+        "openg7-org/src/app/domains/admin/",
+        "package.json",
+        "packages/contracts/",
+        "packages/tooling/",
+        "strapi/src/api/admin-quality-matrix/"
+      ]
+    }
+  ],
   "entries": [
     {
       "id": "public-discovery",
       "domain": "Decouverte publique",
       "need": "Comprendre la proposition de valeur, les secteurs, le pricing et les statistiques.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Comprendre la proposition de valeur, les secteurs, le pricing et les statistiques.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/use-case-audit.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "docs/",
+            "index.html",
+            "openg7-org/src/app/domains/home/",
+            "openg7-org/src/app/shared/components/hero/",
+            "openg7-org/src/app/shared/components/layout/site-header",
+            "README.md"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -21,6 +62,47 @@
       "id": "advanced-discovery",
       "domain": "Recherche et decouverte profonde",
       "need": "Rechercher, filtrer, trier, comparer et conserver le contexte entre pages et details.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Rechercher, filtrer, trier, comparer et conserver le contexte entre pages et details.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-advanced-discovery-roundtrip.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-deeplink-persistence.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-advanced-discovery-comparison.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-stacked-filters-drilldown.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/map-to-feed-decision-chain.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/search/",
+            "openg7-org/src/app/shared/components/company/company-detail",
+            "openg7-org/src/app/shared/components/company/company-table",
+            "openg7-org/src/app/shared/components/filters/",
+            "openg7-org/src/app/shared/components/search/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-05-17",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -43,6 +125,40 @@
       "id": "geospatial",
       "domain": "Cartes et geopatial",
       "need": "Explorer la carte, les corridors, les couches et les drilldowns utiles a la decision.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Explorer la carte, les corridors, les couches et les drilldowns utiles a la decision.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/corridors-realtime.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/map.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/map-to-feed-decision-chain.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/home/feature/home-corridors-realtime/",
+            "openg7-org/src/app/domains/home/feature/home-map-section/",
+            "openg7-org/src/app/shared/components/map-frame/",
+            "openg7-org/src/app/shared/components/map/",
+            "strapi/src/api/corridors/",
+            "strapi/src/api/exchange/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-05-17",
       "summaryStatus": "non",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -63,6 +179,34 @@
       "id": "onboarding-imports",
       "domain": "Onboarding entreprise et imports",
       "need": "S'inscrire, soumettre l'entreprise, lancer des imports manuels et bulk.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: S'inscrire, soumettre l'entreprise, lancer des imports manuels et bulk.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/use-case-audit.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/use-case-audit-gap-coverage.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/company-registration-form/",
+            "openg7-org/src/app/domains/auth/",
+            "openg7-org/src/app/import/",
+            "strapi/src/api/company-import/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -79,6 +223,37 @@
       "id": "importation-analytics",
       "domain": "Importation analytique et collaboration",
       "need": "Lire les KPIs, comparer, suivre les fournisseurs, creer des watchlists et planifier des rapports.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Lire les KPIs, comparer, suivre les fournisseurs, creer des watchlists et planifier des rapports.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/importation-analytics.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-importation-a11y-depth.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-importation-responsive.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "docs/frontend/importation-page.md",
+            "openg7-org/src/app/domains/importation/",
+            "strapi/src/api/importation/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -99,6 +274,45 @@
       "id": "feed-signals",
       "domain": "Feed et signaux metier",
       "need": "Ouvrir des opportunites, alertes et indicateurs, publier depuis le feed, proposer une offre et suivre son statut.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Ouvrir des opportunites, alertes et indicateurs, publier depuis le feed, proposer une offre et suivre son statut.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-opportunity-detail.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-alert-detail.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-indicator-detail.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/feed-publish-panel.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/opportunity-offer-flow.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/feed/",
+            "strapi/src/api/feed/",
+            "strapi/src/api/hydrocarbon-signal/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "non",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -121,6 +335,38 @@
       "id": "business-lifecycle",
       "domain": "Cycle de vie des objets metier",
       "need": "Creer, enrichir, archiver ou faire evoluer durablement opportunites, entreprises et partenaires.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Creer, enrichir, archiver ou faire evoluer durablement opportunites, entreprises et partenaires.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/opportunity-archive-lifecycle.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/opportunity-enrichment-lifecycle.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/company-or-partner-enrichment-lifecycle.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/partners/",
+            "openg7-org/src/app/shared/components/company/",
+            "openg7-org/src/app/shared/components/partner/",
+            "strapi/src/api/company/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "partiel",
       "businessStatus": "oui",
       "implementationStatus": "partiel",
@@ -141,6 +387,33 @@
       "id": "linkup-workflow",
       "domain": "Mise en relation",
       "need": "Consulter l'historique, ouvrir le detail et suivre le statut d'un linkup existant.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Consulter l'historique, ouvrir le detail et suivre le statut d'un linkup existant.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/linkup-workflow.spec.ts"
+        },
+        {
+          "type": "unit",
+          "path": "openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/matchmaking/",
+            "openg7-org/src/app/shared/components/connection/",
+            "strapi/src/api/connection/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-06",
       "summaryStatus": "partiel",
       "businessStatus": "oui",
       "implementationStatus": "partiel",
@@ -160,6 +433,37 @@
       "id": "alerts-notifications",
       "domain": "Alertes et notifications",
       "need": "Recevoir des alertes, gerer le panneau, l'inbox et les preferences de notification.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Recevoir des alertes, gerer le panneau, l'inbox et les preferences de notification.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/notification-panel.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/notification-preferences.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-cross-surface-a11y-depth.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/account/pages/alerts",
+            "openg7-org/src/app/shared/components/layout/notification-panel",
+            "strapi/src/api/user-alert/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "partiel",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -180,6 +484,39 @@
       "id": "account-data",
       "domain": "Compte et donnees personnelles",
       "need": "Gerer profil, mot de passe, email, sessions, favoris, export et persistance de session.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Gerer profil, mot de passe, email, sessions, favoris, export et persistance de session.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/use-case-audit-gap-coverage.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/resilience.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/saved-searches.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/core/auth/",
+            "openg7-org/src/app/domains/account/",
+            "strapi/src/api/account-profile/",
+            "strapi/src/api/saved-search/",
+            "strapi/src/api/user-favorite/"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -200,6 +537,30 @@
       "id": "rbac",
       "domain": "Gouvernance, roles et permissions",
       "need": "Appliquer une vraie matrice RBAC sur les pages, ressources et actions sensibles.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Appliquer une vraie matrice RBAC sur les pages, ressources et actions sensibles.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/rbac-access.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/core/auth/",
+            "strapi/src/extensions/users-permissions/",
+            "strapi/src/policies/",
+            "strapi/src/seed/01-roles-permissions"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "partiel",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -216,6 +577,33 @@
       "id": "trust-validation",
       "domain": "Trust et validation",
       "need": "Moderer, verifier, historiser les decisions de confiance et rendre le statut lisible.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Moderer, verifier, historiser les decisions de confiance et rendre le statut lisible.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/admin-trust-visibility.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/use-case-audit-gap-coverage.spec.ts"
+        }
+      ],
+      "impactRules": [
+        {
+          "type": "path-prefix",
+          "prefixes": [
+            "openg7-org/src/app/domains/admin/pages/admin-trust",
+            "openg7-org/src/app/shared/components/partner/",
+            "strapi/src/api/admin-quality-"
+          ]
+        }
+      ],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "oui",
       "businessStatus": "oui",
       "implementationStatus": "oui",
@@ -232,6 +620,32 @@
       "id": "quality-breadth",
       "domain": "Robustesse et qualite de service",
       "need": "Couvrir erreurs, etats vides, offline, reload, accessibilite, responsive et performance percue.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Couvrir erreurs, etats vides, offline, reload, accessibilite, responsive et performance percue.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-accessibility.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-offline-queueing.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/quality-breadth-cross-surface-a11y-depth.spec.ts"
+        }
+      ],
+      "impactRules": [],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "non",
       "businessStatus": "oui",
       "implementationStatus": "partiel",
@@ -253,6 +667,24 @@
       "id": "observability",
       "domain": "Observabilite et tracabilite",
       "need": "Tracer les actions sensibles, la provenance, les imports et les changements importants.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Tracer les actions sensibles, la provenance, les imports et les changements importants.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/admin-ops-observability.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/admin-ops-provenance-trail.spec.ts"
+        }
+      ],
+      "impactRules": [],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "partiel",
       "businessStatus": "oui",
       "implementationStatus": "partiel",
@@ -269,6 +701,24 @@
       "id": "openg7-depth",
       "domain": "Valeur OpenG7 specifique",
       "need": "Cartographier les corridors, capacites, dependances interprovinciales et priorites sectorielles.",
+      "acceptanceCriteria": [
+        "Le besoin metier reste exprime: Cartographier les corridors, capacites, dependances interprovinciales et priorites sectorielles.",
+        "Les changements de code relies a ce besoin resolvent cette entree via impactRules.",
+        "Les preuves declarees dans evidence restent executables ou sont remplacees par une proposition agent explicite."
+      ],
+      "sourceRefs": [
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/hydrocarbon-business-journey.spec.ts"
+        },
+        {
+          "type": "e2e",
+          "path": "openg7-org/e2e/hydrocarbon-feed-navigation.spec.ts"
+        }
+      ],
+      "impactRules": [],
+      "confidence": "high",
+      "lastDiscoveredAt": "2026-04-07",
       "summaryStatus": "non",
       "businessStatus": "oui",
       "implementationStatus": "partiel",

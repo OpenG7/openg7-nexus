@@ -1,20 +1,9 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { buildImpactMapFromMatrix, loadMatrixSnapshot } from './admin-quality-matrix-model.mjs';
 
-const repoRoot = path.resolve(import.meta.dirname, '..');
-const impactMapPath = path.join(repoRoot, 'tools', 'admin-quality-matrix-impact-map.json');
-const matrixSnapshotPath = path.join(
-  repoRoot,
-  'openg7-org',
-  'src',
-  'assets',
-  'data',
-  'admin-quality-matrix.json',
-);
+const matrixSnapshot = loadMatrixSnapshot();
 
 function loadKnownEntryIds() {
-  const raw = readFileSync(matrixSnapshotPath, 'utf8');
-  const snapshot = JSON.parse(raw);
+  const snapshot = matrixSnapshot;
   return Array.isArray(snapshot.entries)
     ? snapshot.entries
         .map((entry) => (typeof entry?.id === 'string' ? entry.id : null))
@@ -23,7 +12,7 @@ function loadKnownEntryIds() {
 }
 
 const ALL_ENTRY_IDS = loadKnownEntryIds();
-const impactMap = JSON.parse(readFileSync(impactMapPath, 'utf8'));
+const impactMap = buildImpactMapFromMatrix(matrixSnapshot);
 const IMPACT_RULES = Array.isArray(impactMap.rules) ? impactMap.rules : [];
 const GLOBAL_PREFIXES = Array.isArray(impactMap.globalPrefixes) ? impactMap.globalPrefixes : [];
 
@@ -43,6 +32,7 @@ function matchesPrefix(file, prefixes) {
 
 function resolveImpact(changedFiles) {
   const matchedEntryIds = new Set();
+  const impactMapping = {};
   let requiresGlobalRefresh = false;
   let touchedProductCode = false;
 
@@ -56,7 +46,15 @@ function resolveImpact(changedFiles) {
 
     for (const rule of IMPACT_RULES) {
       if (matchesPrefix(file, rule.prefixes)) {
-        rule.entryIds.forEach((entryId) => matchedEntryIds.add(entryId));
+        rule.entryIds.forEach((entryId) => {
+          matchedEntryIds.add(entryId);
+          if (!impactMapping[entryId]) {
+            impactMapping[entryId] = [];
+          }
+          if (!impactMapping[entryId].includes(file)) {
+            impactMapping[entryId].push(file);
+          }
+        });
       }
     }
   }
@@ -68,6 +66,7 @@ function resolveImpact(changedFiles) {
       reason: requiresGlobalRefresh
         ? 'Global matrix infrastructure changed.'
         : 'Product code changed without a specific impact mapping.',
+      impactMapping: requiresGlobalRefresh ? { '*': changedFiles } : {},
     };
   }
 
@@ -78,6 +77,7 @@ function resolveImpact(changedFiles) {
       matchedEntryIds.size > 0
         ? 'Targeted impact map matched changed files.'
         : 'No matrix-impacting file detected.',
+    impactMapping,
   };
 }
 

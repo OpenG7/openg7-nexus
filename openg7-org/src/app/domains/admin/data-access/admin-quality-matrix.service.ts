@@ -22,6 +22,19 @@ export type AdminQualityMatrixSignalConfirmationSource =
   | 'proof-returned'
   | 'done'
   | 'pull-request-merged';
+export type AdminQualityMatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
+
+export interface AdminQualityMatrixSourceRef {
+  readonly type: string;
+  readonly path: string | null;
+  readonly value: string | null;
+  readonly label: string | null;
+}
+
+export interface AdminQualityMatrixImpactRule {
+  readonly type: string;
+  readonly prefixes: readonly string[];
+}
 
 export interface AdminQualityMatrixSignalDispatchState {
   readonly pending: boolean;
@@ -36,6 +49,11 @@ export interface AdminQualityMatrixEntry {
   readonly id: string;
   readonly domain: string;
   readonly need: string;
+  readonly acceptanceCriteria?: readonly string[];
+  readonly sourceRefs?: readonly AdminQualityMatrixSourceRef[];
+  readonly impactRules?: readonly AdminQualityMatrixImpactRule[];
+  readonly confidence?: AdminQualityMatrixDiscoveryConfidence;
+  readonly lastDiscoveredAt?: string | null;
   readonly summaryStatus: AdminQualityMatrixStatus;
   readonly businessStatus: AdminQualityMatrixStatus;
   readonly implementationStatus: AdminQualityMatrixStatus;
@@ -326,6 +344,15 @@ export class AdminQualityMatrixService {
       id: entry.id,
       domain: entry.domain,
       need: entry.need,
+      acceptanceCriteria: this.normalizeStringList(entry.acceptanceCriteria),
+      sourceRefs: this.normalizeSourceRefs(entry.sourceRefs),
+      impactRules: this.normalizeImpactRules(entry.impactRules),
+      confidence:
+        entry.confidence === 'high' || entry.confidence === 'low' ? entry.confidence : 'medium',
+      lastDiscoveredAt:
+        typeof entry.lastDiscoveredAt === 'string' && entry.lastDiscoveredAt.trim()
+          ? entry.lastDiscoveredAt
+          : null,
       summaryStatus: this.normalizeStatus(entry.summaryStatus),
       businessStatus: this.normalizeStatus(entry.businessStatus),
       implementationStatus: this.normalizeStatus(entry.implementationStatus),
@@ -361,6 +388,38 @@ export class AdminQualityMatrixService {
       signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
       lastRecalculation: this.normalizeStoredRecalculation(entry.lastRecalculation),
     };
+  }
+
+  private normalizeSourceRefs(
+    value: readonly Partial<AdminQualityMatrixSourceRef>[] | null | undefined,
+  ): AdminQualityMatrixSourceRef[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map((item) => ({
+        type: typeof item?.type === 'string' && item.type.trim() ? item.type : 'source',
+        path: typeof item?.path === 'string' && item.path.trim() ? item.path : null,
+        value: typeof item?.value === 'string' && item.value.trim() ? item.value : null,
+        label: typeof item?.label === 'string' && item.label.trim() ? item.label : null,
+      }))
+      .filter((item) => Boolean(item.path || item.value || item.label));
+  }
+
+  private normalizeImpactRules(
+    value: readonly Partial<AdminQualityMatrixImpactRule>[] | null | undefined,
+  ): AdminQualityMatrixImpactRule[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map((item) => ({
+        type: typeof item?.type === 'string' && item.type.trim() ? item.type : 'path-prefix',
+        prefixes: this.normalizeStringList(item?.prefixes),
+      }))
+      .filter((item) => item.prefixes.length > 0);
   }
 
   private normalizeSignalDispatch(

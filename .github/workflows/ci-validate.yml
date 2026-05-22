@@ -63,6 +63,8 @@ jobs:
         run: yarn lint
       - name: Validate product checklist
         run: yarn checklist:verify
+      - name: Validate admin-quality impact map
+        run: yarn validate:admin-quality-impact-map
       - name: Validate Playwright selectors
         run: yarn validate:selectors
       - name: Validate admin-quality matrix ingest
@@ -84,6 +86,7 @@ jobs:
           --status success
           --check "yarn lint"
           --check "yarn checklist:verify"
+          --check "yarn validate:admin-quality-impact-map"
           --check "yarn validate:selectors"
           --check "yarn --cwd strapi test:integration:admin-quality-matrix"
           --check "yarn workspace @openg7/web validate:sitemap"

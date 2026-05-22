@@ -153,17 +153,37 @@ Travail prevu:
 
 ## Lot 10 - Cartographie d'impact partagee
 
-Statut: source JSON partagee livree, test de divergence restant.
+Statut: source canonique matrice livree, validation de divergence livree.
 
 Objectif: eviter la divergence entre le script CI et Strapi.
 
 Travail livre:
 
-- la source versionnee `tools/admin-quality-matrix-impact-map.json` alimente le script CI et le controleur Strapi.
+- `openg7-org/src/assets/data/admin-quality-matrix.json` porte les `impactRules` de chaque entree;
+- `tools/admin-quality-matrix-impact-map.json` est regenere depuis la matrice par `yarn generate:admin-quality-impact-map`;
+- `yarn validate:admin-quality-impact-map` echoue si l'artefact derive diverge;
+- `scripts/resolve-admin-quality-matrix-impact.mjs` lit les regles depuis la matrice.
 
 Travail restant:
 
-- ajouter un test qui compare les deux sorties sur un jeu de chemins reference.
+- brancher `validate:admin-quality-impact-map` dans le workflow CI si la verification doit devenir bloquante.
+
+## Lot 11 - Scanner de besoins metier
+
+Statut: socle livre.
+
+Objectif: rapatrier automatiquement les signaux de besoins depuis le repo sans modifier la matrice sans revue.
+
+Travail livre:
+
+- `yarn discover:admin-quality-needs` scanne docs, E2E, routes Angular, selectors, APIs Strapi et i18n;
+- le rapport liste les `sourceRefs` decouvertes par entree;
+- le rapport isole les sources non mappees pour alimenter les futures propositions de creation ou de split d'entree.
+
+Travail restant:
+
+- transformer les propositions du rapport en PR ou en decisions Strapi;
+- ajouter une vue de revue dans `/admin/quality`.
 
 ## Ordre recommande
 
