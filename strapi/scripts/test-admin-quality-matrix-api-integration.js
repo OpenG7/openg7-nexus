@@ -13,6 +13,7 @@ const MATRIX_ACTIONS = [
   'api::admin-quality-matrix.admin-quality-matrix.recalculate',
   'api::admin-quality-matrix.admin-quality-matrix.applyProposal',
   'api::admin-quality-matrix.admin-quality-matrix.listNeedProposals',
+  'api::admin-quality-matrix.admin-quality-matrix.patchNeedProposal',
 ];
 const MISSION_DECISION_UID = 'api::admin-quality-mission-decision.admin-quality-mission-decision';
 const NEED_PROPOSAL_UID = 'api::admin-quality-need-proposal.admin-quality-need-proposal';
@@ -638,6 +639,142 @@ async function run() {
       'add-source-ref::trust-validation::test',
     );
     assert.equal(listedProposals.body?.data?.proposals?.[0]?.history?.length, 2);
+
+    // ── patchNeedProposal ───────────────────────────────────────────────────
+
+    const patchDenied = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/add-source-ref%3A%3Atrust-validation%3A%3Atest`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${standardUser.jwt}` }),
+        body: JSON.stringify({ status: 'accepted' }),
+      },
+    );
+    assert.equal(
+      patchDenied.status,
+      403,
+      'Expected standard user to be denied patchNeedProposal.',
+    );
+
+    const patchInvalidStatus = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/add-source-ref%3A%3Atrust-validation%3A%3Atest`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ status: 'invalid-status' }),
+      },
+    );
+    assert.equal(patchInvalidStatus.status, 400, 'Expected invalid status to be rejected.');
+
+    const patchNotFound = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/does-not-exist`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ status: 'accepted' }),
+      },
+    );
+    assert.equal(patchNotFound.status, 404, 'Expected unknown proposalId to return 404.');
+
+    const patchAcceptOk = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/add-source-ref%3A%3Atrust-validation%3A%3Atest`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ status: 'accepted', note: 'Validated during integration test.' }),
+      },
+    );
+    assert.equal(patchAcceptOk.status, 200, 'Expected owner to accept a proposal.');
+    assert.equal(
+      patchAcceptOk.body?.data?.proposalId,
+      'add-source-ref::trust-validation::test',
+    );
+    assert.equal(patchAcceptOk.body?.data?.status, 'accepted');
+
+    const acceptedProposal = normalizeFindManyResult(
+      await app.entityService.findMany(NEED_PROPOSAL_UID, {
+        filters: { proposalId: 'add-source-ref::trust-validation::test' },
+        limit: 1,
+      }),
+    )[0];
+    assert.equal(acceptedProposal.status, 'accepted');
+    const acceptHistoryEntry = (acceptedProposal.history ?? []).find(
+      (h) => h.event === 'accepted-by-operator',
+    );
+    assert.ok(acceptHistoryEntry, 'Expected accepted-by-operator history entry.');
+    assert.equal(acceptHistoryEntry.nextStatus, 'accepted');
+    assert.equal(acceptHistoryEntry.previousStatus, 'proposed');
+    assert.equal(acceptHistoryEntry.note, 'Validated during integration test.');
+
+    const patchAlreadyLocked = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/add-source-ref%3A%3Atrust-validation%3A%3Atest`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ status: 'rejected' }),
+      },
+    );
+    assert.equal(
+      patchAlreadyLocked.status,
+      400,
+      'Expected patching an already-accepted proposal to be rejected.',
+    );
+
+    const secondProposalIngest = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/ingest`,
+      {
+        method: 'POST',
+        headers: authHeaders({ Authorization: 'Bearer matrix-ingest-test-token' }),
+        body: JSON.stringify({
+          generatedAt: new Date(Date.now() + 80_000).toISOString(),
+          correlationId: 'needs-reconcile-test-3',
+          source: 'admin-quality-needs-reconciler',
+          proposals: [
+            {
+              proposalId: 'mark-stale::trust-validation::test',
+              type: 'mark-stale',
+              status: 'proposed',
+              entryId: 'trust-validation',
+              confidence: 'medium',
+              title: 'Review stale trust-validation',
+              summary: 'No source was matched to this entry.',
+              source: { agent: 'admin-quality-needs-reconciler', reason: 'no-discovered-source' },
+              payload: {
+                currentNeed: 'Historiser les decisions de confiance.',
+                suggestedAction: 'Review sourceRefs before changing status.',
+              },
+            },
+          ],
+        }),
+      },
+    );
+    assert.equal(secondProposalIngest.status, 200, 'Expected second proposal ingest to succeed.');
+
+    const patchRejectOk = await requestJson(
+      `${baseUrl}/api/admin/quality/matrix/proposals/mark-stale%3A%3Atrust-validation%3A%3Atest`,
+      {
+        method: 'PATCH',
+        headers: authHeaders({ Authorization: `Bearer ${ownerUser.jwt}` }),
+        body: JSON.stringify({ status: 'rejected', note: 'Entry still active, sources renamed.' }),
+      },
+    );
+    assert.equal(patchRejectOk.status, 200, 'Expected owner to reject a proposal.');
+    assert.equal(patchRejectOk.body?.data?.status, 'rejected');
+
+    const rejectedProposal = normalizeFindManyResult(
+      await app.entityService.findMany(NEED_PROPOSAL_UID, {
+        filters: { proposalId: 'mark-stale::trust-validation::test' },
+        limit: 1,
+      }),
+    )[0];
+    assert.equal(rejectedProposal.status, 'rejected');
+    const rejectHistoryEntry = (rejectedProposal.history ?? []).find(
+      (h) => h.event === 'rejected-by-operator',
+    );
+    assert.ok(rejectHistoryEntry, 'Expected rejected-by-operator history entry.');
+    assert.equal(rejectHistoryEntry.note, 'Entry still active, sources renamed.');
+
+    // ── end patchNeedProposal ───────────────────────────────────────────────
 
     await app.entityService.update(MISSION_DECISION_UID, signalGuidanceDecision.id, {
       data: {
