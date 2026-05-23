@@ -38,7 +38,7 @@ function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function slugify(value) {
+export function slugify(value) {
   const slug = String(value)
     .toLowerCase()
     .normalize('NFD')
@@ -49,7 +49,7 @@ function slugify(value) {
   return slug || 'unmapped-source';
 }
 
-function hashId(parts) {
+export function hashId(parts) {
   return createHash('sha256').update(parts.join('\n')).digest('hex').slice(0, 16);
 }
 
@@ -63,7 +63,7 @@ function sourceRefIdentity(sourceRef) {
   ];
 }
 
-function proposalId(type, entryId, sourceRef) {
+export function proposalId(type, entryId, sourceRef) {
   const base = [type, entryId ?? 'new-entry', ...sourceRefIdentity(sourceRef)];
   return `${type}::${entryId ?? 'candidate'}::${hashId(base)}`;
 }
@@ -146,7 +146,7 @@ function markStaleProposal(generatedAt, entry) {
   };
 }
 
-function buildProposals(discovery, generatedAt, options) {
+export function buildProposals(discovery, generatedAt, options) {
   const addSourceRefProposals = discovery.proposals.map((proposal) =>
     addSourceRefProposal(generatedAt, proposal),
   );

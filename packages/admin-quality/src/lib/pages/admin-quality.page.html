@@ -2198,6 +2198,7 @@
       >{{ loadingNeedProposals() ? 'Chargement...' : needProposalsSnapshot() ? 'Actualiser' : 'Charger' }}</button>
     </div>
     <og7-admin-quality-needs-proposal-panel
+      #proposalPanel
       [snapshot]="needProposalsSnapshot()"
       (proposalAction)="handleProposalAction($event)"
     />

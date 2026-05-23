@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   input,
   output,
   signal,
@@ -264,6 +265,25 @@ export class AdminQualityNeedsProposalPanelComponent {
 
   readonly filterStatus = signal<ProposalFilterStatus>('proposed');
   private readonly pendingIds = signal<ReadonlySet<string>>(new Set());
+
+  constructor() {
+    effect(() => {
+      const resolved = (this.snapshot()?.proposals ?? [])
+        .filter((p) => p.status !== 'proposed')
+        .map((p) => p.proposalId);
+      if (resolved.length === 0) {
+        return;
+      }
+      this.pendingIds.update((ids) => {
+        if (!resolved.some((id) => ids.has(id))) {
+          return ids;
+        }
+        const next = new Set(ids);
+        resolved.forEach((id) => next.delete(id));
+        return next;
+      });
+    });
+  }
 
   readonly filterOptions: readonly { value: ProposalFilterStatus; label: string }[] = [
     { value: 'proposed', label: 'A traiter' },

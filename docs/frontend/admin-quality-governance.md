@@ -38,7 +38,12 @@ Les propositions avec confiance `medium` ou `low` nécessitent une revue manuell
 Ces propositions ne sont **jamais** auto-appliquées car elles impliquent :
 
 - **`create-entry`** : Un arbitrage produit sur si la source représente un vrai besoin métier distinct. L'opérateur doit confirmer l'`id`, le `domain`, le `need` et les `acceptanceCriteria` avant d'insérer l'entrée dans la matrice.
+
+  > **Important** : Cliquer **Accepter** dans l'interface enregistre uniquement la décision dans Strapi — cela **n'écrit rien** dans `admin-quality-matrix.json`. Après avoir accepté, l'opérateur doit ajouter manuellement l'entrée dans le fichier JSON, puis exécuter `yarn generate:admin-quality-impact-map` et `yarn validate:admin-quality-impact-map`.
+
 - **`mark-stale`** : Potentiellement une entrée légitime dont les sources ont été renommées, supprimées pour maintenance, ou déplacées. L'opérateur doit vérifier l'historique git avant de modifier `status`.
+
+  > **Important** : Accepter une proposition `mark-stale` n'archive pas l'entrée — c'est uniquement un signal de pilotage. La décision de changer le champ `status` de l'entrée dans `admin-quality-matrix.json` reste manuelle.
 
 ---
 

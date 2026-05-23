@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
 
       - name: Collect changed files
         id: changed
@@ -34,16 +34,17 @@ jobs:
         run: |
           export MATRIX_CHANGED_FILES="$(cat changed-files.txt)"
           node scripts/resolve-admin-quality-matrix-impact.mjs > impact.json
-          echo "mode=$(node -e "const d=require('./impact.json');process.stdout.write(d.mode??'none')")" >> "$GITHUB_OUTPUT"
+          echo "mode=$(jq -r '.mode // "none"' impact.json)" >> "$GITHUB_OUTPUT"
+          echo "entry_count=$(jq '.entryIds | length' impact.json)" >> "$GITHUB_OUTPUT"
 
       - name: Skip if no matrix impact
-        if: ${{ steps.impact.outputs.mode == 'none' }}
+        if: ${{ steps.impact.outputs.entry_count == '0' }}
         shell: bash
         run: |
-          echo "No matrix entries impacted by this PR. Skipping reconciliation and comment."
+          echo "No matrix entries impacted by this PR (mode=${{ steps.impact.outputs.mode }}, entries=0). Skipping."
 
       - name: Run needs reconciliation
-        if: ${{ steps.impact.outputs.mode != 'none' }}
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
         shell: bash
         run: |
           node scripts/reconcile-admin-quality-matrix.mjs \
@@ -51,7 +52,7 @@ jobs:
             --markdown-output admin-quality-needs-proposals.md
 
       - name: Format PR comment
-        if: ${{ steps.impact.outputs.mode != 'none' }}
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
         id: comment
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -63,14 +64,13 @@ jobs:
             > pr-quality-comment.md
 
       - name: Post or update PR comment
-        if: ${{ steps.impact.outputs.mode != 'none' }}
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         shell: bash
         run: |
           MARKER="<!-- og7-admin-quality-review -->"
-          COMMENT_BODY="$(cat pr-quality-comment.md)"
           REPO="${{ github.repository }}"
 
           EXISTING_COMMENT_ID=$(gh api \
@@ -80,21 +80,28 @@ jobs:
             | head -1)
 
           if [ -n "$EXISTING_COMMENT_ID" ]; then
+            node -e "
+              const fs = require('node:fs');
+              fs.writeFileSync(
+                'comment-payload.json',
+                JSON.stringify({ body: fs.readFileSync('pr-quality-comment.md', 'utf8') }),
+              );
+            "
             gh api \
               --method PATCH \
               repos/${REPO}/issues/comments/${EXISTING_COMMENT_ID} \
-              --field body="${COMMENT_BODY}" \
+              --input comment-payload.json \
               --silent
             echo "Updated existing PR comment #${EXISTING_COMMENT_ID}"
           else
             gh pr comment ${PR_NUMBER} \
               --repo ${REPO} \
-              --body "${COMMENT_BODY}"
+              --body-file pr-quality-comment.md
             echo "Posted new PR comment"
           fi
 
       - name: Upload impact and proposals artifacts
-        if: ${{ steps.impact.outputs.mode != 'none' }}
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
         uses: actions/upload-artifact@v4
         with:
           name: admin-quality-review-${{ github.event.pull_request.number }}

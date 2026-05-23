@@ -782,6 +782,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   @ViewChild('coverageSection') private coverageSection?: ElementRef<HTMLElement>;
   @ViewChild('workspaceSection') private workspaceSection?: ElementRef<HTMLElement>;
+  @ViewChild('proposalPanel') private proposalPanelRef?: AdminQualityNeedsProposalPanelComponent;
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -1927,6 +1928,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.agentAdvisor.announceNextWork(item);
     });
 
+    effect(() => {
+      if (this.activeConsoleSurface() === 'proposals' && this.needProposalsSnapshot() === null) {
+        this.loadNeedProposals();
+      }
+    });
+
     let previousProofSignature: string | null = null;
     effect(() => {
       const proof = this.selectedAiProofDisplay();
@@ -2043,7 +2050,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (snapshot) => this.needProposalsSnapshot.set(snapshot),
-        error: () => {},
+        error: () => {
+          this.notifications.error('Impossible de charger les propositions.', {
+            source: 'admin-quality',
+          });
+        },
       });
   }
 
@@ -2064,7 +2075,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
             ),
           });
         },
-        error: () => {},
+        error: () => {
+          this.proposalPanelRef?.clearPending(action.proposalId);
+          this.notifications.error('Erreur lors de la mise à jour de la proposition.', {
+            source: 'admin-quality',
+          });
+        },
       });
   }
 
