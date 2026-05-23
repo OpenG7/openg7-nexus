@@ -2184,6 +2184,26 @@
     </aside>
   </div>
 
+  <!-- ───── Proposals review surface ───── -->
+  @if (activeConsoleSurface() === 'proposals') {
+  <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-proposals-surface">
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Propositions agent</span>
+      <button
+        type="button"
+        class="px-2.5 py-1 rounded-lg text-xs font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors disabled:opacity-40"
+        [disabled]="loadingNeedProposals()"
+        data-og7-id="admin-quality-load-proposals"
+        (click)="loadNeedProposals()"
+      >{{ loadingNeedProposals() ? 'Chargement...' : needProposalsSnapshot() ? 'Actualiser' : 'Charger' }}</button>
+    </div>
+    <og7-admin-quality-needs-proposal-panel
+      [snapshot]="needProposalsSnapshot()"
+      (proposalAction)="handleProposalAction($event)"
+    />
+  </div>
+  }
+
   <og7-admin-quality-workspace-drawer
     [open]="workspaceOpen()"
     [activeSurface]="activeWorkspaceSurface()"

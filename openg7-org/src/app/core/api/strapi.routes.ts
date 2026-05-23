@@ -37,6 +37,7 @@ export const STRAPI_ROUTES = {
     qualityMatrix: '/api/admin/quality/matrix',
     qualityMatrixRecalculate: '/api/admin/quality/matrix/recalculate',
     qualityMatrixApplyProposal: '/api/admin/quality/matrix/apply-proposal',
+    qualityMatrixNeedProposals: '/api/admin/quality/matrix/proposals',
     qualityMissionDecisions: '/api/admin/quality/mission-decisions',
   },
 } as const;

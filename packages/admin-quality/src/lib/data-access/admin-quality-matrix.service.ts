@@ -164,3 +164,28 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly entry: AdminQualityMatrixEntry;
   readonly proposal: AdminQualityMatrixRecalculationEntry;
 }
+
+export type AdminQualityNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
+
+export interface AdminQualityNeedProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: AdminQualityNeedProposalType;
+  readonly status: AdminQualityNeedProposalStatus;
+  readonly confidence: AdminQualityMatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+  readonly history: readonly Record<string, unknown>[];
+  readonly correlationId: string | null;
+  readonly reportedAt: string | null;
+  readonly updatedAt: string | null;
+}
+
+export interface AdminQualityNeedProposalsSnapshot {
+  readonly generatedAt: string;
+  readonly proposals: readonly AdminQualityNeedProposal[];
+}

@@ -49,6 +49,7 @@ import {
   AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
   AdminQualityMatrixStoredRecalculation,
+  AdminQualityNeedProposalsSnapshot,
 } from '../data-access/admin-quality-matrix.service';
 import { AdminQualityMissionDecisionRecord } from '../data-access/admin-quality-mission-decisions.service';
 import {
@@ -115,6 +116,10 @@ import {
   AdminQualityMissionProviderComparisonEntry,
 } from './admin-quality-mission-control.component';
 import {
+  AdminQualityNeedProposalAction,
+  AdminQualityNeedsProposalPanelComponent,
+} from './admin-quality-needs-proposal-panel.component';
+import {
   AdminQualityMissionQuotaSummary,
   AdminQualityMissionTask,
   buildMissionTasks,
@@ -134,7 +139,7 @@ type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
 type AdminQualityMissionRadarTimelineKind = 'lock' | 'action' | 'proof';
 type AdminQualityBuildNowTone = 'review' | 'build' | 'proof' | 'blocked';
-type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace';
+type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace' | 'proposals';
 type AdminQualityMissionRadarSignalTone =
   | 'manual'
   | 'pulse'
@@ -299,6 +304,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
     AdminQualityWorkspaceDrawerComponent,
+    AdminQualityNeedsProposalPanelComponent,
   ],
   templateUrl: './admin-quality.page.html',
   styles: [
@@ -783,6 +789,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly recalculatingMatrix = signal(false);
   readonly applyingMatrixProposal = signal(false);
   readonly matrixRecalculation = signal<AdminQualityMatrixRecalculationSnapshot | null>(null);
+  readonly needProposalsSnapshot = signal<AdminQualityNeedProposalsSnapshot | null>(null);
+  readonly loadingNeedProposals = signal(false);
   readonly matrixRecalculationScope =
     signal<AdminQualityMatrixRecalculationScope>('refresh-required');
 
@@ -848,6 +856,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'ai', label: 'IA', detail: 'Pilotage', iconLabel: 'AI' },
     { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
     { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
+    { id: 'proposals', label: 'Propositions', detail: 'Besoins detectes', iconLabel: 'PR' },
   ];
   readonly matrixRecalculationScopeSelectOptions = MATRIX_RECALCULATION_SCOPE_SELECT_OPTIONS;
   readonly priorityFilterOptions = PRIORITY_FILTER_OPTIONS;
@@ -2018,6 +2027,44 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
             source: 'admin-quality',
           });
         },
+      });
+  }
+
+  loadNeedProposals(): void {
+    if (this.loadingNeedProposals()) {
+      return;
+    }
+    this.loadingNeedProposals.set(true);
+    this.service
+      .listNeedProposals()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingNeedProposals.set(false)),
+      )
+      .subscribe({
+        next: (snapshot) => this.needProposalsSnapshot.set(snapshot),
+        error: () => {},
+      });
+  }
+
+  handleProposalAction(action: AdminQualityNeedProposalAction): void {
+    this.service
+      .patchNeedProposal(action.proposalId, action.status)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          const current = this.needProposalsSnapshot();
+          if (!current) {
+            return;
+          }
+          this.needProposalsSnapshot.set({
+            ...current,
+            proposals: current.proposals.map((p) =>
+              p.proposalId === updated.proposalId ? updated : p,
+            ),
+          });
+        },
+        error: () => {},
       });
   }
 

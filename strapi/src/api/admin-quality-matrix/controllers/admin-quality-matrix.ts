@@ -2048,6 +2048,54 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     };
   },
 
+  async patchNeedProposal(ctx: Context) {
+    const { proposalId } = ctx.params as Record<string, unknown>;
+    const normalizedProposalId = normalizeString(proposalId, 240);
+    if (!normalizedProposalId) {
+      ctx.badRequest('proposalId path parameter is required.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const rawStatus = normalizeString(body.status, 40);
+    if (rawStatus !== 'accepted' && rawStatus !== 'rejected') {
+      ctx.badRequest('status must be "accepted" or "rejected".');
+      return;
+    }
+    const nextStatus = rawStatus as 'accepted' | 'rejected';
+    const note = normalizeString(body.note, 500);
+
+    const existing = await findNeedProposalByProposalId(strapi, normalizedProposalId);
+    if (!existing?.id) {
+      ctx.notFound('Proposal not found.');
+      return;
+    }
+
+    const previousStatus = normalizeNeedProposalStatus(existing.status);
+    if (previousStatus === 'accepted' || previousStatus === 'rejected') {
+      ctx.badRequest(`Proposal is already ${previousStatus} and cannot be changed.`);
+      return;
+    }
+
+    const updatedAt = new Date().toISOString();
+    const history = [
+      ...normalizeHistory(existing.history),
+      {
+        event: nextStatus === 'accepted' ? 'accepted-by-operator' : 'rejected-by-operator',
+        at: updatedAt,
+        previousStatus,
+        nextStatus,
+        note: note ?? null,
+      },
+    ].slice(-50);
+
+    const updated = await strapi.entityService.update(NEED_PROPOSAL_UID, existing.id, {
+      data: { status: nextStatus, history } as any,
+    });
+
+    ctx.body = { data: toNeedProposalResponse(updated as MatrixNeedProposalEntity) };
+  },
+
   async ingestNeedProposals(ctx: Context) {
     if (!requireIngestToken(ctx)) {
       return;

@@ -1,0 +1,106 @@
+name: Admin Quality PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  quality-review:
+    name: Detect impacted quality entries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Collect changed files
+        id: changed
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > changed-files.txt
+          echo "count=$(wc -l < changed-files.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve impacted matrix entries
+        id: impact
+        shell: bash
+        run: |
+          export MATRIX_CHANGED_FILES="$(cat changed-files.txt)"
+          node scripts/resolve-admin-quality-matrix-impact.mjs > impact.json
+          echo "mode=$(node -e "const d=require('./impact.json');process.stdout.write(d.mode??'none')")" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if no matrix impact
+        if: ${{ steps.impact.outputs.mode == 'none' }}
+        shell: bash
+        run: |
+          echo "No matrix entries impacted by this PR. Skipping reconciliation and comment."
+
+      - name: Run needs reconciliation
+        if: ${{ steps.impact.outputs.mode != 'none' }}
+        shell: bash
+        run: |
+          node scripts/reconcile-admin-quality-matrix.mjs \
+            --output admin-quality-needs-proposals.json \
+            --markdown-output admin-quality-needs-proposals.md
+
+      - name: Format PR comment
+        if: ${{ steps.impact.outputs.mode != 'none' }}
+        id: comment
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          node scripts/format-pr-quality-comment.mjs \
+            impact.json \
+            admin-quality-needs-proposals.json \
+            > pr-quality-comment.md
+
+      - name: Post or update PR comment
+        if: ${{ steps.impact.outputs.mode != 'none' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          MARKER="<!-- og7-admin-quality-review -->"
+          COMMENT_BODY="$(cat pr-quality-comment.md)"
+          REPO="${{ github.repository }}"
+
+          EXISTING_COMMENT_ID=$(gh api \
+            repos/${REPO}/issues/${PR_NUMBER}/comments \
+            --paginate \
+            --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" \
+            | head -1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            gh api \
+              --method PATCH \
+              repos/${REPO}/issues/comments/${EXISTING_COMMENT_ID} \
+              --field body="${COMMENT_BODY}" \
+              --silent
+            echo "Updated existing PR comment #${EXISTING_COMMENT_ID}"
+          else
+            gh pr comment ${PR_NUMBER} \
+              --repo ${REPO} \
+              --body "${COMMENT_BODY}"
+            echo "Posted new PR comment"
+          fi
+
+      - name: Upload impact and proposals artifacts
+        if: ${{ steps.impact.outputs.mode != 'none' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-quality-review-${{ github.event.pull_request.number }}
+          path: |
+            impact.json
+            admin-quality-needs-proposals.json
+            admin-quality-needs-proposals.md
+          if-no-files-found: warn
+          retention-days: 14

@@ -6,6 +6,8 @@ export interface AdminQualityMatrixPort<
   TRecalculationScope = string,
   TRecalculationSnapshot = unknown,
   TApplyProposalResult = unknown,
+  TNeedProposalsSnapshot = unknown,
+  TNeedProposal = unknown,
 > {
   loadMatrix(): Observable<TSnapshot>;
   recalculateMatrix(
@@ -13,6 +15,12 @@ export interface AdminQualityMatrixPort<
     entryId?: string | null,
   ): Observable<TRecalculationSnapshot>;
   applyMatrixProposal(entryId: string): Observable<TApplyProposalResult>;
+  listNeedProposals(): Observable<TNeedProposalsSnapshot>;
+  patchNeedProposal(
+    proposalId: string,
+    status: 'accepted' | 'rejected',
+    note?: string | null,
+  ): Observable<TNeedProposal>;
 }
 
 export interface AdminQualityOpsPort<

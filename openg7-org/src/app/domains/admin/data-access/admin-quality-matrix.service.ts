@@ -173,6 +173,53 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly proposal: AdminQualityMatrixRecalculationEntry;
 }
 
+export type AdminQualityNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
+
+export interface AdminQualityNeedProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: AdminQualityNeedProposalType;
+  readonly status: AdminQualityNeedProposalStatus;
+  readonly confidence: AdminQualityMatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+  readonly history: readonly Record<string, unknown>[];
+  readonly correlationId: string | null;
+  readonly reportedAt: string | null;
+  readonly updatedAt: string | null;
+}
+
+export interface AdminQualityNeedProposalsSnapshot {
+  readonly generatedAt: string;
+  readonly proposals: readonly AdminQualityNeedProposal[];
+}
+
+interface AdminQualityNeedProposalResponse {
+  readonly id?: unknown;
+  readonly proposalId?: unknown;
+  readonly entryId?: unknown;
+  readonly type?: unknown;
+  readonly status?: unknown;
+  readonly confidence?: unknown;
+  readonly title?: unknown;
+  readonly summary?: unknown;
+  readonly source?: unknown;
+  readonly payload?: unknown;
+  readonly history?: unknown;
+  readonly correlationId?: unknown;
+  readonly reportedAt?: unknown;
+  readonly updatedAt?: unknown;
+}
+
+interface AdminQualityNeedProposalsResponse {
+  readonly generatedAt?: unknown;
+  readonly proposals?: readonly AdminQualityNeedProposalResponse[] | null;
+}
+
 interface AdminQualityMatrixResponse {
   readonly generatedAt?: string | null;
   readonly sourceStatus?: AdminQualityMatrixSourceStatus | null;
@@ -296,6 +343,31 @@ export class AdminQualityMatrixService {
         StrapiDataResponse<AdminQualityMatrixApplyProposalResponse>
       >(STRAPI_ROUTES.admin.qualityMatrixApplyProposal, { entryId }, this.silentMutationOptions)
       .pipe(map((response) => this.normalizeApplyProposalResult(response.data)));
+  }
+
+  listNeedProposals(): Observable<AdminQualityNeedProposalsSnapshot> {
+    return this.http
+      .get<
+        StrapiDataResponse<AdminQualityNeedProposalsResponse>
+      >(STRAPI_ROUTES.admin.qualityMatrixNeedProposals, this.silentOptions)
+      .pipe(map((response) => this.normalizeNeedProposalsSnapshot(response.data)));
+  }
+
+  patchNeedProposal(
+    proposalId: string,
+    status: 'accepted' | 'rejected',
+    note?: string | null,
+  ): Observable<AdminQualityNeedProposal> {
+    const encodedId = encodeURIComponent(proposalId);
+    return this.http
+      .patch<
+        StrapiDataResponse<AdminQualityNeedProposalResponse>
+      >(
+        `${STRAPI_ROUTES.admin.qualityMatrixNeedProposals}/${encodedId}`,
+        { status, note: note ?? null },
+        this.silentMutationOptions,
+      )
+      .pipe(map((response) => this.normalizeNeedProposal(response.data)));
   }
 
   private normalizeSnapshot(
@@ -829,5 +901,58 @@ export class AdminQualityMatrixService {
     }
 
     return `La matrice QA date de ${ageDays} jours; relancer l'audit ou la generation avant arbitrage final.`;
+  }
+
+  private normalizeNeedProposal(value: AdminQualityNeedProposalResponse | null | undefined): AdminQualityNeedProposal {
+    const str = (v: unknown, max = 500): string | null => {
+      const s = typeof v === 'string' ? v.trim() : null;
+      return s ? s.slice(0, max) : null;
+    };
+
+    const type = str(value?.type, 40);
+    const status = str(value?.status, 40);
+
+    return {
+      id: str(value?.id, 40),
+      proposalId: str(value?.proposalId, 240) ?? '',
+      entryId: str(value?.entryId, 180) ?? '',
+      type: (type === 'add-source-ref' || type === 'create-entry' || type === 'mark-stale'
+        ? type
+        : 'add-source-ref') as AdminQualityNeedProposalType,
+      status: (status === 'accepted' || status === 'rejected' || status === 'superseded'
+        ? status
+        : 'proposed') as AdminQualityNeedProposalStatus,
+      confidence: (str(value?.confidence) === 'high' || str(value?.confidence) === 'low'
+        ? str(value?.confidence)
+        : 'medium') as AdminQualityMatrixDiscoveryConfidence,
+      title: str(value?.title, 220),
+      summary: str(value?.summary, 2000),
+      source: value?.source && typeof value.source === 'object' && !Array.isArray(value.source)
+        ? (value.source as Record<string, unknown>)
+        : {},
+      payload: value?.payload && typeof value.payload === 'object' && !Array.isArray(value.payload)
+        ? (value.payload as Record<string, unknown>)
+        : {},
+      history: Array.isArray(value?.history)
+        ? (value.history as Record<string, unknown>[])
+        : [],
+      correlationId: str(value?.correlationId, 180),
+      reportedAt: str(value?.reportedAt, 40),
+      updatedAt: str(value?.updatedAt, 40),
+    };
+  }
+
+  private normalizeNeedProposalsSnapshot(
+    response: AdminQualityNeedProposalsResponse | null | undefined,
+  ): AdminQualityNeedProposalsSnapshot {
+    return {
+      generatedAt:
+        typeof response?.generatedAt === 'string' && response.generatedAt.trim()
+          ? response.generatedAt
+          : new Date().toISOString(),
+      proposals: Array.isArray(response?.proposals)
+        ? response.proposals.map((p) => this.normalizeNeedProposal(p))
+        : [],
+    };
   }
 }

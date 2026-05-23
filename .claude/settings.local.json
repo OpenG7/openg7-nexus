@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const { reconcileAdminQualityMatrix } = await import\\('./scripts/reconcile-admin-quality-matrix.mjs'\\); console.log\\('ok'\\)\")",
+      "Bash(node --input-type=module)",
+      "Bash(node --test scripts/__tests__/admin-quality-matrix-model.test.mjs)"
+    ]
+  }
+}

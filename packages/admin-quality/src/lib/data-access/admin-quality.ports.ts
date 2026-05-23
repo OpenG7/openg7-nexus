@@ -28,6 +28,8 @@ import type {
   AdminQualityMatrixRecalculationScope,
   AdminQualityMatrixRecalculationSnapshot,
   AdminQualityMatrixSnapshot,
+  AdminQualityNeedProposal,
+  AdminQualityNeedProposalsSnapshot,
 } from './admin-quality-matrix.service';
 import type {
   AdminQualityMissionDecisionRecord,
@@ -39,7 +41,9 @@ export type AdminQualityMatrixPort = PortableAdminQualityMatrixPort<
   AdminQualityMatrixSnapshot,
   AdminQualityMatrixRecalculationScope,
   AdminQualityMatrixRecalculationSnapshot,
-  AdminQualityMatrixApplyProposalResult
+  AdminQualityMatrixApplyProposalResult,
+  AdminQualityNeedProposalsSnapshot,
+  AdminQualityNeedProposal
 >;
 
 export type AdminQualityOpsPort = PortableAdminQualityOpsPort<

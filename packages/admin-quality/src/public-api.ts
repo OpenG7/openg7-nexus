@@ -19,4 +19,5 @@ export * from './lib/pages/admin-quality-mission-actions';
 export * from './lib/pages/admin-quality-mission-control';
 export * from './lib/pages/admin-quality-mission-control.component';
 export * from './lib/pages/admin-quality-mission-task-planner';
+export * from './lib/pages/admin-quality-needs-proposal-panel.component';
 export * from './lib/pages/admin-quality.page';
