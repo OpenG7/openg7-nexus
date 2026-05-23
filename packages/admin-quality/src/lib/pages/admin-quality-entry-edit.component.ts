@@ -73,7 +73,7 @@ const PRIORITY_OPTIONS: ReadonlyArray<{ readonly value: AdminQualityMatrixPriori
             (input)="onObservedGapInput($event)"
           ></textarea>
           @if (e.agentObservedGap && observedGap() !== e.agentObservedGap) {
-            <div class="text-xs text-sky-600 italic px-1">Suggestion IA: {{ e.agentObservedGap | slice:0:120 }}{{ (e.agentObservedGap?.length ?? 0) > 120 ? '…' : '' }}</div>
+            <div class="text-xs text-sky-600 italic px-1">Suggestion IA: {{ e.agentObservedGap | slice:0:120 }}{{ e.agentObservedGap.length > 120 ? '…' : '' }}</div>
           }
         </div>
 
@@ -98,7 +98,7 @@ const PRIORITY_OPTIONS: ReadonlyArray<{ readonly value: AdminQualityMatrixPriori
             (input)="onNextMoveInput($event)"
           ></textarea>
           @if (e.agentNextMove && nextMove() !== e.agentNextMove) {
-            <div class="text-xs text-sky-600 italic px-1">Suggestion IA: {{ e.agentNextMove | slice:0:120 }}{{ (e.agentNextMove?.length ?? 0) > 120 ? '…' : '' }}</div>
+            <div class="text-xs text-sky-600 italic px-1">Suggestion IA: {{ e.agentNextMove | slice:0:120 }}{{ e.agentNextMove.length > 120 ? '…' : '' }}</div>
           }
         </div>
 
