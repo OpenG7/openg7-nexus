@@ -115,6 +115,7 @@ import {
   AdminQualityMissionProofDisplay,
   AdminQualityMissionProviderComparisonEntry,
 } from './admin-quality-mission-control.component';
+import { AdminQualityAgentChatComponent } from './admin-quality-agent-chat.component';
 import {
   AdminQualityNeedProposalAction,
   AdminQualityNeedsProposalPanelComponent,
@@ -139,7 +140,7 @@ type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
 type AdminQualityMissionRadarTimelineKind = 'lock' | 'action' | 'proof';
 type AdminQualityBuildNowTone = 'review' | 'build' | 'proof' | 'blocked';
-type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace' | 'proposals';
+type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace' | 'proposals' | 'agent';
 type AdminQualityMissionRadarSignalTone =
   | 'manual'
   | 'pulse'
@@ -305,6 +306,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     AdminQualityDomainIconComponent,
     AdminQualityWorkspaceDrawerComponent,
     AdminQualityNeedsProposalPanelComponent,
+    AdminQualityAgentChatComponent,
   ],
   templateUrl: './admin-quality.page.html',
   styles: [
@@ -858,6 +860,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
     { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
     { id: 'proposals', label: 'Propositions', detail: 'Besoins detectes', iconLabel: 'PR' },
+    { id: 'agent', label: 'Agent', detail: 'Chat IA', iconLabel: 'AG' },
   ];
   readonly matrixRecalculationScopeSelectOptions = MATRIX_RECALCULATION_SCOPE_SELECT_OPTIONS;
   readonly priorityFilterOptions = PRIORITY_FILTER_OPTIONS;
@@ -868,6 +871,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.consoleSurfaceOptions.find((surface) => surface.id === this.activeConsoleSurface()) ??
       this.consoleSurfaceOptions[0],
   );
+
+  readonly agentChatContext = computed(() => {
+    const entryId = this.selectedEntryId();
+    return entryId ? { entryIds: [entryId] } : null;
+  });
   readonly consoleMissionActions = computed<readonly AdminQualityMissionActionDescriptor[]>(() => {
     const mission = this.selectedMission();
     return mission ? missionActionDescriptors(mission.status) : [];

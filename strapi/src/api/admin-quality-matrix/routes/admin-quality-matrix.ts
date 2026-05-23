@@ -80,5 +80,13 @@ export default {
         policies: ['global::owner-admin-ops'],
       },
     },
+    {
+      method: 'POST',
+      path: '/admin/quality/matrix/chat',
+      handler: 'admin-quality-matrix.chatWithAgent',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
   ],
 };

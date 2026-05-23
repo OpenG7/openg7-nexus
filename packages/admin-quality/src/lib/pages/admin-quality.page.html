@@ -2184,6 +2184,19 @@
     </aside>
   </div>
 
+  <!-- ───── Agent chat surface ───── -->
+  @if (activeConsoleSurface() === 'agent') {
+  <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-agent-surface">
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">✦ Agent IA</span>
+      <span class="text-[10px] text-slate-400">claude-sonnet-4-6</span>
+    </div>
+    <og7-admin-quality-agent-chat
+      [context]="agentChatContext()"
+    />
+  </div>
+  }
+
   <!-- ───── Proposals review surface ───── -->
   @if (activeConsoleSurface() === 'proposals') {
   <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-proposals-surface">

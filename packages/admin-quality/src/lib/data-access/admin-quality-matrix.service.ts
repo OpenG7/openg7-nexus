@@ -87,6 +87,28 @@ export interface AdminQualityAgentSuggestionProposal {
   readonly suggestedValue: string;
 }
 
+export interface AdminQualityChatMessage {
+  readonly role: 'user' | 'assistant';
+  readonly content: string;
+}
+
+export interface AdminQualityChatContext {
+  readonly entryIds?: readonly string[];
+}
+
+export type AdminQualityChatEventType = 'text' | 'proposal-created' | 'done' | 'error';
+
+export interface AdminQualityChatEvent {
+  readonly type: AdminQualityChatEventType;
+  readonly content?: string;
+  readonly proposalId?: string;
+  readonly entryId?: string;
+  readonly field?: string;
+  readonly generatedAt?: string;
+  readonly proposalCount?: number;
+  readonly message?: string;
+}
+
 export interface AdminQualityAgentSuggestionResult {
   readonly entryId: string;
   readonly proposals: readonly AdminQualityAgentSuggestionProposal[];

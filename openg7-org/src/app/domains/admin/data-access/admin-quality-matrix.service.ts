@@ -1,8 +1,20 @@
-import { HttpContext, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpContext,
+  HttpDownloadProgressEvent,
+  HttpErrorResponse,
+  HttpEventType,
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
+import { RuntimeConfigService } from '@app/core/config/runtime-config.service';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import type {
+  AdminQualityChatContext,
+  AdminQualityChatEvent,
+  AdminQualityChatMessage,
+} from '@openg7/admin-quality';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -331,6 +343,8 @@ const MS_PER_DAY = 86_400_000;
 @Injectable({ providedIn: 'root' })
 export class AdminQualityMatrixService {
   private readonly http = inject(HttpClientService);
+  private readonly rawHttp = inject(HttpClient);
+  private readonly runtimeConfig = inject(RuntimeConfigService);
   private readonly silentOptions = {
     context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
   };
@@ -439,6 +453,65 @@ export class AdminQualityMatrixService {
         this.silentMutationOptions,
       )
       .pipe(map((response) => this.normalizeAgentSuggestionResult(response.data)));
+  }
+
+  chatWithAgent(
+    messages: readonly AdminQualityChatMessage[],
+    context?: AdminQualityChatContext,
+  ): Observable<AdminQualityChatEvent> {
+    const baseUrl = this.runtimeConfig.apiUrl().replace(/\/$/, '');
+    const url = `${baseUrl}${STRAPI_ROUTES.admin.qualityMatrixChat}`;
+
+    return new Observable<AdminQualityChatEvent>((observer) => {
+      let processedLength = 0;
+
+      const sub = this.rawHttp
+        .post(
+          url,
+          { messages, context: context ?? {} },
+          {
+            observe: 'events',
+            reportProgress: true,
+            responseType: 'text',
+            withCredentials: this.runtimeConfig.apiWithCredentials(),
+          },
+        )
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              const partial = (event as HttpDownloadProgressEvent).partialText ?? '';
+              const newText = partial.slice(processedLength);
+              processedLength = partial.length;
+
+              const lines = newText.split('\n');
+              for (const line of lines) {
+                if (!line.startsWith('data: ')) {
+                  continue;
+                }
+                const jsonStr = line.slice(6).trim();
+                if (!jsonStr) {
+                  continue;
+                }
+                try {
+                  const parsed = JSON.parse(jsonStr) as AdminQualityChatEvent;
+                  observer.next(parsed);
+                  if (parsed.type === 'done' || parsed.type === 'error') {
+                    observer.complete();
+                  }
+                } catch {
+                  // ignore malformed SSE lines
+                }
+              }
+            } else if (event.type === HttpEventType.Response) {
+              observer.complete();
+            }
+          },
+          error: (err: unknown) => observer.error(err),
+          complete: () => observer.complete(),
+        });
+
+      return () => sub.unsubscribe();
+    });
   }
 
   private normalizeSnapshot(

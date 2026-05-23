@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import https from 'node:https';
+import { PassThrough } from 'node:stream';
 
 import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
@@ -2052,6 +2053,179 @@ function resolveGeneratedAt(entries: readonly MatrixEntryEntity[]): string {
   return new Date(Math.max(...timestamps)).toISOString();
 }
 
+// ─── Chat agent helpers ───────────────────────────────────────────────────────
+
+const CHAT_SYSTEM_PROMPT_TEMPLATE = `Tu es un analyste expert de la matrice qualité de la plateforme OpenG7.
+Tu aides l'équipe à identifier les besoins non couverts, les écarts observés et les prochaines actions.
+Réponds en français. Sois précis, concis et actionnable.
+
+## Matrice qualité actuelle
+
+{MATRIX_CONTEXT}
+
+## Format des propositions
+
+Quand tu veux proposer une modification ou un ajout, insère dans ta réponse des balises XML au format suivant.
+
+Pour suggérer un texte pour observedGap ou nextMove d'une entrée existante :
+<og7:proposal type="suggest-narrative" entryId="ID_ENTREE" field="observedGap">
+Texte suggéré ici
+</og7:proposal>
+
+Pour proposer une nouvelle entrée candidate :
+<og7:proposal type="create-entry">
+{"id":"NOUVEAU-ID","domain":"Domaine","need":"Description du besoin"}
+</og7:proposal>
+
+Ces propositions seront soumises à l'équipe pour validation dans l'onglet Propositions.`;
+
+function chatSseEvent(stream: PassThrough, type: string, data: Record<string, unknown>): void {
+  stream.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+}
+
+async function anthropicStreamMessages(
+  apiKey: string,
+  model: string,
+  systemPrompt: string,
+  messages: ReadonlyArray<{ role: string; content: string }>,
+  onChunk: (text: string) => void,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model,
+      max_tokens: 4096,
+      stream: true,
+      system: systemPrompt,
+      messages,
+    });
+
+    const req = https.request(
+      {
+        hostname: 'api.anthropic.com',
+        path: '/v1/messages',
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'content-length': Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        let fullText = '';
+        let sseBuffer = '';
+
+        res.on('data', (chunk: Buffer) => {
+          sseBuffer += chunk.toString();
+          const lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) {
+              continue;
+            }
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') {
+              continue;
+            }
+            try {
+              const event = JSON.parse(jsonStr) as Record<string, unknown>;
+              if (event['type'] === 'content_block_delta') {
+                const delta = event['delta'] as Record<string, unknown> | null;
+                if (delta?.['type'] === 'text_delta' && typeof delta['text'] === 'string') {
+                  fullText += delta['text'];
+                  onChunk(delta['text']);
+                }
+              }
+            } catch {
+              // ignore malformed SSE lines
+            }
+          }
+        });
+
+        res.on('end', () => resolve(fullText));
+        res.on('error', reject);
+      },
+    );
+
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+async function buildChatSystemPrompt(
+  strapiInstance: Core.Strapi,
+  entryIds?: string[],
+): Promise<string> {
+  let entries: Record<string, unknown>[] = [];
+  try {
+    const findOptions: Record<string, unknown> = {
+      pagination: { limit: 200 },
+    };
+    if (entryIds && entryIds.length > 0) {
+      findOptions['filters'] = { id: { $in: entryIds } };
+    }
+    const result = await (strapiInstance.entityService as any).findMany(
+      MATRIX_ENTRY_UID,
+      findOptions,
+    );
+    entries = Array.isArray(result) ? result : [];
+  } catch {
+    entries = [];
+  }
+
+  const lines: string[] = [];
+  for (const entry of entries) {
+    const id = String(entry['id'] ?? '');
+    const domain = String(entry['domain'] ?? '');
+    const need = String(entry['need'] ?? '');
+    const bucket = String(entry['managementBucket'] ?? '');
+    const priority = String(entry['priority'] ?? '');
+    const gap = typeof entry['observedGap'] === 'string' ? entry['observedGap'] : '';
+    const move = typeof entry['nextMove'] === 'string' ? entry['nextMove'] : '';
+    lines.push(
+      `[${id}] ${domain} — ${need}\n  bucket: ${bucket} | priorité: ${priority}` +
+        (gap ? `\n  écart: ${gap.slice(0, 200)}` : '') +
+        (move ? `\n  action: ${move.slice(0, 200)}` : ''),
+    );
+  }
+
+  const context = lines.length > 0 ? lines.join('\n\n') : 'Aucune entrée disponible.';
+  return CHAT_SYSTEM_PROMPT_TEMPLATE.replace('{MATRIX_CONTEXT}', context);
+}
+
+function extractChatProposals(
+  text: string,
+): Array<{ type: string; entryId?: string; field?: string; body: string }> {
+  const proposals: Array<{ type: string; entryId?: string; field?: string; body: string }> = [];
+  const tagRegex = /<og7:proposal\s+([^>]+?)>([\s\S]*?)<\/og7:proposal>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagRegex.exec(text)) !== null) {
+    const attrsStr = match[1];
+    const body = match[2].trim();
+    const attrs: Record<string, string> = {};
+    const attrRegex = /(\w+)="([^"]*)"/g;
+    let attrMatch: RegExpExecArray | null;
+    while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+      attrs[attrMatch[1]] = attrMatch[2];
+    }
+    if (attrs['type']) {
+      proposals.push({
+        type: attrs['type'],
+        entryId: attrs['entryId'],
+        field: attrs['field'],
+        body,
+      });
+    }
+  }
+
+  return proposals;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
   async listNeedProposals(ctx: Context) {
     const rawProposals = await strapi.entityService.findMany(NEED_PROPOSAL_UID, {
@@ -2806,5 +2980,139 @@ Réponds uniquement en JSON avec ce format exact :
     });
 
     ctx.body = { data: { entryId, createdProposalIds, generatedAt, model: modelId } };
+  },
+
+  async chatWithAgent(ctx: Context) {
+    const apiKey = process.env['ANTHROPIC_API_KEY'];
+    if (!apiKey) {
+      ctx.status = 503;
+      ctx.body = { error: 'ANTHROPIC_API_KEY not configured' };
+      return;
+    }
+
+    const reqBody = ctx.request.body as Record<string, unknown>;
+    const rawMessages = Array.isArray(reqBody?.['messages']) ? reqBody['messages'] : [];
+    if (rawMessages.length === 0) {
+      ctx.status = 400;
+      ctx.body = { error: 'messages is required and must be a non-empty array' };
+      return;
+    }
+
+    const messages = (rawMessages as Array<Record<string, unknown>>)
+      .filter(
+        (m) =>
+          (m['role'] === 'user' || m['role'] === 'assistant') &&
+          typeof m['content'] === 'string',
+      )
+      .map((m) => ({ role: m['role'] as string, content: m['content'] as string }));
+
+    if (messages.length === 0) {
+      ctx.status = 400;
+      ctx.body = { error: 'No valid messages provided' };
+      return;
+    }
+
+    const context = (reqBody?.['context'] as Record<string, unknown>) ?? {};
+    const entryIds = Array.isArray(context['entryIds'])
+      ? (context['entryIds'] as string[]).filter((id) => typeof id === 'string')
+      : undefined;
+
+    const model = 'claude-sonnet-4-6';
+    const systemPrompt = await buildChatSystemPrompt(strapi, entryIds);
+
+    const stream = new PassThrough();
+    ctx.set('Content-Type', 'text/event-stream');
+    ctx.set('Cache-Control', 'no-cache');
+    ctx.set('Connection', 'keep-alive');
+    ctx.set('X-Accel-Buffering', 'no');
+    ctx.body = stream;
+    ctx.status = 200;
+
+    try {
+      const fullText = await anthropicStreamMessages(apiKey, model, systemPrompt, messages, (chunk) => {
+        chatSseEvent(stream, 'text', { content: chunk });
+      });
+
+      const proposals = extractChatProposals(fullText);
+      const createdProposalIds: string[] = [];
+      const generatedAt = new Date().toISOString();
+
+      for (const proposal of proposals) {
+        try {
+          if (
+            proposal.type === 'suggest-narrative' &&
+            proposal.entryId &&
+            (proposal.field === 'observedGap' || proposal.field === 'nextMove')
+          ) {
+            const proposalId = `suggest-narrative::${proposal.entryId}::${proposal.field}::chat::${Date.now()}`;
+            await strapi.entityService.create(NEED_PROPOSAL_UID, {
+              data: {
+                proposalId,
+                entryId: proposal.entryId,
+                type: 'suggest-narrative',
+                status: 'proposed',
+                confidence: 'medium',
+                title: `Suggestion IA chat — ${proposal.field} (${proposal.entryId})`,
+                summary: `Proposé lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
+                source: { agent: 'chat', model, generatedAt },
+                payload: {
+                  field: proposal.field,
+                  suggestedValue: proposal.body,
+                  rationale: 'Proposé via chat agent',
+                },
+                history: [{ event: 'created-by-chat', at: generatedAt, model }],
+                reportedAt: generatedAt,
+              } as any,
+            });
+            createdProposalIds.push(proposalId);
+            chatSseEvent(stream, 'proposal-created', {
+              proposalId,
+              type: 'suggest-narrative',
+              entryId: proposal.entryId,
+              field: proposal.field,
+            });
+          } else if (proposal.type === 'create-entry') {
+            let candidate: Record<string, unknown> = {};
+            try {
+              candidate = JSON.parse(proposal.body);
+            } catch {
+              candidate = { need: proposal.body };
+            }
+            const entryId = typeof candidate['id'] === 'string' ? candidate['id'] : `chat-entry-${Date.now()}`;
+            const proposalId = `create-entry::${entryId}::chat::${Date.now()}`;
+            await strapi.entityService.create(NEED_PROPOSAL_UID, {
+              data: {
+                proposalId,
+                entryId,
+                type: 'create-entry',
+                status: 'proposed',
+                confidence: 'low',
+                title: `Nouvelle entrée candidate — ${entryId}`,
+                summary: `Proposée lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
+                source: { agent: 'chat', model, generatedAt },
+                payload: { candidateEntry: candidate },
+                history: [{ event: 'created-by-chat', at: generatedAt, model }],
+                reportedAt: generatedAt,
+              } as any,
+            });
+            createdProposalIds.push(proposalId);
+            chatSseEvent(stream, 'proposal-created', {
+              proposalId,
+              type: 'create-entry',
+              entryId,
+            });
+          }
+        } catch {
+          // individual proposal creation failures should not abort the stream
+        }
+      }
+
+      chatSseEvent(stream, 'done', { generatedAt, proposalCount: createdProposalIds.length });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur inconnue';
+      chatSseEvent(stream, 'error', { message });
+    } finally {
+      stream.end();
+    }
   },
 });

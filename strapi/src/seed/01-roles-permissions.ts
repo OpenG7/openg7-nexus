@@ -105,6 +105,7 @@ export default async () => {
       exportMatrix: true,
       editMatrixEntry: true,
       agentSuggestNarrative: true,
+      chatWithAgent: true,
     },
     'api::admin-quality-mission-decision.admin-quality-mission-decision': {
       list: true,
