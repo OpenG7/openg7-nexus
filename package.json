@@ -63,6 +63,8 @@
     "admin:quality:agent:apply": "yarn workspace @openg7/tooling admin:quality:agent -- --apply",
     "validate:quality-actions": "node ./scripts/generate-admin-quality-action-discovery.mjs --check",
     "validate:admin-quality-impact-map": "node ./scripts/generate-admin-quality-impact-map.mjs --check",
+    "validate:admin-quality-matrix": "node ./scripts/validate-admin-quality-matrix.mjs",
+    "audit:admin-quality-staleness": "node ./scripts/audit-admin-quality-staleness.mjs",
     "validate:preprod-runtime-config": "yarn workspace @openg7/web validate:preprod-config",
     "docs": "typedoc --options typedoc.core.json",
     "docs:core": "typedoc --options typedoc.core.json",

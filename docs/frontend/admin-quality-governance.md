@@ -138,6 +138,50 @@ yarn validate:admin-quality-impact-map
 
 ---
 
+## Gardes-fou de fraîcheur de la matrice
+
+Trois mécanismes complémentaires s'assurent que `admin-quality-matrix.json` reste cohérent et à jour.
+
+### Famille 1 — Validation statique (cohérence interne du JSON)
+
+```bash
+yarn validate:admin-quality-matrix          # bloquant
+yarn validate:admin-quality-matrix --warn   # avertissements seulement
+```
+
+Vérifie pour chaque entrée :
+- `reviewedAt` est présent et non vide
+- Les chemins dans `sourceRefs[].path` (e2e, strapi-api, route) existent sur disque
+- Les fichiers listés dans `evidence[]` existent dans `openg7-org/`
+- Cohérence `managementBucket` ↔ `summaryStatus` / `e2eStatus` :
+  - `summaryStatus=oui` → `managementBucket` doit être `covered`
+  - `managementBucket=covered` → `summaryStatus` doit être `oui`
+  - `e2eStatus=oui` → `managementBucket` ne doit pas être `proof-gap`
+
+### Famille 2 — Audit de fraîcheur git
+
+```bash
+yarn audit:admin-quality-staleness          # rapport lisible
+yarn audit:admin-quality-staleness --json   # sortie JSON
+yarn audit:admin-quality-staleness --fail   # exit 1 si entrées périmées
+```
+
+Pour chaque entrée avec `impactRules` et `reviewedAt`, vérifie si des commits ont touché les préfixes d'impact après la date de revue. Les entrées avec activité git post-revue sont signalées comme potentiellement périmées. Action attendue : mettre à jour `reviewedAt`, `observedGap` et `nextMove`.
+
+### Famille 3 — Garde CI par PR (avertissement dans le commentaire)
+
+Sur chaque PR touchant des entrées de la matrice, le workflow `pr-admin-quality-review.yml` :
+
+1. **Valide la cohérence statique** (`--warn`) — les incohérences apparaissent dans les logs CI
+2. **Compare `reviewedAt`** entre le SHA de base et le HEAD pour chaque entrée impactée
+3. **Ajoute une section au commentaire PR** :
+   - ✅ si toutes les entrées impactées ont leur `reviewedAt` mis à jour
+   - ⚠️ avec la liste des entrées non revisitées sinon
+
+Le garde CI est **non-bloquant** (avertissement) : il ne fait pas échouer la PR mais rend visible le manquement. Pour forcer un blocage, remplacer `--warn` par le mode strict dans le workflow.
+
+---
+
 ## Tests et non-régression
 
 Les tests des scripts de réconciliation se trouvent dans `scripts/__tests__/` et couvrent :

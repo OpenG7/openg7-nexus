@@ -138,7 +138,53 @@ function formatProposalsSection(proposals) {
   return lines.join('\n');
 }
 
-function formatComment(impact, proposals, prNumber) {
+export function formatReviewedAtSection(reviewedAtCheck) {
+  if (!reviewedAtCheck) return '';
+
+  const { notReviewed = [], reviewed = [], newEntries = [] } = reviewedAtCheck;
+
+  if (notReviewed.length === 0 && newEntries.length === 0) {
+    return [
+      '## ✅ reviewedAt',
+      '',
+      `Toutes les entrées impactées ont un \`reviewedAt\` mis à jour dans cette PR.`,
+    ].join('\n');
+  }
+
+  const lines = [
+    '## ⚠️ reviewedAt non mis à jour',
+    '',
+    `${notReviewed.length} entrée(s) impactée(s) n'ont pas de \`reviewedAt\` mis à jour dans cette PR.`,
+    `Pensez à mettre à jour \`reviewedAt\`, \`observedGap\` et \`nextMove\` dans \`admin-quality-matrix.json\`.`,
+  ];
+
+  if (notReviewed.length > 0) {
+    lines.push('', '| Entrée | reviewedAt actuel |', '|--------|-------------------|');
+    for (const entry of notReviewed) {
+      lines.push(`| \`${entry.entryId}\` | ${entry.reviewedAt ?? '—'} |`);
+    }
+  }
+
+  if (reviewed.length > 0) {
+    lines.push('', '<details><summary>Entrées mises à jour dans cette PR</summary>', '');
+    for (const entry of reviewed) {
+      lines.push(`- \`${entry.entryId}\` : ${entry.previousReviewedAt} → ${entry.newReviewedAt}`);
+    }
+    lines.push('</details>');
+  }
+
+  if (newEntries.length > 0) {
+    lines.push('', '<details><summary>Nouvelles entrées (pas de base de comparaison)</summary>', '');
+    for (const entry of newEntries) {
+      lines.push(`- \`${entry.entryId}\``);
+    }
+    lines.push('</details>');
+  }
+
+  return lines.join('\n');
+}
+
+function formatComment(impact, proposals, prNumber, reviewedAtCheck) {
   const sections = [
     `<!-- og7-admin-quality-review -->`,
     `## 🔍 Revue admin quality — PR #${prNumber ?? 'n/a'}`,
@@ -146,6 +192,8 @@ function formatComment(impact, proposals, prNumber) {
     formatImpactSection(impact),
     '',
     formatProposalsSection(proposals),
+    '',
+    formatReviewedAtSection(reviewedAtCheck),
     '',
     '---',
     `_Généré automatiquement par [admin-quality-matrix-sync](.github/workflows/pr-admin-quality-review.yml)_`,
@@ -158,17 +206,19 @@ function main() {
   const args = process.argv.slice(2);
   const impactPath = args[0] ?? null;
   const proposalsPath = args[1] ?? null;
+  const reviewedAtPath = args[2] ?? null;
   const prNumber = process.env.PR_NUMBER ?? null;
 
   const impact = impactPath ? readJson(path.resolve(impactPath)) : null;
   const proposals = proposalsPath ? readJson(path.resolve(proposalsPath)) : null;
+  const reviewedAtCheck = reviewedAtPath ? readJson(path.resolve(reviewedAtPath)) : null;
 
   if (!impact && !proposals) {
     process.stderr.write('At least one of impact.json or proposals.json is required.\n');
     process.exit(1);
   }
 
-  process.stdout.write(formatComment(impact, proposals, prNumber));
+  process.stdout.write(formatComment(impact, proposals, prNumber, reviewedAtCheck));
   process.stdout.write('\n');
 }
 
@@ -176,4 +226,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
 
-export { formatComment, formatImpactSection, formatProposalsSection };
+export { formatComment, formatImpactSection, formatProposalsSection, formatReviewedAtSection };

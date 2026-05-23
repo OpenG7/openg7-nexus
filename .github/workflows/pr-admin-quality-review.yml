@@ -43,6 +43,21 @@ jobs:
         run: |
           echo "No matrix entries impacted by this PR (mode=${{ steps.impact.outputs.mode }}, entries=0). Skipping."
 
+      - name: Validate matrix consistency
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        shell: bash
+        run: |
+          node scripts/validate-admin-quality-matrix.mjs --warn
+
+      - name: Check reviewedAt for impacted entries
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        shell: bash
+        run: |
+          node scripts/check-admin-quality-reviewed-at.mjs \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --impact impact.json \
+            > reviewed-at-check.json
+
       - name: Run needs reconciliation
         if: ${{ steps.impact.outputs.entry_count != '0' }}
         shell: bash
@@ -61,6 +76,7 @@ jobs:
           node scripts/format-pr-quality-comment.mjs \
             impact.json \
             admin-quality-needs-proposals.json \
+            reviewed-at-check.json \
             > pr-quality-comment.md
 
       - name: Post or update PR comment
@@ -109,5 +125,6 @@ jobs:
             impact.json
             admin-quality-needs-proposals.json
             admin-quality-needs-proposals.md
+            reviewed-at-check.json
           if-no-files-found: warn
           retention-days: 14
