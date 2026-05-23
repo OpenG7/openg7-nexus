@@ -65,6 +65,33 @@ export interface AdminQualityMatrixEntry {
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
   readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
+  readonly agentObservedGap?: string | null;
+  readonly agentNextMove?: string | null;
+  readonly agentNarrativeGeneratedAt?: string | null;
+  readonly agentNarrativeModel?: string | null;
+}
+
+export interface AdminQualityMatrixEditPayload {
+  readonly observedGap?: string | null;
+  readonly nextMove?: string | null;
+  readonly managementBucket?: AdminQualityMatrixBucket | null;
+  readonly needsProductWorkFirst?: boolean | null;
+  readonly priority?: AdminQualityMatrixPriority | null;
+  readonly reviewedAt?: string | null;
+}
+
+export interface AdminQualityAgentSuggestionProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly field: string;
+  readonly suggestedValue: string;
+}
+
+export interface AdminQualityAgentSuggestionResult {
+  readonly entryId: string;
+  readonly proposals: readonly AdminQualityAgentSuggestionProposal[];
+  readonly generatedAt: string;
+  readonly model: string | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -165,7 +192,11 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly proposal: AdminQualityMatrixRecalculationEntry;
 }
 
-export type AdminQualityNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+export type AdminQualityNeedProposalType =
+  | 'add-source-ref'
+  | 'create-entry'
+  | 'mark-stale'
+  | 'suggest-narrative';
 export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
 
 export interface AdminQualityNeedProposal {

@@ -41,6 +41,8 @@ function proposalTypeLabel(type: AdminQualityNeedProposalType): string {
       return 'Creer entree';
     case 'mark-stale':
       return 'Marquer obsolete';
+    case 'suggest-narrative':
+      return 'Suggestion IA';
   }
 }
 
@@ -124,6 +126,16 @@ function buildDiffLines(proposal: AdminQualityNeedProposal): string[] {
     ].filter((line): line is string => line !== null);
   }
 
+  if (proposal.type === 'suggest-narrative') {
+    const field = payload['field'] as string | null | undefined;
+    const value = payload['suggestedValue'] as string | null | undefined;
+    if (!field || !value) {
+      return [];
+    }
+    const preview = value.length > 200 ? `${value.slice(0, 200)}…` : value;
+    return [`  champ: ${field}`, `+ valeur: ${preview}`];
+  }
+
   return [];
 }
 
@@ -201,6 +213,9 @@ function buildDiffLines(proposal: AdminQualityNeedProposal): string[] {
                     >{{ item.statusLabel }}</span>
                   </div>
                   <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                    @if (item.proposal.type === 'suggest-narrative') {
+                      <span class="inline-flex items-center gap-0.5 px-1.5 py-0 rounded bg-violet-50 text-violet-700 text-[10px] font-semibold">✦ IA</span>
+                    }
                     <span class="text-[10px] text-slate-500">{{ item.typeLabel }}</span>
                     <span class="text-[10px] text-slate-400">&middot;</span>
                     <span class="text-[10px] text-slate-500">{{ item.proposal.entryId }}</span>

@@ -56,5 +56,29 @@ export default {
         auth: false,
       },
     },
+    {
+      method: 'GET',
+      path: '/admin/quality/matrix/export',
+      handler: 'admin-quality-matrix.exportMatrix',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
+      method: 'PATCH',
+      path: '/admin/quality/matrix/entries/:entryId',
+      handler: 'admin-quality-matrix.editMatrixEntry',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/admin/quality/matrix/entries/:entryId/agent-suggest',
+      handler: 'admin-quality-matrix.agentSuggestNarrative',
+      config: {
+        policies: ['global::owner-admin-ops'],
+      },
+    },
   ],
 };

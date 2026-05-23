@@ -8,6 +8,9 @@ export interface AdminQualityMatrixPort<
   TApplyProposalResult = unknown,
   TNeedProposalsSnapshot = unknown,
   TNeedProposal = unknown,
+  TEditEntryResult = unknown,
+  TAgentSuggestionResult = unknown,
+  TEditPayload = unknown,
 > {
   loadMatrix(): Observable<TSnapshot>;
   recalculateMatrix(
@@ -21,6 +24,8 @@ export interface AdminQualityMatrixPort<
     status: 'accepted' | 'rejected',
     note?: string | null,
   ): Observable<TNeedProposal>;
+  editMatrixEntry(entryId: string, payload: TEditPayload): Observable<TEditEntryResult>;
+  requestAgentSuggestion(entryId: string): Observable<TAgentSuggestionResult>;
 }
 
 export interface AdminQualityOpsPort<

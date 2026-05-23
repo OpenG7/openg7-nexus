@@ -2,6 +2,33 @@
 
 Ce document décrit les règles de gouvernance pour le processus de découverte automatique des besoins dans la matrice admin quality, les critères d'auto-application, et les responsabilités de l'opérateur.
 
+## Source de vérité : la base de données Strapi
+
+> La DB est la source de vérité éditoriale. Le fichier JSON est un snapshot généré automatiquement.
+
+Depuis la migration DB-as-source-of-truth :
+
+- **Les champs éditoriaux** (`observedGap`, `nextMove`, `managementBucket`, `priority`, etc.) sont modifiés dans Strapi (via l'interface `/admin/quality` ou l'API `PATCH /admin/quality/matrix/entries/:entryId`).
+- **`admin-quality-matrix.json`** est un snapshot exporté — il ne doit pas être modifié manuellement. Modifier ce fichier à la main puis redémarrer Strapi **ne synchronisera pas** les champs (le seed 16 saute si la DB contient déjà des entrées).
+- **Le snapshot est régénéré** par `yarn export:admin-quality-matrix` (ou par le workflow CI `sync-admin-quality-matrix-export.yml`). Ce snapshot alimente les gardes-fou CI, la carte d'impact, et les scripts de découverte.
+
+### Cycle de vie d'une modification éditoriale
+
+```
+Modification dans la console admin  ──→  DB Strapi (source de vérité)
+                                              │
+                       yarn export:admin-quality-matrix
+                                              │
+                                     admin-quality-matrix.json
+                                     admin-quality-matrix-impact-map.json
+                                              │
+                                         git commit + push
+```
+
+Le workflow CI `sync-admin-quality-matrix-export.yml` automatise les étapes export + commit (déclenché manuellement ou chaque lundi à 06:00 UTC).
+
+---
+
 ## Principe fondamental
 
 > L'algorithme peut rapatrier des signaux, pas inventer seul le besoin métier.
@@ -17,6 +44,9 @@ La réconciliation automatique ne **crée pas** de besoins dans la matrice. Elle
 | `add-source-ref` | Attache une référence de source (E2E, sélecteur, route) à une entrée existante | Oui, si confiance `high` |
 | `create-entry` | Propose une nouvelle entrée candidate basée sur une source non mappée | Non — revue produit requise |
 | `mark-stale` | Signale qu'aucune source active n'a été trouvée pour une entrée | Non — investigation requise |
+| `suggest-narrative` | Suggestion IA pour `observedGap` et `nextMove` d'une entrée | Oui — appliqué automatiquement lors de l'acceptation |
+
+Les propositions `suggest-narrative` sont créées par l'endpoint `POST /admin/quality/matrix/entries/:entryId/agent-suggest` (ou le script `yarn agent:admin-quality-narrative`). Elles apparaissent dans l'onglet **Propositions** avec le badge **✦ IA** et un diff de la valeur suggérée. Accepter une telle proposition écrit immédiatement `observedGap` et/ou `nextMove` dans la DB.
 
 ---
 
@@ -76,52 +106,78 @@ Si le mode est `none` (aucune entrée impactée), le commentaire n'est pas post�
 
 ---
 
-## Interface opérateur `/admin/quality → Propositions`
+## Interface opérateur `/admin/quality`
+
+### Onglet Propositions
 
 L'onglet **Propositions** de la console admin quality permet de :
 
 - Filtrer par statut : `A traiter`, `Acceptées`, `Rejetées`, `Toutes`
 - Voir le diff de chaque proposition (payload structuré)
 - Accepter ou rejeter avec confirmation
+- Identifier les suggestions IA via le badge **✦ IA** (type `suggest-narrative`)
 
-L'opérateur doit traiter les propositions dans l'ordre de priorité suivant :
-1. `add-source-ref` avec confiance `high` — validation rapide des signaux les plus sûrs
-2. `mark-stale` — identifier les entrées sans couverture active
-3. `create-entry` avec confiance `medium` — valider si la source représente un besoin réel
-4. `create-entry` avec confiance `low` — déprioriser, potentiellement rejeter en bloc
+Ordre de priorité recommandé :
+1. `suggest-narrative` — vérifier et accepter les suggestions IA si pertinentes (appliqué immédiatement dans la DB)
+2. `add-source-ref` avec confiance `high` — validation rapide des signaux les plus sûrs
+3. `mark-stale` — identifier les entrées sans couverture active
+4. `create-entry` avec confiance `medium` — valider si la source représente un besoin réel
+5. `create-entry` avec confiance `low` — déprioriser, potentiellement rejeter en bloc
+
+### Composant d'édition inline (`og7-admin-quality-entry-edit`)
+
+Le composant `<og7-admin-quality-entry-edit>` permet d'éditer les champs éditoriaux d'une entrée directement dans la console :
+
+- **Ecart observé** (`observedGap`) et **Prochaine action** (`nextMove`) via textarea
+- **Bucket** (`managementBucket`) et **Priorité** (`priority`) via select
+- **Necessite travail produit** (`needsProductWorkFirst`) via checkbox
+- **Revue le** (`reviewedAt`) via date picker
+- Bouton **✦ Suggérer via IA** : déclenche `POST /admin/quality/matrix/entries/:id/agent-suggest` et crée des propositions `suggest-narrative`
+- Boutons **Appliquer suggestion IA** : copie `agentObservedGap` / `agentNextMove` dans le champ local pour révision avant sauvegarde
+
+Les modifications sont sauvegardées via `PATCH /admin/quality/matrix/entries/:id` et écrites directement en DB. Exporter ensuite le snapshot avec `yarn export:admin-quality-matrix`.
 
 ---
 
-## Ajout d'une nouvelle entrée dans la matrice
+## Modification d'une entrée de la matrice
 
-Pour ajouter manuellement une entrée dans `openg7-org/src/assets/data/admin-quality-matrix.json` :
+### Via l'interface admin (recommandé)
 
-```json
-{
-  "id": "mon-besoin-metier",
-  "domain": "NomDomaine",
-  "need": "Description courte du besoin en langage naturel",
-  "acceptanceCriteria": [
-    "Critère vérifiable 1",
-    "Critère vérifiable 2"
-  ],
-  "sourceRefs": [],
-  "impactRules": [
-    { "type": "path-prefix", "prefixes": ["packages/mon-domaine/"] }
-  ],
-  "evidence": [],
-  "owner": "nom-equipe",
-  "status": "active",
-  "confidence": "medium",
-  "lastDiscoveredAt": null
-}
-```
-
-Après modification du fichier :
+1. Ouvrir `/admin/quality`
+2. Sélectionner l'entrée à modifier
+3. Utiliser le composant d'édition inline (`og7-admin-quality-entry-edit`) — modifier `observedGap`, `nextMove`, `managementBucket`, `priority`, `needsProductWorkFirst`, `reviewedAt`
+4. Optionnel : cliquer **✦ Suggérer via IA** pour générer des propositions `suggest-narrative` et les accepter
+5. Exporter le snapshot mis à jour :
 ```bash
-yarn generate:admin-quality-impact-map
-yarn validate:admin-quality-impact-map
+yarn export:admin-quality-matrix
+git add openg7-org/src/assets/data/admin-quality-matrix.json tools/admin-quality-matrix-impact-map.json
+git commit -m "chore(quality): sync matrix snapshot"
 ```
+
+### Via l'API (scripts ou CLI)
+
+```bash
+# Modifier un champ éditorial
+curl -X PATCH https://<strapi>/api/admin/quality/matrix/entries/MON-ID \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"observedGap":"...", "nextMove":"...", "reviewedAt":"2026-05-23"}'
+
+# Générer des suggestions IA pour toutes les entrées
+yarn agent:admin-quality-narrative --all --url https://<strapi>
+
+# Exporter le snapshot vers le JSON
+yarn export:admin-quality-matrix --url https://<strapi>
+```
+
+### Ajouter une nouvelle entrée
+
+Les nouvelles entrées sont ajoutées via la DB. Le seed `16-admin-quality-matrix.ts` bootstrappe la DB au premier démarrage Strapi depuis le JSON. Pour créer une entrée manuellement :
+
+1. Ajouter l'entrée dans `admin-quality-matrix.json` avec les champs obligatoires (`id`, `domain`, `need`, `reviewedAt`)
+2. Redémarrer Strapi avec `STRAPI_SEED_AUTO=true` (ou lancer `yarn --cwd strapi sync:admin-quality-matrix`)
+3. Vérifier dans l'interface admin que l'entrée est présente
+4. Exporter ensuite le snapshot via `yarn export:admin-quality-matrix`
 
 ---
 
@@ -129,12 +185,37 @@ yarn validate:admin-quality-impact-map
 
 | Commande | Description |
 |----------|-------------|
+| `yarn export:admin-quality-matrix` | **Exporte le snapshot DB → JSON** (source de vérité = DB) |
+| `yarn export:admin-quality-matrix --dry-run` | Affiche le snapshot sans écrire de fichier |
+| `yarn agent:admin-quality-narrative --entry ID` | Génère des suggestions IA pour une entrée spécifique |
+| `yarn agent:admin-quality-narrative --all` | Génère des suggestions IA pour toutes les entrées |
+| `yarn agent:admin-quality-narrative --all --dry-run` | Liste les entrées sans appel API |
+| `yarn --cwd strapi sync:admin-quality-matrix` | Re-synchronise le JSON → DB (écrase les modifications DB) |
 | `yarn discover:admin-quality-needs` | Lance la découverte de sources dans le dépôt |
 | `yarn reconcile:admin-quality-matrix` | Découverte + réconciliation → génère les fichiers de propositions |
+| `yarn validate:admin-quality-matrix` | Valide la cohérence statique du snapshot JSON |
+| `yarn audit:admin-quality-staleness` | Audit de fraîcheur git par rapport aux `reviewedAt` |
 | `yarn validate:admin-quality-impact-map` | Vérifie la cohérence de la carte d'impact |
 | `yarn test:scripts` | Lance les tests unitaires des scripts de réconciliation |
 | `yarn admin:quality:agent` | Agent d'exécution deterministe (dry-run) |
 | `yarn admin:quality:agent:apply` | Agent d'exécution deterministe (applique les actions) |
+
+### Variables d'environnement pour les scripts d'export/agent
+
+| Variable | Description |
+|----------|-------------|
+| `STRAPI_URL` | URL de l'instance Strapi (défaut : `http://localhost:1337`) |
+| `STRAPI_EXPORT_TOKEN` | Token d'API Strapi avec droits Admin/Owner |
+| `STRAPI_OWNER_JWT` | Fallback : JWT de session Owner |
+
+### Secrets GitHub Actions
+
+| Secret | Utilisé par |
+|--------|-------------|
+| `ADMIN_QUALITY_MATRIX_EXPORT_URL` | `sync-admin-quality-matrix-export.yml` |
+| `ADMIN_QUALITY_MATRIX_EXPORT_TOKEN` | `sync-admin-quality-matrix-export.yml` |
+| `ADMIN_QUALITY_MATRIX_INGEST_URL` | `admin-quality-matrix-sync.yml` |
+| `ADMIN_QUALITY_MATRIX_INGEST_TOKEN` | `admin-quality-matrix-sync.yml` |
 
 ---
 

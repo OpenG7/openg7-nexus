@@ -1,0 +1,106 @@
+name: Sync Admin Quality Matrix Export
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Print result to stdout without writing or committing'
+        type: boolean
+        default: false
+  schedule:
+    # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  export-matrix:
+    name: Export matrix snapshot from Strapi DB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Check export configuration
+        id: config
+        env:
+          EXPORT_URL: ${{ secrets.ADMIN_QUALITY_MATRIX_EXPORT_URL }}
+          EXPORT_TOKEN: ${{ secrets.ADMIN_QUALITY_MATRIX_EXPORT_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$EXPORT_URL" ] || [ -z "$EXPORT_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Export secrets (ADMIN_QUALITY_MATRIX_EXPORT_URL / ADMIN_QUALITY_MATRIX_EXPORT_TOKEN) not configured — skipping."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Export matrix from Strapi
+        if: ${{ steps.config.outputs.configured == 'true' }}
+        env:
+          STRAPI_URL: ${{ secrets.ADMIN_QUALITY_MATRIX_EXPORT_URL }}
+          STRAPI_EXPORT_TOKEN: ${{ secrets.ADMIN_QUALITY_MATRIX_EXPORT_TOKEN }}
+        shell: bash
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then FLAGS="--dry-run"; fi
+          node scripts/export-admin-quality-matrix.mjs $FLAGS
+
+      - name: Validate exported snapshot
+        if: ${{ steps.config.outputs.configured == 'true' && inputs.dry_run != 'true' }}
+        shell: bash
+        run: node scripts/validate-admin-quality-matrix.mjs --warn
+
+      - name: Check for file changes
+        if: ${{ steps.config.outputs.configured == 'true' && inputs.dry_run != 'true' }}
+        id: diff
+        shell: bash
+        run: |
+          git diff --name-only -- \
+            openg7-org/src/assets/data/admin-quality-matrix.json \
+            tools/admin-quality-matrix-impact-map.json \
+            > matrix-changed.txt
+          COUNT=$(wc -l < matrix-changed.txt | tr -d ' ')
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -gt 0 ]; then
+            echo "Changed files:"
+            cat matrix-changed.txt
+          else
+            echo "No files changed."
+          fi
+
+      - name: Commit updated snapshot
+        if: >-
+          ${{
+            steps.config.outputs.configured == 'true' &&
+            inputs.dry_run != 'true' &&
+            steps.diff.outputs.count != '0'
+          }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            openg7-org/src/assets/data/admin-quality-matrix.json \
+            tools/admin-quality-matrix-impact-map.json
+          git commit -m "chore(quality): sync admin quality matrix snapshot from Strapi DB
+
+          Exported by workflow '${GITHUB_WORKFLOW}' (run ${GITHUB_RUN_ID})
+          Triggered by: ${GITHUB_EVENT_NAME}"
+          git push
+
+      - name: No changes to commit
+        if: >-
+          ${{
+            steps.config.outputs.configured == 'true' &&
+            inputs.dry_run != 'true' &&
+            steps.diff.outputs.count == '0'
+          }}
+        shell: bash
+        run: echo "Matrix snapshot is already up to date — nothing to commit."

@@ -86,10 +86,32 @@ function matrixSnapshotPath(): string {
   );
 }
 
+async function countExistingEntries(): Promise<number> {
+  try {
+    const existing = await strapi.entityService.findMany(MATRIX_ENTRY_UID as any, {
+      limit: 1,
+      fields: ['id'],
+    } as any);
+    return Array.isArray(existing) ? existing.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function seedAdminQualityMatrix() {
   if (!hasContentType(MATRIX_ENTRY_UID)) {
     strapi.log?.warn?.(
       'Skipping admin quality matrix seed because the content type is unavailable.',
+    );
+    return;
+  }
+
+  // Bootstrap-only: skip if DB already has entries — the DB is now the source of truth.
+  // Re-run yarn sync:admin-quality-matrix to force a resync from the JSON.
+  const existingCount = await countExistingEntries();
+  if (existingCount > 0) {
+    strapi.log?.info?.(
+      `Admin quality matrix seed skipped — ${existingCount} entr(y/ies) already in DB (bootstrap-only mode). Run yarn sync:admin-quality-matrix to resync.`,
     );
     return;
   }
@@ -134,4 +156,6 @@ export default async function seedAdminQualityMatrix() {
       { unique: { entryId } },
     );
   }
+
+  strapi.log?.info?.(`Admin quality matrix seed complete — ${entries.length} entr(y/ies) bootstrapped.`);
 }

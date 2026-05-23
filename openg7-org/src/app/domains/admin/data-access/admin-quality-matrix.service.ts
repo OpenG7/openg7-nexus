@@ -73,6 +73,33 @@ export interface AdminQualityMatrixEntry {
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
   readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
+  readonly agentObservedGap?: string | null;
+  readonly agentNextMove?: string | null;
+  readonly agentNarrativeGeneratedAt?: string | null;
+  readonly agentNarrativeModel?: string | null;
+}
+
+export interface AdminQualityMatrixEditPayload {
+  readonly observedGap?: string | null;
+  readonly nextMove?: string | null;
+  readonly managementBucket?: AdminQualityMatrixBucket | null;
+  readonly needsProductWorkFirst?: boolean | null;
+  readonly priority?: AdminQualityMatrixPriority | null;
+  readonly reviewedAt?: string | null;
+}
+
+export interface AdminQualityAgentSuggestionProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly field: string;
+  readonly suggestedValue: string;
+}
+
+export interface AdminQualityAgentSuggestionResult {
+  readonly entryId: string;
+  readonly proposals: readonly AdminQualityAgentSuggestionProposal[];
+  readonly generatedAt: string;
+  readonly model: string | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -173,7 +200,11 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly proposal: AdminQualityMatrixRecalculationEntry;
 }
 
-export type AdminQualityNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+export type AdminQualityNeedProposalType =
+  | 'add-source-ref'
+  | 'create-entry'
+  | 'mark-stale'
+  | 'suggest-narrative';
 export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
 
 export interface AdminQualityNeedProposal {
@@ -213,6 +244,13 @@ interface AdminQualityNeedProposalResponse {
   readonly correlationId?: unknown;
   readonly reportedAt?: unknown;
   readonly updatedAt?: unknown;
+}
+
+interface AdminQualityAgentSuggestionResponse {
+  readonly entryId?: unknown;
+  readonly proposals?: unknown;
+  readonly generatedAt?: unknown;
+  readonly model?: unknown;
 }
 
 interface AdminQualityNeedProposalsResponse {
@@ -370,6 +408,39 @@ export class AdminQualityMatrixService {
       .pipe(map((response) => this.normalizeNeedProposal(response.data)));
   }
 
+  editMatrixEntry(
+    entryId: string,
+    payload: AdminQualityMatrixEditPayload,
+  ): Observable<AdminQualityMatrixEntry> {
+    const encodedId = encodeURIComponent(entryId);
+    return this.http
+      .patch<StrapiDataResponse<Partial<AdminQualityMatrixEntry>>>(
+        `${STRAPI_ROUTES.admin.qualityMatrixEntries}/${encodedId}`,
+        payload,
+        this.silentMutationOptions,
+      )
+      .pipe(
+        map((response) => {
+          const entry = this.normalizeEntry(response.data);
+          if (!entry) {
+            throw new Error('Invalid edit-matrix-entry response.');
+          }
+          return entry;
+        }),
+      );
+  }
+
+  requestAgentSuggestion(entryId: string): Observable<AdminQualityAgentSuggestionResult> {
+    const encodedId = encodeURIComponent(entryId);
+    return this.http
+      .post<StrapiDataResponse<AdminQualityAgentSuggestionResponse>>(
+        `${STRAPI_ROUTES.admin.qualityMatrixEntries}/${encodedId}/agent-suggest`,
+        {},
+        this.silentMutationOptions,
+      )
+      .pipe(map((response) => this.normalizeAgentSuggestionResult(response.data)));
+  }
+
   private normalizeSnapshot(
     response: AdminQualityMatrixResponse | null | undefined,
   ): AdminQualityMatrixSnapshot {
@@ -459,6 +530,22 @@ export class AdminQualityMatrixService {
           : null,
       signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
       lastRecalculation: this.normalizeStoredRecalculation(entry.lastRecalculation),
+      agentObservedGap:
+        typeof entry.agentObservedGap === 'string' && entry.agentObservedGap.trim()
+          ? entry.agentObservedGap
+          : null,
+      agentNextMove:
+        typeof entry.agentNextMove === 'string' && entry.agentNextMove.trim()
+          ? entry.agentNextMove
+          : null,
+      agentNarrativeGeneratedAt:
+        typeof entry.agentNarrativeGeneratedAt === 'string' && entry.agentNarrativeGeneratedAt.trim()
+          ? entry.agentNarrativeGeneratedAt
+          : null,
+      agentNarrativeModel:
+        typeof entry.agentNarrativeModel === 'string' && entry.agentNarrativeModel.trim()
+          ? entry.agentNarrativeModel
+          : null,
     };
   }
 
@@ -916,7 +1003,10 @@ export class AdminQualityMatrixService {
       id: str(value?.id, 40),
       proposalId: str(value?.proposalId, 240) ?? '',
       entryId: str(value?.entryId, 180) ?? '',
-      type: (type === 'add-source-ref' || type === 'create-entry' || type === 'mark-stale'
+      type: (type === 'add-source-ref' ||
+      type === 'create-entry' ||
+      type === 'mark-stale' ||
+      type === 'suggest-narrative'
         ? type
         : 'add-source-ref') as AdminQualityNeedProposalType,
       status: (status === 'accepted' || status === 'rejected' || status === 'superseded'
@@ -953,6 +1043,38 @@ export class AdminQualityMatrixService {
       proposals: Array.isArray(response?.proposals)
         ? response.proposals.map((p) => this.normalizeNeedProposal(p))
         : [],
+    };
+  }
+
+  private normalizeAgentSuggestionResult(
+    response: AdminQualityAgentSuggestionResponse | null | undefined,
+  ): AdminQualityAgentSuggestionResult {
+    const str = (v: unknown, max = 500): string | null => {
+      const s = typeof v === 'string' ? v.trim() : null;
+      return s ? s.slice(0, max) : null;
+    };
+
+    const proposals: AdminQualityAgentSuggestionProposal[] = [];
+    if (Array.isArray(response?.proposals)) {
+      for (const p of response.proposals as Array<Record<string, unknown>>) {
+        const proposalId = str(p['proposalId'], 240);
+        if (!proposalId) {
+          continue;
+        }
+        proposals.push({
+          id: str(p['id'], 40),
+          proposalId,
+          field: str(p['field'], 80) ?? '',
+          suggestedValue: str(p['suggestedValue'], 4000) ?? '',
+        });
+      }
+    }
+
+    return {
+      entryId: str(response?.entryId, 180) ?? '',
+      proposals,
+      generatedAt: str(response?.generatedAt, 40) ?? new Date().toISOString(),
+      model: str(response?.model, 120),
     };
   }
 }

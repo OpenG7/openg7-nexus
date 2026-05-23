@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import https from 'node:https';
 
 import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
@@ -69,6 +70,11 @@ interface MatrixEntryEntity {
   readonly lastRecalculationResult?: unknown;
   readonly lastRecalculationPlan?: unknown;
   readonly lastAppliedProposal?: unknown;
+  readonly editHistory?: unknown;
+  readonly agentObservedGap?: unknown;
+  readonly agentNextMove?: unknown;
+  readonly agentNarrativeGeneratedAt?: unknown;
+  readonly agentNarrativeModel?: unknown;
   readonly createdAt?: unknown;
   readonly updatedAt?: unknown;
 }
@@ -210,7 +216,8 @@ type MatrixPilotActionType =
   | 'run-validation'
   | 'review-product-scope'
   | 'close-entry';
-type MatrixNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale';
+type MatrixNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale' | 'suggest-narrative';
+type MatrixNarrativeField = 'observedGap' | 'nextMove' | 'managementBucket' | 'needsProductWorkFirst' | 'priority';
 type MatrixNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
 
 interface MatrixDevelopmentCommand {
@@ -715,7 +722,20 @@ function sanitizeApplyProposalPayload(body: unknown): MatrixApplyProposalPayload
 }
 
 function normalizeNeedProposalType(value: unknown): MatrixNeedProposalType | null {
-  return value === 'add-source-ref' || value === 'create-entry' || value === 'mark-stale'
+  return value === 'add-source-ref' ||
+    value === 'create-entry' ||
+    value === 'mark-stale' ||
+    value === 'suggest-narrative'
+    ? value
+    : null;
+}
+
+function normalizeNarrativeField(value: unknown): MatrixNarrativeField | null {
+  return value === 'observedGap' ||
+    value === 'nextMove' ||
+    value === 'managementBucket' ||
+    value === 'needsProductWorkFirst' ||
+    value === 'priority'
     ? value
     : null;
 }
@@ -2093,6 +2113,43 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       data: { status: nextStatus, history } as any,
     });
 
+    if (nextStatus === 'accepted' && normalizeNeedProposalType(existing.type) === 'suggest-narrative') {
+      const payload = normalizeObject(existing.payload);
+      const field = normalizeNarrativeField(payload.field);
+      const suggestedValue = normalizeString(payload.suggestedValue as unknown, 4_000);
+      if (field && suggestedValue !== null) {
+        const targetEntry = await findEntryByEntryId(
+          strapi,
+          normalizeString(existing.entryId, 180) ?? '',
+        );
+        if (targetEntry?.id) {
+          const at = new Date().toISOString();
+          const editHistory = [
+            ...normalizeHistory(targetEntry.editHistory),
+            {
+              event: 'accepted-agent-suggestion',
+              at,
+              field,
+              previousValue: normalizeString((targetEntry as Record<string, unknown>)[field] as unknown, 4_000) ?? null,
+              nextValue: suggestedValue,
+              proposalId: normalizedProposalId,
+            },
+          ].slice(-50);
+
+          const entryUpdate: Record<string, unknown> = { editHistory };
+          if (field === 'observedGap') entryUpdate.observedGap = suggestedValue;
+          else if (field === 'nextMove') entryUpdate.nextMove = suggestedValue;
+          else if (field === 'managementBucket') entryUpdate.managementBucket = suggestedValue;
+          else if (field === 'needsProductWorkFirst') entryUpdate.needsProductWorkFirst = suggestedValue === 'true';
+          else if (field === 'priority') entryUpdate.priority = suggestedValue;
+
+          await strapi.entityService.update(MATRIX_ENTRY_UID, targetEntry.id, {
+            data: entryUpdate as any,
+          });
+        }
+      }
+    }
+
     ctx.body = { data: toNeedProposalResponse(updated as MatrixNeedProposalEntity) };
   },
 
@@ -2457,5 +2514,297 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
         error instanceof Error ? error.message : 'Invalid admin quality matrix ingest payload.';
       ctx.badRequest(message);
     }
+  },
+
+  async exportMatrix(ctx: Context) {
+    const rawEntries = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
+      limit: 500,
+      publicationState: 'preview',
+    } as any);
+    const entries = (normalizeFindManyResult(rawEntries) as MatrixEntryEntity[])
+      .sort((a, b) =>
+        (normalizeString(a.entryId, 180) ?? '').localeCompare(
+          normalizeString(b.entryId, 180) ?? '',
+        ),
+      )
+      .map((entity) => ({
+        id: normalizeString(entity.entryId, 180) ?? '',
+        domain: normalizeString(entity.domain) ?? '',
+        need: normalizeString(entity.need) ?? '',
+        acceptanceCriteria: normalizeStringArray(entity.acceptanceCriteria),
+        sourceRefs: normalizeJsonObjects(entity.sourceRefs),
+        impactRules: normalizeJsonObjects(entity.impactRules),
+        confidence: normalizeDiscoveryConfidence(entity.confidence),
+        lastDiscoveredAt: normalizeDate(entity.lastDiscoveredAt)?.slice(0, 10) ?? null,
+        summaryStatus: normalizeStatus(entity.summaryStatus),
+        businessStatus: normalizeStatus(entity.businessStatus),
+        implementationStatus: normalizeStatus(entity.implementationStatus),
+        e2eStatus: normalizeStatus(entity.e2eStatus),
+        priority: normalizePriority(entity.priority),
+        managementBucket: normalizeBucket(entity.managementBucket),
+        needsProductWorkFirst: Boolean(entity.needsProductWorkFirst),
+        observedGap: normalizeString(entity.observedGap) ?? '',
+        nextMove: normalizeString(entity.nextMove) ?? '',
+        evidence: normalizeEvidence(entity.evidence),
+        reviewedAt: normalizeDate(entity.reviewedAt)?.slice(0, 10) ?? null,
+        agentObservedGap: normalizeString(entity.agentObservedGap) ?? null,
+        agentNextMove: normalizeString(entity.agentNextMove) ?? null,
+        agentNarrativeGeneratedAt: normalizeDate(entity.agentNarrativeGeneratedAt) ?? null,
+        agentNarrativeModel: normalizeString(entity.agentNarrativeModel) ?? null,
+      }));
+
+    let globalRules: unknown[] = [];
+    let schemaVersion: unknown = 2;
+    try {
+      const globalRulesPath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        '..',
+        'tools',
+        'admin-quality-matrix-global-rules.json',
+      );
+      const globalRulesJson = JSON.parse(readFileSync(globalRulesPath, 'utf8'));
+      globalRules = Array.isArray(globalRulesJson.globalImpactRules)
+        ? globalRulesJson.globalImpactRules
+        : [];
+      schemaVersion = globalRulesJson.schemaVersion ?? 2;
+    } catch {
+      strapi.log?.warn?.('admin-quality-matrix-global-rules.json not found, exporting without globalImpactRules.');
+    }
+
+    ctx.body = {
+      data: {
+        schemaVersion,
+        generatedAt: new Date().toISOString(),
+        entries,
+        globalImpactRules: globalRules,
+      },
+    };
+  },
+
+  async editMatrixEntry(ctx: Context) {
+    const { entryId: rawEntryId } = ctx.params as Record<string, unknown>;
+    const entryId = normalizeString(rawEntryId, 180);
+    if (!entryId) {
+      ctx.badRequest('entryId path parameter is required.');
+      return;
+    }
+
+    const entry = await findEntryByEntryId(strapi, entryId);
+    if (!entry?.id) {
+      ctx.notFound('Matrix entry not found.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const at = new Date().toISOString();
+
+    const allowedFields: MatrixNarrativeField[] = [
+      'observedGap',
+      'nextMove',
+      'managementBucket',
+      'needsProductWorkFirst',
+      'priority',
+    ];
+    const updates: Record<string, unknown> = {};
+    const changedFields: string[] = [];
+
+    for (const field of allowedFields) {
+      if (!(field in body)) continue;
+      const raw = body[field];
+      if (field === 'observedGap' || field === 'nextMove') {
+        const val = normalizeString(raw as unknown, 4_000);
+        if (val !== null) { updates[field] = val; changedFields.push(field); }
+      } else if (field === 'managementBucket') {
+        const val = normalizeBucket(raw);
+        if (val) { updates[field] = val; changedFields.push(field); }
+      } else if (field === 'needsProductWorkFirst') {
+        updates[field] = Boolean(raw); changedFields.push(field);
+      } else if (field === 'priority') {
+        const val = normalizePriority(raw);
+        if (val) { updates[field] = val; changedFields.push(field); }
+      }
+    }
+
+    if (body.reviewedAt !== undefined) {
+      const val = normalizeDate(body.reviewedAt)?.slice(0, 10);
+      if (val) { updates.reviewedAt = val; changedFields.push('reviewedAt'); }
+    }
+    if (body.summaryStatus !== undefined) {
+      updates.summaryStatus = normalizeStatus(body.summaryStatus); changedFields.push('summaryStatus');
+    }
+    if (body.businessStatus !== undefined) {
+      updates.businessStatus = normalizeStatus(body.businessStatus); changedFields.push('businessStatus');
+    }
+    if (body.implementationStatus !== undefined) {
+      updates.implementationStatus = normalizeStatus(body.implementationStatus); changedFields.push('implementationStatus');
+    }
+    if (body.e2eStatus !== undefined) {
+      updates.e2eStatus = normalizeStatus(body.e2eStatus); changedFields.push('e2eStatus');
+    }
+
+    if (!changedFields.length) {
+      ctx.badRequest('No valid fields to update.');
+      return;
+    }
+
+    const previousValues: Record<string, unknown> = {};
+    for (const field of changedFields) {
+      previousValues[field] = (entry as Record<string, unknown>)[field] ?? null;
+    }
+
+    const editHistory = [
+      ...normalizeHistory(entry.editHistory),
+      { event: 'edited-by-operator', at, fields: changedFields, previousValues },
+    ].slice(-50);
+
+    const updated = await strapi.entityService.update(MATRIX_ENTRY_UID, entry.id, {
+      data: { ...updates, editHistory } as any,
+    });
+
+    ctx.body = { data: toMatrixEntryResponse(updated as MatrixEntryEntity) };
+  },
+
+  async agentSuggestNarrative(ctx: Context) {
+    const { entryId: rawEntryId } = ctx.params as Record<string, unknown>;
+    const entryId = normalizeString(rawEntryId, 180);
+    if (!entryId) {
+      ctx.badRequest('entryId path parameter is required.');
+      return;
+    }
+
+    const entry = await findEntryByEntryId(strapi, entryId);
+    if (!entry?.id) {
+      ctx.notFound('Matrix entry not found.');
+      return;
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey) {
+      ctx.internalServerError('OPENAI_API_KEY is not configured.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const gitContext = normalizeString(body.gitContext as unknown, 2_000) ?? '';
+    const requestedFields: MatrixNarrativeField[] = ['observedGap', 'nextMove'];
+
+    const entryContext = [
+      `Entrée : ${normalizeString(entry.entryId, 180)}`,
+      `Domaine : ${normalizeString(entry.domain)}`,
+      `Besoin : ${normalizeString(entry.need)}`,
+      `e2eStatus : ${normalizeStatus(entry.e2eStatus)}`,
+      `managementBucket : ${normalizeBucket(entry.managementBucket)}`,
+      `observedGap actuel : ${normalizeString(entry.observedGap) ?? '(vide)'}`,
+      `nextMove actuel : ${normalizeString(entry.nextMove) ?? '(vide)'}`,
+      gitContext ? `Activité git récente :\n${gitContext}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const prompt = `Tu es un expert en qualité logicielle. Analyse l'entrée de matrice admin quality ci-dessous et propose une valeur améliorée pour observedGap et nextMove.
+
+${entryContext}
+
+Réponds uniquement en JSON avec ce format exact :
+{
+  "observedGap": "...",
+  "nextMove": "...",
+  "rationale": "..."
+}`;
+
+    let aiResponse: { observedGap?: string; nextMove?: string; rationale?: string } = {};
+    try {
+      const responseText = await new Promise<string>((resolve, reject) => {
+        const bodyData = JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 600,
+        });
+        const req = https.request(
+          {
+            hostname: 'api.openai.com',
+            path: '/v1/chat/completions',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Length': Buffer.byteLength(bodyData),
+            },
+          },
+          (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => resolve(data));
+          },
+        );
+        req.on('error', reject);
+        req.write(bodyData);
+        req.end();
+      });
+
+      const parsed = JSON.parse(responseText);
+      const content = parsed?.choices?.[0]?.message?.content ?? '';
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        aiResponse = JSON.parse(jsonMatch[0]);
+      }
+    } catch (error) {
+      strapi.log?.error?.('agentSuggestNarrative: OpenAI call failed', error);
+      ctx.internalServerError('AI narrative generation failed.');
+      return;
+    }
+
+    const modelId = 'gpt-4o-mini';
+    const generatedAt = new Date().toISOString();
+    const createdProposalIds: string[] = [];
+
+    for (const field of requestedFields) {
+      const suggestedValue = normalizeString(aiResponse[field] as unknown, 4_000);
+      if (!suggestedValue) continue;
+
+      const proposalId = `suggest-narrative::${entryId}::${field}::${Date.now()}`;
+      await strapi.entityService.create(NEED_PROPOSAL_UID, {
+        data: {
+          proposalId,
+          entryId,
+          type: 'suggest-narrative',
+          status: 'proposed',
+          confidence: 'medium',
+          title: `Suggestion IA — ${field} (${entryId})`,
+          summary: suggestedValue.slice(0, 200),
+          source: { agent: 'openai', model: modelId, generatedAt },
+          payload: {
+            field,
+            suggestedValue,
+            rationale: normalizeString(aiResponse.rationale as unknown, 1_000) ?? '',
+          },
+          history: [
+            {
+              event: 'created-by-agent',
+              at: generatedAt,
+              model: modelId,
+            },
+          ],
+          reportedAt: generatedAt,
+        } as any,
+      });
+      createdProposalIds.push(proposalId);
+    }
+
+    await strapi.entityService.update(MATRIX_ENTRY_UID, entry.id, {
+      data: {
+        agentObservedGap: normalizeString(aiResponse.observedGap as unknown, 4_000) ?? null,
+        agentNextMove: normalizeString(aiResponse.nextMove as unknown, 4_000) ?? null,
+        agentNarrativeGeneratedAt: generatedAt,
+        agentNarrativeModel: modelId,
+      } as any,
+    });
+
+    ctx.body = { data: { entryId, createdProposalIds, generatedAt, model: modelId } };
   },
 });

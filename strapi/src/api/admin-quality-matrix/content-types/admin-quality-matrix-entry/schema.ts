@@ -137,6 +137,21 @@ const schema = {
     lastAppliedProposal: {
       type: 'json',
     },
+    editHistory: {
+      type: 'json',
+    },
+    agentObservedGap: {
+      type: 'text',
+    },
+    agentNextMove: {
+      type: 'text',
+    },
+    agentNarrativeGeneratedAt: {
+      type: 'datetime',
+    },
+    agentNarrativeModel: {
+      type: 'string',
+    },
   },
 } as unknown as Struct.CollectionTypeSchema;
 

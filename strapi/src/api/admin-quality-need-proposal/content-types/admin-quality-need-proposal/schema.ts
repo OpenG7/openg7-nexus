@@ -1,6 +1,6 @@
 import type { Struct } from '@strapi/strapi';
 
-const proposalType = ['add-source-ref', 'create-entry', 'mark-stale'] as const;
+const proposalType = ['add-source-ref', 'create-entry', 'mark-stale', 'suggest-narrative'] as const;
 const proposalStatus = ['proposed', 'accepted', 'rejected', 'superseded'] as const;
 const proposalConfidence = ['low', 'medium', 'high'] as const;
 
