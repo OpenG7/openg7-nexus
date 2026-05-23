@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-05-22T23:37:22.886Z",
-  "correlationId": "needs-reconcile-2026-05-22T23:37:22.886Z",
+  "generatedAt": "2026-05-23T00:56:23.086Z",
+  "correlationId": "needs-reconcile-2026-05-23T00:56:23.086Z",
   "matrix": {
     "schemaVersion": 2,
     "generatedAt": "2026-05-17T00:00:00.000Z",
     "entryCount": 15
   },
   "discovery": {
-    "generatedAt": "2026-05-22T23:37:25.448Z",
+    "generatedAt": "2026-05-23T00:56:28.329Z",
     "matrix": {
       "schemaVersion": 2,
       "generatedAt": "2026-05-17T00:00:00.000Z",
@@ -16,8 +16,8 @@
       "globalImpactPrefixCount": 7
     },
     "sourceCounts": {
-      "total": 940,
-      "docs": 61,
+      "total": 941,
+      "docs": 62,
       "e2e": 65,
       "routes": 8,
       "selectors": 277,
@@ -3768,6 +3768,16 @@
           },
           {
             "type": "doc",
+            "path": "docs/frontend/admin-quality-governance.md",
+            "value": null,
+            "key": null,
+            "label": "Admin Quality — Gouvernance et règles d'auto-application",
+            "matchReason": "semantic-token:carte,decision",
+            "matchScore": 60,
+            "alreadyDeclared": false
+          },
+          {
+            "type": "doc",
             "path": "docs/frontend/admin-quality-matrix-manual.md",
             "value": null,
             "key": null,
@@ -3803,16 +3813,6 @@
             "key": null,
             "label": "Rapport d'audit fonctionnel",
             "matchReason": "semantic-token:carte,couches",
-            "matchScore": 60,
-            "alreadyDeclared": false
-          },
-          {
-            "type": "doc",
-            "path": "openg7-org/e2e/helpers/domain-mocks.ts",
-            "value": null,
-            "key": null,
-            "label": null,
-            "matchReason": "semantic-token:corridors,explorer",
             "matchScore": 60,
             "alreadyDeclared": false
           }
@@ -5726,6 +5726,16 @@
           },
           {
             "type": "doc",
+            "path": "docs/frontend/admin-quality-governance.md",
+            "value": null,
+            "key": null,
+            "label": "Admin Quality — Gouvernance et règles d'auto-application",
+            "matchReason": "semantic-token:cycle,metier",
+            "matchScore": 60,
+            "alreadyDeclared": false
+          },
+          {
+            "type": "doc",
             "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
             "value": null,
             "key": null,
@@ -5851,16 +5861,6 @@
             "key": null,
             "label": null,
             "matchReason": "semantic-token:entreprises,partenaires",
-            "matchScore": 60,
-            "alreadyDeclared": false
-          },
-          {
-            "type": "selector",
-            "path": "openg7-org/src/app/shared/components/search/og7-search-field.component.ts",
-            "value": "og7-search-field",
-            "key": null,
-            "label": null,
-            "matchReason": "semantic-token:creer,entreprises",
             "matchScore": 60,
             "alreadyDeclared": false
           }
@@ -7754,6 +7754,16 @@
           },
           {
             "type": "doc",
+            "path": "docs/frontend/admin-quality-governance.md",
+            "value": null,
+            "key": null,
+            "label": "Admin Quality — Gouvernance et règles d'auto-application",
+            "matchReason": "semantic-token:actions,gouvernance,matrice",
+            "matchScore": 70,
+            "alreadyDeclared": false
+          },
+          {
+            "type": "doc",
             "path": "docs/frontend/homepage-preview.md",
             "value": null,
             "key": null,
@@ -7899,16 +7909,6 @@
             "key": null,
             "label": "`/pricing` page blueprint",
             "matchReason": "semantic-token:pages,rbac",
-            "matchScore": 60,
-            "alreadyDeclared": false
-          },
-          {
-            "type": "doc",
-            "path": "docs/frontend/reviews/linkup-302.md",
-            "value": null,
-            "key": null,
-            "label": "Review: `/linkup/302` UX & Behavior",
-            "matchReason": "semantic-token:actions,pages",
             "matchScore": 60,
             "alreadyDeclared": false
           }
@@ -8186,6 +8186,16 @@
           },
           {
             "type": "doc",
+            "path": "docs/frontend/admin-quality-governance.md",
+            "value": null,
+            "key": null,
+            "label": "Admin Quality — Gouvernance et règles d'auto-application",
+            "matchReason": "semantic-token:confiance,statut,validation,verifier",
+            "matchScore": 80,
+            "alreadyDeclared": false
+          },
+          {
+            "type": "doc",
             "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
             "value": null,
             "key": null,
@@ -8410,16 +8420,6 @@
             "value": null,
             "key": null,
             "label": "Première contribution",
-            "matchReason": "semantic-token:confiance",
-            "matchScore": 50,
-            "alreadyDeclared": false
-          },
-          {
-            "type": "doc",
-            "path": "docs/frontend/angular-domain-structure.md",
-            "value": null,
-            "key": null,
-            "label": "Angular app structure — domain-first layout",
             "matchReason": "semantic-token:confiance",
             "matchScore": 50,
             "alreadyDeclared": false
@@ -10685,7 +10685,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:comprendre,decouverte,discovery,pricing,proposition,publique,secteurs,statistiques,valeur"
       },
       "payload": {
@@ -10711,7 +10711,7 @@
       "summary": "Attach selector source corridor-item, corridor-priority-path, corridors-realtime, fullscreen, open-priority-path, priority-capacity, priority-dependencies, priority-sector, priority-services, status, timestamp, view-map to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10737,7 +10737,7 @@
       "summary": "Attach selector source corridor-priority-path, open-priority-path, priority-capacity, priority-dependencies, priority-sector, priority-services to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10763,7 +10763,7 @@
       "summary": "Attach selector source og7-home-corridors-realtime to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10789,7 +10789,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/home/feature/home-cta-row/home-cta-row.component.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10815,7 +10815,7 @@
       "summary": "Attach selector source og7-home-cta-row to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10841,7 +10841,7 @@
       "summary": "Attach selector source action, alerts, home-feed-panel, home-feed-panels, home-feed-view-all-alerts, home-feed-view-all-indicators, home-feed-view-all-opportunities, indicators, opportunities to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10867,7 +10867,7 @@
       "summary": "Attach selector source home-feed-view-all-opportunities to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10893,7 +10893,7 @@
       "summary": "Attach selector source og7-home-feed-panels to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10919,7 +10919,7 @@
       "summary": "Attach selector source search-box to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -10945,7 +10945,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:advanced,comparer,contexte,decouverte,discovery,filtrer,pages,profonde,recherche,rechercher,trier"
       },
       "payload": {
@@ -10971,7 +10971,7 @@
       "summary": "Attach e2e source Admin quality matrix recalculation to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:advanced,conserver,contexte,decouverte,details,discovery,entre,profonde,recherche"
       },
       "payload": {
@@ -10997,7 +10997,7 @@
       "summary": "Attach selector source admin-quality-coverage-delegation-trace, admin-quality-coverage-focus-trace, admin-quality-coverage-signal, advanced-discovery, e2e to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:advanced,conserver,contexte,decouverte,discovery,entre,pages,profonde,recherche"
       },
       "payload": {
@@ -11023,7 +11023,7 @@
       "summary": "Attach selector source action, actions, admin-quality-accordion, admin-quality-accordion-toggle-mission-control, admin-quality-active-filter, admin-quality-active-filters, admin-quality-ai-bay, admin-quality-ai-pilot-block, admin-quality-apply-proposal, admin-quality-approve-mission, admin-quality-build-now, admin-quality-build-now-create-mission, admin-quality-build-now-groups, admin-quality-build-now-item, admin-quality-build-now-open, admin-quality-build-now-plan, admin-quality-cockpit-next, admin-quality-cockpit-position, admin-quality-cockpit-previous, admin-quality-cockpit-sync-band, admin-quality-codex-ops-status, admin-quality-codex-prompt-editor, admin-quality-codex-quota-status, admin-quality-codex-runway, admin-quality-combobox, admin-quality-combobox-listbox, admin-quality-combobox-option, admin-quality-command-rail, admin-quality-confirm-dispatch, admin-quality-console-actions, admin-quality-console-active-surface, admin-quality-console-context, admin-quality-console-desk-actions, admin-quality-console-hud-controls, admin-quality-console-map-beacon, admin-quality-console-mission-actions, admin-quality-console-queue, admin-quality-console-remote, admin-quality-console-screen, admin-quality-console-stage, admin-quality-console-surface-stage, admin-quality-coverage-data, admin-quality-coverage-delegation-trace, admin-quality-coverage-matrix, admin-quality-coverage-matrix-legend, admin-quality-coverage-matrix-legend-item, admin-quality-coverage-matrix-legend-toggle, admin-quality-coverage-matrix-row, admin-quality-coverage-matrix-signal-legend, admin-quality-coverage-signal, admin-quality-dispatch-blocked, admin-quality-domain-icon, admin-quality-empty, admin-quality-error, admin-quality-generated-at, admin-quality-generated-task, admin-quality-generated-task-count, admin-quality-generated-task-kind-summary, admin-quality-generated-task-summary-blocking, admin-quality-generated-task-summary-count, admin-quality-generated-task-summary-units, admin-quality-generated-task-summary-workflow, admin-quality-generated-tasks, admin-quality-hero-briefing, admin-quality-hero-summary, admin-quality-hud-active-section-label, admin-quality-hud-active-timeline-step, admin-quality-hud-ai-confidence-card, admin-quality-hud-ambient-layer, admin-quality-hud-codex-labels, admin-quality-hud-codex-units, admin-quality-hud-codex-workflow, admin-quality-hud-contact-log-shell, admin-quality-hud-expanded-panels, admin-quality-hud-gap-card, admin-quality-hud-mission-brief, admin-quality-hud-mission-timeline, admin-quality-hud-open-actions, admin-quality-hud-open-workspace, admin-quality-hud-ops-detail, admin-quality-hud-ops-status, admin-quality-hud-proof-artifacts, admin-quality-hud-proof-pr, admin-quality-hud-proof-run, admin-quality-hud-proof-status, admin-quality-hud-radar-indicators, admin-quality-hud-radar-strip, admin-quality-hud-required-units, admin-quality-hud-section-workspace, admin-quality-hud-suggested-mission-card, admin-quality-hud-summary, admin-quality-hud-telemetry-status, admin-quality-hud-timeline-connector, admin-quality-hud-timeline-step, admin-quality-hud-timeline-track, admin-quality-hud-toggle, admin-quality-local-state, admin-quality-main-cockpit, admin-quality-matrix, admin-quality-matrix-pilot-backlog, admin-quality-matrix-recalculation-focus, admin-quality-matrix-recalculation-summary, admin-quality-mission-control, admin-quality-mission-control-contact-lock, admin-quality-mission-control-contact-log, admin-quality-mission-control-contact-log-count, admin-quality-mission-control-contact-log-entry, admin-quality-mission-control-contact-log-signal, admin-quality-mission-control-contact-log-time, admin-quality-mission-control-radar, admin-quality-mission-control-radar-acquisition-ring, admin-quality-mission-control-radar-echo, admin-quality-mission-control-radar-sweep, admin-quality-mission-control-radar-trail, admin-quality-mission-control-radar-trail-endpoint, admin-quality-mission-control-shell, admin-quality-mission-control-signature, admin-quality-mission-energy-lane, admin-quality-mission-hero, admin-quality-mission-hud, admin-quality-mission-loop, admin-quality-mission-loop-rail, admin-quality-mission-loop-step, admin-quality-mission-sync, admin-quality-mission-sync-status, admin-quality-mission-timeline, admin-quality-mission-workflow, admin-quality-next-best-action, admin-quality-open-issue, admin-quality-open-provider-sockets, admin-quality-open-workspace, admin-quality-panel-shell, admin-quality-proof-telemetry, admin-quality-provider-active-socket, admin-quality-provider-comparison, admin-quality-provider-comparison-card, admin-quality-provider-comparison-rail, admin-quality-provider-ops-handoff, admin-quality-recalculate-matrix, admin-quality-recommendation, admin-quality-recommendations-editor, admin-quality-reset-filters, admin-quality-row, admin-quality-scroll-section, admin-quality-search, admin-quality-secondary-queue, admin-quality-side-panel, admin-quality-side-panel-entry, admin-quality-side-panel-mission, admin-quality-side-panel-open-mission, admin-quality-source-status, admin-quality-summary, admin-quality-workspace-action-item, admin-quality-workspace-bar, admin-quality-workspace-close, admin-quality-workspace-drawer, admin-quality-workspace-inspector-tabs, admin-quality-workspace-panel, admin-quality-workspace-signal-context, admin-quality-workspace-tab-actions, advanced-discovery, coverage, delegation, dispatch, e2e, mission-control, product-work-domains, proof, proof-gap-domains, proved-domains, rail-heading, total-domains, trust-validation to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:advanced,conserver,contexte,decouverte,discovery,entre,pages,profonde,recherche"
       },
       "payload": {
@@ -11049,7 +11049,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:conserver,contexte,details,entre,pages,recherche"
       },
       "payload": {
@@ -11075,7 +11075,7 @@
       "summary": "Attach doc source Taches d'automatisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:comparer,conserver,decouverte,discovery,entre"
       },
       "payload": {
@@ -11101,7 +11101,7 @@
       "summary": "Attach doc source Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:comparer,conserver,contexte,entre,recherche"
       },
       "payload": {
@@ -11127,7 +11127,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:contexte,details,filtrer,pages,recherche"
       },
       "payload": {
@@ -11153,7 +11153,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:contexte,details,pages,profonde,recherche"
       },
       "payload": {
@@ -11179,7 +11179,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/admin/data-access/admin-quality-matrix.service.spec.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:advanced,decouverte,discovery,profonde,recherche"
       },
       "payload": {
@@ -11205,7 +11205,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:carte,cartes,corridors,couches,decision,drilldowns,explorer,geopatial,geospatial,utiles"
       },
       "payload": {
@@ -11231,7 +11231,7 @@
       "summary": "Attach doc source \\_dev/ol-demo - Corridor Intelligence to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:carte,corridors,decision,explorer,geospatial,utiles"
       },
       "payload": {
@@ -11257,7 +11257,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:carte,cartes,corridors,explorer,utiles"
       },
       "payload": {
@@ -11283,7 +11283,7 @@
       "summary": "Attach doc source Document de travail - Refonte UX de la carte des echanges (homepage) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:carte,cartes,corridors,couches,decision"
       },
       "payload": {
@@ -11309,7 +11309,7 @@
       "summary": "Attach selector source corridor-item, corridor-priority-path, corridors-realtime, fullscreen, open-priority-path, priority-capacity, priority-dependencies, priority-sector, priority-services, status, timestamp, view-map to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11335,7 +11335,7 @@
       "summary": "Attach selector source corridor-priority-path, open-priority-path, priority-capacity, priority-dependencies, priority-sector, priority-services to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11361,7 +11361,7 @@
       "summary": "Attach selector source og7-home-corridors-realtime to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11387,7 +11387,7 @@
       "summary": "Attach selector source action, home-map, map-decision-context, map-decision-empty, map-decision-panel, map-decision-prompt, map-drilldown, map-mobile-context, map-mobile-drilldown, map-mobile-picks, map-open-feed, map-open-feed-mobile to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11413,7 +11413,7 @@
       "summary": "Attach selector source action, agri-food, energy, home-map, map-cinematic-status, map-corridor-beat, map-corridor-card, map-corridor-downstream, map-decision-panel, map-drilldown, map-hub-prompt, map-open-corridor-feed, map-overlay, map-sector-rail, trade-map to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11439,7 +11439,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/home/feature/home-map-section/home-map-section.component.stories.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11465,7 +11465,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:bulk,entreprise,imports,inscrire,lancer,manuels,onboarding,soumettre"
       },
       "payload": {
@@ -11491,7 +11491,7 @@
       "summary": "Attach source source openg7-org/src/app/company-registration-form/components/company-registration-form/company-registration-form.component.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11517,7 +11517,7 @@
       "summary": "Attach selector source og7-company-registration-form to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11543,7 +11543,7 @@
       "summary": "Attach source source openg7-org/src/app/company-registration-form/models/registration.model.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11569,7 +11569,7 @@
       "summary": "Attach source source openg7-org/src/app/company-registration-form/validators/country.validator.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11595,7 +11595,7 @@
       "summary": "Attach source source openg7-org/src/app/company-registration-form/validators/phone.validator.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11621,7 +11621,7 @@
       "summary": "Attach source source openg7-org/src/app/company-registration-form/validators/url.validator.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11647,7 +11647,7 @@
       "summary": "Attach selector source access-denied to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11673,7 +11673,7 @@
       "summary": "Attach selector source og7-access-denied-page to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11699,7 +11699,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/auth/pages/account-open.page.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11725,7 +11725,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:analytics,analytique,collaboration,comparer,creer,fournisseurs,importation,kpis,lire,rapports,suivre,watchlists"
       },
       "payload": {
@@ -11751,7 +11751,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:analytics,analytique,collaboration,importation,rapports,watchlists"
       },
       "payload": {
@@ -11777,7 +11777,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:analytics,creer,fournisseurs,lire,suivre"
       },
       "payload": {
@@ -11803,7 +11803,7 @@
       "summary": "Attach doc source `/importation` page UX blueprint to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11829,7 +11829,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:analytique,creer,kpis,rapports,suivre"
       },
       "payload": {
@@ -11855,7 +11855,7 @@
       "summary": "Attach selector source importation-collaboration to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11881,7 +11881,7 @@
       "summary": "Attach selector source og7-importation-collaboration-hub to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11907,7 +11907,7 @@
       "summary": "Attach selector source importation-commodities to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11933,7 +11933,7 @@
       "summary": "Attach selector source og7-importation-commodity-section to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11959,7 +11959,7 @@
       "summary": "Attach selector source importation-flow to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -11985,7 +11985,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,depuis,feed,indicateurs,metier,offre,opportunites,ouvrir,proposer,publier,signaux,statut,suivre"
       },
       "payload": {
@@ -12011,7 +12011,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,depuis,feed,metier,offre,opportunites,ouvrir,proposer,publier,statut,suivre"
       },
       "payload": {
@@ -12037,7 +12037,7 @@
       "summary": "Attach doc source Manuel d'utilisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,depuis,feed,metier,offre,ouvrir,proposer,publier,signals,signaux,statut"
       },
       "payload": {
@@ -12063,7 +12063,7 @@
       "summary": "Attach doc source UI Angular — Composer `hydrocarbon-surplus-offer` to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:depuis,feed,metier,ouvrir,publier,signals,signaux,statut"
       },
       "payload": {
@@ -12089,7 +12089,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,depuis,indicateurs,metier,ouvrir,signals,statut,suivre"
       },
       "payload": {
@@ -12115,7 +12115,7 @@
       "summary": "Attach doc source Taches d'automatisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:depuis,metier,publier,signals,signaux,statut,suivre"
       },
       "payload": {
@@ -12141,7 +12141,7 @@
       "summary": "Attach doc source Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,depuis,feed,metier,proposer,publier,signaux"
       },
       "payload": {
@@ -12167,7 +12167,7 @@
       "summary": "Attach doc source Strapi / API — Contrat pour `hydrocarbon-surplus-offer` to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:depuis,feed,metier,publier,signals,signaux"
       },
       "payload": {
@@ -12193,7 +12193,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:depuis,feed,metier,ouvrir,signals,signaux"
       },
       "payload": {
@@ -12219,7 +12219,7 @@
       "summary": "Attach selector source action, alert-context-aside, alert-indicators, alert-open-all, alert-related-alerts, alert-related-opportunities to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12245,7 +12245,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:creer,enrichir,entreprises,evoluer,faire,metier,opportunites,partenaires"
       },
       "payload": {
@@ -12271,7 +12271,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:archiver,business,creer,cycle,enrichir,metier,objets,opportunites"
       },
       "payload": {
@@ -12297,7 +12297,7 @@
       "summary": "Attach doc source \\_dev/ol-demo - Corridor Intelligence to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:creer,evoluer,faire,metier,partenaires"
       },
       "payload": {
@@ -12323,7 +12323,7 @@
       "summary": "Attach doc source Repository ruleset – main (English) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:cycle,evoluer,faire,lifecycle,partenaires"
       },
       "payload": {
@@ -12349,7 +12349,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/partners/pages/partner-details.page.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12375,7 +12375,7 @@
       "summary": "Attach selector source og7-partner-details-page to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12401,7 +12401,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/partners/partners/ui/partner-quick-actions.component.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12427,7 +12427,7 @@
       "summary": "Attach selector source og7-partner-quick-actions to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12453,7 +12453,7 @@
       "summary": "Attach selector source company-detail-capacities, company-detail-card, company-detail-empty, company-detail-metadata to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12479,7 +12479,7 @@
       "summary": "Attach selector source [data-og7= to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12505,7 +12505,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:consulter,detail,historique,linkup,mise,ouvrir,relation,statut,suivre,workflow"
       },
       "payload": {
@@ -12531,7 +12531,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:consulter,detail,historique,linkup,mise,ouvrir,relation,statut,suivre"
       },
       "payload": {
@@ -12557,7 +12557,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:consulter,detail,mise,ouvrir,relation,statut,suivre,workflow"
       },
       "payload": {
@@ -12583,7 +12583,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:detail,historique,linkup,mise,ouvrir,relation,workflow"
       },
       "payload": {
@@ -12609,7 +12609,7 @@
       "summary": "Attach doc source Manuel d'utilisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:consulter,detail,historique,ouvrir,statut,workflow"
       },
       "payload": {
@@ -12635,7 +12635,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/matchmaking/pages/linkup-detail/og7-linkup-detail-page.component.spec.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "declared-evidence"
       },
       "payload": {
@@ -12661,7 +12661,7 @@
       "summary": "Attach doc source Taches d'automatisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:detail,historique,statut,suivre,workflow"
       },
       "payload": {
@@ -12687,7 +12687,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/matchmaking/data-access/linkup-data.service.spec.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12713,7 +12713,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/matchmaking/data-access/linkup-data.service.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12739,7 +12739,7 @@
       "summary": "Attach source source openg7-org/src/app/domains/matchmaking/data-access/linkup.models.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12765,7 +12765,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,alerts,gerer,inbox,notification,notifications,preferences,recevoir"
       },
       "payload": {
@@ -12791,7 +12791,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-covered-needs-audit.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alerts,inbox,notification,notifications,preferences"
       },
       "payload": {
@@ -12817,7 +12817,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alerts,inbox,notification,notifications,preferences"
       },
       "payload": {
@@ -12843,7 +12843,7 @@
       "summary": "Attach selector source alert-delete, alert-read-badge, alert-severity, alert-toggle-read, alerts-clear-read, alerts-empty, alerts-error, alerts-generate, alerts-mark-all-read, alerts-unread-count, indicator-alert-rule-delete, indicator-alert-rule-item, indicator-alert-rule-status, indicator-alert-rule-toggle, indicator-alert-rules-empty, opportunity-offer-activity, opportunity-offer-allocation, opportunity-offer-item, opportunity-offer-last-activity, opportunity-offer-open, opportunity-offer-progress-discussion, opportunity-offer-progress-partial, opportunity-offer-status, opportunity-offer-thread, opportunity-offer-toggle-thread, opportunity-offer-withdraw, opportunity-offers, opportunity-offers-empty, user-alert-item, user-alerts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12869,7 +12869,7 @@
       "summary": "Attach selector source alert-delete, alert-toggle-read, opportunity-offer-activity, opportunity-offer-item, opportunity-offer-progress-discussion, opportunity-offer-thread, opportunity-offer-toggle-thread, user-alert-item to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12895,7 +12895,7 @@
       "summary": "Attach selector source og7-alerts-page to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12921,7 +12921,7 @@
       "summary": "Attach selector source notification-panel to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12947,7 +12947,7 @@
       "summary": "Attach selector source og7-notification-panel to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12973,7 +12973,7 @@
       "summary": "Attach strapi-api source user-alert to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -12999,7 +12999,7 @@
       "summary": "Attach source source openg7-org/src/app/core/services/user-alerts-api.service.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:alertes,alerts,inbox,notification"
       },
       "payload": {
@@ -13025,7 +13025,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:compte,donnees,email,export,favoris,gerer,passe,persistance,personnelles,profil,session,sessions"
       },
       "payload": {
@@ -13051,7 +13051,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,compte,data,donnees,email,passe,persistance,session"
       },
       "payload": {
@@ -13077,7 +13077,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:compte,donnees,export,passe,personnelles,profil"
       },
       "payload": {
@@ -13103,7 +13103,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:data,donnees,email,export,passe,sessions"
       },
       "payload": {
@@ -13129,7 +13129,7 @@
       "summary": "Attach doc source openg7-org/e2e/helpers/auth-session.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,data,email,export,session,sessions"
       },
       "payload": {
@@ -13155,7 +13155,7 @@
       "summary": "Attach doc source openg7-org/e2e/helpers/domain-mocks.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,data,email,export,session,sessions"
       },
       "payload": {
@@ -13181,7 +13181,7 @@
       "summary": "Attach e2e source Use-case audit to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,data,email,export,session,sessions"
       },
       "payload": {
@@ -13207,7 +13207,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-covered-needs-audit.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,data,email,export,session,sessions"
       },
       "payload": {
@@ -13233,7 +13233,7 @@
       "summary": "Attach doc source Homepage preview workflow to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:account,data,email,export,session"
       },
       "payload": {
@@ -13259,7 +13259,7 @@
       "summary": "Attach doc source Strapi v5 — stratégie base de données & scalabilité to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:donnees,export,passe,session,sessions"
       },
       "payload": {
@@ -13285,7 +13285,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,appliquer,gouvernance,matrice,pages,permissions,rbac,ressources,roles,sensibles,vraie"
       },
       "payload": {
@@ -13311,7 +13311,7 @@
       "summary": "Attach doc source Manuel d'utilisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,appliquer,gouvernance,matrice,pages,permissions,roles,sensibles"
       },
       "payload": {
@@ -13337,7 +13337,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,matrice,pages,permissions,rbac,sensibles"
       },
       "payload": {
@@ -13363,7 +13363,7 @@
       "summary": "Attach doc source Taches d'automatisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,appliquer,gouvernance,matrice,rbac"
       },
       "payload": {
@@ -13389,7 +13389,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,appliquer,pages,permissions,roles"
       },
       "payload": {
@@ -13415,7 +13415,7 @@
       "summary": "Attach source source openg7-org/src/app/core/auth/auth-config.service.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13441,7 +13441,7 @@
       "summary": "Attach source source openg7-org/src/app/core/auth/auth-redirect.service.spec.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13467,7 +13467,7 @@
       "summary": "Attach source source openg7-org/src/app/core/auth/auth-redirect.service.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13493,7 +13493,7 @@
       "summary": "Attach source source openg7-org/src/app/core/auth/auth.guard.spec.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13519,7 +13519,7 @@
       "summary": "Attach source source openg7-org/src/app/core/auth/auth.guard.ts to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13545,7 +13545,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:confiance,decisions,historiser,lisible,moderer,rendre,statut,trust,validation,verifier"
       },
       "payload": {
@@ -13571,7 +13571,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:confiance,decisions,lisible,rendre,statut,validation,verifier"
       },
       "payload": {
@@ -13597,7 +13597,7 @@
       "summary": "Attach doc source Manuel d'utilisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:confiance,lisible,statut,validation,verifier"
       },
       "payload": {
@@ -13623,7 +13623,7 @@
       "summary": "Attach e2e source Admin quality matrix recalculation to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:confiance,decisions,historiser,trust,validation"
       },
       "payload": {
@@ -13649,7 +13649,7 @@
       "summary": "Attach selector source action, actions, admin-quality-accordion, admin-quality-accordion-toggle-mission-control, admin-quality-active-filter, admin-quality-active-filters, admin-quality-ai-bay, admin-quality-ai-pilot-block, admin-quality-apply-proposal, admin-quality-approve-mission, admin-quality-build-now, admin-quality-build-now-create-mission, admin-quality-build-now-groups, admin-quality-build-now-item, admin-quality-build-now-open, admin-quality-build-now-plan, admin-quality-cockpit-next, admin-quality-cockpit-position, admin-quality-cockpit-previous, admin-quality-cockpit-sync-band, admin-quality-codex-ops-status, admin-quality-codex-prompt-editor, admin-quality-codex-quota-status, admin-quality-codex-runway, admin-quality-combobox, admin-quality-combobox-listbox, admin-quality-combobox-option, admin-quality-command-rail, admin-quality-confirm-dispatch, admin-quality-console-actions, admin-quality-console-active-surface, admin-quality-console-context, admin-quality-console-desk-actions, admin-quality-console-hud-controls, admin-quality-console-map-beacon, admin-quality-console-mission-actions, admin-quality-console-queue, admin-quality-console-remote, admin-quality-console-screen, admin-quality-console-stage, admin-quality-console-surface-stage, admin-quality-coverage-data, admin-quality-coverage-delegation-trace, admin-quality-coverage-matrix, admin-quality-coverage-matrix-legend, admin-quality-coverage-matrix-legend-item, admin-quality-coverage-matrix-legend-toggle, admin-quality-coverage-matrix-row, admin-quality-coverage-matrix-signal-legend, admin-quality-coverage-signal, admin-quality-dispatch-blocked, admin-quality-domain-icon, admin-quality-empty, admin-quality-error, admin-quality-generated-at, admin-quality-generated-task, admin-quality-generated-task-count, admin-quality-generated-task-kind-summary, admin-quality-generated-task-summary-blocking, admin-quality-generated-task-summary-count, admin-quality-generated-task-summary-units, admin-quality-generated-task-summary-workflow, admin-quality-generated-tasks, admin-quality-hero-briefing, admin-quality-hero-summary, admin-quality-hud-active-section-label, admin-quality-hud-active-timeline-step, admin-quality-hud-ai-confidence-card, admin-quality-hud-ambient-layer, admin-quality-hud-codex-labels, admin-quality-hud-codex-units, admin-quality-hud-codex-workflow, admin-quality-hud-contact-log-shell, admin-quality-hud-expanded-panels, admin-quality-hud-gap-card, admin-quality-hud-mission-brief, admin-quality-hud-mission-timeline, admin-quality-hud-open-actions, admin-quality-hud-open-workspace, admin-quality-hud-ops-detail, admin-quality-hud-ops-status, admin-quality-hud-proof-artifacts, admin-quality-hud-proof-pr, admin-quality-hud-proof-run, admin-quality-hud-proof-status, admin-quality-hud-radar-indicators, admin-quality-hud-radar-strip, admin-quality-hud-required-units, admin-quality-hud-section-workspace, admin-quality-hud-suggested-mission-card, admin-quality-hud-summary, admin-quality-hud-telemetry-status, admin-quality-hud-timeline-connector, admin-quality-hud-timeline-step, admin-quality-hud-timeline-track, admin-quality-hud-toggle, admin-quality-local-state, admin-quality-main-cockpit, admin-quality-matrix, admin-quality-matrix-pilot-backlog, admin-quality-matrix-recalculation-focus, admin-quality-matrix-recalculation-summary, admin-quality-mission-control, admin-quality-mission-control-contact-lock, admin-quality-mission-control-contact-log, admin-quality-mission-control-contact-log-count, admin-quality-mission-control-contact-log-entry, admin-quality-mission-control-contact-log-signal, admin-quality-mission-control-contact-log-time, admin-quality-mission-control-radar, admin-quality-mission-control-radar-acquisition-ring, admin-quality-mission-control-radar-echo, admin-quality-mission-control-radar-sweep, admin-quality-mission-control-radar-trail, admin-quality-mission-control-radar-trail-endpoint, admin-quality-mission-control-shell, admin-quality-mission-control-signature, admin-quality-mission-energy-lane, admin-quality-mission-hero, admin-quality-mission-hud, admin-quality-mission-loop, admin-quality-mission-loop-rail, admin-quality-mission-loop-step, admin-quality-mission-sync, admin-quality-mission-sync-status, admin-quality-mission-timeline, admin-quality-mission-workflow, admin-quality-next-best-action, admin-quality-open-issue, admin-quality-open-provider-sockets, admin-quality-open-workspace, admin-quality-panel-shell, admin-quality-proof-telemetry, admin-quality-provider-active-socket, admin-quality-provider-comparison, admin-quality-provider-comparison-card, admin-quality-provider-comparison-rail, admin-quality-provider-ops-handoff, admin-quality-recalculate-matrix, admin-quality-recommendation, admin-quality-recommendations-editor, admin-quality-reset-filters, admin-quality-row, admin-quality-scroll-section, admin-quality-search, admin-quality-secondary-queue, admin-quality-side-panel, admin-quality-side-panel-entry, admin-quality-side-panel-mission, admin-quality-side-panel-open-mission, admin-quality-source-status, admin-quality-summary, admin-quality-workspace-action-item, admin-quality-workspace-bar, admin-quality-workspace-close, admin-quality-workspace-drawer, admin-quality-workspace-inspector-tabs, admin-quality-workspace-panel, admin-quality-workspace-signal-context, admin-quality-workspace-tab-actions, advanced-discovery, coverage, delegation, dispatch, e2e, mission-control, product-work-domains, proof, proof-gap-domains, proved-domains, rail-heading, total-domains, trust-validation to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:confiance,decisions,historiser,trust,validation"
       },
       "payload": {
@@ -13675,7 +13675,7 @@
       "summary": "Attach selector source admin-trust, admin-trust-company-item, admin-trust-history-item, admin-trust-new-history, admin-trust-new-source, admin-trust-profile-current-status, admin-trust-profile-lifecycle, admin-trust-profile-note, admin-trust-profile-quick-pause, admin-trust-profile-quick-queue, admin-trust-profile-quick-review, admin-trust-profile-quick-sync, admin-trust-profile-status, admin-trust-profile-trace, admin-trust-publication-status, admin-trust-queue, admin-trust-quick-correction, admin-trust-quick-publish, admin-trust-quick-queue, admin-trust-quick-reject, admin-trust-quick-suspend, admin-trust-quick-suspend-publication, admin-trust-quick-verify, admin-trust-review-note, admin-trust-review-workspace, admin-trust-save, admin-trust-source-item, admin-trust-source-status, admin-trust-source-type, admin-trust-status to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13701,7 +13701,7 @@
       "summary": "Attach selector source og7-admin-trust-page to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13727,7 +13727,7 @@
       "summary": "Attach source source openg7-org/src/app/shared/components/partner/og7-partner-details-card.component.html to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13753,7 +13753,7 @@
       "summary": "Attach route source M12 2 3 7v10l9 5 9-5V7ZM5 8.2l7-3.89 7 3.89V9l-7 3.89L5 9Zm0 3.46 7 3.88 7-3.88v6.08l-7 3.88-7-3.88Z, M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 2a7.93 7.93 0 0 1 2.11.29A15.5 15.5 0 0 1 12 10H6.2A8 8 0 0 1 12 4Zm-7.8 8H10a13.61 13.61 0 0 0 2 6.74A8 8 0 0 1 4.2 12Zm7.8 8a7.93 7.93 0 0 1-2.11-.29A15.5 15.5 0 0 1 12 14h5.8A8 8 0 0 1 12 20Zm0-8c.52-.84 1.39-2.62 1.78-4h4a8.08 8.08 0 0 1-.9 4Z, M13.5 21v-7h2.4l.36-2.8h-2.76V9.35c0-.81.23-1.35 1.4-1.35h1.5V5.4a20.38 20.38 0 0 0-2.19-.11c-2.16 0-3.65 1.32-3.65 3.76v2.1H8.5V14h2.16v7Z, M20.46 6.03a7 7 0 0 1-2 .55 3.49 3.49 0 0 0 1.54-1.93 7.07 7.07 0 0 1-2.22.86 3.52 3.52 0 0 0-6 3.21 10 10 0 0 1-7.26-3.69 3.51 3.51 0 0 0 1.09 4.7 3.47 3.47 0 0 1-1.6-.45v.05a3.52 3.52 0 0 0 2.82 3.45 3.53 3.53 0 0 1-1.59.06 3.51 3.51 0 0 0 3.29 2.45 7.06 7.06 0 0 1-5.2 1.46A10 10 0 0 0 9 19.54 9.93 9.93 0 0 0 19 9.52c0-.15 0-.31 0-.46a7.15 7.15 0 0 0 1.78-1.83Z, M22.55 6.28a2.78 2.78 0 0 0-1.95-2A48.24 48.24 0 0 0 12 4a48.24 48.24 0 0 0-8.6.29 2.78 2.78 0 0 0-1.95 2A29.94 29.94 0 0 0 1 12a29.94 29.94 0 0 0 .45 5.72 2.78 2.78 0 0 0 1.95 2A48.24 48.24 0 0 0 12 20a48.24 48.24 0 0 0 8.6-.29 2.78 2.78 0 0 0 1.95-2A29.94 29.94 0 0 0 23 12a29.94 29.94 0 0 0-.45-5.72ZM10 15.46V8.54L15.47 12Z, M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm8 7 8-5H4Z, M4.98 3.5a2.5 2.5 0 1 1-.02 0ZM3 8.25h3.96V21H3ZM9.5 8.25H13v1.73h.05a3.83 3.83 0 0 1 3.44-1.89c3.68 0 4.36 2.42 4.36 5.57V21h-3.95v-5.54c0-1.32-.02-3.02-1.84-3.02-1.84 0-2.12 1.43-2.12 2.9V21H9.5Z, M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm5 3.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5Zm0 2A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Zm4.75-4a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z, M9.78 3.27A2 2 0 0 1 11.4 2h1.2a2 2 0 0 1 2 2.2l-.26 2.65a2 2 0 0 1-1.33 1.69l-1.62.54a8.07 8.07 0 0 0 3.58 3.58l.54-1.62a2 2 0 0 1 1.69-1.33l2.65-.26a2 2 0 0 1 2.2 2v1.2a2 2 0 0 1-1.27 1.86 13.13 13.13 0 0 1-14.16-14.16Z, og7-partner-details-card to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13779,7 +13779,7 @@
       "summary": "Attach selector source partner-profile-lifecycle, partner-profile-status, partner-profile-summary, partner-profile-trace, partner-publication-lifecycle, partner-publication-status, partner-publication-summary, partner-publication-trace, partner-trust, partner-trust-history-item, partner-trust-review-decision, partner-trust-score, partner-trust-source-item, partner-trust-status to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "impact-rule"
       },
       "payload": {
@@ -13805,7 +13805,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:accessibilite,erreurs,etats,offline,percue,performance,qualite,reload,responsive,robustesse,service,vides"
       },
       "payload": {
@@ -13831,7 +13831,7 @@
       "summary": "Attach doc source Analyse d'intégration — Recherche rapide (CTRL+K) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:accessibilite,couvrir,erreurs,etats,offline,performance,service,vides"
       },
       "payload": {
@@ -13857,7 +13857,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:couvrir,erreurs,etats,offline,robustesse,service,vides"
       },
       "payload": {
@@ -13883,7 +13883,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-covered-needs-audit.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:breadth,offline,performance,reload,responsive,service"
       },
       "payload": {
@@ -13909,7 +13909,7 @@
       "summary": "Attach doc source Audit UX/UI — Page de connexion to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:accessibilite,erreurs,percue,qualite,responsive"
       },
       "payload": {
@@ -13935,7 +13935,7 @@
       "summary": "Attach doc source Document de travail - Refonte UX de la carte des echanges (homepage) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:accessibilite,etats,percue,performance"
       },
       "payload": {
@@ -13961,7 +13961,7 @@
       "summary": "Attach doc source \\_dev/ol-demo - Corridor Intelligence to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:etats,performance,qualite,responsive"
       },
       "payload": {
@@ -13987,7 +13987,7 @@
       "summary": "Attach doc source `/importation` page UX blueprint to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:performance,responsive,service"
       },
       "payload": {
@@ -14013,7 +14013,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:erreurs,performance,qualite"
       },
       "payload": {
@@ -14039,7 +14039,7 @@
       "summary": "Attach doc source Gestion d'état pour la recherche rapide to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:erreurs,etats,service"
       },
       "payload": {
@@ -14065,7 +14065,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,changements,importants,imports,observabilite,observability,provenance,sensibles,tracabilite,tracer"
       },
       "payload": {
@@ -14091,7 +14091,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,observabilite,observability,provenance,sensibles"
       },
       "payload": {
@@ -14117,7 +14117,7 @@
       "summary": "Attach selector source action, actions, admin-quality-accordion, admin-quality-accordion-toggle-mission-control, admin-quality-active-filter, admin-quality-active-filters, admin-quality-ai-bay, admin-quality-ai-pilot-block, admin-quality-apply-proposal, admin-quality-approve-mission, admin-quality-build-now, admin-quality-build-now-create-mission, admin-quality-build-now-groups, admin-quality-build-now-item, admin-quality-build-now-open, admin-quality-build-now-plan, admin-quality-cockpit-next, admin-quality-cockpit-position, admin-quality-cockpit-previous, admin-quality-cockpit-sync-band, admin-quality-codex-ops-status, admin-quality-codex-prompt-editor, admin-quality-codex-quota-status, admin-quality-codex-runway, admin-quality-combobox, admin-quality-combobox-listbox, admin-quality-combobox-option, admin-quality-command-rail, admin-quality-confirm-dispatch, admin-quality-console-actions, admin-quality-console-active-surface, admin-quality-console-context, admin-quality-console-desk-actions, admin-quality-console-hud-controls, admin-quality-console-map-beacon, admin-quality-console-mission-actions, admin-quality-console-queue, admin-quality-console-remote, admin-quality-console-screen, admin-quality-console-stage, admin-quality-console-surface-stage, admin-quality-coverage-data, admin-quality-coverage-delegation-trace, admin-quality-coverage-matrix, admin-quality-coverage-matrix-legend, admin-quality-coverage-matrix-legend-item, admin-quality-coverage-matrix-legend-toggle, admin-quality-coverage-matrix-row, admin-quality-coverage-matrix-signal-legend, admin-quality-coverage-signal, admin-quality-dispatch-blocked, admin-quality-domain-icon, admin-quality-empty, admin-quality-error, admin-quality-generated-at, admin-quality-generated-task, admin-quality-generated-task-count, admin-quality-generated-task-kind-summary, admin-quality-generated-task-summary-blocking, admin-quality-generated-task-summary-count, admin-quality-generated-task-summary-units, admin-quality-generated-task-summary-workflow, admin-quality-generated-tasks, admin-quality-hero-briefing, admin-quality-hero-summary, admin-quality-hud-active-section-label, admin-quality-hud-active-timeline-step, admin-quality-hud-ai-confidence-card, admin-quality-hud-ambient-layer, admin-quality-hud-codex-labels, admin-quality-hud-codex-units, admin-quality-hud-codex-workflow, admin-quality-hud-contact-log-shell, admin-quality-hud-expanded-panels, admin-quality-hud-gap-card, admin-quality-hud-mission-brief, admin-quality-hud-mission-timeline, admin-quality-hud-open-actions, admin-quality-hud-open-workspace, admin-quality-hud-ops-detail, admin-quality-hud-ops-status, admin-quality-hud-proof-artifacts, admin-quality-hud-proof-pr, admin-quality-hud-proof-run, admin-quality-hud-proof-status, admin-quality-hud-radar-indicators, admin-quality-hud-radar-strip, admin-quality-hud-required-units, admin-quality-hud-section-workspace, admin-quality-hud-suggested-mission-card, admin-quality-hud-summary, admin-quality-hud-telemetry-status, admin-quality-hud-timeline-connector, admin-quality-hud-timeline-step, admin-quality-hud-timeline-track, admin-quality-hud-toggle, admin-quality-local-state, admin-quality-main-cockpit, admin-quality-matrix, admin-quality-matrix-pilot-backlog, admin-quality-matrix-recalculation-focus, admin-quality-matrix-recalculation-summary, admin-quality-mission-control, admin-quality-mission-control-contact-lock, admin-quality-mission-control-contact-log, admin-quality-mission-control-contact-log-count, admin-quality-mission-control-contact-log-entry, admin-quality-mission-control-contact-log-signal, admin-quality-mission-control-contact-log-time, admin-quality-mission-control-radar, admin-quality-mission-control-radar-acquisition-ring, admin-quality-mission-control-radar-echo, admin-quality-mission-control-radar-sweep, admin-quality-mission-control-radar-trail, admin-quality-mission-control-radar-trail-endpoint, admin-quality-mission-control-shell, admin-quality-mission-control-signature, admin-quality-mission-energy-lane, admin-quality-mission-hero, admin-quality-mission-hud, admin-quality-mission-loop, admin-quality-mission-loop-rail, admin-quality-mission-loop-step, admin-quality-mission-sync, admin-quality-mission-sync-status, admin-quality-mission-timeline, admin-quality-mission-workflow, admin-quality-next-best-action, admin-quality-open-issue, admin-quality-open-provider-sockets, admin-quality-open-workspace, admin-quality-panel-shell, admin-quality-proof-telemetry, admin-quality-provider-active-socket, admin-quality-provider-comparison, admin-quality-provider-comparison-card, admin-quality-provider-comparison-rail, admin-quality-provider-ops-handoff, admin-quality-recalculate-matrix, admin-quality-recommendation, admin-quality-recommendations-editor, admin-quality-reset-filters, admin-quality-row, admin-quality-scroll-section, admin-quality-search, admin-quality-secondary-queue, admin-quality-side-panel, admin-quality-side-panel-entry, admin-quality-side-panel-mission, admin-quality-side-panel-open-mission, admin-quality-source-status, admin-quality-summary, admin-quality-workspace-action-item, admin-quality-workspace-bar, admin-quality-workspace-close, admin-quality-workspace-drawer, admin-quality-workspace-inspector-tabs, admin-quality-workspace-panel, admin-quality-workspace-signal-context, admin-quality-workspace-tab-actions, advanced-discovery, coverage, delegation, dispatch, e2e, mission-control, product-work-domains, proof, proof-gap-domains, proved-domains, rail-heading, total-domains, trust-validation to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,observabilite,observability,provenance,tracabilite"
       },
       "payload": {
@@ -14143,7 +14143,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,changements,importants,tracer"
       },
       "payload": {
@@ -14169,7 +14169,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-covered-needs-audit.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,imports,observability,provenance"
       },
       "payload": {
@@ -14195,7 +14195,7 @@
       "summary": "Attach doc source Manuel d'utilisation de la matrice QA admin to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,changements,sensibles"
       },
       "payload": {
@@ -14221,7 +14221,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,changements,tracabilite"
       },
       "payload": {
@@ -14247,7 +14247,7 @@
       "summary": "Attach doc source Analyse d'intégration — Recherche rapide (CTRL+K) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,observability,sensibles"
       },
       "payload": {
@@ -14273,7 +14273,7 @@
       "summary": "Attach doc source Repository ruleset – main (English) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,provenance,tracabilite"
       },
       "payload": {
@@ -14299,7 +14299,7 @@
       "summary": "Attach selector source alert-delete, alert-toggle-read, opportunity-offer-activity, opportunity-offer-item, opportunity-offer-progress-discussion, opportunity-offer-thread, opportunity-offer-toggle-thread, user-alert-item to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:actions,imports,observability"
       },
       "payload": {
@@ -14325,7 +14325,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-gap-analysis.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:capacites,cartographier,corridors,dependances,interprovinciales,openg7,specifique,valeur"
       },
       "payload": {
@@ -14351,7 +14351,7 @@
       "summary": "Attach doc source Cas d'usage en langage courant pour OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:capacites,corridors,dependances,openg7,priorites,sectorielles,valeur"
       },
       "payload": {
@@ -14377,7 +14377,7 @@
       "summary": "Attach doc source Document de travail - Refonte UX de la carte des echanges (homepage) to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,openg7,priorites,specifique,valeur"
       },
       "payload": {
@@ -14403,7 +14403,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-needs-backlog.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,openg7,specifique,valeur"
       },
       "payload": {
@@ -14429,7 +14429,7 @@
       "summary": "Attach doc source Cas d'usage — Entreprise d'hydrocarbures (Alberta) publiant un surplus ou un ralentissement de barils to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:openg7,sectorielles,valeur"
       },
       "payload": {
@@ -14455,7 +14455,7 @@
       "summary": "Attach doc source Analyse fonctionnelle — Centre de mises en relation OpenG7 to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:openg7,specifique,valeur"
       },
       "payload": {
@@ -14481,7 +14481,7 @@
       "summary": "Attach doc source \\_dev/ol-demo - Corridor Intelligence to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,openg7,valeur"
       },
       "payload": {
@@ -14507,7 +14507,7 @@
       "summary": "Attach e2e source Quality breadth saved searches accessibility depth to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,depth,openg7"
       },
       "payload": {
@@ -14533,7 +14533,7 @@
       "summary": "Attach doc source openg7-org/e2e/use-case-covered-needs-audit.md to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,depth,openg7"
       },
       "payload": {
@@ -14559,7 +14559,7 @@
       "summary": "Attach selector source og7-home-corridors-realtime to the existing matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "semantic-token:corridors,dependances,openg7"
       },
       "payload": {
@@ -14585,7 +14585,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14628,7 +14628,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14671,7 +14671,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14714,7 +14714,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14757,7 +14757,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14800,7 +14800,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14843,7 +14843,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14886,7 +14886,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14929,7 +14929,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -14972,7 +14972,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15015,7 +15015,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15058,7 +15058,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15101,7 +15101,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15144,7 +15144,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15187,7 +15187,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15230,7 +15230,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15273,7 +15273,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15316,7 +15316,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15359,7 +15359,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {
@@ -15402,7 +15402,7 @@
       "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
       "source": {
         "agent": "admin-quality-needs-reconciler",
-        "generatedAt": "2026-05-22T23:37:22.886Z",
+        "generatedAt": "2026-05-23T00:56:23.086Z",
         "reason": "unmapped-source"
       },
       "payload": {

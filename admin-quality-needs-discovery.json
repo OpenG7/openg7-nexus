@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T23:37:25.448Z",
+  "generatedAt": "2026-05-23T00:56:28.329Z",
   "matrix": {
     "schemaVersion": 2,
     "generatedAt": "2026-05-17T00:00:00.000Z",
@@ -8,8 +8,8 @@
     "globalImpactPrefixCount": 7
   },
   "sourceCounts": {
-    "total": 940,
-    "docs": 61,
+    "total": 941,
+    "docs": 62,
     "e2e": 65,
     "routes": 8,
     "selectors": 277,
@@ -3760,6 +3760,16 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-governance.md",
+          "value": null,
+          "key": null,
+          "label": "Admin Quality — Gouvernance et règles d'auto-application",
+          "matchReason": "semantic-token:carte,decision",
+          "matchScore": 60,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/admin-quality-matrix-manual.md",
           "value": null,
           "key": null,
@@ -3795,16 +3805,6 @@
           "key": null,
           "label": "Rapport d'audit fonctionnel",
           "matchReason": "semantic-token:carte,couches",
-          "matchScore": 60,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "openg7-org/e2e/helpers/domain-mocks.ts",
-          "value": null,
-          "key": null,
-          "label": null,
-          "matchReason": "semantic-token:corridors,explorer",
           "matchScore": 60,
           "alreadyDeclared": false
         }
@@ -5718,6 +5718,16 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-governance.md",
+          "value": null,
+          "key": null,
+          "label": "Admin Quality — Gouvernance et règles d'auto-application",
+          "matchReason": "semantic-token:cycle,metier",
+          "matchScore": 60,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
@@ -5843,16 +5853,6 @@
           "key": null,
           "label": null,
           "matchReason": "semantic-token:entreprises,partenaires",
-          "matchScore": 60,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "selector",
-          "path": "openg7-org/src/app/shared/components/search/og7-search-field.component.ts",
-          "value": "og7-search-field",
-          "key": null,
-          "label": null,
-          "matchReason": "semantic-token:creer,entreprises",
           "matchScore": 60,
           "alreadyDeclared": false
         }
@@ -7746,6 +7746,16 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-governance.md",
+          "value": null,
+          "key": null,
+          "label": "Admin Quality — Gouvernance et règles d'auto-application",
+          "matchReason": "semantic-token:actions,gouvernance,matrice",
+          "matchScore": 70,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/homepage-preview.md",
           "value": null,
           "key": null,
@@ -7891,16 +7901,6 @@
           "key": null,
           "label": "`/pricing` page blueprint",
           "matchReason": "semantic-token:pages,rbac",
-          "matchScore": 60,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/reviews/linkup-302.md",
-          "value": null,
-          "key": null,
-          "label": "Review: `/linkup/302` UX & Behavior",
-          "matchReason": "semantic-token:actions,pages",
           "matchScore": 60,
           "alreadyDeclared": false
         }
@@ -8178,6 +8178,16 @@
         },
         {
           "type": "doc",
+          "path": "docs/frontend/admin-quality-governance.md",
+          "value": null,
+          "key": null,
+          "label": "Admin Quality — Gouvernance et règles d'auto-application",
+          "matchReason": "semantic-token:confiance,statut,validation,verifier",
+          "matchScore": 80,
+          "alreadyDeclared": false
+        },
+        {
+          "type": "doc",
           "path": "docs/frontend/admin-quality-matrix-automation-tasks.md",
           "value": null,
           "key": null,
@@ -8402,16 +8412,6 @@
           "value": null,
           "key": null,
           "label": "Première contribution",
-          "matchReason": "semantic-token:confiance",
-          "matchScore": 50,
-          "alreadyDeclared": false
-        },
-        {
-          "type": "doc",
-          "path": "docs/frontend/angular-domain-structure.md",
-          "value": null,
-          "key": null,
-          "label": "Angular app structure — domain-first layout",
           "matchReason": "semantic-token:confiance",
           "matchScore": 50,
           "alreadyDeclared": false

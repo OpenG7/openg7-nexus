@@ -1,8 +1,8 @@
 # Admin Quality Needs Proposals
 
-- Generated at: 2026-05-22T23:37:22.886Z
+- Generated at: 2026-05-23T00:56:23.086Z
 - Matrix entries: 15
-- Sources scanned: 940
+- Sources scanned: 941
 - Proposals: 170
 - Entries touched: 35
 
