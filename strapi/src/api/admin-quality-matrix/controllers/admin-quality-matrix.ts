@@ -2083,7 +2083,7 @@ function chatSseEvent(stream: PassThrough, type: string, data: Record<string, un
   stream.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
 }
 
-async function anthropicStreamMessages(
+async function openaiStreamMessages(
   apiKey: string,
   model: string,
   systemPrompt: string,
@@ -2093,22 +2093,21 @@ async function anthropicStreamMessages(
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model,
-      max_tokens: 4096,
       stream: true,
-      system: systemPrompt,
-      messages,
+      max_tokens: 4096,
+      temperature: 0.4,
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
     });
 
     const req = https.request(
       {
-        hostname: 'api.anthropic.com',
-        path: '/v1/messages',
+        hostname: 'api.openai.com',
+        path: '/v1/chat/completions',
         method: 'POST',
         headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'content-length': Buffer.byteLength(body),
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
         },
       },
       (res) => {
@@ -2130,12 +2129,11 @@ async function anthropicStreamMessages(
             }
             try {
               const event = JSON.parse(jsonStr) as Record<string, unknown>;
-              if (event['type'] === 'content_block_delta') {
-                const delta = event['delta'] as Record<string, unknown> | null;
-                if (delta?.['type'] === 'text_delta' && typeof delta['text'] === 'string') {
-                  fullText += delta['text'];
-                  onChunk(delta['text']);
-                }
+              const choices = event['choices'] as Array<Record<string, unknown>> | undefined;
+              const delta = choices?.[0]?.['delta'] as Record<string, unknown> | undefined;
+              if (typeof delta?.['content'] === 'string') {
+                fullText += delta['content'];
+                onChunk(delta['content']);
               }
             } catch {
               // ignore malformed SSE lines
@@ -2154,6 +2152,20 @@ async function anthropicStreamMessages(
   });
 }
 
+function loadAgentSystemDocs(): string {
+  try {
+    const docsPath = path.resolve(
+      __dirname,
+      '..', '..', '..', '..', '..', '..', 'docs', 'agent-context.md',
+    );
+    const content = readFileSync(docsPath, 'utf8');
+    const MAX_CHARS = 60_000;
+    return content.length > MAX_CHARS ? content.slice(0, MAX_CHARS) + '\n\n[... tronqué]' : content;
+  } catch {
+    return '';
+  }
+}
+
 async function buildChatSystemPrompt(
   strapiInstance: Core.Strapi,
   entryIds?: string[],
@@ -2161,10 +2173,11 @@ async function buildChatSystemPrompt(
   let entries: Record<string, unknown>[] = [];
   try {
     const findOptions: Record<string, unknown> = {
-      pagination: { limit: 200 },
+      limit: 200,
+      publicationState: 'preview',
     };
     if (entryIds && entryIds.length > 0) {
-      findOptions['filters'] = { id: { $in: entryIds } };
+      findOptions['filters'] = { entryId: { $in: entryIds } };
     }
     const result = await (strapiInstance.entityService as any).findMany(
       MATRIX_ENTRY_UID,
@@ -2177,22 +2190,34 @@ async function buildChatSystemPrompt(
 
   const lines: string[] = [];
   for (const entry of entries) {
-    const id = String(entry['id'] ?? '');
+    const id = String(entry['entryId'] ?? '');
     const domain = String(entry['domain'] ?? '');
     const need = String(entry['need'] ?? '');
     const bucket = String(entry['managementBucket'] ?? '');
     const priority = String(entry['priority'] ?? '');
     const gap = typeof entry['observedGap'] === 'string' ? entry['observedGap'] : '';
     const move = typeof entry['nextMove'] === 'string' ? entry['nextMove'] : '';
+    const e2e = String(entry['e2eStatus'] ?? '');
+    const summary = String(entry['summaryStatus'] ?? '');
+    const reviewed = typeof entry['reviewedAt'] === 'string' ? entry['reviewedAt'].slice(0, 10) : '';
+    const needsProduct = Boolean(entry['needsProductWorkFirst']);
     lines.push(
-      `[${id}] ${domain} — ${need}\n  bucket: ${bucket} | priorité: ${priority}` +
-        (gap ? `\n  écart: ${gap.slice(0, 200)}` : '') +
-        (move ? `\n  action: ${move.slice(0, 200)}` : ''),
+      `[${id}] ${domain} — ${need}\n  bucket: ${bucket} | priorité: ${priority} | e2e: ${e2e} | summary: ${summary}` +
+        (reviewed ? ` | révisé: ${reviewed}` : '') +
+        (needsProduct ? ' | ⚠ travail produit requis' : '') +
+        (gap ? `\n  écart: ${gap.slice(0, 300)}` : '') +
+        (move ? `\n  action: ${move.slice(0, 300)}` : ''),
     );
   }
 
-  const context = lines.length > 0 ? lines.join('\n\n') : 'Aucune entrée disponible.';
-  return CHAT_SYSTEM_PROMPT_TEMPLATE.replace('{MATRIX_CONTEXT}', context);
+  const matrixContext = lines.length > 0 ? lines.join('\n\n') : 'Aucune entrée disponible.';
+  const systemDocs = loadAgentSystemDocs();
+
+  let prompt = CHAT_SYSTEM_PROMPT_TEMPLATE.replace('{MATRIX_CONTEXT}', matrixContext);
+  if (systemDocs) {
+    prompt += `\n\n---\n\n## Documentation système OpenG7\n\n${systemDocs}`;
+  }
+  return prompt;
 }
 
 function extractChatProposals(
@@ -2983,10 +3008,10 @@ Réponds uniquement en JSON avec ce format exact :
   },
 
   async chatWithAgent(ctx: Context) {
-    const apiKey = process.env['ANTHROPIC_API_KEY'];
+    const apiKey = process.env['OPENAI_API_KEY']?.trim();
     if (!apiKey) {
       ctx.status = 503;
-      ctx.body = { error: 'ANTHROPIC_API_KEY not configured' };
+      ctx.body = { error: 'OPENAI_API_KEY not configured' };
       return;
     }
 
@@ -3017,7 +3042,7 @@ Réponds uniquement en JSON avec ce format exact :
       ? (context['entryIds'] as string[]).filter((id) => typeof id === 'string')
       : undefined;
 
-    const model = 'claude-sonnet-4-6';
+    const model = 'gpt-4o';
     const systemPrompt = await buildChatSystemPrompt(strapi, entryIds);
 
     const stream = new PassThrough();
@@ -3029,7 +3054,7 @@ Réponds uniquement en JSON avec ce format exact :
     ctx.status = 200;
 
     try {
-      const fullText = await anthropicStreamMessages(apiKey, model, systemPrompt, messages, (chunk) => {
+      const fullText = await openaiStreamMessages(apiKey, model, systemPrompt, messages, (chunk) => {
         chatSseEvent(stream, 'text', { content: chunk });
       });
 
@@ -3054,7 +3079,7 @@ Réponds uniquement en JSON avec ce format exact :
                 confidence: 'medium',
                 title: `Suggestion IA chat — ${proposal.field} (${proposal.entryId})`,
                 summary: `Proposé lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
-                source: { agent: 'chat', model, generatedAt },
+                source: { agent: 'openai', model, generatedAt },
                 payload: {
                   field: proposal.field,
                   suggestedValue: proposal.body,
@@ -3089,7 +3114,7 @@ Réponds uniquement en JSON avec ce format exact :
                 confidence: 'low',
                 title: `Nouvelle entrée candidate — ${entryId}`,
                 summary: `Proposée lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
-                source: { agent: 'chat', model, generatedAt },
+                source: { agent: 'openai', model, generatedAt },
                 payload: { candidateEntry: candidate },
                 history: [{ event: 'created-by-chat', at: generatedAt, model }],
                 reportedAt: generatedAt,

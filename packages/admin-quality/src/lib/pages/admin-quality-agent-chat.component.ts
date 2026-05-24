@@ -20,6 +20,30 @@ import type {
   AdminQualityChatMessage,
 } from '../data-access/admin-quality-matrix.service';
 
+function extractHttpErrorMessage(err: unknown): string {
+  if (err && typeof err === 'object') {
+    const e = err as Record<string, unknown>;
+    const status = typeof e['status'] === 'number' ? e['status'] : null;
+    const errorBody = e['error'];
+    if (typeof errorBody === 'string') {
+      try {
+        const parsed = JSON.parse(errorBody) as Record<string, unknown>;
+        if (typeof parsed['error'] === 'string') {
+          return status ? `[${status}] ${parsed['error']}` : parsed['error'];
+        }
+      } catch { /* not JSON */ }
+      return status ? `[${status}] ${errorBody.slice(0, 200)}` : errorBody.slice(0, 200);
+    }
+    if (typeof e['message'] === 'string') {
+      return e['message'];
+    }
+    if (status) {
+      return `Erreur HTTP ${status}`;
+    }
+  }
+  return 'Une erreur est survenue.';
+}
+
 interface ChatDisplayMessage {
   readonly role: 'user' | 'assistant';
   readonly content: string;
@@ -215,7 +239,7 @@ export class AdminQualityAgentChatComponent {
         error: (err: unknown) => {
           this.streamingContent.set(null);
           this.pending.set(false);
-          this.error.set(err instanceof Error ? err.message : 'Une erreur est survenue.');
+          this.error.set(extractHttpErrorMessage(err));
         },
         complete: () => this.finalizeStreaming(),
       });

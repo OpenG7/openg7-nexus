@@ -1368,7 +1368,7 @@
               data-og7="admin-quality-console-actions"
               data-og7-layout="command-grid"
             >
-              <div class="grid grid-cols-4 gap-1">
+              <div class="grid grid-cols-3 gap-1">
                 @for (surface of consoleSurfaceOptions; track surface.id) {
                 <button
                   type="button"
@@ -2189,7 +2189,7 @@
   <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-agent-surface">
     <div class="flex items-center justify-between gap-2 mb-3">
       <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">✦ Agent IA</span>
-      <span class="text-[10px] text-slate-400">claude-sonnet-4-6</span>
+      <span class="text-[10px] text-slate-400">gpt-4o</span>
     </div>
     <og7-admin-quality-agent-chat
       [context]="agentChatContext()"
