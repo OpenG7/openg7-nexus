@@ -49,6 +49,7 @@ import {
   AdminQualityMatrixSourceStatus,
   AdminQualityMatrixStatus,
   AdminQualityMatrixStoredRecalculation,
+  AdminQualityNeedProposalsSnapshot,
 } from '../data-access/admin-quality-matrix.service';
 import { AdminQualityMissionDecisionRecord } from '../data-access/admin-quality-mission-decisions.service';
 import {
@@ -76,6 +77,7 @@ import {
   buildActionRegistry,
   buildUndocumentedDiscoveredActions,
 } from './admin-quality-action-registry';
+import { AdminQualityAgentChatComponent } from './admin-quality-agent-chat.component';
 import { AdminQualityAgentPanelComponent } from './admin-quality-agent-panel.component';
 import {
   AdminQualityComboboxComponent,
@@ -120,6 +122,11 @@ import {
   buildMissionTasks,
   summarizeMissionQuota,
 } from './admin-quality-mission-task-planner';
+import {
+  AdminQualityNeedProposalAction,
+  AdminQualityNeedsProposalPanelComponent,
+} from './admin-quality-needs-proposal-panel.component';
+import { AdminQualityReactorComponent } from './admin-quality-reactor.component';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';
@@ -134,7 +141,7 @@ type AdminQualityMissionRadarEchoIntensity = 'low' | 'medium' | 'high';
 type AdminQualityMissionRadarLockReason = 'manual-targeting' | 'section-pulse' | 'proof-surge';
 type AdminQualityMissionRadarTimelineKind = 'lock' | 'action' | 'proof';
 type AdminQualityBuildNowTone = 'review' | 'build' | 'proof' | 'blocked';
-type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace';
+type AdminQualityConsoleSurface = 'context' | 'ai' | 'queue' | 'workspace' | 'proposals' | 'agent';
 type AdminQualityMissionRadarSignalTone =
   | 'manual'
   | 'pulse'
@@ -299,6 +306,9 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     AdminQualityCoverageMatrixComponent,
     AdminQualityDomainIconComponent,
     AdminQualityWorkspaceDrawerComponent,
+    AdminQualityNeedsProposalPanelComponent,
+    AdminQualityAgentChatComponent,
+    AdminQualityReactorComponent,
   ],
   templateUrl: './admin-quality.page.html',
   styles: [
@@ -776,6 +786,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   @ViewChild('coverageSection') private coverageSection?: ElementRef<HTMLElement>;
   @ViewChild('workspaceSection') private workspaceSection?: ElementRef<HTMLElement>;
+  @ViewChild('proposalPanel') private proposalPanelRef?: AdminQualityNeedsProposalPanelComponent;
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -783,6 +794,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly recalculatingMatrix = signal(false);
   readonly applyingMatrixProposal = signal(false);
   readonly matrixRecalculation = signal<AdminQualityMatrixRecalculationSnapshot | null>(null);
+  readonly needProposalsSnapshot = signal<AdminQualityNeedProposalsSnapshot | null>(null);
+  readonly loadingNeedProposals = signal(false);
   readonly matrixRecalculationScope =
     signal<AdminQualityMatrixRecalculationScope>('refresh-required');
 
@@ -848,6 +861,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     { id: 'ai', label: 'IA', detail: 'Pilotage', iconLabel: 'AI' },
     { id: 'queue', label: 'Queue', detail: 'Matrice', iconLabel: 'Q' },
     { id: 'workspace', label: 'Workspace', detail: 'Mission et preuves', iconLabel: 'WS' },
+    { id: 'proposals', label: 'Propositions', detail: 'Besoins detectes', iconLabel: 'PR' },
+    { id: 'agent', label: 'Agent', detail: 'Chat IA', iconLabel: 'AG' },
   ];
   readonly matrixRecalculationScopeSelectOptions = MATRIX_RECALCULATION_SCOPE_SELECT_OPTIONS;
   readonly priorityFilterOptions = PRIORITY_FILTER_OPTIONS;
@@ -858,6 +873,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.consoleSurfaceOptions.find((surface) => surface.id === this.activeConsoleSurface()) ??
       this.consoleSurfaceOptions[0],
   );
+
+  readonly agentChatContext = computed(() => {
+    const entryId = this.selectedEntryId();
+    return entryId ? { entryIds: [entryId] } : null;
+  });
   readonly consoleMissionActions = computed<readonly AdminQualityMissionActionDescriptor[]>(() => {
     const mission = this.selectedMission();
     return mission ? missionActionDescriptors(mission.status) : [];
@@ -1437,6 +1457,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         (entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute',
       ).length,
   );
+  readonly coveredCount = computed(
+    () => this.entries().filter((entry) => entry.managementBucket === 'covered').length,
+  );
+  readonly scopeLimitCount = computed(
+    () => this.entries().filter((entry) => entry.managementBucket === 'scope-limit').length,
+  );
+  readonly notEvaluatedCount = computed(
+    () => this.entries().filter((entry) => !entry.managementBucket).length,
+  );
+  readonly reactorState = computed<'ok' | 'attention' | 'critical'>(() => {
+    const highPriority = this.highPriorityGapCount();
+    if (highPriority > 20) return 'critical';
+    if (highPriority > 0) return 'attention';
+    return 'ok';
+  });
   readonly latestCompletedMissionDecisionByEntryId = computed(() => {
     const latestByEntryId = new Map<string, AdminQualityMissionDecisionRecord>();
 
@@ -1918,6 +1953,12 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.agentAdvisor.announceNextWork(item);
     });
 
+    effect(() => {
+      if (this.activeConsoleSurface() === 'proposals' && this.needProposalsSnapshot() === null) {
+        this.loadNeedProposals();
+      }
+    });
+
     let previousProofSignature: string | null = null;
     effect(() => {
       const proof = this.selectedAiProofDisplay();
@@ -2015,6 +2056,53 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         },
         error: (error: unknown) => {
           this.notifications.error(this.resolveMatrixLoadError(error), {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  loadNeedProposals(): void {
+    if (this.loadingNeedProposals()) {
+      return;
+    }
+    this.loadingNeedProposals.set(true);
+    this.service
+      .listNeedProposals()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingNeedProposals.set(false)),
+      )
+      .subscribe({
+        next: (snapshot) => this.needProposalsSnapshot.set(snapshot),
+        error: () => {
+          this.notifications.error('Impossible de charger les propositions.', {
+            source: 'admin-quality',
+          });
+        },
+      });
+  }
+
+  handleProposalAction(action: AdminQualityNeedProposalAction): void {
+    this.service
+      .patchNeedProposal(action.proposalId, action.status)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          const current = this.needProposalsSnapshot();
+          if (!current) {
+            return;
+          }
+          this.needProposalsSnapshot.set({
+            ...current,
+            proposals: current.proposals.map((p) =>
+              p.proposalId === updated.proposalId ? updated : p,
+            ),
+          });
+        },
+        error: () => {
+          this.proposalPanelRef?.clearPending(action.proposalId);
+          this.notifications.error('Erreur lors de la mise à jour de la proposition.', {
             source: 'admin-quality',
           });
         },

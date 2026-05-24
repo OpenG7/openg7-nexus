@@ -1,8 +1,20 @@
-import { HttpContext, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpContext,
+  HttpDownloadProgressEvent,
+  HttpErrorResponse,
+  HttpEventType,
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { STRAPI_ROUTES } from '@app/core/api/strapi.routes';
+import { RuntimeConfigService } from '@app/core/config/runtime-config.service';
 import { SUPPRESS_ERROR_TOAST } from '@app/core/http/error.interceptor.tokens';
 import { HttpClientService } from '@app/core/http/http-client.service';
+import type {
+  AdminQualityChatContext,
+  AdminQualityChatEvent,
+  AdminQualityChatMessage,
+} from '@openg7/admin-quality';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -22,6 +34,19 @@ export type AdminQualityMatrixSignalConfirmationSource =
   | 'proof-returned'
   | 'done'
   | 'pull-request-merged';
+export type AdminQualityMatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
+
+export interface AdminQualityMatrixSourceRef {
+  readonly type: string;
+  readonly path: string | null;
+  readonly value: string | null;
+  readonly label: string | null;
+}
+
+export interface AdminQualityMatrixImpactRule {
+  readonly type: string;
+  readonly prefixes: readonly string[];
+}
 
 export interface AdminQualityMatrixSignalDispatchState {
   readonly pending: boolean;
@@ -36,6 +61,11 @@ export interface AdminQualityMatrixEntry {
   readonly id: string;
   readonly domain: string;
   readonly need: string;
+  readonly acceptanceCriteria?: readonly string[];
+  readonly sourceRefs?: readonly AdminQualityMatrixSourceRef[];
+  readonly impactRules?: readonly AdminQualityMatrixImpactRule[];
+  readonly confidence?: AdminQualityMatrixDiscoveryConfidence;
+  readonly lastDiscoveredAt?: string | null;
   readonly summaryStatus: AdminQualityMatrixStatus;
   readonly businessStatus: AdminQualityMatrixStatus;
   readonly implementationStatus: AdminQualityMatrixStatus;
@@ -55,6 +85,33 @@ export interface AdminQualityMatrixEntry {
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
   readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
+  readonly agentObservedGap?: string | null;
+  readonly agentNextMove?: string | null;
+  readonly agentNarrativeGeneratedAt?: string | null;
+  readonly agentNarrativeModel?: string | null;
+}
+
+export interface AdminQualityMatrixEditPayload {
+  readonly observedGap?: string | null;
+  readonly nextMove?: string | null;
+  readonly managementBucket?: AdminQualityMatrixBucket | null;
+  readonly needsProductWorkFirst?: boolean | null;
+  readonly priority?: AdminQualityMatrixPriority | null;
+  readonly reviewedAt?: string | null;
+}
+
+export interface AdminQualityAgentSuggestionProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly field: string;
+  readonly suggestedValue: string;
+}
+
+export interface AdminQualityAgentSuggestionResult {
+  readonly entryId: string;
+  readonly proposals: readonly AdminQualityAgentSuggestionProposal[];
+  readonly generatedAt: string;
+  readonly model: string | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -155,6 +212,64 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly proposal: AdminQualityMatrixRecalculationEntry;
 }
 
+export type AdminQualityNeedProposalType =
+  | 'add-source-ref'
+  | 'create-entry'
+  | 'mark-stale'
+  | 'suggest-narrative';
+export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
+
+export interface AdminQualityNeedProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: AdminQualityNeedProposalType;
+  readonly status: AdminQualityNeedProposalStatus;
+  readonly confidence: AdminQualityMatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+  readonly history: readonly Record<string, unknown>[];
+  readonly correlationId: string | null;
+  readonly reportedAt: string | null;
+  readonly updatedAt: string | null;
+}
+
+export interface AdminQualityNeedProposalsSnapshot {
+  readonly generatedAt: string;
+  readonly proposals: readonly AdminQualityNeedProposal[];
+}
+
+interface AdminQualityNeedProposalResponse {
+  readonly id?: unknown;
+  readonly proposalId?: unknown;
+  readonly entryId?: unknown;
+  readonly type?: unknown;
+  readonly status?: unknown;
+  readonly confidence?: unknown;
+  readonly title?: unknown;
+  readonly summary?: unknown;
+  readonly source?: unknown;
+  readonly payload?: unknown;
+  readonly history?: unknown;
+  readonly correlationId?: unknown;
+  readonly reportedAt?: unknown;
+  readonly updatedAt?: unknown;
+}
+
+interface AdminQualityAgentSuggestionResponse {
+  readonly entryId?: unknown;
+  readonly proposals?: unknown;
+  readonly generatedAt?: unknown;
+  readonly model?: unknown;
+}
+
+interface AdminQualityNeedProposalsResponse {
+  readonly generatedAt?: unknown;
+  readonly proposals?: readonly AdminQualityNeedProposalResponse[] | null;
+}
+
 interface AdminQualityMatrixResponse {
   readonly generatedAt?: string | null;
   readonly sourceStatus?: AdminQualityMatrixSourceStatus | null;
@@ -228,6 +343,8 @@ const MS_PER_DAY = 86_400_000;
 @Injectable({ providedIn: 'root' })
 export class AdminQualityMatrixService {
   private readonly http = inject(HttpClientService);
+  private readonly rawHttp = inject(HttpClient);
+  private readonly runtimeConfig = inject(RuntimeConfigService);
   private readonly silentOptions = {
     context: new HttpContext().set(SUPPRESS_ERROR_TOAST, true),
   };
@@ -280,6 +397,123 @@ export class AdminQualityMatrixService {
       .pipe(map((response) => this.normalizeApplyProposalResult(response.data)));
   }
 
+  listNeedProposals(): Observable<AdminQualityNeedProposalsSnapshot> {
+    return this.http
+      .get<
+        StrapiDataResponse<AdminQualityNeedProposalsResponse>
+      >(STRAPI_ROUTES.admin.qualityMatrixNeedProposals, this.silentOptions)
+      .pipe(map((response) => this.normalizeNeedProposalsSnapshot(response.data)));
+  }
+
+  patchNeedProposal(
+    proposalId: string,
+    status: 'accepted' | 'rejected',
+    note?: string | null,
+  ): Observable<AdminQualityNeedProposal> {
+    const encodedId = encodeURIComponent(proposalId);
+    return this.http
+      .patch<
+        StrapiDataResponse<AdminQualityNeedProposalResponse>
+      >(
+        `${STRAPI_ROUTES.admin.qualityMatrixNeedProposals}/${encodedId}`,
+        { status, note: note ?? null },
+        this.silentMutationOptions,
+      )
+      .pipe(map((response) => this.normalizeNeedProposal(response.data)));
+  }
+
+  editMatrixEntry(
+    entryId: string,
+    payload: AdminQualityMatrixEditPayload,
+  ): Observable<AdminQualityMatrixEntry> {
+    const encodedId = encodeURIComponent(entryId);
+    return this.http
+      .patch<StrapiDataResponse<Partial<AdminQualityMatrixEntry>>>(
+        `${STRAPI_ROUTES.admin.qualityMatrixEntries}/${encodedId}`,
+        payload,
+        this.silentMutationOptions,
+      )
+      .pipe(
+        map((response) => {
+          const entry = this.normalizeEntry(response.data);
+          if (!entry) {
+            throw new Error('Invalid edit-matrix-entry response.');
+          }
+          return entry;
+        }),
+      );
+  }
+
+  requestAgentSuggestion(entryId: string): Observable<AdminQualityAgentSuggestionResult> {
+    const encodedId = encodeURIComponent(entryId);
+    return this.http
+      .post<StrapiDataResponse<AdminQualityAgentSuggestionResponse>>(
+        `${STRAPI_ROUTES.admin.qualityMatrixEntries}/${encodedId}/agent-suggest`,
+        {},
+        this.silentMutationOptions,
+      )
+      .pipe(map((response) => this.normalizeAgentSuggestionResult(response.data)));
+  }
+
+  chatWithAgent(
+    messages: readonly AdminQualityChatMessage[],
+    context?: AdminQualityChatContext,
+  ): Observable<AdminQualityChatEvent> {
+    const baseUrl = this.runtimeConfig.apiUrl().replace(/\/$/, '');
+    const url = `${baseUrl}${STRAPI_ROUTES.admin.qualityMatrixChat}`;
+
+    return new Observable<AdminQualityChatEvent>((observer) => {
+      let processedLength = 0;
+
+      const sub = this.rawHttp
+        .post(
+          url,
+          { messages, context: context ?? {} },
+          {
+            observe: 'events',
+            reportProgress: true,
+            responseType: 'text',
+            withCredentials: this.runtimeConfig.apiWithCredentials(),
+          },
+        )
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              const partial = (event as HttpDownloadProgressEvent).partialText ?? '';
+              const newText = partial.slice(processedLength);
+              processedLength = partial.length;
+
+              const lines = newText.split('\n');
+              for (const line of lines) {
+                if (!line.startsWith('data: ')) {
+                  continue;
+                }
+                const jsonStr = line.slice(6).trim();
+                if (!jsonStr) {
+                  continue;
+                }
+                try {
+                  const parsed = JSON.parse(jsonStr) as AdminQualityChatEvent;
+                  observer.next(parsed);
+                  if (parsed.type === 'done' || parsed.type === 'error') {
+                    observer.complete();
+                  }
+                } catch {
+                  // ignore malformed SSE lines
+                }
+              }
+            } else if (event.type === HttpEventType.Response) {
+              observer.complete();
+            }
+          },
+          error: (err: unknown) => observer.error(err),
+          complete: () => observer.complete(),
+        });
+
+      return () => sub.unsubscribe();
+    });
+  }
+
   private normalizeSnapshot(
     response: AdminQualityMatrixResponse | null | undefined,
   ): AdminQualityMatrixSnapshot {
@@ -326,6 +560,15 @@ export class AdminQualityMatrixService {
       id: entry.id,
       domain: entry.domain,
       need: entry.need,
+      acceptanceCriteria: this.normalizeStringList(entry.acceptanceCriteria),
+      sourceRefs: this.normalizeSourceRefs(entry.sourceRefs),
+      impactRules: this.normalizeImpactRules(entry.impactRules),
+      confidence:
+        entry.confidence === 'high' || entry.confidence === 'low' ? entry.confidence : 'medium',
+      lastDiscoveredAt:
+        typeof entry.lastDiscoveredAt === 'string' && entry.lastDiscoveredAt.trim()
+          ? entry.lastDiscoveredAt
+          : null,
       summaryStatus: this.normalizeStatus(entry.summaryStatus),
       businessStatus: this.normalizeStatus(entry.businessStatus),
       implementationStatus: this.normalizeStatus(entry.implementationStatus),
@@ -360,7 +603,55 @@ export class AdminQualityMatrixService {
           : null,
       signalDispatch: this.normalizeSignalDispatch(entry.signalDispatch),
       lastRecalculation: this.normalizeStoredRecalculation(entry.lastRecalculation),
+      agentObservedGap:
+        typeof entry.agentObservedGap === 'string' && entry.agentObservedGap.trim()
+          ? entry.agentObservedGap
+          : null,
+      agentNextMove:
+        typeof entry.agentNextMove === 'string' && entry.agentNextMove.trim()
+          ? entry.agentNextMove
+          : null,
+      agentNarrativeGeneratedAt:
+        typeof entry.agentNarrativeGeneratedAt === 'string' && entry.agentNarrativeGeneratedAt.trim()
+          ? entry.agentNarrativeGeneratedAt
+          : null,
+      agentNarrativeModel:
+        typeof entry.agentNarrativeModel === 'string' && entry.agentNarrativeModel.trim()
+          ? entry.agentNarrativeModel
+          : null,
     };
+  }
+
+  private normalizeSourceRefs(
+    value: readonly Partial<AdminQualityMatrixSourceRef>[] | null | undefined,
+  ): AdminQualityMatrixSourceRef[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map((item) => ({
+        type: typeof item?.type === 'string' && item.type.trim() ? item.type : 'source',
+        path: typeof item?.path === 'string' && item.path.trim() ? item.path : null,
+        value: typeof item?.value === 'string' && item.value.trim() ? item.value : null,
+        label: typeof item?.label === 'string' && item.label.trim() ? item.label : null,
+      }))
+      .filter((item) => Boolean(item.path || item.value || item.label));
+  }
+
+  private normalizeImpactRules(
+    value: readonly Partial<AdminQualityMatrixImpactRule>[] | null | undefined,
+  ): AdminQualityMatrixImpactRule[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map((item) => ({
+        type: typeof item?.type === 'string' && item.type.trim() ? item.type : 'path-prefix',
+        prefixes: this.normalizeStringList(item?.prefixes),
+      }))
+      .filter((item) => item.prefixes.length > 0);
   }
 
   private normalizeSignalDispatch(
@@ -770,5 +1061,93 @@ export class AdminQualityMatrixService {
     }
 
     return `La matrice QA date de ${ageDays} jours; relancer l'audit ou la generation avant arbitrage final.`;
+  }
+
+  private normalizeNeedProposal(value: AdminQualityNeedProposalResponse | null | undefined): AdminQualityNeedProposal {
+    const str = (v: unknown, max = 500): string | null => {
+      const s = typeof v === 'string' ? v.trim() : null;
+      return s ? s.slice(0, max) : null;
+    };
+
+    const type = str(value?.type, 40);
+    const status = str(value?.status, 40);
+
+    return {
+      id: str(value?.id, 40),
+      proposalId: str(value?.proposalId, 240) ?? '',
+      entryId: str(value?.entryId, 180) ?? '',
+      type: (type === 'add-source-ref' ||
+      type === 'create-entry' ||
+      type === 'mark-stale' ||
+      type === 'suggest-narrative'
+        ? type
+        : 'add-source-ref') as AdminQualityNeedProposalType,
+      status: (status === 'accepted' || status === 'rejected' || status === 'superseded'
+        ? status
+        : 'proposed') as AdminQualityNeedProposalStatus,
+      confidence: (str(value?.confidence) === 'high' || str(value?.confidence) === 'low'
+        ? str(value?.confidence)
+        : 'medium') as AdminQualityMatrixDiscoveryConfidence,
+      title: str(value?.title, 220),
+      summary: str(value?.summary, 2000),
+      source: value?.source && typeof value.source === 'object' && !Array.isArray(value.source)
+        ? (value.source as Record<string, unknown>)
+        : {},
+      payload: value?.payload && typeof value.payload === 'object' && !Array.isArray(value.payload)
+        ? (value.payload as Record<string, unknown>)
+        : {},
+      history: Array.isArray(value?.history)
+        ? (value.history as Record<string, unknown>[])
+        : [],
+      correlationId: str(value?.correlationId, 180),
+      reportedAt: str(value?.reportedAt, 40),
+      updatedAt: str(value?.updatedAt, 40),
+    };
+  }
+
+  private normalizeNeedProposalsSnapshot(
+    response: AdminQualityNeedProposalsResponse | null | undefined,
+  ): AdminQualityNeedProposalsSnapshot {
+    return {
+      generatedAt:
+        typeof response?.generatedAt === 'string' && response.generatedAt.trim()
+          ? response.generatedAt
+          : new Date().toISOString(),
+      proposals: Array.isArray(response?.proposals)
+        ? response.proposals.map((p) => this.normalizeNeedProposal(p))
+        : [],
+    };
+  }
+
+  private normalizeAgentSuggestionResult(
+    response: AdminQualityAgentSuggestionResponse | null | undefined,
+  ): AdminQualityAgentSuggestionResult {
+    const str = (v: unknown, max = 500): string | null => {
+      const s = typeof v === 'string' ? v.trim() : null;
+      return s ? s.slice(0, max) : null;
+    };
+
+    const proposals: AdminQualityAgentSuggestionProposal[] = [];
+    if (Array.isArray(response?.proposals)) {
+      for (const p of response.proposals as Array<Record<string, unknown>>) {
+        const proposalId = str(p['proposalId'], 240);
+        if (!proposalId) {
+          continue;
+        }
+        proposals.push({
+          id: str(p['id'], 40),
+          proposalId,
+          field: str(p['field'], 80) ?? '',
+          suggestedValue: str(p['suggestedValue'], 4000) ?? '',
+        });
+      }
+    }
+
+    return {
+      entryId: str(response?.entryId, 180) ?? '',
+      proposals,
+      generatedAt: str(response?.generatedAt, 40) ?? new Date().toISOString(),
+      model: str(response?.model, 120),
+    };
   }
 }

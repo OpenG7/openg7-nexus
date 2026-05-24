@@ -4,17 +4,13 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  buildImpactMapFromMatrix,
+  loadMatrixSnapshot,
+} from '../../../scripts/admin-quality-matrix-model.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..', '..');
-const matrixSnapshotPath = resolve(
-  repoRoot,
-  'openg7-org',
-  'src',
-  'assets',
-  'data',
-  'admin-quality-matrix.json',
-);
-const impactMapPath = resolve(repoRoot, 'tools', 'admin-quality-matrix-impact-map.json');
 const defaultReportPath = 'admin-quality-agent-report.json';
 const defaultMarkdownReportPath = 'admin-quality-agent-report.md';
 const defaultProofManifestPath = 'matrix-proof-manifest.json';
@@ -187,17 +183,6 @@ function integerArgument(parsed, key, fallback) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function loadJson(filePath, fallback = null) {
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    if (fallback !== null) {
-      return fallback;
-    }
-    throw new Error(`Unable to read JSON file ${filePath}: ${error.message}`);
-  }
-}
-
 function uniqueSorted(values) {
   return Array.from(new Set(values.filter(Boolean))).sort((left, right) =>
     left.localeCompare(right),
@@ -260,12 +245,12 @@ function currentBranch() {
 }
 
 function loadMatrixEntries() {
-  const snapshot = loadJson(matrixSnapshotPath);
+  const snapshot = loadMatrixSnapshot();
   return Array.isArray(snapshot.entries) ? snapshot.entries : [];
 }
 
 function loadImpactMap() {
-  return loadJson(impactMapPath, { rules: [], globalPrefixes: [] });
+  return buildImpactMapFromMatrix(loadMatrixSnapshot());
 }
 
 function matchesPrefix(file, prefixes) {

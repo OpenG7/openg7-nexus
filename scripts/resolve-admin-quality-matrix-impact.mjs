@@ -1,31 +1,14 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const repoRoot = path.resolve(import.meta.dirname, '..');
-const impactMapPath = path.join(repoRoot, 'tools', 'admin-quality-matrix-impact-map.json');
-const matrixSnapshotPath = path.join(
-  repoRoot,
-  'openg7-org',
-  'src',
-  'assets',
-  'data',
-  'admin-quality-matrix.json',
-);
+import { buildImpactMapFromMatrix, loadMatrixSnapshot } from './admin-quality-matrix-model.mjs';
 
-function loadKnownEntryIds() {
-  const raw = readFileSync(matrixSnapshotPath, 'utf8');
-  const snapshot = JSON.parse(raw);
+function loadKnownEntryIds(snapshot) {
   return Array.isArray(snapshot.entries)
     ? snapshot.entries
         .map((entry) => (typeof entry?.id === 'string' ? entry.id : null))
         .filter((entryId) => entryId)
     : [];
 }
-
-const ALL_ENTRY_IDS = loadKnownEntryIds();
-const impactMap = JSON.parse(readFileSync(impactMapPath, 'utf8'));
-const IMPACT_RULES = Array.isArray(impactMap.rules) ? impactMap.rules : [];
-const GLOBAL_PREFIXES = Array.isArray(impactMap.globalPrefixes) ? impactMap.globalPrefixes : [];
 
 function normalizeFiles(rawValue) {
   const files =
@@ -41,33 +24,43 @@ function matchesPrefix(file, prefixes) {
   return prefixes.some((prefix) => file === prefix || file.startsWith(prefix));
 }
 
-function resolveImpact(changedFiles) {
+export function resolveImpactWithMap(changedFiles, { allEntryIds, impactRules, globalPrefixes }) {
   const matchedEntryIds = new Set();
+  const impactMapping = {};
   let requiresGlobalRefresh = false;
   let touchedProductCode = false;
 
   for (const file of changedFiles) {
-    if (matchesPrefix(file, GLOBAL_PREFIXES)) {
+    if (matchesPrefix(file, globalPrefixes)) {
       requiresGlobalRefresh = true;
     }
     if (file.startsWith('openg7-org/src/') || file.startsWith('strapi/src/')) {
       touchedProductCode = true;
     }
 
-    for (const rule of IMPACT_RULES) {
+    for (const rule of impactRules) {
       if (matchesPrefix(file, rule.prefixes)) {
-        rule.entryIds.forEach((entryId) => matchedEntryIds.add(entryId));
+        rule.entryIds.forEach((entryId) => {
+          matchedEntryIds.add(entryId);
+          if (!impactMapping[entryId]) {
+            impactMapping[entryId] = [];
+          }
+          if (!impactMapping[entryId].includes(file)) {
+            impactMapping[entryId].push(file);
+          }
+        });
       }
     }
   }
 
   if (requiresGlobalRefresh || (touchedProductCode && matchedEntryIds.size === 0)) {
     return {
-      entryIds: ALL_ENTRY_IDS,
+      entryIds: allEntryIds,
       mode: 'global',
       reason: requiresGlobalRefresh
         ? 'Global matrix infrastructure changed.'
         : 'Product code changed without a specific impact mapping.',
+      impactMapping: requiresGlobalRefresh ? { '*': changedFiles } : {},
     };
   }
 
@@ -78,10 +71,22 @@ function resolveImpact(changedFiles) {
       matchedEntryIds.size > 0
         ? 'Targeted impact map matched changed files.'
         : 'No matrix-impacting file detected.',
+    impactMapping,
   };
 }
 
-const changedFiles = normalizeFiles(process.env.MATRIX_CHANGED_FILES ?? process.argv.slice(2));
-const result = resolveImpact(changedFiles);
+export function resolveImpact(changedFiles) {
+  const matrixSnapshot = loadMatrixSnapshot();
+  const impactMap = buildImpactMapFromMatrix(matrixSnapshot);
+  return resolveImpactWithMap(changedFiles, {
+    allEntryIds: loadKnownEntryIds(matrixSnapshot),
+    impactRules: Array.isArray(impactMap.rules) ? impactMap.rules : [],
+    globalPrefixes: Array.isArray(impactMap.globalPrefixes) ? impactMap.globalPrefixes : [],
+  });
+}
 
-process.stdout.write(JSON.stringify({ changedFiles, ...result }));
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const changedFiles = normalizeFiles(process.env.MATRIX_CHANGED_FILES ?? process.argv.slice(2));
+  const result = resolveImpact(changedFiles);
+  process.stdout.write(JSON.stringify({ changedFiles, ...result }));
+}

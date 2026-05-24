@@ -23,10 +23,15 @@ import type {
   AdminOpsSecuritySnapshot,
 } from './admin-ops.service';
 import type {
+  AdminQualityAgentSuggestionResult,
   AdminQualityMatrixApplyProposalResult,
+  AdminQualityMatrixEditPayload,
+  AdminQualityMatrixEntry,
   AdminQualityMatrixRecalculationScope,
   AdminQualityMatrixRecalculationSnapshot,
   AdminQualityMatrixSnapshot,
+  AdminQualityNeedProposal,
+  AdminQualityNeedProposalsSnapshot,
 } from './admin-quality-matrix.service';
 import type {
   AdminQualityMissionDecisionRecord,
@@ -38,7 +43,12 @@ export type AdminQualityMatrixPort = PortableAdminQualityMatrixPort<
   AdminQualityMatrixSnapshot,
   AdminQualityMatrixRecalculationScope,
   AdminQualityMatrixRecalculationSnapshot,
-  AdminQualityMatrixApplyProposalResult
+  AdminQualityMatrixApplyProposalResult,
+  AdminQualityNeedProposalsSnapshot,
+  AdminQualityNeedProposal,
+  AdminQualityMatrixEntry,
+  AdminQualityAgentSuggestionResult,
+  AdminQualityMatrixEditPayload
 >;
 
 export type AdminQualityOpsPort = PortableAdminQualityOpsPort<

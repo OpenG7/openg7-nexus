@@ -1,0 +1,10 @@
+{
+  "mode": "global",
+  "reason": "Global impact rule matched: shared/",
+  "entryIds": ["test-entry-alpha", "test-entry-beta"],
+  "changedFiles": [
+    "shared/contracts/types.ts",
+    "shared/utils/helpers.ts",
+    "openg7-org/src/app/app.module.ts"
+  ]
+}

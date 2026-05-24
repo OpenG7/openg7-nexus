@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2025-01-01T00:00:00.000Z",
+  "entries": [
+    {
+      "id": "test-entry-alpha",
+      "domain": "Test",
+      "need": "Alpha feature must be validated",
+      "acceptanceCriteria": ["Criterion one", "Criterion two"],
+      "sourceRefs": [
+        { "type": "e2e", "path": "e2e/specs/alpha.spec.ts", "value": "alpha-feature" }
+      ],
+      "impactRules": [
+        { "type": "path-prefix", "prefixes": ["packages/alpha/"] }
+      ],
+      "evidence": [],
+      "owner": "platform-team",
+      "status": "active",
+      "confidence": "high",
+      "lastDiscoveredAt": null
+    },
+    {
+      "id": "test-entry-beta",
+      "domain": "Test",
+      "need": "Beta feature must be observable",
+      "acceptanceCriteria": ["Beta criterion"],
+      "sourceRefs": [],
+      "impactRules": [
+        { "type": "path-prefix", "prefixes": ["packages/beta/", "openg7-org/src/beta/"] }
+      ],
+      "evidence": [],
+      "owner": "platform-team",
+      "status": "active",
+      "confidence": "medium",
+      "lastDiscoveredAt": null
+    },
+    {
+      "id": "test-entry-no-impact-rules",
+      "domain": "Test",
+      "need": "Entry without impact rules",
+      "acceptanceCriteria": [],
+      "sourceRefs": [],
+      "impactRules": [],
+      "evidence": [],
+      "owner": "platform-team",
+      "status": "active",
+      "confidence": "low",
+      "lastDiscoveredAt": null
+    }
+  ],
+  "globalImpactRules": [
+    { "type": "path-prefix", "prefixes": ["shared/", "contracts/"] }
+  ]
+}

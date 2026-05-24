@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import https from 'node:https';
+import { PassThrough } from 'node:stream';
 
 import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
@@ -7,6 +9,7 @@ import type { Context } from 'koa';
 const MATRIX_ENTRY_UID = 'api::admin-quality-matrix.admin-quality-matrix-entry' as any;
 const MISSION_DECISION_UID =
   'api::admin-quality-mission-decision.admin-quality-mission-decision' as any;
+const NEED_PROPOSAL_UID = 'api::admin-quality-need-proposal.admin-quality-need-proposal' as any;
 const EMPTY_GENERATED_AT = '2026-04-11T00:00:00.000Z';
 const STALE_AFTER_DAYS = 7;
 const MS_PER_DAY = 86_400_000;
@@ -14,6 +17,7 @@ const MS_PER_DAY = 86_400_000;
 type MatrixStatus = 'oui' | 'partiel' | 'non' | 'hors MVP';
 type MatrixPriority = 'basse' | 'moyenne' | 'haute';
 type MatrixBucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
+type MatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
 type MatrixSourceStatus = 'fresh' | 'stale' | 'fallback';
 type MatrixImpactMode = 'provided' | 'targeted' | 'global' | 'none';
 type MatrixRecalculationScope = 'refresh-required' | 'selected-entry' | 'all';
@@ -41,6 +45,11 @@ interface MatrixEntryEntity {
   readonly entryId?: unknown;
   readonly domain?: unknown;
   readonly need?: unknown;
+  readonly acceptanceCriteria?: unknown;
+  readonly sourceRefs?: unknown;
+  readonly impactRules?: unknown;
+  readonly confidence?: unknown;
+  readonly lastDiscoveredAt?: unknown;
   readonly summaryStatus?: unknown;
   readonly businessStatus?: unknown;
   readonly implementationStatus?: unknown;
@@ -62,6 +71,11 @@ interface MatrixEntryEntity {
   readonly lastRecalculationResult?: unknown;
   readonly lastRecalculationPlan?: unknown;
   readonly lastAppliedProposal?: unknown;
+  readonly editHistory?: unknown;
+  readonly agentObservedGap?: unknown;
+  readonly agentNextMove?: unknown;
+  readonly agentNarrativeGeneratedAt?: unknown;
+  readonly agentNarrativeModel?: unknown;
   readonly createdAt?: unknown;
   readonly updatedAt?: unknown;
 }
@@ -135,6 +149,43 @@ interface MissionDecisionEntity {
   readonly updatedAt?: unknown;
 }
 
+interface MatrixNeedProposalEntity {
+  readonly id?: number | string;
+  readonly proposalId?: unknown;
+  readonly entryId?: unknown;
+  readonly type?: unknown;
+  readonly status?: unknown;
+  readonly confidence?: unknown;
+  readonly title?: unknown;
+  readonly summary?: unknown;
+  readonly source?: unknown;
+  readonly payload?: unknown;
+  readonly history?: unknown;
+  readonly correlationId?: unknown;
+  readonly reportedAt?: unknown;
+  readonly createdAt?: unknown;
+  readonly updatedAt?: unknown;
+}
+
+interface MatrixNeedProposalPayload {
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: MatrixNeedProposalType;
+  readonly status: MatrixNeedProposalStatus;
+  readonly confidence: MatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+}
+
+interface MatrixNeedProposalsIngestPayload {
+  readonly generatedAt: string;
+  readonly correlationId: string;
+  readonly source: string;
+  readonly proposals: readonly MatrixNeedProposalPayload[];
+}
+
 interface MatrixCoverageState {
   readonly summaryStatus: MatrixStatus;
   readonly businessStatus: MatrixStatus;
@@ -166,6 +217,9 @@ type MatrixPilotActionType =
   | 'run-validation'
   | 'review-product-scope'
   | 'close-entry';
+type MatrixNeedProposalType = 'add-source-ref' | 'create-entry' | 'mark-stale' | 'suggest-narrative';
+type MatrixNarrativeField = 'observedGap' | 'nextMove' | 'managementBucket' | 'needsProductWorkFirst' | 'priority';
+type MatrixNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
 
 interface MatrixDevelopmentCommand {
   readonly score: number;
@@ -301,6 +355,10 @@ function normalizeBucket(value: unknown): MatrixBucket {
     : 'proof-gap';
 }
 
+function normalizeDiscoveryConfidence(value: unknown): MatrixDiscoveryConfidence {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : 'medium';
+}
+
 function normalizeDate(value: unknown): string | null {
   if (typeof value !== 'string') {
     return null;
@@ -353,6 +411,14 @@ function normalizeObject(value: unknown): Record<string, unknown> {
   }
 
   return value as Record<string, unknown>;
+}
+
+function normalizeJsonObjects(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => normalizeObject(item)).filter((item) => Object.keys(item).length > 0);
 }
 
 function normalizeBoolean(value: unknown): boolean {
@@ -502,6 +568,11 @@ function toMatrixEntryResponse(
     id: normalizeString(entity.entryId) ?? '',
     domain: normalizeString(entity.domain) ?? '',
     need: normalizeString(entity.need) ?? '',
+    acceptanceCriteria: normalizeStringArray(entity.acceptanceCriteria),
+    sourceRefs: normalizeJsonObjects(entity.sourceRefs),
+    impactRules: normalizeJsonObjects(entity.impactRules),
+    confidence: normalizeDiscoveryConfidence(entity.confidence),
+    lastDiscoveredAt: normalizeDate(entity.lastDiscoveredAt)?.slice(0, 10) ?? null,
     summaryStatus: normalizeStatus(entity.summaryStatus),
     businessStatus: normalizeStatus(entity.businessStatus),
     implementationStatus: normalizeStatus(entity.implementationStatus),
@@ -651,6 +722,107 @@ function sanitizeApplyProposalPayload(body: unknown): MatrixApplyProposalPayload
   return { entryId };
 }
 
+function normalizeNeedProposalType(value: unknown): MatrixNeedProposalType | null {
+  return value === 'add-source-ref' ||
+    value === 'create-entry' ||
+    value === 'mark-stale' ||
+    value === 'suggest-narrative'
+    ? value
+    : null;
+}
+
+function normalizeNarrativeField(value: unknown): MatrixNarrativeField | null {
+  return value === 'observedGap' ||
+    value === 'nextMove' ||
+    value === 'managementBucket' ||
+    value === 'needsProductWorkFirst' ||
+    value === 'priority'
+    ? value
+    : null;
+}
+
+function normalizeNeedProposalStatus(value: unknown): MatrixNeedProposalStatus {
+  return value === 'accepted' || value === 'rejected' || value === 'superseded'
+    ? value
+    : 'proposed';
+}
+
+function sanitizeNeedProposal(value: unknown): MatrixNeedProposalPayload | null {
+  const record = normalizeObject(value);
+  const proposalId = normalizeString(record.proposalId, 240);
+  const entryId = normalizeString(record.entryId, 180);
+  const type = normalizeNeedProposalType(record.type);
+  if (!proposalId || !entryId || !type) {
+    return null;
+  }
+
+  return {
+    proposalId,
+    entryId,
+    type,
+    status: normalizeNeedProposalStatus(record.status),
+    confidence: normalizeDiscoveryConfidence(record.confidence),
+    title: normalizeString(record.title, 220),
+    summary: normalizeString(record.summary, 2_000),
+    source: normalizeObject(record.source),
+    payload: normalizeObject(record.payload),
+  };
+}
+
+function sanitizeNeedProposalsIngestPayload(body: unknown): MatrixNeedProposalsIngestPayload {
+  const record = normalizeObject(body);
+  const generatedAt = normalizeDate(record.generatedAt) ?? new Date().toISOString();
+  const correlationId =
+    normalizeString(record.correlationId, 180) ??
+    normalizeString(record.runId, 180) ??
+    `needs-reconcile-${generatedAt}`;
+  const source = normalizeString(record.source, 120) ?? 'admin-quality-needs-reconciler';
+  const proposals = Array.isArray(record.proposals)
+    ? record.proposals
+        .map((proposal) => sanitizeNeedProposal(proposal))
+        .filter((proposal): proposal is MatrixNeedProposalPayload => proposal !== null)
+    : [];
+
+  if (!proposals.length) {
+    throw new Error('At least one valid proposal is required.');
+  }
+
+  return {
+    generatedAt,
+    correlationId,
+    source,
+    proposals,
+  };
+}
+
+function normalizeHistory(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => normalizeObject(item)).filter((item) => Object.keys(item).length > 0);
+}
+
+function toNeedProposalResponse(entity: MatrixNeedProposalEntity) {
+  return {
+    id: entity.id != null ? String(entity.id) : null,
+    proposalId: normalizeString(entity.proposalId, 240) ?? '',
+    entryId: normalizeString(entity.entryId, 180) ?? '',
+    type: normalizeNeedProposalType(entity.type) ?? 'add-source-ref',
+    status: normalizeNeedProposalStatus(entity.status),
+    confidence: normalizeDiscoveryConfidence(entity.confidence),
+    title: normalizeString(entity.title, 220),
+    summary: normalizeString(entity.summary, 2_000),
+    source: normalizeObject(entity.source),
+    payload: normalizeObject(entity.payload),
+    history: normalizeHistory(entity.history),
+    correlationId: normalizeString(entity.correlationId, 180),
+    reportedAt: normalizeDate(entity.reportedAt),
+    createdAt: normalizeDate(entity.createdAt),
+    updatedAt: normalizeDate(entity.updatedAt),
+  };
+}
+
 async function findEntryByEntryId(
   strapi: Core.Strapi,
   entryId: string,
@@ -661,6 +833,66 @@ async function findEntryByEntryId(
   });
 
   return (normalizeFindManyResult(existing)[0] as MatrixEntryEntity | undefined) ?? null;
+}
+
+async function findNeedProposalByProposalId(
+  strapi: Core.Strapi,
+  proposalId: string,
+): Promise<MatrixNeedProposalEntity | null> {
+  const existing = await strapi.entityService.findMany(NEED_PROPOSAL_UID, {
+    filters: { proposalId },
+    limit: 1,
+  });
+
+  return (normalizeFindManyResult(existing)[0] as MatrixNeedProposalEntity | undefined) ?? null;
+}
+
+async function persistNeedProposal(
+  strapi: Core.Strapi,
+  proposal: MatrixNeedProposalPayload,
+  ingest: MatrixNeedProposalsIngestPayload,
+): Promise<{ entity: MatrixNeedProposalEntity; created: boolean }> {
+  const existing = await findNeedProposalByProposalId(strapi, proposal.proposalId);
+  const previousStatus = normalizeNeedProposalStatus(existing?.status);
+  const lockedStatus = previousStatus === 'accepted' || previousStatus === 'rejected';
+  const nextStatus = existing?.id && lockedStatus ? previousStatus : proposal.status;
+  const history = [
+    ...normalizeHistory(existing?.history),
+    {
+      event: existing?.id ? 'updated-from-ingest' : 'created-from-ingest',
+      at: ingest.generatedAt,
+      source: ingest.source,
+      correlationId: ingest.correlationId,
+      previousStatus: existing?.id ? previousStatus : null,
+      nextStatus,
+    },
+  ].slice(-50);
+  const data = {
+    proposalId: proposal.proposalId,
+    entryId: proposal.entryId,
+    type: proposal.type,
+    status: nextStatus,
+    confidence: proposal.confidence,
+    title: proposal.title,
+    summary: proposal.summary,
+    source: proposal.source,
+    payload: proposal.payload,
+    history,
+    correlationId: ingest.correlationId,
+    reportedAt: ingest.generatedAt,
+  };
+
+  if (existing?.id) {
+    const entity = await strapi.entityService.update(NEED_PROPOSAL_UID, existing.id, {
+      data: data as any,
+    });
+    return { entity: entity as MatrixNeedProposalEntity, created: false };
+  }
+
+  const entity = await strapi.entityService.create(NEED_PROPOSAL_UID, {
+    data: data as any,
+  });
+  return { entity: entity as MatrixNeedProposalEntity, created: true };
 }
 
 async function findKnownEntryIds(strapi: Core.Strapi): Promise<string[]> {
@@ -1434,7 +1666,9 @@ function buildRecalculationEntry(
     reasons.push('Un signal repo plus recent que la derniere revue a ete detecte.');
   }
   if (completedDecisionNewer) {
-    reasons.push('Une mission avec preuve retournee ou done est plus recente que la derniere revue.');
+    reasons.push(
+      'Une mission avec preuve retournee ou done est plus recente que la derniere revue.',
+    );
   }
 
   const signalDrivenReasons = COVERAGE_SIGNAL_IDS.flatMap((signalId) => {
@@ -1819,7 +2053,344 @@ function resolveGeneratedAt(entries: readonly MatrixEntryEntity[]): string {
   return new Date(Math.max(...timestamps)).toISOString();
 }
 
+// ─── Chat agent helpers ───────────────────────────────────────────────────────
+
+const CHAT_SYSTEM_PROMPT_TEMPLATE = `Tu es un analyste expert de la matrice qualité de la plateforme OpenG7.
+Tu aides l'équipe à identifier les besoins non couverts, les écarts observés et les prochaines actions.
+Réponds en français. Sois précis, concis et actionnable.
+
+## Matrice qualité actuelle
+
+{MATRIX_CONTEXT}
+
+## Format des propositions
+
+Quand tu veux proposer une modification ou un ajout, insère dans ta réponse des balises XML au format suivant.
+
+Pour suggérer un texte pour observedGap ou nextMove d'une entrée existante :
+<og7:proposal type="suggest-narrative" entryId="ID_ENTREE" field="observedGap">
+Texte suggéré ici
+</og7:proposal>
+
+Pour proposer une nouvelle entrée candidate :
+<og7:proposal type="create-entry">
+{"id":"NOUVEAU-ID","domain":"Domaine","need":"Description du besoin"}
+</og7:proposal>
+
+Ces propositions seront soumises à l'équipe pour validation dans l'onglet Propositions.`;
+
+function chatSseEvent(stream: PassThrough, type: string, data: Record<string, unknown>): void {
+  stream.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+}
+
+async function openaiStreamMessages(
+  apiKey: string,
+  model: string,
+  systemPrompt: string,
+  messages: ReadonlyArray<{ role: string; content: string }>,
+  onChunk: (text: string) => void,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model,
+      stream: true,
+      max_tokens: 4096,
+      temperature: 0.4,
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
+    });
+
+    const req = https.request(
+      {
+        hostname: 'api.openai.com',
+        path: '/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        let fullText = '';
+        let sseBuffer = '';
+
+        res.on('data', (chunk: Buffer) => {
+          sseBuffer += chunk.toString();
+          const lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) {
+              continue;
+            }
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') {
+              continue;
+            }
+            try {
+              const event = JSON.parse(jsonStr) as Record<string, unknown>;
+              const choices = event['choices'] as Array<Record<string, unknown>> | undefined;
+              const delta = choices?.[0]?.['delta'] as Record<string, unknown> | undefined;
+              if (typeof delta?.['content'] === 'string') {
+                fullText += delta['content'];
+                onChunk(delta['content']);
+              }
+            } catch {
+              // ignore malformed SSE lines
+            }
+          }
+        });
+
+        res.on('end', () => resolve(fullText));
+        res.on('error', reject);
+      },
+    );
+
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+function loadAgentSystemDocs(): string {
+  try {
+    const docsPath = path.resolve(
+      __dirname,
+      '..', '..', '..', '..', '..', '..', 'docs', 'agent-context.md',
+    );
+    const content = readFileSync(docsPath, 'utf8');
+    const MAX_CHARS = 60_000;
+    return content.length > MAX_CHARS ? content.slice(0, MAX_CHARS) + '\n\n[... tronqué]' : content;
+  } catch {
+    return '';
+  }
+}
+
+async function buildChatSystemPrompt(
+  strapiInstance: Core.Strapi,
+  entryIds?: string[],
+): Promise<string> {
+  let entries: Record<string, unknown>[] = [];
+  try {
+    const findOptions: Record<string, unknown> = {
+      limit: 200,
+      publicationState: 'preview',
+    };
+    if (entryIds && entryIds.length > 0) {
+      findOptions['filters'] = { entryId: { $in: entryIds } };
+    }
+    const result = await (strapiInstance.entityService as any).findMany(
+      MATRIX_ENTRY_UID,
+      findOptions,
+    );
+    entries = Array.isArray(result) ? result : [];
+  } catch {
+    entries = [];
+  }
+
+  const lines: string[] = [];
+  for (const entry of entries) {
+    const id = String(entry['entryId'] ?? '');
+    const domain = String(entry['domain'] ?? '');
+    const need = String(entry['need'] ?? '');
+    const bucket = String(entry['managementBucket'] ?? '');
+    const priority = String(entry['priority'] ?? '');
+    const gap = typeof entry['observedGap'] === 'string' ? entry['observedGap'] : '';
+    const move = typeof entry['nextMove'] === 'string' ? entry['nextMove'] : '';
+    const e2e = String(entry['e2eStatus'] ?? '');
+    const summary = String(entry['summaryStatus'] ?? '');
+    const reviewed = typeof entry['reviewedAt'] === 'string' ? entry['reviewedAt'].slice(0, 10) : '';
+    const needsProduct = Boolean(entry['needsProductWorkFirst']);
+    lines.push(
+      `[${id}] ${domain} — ${need}\n  bucket: ${bucket} | priorité: ${priority} | e2e: ${e2e} | summary: ${summary}` +
+        (reviewed ? ` | révisé: ${reviewed}` : '') +
+        (needsProduct ? ' | ⚠ travail produit requis' : '') +
+        (gap ? `\n  écart: ${gap.slice(0, 300)}` : '') +
+        (move ? `\n  action: ${move.slice(0, 300)}` : ''),
+    );
+  }
+
+  const matrixContext = lines.length > 0 ? lines.join('\n\n') : 'Aucune entrée disponible.';
+  const systemDocs = loadAgentSystemDocs();
+
+  let prompt = CHAT_SYSTEM_PROMPT_TEMPLATE.replace('{MATRIX_CONTEXT}', matrixContext);
+  if (systemDocs) {
+    prompt += `\n\n---\n\n## Documentation système OpenG7\n\n${systemDocs}`;
+  }
+  return prompt;
+}
+
+function extractChatProposals(
+  text: string,
+): Array<{ type: string; entryId?: string; field?: string; body: string }> {
+  const proposals: Array<{ type: string; entryId?: string; field?: string; body: string }> = [];
+  const tagRegex = /<og7:proposal\s+([^>]+?)>([\s\S]*?)<\/og7:proposal>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagRegex.exec(text)) !== null) {
+    const attrsStr = match[1];
+    const body = match[2].trim();
+    const attrs: Record<string, string> = {};
+    const attrRegex = /(\w+)="([^"]*)"/g;
+    let attrMatch: RegExpExecArray | null;
+    while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+      attrs[attrMatch[1]] = attrMatch[2];
+    }
+    if (attrs['type']) {
+      proposals.push({
+        type: attrs['type'],
+        entryId: attrs['entryId'],
+        field: attrs['field'],
+        body,
+      });
+    }
+  }
+
+  return proposals;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
+  async listNeedProposals(ctx: Context) {
+    const rawProposals = await strapi.entityService.findMany(NEED_PROPOSAL_UID, {
+      sort: ['updatedAt:desc'],
+      limit: 500,
+    });
+    const proposals = normalizeFindManyResult(rawProposals) as MatrixNeedProposalEntity[];
+
+    ctx.body = {
+      data: {
+        generatedAt: new Date().toISOString(),
+        proposals: proposals.map((proposal) => toNeedProposalResponse(proposal)),
+      },
+    };
+  },
+
+  async patchNeedProposal(ctx: Context) {
+    const { proposalId } = ctx.params as Record<string, unknown>;
+    const normalizedProposalId = normalizeString(proposalId, 240);
+    if (!normalizedProposalId) {
+      ctx.badRequest('proposalId path parameter is required.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const rawStatus = normalizeString(body.status, 40);
+    if (rawStatus !== 'accepted' && rawStatus !== 'rejected') {
+      ctx.badRequest('status must be "accepted" or "rejected".');
+      return;
+    }
+    const nextStatus = rawStatus as 'accepted' | 'rejected';
+    const note = normalizeString(body.note, 500);
+
+    const existing = await findNeedProposalByProposalId(strapi, normalizedProposalId);
+    if (!existing?.id) {
+      ctx.notFound('Proposal not found.');
+      return;
+    }
+
+    const previousStatus = normalizeNeedProposalStatus(existing.status);
+    if (previousStatus === 'accepted' || previousStatus === 'rejected') {
+      ctx.badRequest(`Proposal is already ${previousStatus} and cannot be changed.`);
+      return;
+    }
+
+    const updatedAt = new Date().toISOString();
+    const history = [
+      ...normalizeHistory(existing.history),
+      {
+        event: nextStatus === 'accepted' ? 'accepted-by-operator' : 'rejected-by-operator',
+        at: updatedAt,
+        previousStatus,
+        nextStatus,
+        note: note ?? null,
+      },
+    ].slice(-50);
+
+    const updated = await strapi.entityService.update(NEED_PROPOSAL_UID, existing.id, {
+      data: { status: nextStatus, history } as any,
+    });
+
+    if (nextStatus === 'accepted' && normalizeNeedProposalType(existing.type) === 'suggest-narrative') {
+      const payload = normalizeObject(existing.payload);
+      const field = normalizeNarrativeField(payload.field);
+      const suggestedValue = normalizeString(payload.suggestedValue as unknown, 4_000);
+      if (field && suggestedValue !== null) {
+        const targetEntry = await findEntryByEntryId(
+          strapi,
+          normalizeString(existing.entryId, 180) ?? '',
+        );
+        if (targetEntry?.id) {
+          const at = new Date().toISOString();
+          const editHistory = [
+            ...normalizeHistory(targetEntry.editHistory),
+            {
+              event: 'accepted-agent-suggestion',
+              at,
+              field,
+              previousValue: normalizeString((targetEntry as Record<string, unknown>)[field] as unknown, 4_000) ?? null,
+              nextValue: suggestedValue,
+              proposalId: normalizedProposalId,
+            },
+          ].slice(-50);
+
+          const entryUpdate: Record<string, unknown> = { editHistory };
+          if (field === 'observedGap') entryUpdate.observedGap = suggestedValue;
+          else if (field === 'nextMove') entryUpdate.nextMove = suggestedValue;
+          else if (field === 'managementBucket') entryUpdate.managementBucket = suggestedValue;
+          else if (field === 'needsProductWorkFirst') entryUpdate.needsProductWorkFirst = suggestedValue === 'true';
+          else if (field === 'priority') entryUpdate.priority = suggestedValue;
+
+          await strapi.entityService.update(MATRIX_ENTRY_UID, targetEntry.id, {
+            data: entryUpdate as any,
+          });
+        }
+      }
+    }
+
+    ctx.body = { data: toNeedProposalResponse(updated as MatrixNeedProposalEntity) };
+  },
+
+  async ingestNeedProposals(ctx: Context) {
+    if (!requireIngestToken(ctx)) {
+      return;
+    }
+
+    try {
+      const payload = sanitizeNeedProposalsIngestPayload(ctx.request.body);
+      const results = await Promise.all(
+        payload.proposals.map((proposal) => persistNeedProposal(strapi, proposal, payload)),
+      );
+      const createdProposalIds = results
+        .filter((result) => result.created)
+        .map((result) => normalizeString(result.entity.proposalId, 240) ?? '')
+        .filter(Boolean);
+      const updatedProposalIds = results
+        .filter((result) => !result.created)
+        .map((result) => normalizeString(result.entity.proposalId, 240) ?? '')
+        .filter(Boolean);
+
+      ctx.body = {
+        data: {
+          generatedAt: payload.generatedAt,
+          correlationId: payload.correlationId,
+          source: payload.source,
+          proposalCount: results.length,
+          createdProposalIds,
+          updatedProposalIds,
+          proposals: results.map((result) => toNeedProposalResponse(result.entity)),
+        },
+      };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Invalid admin quality need proposals ingest payload.';
+      ctx.badRequest(message);
+    }
+  },
+
   async snapshot(ctx: Context) {
     const rawEntries = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
       sort: ['priority:desc', 'domain:asc'],
@@ -2141,6 +2712,432 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       const message =
         error instanceof Error ? error.message : 'Invalid admin quality matrix ingest payload.';
       ctx.badRequest(message);
+    }
+  },
+
+  async exportMatrix(ctx: Context) {
+    const rawEntries = await strapi.entityService.findMany(MATRIX_ENTRY_UID, {
+      limit: 500,
+      publicationState: 'preview',
+    } as any);
+    const entries = (normalizeFindManyResult(rawEntries) as MatrixEntryEntity[])
+      .sort((a, b) =>
+        (normalizeString(a.entryId, 180) ?? '').localeCompare(
+          normalizeString(b.entryId, 180) ?? '',
+        ),
+      )
+      .map((entity) => ({
+        id: normalizeString(entity.entryId, 180) ?? '',
+        domain: normalizeString(entity.domain) ?? '',
+        need: normalizeString(entity.need) ?? '',
+        acceptanceCriteria: normalizeStringArray(entity.acceptanceCriteria),
+        sourceRefs: normalizeJsonObjects(entity.sourceRefs),
+        impactRules: normalizeJsonObjects(entity.impactRules),
+        confidence: normalizeDiscoveryConfidence(entity.confidence),
+        lastDiscoveredAt: normalizeDate(entity.lastDiscoveredAt)?.slice(0, 10) ?? null,
+        summaryStatus: normalizeStatus(entity.summaryStatus),
+        businessStatus: normalizeStatus(entity.businessStatus),
+        implementationStatus: normalizeStatus(entity.implementationStatus),
+        e2eStatus: normalizeStatus(entity.e2eStatus),
+        priority: normalizePriority(entity.priority),
+        managementBucket: normalizeBucket(entity.managementBucket),
+        needsProductWorkFirst: Boolean(entity.needsProductWorkFirst),
+        observedGap: normalizeString(entity.observedGap) ?? '',
+        nextMove: normalizeString(entity.nextMove) ?? '',
+        evidence: normalizeEvidence(entity.evidence),
+        reviewedAt: normalizeDate(entity.reviewedAt)?.slice(0, 10) ?? null,
+        agentObservedGap: normalizeString(entity.agentObservedGap) ?? null,
+        agentNextMove: normalizeString(entity.agentNextMove) ?? null,
+        agentNarrativeGeneratedAt: normalizeDate(entity.agentNarrativeGeneratedAt) ?? null,
+        agentNarrativeModel: normalizeString(entity.agentNarrativeModel) ?? null,
+      }));
+
+    let globalRules: unknown[] = [];
+    let schemaVersion: unknown = 2;
+    try {
+      const globalRulesPath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        '..',
+        'tools',
+        'admin-quality-matrix-global-rules.json',
+      );
+      const globalRulesJson = JSON.parse(readFileSync(globalRulesPath, 'utf8'));
+      globalRules = Array.isArray(globalRulesJson.globalImpactRules)
+        ? globalRulesJson.globalImpactRules
+        : [];
+      schemaVersion = globalRulesJson.schemaVersion ?? 2;
+    } catch {
+      strapi.log?.warn?.('admin-quality-matrix-global-rules.json not found, exporting without globalImpactRules.');
+    }
+
+    ctx.body = {
+      data: {
+        schemaVersion,
+        generatedAt: new Date().toISOString(),
+        entries,
+        globalImpactRules: globalRules,
+      },
+    };
+  },
+
+  async editMatrixEntry(ctx: Context) {
+    const { entryId: rawEntryId } = ctx.params as Record<string, unknown>;
+    const entryId = normalizeString(rawEntryId, 180);
+    if (!entryId) {
+      ctx.badRequest('entryId path parameter is required.');
+      return;
+    }
+
+    const entry = await findEntryByEntryId(strapi, entryId);
+    if (!entry?.id) {
+      ctx.notFound('Matrix entry not found.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const at = new Date().toISOString();
+
+    const allowedFields: MatrixNarrativeField[] = [
+      'observedGap',
+      'nextMove',
+      'managementBucket',
+      'needsProductWorkFirst',
+      'priority',
+    ];
+    const updates: Record<string, unknown> = {};
+    const changedFields: string[] = [];
+
+    for (const field of allowedFields) {
+      if (!(field in body)) continue;
+      const raw = body[field];
+      if (field === 'observedGap' || field === 'nextMove') {
+        const val = normalizeString(raw as unknown, 4_000);
+        if (val !== null) { updates[field] = val; changedFields.push(field); }
+      } else if (field === 'managementBucket') {
+        const val = normalizeBucket(raw);
+        if (val) { updates[field] = val; changedFields.push(field); }
+      } else if (field === 'needsProductWorkFirst') {
+        updates[field] = Boolean(raw); changedFields.push(field);
+      } else if (field === 'priority') {
+        const val = normalizePriority(raw);
+        if (val) { updates[field] = val; changedFields.push(field); }
+      }
+    }
+
+    if (body.reviewedAt !== undefined) {
+      const val = normalizeDate(body.reviewedAt)?.slice(0, 10);
+      if (val) { updates.reviewedAt = val; changedFields.push('reviewedAt'); }
+    }
+    if (body.summaryStatus !== undefined) {
+      updates.summaryStatus = normalizeStatus(body.summaryStatus); changedFields.push('summaryStatus');
+    }
+    if (body.businessStatus !== undefined) {
+      updates.businessStatus = normalizeStatus(body.businessStatus); changedFields.push('businessStatus');
+    }
+    if (body.implementationStatus !== undefined) {
+      updates.implementationStatus = normalizeStatus(body.implementationStatus); changedFields.push('implementationStatus');
+    }
+    if (body.e2eStatus !== undefined) {
+      updates.e2eStatus = normalizeStatus(body.e2eStatus); changedFields.push('e2eStatus');
+    }
+
+    if (!changedFields.length) {
+      ctx.badRequest('No valid fields to update.');
+      return;
+    }
+
+    const previousValues: Record<string, unknown> = {};
+    for (const field of changedFields) {
+      previousValues[field] = (entry as Record<string, unknown>)[field] ?? null;
+    }
+
+    const editHistory = [
+      ...normalizeHistory(entry.editHistory),
+      { event: 'edited-by-operator', at, fields: changedFields, previousValues },
+    ].slice(-50);
+
+    const updated = await strapi.entityService.update(MATRIX_ENTRY_UID, entry.id, {
+      data: { ...updates, editHistory } as any,
+    });
+
+    ctx.body = { data: toMatrixEntryResponse(updated as MatrixEntryEntity) };
+  },
+
+  async agentSuggestNarrative(ctx: Context) {
+    const { entryId: rawEntryId } = ctx.params as Record<string, unknown>;
+    const entryId = normalizeString(rawEntryId, 180);
+    if (!entryId) {
+      ctx.badRequest('entryId path parameter is required.');
+      return;
+    }
+
+    const entry = await findEntryByEntryId(strapi, entryId);
+    if (!entry?.id) {
+      ctx.notFound('Matrix entry not found.');
+      return;
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey) {
+      ctx.internalServerError('OPENAI_API_KEY is not configured.');
+      return;
+    }
+
+    const body = normalizeObject(ctx.request.body);
+    const gitContext = normalizeString(body.gitContext as unknown, 2_000) ?? '';
+    const requestedFields: MatrixNarrativeField[] = ['observedGap', 'nextMove'];
+
+    const entryContext = [
+      `Entrée : ${normalizeString(entry.entryId, 180)}`,
+      `Domaine : ${normalizeString(entry.domain)}`,
+      `Besoin : ${normalizeString(entry.need)}`,
+      `e2eStatus : ${normalizeStatus(entry.e2eStatus)}`,
+      `managementBucket : ${normalizeBucket(entry.managementBucket)}`,
+      `observedGap actuel : ${normalizeString(entry.observedGap) ?? '(vide)'}`,
+      `nextMove actuel : ${normalizeString(entry.nextMove) ?? '(vide)'}`,
+      gitContext ? `Activité git récente :\n${gitContext}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const prompt = `Tu es un expert en qualité logicielle. Analyse l'entrée de matrice admin quality ci-dessous et propose une valeur améliorée pour observedGap et nextMove.
+
+${entryContext}
+
+Réponds uniquement en JSON avec ce format exact :
+{
+  "observedGap": "...",
+  "nextMove": "...",
+  "rationale": "..."
+}`;
+
+    let aiResponse: { observedGap?: string; nextMove?: string; rationale?: string } = {};
+    try {
+      const responseText = await new Promise<string>((resolve, reject) => {
+        const bodyData = JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 600,
+        });
+        const req = https.request(
+          {
+            hostname: 'api.openai.com',
+            path: '/v1/chat/completions',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Length': Buffer.byteLength(bodyData),
+            },
+          },
+          (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => resolve(data));
+          },
+        );
+        req.on('error', reject);
+        req.write(bodyData);
+        req.end();
+      });
+
+      const parsed = JSON.parse(responseText);
+      const content = parsed?.choices?.[0]?.message?.content ?? '';
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        aiResponse = JSON.parse(jsonMatch[0]);
+      }
+    } catch (error) {
+      strapi.log?.error?.('agentSuggestNarrative: OpenAI call failed', error);
+      ctx.internalServerError('AI narrative generation failed.');
+      return;
+    }
+
+    const modelId = 'gpt-4o-mini';
+    const generatedAt = new Date().toISOString();
+    const createdProposalIds: string[] = [];
+
+    for (const field of requestedFields) {
+      const suggestedValue = normalizeString(aiResponse[field] as unknown, 4_000);
+      if (!suggestedValue) continue;
+
+      const proposalId = `suggest-narrative::${entryId}::${field}::${Date.now()}`;
+      await strapi.entityService.create(NEED_PROPOSAL_UID, {
+        data: {
+          proposalId,
+          entryId,
+          type: 'suggest-narrative',
+          status: 'proposed',
+          confidence: 'medium',
+          title: `Suggestion IA — ${field} (${entryId})`,
+          summary: suggestedValue.slice(0, 200),
+          source: { agent: 'openai', model: modelId, generatedAt },
+          payload: {
+            field,
+            suggestedValue,
+            rationale: normalizeString(aiResponse.rationale as unknown, 1_000) ?? '',
+          },
+          history: [
+            {
+              event: 'created-by-agent',
+              at: generatedAt,
+              model: modelId,
+            },
+          ],
+          reportedAt: generatedAt,
+        } as any,
+      });
+      createdProposalIds.push(proposalId);
+    }
+
+    await strapi.entityService.update(MATRIX_ENTRY_UID, entry.id, {
+      data: {
+        agentObservedGap: normalizeString(aiResponse.observedGap as unknown, 4_000) ?? null,
+        agentNextMove: normalizeString(aiResponse.nextMove as unknown, 4_000) ?? null,
+        agentNarrativeGeneratedAt: generatedAt,
+        agentNarrativeModel: modelId,
+      } as any,
+    });
+
+    ctx.body = { data: { entryId, createdProposalIds, generatedAt, model: modelId } };
+  },
+
+  async chatWithAgent(ctx: Context) {
+    const apiKey = process.env['OPENAI_API_KEY']?.trim();
+    if (!apiKey) {
+      ctx.status = 503;
+      ctx.body = { error: 'OPENAI_API_KEY not configured' };
+      return;
+    }
+
+    const reqBody = ctx.request.body as Record<string, unknown>;
+    const rawMessages = Array.isArray(reqBody?.['messages']) ? reqBody['messages'] : [];
+    if (rawMessages.length === 0) {
+      ctx.status = 400;
+      ctx.body = { error: 'messages is required and must be a non-empty array' };
+      return;
+    }
+
+    const messages = (rawMessages as Array<Record<string, unknown>>)
+      .filter(
+        (m) =>
+          (m['role'] === 'user' || m['role'] === 'assistant') &&
+          typeof m['content'] === 'string',
+      )
+      .map((m) => ({ role: m['role'] as string, content: m['content'] as string }));
+
+    if (messages.length === 0) {
+      ctx.status = 400;
+      ctx.body = { error: 'No valid messages provided' };
+      return;
+    }
+
+    const context = (reqBody?.['context'] as Record<string, unknown>) ?? {};
+    const entryIds = Array.isArray(context['entryIds'])
+      ? (context['entryIds'] as string[]).filter((id) => typeof id === 'string')
+      : undefined;
+
+    const model = 'gpt-4o';
+    const systemPrompt = await buildChatSystemPrompt(strapi, entryIds);
+
+    const stream = new PassThrough();
+    ctx.set('Content-Type', 'text/event-stream');
+    ctx.set('Cache-Control', 'no-cache');
+    ctx.set('Connection', 'keep-alive');
+    ctx.set('X-Accel-Buffering', 'no');
+    ctx.body = stream;
+    ctx.status = 200;
+
+    try {
+      const fullText = await openaiStreamMessages(apiKey, model, systemPrompt, messages, (chunk) => {
+        chatSseEvent(stream, 'text', { content: chunk });
+      });
+
+      const proposals = extractChatProposals(fullText);
+      const createdProposalIds: string[] = [];
+      const generatedAt = new Date().toISOString();
+
+      for (const proposal of proposals) {
+        try {
+          if (
+            proposal.type === 'suggest-narrative' &&
+            proposal.entryId &&
+            (proposal.field === 'observedGap' || proposal.field === 'nextMove')
+          ) {
+            const proposalId = `suggest-narrative::${proposal.entryId}::${proposal.field}::chat::${Date.now()}`;
+            await strapi.entityService.create(NEED_PROPOSAL_UID, {
+              data: {
+                proposalId,
+                entryId: proposal.entryId,
+                type: 'suggest-narrative',
+                status: 'proposed',
+                confidence: 'medium',
+                title: `Suggestion IA chat — ${proposal.field} (${proposal.entryId})`,
+                summary: `Proposé lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
+                source: { agent: 'openai', model, generatedAt },
+                payload: {
+                  field: proposal.field,
+                  suggestedValue: proposal.body,
+                  rationale: 'Proposé via chat agent',
+                },
+                history: [{ event: 'created-by-chat', at: generatedAt, model }],
+                reportedAt: generatedAt,
+              } as any,
+            });
+            createdProposalIds.push(proposalId);
+            chatSseEvent(stream, 'proposal-created', {
+              proposalId,
+              type: 'suggest-narrative',
+              entryId: proposal.entryId,
+              field: proposal.field,
+            });
+          } else if (proposal.type === 'create-entry') {
+            let candidate: Record<string, unknown> = {};
+            try {
+              candidate = JSON.parse(proposal.body);
+            } catch {
+              candidate = { need: proposal.body };
+            }
+            const entryId = typeof candidate['id'] === 'string' ? candidate['id'] : `chat-entry-${Date.now()}`;
+            const proposalId = `create-entry::${entryId}::chat::${Date.now()}`;
+            await strapi.entityService.create(NEED_PROPOSAL_UID, {
+              data: {
+                proposalId,
+                entryId,
+                type: 'create-entry',
+                status: 'proposed',
+                confidence: 'low',
+                title: `Nouvelle entrée candidate — ${entryId}`,
+                summary: `Proposée lors d'une session de chat le ${generatedAt.slice(0, 10)}`,
+                source: { agent: 'openai', model, generatedAt },
+                payload: { candidateEntry: candidate },
+                history: [{ event: 'created-by-chat', at: generatedAt, model }],
+                reportedAt: generatedAt,
+              } as any,
+            });
+            createdProposalIds.push(proposalId);
+            chatSseEvent(stream, 'proposal-created', {
+              proposalId,
+              type: 'create-entry',
+              entryId,
+            });
+          }
+        } catch {
+          // individual proposal creation failures should not abort the stream
+        }
+      }
+
+      chatSseEvent(stream, 'done', { generatedAt, proposalCount: createdProposalIds.length });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur inconnue';
+      chatSseEvent(stream, 'error', { message });
+    } finally {
+      stream.end();
     }
   },
 });

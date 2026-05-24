@@ -132,7 +132,10 @@ Le payload contient notamment:
   "branch": "main",
   "summary": "targeted sync after merge to main",
   "changedFiles": ["openg7-org/src/app/domains/feed/feature/feed.page.ts"],
-  "impactedEntryIds": ["feed-signals"]
+  "impactedEntryIds": ["feed-signals"],
+  "impactMapping": {
+    "feed-signals": ["openg7-org/src/app/domains/feed/feature/feed.page.ts"]
+  }
 }
 ```
 
@@ -146,6 +149,53 @@ Strapi enregistre alors:
 Ces champs ne changent pas les voyants directement. Ils indiquent que la ligne doit etre relue.
 
 Si `impactedEntryIds` est absent, Strapi peut aussi deduire les lignes impactees depuis `changedFiles` et retourne alors les champs `impactMode`, `impactReason`, `derivedEntryIds` et `resolvedEntryIds`.
+
+## Source canonique et decouverte des besoins
+
+`openg7-org/src/assets/data/admin-quality-matrix.json` est maintenant la source canonique:
+
+- les besoins metier restent dans `need`;
+- les criteres de revue sont dans `acceptanceCriteria`;
+- les preuves et surfaces detectees sont dans `sourceRefs`;
+- les regles fichier -> entree sont dans `impactRules`;
+- `confidence` et `lastDiscoveredAt` indiquent la fraicheur de decouverte.
+
+Le fichier `tools/admin-quality-matrix-impact-map.json` est derive de cette matrice:
+
+```bash
+yarn generate:admin-quality-impact-map
+yarn validate:admin-quality-impact-map
+```
+
+Le scanner de besoins produit un rapport sans appliquer automatiquement les changements:
+
+```bash
+yarn discover:admin-quality-needs
+```
+
+Il lit les docs, specs E2E, routes Angular, selectors, APIs Strapi et i18n, puis propose des `sourceRefs` additionnelles par entree.
+
+La reconciliation transforme cette decouverte en propositions exploitables:
+
+```bash
+yarn reconcile:admin-quality-matrix
+```
+
+Sorties:
+
+- `admin-quality-needs-discovery.json`;
+- `admin-quality-needs-proposals.json`;
+- `admin-quality-needs-proposals.md`.
+
+Pour publier ces propositions vers Strapi sans les appliquer a la matrice:
+
+```bash
+yarn reconcile:admin-quality-matrix -- --ingest \
+  --proposals-ingest-url http://localhost:1337/api/admin/quality/matrix/proposals/ingest \
+  --ingest-token "$STRAPI_ADMIN_QUALITY_INGEST_TOKEN"
+```
+
+Strapi stocke les propositions, leur confiance, leur source, leur payload et leur historique. Les propositions restent au statut `proposed` tant qu'aucune revue admin ne les accepte ou rejette.
 
 ## Comment les fichiers modifies sont relies a la matrice
 

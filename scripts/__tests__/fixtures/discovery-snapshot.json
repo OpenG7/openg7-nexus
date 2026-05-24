@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2025-01-01T00:00:00.000Z",
+  "entries": [
+    {
+      "entryId": "test-entry-alpha",
+      "domain": "Test",
+      "need": "Alpha feature must be validated",
+      "discoveredSourceRefCount": 2
+    },
+    {
+      "entryId": "test-entry-beta",
+      "domain": "Test",
+      "need": "Beta feature must be observable",
+      "discoveredSourceRefCount": 0
+    }
+  ],
+  "proposals": [
+    {
+      "entryId": "test-entry-alpha",
+      "confidence": "high",
+      "sourceRef": {
+        "type": "e2e",
+        "path": "e2e/specs/alpha.spec.ts",
+        "value": "alpha-feature",
+        "matchReason": "path-prefix-match"
+      }
+    },
+    {
+      "entryId": "test-entry-alpha",
+      "confidence": "medium",
+      "sourceRef": {
+        "type": "selector",
+        "value": "data-og7=alpha-widget",
+        "path": "packages/alpha/src/alpha.component.ts",
+        "matchReason": "selector-keyword-match"
+      }
+    }
+  ],
+  "unmappedSources": [
+    {
+      "type": "strapi-api",
+      "path": "strapi/src/api/gamma/routes/gamma.ts",
+      "value": "gamma-endpoint",
+      "label": "Gamma API"
+    }
+  ],
+  "sourceCounts": {
+    "total": 12,
+    "e2e": 3,
+    "selectors": 5,
+    "routes": 2,
+    "strapiApi": 2
+  }
+}

@@ -1,0 +1,130 @@
+name: Admin Quality PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  quality-review:
+    name: Detect impacted quality entries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Collect changed files
+        id: changed
+        shell: bash
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > changed-files.txt
+          echo "count=$(wc -l < changed-files.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve impacted matrix entries
+        id: impact
+        shell: bash
+        run: |
+          export MATRIX_CHANGED_FILES="$(cat changed-files.txt)"
+          node scripts/resolve-admin-quality-matrix-impact.mjs > impact.json
+          echo "mode=$(jq -r '.mode // "none"' impact.json)" >> "$GITHUB_OUTPUT"
+          echo "entry_count=$(jq '.entryIds | length' impact.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if no matrix impact
+        if: ${{ steps.impact.outputs.entry_count == '0' }}
+        shell: bash
+        run: |
+          echo "No matrix entries impacted by this PR (mode=${{ steps.impact.outputs.mode }}, entries=0). Skipping."
+
+      - name: Validate matrix consistency
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        shell: bash
+        run: |
+          node scripts/validate-admin-quality-matrix.mjs --warn
+
+      - name: Check reviewedAt for impacted entries
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        shell: bash
+        run: |
+          node scripts/check-admin-quality-reviewed-at.mjs \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --impact impact.json \
+            > reviewed-at-check.json
+
+      - name: Run needs reconciliation
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        shell: bash
+        run: |
+          node scripts/reconcile-admin-quality-matrix.mjs \
+            --output admin-quality-needs-proposals.json \
+            --markdown-output admin-quality-needs-proposals.md
+
+      - name: Format PR comment
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        id: comment
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          node scripts/format-pr-quality-comment.mjs \
+            impact.json \
+            admin-quality-needs-proposals.json \
+            reviewed-at-check.json \
+            > pr-quality-comment.md
+
+      - name: Post or update PR comment
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          MARKER="<!-- og7-admin-quality-review -->"
+          REPO="${{ github.repository }}"
+
+          EXISTING_COMMENT_ID=$(gh api \
+            repos/${REPO}/issues/${PR_NUMBER}/comments \
+            --paginate \
+            --jq ".[] | select(.body | startswith(\"${MARKER}\")) | .id" \
+            | head -1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            node -e "
+              const fs = require('node:fs');
+              fs.writeFileSync(
+                'comment-payload.json',
+                JSON.stringify({ body: fs.readFileSync('pr-quality-comment.md', 'utf8') }),
+              );
+            "
+            gh api \
+              --method PATCH \
+              repos/${REPO}/issues/comments/${EXISTING_COMMENT_ID} \
+              --input comment-payload.json \
+              --silent
+            echo "Updated existing PR comment #${EXISTING_COMMENT_ID}"
+          else
+            gh pr comment ${PR_NUMBER} \
+              --repo ${REPO} \
+              --body-file pr-quality-comment.md
+            echo "Posted new PR comment"
+          fi
+
+      - name: Upload impact and proposals artifacts
+        if: ${{ steps.impact.outputs.entry_count != '0' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-quality-review-${{ github.event.pull_request.number }}
+          path: |
+            impact.json
+            admin-quality-needs-proposals.json
+            admin-quality-needs-proposals.md
+            reviewed-at-check.json
+          if-no-files-found: warn
+          retention-days: 14

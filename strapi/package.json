@@ -10,6 +10,7 @@
     "start": "strapi start",
     "strapi": "strapi",
     "seed:dev": "ts-node --preferTsExts scripts/seed.ts",
+    "sync:admin-quality-matrix": "ts-node --preferTsExts scripts/sync-admin-quality-matrix.ts",
     "pretest:integration:admin-ops": "yarn build",
     "test:integration:admin-quality-matrix": "node scripts/test-admin-quality-matrix-api-integration.js",
     "test:unit:company-import-bulk": "node scripts/test-company-import-bulk-unit.js",

@@ -14,6 +14,19 @@ export type AdminQualityMatrixSignalConfirmationSource =
   | 'proof-returned'
   | 'done'
   | 'pull-request-merged';
+export type AdminQualityMatrixDiscoveryConfidence = 'low' | 'medium' | 'high';
+
+export interface AdminQualityMatrixSourceRef {
+  readonly type: string;
+  readonly path: string | null;
+  readonly value: string | null;
+  readonly label: string | null;
+}
+
+export interface AdminQualityMatrixImpactRule {
+  readonly type: string;
+  readonly prefixes: readonly string[];
+}
 
 export interface AdminQualityMatrixSignalDispatchState {
   readonly pending: boolean;
@@ -28,6 +41,11 @@ export interface AdminQualityMatrixEntry {
   readonly id: string;
   readonly domain: string;
   readonly need: string;
+  readonly acceptanceCriteria?: readonly string[];
+  readonly sourceRefs?: readonly AdminQualityMatrixSourceRef[];
+  readonly impactRules?: readonly AdminQualityMatrixImpactRule[];
+  readonly confidence?: AdminQualityMatrixDiscoveryConfidence;
+  readonly lastDiscoveredAt?: string | null;
   readonly summaryStatus: AdminQualityMatrixStatus;
   readonly businessStatus: AdminQualityMatrixStatus;
   readonly implementationStatus: AdminQualityMatrixStatus;
@@ -47,6 +65,55 @@ export interface AdminQualityMatrixEntry {
     Record<AdminQualityMatrixSignalId, AdminQualityMatrixSignalDispatchState>
   >;
   readonly lastRecalculation?: AdminQualityMatrixStoredRecalculation | null;
+  readonly agentObservedGap?: string | null;
+  readonly agentNextMove?: string | null;
+  readonly agentNarrativeGeneratedAt?: string | null;
+  readonly agentNarrativeModel?: string | null;
+}
+
+export interface AdminQualityMatrixEditPayload {
+  readonly observedGap?: string | null;
+  readonly nextMove?: string | null;
+  readonly managementBucket?: AdminQualityMatrixBucket | null;
+  readonly needsProductWorkFirst?: boolean | null;
+  readonly priority?: AdminQualityMatrixPriority | null;
+  readonly reviewedAt?: string | null;
+}
+
+export interface AdminQualityAgentSuggestionProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly field: string;
+  readonly suggestedValue: string;
+}
+
+export interface AdminQualityChatMessage {
+  readonly role: 'user' | 'assistant';
+  readonly content: string;
+}
+
+export interface AdminQualityChatContext {
+  readonly entryIds?: readonly string[];
+}
+
+export type AdminQualityChatEventType = 'text' | 'proposal-created' | 'done' | 'error';
+
+export interface AdminQualityChatEvent {
+  readonly type: AdminQualityChatEventType;
+  readonly content?: string;
+  readonly proposalId?: string;
+  readonly entryId?: string;
+  readonly field?: string;
+  readonly generatedAt?: string;
+  readonly proposalCount?: number;
+  readonly message?: string;
+}
+
+export interface AdminQualityAgentSuggestionResult {
+  readonly entryId: string;
+  readonly proposals: readonly AdminQualityAgentSuggestionProposal[];
+  readonly generatedAt: string;
+  readonly model: string | null;
 }
 
 export interface AdminQualityMatrixSnapshot {
@@ -145,4 +212,33 @@ export interface AdminQualityMatrixApplyProposalResult {
   readonly appliedAt: string;
   readonly entry: AdminQualityMatrixEntry;
   readonly proposal: AdminQualityMatrixRecalculationEntry;
+}
+
+export type AdminQualityNeedProposalType =
+  | 'add-source-ref'
+  | 'create-entry'
+  | 'mark-stale'
+  | 'suggest-narrative';
+export type AdminQualityNeedProposalStatus = 'proposed' | 'accepted' | 'rejected' | 'superseded';
+
+export interface AdminQualityNeedProposal {
+  readonly id: string | null;
+  readonly proposalId: string;
+  readonly entryId: string;
+  readonly type: AdminQualityNeedProposalType;
+  readonly status: AdminQualityNeedProposalStatus;
+  readonly confidence: AdminQualityMatrixDiscoveryConfidence;
+  readonly title: string | null;
+  readonly summary: string | null;
+  readonly source: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+  readonly history: readonly Record<string, unknown>[];
+  readonly correlationId: string | null;
+  readonly reportedAt: string | null;
+  readonly updatedAt: string | null;
+}
+
+export interface AdminQualityNeedProposalsSnapshot {
+  readonly generatedAt: string;
+  readonly proposals: readonly AdminQualityNeedProposal[];
 }

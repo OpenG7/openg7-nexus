@@ -108,9 +108,10 @@ Verifier:
 
 Verifier:
 
-1. le mapping partage dans `tools/admin-quality-matrix-impact-map.json`
-2. les fichiers reels modifies par le merge
-3. si le changement aurait du etre traite comme impact global plutot que cible
+1. les `impactRules` canoniques dans `openg7-org/src/assets/data/admin-quality-matrix.json`
+2. l'artefact derive `tools/admin-quality-matrix-impact-map.json`
+3. les fichiers reels modifies par le merge
+4. si le changement aurait du etre traite comme impact global plutot que cible
 
 ### Le workflow publie `200` mais aucun plan auto n'apparait
 
@@ -120,6 +121,15 @@ Verifier:
 2. que la reponse d'ingestion contient `recalculation.generatedAt`
 3. que `GET /api/admin/quality/matrix` retourne `entries[].lastRecalculation`
 
+### Les propositions de besoins ne remontent pas
+
+Verifier:
+
+1. que le script a ete lance avec `yarn reconcile:admin-quality-matrix -- --ingest`;
+2. que l'URL cible pointe vers `POST /api/admin/quality/matrix/proposals/ingest`;
+3. que le bearer token correspond a `STRAPI_ADMIN_QUALITY_INGEST_TOKEN`;
+4. que `GET /api/admin/quality/matrix/proposals` retourne les propositions stockees.
+
 ## Validations a lancer
 
 Localement:
@@ -127,6 +137,7 @@ Localement:
 ```bash
 yarn --cwd strapi test:integration:admin-quality-matrix
 node scripts/resolve-admin-quality-matrix-impact.mjs openg7-org/src/app/domains/feed/feature/feed.page.ts
+yarn reconcile:admin-quality-matrix
 ```
 
 En CI:
@@ -137,7 +148,7 @@ En CI:
 
 ## Limites actuelles
 
-- le mapping fichier -> domaine reste heuristique, meme s'il est maintenant centralise dans `tools/admin-quality-matrix-impact-map.json`
+- le mapping fichier -> domaine reste heuristique, meme s'il est maintenant centralise dans la matrice et verifie via `yarn validate:admin-quality-impact-map`
 - le workflow signale qu'une ligne doit etre relue et Strapi genere un plan, mais aucun statut metier n'est applique automatiquement
 - l'artifact `matrix-proof-manifest.json` est produit par `ci-validate.yml`, mais les workflows E2E dedies ne produisent pas encore chacun leur manifest fin
 - la revue finale reste volontairement humaine

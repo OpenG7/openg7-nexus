@@ -100,6 +100,12 @@ export default async () => {
       snapshot: true,
       recalculate: true,
       applyProposal: true,
+      listNeedProposals: true,
+      patchNeedProposal: true,
+      exportMatrix: true,
+      editMatrixEntry: true,
+      agentSuggestNarrative: true,
+      chatWithAgent: true,
     },
     'api::admin-quality-mission-decision.admin-quality-mission-decision': {
       list: true,

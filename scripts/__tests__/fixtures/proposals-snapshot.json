@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2025-01-01T00:00:00.000Z",
+  "correlationId": "needs-reconcile-2025-01-01T00:00:00.000Z",
+  "matrix": {
+    "schemaVersion": "1.0",
+    "generatedAt": "2025-01-01T00:00:00.000Z",
+    "entryCount": 3
+  },
+  "discovery": {
+    "generatedAt": "2025-01-01T00:00:00.000Z",
+    "entries": [
+      { "entryId": "test-entry-alpha", "domain": "Test", "need": "Alpha feature must be validated", "discoveredSourceRefCount": 2 },
+      { "entryId": "test-entry-beta", "domain": "Test", "need": "Beta feature must be observable", "discoveredSourceRefCount": 0 }
+    ],
+    "proposals": [
+      {
+        "entryId": "test-entry-alpha",
+        "confidence": "high",
+        "sourceRef": { "type": "e2e", "path": "e2e/specs/alpha.spec.ts", "value": "alpha-feature", "matchReason": "path-prefix-match" }
+      }
+    ],
+    "unmappedSources": [
+      { "type": "strapi-api", "path": "strapi/src/api/gamma/routes/gamma.ts", "value": "gamma-endpoint", "label": "Gamma API" }
+    ],
+    "sourceCounts": { "total": 12, "e2e": 3, "selectors": 5, "routes": 2, "strapiApi": 2 }
+  },
+  "summary": {
+    "proposalCount": 3,
+    "entriesTouched": 3,
+    "byType": {
+      "add-source-ref": 1,
+      "mark-stale": 1,
+      "create-entry": 1
+    }
+  },
+  "proposals": [
+    {
+      "proposalId": "add-source-ref::test-entry-alpha::abc123",
+      "type": "add-source-ref",
+      "status": "proposed",
+      "entryId": "test-entry-alpha",
+      "confidence": "high",
+      "title": "Add source reference to test-entry-alpha",
+      "summary": "Attach e2e source alpha-feature to the existing matrix entry.",
+      "source": { "agent": "admin-quality-needs-reconciler", "generatedAt": "2025-01-01T00:00:00.000Z", "reason": "path-prefix-match" },
+      "payload": {
+        "sourceRef": { "type": "e2e", "path": "e2e/specs/alpha.spec.ts", "value": "alpha-feature", "matchReason": "path-prefix-match" }
+      }
+    },
+    {
+      "proposalId": "mark-stale::test-entry-beta::def456",
+      "type": "mark-stale",
+      "status": "proposed",
+      "entryId": "test-entry-beta",
+      "confidence": "medium",
+      "title": "Review stale matrix entry test-entry-beta",
+      "summary": "No current repository source was matched to this matrix entry during needs reconciliation.",
+      "source": { "agent": "admin-quality-needs-reconciler", "generatedAt": "2025-01-01T00:00:00.000Z", "reason": "no-discovered-source" },
+      "payload": {
+        "currentNeed": "Beta feature must be observable",
+        "suggestedAction": "Review sourceRefs, impactRules, or scope status before changing coverage."
+      }
+    },
+    {
+      "proposalId": "create-entry::candidate-gamma-endpoint::ghi789",
+      "type": "create-entry",
+      "status": "proposed",
+      "entryId": "candidate-gamma-endpoint",
+      "confidence": "medium",
+      "title": "Create matrix entry for Gamma API",
+      "summary": "A source was discovered without a confident mapping to an existing admin quality matrix entry.",
+      "source": { "agent": "admin-quality-needs-reconciler", "generatedAt": "2025-01-01T00:00:00.000Z", "reason": "unmapped-source" },
+      "payload": {
+        "candidateEntry": {
+          "id": "candidate-gamma-endpoint",
+          "domain": "Gamma API",
+          "need": "Review whether Gamma API represents a distinct business need.",
+          "acceptanceCriteria": [],
+          "sourceRefs": [{ "type": "strapi-api", "path": "strapi/src/api/gamma/routes/gamma.ts", "value": "gamma-endpoint", "label": "Gamma API" }],
+          "impactRules": [{ "type": "path-prefix", "prefixes": ["strapi/src/api/gamma/routes/gamma.ts"] }],
+          "confidence": "medium"
+        }
+      }
+    }
+  ]
+}

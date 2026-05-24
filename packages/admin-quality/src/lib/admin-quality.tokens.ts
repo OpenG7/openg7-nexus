@@ -1,11 +1,22 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import type {
+  AdminQualityChatContext,
+  AdminQualityChatEvent,
+  AdminQualityChatMessage,
+} from './data-access/admin-quality-matrix.service';
+
 export interface AdminQualityMatrixPort<
   TSnapshot = unknown,
   TRecalculationScope = string,
   TRecalculationSnapshot = unknown,
   TApplyProposalResult = unknown,
+  TNeedProposalsSnapshot = unknown,
+  TNeedProposal = unknown,
+  TEditEntryResult = unknown,
+  TAgentSuggestionResult = unknown,
+  TEditPayload = unknown,
 > {
   loadMatrix(): Observable<TSnapshot>;
   recalculateMatrix(
@@ -13,6 +24,18 @@ export interface AdminQualityMatrixPort<
     entryId?: string | null,
   ): Observable<TRecalculationSnapshot>;
   applyMatrixProposal(entryId: string): Observable<TApplyProposalResult>;
+  listNeedProposals(): Observable<TNeedProposalsSnapshot>;
+  patchNeedProposal(
+    proposalId: string,
+    status: 'accepted' | 'rejected',
+    note?: string | null,
+  ): Observable<TNeedProposal>;
+  editMatrixEntry(entryId: string, payload: TEditPayload): Observable<TEditEntryResult>;
+  requestAgentSuggestion(entryId: string): Observable<TAgentSuggestionResult>;
+  chatWithAgent(
+    messages: readonly AdminQualityChatMessage[],
+    context?: AdminQualityChatContext,
+  ): Observable<AdminQualityChatEvent>;
 }
 
 export interface AdminQualityOpsPort<

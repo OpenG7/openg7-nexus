@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "globalImpactRules": [
+    {
+      "type": "path-prefix",
+      "prefixes": [
+        "AGENTS.md",
+        "openg7-org/src/app/core/api/",
+        "openg7-org/src/app/domains/admin/",
+        "package.json",
+        "packages/contracts/",
+        "packages/tooling/",
+        "strapi/src/api/admin-quality-matrix/"
+      ]
+    }
+  ]
+}
