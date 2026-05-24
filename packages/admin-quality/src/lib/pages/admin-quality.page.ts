@@ -77,6 +77,7 @@ import {
   buildActionRegistry,
   buildUndocumentedDiscoveredActions,
 } from './admin-quality-action-registry';
+import { AdminQualityAgentChatComponent } from './admin-quality-agent-chat.component';
 import { AdminQualityAgentPanelComponent } from './admin-quality-agent-panel.component';
 import {
   AdminQualityComboboxComponent,
@@ -115,18 +116,17 @@ import {
   AdminQualityMissionProofDisplay,
   AdminQualityMissionProviderComparisonEntry,
 } from './admin-quality-mission-control.component';
-import { AdminQualityAgentChatComponent } from './admin-quality-agent-chat.component';
-import { AdminQualityReactorComponent } from './admin-quality-reactor.component';
-import {
-  AdminQualityNeedProposalAction,
-  AdminQualityNeedsProposalPanelComponent,
-} from './admin-quality-needs-proposal-panel.component';
 import {
   AdminQualityMissionQuotaSummary,
   AdminQualityMissionTask,
   buildMissionTasks,
   summarizeMissionQuota,
 } from './admin-quality-mission-task-planner';
+import {
+  AdminQualityNeedProposalAction,
+  AdminQualityNeedsProposalPanelComponent,
+} from './admin-quality-needs-proposal-panel.component';
+import { AdminQualityReactorComponent } from './admin-quality-reactor.component';
 
 type FilterValue<T extends string> = 'all' | T;
 type AdminQualityLegacyInspectionSurface = 'delegation' | 'actions';

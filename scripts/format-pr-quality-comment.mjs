@@ -226,4 +226,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
 
-export { formatComment, formatImpactSection, formatProposalsSection, formatReviewedAtSection };
+export { formatComment, formatImpactSection, formatProposalsSection };

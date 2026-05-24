@@ -11,9 +11,8 @@
  *   node scripts/export-admin-quality-matrix.mjs --dry-run    # print to stdout, no write
  */
 import { writeFileSync } from 'node:fs';
-import https from 'node:https';
 import http from 'node:http';
-import path from 'node:path';
+import https from 'node:https';
 import { pathToFileURL } from 'node:url';
 
 import { buildImpactMapFromMatrix, impactMapPath, matrixSnapshotPath } from './admin-quality-matrix-model.mjs';

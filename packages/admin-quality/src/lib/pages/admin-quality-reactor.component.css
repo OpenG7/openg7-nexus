@@ -656,41 +656,93 @@
   --particle-size: 10px;
   --particle-color: #67e8f9;
   --particle-glow: rgba(34, 211, 238, 0.9);
+  --particle-counter-scale-y: 2;
   position: absolute;
   top: 50%;
   right: calc(var(--particle-size) * -0.5);
   width: var(--particle-size);
   height: var(--particle-size);
-  border: 1px solid rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.82);
   border-radius: 999px;
   background: radial-gradient(
     circle at 35% 30%,
-    #fff 0 12%,
-    var(--particle-color) 42%,
-    rgba(15, 23, 42, 0.5) 100%
+    #fff 0 11%,
+    color-mix(in srgb, var(--particle-color), #ffffff 28%) 25%,
+    var(--particle-color) 54%,
+    rgba(15, 23, 42, 0.62) 100%
   );
   box-shadow:
-    0 0 0 4px rgba(15, 23, 42, 0.4),
-    0 0 14px 3px var(--particle-glow),
-    0 0 30px 7px color-mix(in srgb, var(--particle-color), transparent 72%);
-  transform: translateY(-50%);
+    0 0 0 3px rgba(15, 23, 42, 0.52),
+    0 0 12px 2px rgba(255, 255, 255, 0.18),
+    0 0 18px 5px var(--particle-glow),
+    0 0 42px 11px color-mix(in srgb, var(--particle-color), transparent 62%);
+  filter: drop-shadow(0 0 9px var(--particle-glow));
+  transform: translateY(-50%) scaleY(var(--particle-counter-scale-y));
+  isolation: isolate;
+}
+
+.reactor-particle-dot::before,
+.reactor-particle-dot::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.reactor-particle-dot::before {
+  inset: -82%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--particle-color), #ffffff 18%) 0 9%,
+    var(--particle-glow) 24%,
+    transparent 68%
+  );
+  filter: blur(2.5px);
+  mix-blend-mode: screen;
+  opacity: 0.76;
+  z-index: -1;
+}
+
+.reactor-particle-dot::after {
+  top: 16%;
+  left: 18%;
+  width: 38%;
+  height: 28%;
+  background: rgba(255, 255, 255, 0.9);
+  filter: blur(1.2px);
+  opacity: 0.82;
 }
 
 .reactor-particle-track.is-distant {
   z-index: 6;
-  filter: blur(1px);
-  opacity: 0.42;
+  filter: blur(0.55px);
+  opacity: 0.62;
 }
 
 .reactor-particle-track.is-mid {
   z-index: 8;
-  filter: blur(0.35px);
-  opacity: 0.62;
+  filter: blur(0.16px);
+  opacity: 0.82;
 }
 
 .reactor-particle-track.is-near {
   z-index: 12;
-  opacity: 0.86;
+  opacity: 1;
+}
+
+.reactor-particle-track.is-distant .reactor-particle-dot {
+  box-shadow:
+    0 0 0 3px rgba(15, 23, 42, 0.5),
+    0 0 14px 4px var(--particle-glow),
+    0 0 32px 8px color-mix(in srgb, var(--particle-color), transparent 68%);
+}
+
+.reactor-particle-track.is-near .reactor-particle-dot {
+  box-shadow:
+    0 0 0 4px rgba(15, 23, 42, 0.56),
+    0 0 13px 2px rgba(255, 255, 255, 0.22),
+    0 0 22px 7px var(--particle-glow),
+    0 0 54px 14px color-mix(in srgb, var(--particle-color), transparent 58%);
 }
 
 .reactor-base,
