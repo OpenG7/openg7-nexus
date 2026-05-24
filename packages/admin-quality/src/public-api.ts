@@ -22,4 +22,5 @@ export * from './lib/pages/admin-quality-mission-task-planner';
 export * from './lib/pages/admin-quality-agent-chat.component';
 export * from './lib/pages/admin-quality-entry-edit.component';
 export * from './lib/pages/admin-quality-needs-proposal-panel.component';
+export * from './lib/pages/admin-quality-reactor.component';
 export * from './lib/pages/admin-quality.page';

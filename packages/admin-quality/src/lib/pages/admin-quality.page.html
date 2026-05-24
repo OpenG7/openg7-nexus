@@ -226,6 +226,18 @@
     [actionCount]="totalRegisteredActions()"
   />
 
+  @if (!loading() && entries().length > 0) {
+    <og7-admin-quality-reactor
+      [coveredCount]="coveredCount()"
+      [proofGapCount]="proofGapCount()"
+      [productGapCount]="productWorkCount()"
+      [notAlignedCount]="scopeLimitCount()"
+      [notEvaluatedCount]="notEvaluatedCount()"
+      [isAnalysisRunning]="recalculatingMatrix()"
+      [reactorState]="reactorState()"
+    />
+  }
+
   @if (error(); as message) {
   <p
     class="rounded-[20px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"

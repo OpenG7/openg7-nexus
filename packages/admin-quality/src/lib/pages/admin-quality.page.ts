@@ -116,6 +116,7 @@ import {
   AdminQualityMissionProviderComparisonEntry,
 } from './admin-quality-mission-control.component';
 import { AdminQualityAgentChatComponent } from './admin-quality-agent-chat.component';
+import { AdminQualityReactorComponent } from './admin-quality-reactor.component';
 import {
   AdminQualityNeedProposalAction,
   AdminQualityNeedsProposalPanelComponent,
@@ -307,6 +308,7 @@ const ADMIN_QUALITY_LIVE_TICK_INTERVAL_MS = 1_000;
     AdminQualityWorkspaceDrawerComponent,
     AdminQualityNeedsProposalPanelComponent,
     AdminQualityAgentChatComponent,
+    AdminQualityReactorComponent,
   ],
   templateUrl: './admin-quality.page.html',
   styles: [
@@ -1455,6 +1457,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         (entry) => entry.e2eStatus !== 'oui' && entry.priority === 'haute',
       ).length,
   );
+  readonly coveredCount = computed(
+    () => this.entries().filter((entry) => entry.managementBucket === 'covered').length,
+  );
+  readonly scopeLimitCount = computed(
+    () => this.entries().filter((entry) => entry.managementBucket === 'scope-limit').length,
+  );
+  readonly notEvaluatedCount = computed(
+    () => this.entries().filter((entry) => !entry.managementBucket).length,
+  );
+  readonly reactorState = computed<'ok' | 'attention' | 'critical'>(() => {
+    const highPriority = this.highPriorityGapCount();
+    if (highPriority > 20) return 'critical';
+    if (highPriority > 0) return 'attention';
+    return 'ok';
+  });
   readonly latestCompletedMissionDecisionByEntryId = computed(() => {
     const latestByEntryId = new Map<string, AdminQualityMissionDecisionRecord>();
 

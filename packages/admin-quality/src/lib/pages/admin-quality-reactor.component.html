@@ -1,0 +1,263 @@
+<section
+  class="admin-quality-reactor"
+  [attr.data-reactor-state]="visualState()"
+  data-og7="admin-quality-reactor"
+>
+  <div class="reactor-shell-glow" aria-hidden="true"></div>
+
+  <header class="reactor-header">
+    <div class="reactor-title-block">
+      <span class="reactor-title-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 3.25 19 6v5.5c0 4.35-2.82 7.72-7 9.25-4.18-1.53-7-4.9-7-9.25V6l7-2.75Z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path
+            d="m8.4 12.2 2.3 2.4 4.9-5.4"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <div>
+        <p class="reactor-kicker">R&eacute;acteur Qualit&eacute;</p>
+        <p class="reactor-subtitle">Open G7 Quality Core</p>
+      </div>
+    </div>
+
+    <div class="reactor-status-group">
+      <span
+        class="reactor-status-pill"
+        [attr.data-state]="visualState()"
+        [style.color]="reactorStateColorHex()"
+      >
+        {{ reactorStateLabel() }}
+      </span>
+      @if (isAnalysisRunning()) {
+        <span class="reactor-analysis-pill">
+          <span class="reactor-analysis-dot" aria-hidden="true"></span>
+          Analyse en cours
+        </span>
+      }
+    </div>
+  </header>
+
+  <div class="reactor-layout">
+    <aside class="reactor-legend" data-og7="admin-quality-reactor-legend">
+      @for (cat of categories(); track cat.key) {
+        <article
+          [class]="'reactor-legend-item ' + categorySignalClass(cat)"
+          [attr.data-og7-id]="cat.key"
+          [style]="categoryStyle(cat)"
+        >
+          <span class="reactor-legend-rail" aria-hidden="true"></span>
+          <span class="reactor-legend-copy">
+            <span class="reactor-legend-label">{{ cat.label }}</span>
+            <span class="reactor-legend-count">{{ cat.count }} &eacute;l&eacute;ments</span>
+          </span>
+          <span class="reactor-legend-signal" aria-hidden="true"></span>
+        </article>
+      }
+    </aside>
+
+    <div class="reactor-viewport" data-og7="admin-quality-reactor-orbital">
+      <div class="reactor-stage" [attr.data-reactor-state]="visualState()" aria-hidden="true">
+        <div class="reactor-depth"></div>
+        <div class="reactor-scan"></div>
+        <div class="reactor-radial-grid"></div>
+
+        <svg
+          class="reactor-orbit-svg reactor-orbits-back"
+          viewBox="0 0 400 400"
+          role="img"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <defs>
+            <radialGradient id="og7-reactor-center-fade" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.5" />
+              <stop offset="42%" stop-color="#22d3ee" stop-opacity="0.08" />
+              <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <circle cx="200" cy="200" r="98" fill="url(#og7-reactor-center-fade)" />
+
+          <g class="reactor-radials">
+            @for (angle of radialLineAngles; track angle) {
+              <line
+                x1="200"
+                y1="62"
+                x2="200"
+                y2="338"
+                [attr.transform]="'rotate(' + angle + ' 200 200)'"
+              />
+            }
+          </g>
+
+          <g class="reactor-grid-rings">
+            <circle cx="200" cy="200" r="52" />
+            <circle cx="200" cy="200" r="76" />
+            <circle cx="200" cy="200" r="104" />
+          </g>
+
+          <g class="reactor-orbit orbit-blue orbit-flow-back-a">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="168" ry="60" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="168" ry="60" />
+          </g>
+
+          <g class="reactor-orbit orbit-purple orbit-flow-back-b">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="132" ry="86" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="132" ry="86" />
+          </g>
+
+          <g class="reactor-orbit orbit-orange orbit-flow-back-c">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="144" ry="52" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="144" ry="52" />
+          </g>
+        </svg>
+
+        @for (particle of particles; track particle.key) {
+          <span
+            class="reactor-particle-track"
+            [class.is-reverse]="particle.direction === 'ccw'"
+            [class.is-distant]="particle.depth === 'back'"
+            [class.is-mid]="particle.depth === 'mid'"
+            [class.is-near]="particle.depth === 'front'"
+            [style]="particleTrackStyle(particle)"
+          >
+            <span class="reactor-particle-dot" [style]="particleDotStyle(particle)"></span>
+          </span>
+        }
+
+        <div class="reactor-plinth">
+          <span class="reactor-plinth-ring ring-one"></span>
+          <span class="reactor-plinth-ring ring-two"></span>
+          <span class="reactor-plinth-ring ring-three"></span>
+          <span class="reactor-plinth-core"></span>
+        </div>
+
+        <div class="reactor-core">
+          <span class="reactor-core-halo"></span>
+          <span class="reactor-core-glass"></span>
+          <span class="reactor-core-highlight"></span>
+          <svg
+            class="reactor-core-shield"
+            width="78"
+            height="82"
+            viewBox="-39 -42 78 84"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 -33 26 -23v28c0 17.5-11.5 29.2-26 35-14.5-5.8-26-17.5-26-35v-28l26-10Z"
+              fill="rgba(8,47,73,0.45)"
+              stroke="#e0f2fe"
+              stroke-width="2.6"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m-12 5.4 8.8 9.4L13.5 -12"
+              stroke="#67e8f9"
+              stroke-width="4.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+
+        <svg
+          class="reactor-orbit-svg reactor-orbits-front"
+          viewBox="0 0 400 400"
+          role="img"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <g class="reactor-orbit orbit-cyan orbit-flow-front-a">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="154" ry="42" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="154" ry="42" />
+          </g>
+
+          <g class="reactor-orbit orbit-blue orbit-flow-front-b">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="118" ry="68" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="118" ry="68" />
+          </g>
+
+          <g class="reactor-orbit orbit-red orbit-flow-front-c">
+            <ellipse class="reactor-orbit-halo" cx="200" cy="200" rx="132" ry="48" />
+            <ellipse class="reactor-orbit-path" cx="200" cy="200" rx="132" ry="48" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <aside class="reactor-state-card" data-og7="admin-quality-reactor-state">
+      <div>
+        <p class="reactor-state-kicker">&Eacute;tat du r&eacute;acteur</p>
+        <p
+          class="reactor-state-title"
+          [style.color]="reactorStateColorHex()"
+          data-og7-id="admin-quality-reactor-state-label"
+          [attr.data-og7-state]="visualState()"
+        >
+          {{ reactorStateLabel() }}
+        </p>
+      </div>
+
+      <div class="reactor-waveform" aria-hidden="true">
+        @for (h of waveHeights; track $index) {
+          <span [style.height.px]="h" [style.background]="reactorStateColorHex()"></span>
+        }
+      </div>
+
+      <p class="reactor-state-message">{{ reactorStateMessage() }}</p>
+
+      <dl class="reactor-metrics">
+        <div>
+          <dt>Tendance</dt>
+          <dd class="tone-good">En am&eacute;lioration</dd>
+        </div>
+        <div>
+          <dt>Risque global</dt>
+          <dd class="tone-warm">Mod&eacute;r&eacute;</dd>
+        </div>
+        <div>
+          <dt>Coh&eacute;rence</dt>
+          <dd data-og7-id="admin-quality-reactor-coherence">{{ coherencePercent() }} %</dd>
+        </div>
+        <div>
+          <dt>Compl&eacute;tude</dt>
+          <dd data-og7-id="admin-quality-reactor-completude">{{ completudePercent() }} %</dd>
+        </div>
+        <div>
+          <dt>Couverture</dt>
+          <dd class="tone-cyan" data-og7-id="admin-quality-reactor-coverage">
+            {{ coveragePercent() }} %
+          </dd>
+        </div>
+      </dl>
+
+      <button
+        type="button"
+        class="reactor-gap-button"
+        data-og7-id="admin-quality-reactor-view-gaps"
+      >
+        <span>Voir les &eacute;carts prioritaires</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="m6 3.5 4.5 4.5L6 12.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </aside>
+  </div>
+</section>
