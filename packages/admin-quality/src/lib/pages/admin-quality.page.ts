@@ -222,6 +222,7 @@ interface AdminQualityPersistedViewState {
   readonly selectedPriority?: FilterValue<AdminQualityMatrixPriority>;
   readonly selectedE2EStatus?: FilterValue<AdminQualityMatrixStatus>;
   readonly selectedBucket?: FilterValue<AdminQualityMatrixBucket>;
+  readonly priorityGapsOnly?: boolean;
   readonly selectedEntryId?: string | null;
   readonly selectedActionId?: string | null;
   readonly selectedMissionId?: string | null;
@@ -804,6 +805,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedPriority = signal<FilterValue<AdminQualityMatrixPriority>>('all');
   readonly selectedE2EStatus = signal<FilterValue<AdminQualityMatrixStatus>>('all');
   readonly selectedBucket = signal<FilterValue<AdminQualityMatrixBucket>>('all');
+  readonly priorityGapsOnly = signal(false);
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
@@ -1391,6 +1393,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
         if (this.selectedBucket() !== 'all' && entry.managementBucket !== this.selectedBucket()) {
           return false;
         }
+        if (this.priorityGapsOnly() && (entry.priority !== 'haute' || entry.e2eStatus === 'oui')) {
+          return false;
+        }
         if (!query) {
           return true;
         }
@@ -1466,11 +1471,30 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly notEvaluatedCount = computed(
     () => this.entries().filter((entry) => !entry.managementBucket).length,
   );
-  readonly reactorState = computed<'ok' | 'attention' | 'critical'>(() => {
+  readonly reactorState = computed<'stable' | 'attention' | 'critical' | 'excellent'>(() => {
+    const total = this.entries().length;
+    if (total === 0) return 'stable';
+
     const highPriority = this.highPriorityGapCount();
-    if (highPriority > 20) return 'critical';
-    if (highPriority > 0) return 'attention';
-    return 'ok';
+    const unresolved =
+      this.proofGapCount() +
+      this.productWorkCount() +
+      this.scopeLimitCount() +
+      this.notEvaluatedCount();
+    const unresolvedRatio = unresolved / total;
+    const highPriorityRatio = highPriority / total;
+    const notEvaluatedRatio = this.notEvaluatedCount() / total;
+
+    if (highPriorityRatio >= 0.25 || unresolvedRatio >= 0.5 || notEvaluatedRatio >= 0.25) {
+      return 'critical';
+    }
+    if (highPriority > 0 || unresolvedRatio >= 0.2 || this.notEvaluatedCount() > 0) {
+      return 'attention';
+    }
+    if (this.coveredCount() === total) {
+      return 'excellent';
+    }
+    return 'stable';
   });
   readonly latestCompletedMissionDecisionByEntryId = computed(() => {
     const latestByEntryId = new Map<string, AdminQualityMissionDecisionRecord>();
@@ -1689,7 +1713,8 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.selectedDomain() !== 'all' ||
       this.selectedPriority() !== 'all' ||
       this.selectedE2EStatus() !== 'all' ||
-      this.selectedBucket() !== 'all',
+      this.selectedBucket() !== 'all' ||
+      this.priorityGapsOnly(),
   );
   readonly activeFilterChips = computed<readonly AdminQualityActiveFilterChip[]>(() => {
     const chips: AdminQualityActiveFilterChip[] = [];
@@ -1712,6 +1737,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     if (this.selectedBucket() !== 'all') {
       const bucket = this.selectedBucket() as AdminQualityMatrixBucket;
       chips.push({ id: 'bucket', label: `Gestion : ${this.bucketLabel(bucket)}` });
+    }
+    if (this.priorityGapsOnly()) {
+      chips.push({ id: 'priority-gaps', label: 'Écarts prioritaires uniquement' });
     }
 
     return chips;
@@ -2303,7 +2331,11 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   setPriorityFilterValue(value: string): void {
     this.stopVoiceForContextChange();
-    this.selectedPriority.set((value || 'all') as FilterValue<AdminQualityMatrixPriority>);
+    const priority = (value || 'all') as FilterValue<AdminQualityMatrixPriority>;
+    this.selectedPriority.set(priority);
+    if (priority !== 'haute') {
+      this.priorityGapsOnly.set(false);
+    }
   }
 
   setE2EFilter(event: Event): void {
@@ -2344,6 +2376,18 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedPriority.set('all');
     this.selectedE2EStatus.set('all');
     this.selectedBucket.set('all');
+    this.priorityGapsOnly.set(false);
+  }
+
+  showPriorityGaps(): void {
+    this.stopVoiceForContextChange();
+    this.search.set('');
+    this.selectedDomain.set('all');
+    this.selectedPriority.set('haute');
+    this.selectedE2EStatus.set('all');
+    this.selectedBucket.set('all');
+    this.priorityGapsOnly.set(true);
+    this.scrollMissionHudToSection('coverage');
   }
 
   selectEntry(entry: AdminQualityMatrixEntry): void {
@@ -5091,6 +5135,9 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       if (this.isBucketFilterValue(parsed.selectedBucket)) {
         this.selectedBucket.set(parsed.selectedBucket);
       }
+      if (typeof parsed.priorityGapsOnly === 'boolean') {
+        this.priorityGapsOnly.set(parsed.priorityGapsOnly);
+      }
       if (parsed.selectedEntryId === null || typeof parsed.selectedEntryId === 'string') {
         this.selectedEntryId.set(parsed.selectedEntryId);
       }
@@ -5125,9 +5172,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   private applyRouteSelectionPrefill(): void {
     const params = this.route?.snapshot.queryParamMap;
     const entryId =
-      params?.get('entryId') ??
-      params?.get('qualityEntryId') ??
-      params?.get('adminQualityEntryId');
+      params?.get('entryId') ?? params?.get('qualityEntryId') ?? params?.get('adminQualityEntryId');
     const normalizedEntryId = entryId?.trim();
     if (!normalizedEntryId) {
       return;
@@ -5148,6 +5193,7 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       selectedPriority: this.selectedPriority(),
       selectedE2EStatus: this.selectedE2EStatus(),
       selectedBucket: this.selectedBucket(),
+      priorityGapsOnly: this.priorityGapsOnly(),
       selectedEntryId: this.selectedEntryId(),
       selectedActionId: this.selectedActionId(),
       selectedMissionId: this.selectedMissionId(),

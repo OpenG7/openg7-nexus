@@ -407,14 +407,31 @@ async function openAdminQualityPage(page: Page): Promise<void> {
   await page.goto('/admin/quality');
   await expect(page).toHaveURL(/\/admin\/quality$/);
   await expect(page.locator('[data-og7="admin-quality-matrix"]')).toBeVisible();
-  await expect(
-    page.locator(
-      '[data-og7="admin-quality-coverage-matrix-row"][data-og7-id="advanced-discovery"]',
-    ),
-  ).toBeVisible();
+  await expect(page.locator('[data-og7-id="admin-quality-filter-count"]')).toContainText(
+    '2 domaines visibles sur 2',
+  );
 }
 
 test.describe('Admin quality matrix recalculation', () => {
+  test('filters the matrix to priority gaps from the quality reactor', async ({ page }) => {
+    await mockAdminQualityPageApis(page, {
+      recalculateResponse: {
+        body: REFRESH_REQUIRED_RECALCULATION,
+      },
+    });
+
+    await openAdminQualityPage(page);
+
+    const reactor = page.locator('[data-og7="admin-quality-reactor"]');
+    await expect(reactor).toBeVisible();
+    await expect(reactor).toHaveAttribute('data-reactor-state', 'critical');
+    await page.locator('[data-og7-id="admin-quality-reactor-view-gaps"]').click();
+
+    await expect(page.locator('[data-og7-id="admin-quality-filter-count"]')).toContainText(
+      '1 domaines visibles sur 2',
+    );
+  });
+
   test('recalculates refresh-required rows and exposes the pending state on the CTA', async ({
     page,
   }) => {

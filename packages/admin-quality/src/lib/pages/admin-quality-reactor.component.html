@@ -1,6 +1,7 @@
 <section
   class="admin-quality-reactor"
   [attr.data-reactor-state]="visualState()"
+  aria-labelledby="admin-quality-reactor-title"
   data-og7="admin-quality-reactor"
 >
   <div class="reactor-shell-glow" aria-hidden="true"></div>
@@ -25,8 +26,10 @@
         </svg>
       </span>
       <div>
-        <p class="reactor-kicker">R&eacute;acteur Qualit&eacute;</p>
-        <p class="reactor-subtitle">Open G7 Quality Core</p>
+        <p id="admin-quality-reactor-title" class="reactor-kicker">
+          {{ 'admin.quality.reactor.title' | translate }}
+        </p>
+        <p class="reactor-subtitle">{{ 'admin.quality.reactor.subtitle' | translate }}</p>
       </div>
     </div>
 
@@ -36,12 +39,12 @@
         [attr.data-state]="visualState()"
         [style.color]="reactorStateColorHex()"
       >
-        {{ reactorStateLabel() }}
+        {{ reactorStateLabelKey() | translate }}
       </span>
       @if (isAnalysisRunning()) {
         <span class="reactor-analysis-pill">
           <span class="reactor-analysis-dot" aria-hidden="true"></span>
-          Analyse en cours
+          {{ 'admin.quality.reactor.analysisRunning' | translate }}
         </span>
       }
     </div>
@@ -57,8 +60,10 @@
         >
           <span class="reactor-legend-rail" aria-hidden="true"></span>
           <span class="reactor-legend-copy">
-            <span class="reactor-legend-label">{{ cat.label }}</span>
-            <span class="reactor-legend-count">{{ cat.count }} &eacute;l&eacute;ments</span>
+            <span class="reactor-legend-label">{{ cat.labelKey | translate }}</span>
+            <span class="reactor-legend-count">
+              {{ 'admin.quality.reactor.elementCount' | translate: { count: cat.count } }}
+            </span>
           </span>
           <span class="reactor-legend-signal" aria-hidden="true"></span>
         </article>
@@ -198,14 +203,14 @@
 
     <aside class="reactor-state-card" data-og7="admin-quality-reactor-state">
       <div>
-        <p class="reactor-state-kicker">&Eacute;tat du r&eacute;acteur</p>
+        <p class="reactor-state-kicker">{{ 'admin.quality.reactor.stateTitle' | translate }}</p>
         <p
           class="reactor-state-title"
           [style.color]="reactorStateColorHex()"
           data-og7-id="admin-quality-reactor-state-label"
           [attr.data-og7-state]="visualState()"
         >
-          {{ reactorStateLabel() }}
+          {{ reactorStateLabelKey() | translate }}
         </p>
       </div>
 
@@ -215,27 +220,27 @@
         }
       </div>
 
-      <p class="reactor-state-message">{{ reactorStateMessage() }}</p>
+      <p class="reactor-state-message">{{ reactorStateMessageKey() | translate }}</p>
 
       <dl class="reactor-metrics">
         <div>
-          <dt>Tendance</dt>
-          <dd class="tone-good">En am&eacute;lioration</dd>
+          <dt>{{ 'admin.quality.reactor.metrics.trend' | translate }}</dt>
+          <dd [class]="trendTone().className">{{ trendTone().labelKey | translate }}</dd>
         </div>
         <div>
-          <dt>Risque global</dt>
-          <dd class="tone-warm">Mod&eacute;r&eacute;</dd>
+          <dt>{{ 'admin.quality.reactor.metrics.globalRisk' | translate }}</dt>
+          <dd [class]="riskTone().className">{{ riskTone().labelKey | translate }}</dd>
         </div>
         <div>
-          <dt>Coh&eacute;rence</dt>
+          <dt>{{ 'admin.quality.reactor.metrics.coherence' | translate }}</dt>
           <dd data-og7-id="admin-quality-reactor-coherence">{{ coherencePercent() }} %</dd>
         </div>
         <div>
-          <dt>Compl&eacute;tude</dt>
+          <dt>{{ 'admin.quality.reactor.metrics.completeness' | translate }}</dt>
           <dd data-og7-id="admin-quality-reactor-completude">{{ completudePercent() }} %</dd>
         </div>
         <div>
-          <dt>Couverture</dt>
+          <dt>{{ 'admin.quality.reactor.metrics.coverage' | translate }}</dt>
           <dd class="tone-cyan" data-og7-id="admin-quality-reactor-coverage">
             {{ coveragePercent() }} %
           </dd>
@@ -245,9 +250,11 @@
       <button
         type="button"
         class="reactor-gap-button"
+        data-og7="action"
         data-og7-id="admin-quality-reactor-view-gaps"
+        (click)="viewPriorityGaps.emit()"
       >
-        <span>Voir les &eacute;carts prioritaires</span>
+        <span>{{ 'admin.quality.reactor.viewPriorityGaps' | translate }}</span>
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path
             d="m6 3.5 4.5 4.5L6 12.5"

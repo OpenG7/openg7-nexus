@@ -3570,7 +3570,9 @@
         },
         "credits": {
           "title": "Partenaires et contributions",
-          "paragraphs": ["OpenG7 documente les contributions qui soutiennent la plateforme et sa future gouvernance communautaire :"],
+          "paragraphs": [
+            "OpenG7 documente les contributions qui soutiennent la plateforme et sa future gouvernance communautaire :"
+          ],
           "bullets": [
             "Travail fondateur sur le produit, les données, l’architecture et les opérations.",
             "Veille réglementaire et préparation des politiques de conformité.",
@@ -4778,6 +4780,64 @@
   },
   "admin": {
     "quality": {
+      "reactor": {
+        "title": "Réacteur Qualité",
+        "subtitle": "Cœur qualité OpenG7",
+        "analysisRunning": "Analyse en cours",
+        "stateTitle": "État du réacteur",
+        "elementCount": "{{ count }} élément(s)",
+        "viewPriorityGaps": "Voir les écarts prioritaires",
+        "categories": {
+          "covered": "Couverts",
+          "proofGap": "Écarts de preuve",
+          "productGap": "Écarts produit",
+          "notAligned": "Non alignés",
+          "notEvaluated": "Non évalués"
+        },
+        "states": {
+          "excellent": {
+            "label": "Excellent",
+            "message": "La matrice est synchronisée, lisible et entièrement couverte."
+          },
+          "critical": {
+            "label": "Critique",
+            "message": "Le volume ou la proportion d’écarts exige une intervention immédiate."
+          },
+          "attention": {
+            "label": "Attention",
+            "message": "Des écarts prioritaires demandent une action pour maintenir la résilience du système."
+          },
+          "scanning": {
+            "label": "Scan actif",
+            "message": "Le réacteur analyse les signaux de couverture et de preuve en temps réel."
+          },
+          "stable": {
+            "label": "Stable",
+            "message": "Les indicateurs restent dans les seuils de qualité attendus."
+          }
+        },
+        "metrics": {
+          "trend": "Tendance",
+          "globalRisk": "Risque global",
+          "coherence": "Cohérence",
+          "completeness": "Complétude",
+          "coverage": "Couverture"
+        },
+        "trends": {
+          "improving": "En amélioration",
+          "degrading": "En dégradation",
+          "watch": "Sous surveillance",
+          "analyzing": "En analyse",
+          "stable": "Stable"
+        },
+        "risks": {
+          "minimal": "Minimal",
+          "low": "Faible",
+          "moderate": "Modéré",
+          "high": "Élevé",
+          "assessing": "En évaluation"
+        }
+      },
       "workspace": {
         "compact": {
           "label": "Workspace",

@@ -227,18 +227,17 @@
   />
 
   @if (!loading() && entries().length > 0) {
-    <og7-admin-quality-reactor
-      [coveredCount]="coveredCount()"
-      [proofGapCount]="proofGapCount()"
-      [productGapCount]="productWorkCount()"
-      [notAlignedCount]="scopeLimitCount()"
-      [notEvaluatedCount]="notEvaluatedCount()"
-      [isAnalysisRunning]="recalculatingMatrix()"
-      [reactorState]="reactorState()"
-    />
-  }
-
-  @if (error(); as message) {
+  <og7-admin-quality-reactor
+    [coveredCount]="coveredCount()"
+    [proofGapCount]="proofGapCount()"
+    [productGapCount]="productWorkCount()"
+    [notAlignedCount]="scopeLimitCount()"
+    [notEvaluatedCount]="notEvaluatedCount()"
+    [isAnalysisRunning]="recalculatingMatrix()"
+    [reactorState]="reactorState()"
+    (viewPriorityGaps)="showPriorityGaps()"
+  />
+  } @if (error(); as message) {
   <p
     class="rounded-[20px] border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
     data-og7-id="admin-quality-error"
@@ -2198,29 +2197,38 @@
 
   <!-- ───── Agent chat surface ───── -->
   @if (activeConsoleSurface() === 'agent') {
-  <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-agent-surface">
+  <div
+    class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md"
+    data-og7="admin-quality-agent-surface"
+  >
     <div class="flex items-center justify-between gap-2 mb-3">
       <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">✦ Agent IA</span>
       <span class="text-[10px] text-slate-400">gpt-4o</span>
     </div>
-    <og7-admin-quality-agent-chat
-      [context]="agentChatContext()"
-    />
+    <og7-admin-quality-agent-chat [context]="agentChatContext()" />
   </div>
   }
 
   <!-- ───── Proposals review surface ───── -->
   @if (activeConsoleSurface() === 'proposals') {
-  <div class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md" data-og7="admin-quality-proposals-surface">
+  <div
+    class="og7-admin-quality-surface relative rounded-3xl p-4 shadow-md"
+    data-og7="admin-quality-proposals-surface"
+  >
     <div class="flex items-center justify-between gap-2 mb-3">
-      <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">Propositions agent</span>
+      <span class="text-xs font-semibold uppercase tracking-wide text-slate-600"
+        >Propositions agent</span
+      >
       <button
         type="button"
         class="px-2.5 py-1 rounded-lg text-xs font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors disabled:opacity-40"
         [disabled]="loadingNeedProposals()"
         data-og7-id="admin-quality-load-proposals"
         (click)="loadNeedProposals()"
-      >{{ loadingNeedProposals() ? 'Chargement...' : needProposalsSnapshot() ? 'Actualiser' : 'Charger' }}</button>
+      >
+        {{ loadingNeedProposals() ? 'Chargement...' : needProposalsSnapshot() ? 'Actualiser' :
+        'Charger' }}
+      </button>
     </div>
     <og7-admin-quality-needs-proposal-panel
       #proposalPanel
