@@ -45,6 +45,18 @@ const requiredLeafPaths: ReadonlyArray<readonly string[]> = [
   ['empty', 'directory', 'description'],
   ['empty', 'directory', 'cta'],
   ['feed', 'stream', 'refresh'],
+  ['admin', 'quality', 'reactor', 'title'],
+  ['admin', 'quality', 'reactor', 'analysisRunning'],
+  ['admin', 'quality', 'reactor', 'viewPriorityGaps'],
+  ['admin', 'quality', 'reactor', 'states', 'excellent', 'label'],
+  ['admin', 'quality', 'reactor', 'states', 'critical', 'message'],
+  ['admin', 'quality', 'reactor', 'states', 'attention', 'message'],
+  ['admin', 'quality', 'reactor', 'states', 'scanning', 'message'],
+  ['admin', 'quality', 'reactor', 'states', 'stable', 'message'],
+  ['admin', 'quality', 'reactor', 'metrics', 'trend'],
+  ['admin', 'quality', 'reactor', 'metrics', 'globalRisk'],
+  ['admin', 'quality', 'reactor', 'trends', 'degrading'],
+  ['admin', 'quality', 'reactor', 'risks', 'high'],
 ];
 
 function getValue(source: Record<string, unknown>, path: readonly string[]): unknown {

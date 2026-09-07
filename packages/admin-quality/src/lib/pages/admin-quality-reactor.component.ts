@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 type ReactorInputState = 'ok' | 'stable' | 'scanning' | 'attention' | 'critical' | 'excellent';
 type ReactorVisualState = Exclude<ReactorInputState, 'ok'>;
@@ -7,7 +8,7 @@ type ParticleDepth = 'back' | 'mid' | 'front';
 
 interface ReactorCategory {
   readonly key: string;
-  readonly label: string;
+  readonly labelKey: string;
   readonly count: number;
   readonly color: string;
 }
@@ -27,14 +28,20 @@ interface ReactorParticle {
 }
 
 interface StateTone {
-  readonly label: string;
+  readonly labelKey: string;
   readonly color: string;
-  readonly message: string;
+  readonly messageKey: string;
+}
+
+interface MetricTone {
+  readonly labelKey: string;
+  readonly className: string;
 }
 
 @Component({
   selector: 'og7-admin-quality-reactor',
   standalone: true,
+  imports: [TranslateModule],
   templateUrl: './admin-quality-reactor.component.html',
   styleUrl: './admin-quality-reactor.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +54,7 @@ export class AdminQualityReactorComponent {
   readonly notEvaluatedCount = input.required<number>();
   readonly isAnalysisRunning = input(false);
   readonly reactorState = input<ReactorInputState>('stable');
+  readonly viewPriorityGaps = output<void>();
 
   readonly radialLineAngles = Array.from({ length: 8 }, (_, index) => index * 45);
   readonly waveHeights = [4, 7, 11, 6, 4, 10, 14, 9, 5, 8, 13, 8, 4, 7, 11, 6];
@@ -87,56 +95,129 @@ export class AdminQualityReactorComponent {
     switch (this.visualState()) {
       case 'excellent':
         return {
-          label: 'Excellent',
+          labelKey: 'admin.quality.reactor.states.excellent.label',
           color: '#34d399',
-          message: 'La matrice est synchronis\u00e9e, lisible et fortement couverte.',
+          messageKey: 'admin.quality.reactor.states.excellent.message',
         };
       case 'critical':
         return {
-          label: 'Critique',
+          labelKey: 'admin.quality.reactor.states.critical.label',
           color: '#fb7185',
-          message: 'Des \u00e9carts critiques n\u00e9cessitent une intervention imm\u00e9diate.',
+          messageKey: 'admin.quality.reactor.states.critical.message',
         };
       case 'attention':
         return {
-          label: 'Attention',
+          labelKey: 'admin.quality.reactor.states.attention.label',
           color: '#fbbf24',
-          message:
-            'Des \u00e9carts prioritaires n\u00e9cessitent votre attention pour maintenir la r\u00e9silience du syst\u00e8me.',
+          messageKey: 'admin.quality.reactor.states.attention.message',
         };
       case 'scanning':
         return {
-          label: 'Scan actif',
+          labelKey: 'admin.quality.reactor.states.scanning.label',
           color: '#67e8f9',
-          message:
-            'Le r\u00e9acteur analyse les signaux de couverture et de preuve en temps r\u00e9el.',
+          messageKey: 'admin.quality.reactor.states.scanning.message',
         };
       default:
         return {
-          label: 'Stable',
+          labelKey: 'admin.quality.reactor.states.stable.label',
           color: '#22d3ee',
-          message: 'Tous les indicateurs sont dans les normes attendues.',
+          messageKey: 'admin.quality.reactor.states.stable.message',
         };
     }
   });
 
-  readonly reactorStateLabel = computed(() => this.stateTone().label);
+  readonly reactorStateLabelKey = computed(() => this.stateTone().labelKey);
   readonly reactorStateColorHex = computed(() => this.stateTone().color);
-  readonly reactorStateMessage = computed(() => this.stateTone().message);
+  readonly reactorStateMessageKey = computed(() => this.stateTone().messageKey);
+
+  readonly trendTone = computed<MetricTone>(() => {
+    switch (this.visualState()) {
+      case 'excellent':
+        return {
+          labelKey: 'admin.quality.reactor.trends.improving',
+          className: 'tone-good',
+        };
+      case 'critical':
+        return {
+          labelKey: 'admin.quality.reactor.trends.degrading',
+          className: 'tone-danger',
+        };
+      case 'attention':
+        return {
+          labelKey: 'admin.quality.reactor.trends.watch',
+          className: 'tone-warm',
+        };
+      case 'scanning':
+        return {
+          labelKey: 'admin.quality.reactor.trends.analyzing',
+          className: 'tone-cyan',
+        };
+      default:
+        return {
+          labelKey: 'admin.quality.reactor.trends.stable',
+          className: 'tone-good',
+        };
+    }
+  });
+
+  readonly riskTone = computed<MetricTone>(() => {
+    switch (this.visualState()) {
+      case 'excellent':
+        return {
+          labelKey: 'admin.quality.reactor.risks.minimal',
+          className: 'tone-good',
+        };
+      case 'critical':
+        return {
+          labelKey: 'admin.quality.reactor.risks.high',
+          className: 'tone-danger',
+        };
+      case 'attention':
+        return {
+          labelKey: 'admin.quality.reactor.risks.moderate',
+          className: 'tone-warm',
+        };
+      case 'scanning':
+        return {
+          labelKey: 'admin.quality.reactor.risks.assessing',
+          className: 'tone-cyan',
+        };
+      default:
+        return {
+          labelKey: 'admin.quality.reactor.risks.low',
+          className: 'tone-good',
+        };
+    }
+  });
 
   readonly categories = computed<readonly ReactorCategory[]>(() => [
-    { key: 'covered', label: 'Couverts', count: this.coveredCount(), color: '#22d3ee' },
-    { key: 'proof-gap', label: 'Proof-Gap', count: this.proofGapCount(), color: '#fbbf24' },
-    { key: 'product-gap', label: 'Product-Gap', count: this.productGapCount(), color: '#fb7185' },
+    {
+      key: 'covered',
+      labelKey: 'admin.quality.reactor.categories.covered',
+      count: this.coveredCount(),
+      color: '#22d3ee',
+    },
+    {
+      key: 'proof-gap',
+      labelKey: 'admin.quality.reactor.categories.proofGap',
+      count: this.proofGapCount(),
+      color: '#fbbf24',
+    },
+    {
+      key: 'product-gap',
+      labelKey: 'admin.quality.reactor.categories.productGap',
+      count: this.productGapCount(),
+      color: '#fb7185',
+    },
     {
       key: 'not-aligned',
-      label: 'Non align\u00e9s',
+      labelKey: 'admin.quality.reactor.categories.notAligned',
       count: this.notAlignedCount(),
       color: '#a78bfa',
     },
     {
       key: 'not-evaluated',
-      label: 'Non \u00e9valu\u00e9s',
+      labelKey: 'admin.quality.reactor.categories.notEvaluated',
       count: this.notEvaluatedCount(),
       color: '#94a3b8',
     },

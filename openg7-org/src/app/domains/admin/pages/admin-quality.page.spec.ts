@@ -1099,6 +1099,65 @@ describe('AdminQualityPage', () => {
     expect(rows[0]?.getAttribute('data-og7-id')).toBe('trust-validation');
   });
 
+  it('opens high-priority matrix gaps from the quality reactor', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const reactorCta = root.querySelector(
+      '[data-og7-id="admin-quality-reactor-view-gaps"]',
+    ) as HTMLButtonElement;
+
+    expect(reactorCta).not.toBeNull();
+    expect(fixture.componentInstance.selectedPriority()).toBe('all');
+
+    reactorCta.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedPriority()).toBe('haute');
+    expect(fixture.componentInstance.priorityGapsOnly()).toBeTrue();
+    expect(fixture.componentInstance.filteredEntries().map((entry) => entry.id)).toEqual([
+      'advanced-discovery',
+    ]);
+    expect(fixture.componentInstance.missionHudActiveSection()).toBe('coverage');
+  });
+
+  it('derives the reactor state from coverage and priority-gap ratios', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance;
+    const snapshot = component.snapshot();
+    expect(snapshot).not.toBeNull();
+    expect(component.reactorState()).toBe('critical');
+
+    component.snapshot.set({
+      ...snapshot!,
+      entries: snapshot!.entries.map((entry) => ({
+        ...entry,
+        e2eStatus: 'oui',
+        managementBucket: 'covered',
+        needsProductWorkFirst: false,
+      })),
+    });
+    expect(component.reactorState()).toBe('excellent');
+
+    component.snapshot.update((current) => ({
+      ...current!,
+      entries: current!.entries.map((entry, index) =>
+        index === 0
+          ? {
+              ...entry,
+              e2eStatus: 'partiel',
+              priority: 'basse',
+              managementBucket: 'proof-gap',
+            }
+          : entry,
+      ),
+    }));
+    expect(component.reactorState()).toBe('attention');
+  });
+
   it('surfaces active filters as readable chips in the sticky rail', async () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
     fixture.detectChanges();

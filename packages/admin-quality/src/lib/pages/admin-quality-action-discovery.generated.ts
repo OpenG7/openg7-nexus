@@ -184,7 +184,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 433,
+        line: 432,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -200,7 +200,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 319,
+        line: 318,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -216,7 +216,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 460,
+        line: 459,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -232,7 +232,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 417,
+        line: 416,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -248,7 +248,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 303,
+        line: 302,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -264,7 +264,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 425,
+        line: 424,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -280,7 +280,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 311,
+        line: 310,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -296,7 +296,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 877,
+        line: 876,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -312,7 +312,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 859,
+        line: 858,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -383,7 +383,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1473,
+        line: 1472,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -399,7 +399,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1460,
+        line: 1459,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -415,7 +415,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1254,
+        line: 1253,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -431,7 +431,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1230,
+        line: 1229,
         tag: 'a',
         trigger: 'link',
         hasActionHook: false,
@@ -447,7 +447,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1418,
+        line: 1417,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -463,7 +463,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 2029,
+        line: 2028,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -479,7 +479,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 2012,
+        line: 2011,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -495,7 +495,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1995,
+        line: 1994,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -511,7 +511,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 2217,
+        line: 2222,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -562,7 +562,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 2183,
+        line: 2182,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -574,18 +574,21 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
   {
     id: 'admin-quality-reactor-view-gaps',
     trigger: 'button',
-    hasActionHook: false,
+    hasActionHook: true,
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality-reactor.component.html',
-        line: 245,
+        line: 250,
         tag: 'button',
         trigger: 'button',
-        hasActionHook: false,
+        hasActionHook: true,
       },
     ],
-    specFiles: [],
-    e2eFiles: [],
+    specFiles: [
+      'openg7-org/src/app/domains/admin/pages/admin-quality-reactor.component.spec.ts',
+      'openg7-org/src/app/domains/admin/pages/admin-quality.page.spec.ts',
+    ],
+    e2eFiles: ['openg7-org/e2e/admin-quality-recalculate-matrix.spec.ts'],
   },
   {
     id: 'admin-quality-recalculate-matrix',
@@ -610,7 +613,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 786,
+        line: 785,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -626,7 +629,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1752,
+        line: 1751,
         tag: 'button',
         trigger: 'button',
         hasActionHook: true,
@@ -642,7 +645,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1657,
+        line: 1656,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,
@@ -658,7 +661,7 @@ export const GENERATED_ADMIN_QUALITY_ACTION_DISCOVERY = [
     sourceFiles: [
       {
         file: 'packages/admin-quality/src/lib/pages/admin-quality.page.html',
-        line: 1665,
+        line: 1664,
         tag: 'button',
         trigger: 'button',
         hasActionHook: false,

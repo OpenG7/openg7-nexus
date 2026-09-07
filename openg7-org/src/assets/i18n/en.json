@@ -3672,7 +3672,9 @@
         },
         "credits": {
           "title": "Credits & partners",
-          "paragraphs": ["OpenG7 documents the contributions supporting the platform and its future community governance:"],
+          "paragraphs": [
+            "OpenG7 documents the contributions supporting the platform and its future community governance:"
+          ],
           "bullets": [
             "Foundational product, data, architecture, and operations work.",
             "Regulatory monitoring and preparation of compliance policies.",
@@ -4992,6 +4994,64 @@
   },
   "admin": {
     "quality": {
+      "reactor": {
+        "title": "Quality Reactor",
+        "subtitle": "OpenG7 Quality Core",
+        "analysisRunning": "Analysis in progress",
+        "stateTitle": "Reactor status",
+        "elementCount": "{{ count }} item(s)",
+        "viewPriorityGaps": "View priority gaps",
+        "categories": {
+          "covered": "Covered",
+          "proofGap": "Proof gaps",
+          "productGap": "Product gaps",
+          "notAligned": "Not aligned",
+          "notEvaluated": "Not evaluated"
+        },
+        "states": {
+          "excellent": {
+            "label": "Excellent",
+            "message": "The matrix is synchronized, readable, and fully covered."
+          },
+          "critical": {
+            "label": "Critical",
+            "message": "The volume or proportion of gaps requires immediate action."
+          },
+          "attention": {
+            "label": "Attention",
+            "message": "Priority gaps require action to maintain system resilience."
+          },
+          "scanning": {
+            "label": "Active scan",
+            "message": "The reactor is analyzing coverage and proof signals in real time."
+          },
+          "stable": {
+            "label": "Stable",
+            "message": "Indicators remain within the expected quality thresholds."
+          }
+        },
+        "metrics": {
+          "trend": "Trend",
+          "globalRisk": "Global risk",
+          "coherence": "Consistency",
+          "completeness": "Completeness",
+          "coverage": "Coverage"
+        },
+        "trends": {
+          "improving": "Improving",
+          "degrading": "Degrading",
+          "watch": "Under watch",
+          "analyzing": "Analyzing",
+          "stable": "Stable"
+        },
+        "risks": {
+          "minimal": "Minimal",
+          "low": "Low",
+          "moderate": "Moderate",
+          "high": "High",
+          "assessing": "Assessing"
+        }
+      },
       "workspace": {
         "compact": {
           "label": "Workspace",
