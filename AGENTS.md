@@ -2,6 +2,17 @@
 
 Tous les composants sont **standalone**, **signal-first**, prÃªts i18n (`@ngx-translate`) et Tailwind.
 
+## Quality Reactor — explications du diagnostic
+
+| Type | Selector / hook | Fichier | Usage |
+| --- | --- | --- | --- |
+| Composant standalone | `og7-admin-quality-reactor` | `packages/admin-quality/src/lib/pages/admin-quality-reactor.component.ts` | Synthèse et explication du diagnostic qualité. |
+| Panneau | `[data-og7="admin-quality-reactor-explanations"]` | `packages/admin-quality/src/lib/pages/admin-quality-reactor.component.html` | Disclosure natif « Pourquoi cet état ? ». |
+| Cause | `[data-og7="admin-quality-reactor-reason"][data-og7-id]` | `packages/admin-quality/src/lib/pages/admin-quality-reactor.component.html` | IDs : `priority-gaps`, `unresolved`, `not-evaluated`, `review-required`. |
+| Action | `[data-og7="action"][data-og7-id="admin-quality-reactor-view-<reason-id>"]` | `packages/admin-quality/src/lib/pages/admin-quality-reactor.component.html` | Ouvre les lignes exactes de la cause dans la matrice. |
+| Filtre visible | `[data-og7="admin-quality-reactor-filter"]` | `packages/admin-quality/src/lib/pages/admin-quality.page.html` | Cause active, traduite et réinitialisable. |
+| Action | `[data-og7="action"][data-og7-id="admin-quality-reactor-clear-reason"]` | `packages/admin-quality/src/lib/pages/admin-quality.page.html` | Retire le filtre de cause et rend le focus à la matrice. |
+
 ## Registry des composants Angular (selectors officiels)
 
 | CatÃ©gorie                 | Canonical selector                          | Current selector in code                    | Component class                      | File path                                                                                                                        | Status | Notes                                                                                                   |

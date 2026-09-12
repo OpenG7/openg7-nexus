@@ -281,4 +281,108 @@
       </button>
     </aside>
   </div>
+
+  <details class="reactor-explanations" data-og7="admin-quality-reactor-explanations">
+    <summary class="reactor-explanations-summary">
+      {{ 'admin.quality.reactor.explanations.title' | translate }}
+    </summary>
+    <div class="reactor-explanations-content">
+      <p class="reactor-explanations-status">
+        {{
+          reactorStateMessageKey()
+            | translate: { count: refreshRequiredCount(), notEvaluatedCount: notEvaluatedCount() }
+        }}
+      </p>
+      @if (explainingPreviousData()) {
+        <p class="reactor-explanations-context">
+          {{ 'admin.quality.reactor.explanations.previousData' | translate }}
+        </p>
+      }
+      @if (reasons().length > 0) {
+        <p class="reactor-explanations-context">
+          {{ 'admin.quality.reactor.explanations.overlap' | translate }}
+        </p>
+        <div class="reactor-reason-list">
+          @for (reason of reasons(); track reason.id) {
+            <article
+              class="reactor-reason"
+              [attr.data-severity]="reason.severity"
+              data-og7="admin-quality-reactor-reason"
+              [attr.data-og7-id]="reason.id"
+            >
+              <div class="reactor-reason-heading">
+                <h3>{{ reason.labelKey | translate }}</h3>
+                <span class="reactor-reason-severity">
+                  {{ 'admin.quality.reactor.explanations.severity.' + reason.severity | translate }}
+                </span>
+              </div>
+              <p class="reactor-reason-message">
+                {{ reason.messageKey | translate: reason.params }}
+              </p>
+              <button
+                type="button"
+                class="reactor-reason-button"
+                data-og7="action"
+                [attr.data-og7-id]="'admin-quality-reactor-view-' + reason.id"
+                [attr.aria-label]="
+                  'admin.quality.reactor.explanations.viewRowsLabel'
+                    | translate
+                      : { reason: (reason.labelKey | translate), count: reason.params.count }
+                "
+                (click)="viewReason.emit(reason.id)"
+              >
+                {{
+                  'admin.quality.reactor.explanations.viewRows'
+                    | translate: { count: reason.params.count }
+                }}
+              </button>
+              <details class="reactor-reason-details">
+                <summary>
+                  {{ 'admin.quality.reactor.explanations.traceability' | translate }}
+                </summary>
+                <p class="reactor-explanations-context">
+                  {{ 'admin.quality.reactor.explanations.referencesHint' | translate }}
+                </p>
+                <ul class="reactor-reason-domains">
+                  @for (entry of reason.entries; track entry.id) {
+                    <li [attr.data-entry-id]="entry.id">
+                      <h4>{{ entry.domain }}</h4>
+                      <dl>
+                        <div>
+                          <dt>{{ 'admin.quality.reactor.explanations.reviewedAt' | translate }}</dt>
+                          <dd>
+                            @if (reviewDateValue(entry.reviewedAt); as reviewedAt) {
+                              <time [attr.datetime]="reviewedAt">{{ reviewedAt }}</time>
+                            } @else {
+                              {{ 'admin.quality.reactor.explanations.unknownReview' | translate }}
+                            }
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>{{ 'admin.quality.reactor.explanations.evidence' | translate }}</dt>
+                          <dd>
+                            @if (entry.evidence.length > 0) {
+                              <ul class="reactor-reason-references">
+                                @for (reference of entry.evidence; track $index) {
+                                  <li>
+                                    <code>{{ reference }}</code>
+                                  </li>
+                                }
+                              </ul>
+                            } @else {
+                              {{ 'admin.quality.reactor.explanations.noEvidence' | translate }}
+                            }
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  }
+                </ul>
+              </details>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </details>
 </section>

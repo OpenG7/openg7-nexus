@@ -12,6 +12,9 @@ const NOW = '2026-09-08T12:00:00.000Z';
 const ADMIN_PROFILE = { ...DEFAULT_PROFILE, email: 'contact@openg7.test', roles: ['admin'] };
 const REACTOR = '[data-og7="admin-quality-reactor"]';
 const COVERAGE = '[data-og7-id="admin-quality-reactor-coverage"]';
+const EXPLANATIONS = '[data-og7="admin-quality-reactor-explanations"]';
+const COVERAGE_SECTION = '[data-og7="admin-quality-scroll-section"][data-og7-id="coverage"]';
+const COVERAGE_ROWS = '[data-og7="admin-quality-coverage-matrix-row"]';
 
 type Bucket = 'covered' | 'proof-gap' | 'product-gap' | 'scope-limit';
 
@@ -61,6 +64,28 @@ async function mockPage(page: Page, entries: ReturnType<typeof entry>[]) {
   await page.clock.setFixedTime(new Date(NOW));
   await mockProfileAndFavoritesApis(page, ADMIN_PROFILE);
   await mockAdminOpsApis(page);
+  await page.route('**/api/admin/ops/security', (route) =>
+    route.fulfill({
+      json: {
+        data: {
+          generatedAt: NOW,
+          users: { total: 1, blocked: 0, registrationsLast7d: 0 },
+          sessions: {
+            scannedUsers: 1,
+            truncated: false,
+            active: 1,
+            revoked: 0,
+            usersWithActiveSessions: 1,
+          },
+          uploads: { safetyEnabled: true, maxFileSizeBytes: 5242880, allowedMimeTypes: [] },
+          auth: { sessionIdleTimeoutMs: 3600000 },
+          aiKeys: [],
+          controlPlaneKeys: [],
+          moderation: { pendingCompanies: 0, suspendedCompanies: 0 },
+        },
+      },
+    }),
+  );
   await page.route('**/api/admin/ops/ai/proofs', (route) =>
     route.fulfill({ json: { data: { generatedAt: NOW, providers: [] } } }),
   );
@@ -84,7 +109,103 @@ async function openPage(page: Page, locale: 'fr' | 'en' = 'fr') {
   }
 }
 
+async function openExplanationsByKeyboard(page: Page) {
+  const explanations = page.locator(EXPLANATIONS);
+  const summary = explanations.locator(':scope > summary');
+  await expect(explanations).not.toHaveAttribute('open', '');
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(explanations).toHaveAttribute('open', '');
+  return explanations;
+}
+
+async function expectCoverageEntries(page: Page, ids: string[]) {
+  await expect
+    .poll(() =>
+      page
+        .locator(COVERAGE_ROWS)
+        .evaluateAll((rows) => rows.map((row) => row.getAttribute('data-og7-id')).sort()),
+    )
+    .toEqual([...ids].sort());
+}
+
+async function selectMatrixFilter(page: Page, filter: string, value: string) {
+  await page.locator(`[data-og7-id="admin-quality-${filter}-filter"]`).click();
+  await page
+    .locator(
+      `[data-og7="admin-quality-combobox-option"][data-og7-id="admin-quality-${filter}-filter-${value}"]`,
+    )
+    .click();
+}
+
 test.describe('Quality reactor reliability', () => {
+  test('explains the critical threshold and opens exactly its domains despite conflicting filters', async ({
+    page,
+  }) => {
+    await mockPage(page, AUDIT_ENTRIES);
+    await openPage(page);
+    await expectCoverageEntries(
+      page,
+      AUDIT_ENTRIES.map(({ id }) => id),
+    );
+    await selectMatrixFilter(page, 'domain', 'Domaine covered-0');
+    await selectMatrixFilter(page, 'priority', 'moyenne');
+    await selectMatrixFilter(page, 'e2e', 'oui');
+    await selectMatrixFilter(page, 'bucket', 'covered');
+    await page.locator('[data-og7-id="admin-quality-search"]').fill('covered-0');
+    await expectCoverageEntries(page, ['covered-0']);
+
+    const explanations = await openExplanationsByKeyboard(page);
+    const priorityReason = explanations.locator(
+      '[data-og7="admin-quality-reactor-reason"][data-og7-id="priority-gaps"]',
+    );
+    await expect(priorityReason).toContainText(/5\s*\/\s*15/);
+    await expect(priorityReason).toContainText(/33[.,]3\s*%/);
+    await expect(priorityReason).toContainText(/25\s*%/);
+    await expect(priorityReason).toContainText(/critique/i);
+    const action = priorityReason.locator(
+      '[data-og7-id="admin-quality-reactor-view-priority-gaps"]',
+    );
+    await action.focus();
+    await expect(action).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expectCoverageEntries(page, [
+      'proof-gap',
+      'product-gap-0',
+      'product-gap-1',
+      'product-gap-2',
+      'product-gap-3',
+    ]);
+    await expect(page.locator(COVERAGE_SECTION)).toBeFocused();
+    await expect(page.locator('[data-og7="admin-quality-reactor-filter"]')).toBeVisible();
+    await expect(page.locator('[data-og7-id="admin-quality-search"]')).toHaveValue('');
+    await expect(page.locator(REACTOR).locator(COVERAGE)).toHaveText('60 %');
+
+    const clear = page.locator('[data-og7-id="admin-quality-reactor-clear-reason"]');
+    await clear.focus();
+    await page.keyboard.press('Enter');
+    await expectCoverageEntries(
+      page,
+      AUDIT_ENTRIES.map(({ id }) => id),
+    );
+    await expect(page.locator('[data-og7="admin-quality-reactor-filter"]')).toHaveCount(0);
+
+    const unresolved = explanations.locator(
+      '[data-og7-id="admin-quality-reactor-view-unresolved"]',
+    );
+    await unresolved.focus();
+    await page.keyboard.press('Enter');
+    await expectCoverageEntries(page, [
+      'proof-gap',
+      'product-gap-0',
+      'product-gap-1',
+      'product-gap-2',
+      'product-gap-3',
+      'linkup-workflow',
+    ]);
+  });
+
   test('counts the 15 audit domains once and opens the five priority gaps by keyboard', async ({
     page,
   }, testInfo) => {
@@ -140,7 +261,9 @@ test.describe('Quality reactor reliability', () => {
       await expect(reactor.locator('[data-og7-id="admin-quality-reactor-completude"]')).toHaveText(
         '50 %',
       );
-      const unknown = reactor.locator('[data-og7-id="not-evaluated"]');
+      const unknown = reactor.locator(
+        '[data-og7="admin-quality-reactor-legend"] [data-og7-id="not-evaluated"]',
+      );
       await expect(unknown).toContainText(locale === 'fr' ? 'Non évalués' : 'Not evaluated');
       await expect(unknown).toContainText(locale === 'fr' ? '1 élément(s)' : '1 item(s)');
       await expect(unknown).toHaveCSS('opacity', '1');
@@ -148,6 +271,19 @@ test.describe('Quality reactor reliability', () => {
         locale === 'fr' ? '1 domaine(s) non évalué(s)' : '1 domain(s) have not been assessed',
       );
       await expect(reactor.getByRole('status')).toHaveAttribute('aria-live', 'polite');
+      const explanations = await openExplanationsByKeyboard(page);
+      await expect(explanations.locator(':scope > summary')).toContainText(
+        locale === 'fr' ? 'Pourquoi cet état ?' : 'Why this state?',
+      );
+      const unknownReason = explanations.locator(
+        '[data-og7="admin-quality-reactor-reason"][data-og7-id="not-evaluated"]',
+      );
+      const action = unknownReason.locator(
+        '[data-og7-id="admin-quality-reactor-view-not-evaluated"]',
+      );
+      await expect(action).toHaveAccessibleName(
+        locale === 'fr' ? /Voir les lignes concernées/i : /View affected rows/i,
+      );
       expect(
         await reactor.evaluate((element) =>
           element
@@ -158,10 +294,17 @@ test.describe('Quality reactor reliability', () => {
       expect(await reactor.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
         true,
       );
+      expect(
+        await explanations.evaluate((element) => element.scrollWidth <= element.clientWidth),
+      ).toBe(true);
       await testInfo.attach(`reactor-unknown-mobile-${locale}`, {
         body: await reactor.screenshot({ animations: 'disabled' }),
         contentType: 'image/png',
       });
+      await action.focus();
+      await page.keyboard.press('Enter');
+      await expectCoverageEntries(page, ['unknown']);
+      await expect(page.locator(COVERAGE_SECTION)).toBeFocused();
     });
   }
 
@@ -192,6 +335,66 @@ test.describe('Quality reactor reliability', () => {
       body: await reactor.screenshot({ animations: 'disabled' }),
       contentType: 'image/png',
     });
+  });
+
+  test('traces stale covered domains and opens reviews separately from priority gaps', async ({
+    page,
+  }, testInfo) => {
+    const entries = [
+      entry('expired', 'covered', {
+        reviewedAt: '2026-07-01',
+        evidence: ['e2e/admin-quality-reactor.spec.ts'],
+      }),
+      entry('changed', 'covered', { repoSignalAt: '2026-09-08T10:00:00.000Z' }),
+      entry('missing-review', 'covered', { reviewedAt: '', evidence: [] }),
+      entry('fresh-priority-gap', 'proof-gap'),
+      entry('current', 'covered'),
+    ];
+    await mockPage(page, entries);
+    await openPage(page);
+    const explanations = await openExplanationsByKeyboard(page);
+    const reviewReason = explanations.locator(
+      '[data-og7="admin-quality-reactor-reason"][data-og7-id="review-required"]',
+    );
+    const references = reviewReason.locator('details');
+    await references.locator(':scope > summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(references).toHaveAttribute('open', '');
+    const expiredDomain = references.locator('[data-entry-id="expired"]');
+    await expect(expiredDomain).toBeVisible();
+    await expect(expiredDomain).toContainText('Domaine expired');
+    await expect(expiredDomain.locator('time')).toHaveAttribute('datetime', '2026-07-01');
+    await expect(expiredDomain.locator('code')).toHaveText('e2e/admin-quality-reactor.spec.ts');
+    const unreviewedDomain = references.locator('[data-entry-id="missing-review"]');
+    await expect(unreviewedDomain).toBeVisible();
+    await expect(unreviewedDomain).toContainText('Date de revue inconnue');
+    await expect(unreviewedDomain).toContainText('Aucune référence de preuve enregistrée');
+    await expect(unreviewedDomain.locator('time, code')).toHaveCount(0);
+
+    const reviewAction = reviewReason.locator(
+      '[data-og7-id="admin-quality-reactor-view-review-required"]',
+    );
+    await reviewAction.focus();
+    await page.keyboard.press('Enter');
+    await expectCoverageEntries(page, ['expired', 'changed', 'missing-review']);
+    await expect(page.locator(`${COVERAGE_ROWS}[data-og7-id="expired"]`)).toHaveAccessibleName(
+      /Refresh matrice requis/,
+    );
+    await expect(page.locator(COVERAGE_SECTION)).toBeFocused();
+    await expect(page.locator('[data-og7="admin-quality-reactor-filter"]')).toBeVisible();
+    await expect(page.locator(REACTOR).locator(COVERAGE)).toHaveText('80 %');
+    await testInfo.attach('reactor-explanations-review-trace', {
+      body: await explanations.screenshot({ animations: 'disabled' }),
+      contentType: 'image/png',
+    });
+
+    await explanations.locator('[data-og7-id="admin-quality-reactor-view-priority-gaps"]').click();
+    await expectCoverageEntries(page, ['fresh-priority-gap']);
+    await page.locator('[data-og7-id="admin-quality-reactor-clear-reason"]').click();
+    await expectCoverageEntries(
+      page,
+      entries.map(({ id }) => id),
+    );
   });
 
   test('announces recalculation and a failed refresh while retaining critical state and the last figures', async ({

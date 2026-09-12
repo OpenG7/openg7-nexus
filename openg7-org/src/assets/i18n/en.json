@@ -5001,6 +5001,48 @@
         "stateTitle": "Reactor status",
         "elementCount": "{{ count }} item(s)",
         "viewPriorityGaps": "View priority gaps",
+        "explanations": {
+          "title": "Why this state?",
+          "previousData": "These reasons describe the latest available data; they will update after the matrix is retrieved successfully.",
+          "overlap": "A domain can appear under several reasons. Percentages use all domains in the matrix.",
+          "viewRows": "View affected rows ({{ count }})",
+          "viewRowsLabel": "View affected rows: {{ reason }} ({{ count }})",
+          "traceability": "Domains, reviews and references",
+          "referencesHint": "These references are recorded in the matrix. The presence of a test file does not confirm that the test passed.",
+          "reviewedAt": "Last recorded review",
+          "unknownReview": "Review date unknown",
+          "evidence": "Evidence references",
+          "noEvidence": "No evidence references recorded",
+          "activeFilter": "Reactor reason: {{ reason }}",
+          "clearFilter": "Clear this filter",
+          "severity": {
+            "critical": "Critical threshold reached",
+            "attention": "Attention required",
+            "info": "Below the alert threshold"
+          },
+          "reasons": {
+            "priority-gaps": {
+              "label": "Priority gaps",
+              "critical": "{{ count }} / {{ total }} domains have a high-priority gap ({{ percent }}%). The critical threshold of {{ threshold }}% is reached.",
+              "attention": "{{ count }} / {{ total }} domains have a high-priority gap ({{ percent }}%). A single priority gap is enough to trigger the Attention state."
+            },
+            "unresolved": {
+              "label": "Domains not covered",
+              "critical": "{{ count }} / {{ total }} domains are not classified as covered ({{ percent }}%). The critical threshold of {{ threshold }}% is reached.",
+              "attention": "{{ count }} / {{ total }} domains are not classified as covered ({{ percent }}%). The attention threshold of {{ threshold }}% is reached.",
+              "info": "{{ count }} / {{ total }} domains are not classified as covered ({{ percent }}%). This proportion remains below the attention threshold of {{ threshold }}%."
+            },
+            "not-evaluated": {
+              "label": "Domains not evaluated",
+              "critical": "{{ count }} / {{ total }} domains have not been assessed ({{ percent }}%). The critical threshold of {{ threshold }}% is reached.",
+              "attention": "{{ count }} / {{ total }} domains have not been assessed ({{ percent }}%). A single unassessed domain is enough to trigger the Attention state."
+            },
+            "review-required": {
+              "label": "Reviews to refresh",
+              "attention": "{{ count }} / {{ total }} domains require review: a review older than 7 days, a missing, invalid or future date, or a later change detected. A single review requiring refresh prevents a Stable or Excellent state."
+            }
+          }
+        },
         "categories": {
           "covered": "Covered",
           "proofGap": "Proof gaps",

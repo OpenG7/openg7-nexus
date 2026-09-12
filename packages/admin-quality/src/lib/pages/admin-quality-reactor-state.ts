@@ -15,6 +15,32 @@ export interface AdminQualityReactorCounts {
 
 export type AdminQualityReactorState = 'stable' | 'attention' | 'critical' | 'excellent';
 
+export const ADMIN_QUALITY_REACTOR_THRESHOLDS = {
+  'priority-gaps': { critical: 0.25, attention: 0 },
+  unresolved: { critical: 0.5, attention: 0.2 },
+  'not-evaluated': { critical: 0.25, attention: 0 },
+} as const;
+
+export type AdminQualityReactorSignalId = keyof typeof ADMIN_QUALITY_REACTOR_THRESHOLDS;
+export type AdminQualityReactorSignalSeverity = 'critical' | 'attention' | 'info';
+
+export function resolveAdminQualityReactorSignalSeverity(
+  signal: AdminQualityReactorSignalId,
+  count: number,
+  total: number,
+): AdminQualityReactorSignalSeverity {
+  if (count === 0 || total === 0) {
+    return 'info';
+  }
+
+  const thresholds = ADMIN_QUALITY_REACTOR_THRESHOLDS[signal];
+  const ratio = count / total;
+  if (ratio >= thresholds.critical) {
+    return 'critical';
+  }
+  return ratio >= thresholds.attention ? 'attention' : 'info';
+}
+
 export function countAdminQualityReactorCategories(
   entries: readonly Pick<AdminQualityMatrixEntry, 'managementBucket' | 'priority'>[],
 ): AdminQualityReactorCounts {
@@ -62,15 +88,19 @@ export function resolveAdminQualityReactorState(
     return 'stable';
   }
 
-  const unresolvedRatio = (counts.total - counts.covered) / counts.total;
-  if (
-    counts.highPriorityGap / counts.total >= 0.25 ||
-    unresolvedRatio >= 0.5 ||
-    counts.notEvaluated / counts.total >= 0.25
-  ) {
+  const severities = [
+    resolveAdminQualityReactorSignalSeverity('priority-gaps', counts.highPriorityGap, counts.total),
+    resolveAdminQualityReactorSignalSeverity(
+      'unresolved',
+      counts.total - counts.covered,
+      counts.total,
+    ),
+    resolveAdminQualityReactorSignalSeverity('not-evaluated', counts.notEvaluated, counts.total),
+  ];
+  if (severities.includes('critical')) {
     return 'critical';
   }
-  if (counts.highPriorityGap > 0 || unresolvedRatio >= 0.2 || counts.notEvaluated > 0) {
+  if (severities.includes('attention')) {
     return 'attention';
   }
   return counts.covered === counts.total ? 'excellent' : 'stable';
