@@ -1083,6 +1083,7 @@ describe('AdminQualityPage', () => {
 
   it('renders the compact coverage matrix and updates the delegation drawer when the active domain changes', () => {
     const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.componentInstance.aiOpsLiveNow.set(Date.parse('2026-04-11T14:00:00.000Z'));
     fixture.detectChanges();
 
     const root = fixture.nativeElement as HTMLElement;
@@ -1225,6 +1226,111 @@ describe('AdminQualityPage', () => {
       ),
     }));
     expect(component.reactorState()).toBe('attention');
+  });
+
+  it('opens exactly the reason domains and clears conflicting matrix filters', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.search.set('no match');
+    component.selectedDomain.set('Trust et validation');
+    component.selectedPriority.set('basse');
+    component.selectedE2EStatus.set('oui');
+    component.selectedBucket.set('covered');
+    component.priorityGapsOnly.set(true);
+
+    component.showReactorReason('unresolved');
+    fixture.detectChanges();
+
+    expect(
+      component
+        .filteredEntries()
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual(['advanced-discovery', 'observability']);
+    expect(component.selectedReactorReason()).toBe('unresolved');
+    expect(component.search()).toBe('');
+    expect(component.selectedDomain()).toBe('all');
+    expect(component.selectedPriority()).toBe('all');
+    expect(component.selectedE2EStatus()).toBe('all');
+    expect(component.selectedBucket()).toBe('all');
+    expect(component.priorityGapsOnly()).toBeFalse();
+    expect(component.hasActiveFilters()).toBeTrue();
+    expect(component.reactorCounts().total).toBe(3);
+    expect(
+      fixture.nativeElement.querySelector('[data-og7="admin-quality-reactor-filter"]'),
+    ).not.toBeNull();
+
+    fixture.nativeElement
+      .querySelector('[data-og7-id="admin-quality-reactor-clear-reason"]')
+      .click();
+    fixture.detectChanges();
+    expect(component.selectedReactorReason()).toBeNull();
+    expect(component.hasActiveFilters()).toBeFalse();
+    expect(component.filteredEntries().length).toBe(3);
+  });
+
+  it('updates a reason filter after a matrix refresh and keeps resolved causes empty', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.showReactorReason('priority-gaps');
+    expect(component.filteredEntries().map((entry) => entry.id)).toEqual(['advanced-discovery']);
+
+    component.snapshot.update((snapshot) => ({
+      ...snapshot!,
+      entries: snapshot!.entries.map((entry) => ({
+        ...entry,
+        managementBucket: entry.id === 'observability' ? 'proof-gap' : 'covered',
+        priority: 'haute',
+      })),
+    }));
+    expect(component.filteredEntries().map((entry) => entry.id)).toEqual(['observability']);
+
+    component.snapshot.update((snapshot) => ({
+      ...snapshot!,
+      entries: snapshot!.entries.map((entry) => ({ ...entry, managementBucket: 'covered' })),
+    }));
+    expect(component.filteredEntries()).toEqual([]);
+    expect(component.hasActiveFilters()).toBeTrue();
+    component.resetFilters();
+    expect(component.filteredEntries().length).toBe(3);
+    expect(component.selectedReactorReason()).toBeNull();
+  });
+
+  it('drills into covered domains whose reviews expired or precede repository changes', () => {
+    const fixture = TestBed.createComponent(AdminQualityPage);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    component.aiOpsLiveNow.set(Date.parse('2026-09-08T12:00:00.000Z'));
+    component.snapshot.update((snapshot) => ({
+      ...snapshot!,
+      entries: snapshot!.entries.map((entry, index) => ({
+        ...entry,
+        managementBucket: 'covered',
+        reviewedAt: index === 0 ? '2026-07-01' : '2026-09-07',
+        repoSignalAt: index === 1 ? '2026-09-08T10:00:00.000Z' : null,
+      })),
+    }));
+    expect(component.reactorRefreshRequiredCount()).toBe(2);
+    component.showReactorReason('review-required');
+    expect(
+      component
+        .filteredEntries()
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual(['advanced-discovery', 'trust-validation']);
+    fixture.detectChanges();
+    const matrix = fixture.debugElement.query(
+      (element) => element.name === 'og7-admin-quality-coverage-matrix',
+    ).componentInstance;
+    expect([...matrix.refreshRequiredEntryIds()].sort()).toEqual([
+      'advanced-discovery',
+      'trust-validation',
+    ]);
+    component.showPriorityGaps();
+    expect(component.selectedReactorReason()).toBeNull();
+    expect(component.filteredEntries()).toEqual([]);
   });
 
   it('keeps reactor categories exclusive while preserving the product-work queue', () => {

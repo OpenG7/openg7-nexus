@@ -237,7 +237,9 @@
     [hasRefreshError]="error() !== null"
     [refreshRequiredCount]="reactorRefreshRequiredCount()"
     [reactorState]="reactorState()"
+    [reasons]="reactorReasons()"
     (viewPriorityGaps)="showPriorityGaps()"
+    (viewReason)="showReactorReason($event)"
   />
   @if (error(); as message) {
   <p
@@ -1550,7 +1552,7 @@
           data-og7="admin-quality-active-filter"
           [attr.data-og7-id]="chip.id"
         >
-          {{ chip.label }}
+          {{ chip.labelKey ? (chip.labelKey | translate) : chip.label }}
         </span>
         }
       </div>
@@ -1573,6 +1575,26 @@
       data-og7="admin-quality-scroll-section"
       data-og7-id="coverage"
     >
+      @if (reactorReasonLabelKey(); as reasonLabelKey) {
+      <div
+        class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-400/30 bg-sky-400/10 px-4 py-3 text-sm text-sky-100"
+        data-og7="admin-quality-reactor-filter"
+      >
+        <p>
+          {{ 'admin.quality.reactor.explanations.activeFilter' | translate: { reason:
+          (reasonLabelKey | translate) } }}
+        </p>
+        <button
+          type="button"
+          class="rounded-lg border border-sky-300/40 px-3 py-2 font-medium hover:bg-sky-300/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+          data-og7="action"
+          data-og7-id="admin-quality-reactor-clear-reason"
+          (click)="clearReactorReason()"
+        >
+          {{ 'admin.quality.reactor.explanations.clearFilter' | translate }}
+        </button>
+      </div>
+      }
       <div
         class="og7-radar-lock-focus-shell w-full min-w-0 rounded-[28px]"
         [attr.data-og7-lock-focus]="missionControlPanelFocused('coverage')"
@@ -1583,7 +1605,7 @@
           [entries]="filteredEntries()"
           [selectedEntryId]="selectedEntry()?.id ?? null"
           [selectedSignalId]="selectedSignalContext()?.signalId ?? null"
-          [refreshRequiredEntryIds]="matrixRefreshRequiredEntryIds()"
+          [refreshRequiredEntryIds]="reactorRefreshRequiredEntryIds()"
           [delegationTraceByEntryId]="signalDelegationTraces()"
           (entrySelected)="selectEntry($event)"
           (signalSelected)="selectCoverageSignal($event)"

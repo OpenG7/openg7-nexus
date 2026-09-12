@@ -4787,6 +4787,48 @@
         "stateTitle": "État du réacteur",
         "elementCount": "{{ count }} élément(s)",
         "viewPriorityGaps": "Voir les écarts prioritaires",
+        "explanations": {
+          "title": "Pourquoi cet état ?",
+          "previousData": "Ces causes décrivent les dernières données disponibles ; elles seront actualisées après une récupération réussie de la matrice.",
+          "overlap": "Un même domaine peut figurer dans plusieurs causes. Les pourcentages utilisent tous les domaines de la matrice.",
+          "viewRows": "Voir les lignes concernées ({{ count }})",
+          "viewRowsLabel": "Voir les lignes concernées : {{ reason }} ({{ count }})",
+          "traceability": "Domaines, revues et références",
+          "referencesHint": "Les références sont celles enregistrées dans la matrice. La présence d’un fichier de test ne confirme pas sa réussite.",
+          "reviewedAt": "Dernière revue déclarée",
+          "unknownReview": "Date de revue inconnue",
+          "evidence": "Références de preuve",
+          "noEvidence": "Aucune référence de preuve enregistrée",
+          "activeFilter": "Cause du réacteur : {{ reason }}",
+          "clearFilter": "Retirer ce filtre",
+          "severity": {
+            "critical": "Seuil critique atteint",
+            "attention": "Attention requise",
+            "info": "Sous le seuil d’alerte"
+          },
+          "reasons": {
+            "priority-gaps": {
+              "label": "Écarts prioritaires",
+              "critical": "{{ count }} / {{ total }} domaines présentent un écart de priorité haute ({{ percent }} %). Le seuil critique de {{ threshold }} % est atteint.",
+              "attention": "{{ count }} / {{ total }} domaines présentent un écart de priorité haute ({{ percent }} %). Un seul écart prioritaire suffit à déclencher l’état Attention."
+            },
+            "unresolved": {
+              "label": "Domaines non couverts",
+              "critical": "{{ count }} / {{ total }} domaines ne sont pas classés couverts ({{ percent }} %). Le seuil critique de {{ threshold }} % est atteint.",
+              "attention": "{{ count }} / {{ total }} domaines ne sont pas classés couverts ({{ percent }} %). Le seuil d’attention de {{ threshold }} % est atteint.",
+              "info": "{{ count }} / {{ total }} domaines ne sont pas classés couverts ({{ percent }} %). Cette proportion reste sous le seuil d’attention de {{ threshold }} %."
+            },
+            "not-evaluated": {
+              "label": "Domaines non évalués",
+              "critical": "{{ count }} / {{ total }} domaines n’ont pas été évalués ({{ percent }} %). Le seuil critique de {{ threshold }} % est atteint.",
+              "attention": "{{ count }} / {{ total }} domaines n’ont pas été évalués ({{ percent }} %). Un seul domaine non évalué suffit à déclencher l’état Attention."
+            },
+            "review-required": {
+              "label": "Revues à actualiser",
+              "attention": "{{ count }} / {{ total }} domaines sont à revalider : revue de plus de 7 jours, date absente, invalide ou future, ou changement ultérieur détecté. Une seule revue à actualiser suffit à empêcher un état Stable ou Excellent."
+            }
+          }
+        },
         "categories": {
           "covered": "Couverts",
           "proofGap": "Écarts de preuve",

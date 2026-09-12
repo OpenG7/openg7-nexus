@@ -130,6 +130,10 @@ import {
   AdminQualityNeedsProposalPanelComponent,
 } from './admin-quality-needs-proposal-panel.component';
 import {
+  AdminQualityReactorReasonId,
+  buildAdminQualityReactorReasons,
+} from './admin-quality-reactor-explanations';
+import {
   countAdminQualityReactorCategories,
   resolveAdminQualityReactorState,
 } from './admin-quality-reactor-state';
@@ -164,6 +168,7 @@ interface AdminQualityConsoleSurfaceOption {
 interface AdminQualityActiveFilterChip {
   readonly id: string;
   readonly label: string;
+  readonly labelKey?: string;
 }
 interface AdminQualityBuildNowItem {
   readonly entryId: string;
@@ -816,6 +821,19 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
   readonly selectedE2EStatus = signal<FilterValue<AdminQualityMatrixStatus>>('all');
   readonly selectedBucket = signal<FilterValue<AdminQualityMatrixBucket>>('all');
   readonly priorityGapsOnly = signal(false);
+  // A diagnostic drill-down follows live data and is not persisted as a saved view.
+  readonly selectedReactorReason = signal<AdminQualityReactorReasonId | null>(null);
+  readonly reactorReasonLabelKey = computed(() => {
+    const reason = this.selectedReactorReason();
+    return reason ? `admin.quality.reactor.explanations.reasons.${reason}.label` : null;
+  });
+  readonly reactorReasonEntryIds = computed(() => {
+    const reasonId = this.selectedReactorReason();
+    if (!reasonId) return null;
+    const reason = this.reactorReasons().find((candidate) => candidate.id === reasonId);
+    // A resolved cause leaves an empty result until the user clears the filter.
+    return new Set(reason?.entries.map((entry) => entry.id) ?? []);
+  });
   readonly selectedEntryId = signal<string | null>(null);
   readonly selectedActionId = signal<string | null>(null);
   readonly selectedMissionId = signal<string | null>(null);
@@ -1398,9 +1416,13 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
 
   readonly filteredEntries = computed(() => {
     const query = this.search().trim().toLocaleLowerCase('fr-CA');
+    const reasonEntryIds = this.reactorReasonEntryIds();
 
     return [...this.entries()]
       .filter((entry) => {
+        if (reasonEntryIds && !reasonEntryIds.has(entry.id)) {
+          return false;
+        }
         if (this.selectedDomain() !== 'all' && entry.domain !== this.selectedDomain()) {
           return false;
         }
@@ -1516,12 +1538,21 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       .map((entry) => entry.id),
   );
   readonly matrixRefreshRequiredCount = computed(() => this.matrixRefreshRequiredEntryIds().length);
-  readonly reactorRefreshRequiredCount = computed(() => {
+  readonly reactorRefreshRequiredEntryIds = computed(() => {
     const now = this.aiOpsLiveNow();
-    return this.entries().filter((entry) =>
-      hasExpiredQualityReview(entry.reviewedAt, now) || this.entryNeedsMatrixRefresh(entry),
-    ).length;
+    return this.entries()
+      .filter(
+        (entry) =>
+          hasExpiredQualityReview(entry.reviewedAt, now) || this.entryNeedsMatrixRefresh(entry),
+      )
+      .map((entry) => entry.id);
   });
+  readonly reactorRefreshRequiredCount = computed(
+    () => this.reactorRefreshRequiredEntryIds().length,
+  );
+  readonly reactorReasons = computed(() =>
+    buildAdminQualityReactorReasons(this.entries(), this.reactorRefreshRequiredEntryIds()),
+  );
   readonly filteredMatrixRefreshRequiredCount = computed(
     () => this.filteredEntries().filter((entry) => this.entryNeedsMatrixRefresh(entry)).length,
   );
@@ -1715,11 +1746,16 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
       this.selectedPriority() !== 'all' ||
       this.selectedE2EStatus() !== 'all' ||
       this.selectedBucket() !== 'all' ||
-      this.priorityGapsOnly(),
+      this.priorityGapsOnly() ||
+      this.selectedReactorReason() !== null,
   );
   readonly activeFilterChips = computed<readonly AdminQualityActiveFilterChip[]>(() => {
     const chips: AdminQualityActiveFilterChip[] = [];
     const search = this.search().trim();
+    const reactorReasonLabelKey = this.reactorReasonLabelKey();
+    if (reactorReasonLabelKey) {
+      chips.push({ id: 'reactor-reason', label: '', labelKey: reactorReasonLabelKey });
+    }
 
     if (search) {
       chips.push({ id: 'search', label: `Recherche : ${search}` });
@@ -2382,16 +2418,30 @@ export class AdminQualityPage implements OnInit, AfterViewInit {
     this.selectedE2EStatus.set('all');
     this.selectedBucket.set('all');
     this.priorityGapsOnly.set(false);
+    this.selectedReactorReason.set(null);
   }
 
   showPriorityGaps(): void {
-    this.stopVoiceForContextChange();
-    this.search.set('');
-    this.selectedDomain.set('all');
+    this.resetFilters();
     this.selectedPriority.set('haute');
-    this.selectedE2EStatus.set('all');
-    this.selectedBucket.set('all');
     this.priorityGapsOnly.set(true);
+    this.focusCoverageSection();
+  }
+
+  showReactorReason(reasonId: AdminQualityReactorReasonId): void {
+    if (!this.reactorReasons().some((reason) => reason.id === reasonId)) return;
+    this.resetFilters();
+    this.selectedReactorReason.set(reasonId);
+    this.focusCoverageSection();
+  }
+
+  clearReactorReason(): void {
+    this.stopVoiceForContextChange();
+    this.selectedReactorReason.set(null);
+    this.focusCoverageSection();
+  }
+
+  private focusCoverageSection(): void {
     this.scrollMissionHudToSection('coverage');
     if (this.isBrowser) {
       afterNextRender(() => this.coverageSection?.nativeElement.focus({ preventScroll: true }), {

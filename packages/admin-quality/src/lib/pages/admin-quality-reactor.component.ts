@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
+import {
+  AdminQualityReactorReason,
+  AdminQualityReactorReasonId,
+} from './admin-quality-reactor-explanations';
+
 type ReactorInputState = 'ok' | 'stable' | 'scanning' | 'attention' | 'critical' | 'excellent';
 type ReactorVisualState = Exclude<ReactorInputState, 'ok'>;
 type OrbitDirection = 'cw' | 'ccw';
@@ -57,7 +62,9 @@ export class AdminQualityReactorComponent {
   readonly hasRefreshError = input(false);
   readonly refreshRequiredCount = input(0);
   readonly reactorState = input<ReactorInputState>('stable');
+  readonly reasons = input<readonly AdminQualityReactorReason[]>([]);
   readonly viewPriorityGaps = output<void>();
+  readonly viewReason = output<AdminQualityReactorReasonId>();
 
   readonly radialLineAngles = Array.from({ length: 8 }, (_, index) => index * 45);
   readonly waveHeights = [4, 7, 11, 6, 4, 10, 14, 9, 5, 8, 13, 8, 4, 7, 11, 6];
@@ -182,6 +189,23 @@ export class AdminQualityReactorComponent {
     }
     return this.stateTone().messageKey;
   });
+
+  readonly explainingPreviousData = computed(
+    () =>
+      this.reasons().length > 0 &&
+      (this.isLoading() || this.hasRefreshError() || this.isAnalysisRunning()),
+  );
+
+  reviewDateValue(reviewedAt: string): string | null {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(reviewedAt)) {
+      return null;
+    }
+    const timestamp = Date.parse(`${reviewedAt}T00:00:00.000Z`);
+    return Number.isFinite(timestamp) &&
+      new Date(timestamp).toISOString().slice(0, 10) === reviewedAt
+      ? reviewedAt
+      : null;
+  }
 
   // A current classification cannot establish a change over time.
   readonly trendTone = computed<MetricTone>(() => ({
