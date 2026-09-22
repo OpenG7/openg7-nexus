@@ -89,7 +89,7 @@ Cas de référence :
 **Lot 4 — Donner accès aux changements dans Angular**
 
 - Ajouter les contrats d'historique au port du package et à l'adaptateur HTTP de l'application, avec gestion explicite des erreurs.
-- Ajouter un panneau standalone, signal-first et OnPush pour les deux versions, leurs dates, la provenance utile et les groupes de changements. Prévoir les traductions FR/EN et enregistrer les nouveaux sélecteurs dans `AGENTS.md`.
+- Ajouter un panneau standalone, signal-first et OnPush pour les deux versions, leurs dates, la provenance utile et les groupes de changements. Prévoir les traductions FR/EN et enregistrer les nouveaux sélecteurs dans le [registre Nexus](../agents/selector-registry.md).
 - Relier « Voir les changements » à ce panneau. Le chargement de l'historique ne doit pas empêcher l'accès à la matrice courante.
 - Réutiliser le principe des filtres exacts : une action ouvre les identifiants concernés, retire les filtres contradictoires, affiche un bandeau réinitialisable et déplace le focus vers la matrice.
 - Afficher les domaines retirés dans la comparaison historique ; ne pas tenter de les ouvrir comme des lignes encore présentes dans la matrice.

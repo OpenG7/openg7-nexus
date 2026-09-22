@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..', '..');
-const agentsPath = resolve(repoRoot, 'AGENTS.md');
+const registryPath = resolve(repoRoot, 'docs/agents/selector-registry.md');
 const appDir = resolve(repoRoot, 'openg7-org', 'src', 'app');
 const adminQualityPackageDir = resolve(repoRoot, 'packages', 'admin-quality', 'src', 'lib');
 
@@ -50,7 +50,7 @@ function attributeExists(files, attribute, value) {
 }
 
 function validateSelectors() {
-  const markdown = readFileSync(agentsPath, 'utf8');
+  const markdown = readFileSync(registryPath, 'utf8');
   const { og7, og7Ids } = loadSelectors(markdown);
   const files = [appDir, adminQualityPackageDir].flatMap(readAllFiles);
   const missing = [];
@@ -77,7 +77,7 @@ function validateSelectors() {
     process.exit(1);
   }
 
-  console.log('OK: tous les sélecteurs d’AGENTS.md existent dans le code.');
+  console.log('OK: tous les sélecteurs du registre Nexus existent dans le code.');
 }
 
 validateSelectors();

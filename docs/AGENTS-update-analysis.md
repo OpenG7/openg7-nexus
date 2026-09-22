@@ -1,5 +1,10 @@
 # Analyse des mises à jour à apporter à `AGENTS.md`
 
+> Analyse historique antérieure au standard du 21 septembre 2026. Les références
+> actuelles sont dans [AGENTS.md](../AGENTS.md), le [registre](agents/selector-registry.md)
+> et la [matrice de validation](agents/validation.md). Les propositions ci-dessous
+> ne sont ni des tâches autorisées ni des contrôles à exécuter systématiquement.
+
 ## 1. Harmoniser le registre des sélecteurs
 
 - **Constat** : le tableau principal mélange les chemins `openg7-org/src/...` et des chemins plus génériques `src/app/...`, ce qui peut induire des erreurs lors du câblage final.

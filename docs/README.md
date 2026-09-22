@@ -7,6 +7,9 @@ Ce dossier regroupe les guides fonctionnels et techniques du projet, organisés 
 - `tooling/` — références transverses (scripts, configuration CI/CD, conventions partagées).
 - `docker-compose.md` — stack locale conteneurisee pour valider Angular SSR, Strapi et les services dependants.
 
+- `agents/` — consignes et références conditionnelles (front, backend, registre, blueprints, validation).
+- `standards/` — socle interprojets et budgets de contexte.
+
 ## Guides transverses
 
 - [`cas-d-usage-en-langage-courant.md`](./cas-d-usage-en-langage-courant.md) — point de départ simple pour décrire un besoin métier avant de le décliner en specs produit ou techniques.

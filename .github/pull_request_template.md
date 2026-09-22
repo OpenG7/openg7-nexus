@@ -16,13 +16,10 @@ Describe the change (scope, motivation, user or technical impact).
 
 ## Tests
 
-- [ ] `yarn lint`
-- [ ] `yarn format:check`
-- [ ] `yarn validate:selectors`
-- [ ] `yarn codegen && yarn test`
-- [ ] `yarn predeploy:cms-cache`
-- [ ] `yarn prebuild:web`
-- [ ] Other (specify):
+Select checks from [the validation matrix](../docs/agents/validation.md) for the
+changed surface. List commands actually run, results and justified omissions.
+Documentation only: node scripts/check-project-standards.mjs and git diff --check.
+Seed and release commands require the corresponding authorized environment.
 
 ## Review
 
