@@ -92,7 +92,9 @@ has this structure:
   One item can generate **issues in several repos** if needed.
 
 - `agents_id`  
-  Optional link to an `AG-X.Y` entry in `AGENTS.md`.
+  Optional historical `AG-X.Y` identifier. Current rules and registry references
+  are routed through [AGENTS.md](../../AGENTS.md); old identifiers remain in the
+  [archived guide](../archive/agents-before-standard-2026-09-21.md).
 
 - `labels`  
   GitHub labels applied to the created issues.
