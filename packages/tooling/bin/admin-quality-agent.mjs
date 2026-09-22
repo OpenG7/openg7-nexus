@@ -57,7 +57,7 @@ const actionCatalog = [
     title: 'Validate data-og7 selectors',
     mutates: false,
     heavy: false,
-    reason: 'Ensure AGENTS.md selectors still exist in front-end code.',
+    reason: 'Ensure the Nexus selector registry still matches front-end code.',
     commands: ['yarn validate:selectors'],
     checks: ['yarn validate:selectors'],
   },
@@ -372,7 +372,7 @@ function shouldRunCodegen(changedFiles, selectedEntryIds) {
     (file) =>
       file.startsWith('packages/contracts/') ||
       file.startsWith('strapi/src/api/') ||
-      file === 'AGENTS.md',
+      file === 'docs/agents/backend.md',
   );
 }
 

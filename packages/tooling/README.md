@@ -4,7 +4,7 @@ Workspace regroupant les utilitaires Node partagés entre les différents projet
 
 ## Scripts disponibles
 
-- `validate-selectors` — vérifie que tous les sélecteurs déclarés dans `AGENTS.md` existent bien dans le code Angular (`openg7-org/src/app`). Peut être exécuté depuis la racine via `yarn workspace @openg7/tooling validate:selectors` ou directement avec la commande binaire `yarn validate-selectors`.
+- `validate-selectors` — vérifie que tous les sélecteurs déclarés dans [registre Nexus](../../docs/agents/selector-registry.md) existent bien dans le code Angular (`openg7-org/src/app`). Peut être exécuté depuis la racine via `yarn workspace @openg7/tooling validate:selectors` ou directement avec la commande binaire `yarn validate-selectors`.
 - `generate-admin-quality-proof-manifest` — génère un `matrix-proof-manifest.json` à partir d'un `impact.json` admin-quality et des métadonnées GitHub Actions. Peut être exécuté depuis la racine via `yarn generate:quality-proof-manifest -- --impact impact.json --output matrix-proof-manifest.json`. Le statut par défaut est `unknown`. Pour déclarer `--status success`, fournir les contrôles réellement exécutés avec `--check` et le SHA testé avec `--commit-sha` (ou `GITHUB_SHA`). Ajouter seulement les specs exécutées avec `--spec`. Le lien du run est déduit des métadonnées GitHub ; `--artifact-url` doit provenir d'un artefact effectivement téléversé.
 - `admin-quality-agent` — orchestre une boucle admin-quality bornée: résolution d'impact, actions allowlistées, validations, rapport JSON/Markdown, manifest de preuve et ingestion Strapi optionnelle. Depuis la racine: `yarn admin:quality:agent` pour un dry-run, puis `yarn admin:quality:agent:apply` pour exécuter les actions sûres.
 
